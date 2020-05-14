@@ -1,28 +1,33 @@
-# Inspired by https://docs.docker.com/compose/django/
 version: '3.4'
 
 services:
-  db:
-    image: mdillon/postgis
-  redis:
-    image: redis
   web:
-    build:
-      context: ./app
-    ports:
-      - 5000:5000
-  openzaak:
-    build: .
-    image: openzaak/open-zaak
-    environment:
-      - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
-      - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
-      - IS_HTTPS=no
-      - ALLOWED_HOSTS=*
-      - CACHE_DEFAULT=redis:6379/0
-      - CACHE_AXES=redis:6379/0
-      - SUBPATH=${SUBPATH:-/localhost}
+    build: app
     ports:
       - 8000:8000
-    depends_on:
-      - db
+    environment:
+      - UWSGI_HTTP=0.0.0.0:8000
+      - UWSGI_MAX_REQUESTS=5000
+      - UWSGI_MASTER=1
+      - UWSGI_WORKERS=4
+      - UWSGI_CALLABLE=app
+      - UWSGI_MODULE=app
+      - UWSGI_BUFFER_SIZE=32768
+#  db:
+#    image: mdillon/postgis
+#  redis:
+#    image: redis
+#  openzaak:
+#    image: openzaak/open-zaak
+#    environment:
+#      - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
+#      - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
+#      - IS_HTTPS=no
+#      - ALLOWED_HOSTS=*
+#      - CACHE_DEFAULT=redis:6379/0
+#      - CACHE_AXES=redis:6379/0
+#      - SUBPATH=${SUBPATH:-/localhost}
+#    ports:
+#      - 8000:8000
+#    depends_on:
+#      - db

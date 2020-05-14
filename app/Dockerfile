@@ -1,9 +1,21 @@
-FROM python:3.7-alpine
-WORKDIR /code
-ENV FLASK_APP app.py
-ENV FLASK_RUN_HOST 0.0.0.0
-RUN apk add --no-cache gcc musl-dev linux-headers
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
-COPY . .
-CMD ["flask", "run"]
+FROM amsterdam/python
+
+MAINTAINER datapunt@amsterdam.nl
+
+ENV PYTHONUNBUFFERED 1
+
+RUN apt-get update && apt-get install -y
+RUN pip install --upgrade pip
+RUN pip install uwsgi
+
+WORKDIR /app
+
+COPY requirements.txt /app/
+COPY uwsgi.ini /app/
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+
+COPY . /app/
+
+USER datapunt
+CMD uwsgi --ini /app/uwsgi.ini
