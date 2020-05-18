@@ -13,6 +13,9 @@ services:
       - UWSGI_CALLABLE=app
       - UWSGI_MODULE=app
       - UWSGI_BUFFER_SIZE=32768
+    volumes:
+        - ./app:/app
+    command: bash -c "uwsgi --py-auto-reload=1"
 #  db:
 #    image: mdillon/postgis
 #  redis:
