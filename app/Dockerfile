@@ -17,3 +17,4 @@ COPY . /app/
 
 USER datapunt
 CMD uwsgi
+CMD uwsgi -s 0.0.0.0:8000
