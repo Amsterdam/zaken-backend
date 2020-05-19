@@ -11,10 +11,9 @@ RUN pip install uwsgi
 WORKDIR /app
 
 COPY requirements.txt /app/
-COPY uwsgi.ini /app/
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY . /app/
 
 USER datapunt
-CMD uwsgi --ini /app/uwsgi.ini
+CMD uwsgi -s /tmp/zaken.sock --manage-script-name --mount /=app:app

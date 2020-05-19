@@ -6,16 +6,17 @@ services:
     ports:
       - 8000:8000
     environment:
-      - UWSGI_HTTP_SOCKET=0.0.0.0:8000
-      - UWSGI_MAX_REQUESTS=5000
+      - UWSGI_HTTP=0.0.0.0:8000
       - UWSGI_MASTER=1
-      - UWSGI_WORKERS=4
       - UWSGI_CALLABLE=app
+      - UWSGI_VACUUM=1
+      - UWSGI_STATIC_EXPIRES=/* 3600
+      - UWSGI_OFFLOAD_THREADS=1
+      - UWSGI_HARAKIRI=15
+      - UWSGI_DIE_ON_TERM=1
       - UWSGI_MODULE=app
-      - UWSGI_BUFFER_SIZE=32768
     volumes:
         - ./app:/app
-    command: bash -c "uwsgi --py-auto-reload=1"
 #  db:
 #    image: mdillon/postgis
 #  redis:
