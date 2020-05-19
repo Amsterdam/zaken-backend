@@ -17,4 +17,4 @@ COPY . /app/
 
 USER datapunt
 CMD uwsgi
-CMD uwsgi --http-socket 0.0.0.0:8000
+CMD uwsgi --http-socket 0.0.0.0:8000 --mount /=app:app
