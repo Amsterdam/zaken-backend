@@ -1,29 +1,27 @@
 version: '3.4'
 
 services:
-  web:
-    build: app
-    ports:
-      - 8000:8000
-    environment:
-      - UWSGI_HTTP_SOCKET=0.0.0.0:8000
-      - UWSGI_MASTER=1
-      - UWSGI_CALLABLE=app
-      - UWSGI_VACUUM=1
-      - UWSGI_STATIC_EXPIRES=/* 3600
-      - UWSGI_OFFLOAD_THREADS=1
-      - UWSGI_HARAKIRI=15
-      - UWSGI_DIE_ON_TERM=1
-      - UWSGI_MODULE=app
-    volumes:
-        - ./app:/app
-    depends_on:
-      - openzaak
-    command: bash -c "uwsgi --py-auto-reload=1"
+#  web:
+#    build: app
+#    ports:
+#      - 8000:8000
+#    environment:
+#      - UWSGI_HTTP_SOCKET=0.0.0.0:8000
+#      - UWSGI_MASTER=1
+#      - UWSGI_CALLABLE=app
+#      - UWSGI_VACUUM=1
+#      - UWSGI_STATIC_EXPIRES=/* 3600
+#      - UWSGI_OFFLOAD_THREADS=1
+#      - UWSGI_HARAKIRI=15
+#      - UWSGI_DIE_ON_TERM=1
+#      - UWSGI_MODULE=app
+#    volumes:
+#        - ./app:/app
+#    depends_on:
+#      - openzaak
+#    command: bash -c "uwsgi --py-auto-reload=1"
   db:
     image: mdillon/postgis
-  redis:
-    image: redis
   openzaak:
     image: openzaak/open-zaak
     environment:
@@ -35,6 +33,6 @@ services:
       - CACHE_AXES=redis:6379/0
       - SUBPATH=${SUBPATH:-/static-sub}
     ports:
-      - 8080:8000
+      - 8000:8000
     depends_on:
       - db
