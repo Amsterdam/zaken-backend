@@ -20,6 +20,8 @@ services:
     command: bash -c "uwsgi --py-auto-reload=1"
   db:
     image: mdillon/postgis
+  redis:
+    image: redis
   openzaak:
     image: openzaak/open-zaak
     environment:
@@ -28,6 +30,8 @@ services:
       - IS_HTTPS=no
       - ALLOWED_HOSTS=*
       - SUBPATH=${SUBPATH:-/localhost}
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
     ports:
       - 8080:8000
     depends_on:
