@@ -28,7 +28,7 @@ This app can be used for experimenting with the open-zaak application, and can b
 0.0.0.0:8080
 ```
 
-##Accessing the open-zaak admin
+## Accessing the open-zaak admin
 Run the following command and follow the steps to create a super user:
 ```
 docker-compose run --rm openzaak python src/manage.py createsuperuser
