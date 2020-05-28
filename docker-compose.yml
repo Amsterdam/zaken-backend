@@ -15,9 +15,16 @@ services:
       - UWSGI_HARAKIRI=15
       - UWSGI_DIE_ON_TERM=1
       - UWSGI_MODULE=app
+      - OPEN_ZAAK_CLIENT=client
+      - OPEN_ZAAK_SECRET_KEY=secret_key
+      - OPEN_ZAAK_PORT=8000
+      - OPEN_ZAAK_API_VERSION=v1
+      - OPEN_ZAAK_CONTAINER_NAME=openzaak
     volumes:
         - ./app:/app
     command: bash -c "uwsgi --py-auto-reload=1"
+    depends_on:
+      - openzaak
   db:
     image: mdillon/postgis
   redis:
@@ -36,3 +43,4 @@ services:
       - 8080:8000
     depends_on:
       - db
+      - redis

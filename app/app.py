@@ -1,14 +1,35 @@
-
-
 import time
-import requests
-from flask import Flask, Response
+from flask import Flask
+
+from services.service_catalogs import create_catalog, get_catalogs
+from services.service_case_types import create_case_type, get_case_types
+from services.service_state_types import create_state_types, get_state_types
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return 'Hello World! {}'.format(time.time())
+    catalogs = get_catalogs()
+    case_types = get_case_types()
+    state_types = get_state_types()
+
+    return {
+        'catalogs': catalogs,
+        'case_types': case_types,
+        'state_types': state_types
+    }
+
+@app.route('/generate_data')
+def generate_data():
+    catalog = create_catalog()
+    case_type = create_case_type(catalog['url'])
+    state_types = create_state_types(case_type['url'])
+
+    return {
+        'catalog': catalog,
+        'case_type': case_type,
+        'state_types': state_types
+    }
 
 @app.route('/health')
 def health_check():
@@ -19,19 +40,3 @@ def health_check():
 
 if __name__ == '__main__':  # pragma: no cover
     app.run()
-
-# Very experimental proof of concept for a simple flask app and a connected open-zaak app
-# Disabled for now
-# CASES_PATH = 'http://openzaak:8000'
-# STATIC_PATH = 'static-sub/static'
-# @app.route('/{}/<path:path>'.format(STATIC_PATH))
-# def static_files(path):
-#     path = '{}/{}/{}'.format(CASES_PATH, STATIC_PATH, path)
-#     r = requests.get(path)
-#     return Response(response=r.text, status=r.status_code, content_type=r.headers.get('content-type', ''))
-#
-# @app.route('/<path:path>')
-# def cases_sub(path):
-#     path = '{}/{}'.format(CASES_PATH, path)
-#     return requests.get(path).text
-
