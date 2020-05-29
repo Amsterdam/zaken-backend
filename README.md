@@ -36,3 +36,26 @@ docker-compose run --rm openzaak python src/manage.py createsuperuser
 
 Once you have created an account, you should be able to access the admin:
 http://localhost:8080/admin/
+
+### Configuration Auth Credentials 
+You need to configure authorization credentials for our Flask container can talk to Open Zaak.
+In the open zaak admin add a credential by navigating to:
+
+API Autorisaties -> Applicaties -> Applicatie Toevoegen
+
+Add any label, and the following Client Credentials:
+- Client ID: 'client'
+- Secret: 'secret_key'
+Make sure to check the 'Heeft alle autorisaties' box.
+
+Note: These settings are for local development only! 
+
+Navigate to http://localhost:8000/ and you should see a response
+
+### Generating Mock Data
+For our proof of concept, you can generate some mock data.
+Navigate or do a GET request to http://localhost:8000/generate_data and the application will generate some data.
+
+You can now request this data through: http://localhost:8000/
+
+

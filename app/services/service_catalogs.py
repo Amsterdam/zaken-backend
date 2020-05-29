@@ -1,20 +1,17 @@
-from services.service import Connection, Service
-from services.settings import OPEN_ZAAK, DOMAIN, TYPES, SUB_DOMAIN_CATALOGS
+from services.service import create_service
+from services.settings import OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS, SUB_DOMAIN_CATALOGS, ORGANISATION_RSIN
+
+service = create_service(OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS)
 
 def get_catalogs():
-    connection = Connection(OPEN_ZAAK)
-    service = Service(DOMAIN, TYPES, connection)
     return service.get(SUB_DOMAIN_CATALOGS)
 
 def create_catalog():
-    connection = Connection(OPEN_ZAAK)
-    service = Service(DOMAIN, TYPES, connection)
     data = {
         "naam": "Hello",
         "domein": "WONEN",
-        "rsin": "221222558", # Just a randomly generated id for now (https://www.testnummers.nl/)
+        "rsin": ORGANISATION_RSIN,
         "contactpersoonBeheerNaam": "Beheerder Wonen",
     }
 
     return service.post(SUB_DOMAIN_CATALOGS, data)
-

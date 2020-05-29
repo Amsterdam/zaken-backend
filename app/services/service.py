@@ -21,10 +21,23 @@ class Connection:
         request_method = requests.post
         return self.__do_request__(domain, data_type, request_method, data)
 
+    def publish(self, object_uri):
+        path = '{}/publish'.format(object_uri)
+        token = self.__get_token__(self.secret_key, self.client)
+        headers = self.__get_header__(token)
+        return self.__request__(path, headers, requests.post)
+
+    def delete(self, object_uri):
+        token = self.__get_token__(self.secret_key, self.client)
+        headers = self.__get_header__(token)
+        return self.__request__(object_uri, headers, requests.delete)
+
     def __get_header__(self, token):
         headers = {
             'accept': 'application/json',
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': 'Bearer {}'.format(token),
+            'Accept-Crs': 'EPSG:4326',
+            'Content-Crs': 'EPSG:4326',
         }
         return headers
 
@@ -50,6 +63,9 @@ class Connection:
         path = self.__get_path__(domain, data_type)
         token = self.__get_token__(self.secret_key, self.client)
         headers = self.__get_header__(token)
+        return self.__request__(path, headers, request_method, data)
+
+    def __request__(self, path, headers, request_method, data=None):
         try:
             response = request_method(path, headers=headers, json=data)
             return response.json()
@@ -57,6 +73,7 @@ class Connection:
             print(e)
 
 class Service:
+
     def __init__(self, name, types, connection):
         self.name = name
         self.types = types
@@ -79,3 +96,14 @@ class Service:
             return {'message': str(e)}
 
         return self.connection.post_data(self.name, data_type, data)
+
+    def publish(self, object_uri):
+        return self.connection.publish(object_uri)
+
+    def delete(self, object_uri):
+        return self.connection.delete(object_uri)
+
+def create_service(connection_host, domain, sub_domains):
+    connection = Connection(connection_host)
+    service = Service(domain, sub_domains, connection)
+    return service

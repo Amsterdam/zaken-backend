@@ -1,14 +1,12 @@
-from services.service import Connection, Service
-from services.settings import OPEN_ZAAK, DOMAIN, TYPES, SUB_DOMAIN_CASE_TYPES
+from services.service import create_service
+from services.settings import OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS, SUB_DOMAIN_CASE_TYPES
+
+service = create_service(OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS)
 
 def get_case_types():
-    connection = Connection(OPEN_ZAAK)
-    service = Service(DOMAIN, TYPES, connection)
     return service.get(SUB_DOMAIN_CASE_TYPES)
 
 def create_case_type(catalog_uri):
-    connection = Connection(OPEN_ZAAK)
-    service = Service(DOMAIN, TYPES, connection)
     data = {
         "omschrijving": "Illegale vakantieverhuur",
         "vertrouwelijkheidaanduiding": "vertrouwelijk",
@@ -33,4 +31,13 @@ def create_case_type(catalog_uri):
         "versiedatum": "2020-05-28"
     }
 
-    return service.post(SUB_DOMAIN_CASE_TYPES, data)
+    case_type = service.post(SUB_DOMAIN_CASE_TYPES, data)
+    return case_type
+
+def publish_case_type(uri):
+    case_type = service.publish(uri)
+    return case_type
+
+def delete_case_type(uri):
+    response = service.delete(uri)
+    return response
