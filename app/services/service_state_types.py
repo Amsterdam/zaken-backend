@@ -6,14 +6,14 @@ service = create_service(OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS)
 def get_state_types():
     return service.get(SUB_DOMAIN_STATE_TYPES)
 
-def create_state_types(case_type_uri):
+def create_state_types(case_type_url):
     state_data = []
 
     for index, state in enumerate(STATES):
         data = {
             "omschrijving": state,
             "statustekst": state,
-            "zaaktype": case_type_uri,
+            "zaaktype": case_type_url,
             "volgnummer": index + 1,
         }
 

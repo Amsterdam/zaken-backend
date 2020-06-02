@@ -6,7 +6,7 @@ service = create_service(OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS)
 def get_case_types():
     return service.get(SUB_DOMAIN_CASE_TYPES)
 
-def create_case_type(catalog_uri):
+def create_case_type(catalog_url):
     data = {
         "omschrijving": "Illegale vakantieverhuur",
         "vertrouwelijkheidaanduiding": "vertrouwelijk",
@@ -24,7 +24,7 @@ def create_case_type(catalog_uri):
         "referentieproces": {
             "naam": "Nog geen naam"
         },
-        "catalogus": catalog_uri,
+        "catalogus": catalog_url,
         "besluittypen": [],
         "gerelateerdeZaaktypen": [],
         "beginGeldigheid": "2020-05-28",
@@ -34,10 +34,10 @@ def create_case_type(catalog_uri):
     case_type = service.post(SUB_DOMAIN_CASE_TYPES, data)
     return case_type
 
-def publish_case_type(uri):
-    case_type = service.publish(uri)
+def publish_case_type(url):
+    case_type = service.publish(url)
     return case_type
 
-def delete_case_type(uri):
-    response = service.delete(uri)
+def delete_case_type(url):
+    response = service.delete(url)
     return response

@@ -54,8 +54,12 @@ Navigate to http://localhost:8000/ and you should see a response
 
 ### Generating Mock Data
 For our proof of concept, you can generate some mock data.
-Navigate or do a GET request to http://localhost:8000/generate_data and the application will generate some data.
+Navigate or do a GET request to http://localhost:8000/generate-data and the application will generate some data.
 
-You can now request this data through: http://localhost:8000/
+## Accessing data
+Once the data is generated, you can request data through: http://localhost:8000/
 
+Some of the response objects contain references to other objects. This reference as a unique url, and its data can be requested using a generic endpoint:
+http://localhost:8000/object?url=OBJECT_URL
 
+Replace OBJECT_URL with the object you would like to request.

@@ -1,11 +1,13 @@
-from flask import Flask
 import random
+from flask import Flask
+from flask import request
 
-from services.service_catalogs import create_catalog, get_catalogs
+from services.service_catalogs import get_catalogs, get_or_create_catalog
 from services.service_case_types import create_case_type, get_case_types, delete_case_type, publish_case_type
 from services.service_state_types import create_state_types, get_state_types
 from services.service_cases import get_cases, create_case
 from services.service_states import add_state_to_case
+from services.service_objects import get_object
 
 app = Flask(__name__)
 
@@ -23,15 +25,18 @@ def index():
         'cases': cases
     }
 
-@app.route('/generate_data')
+@app.route('/generate-data')
 def generate_data():
-    catalog = create_catalog()
+    delete_data()
+
+    catalog = get_or_create_catalog()
     case_type = create_case_type(catalog['url'])
     state_types = create_state_types(case_type['url'])
     publish_case_type(case_type['url'])
 
     for i in range(0,10):
-        case = generate_case()
+        generate_case()
+        
     cases = get_cases()
 
     return {
@@ -42,7 +47,7 @@ def generate_data():
     }
 
 
-@app.route('/generate_case')
+@app.route('/generate-case')
 def generate_case():
     case_types = get_case_types()
     case_type = case_types['results'][0]
@@ -57,8 +62,7 @@ def generate_case():
         'state': state
     }
 
-
-@app.route('/delete_data')
+@app.route('/delete-data')
 def delete_data():
     responses = []
     case_types = get_case_types()['results']
@@ -70,6 +74,16 @@ def delete_data():
 
     return {
         'responses': responses
+    }
+
+@app.route('/object')
+def object_detail():
+    object_url = request.args.get('url', None)
+    if object_url:
+        return get_object(object_url)
+
+    return {
+        'error': 'No object url specified'
     }
 
 @app.route('/health')

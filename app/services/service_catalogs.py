@@ -15,3 +15,12 @@ def create_catalog():
     }
 
     return service.post(SUB_DOMAIN_CATALOGS, data)
+
+def get_or_create_catalog():
+    catalogs = get_catalogs()
+    if catalogs['count'] == 0:
+        catalog = create_catalog()
+    else:
+        catalog = catalogs['results'][0]
+
+    return catalog

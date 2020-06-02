@@ -21,16 +21,21 @@ class Connection:
         request_method = requests.post
         return self.__do_request__(domain, data_type, request_method, data)
 
-    def publish(self, object_uri):
-        path = '{}/publish'.format(object_uri)
+    def get(self, object_url):
+        token = self.__get_token__(self.secret_key, self.client)
+        headers = self.__get_header__(token)
+        return self.__request__(object_url, headers, requests.get)
+
+    def publish(self, object_url):
+        path = '{}/publish'.format(object_url)
         token = self.__get_token__(self.secret_key, self.client)
         headers = self.__get_header__(token)
         return self.__request__(path, headers, requests.post)
 
-    def delete(self, object_uri):
+    def delete(self, object_url):
         token = self.__get_token__(self.secret_key, self.client)
         headers = self.__get_header__(token)
-        return self.__request__(object_uri, headers, requests.delete)
+        return self.__request__(object_url, headers, requests.delete)
 
     def __get_header__(self, token):
         headers = {
@@ -97,13 +102,18 @@ class Service:
 
         return self.connection.post_data(self.name, data_type, data)
 
-    def publish(self, object_uri):
-        return self.connection.publish(object_uri)
+    def publish(self, object_url):
+        return self.connection.publish(object_url)
 
-    def delete(self, object_uri):
-        return self.connection.delete(object_uri)
+    def delete(self, object_url):
+        return self.connection.delete(object_url)
+
+def create_connection(connection_host):
+    connection = Connection(connection_host)
+    return connection
 
 def create_service(connection_host, domain, sub_domains):
-    connection = Connection(connection_host)
+    connection = create_connection(connection_host)
     service = Service(domain, sub_domains, connection)
     return service
+
