@@ -8,21 +8,24 @@ from services.service_state_types import create_state_types, get_state_types
 from services.service_cases import get_cases, create_case
 from services.service_states import add_state_to_case
 from services.service_objects import get_object
+from services.service_case_objects import add_bag_object_to_case, get_case_objects
 
 app = Flask(__name__)
 
 @app.route('/')
-def index():
+def display_data():
     catalogs = get_catalogs()
     case_types = get_case_types()
     state_types = get_state_types()
     cases = get_cases()
+    case_objects = get_case_objects()
 
     return {
         'catalogs': catalogs,
         'case_types': case_types,
         'state_types': state_types,
-        'cases': cases
+        'cases': cases,
+        'cases_objects': case_objects
     }
 
 @app.route('/generate-data')
@@ -36,26 +39,24 @@ def generate_data():
 
     for i in range(0,10):
         generate_case()
-        
-    cases = get_cases()
 
-    return {
-        'catalog': catalog,
-        'case_type': case_type,
-        'state_types': state_types,
-        'cases': cases
-    }
-
+    return display_data()
 
 @app.route('/generate-case')
 def generate_case():
+    # First create the case
     case_types = get_case_types()
     case_type = case_types['results'][0]
     case = create_case(case_type['url'])
 
+    # Add a random state
     state_types = get_state_types()['results']
     state_type = random.choice(state_types)
     state = add_state_to_case(case['url'], state_type['url'])
+
+    # Add a BAG object
+    bag_url = 'https://api.data.amsterdam.nl/bag/v1.1/nummeraanduiding/0363200012086033/'
+    add_bag_object_to_case(case['url'], bag_url)
 
     return {
         'case': case,
