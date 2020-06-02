@@ -8,7 +8,7 @@ def get_catalogs():
 
 def create_catalog():
     data = {
-        "naam": "Hello",
+        "naam": "Wonen", # Note: Name doesn't seem to processed and store at this moment
         "domein": "WONEN",
         "rsin": ORGANISATION_RSIN,
         "contactpersoonBeheerNaam": "Beheerder Wonen",

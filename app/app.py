@@ -1,10 +1,11 @@
-import time
 from flask import Flask
+import random
 
 from services.service_catalogs import create_catalog, get_catalogs
 from services.service_case_types import create_case_type, get_case_types, delete_case_type, publish_case_type
 from services.service_state_types import create_state_types, get_state_types
 from services.service_cases import get_cases, create_case
+from services.service_states import add_state_to_case
 
 app = Flask(__name__)
 
@@ -28,13 +29,16 @@ def generate_data():
     case_type = create_case_type(catalog['url'])
     state_types = create_state_types(case_type['url'])
     publish_case_type(case_type['url'])
-    case = create_case(case_type['url'])
+
+    for i in range(0,10):
+        case = generate_case()
+    cases = get_cases()
 
     return {
         'catalog': catalog,
         'case_type': case_type,
         'state_types': state_types,
-        'case': case
+        'cases': cases
     }
 
 
@@ -44,10 +48,14 @@ def generate_case():
     case_type = case_types['results'][0]
     case = create_case(case_type['url'])
 
-    return {
-        'case': case
-    }
+    state_types = get_state_types()['results']
+    state_type = random.choice(state_types)
+    state = add_state_to_case(case['url'], state_type['url'])
 
+    return {
+        'case': case,
+        'state': state
+    }
 
 
 @app.route('/delete_data')

@@ -16,4 +16,3 @@ def create_case(case_type_uri):
     }
 
     return service.post(SUB_DOMAIN_CASES, data)
-

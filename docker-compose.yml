@@ -19,17 +19,17 @@ services:
       - OPEN_ZAAK_SECRET_KEY=secret_key
       - OPEN_ZAAK_PORT=8000
       - OPEN_ZAAK_API_VERSION=v1
-      - OPEN_ZAAK_CONTAINER_NAME=openzaak
+      - OPEN_ZAAK_CONTAINER_NAME=openzaak.local
     volumes:
         - ./app:/app
     command: bash -c "uwsgi --py-auto-reload=1"
     depends_on:
-      - openzaak
+      - openzaak.local
   db:
     image: mdillon/postgis
   redis:
     image: redis
-  openzaak:
+  openzaak.local:
     image: openzaak/open-zaak
     environment:
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
