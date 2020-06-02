@@ -59,6 +59,7 @@ Navigate or do a GET request to http://localhost:8000/generate-data and the appl
 
 ## Accessing data
 Once the data is generated, you can request all data through: http://localhost:8000/
+Authorisation is not required at this point, and is handled in the Flask backend.
 
 Some of the response objects contain references to other objects. This reference is a unique url, and its data can be requested using a generic endpoint:
 http://localhost:8000/object?url=OBJECT_URL
