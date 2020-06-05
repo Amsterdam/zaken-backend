@@ -14,7 +14,9 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY . /app/
+#RUN python manage.py migrate
 
 USER datapunt
-CMD uwsgi
-CMD uwsgi --http-socket 0.0.0.0:8000 --mount /=app:app
+CMD uwsgi --http-socket 0.0.0.0:8000 --mount /=app.config.wsgi:application --py-auto-reload=1
+
+

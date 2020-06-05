@@ -1,3 +1,5 @@
-flask
+django
+djangorestframework
+psycopg2
 requests
 pyjwt

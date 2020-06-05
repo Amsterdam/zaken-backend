@@ -1,10 +1,12 @@
-from services.service import create_service
-from services.settings import OPEN_ZAAK, DOMAIN_CASES, SUB_DOMAINS_CASES, SUB_DOMAIN_CASES, ORGANISATION_RSIN
+from app.services.service import create_service
+from app.services.settings import OPEN_ZAAK, DOMAIN_CASES, SUB_DOMAINS_CASES, SUB_DOMAIN_CASES, ORGANISATION_RSIN
 
 service = create_service(OPEN_ZAAK, DOMAIN_CASES, SUB_DOMAINS_CASES)
 
+
 def get_cases():
     return service.get(SUB_DOMAIN_CASES)
+
 
 def create_case(case_type_url):
     data = {

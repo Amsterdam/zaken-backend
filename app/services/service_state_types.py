@@ -1,10 +1,12 @@
-from services.service import create_service
-from services.settings import OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS, SUB_DOMAIN_STATE_TYPES, STATES
+from app.services.service import create_service
+from app.services.settings import OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS, SUB_DOMAIN_STATE_TYPES, STATES
 
 service = create_service(OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS)
 
+
 def get_state_types():
     return service.get(SUB_DOMAIN_STATE_TYPES)
+
 
 def create_state_types(case_type_url):
     state_data = []

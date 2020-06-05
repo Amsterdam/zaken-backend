@@ -27,14 +27,13 @@ STATES = [
     'Weekend buitendienstonderzoek',
 ]
 
-ORGANISATION_RSIN = '221222558' # Just a randomly generated id for now (https://www.testnummers.nl/)
+ORGANISATION_RSIN = '221222558'  # Just a randomly generated id for now (https://www.testnummers.nl/)
 CONNECTIONS = {
-    OPEN_ZAAK:  {
-            'host': os.environ['OPEN_ZAAK_CONTAINER_NAME'],
-            'port': os.environ['OPEN_ZAAK_PORT'],
-            'api_version': os.environ['OPEN_ZAAK_API_VERSION'],
-            'client': os.environ['OPEN_ZAAK_CLIENT'],
-            'secret_key': os.environ['OPEN_ZAAK_SECRET_KEY']
-        }
+    OPEN_ZAAK: {
+        'host': os.environ['OPEN_ZAAK_CONTAINER_NAME'],
+        'port': os.environ['OPEN_ZAAK_PORT'],
+        'api_version': os.environ['OPEN_ZAAK_API_VERSION'],
+        'client': os.environ['OPEN_ZAAK_CLIENT'],
+        'secret_key': os.environ['OPEN_ZAAK_SECRET_KEY']
+    }
 }
-

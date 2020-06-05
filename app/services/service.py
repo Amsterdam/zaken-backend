@@ -1,8 +1,11 @@
-import requests
-import jwt
 import json
-from services.settings import CONNECTIONS
 from datetime import datetime
+
+import jwt
+import requests
+
+from app.services.settings import CONNECTIONS
+
 
 class Connection:
     def __init__(self, connection_name):
@@ -48,7 +51,7 @@ class Connection:
 
     def __get_token__(self, key, client):
         token = jwt.encode(
-            headers={ 'client_identifier': client},
+            headers={'client_identifier': client},
             payload={
                 'iss': client,
                 'iat': datetime.utcnow(),
@@ -77,6 +80,7 @@ class Connection:
         except Exception as e:
             print(e)
 
+
 class Service:
 
     def __init__(self, name, types, connection):
@@ -86,7 +90,7 @@ class Service:
 
     def get(self, data_type):
         try:
-            assert  data_type in self.types, 'Data type is not compatible with this domain'
+            assert data_type in self.types, 'Data type is not compatible with this domain'
         except Exception as e:
             return {'message': str(e)}
 
@@ -108,12 +112,13 @@ class Service:
     def delete(self, object_url):
         return self.connection.delete(object_url)
 
+
 def create_connection(connection_host):
     connection = Connection(connection_host)
     return connection
+
 
 def create_service(connection_host, domain, sub_domains):
     connection = create_connection(connection_host)
     service = Service(domain, sub_domains, connection)
     return service
-

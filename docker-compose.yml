@@ -1,30 +1,30 @@
 version: '3.4'
 
 services:
-  web:
-    build: app
+  app:
+      build: app
+      volumes:
+          - .:/app
+      ports:
+          - 8000:8000
+      depends_on:
+          - database
+          - openzaak.local
+      environment:
+          - OPEN_ZAAK_CLIENT=client
+          - OPEN_ZAAK_SECRET_KEY=secret_key
+          - OPEN_ZAAK_PORT=8000
+          - OPEN_ZAAK_API_VERSION=v1
+          - OPEN_ZAAK_CONTAINER_NAME=openzaak.local
+  database:
+    image: amsterdam/postgres11
+    shm_size: '512m'
     ports:
-      - 8000:8000
+      - "5409:5432"
     environment:
-      - UWSGI_HTTP_SOCKET=0.0.0.0:8000
-      - UWSGI_MASTER=1
-      - UWSGI_CALLABLE=app
-      - UWSGI_VACUUM=1
-      - UWSGI_STATIC_EXPIRES=/* 3600
-      - UWSGI_OFFLOAD_THREADS=1
-      - UWSGI_HARAKIRI=15
-      - UWSGI_DIE_ON_TERM=1
-      - UWSGI_MODULE=app
-      - OPEN_ZAAK_CLIENT=client
-      - OPEN_ZAAK_SECRET_KEY=secret_key
-      - OPEN_ZAAK_PORT=8000
-      - OPEN_ZAAK_API_VERSION=v1
-      - OPEN_ZAAK_CONTAINER_NAME=openzaak.local
-    volumes:
-        - ./app:/app
-    command: bash -c "uwsgi --py-auto-reload=1"
-    depends_on:
-      - openzaak.local
+      POSTGRES_DB: zaken
+      POSTGRES_USER: zaken
+      POSTGRES_PASSWORD: insecure
   db:
     image: mdillon/postgis
   redis:
