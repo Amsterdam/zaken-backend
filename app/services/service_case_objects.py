@@ -1,5 +1,5 @@
-from app.services.service import create_service
-from app.services.settings import OPEN_ZAAK, DOMAIN_CASES, SUB_DOMAIN_CASE_OBJECTS
+from services.service import create_service
+from services.settings import OPEN_ZAAK, DOMAIN_CASES, SUB_DOMAIN_CASE_OBJECTS
 
 service = create_service(OPEN_ZAAK, DOMAIN_CASES, SUB_DOMAIN_CASE_OBJECTS)
 

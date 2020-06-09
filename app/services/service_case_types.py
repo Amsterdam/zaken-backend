@@ -1,12 +1,10 @@
-from app.services.service import create_service
-from app.services.settings import OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS, SUB_DOMAIN_CASE_TYPES
+from services.service import create_service
+from services.settings import OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS, SUB_DOMAIN_CASE_TYPES
 
 service = create_service(OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS)
 
-
 def get_case_types():
     return service.get(SUB_DOMAIN_CASE_TYPES)
-
 
 def create_case_type(catalog_url):
     data = {
@@ -41,7 +39,10 @@ def publish_case_type(url):
     case_type = service.publish(url)
     return case_type
 
-
 def delete_case_type(url):
     response = service.delete(url)
+    return response
+
+def get_case_type(url):
+    response = service.get(url)
     return response

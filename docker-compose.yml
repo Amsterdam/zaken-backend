@@ -2,20 +2,21 @@ version: '3.4'
 
 services:
   app:
-      build: app
-      volumes:
-          - .:/app
-      ports:
-          - 8000:8000
-      depends_on:
-          - database
-          - openzaak.local
-      environment:
-          - OPEN_ZAAK_CLIENT=client
-          - OPEN_ZAAK_SECRET_KEY=secret_key
-          - OPEN_ZAAK_PORT=8000
-          - OPEN_ZAAK_API_VERSION=v1
-          - OPEN_ZAAK_CONTAINER_NAME=openzaak.local
+    build: app
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
+      - openzaak.local
+    environment:
+      - OPEN_ZAAK_CLIENT=client
+      - OPEN_ZAAK_SECRET_KEY=secret_key
+      - OPEN_ZAAK_PORT=8000
+      - OPEN_ZAAK_API_VERSION=v1
+      - OPEN_ZAAK_CONTAINER_NAME=openzaak.local
+      - UWSGI_STATIC_MAP=/static=/static
   database:
     image: amsterdam/postgres11
     shm_size: '512m'

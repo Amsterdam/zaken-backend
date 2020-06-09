@@ -4,7 +4,7 @@ from datetime import datetime
 import jwt
 import requests
 
-from app.services.settings import CONNECTIONS
+from services.settings import CONNECTIONS
 
 
 class Connection:
@@ -16,9 +16,9 @@ class Connection:
         self.secret_key = connection_settings['secret_key']
         self.client = connection_settings['client']
 
-    def get_data(self, domain, data_type):
+    def get_data(self, domain, data_type, pk=None):
         request_method = requests.get
-        return self.__do_request__(domain, data_type, request_method)
+        return self.__do_request__(domain, data_type, request_method, pk)
 
     def post_data(self, domain, data_type, data):
         request_method = requests.post
@@ -63,12 +63,14 @@ class Connection:
 
         return str(token, 'utf-8')
 
-    def __get_path__(self, sub_path, data_type):
+    def __get_path__(self, sub_path, data_type, pk=None):
         path = 'http://{}:{}/{}/api/{}/{}'.format(self.host, self.port, sub_path, self.api_version, data_type)
+        if pk:
+            path = '{}/{}'.format(path, pk)
         return path
 
-    def __do_request__(self, domain, data_type, request_method, data=None):
-        path = self.__get_path__(domain, data_type)
+    def __do_request__(self, domain, data_type, request_method, pk=None, data=None):
+        path = self.__get_path__(domain, data_type, pk)
         token = self.__get_token__(self.secret_key, self.client)
         headers = self.__get_header__(token)
         return self.__request__(path, headers, request_method, data)
@@ -78,7 +80,7 @@ class Connection:
             response = request_method(path, headers=headers, json=data)
             return response.json()
         except Exception as e:
-            print(e)
+            return e
 
 
 class Service:
@@ -95,6 +97,14 @@ class Service:
             return {'message': str(e)}
 
         return self.connection.get_data(self.name, data_type)
+
+    def get_detail(self, data_type, pk):
+        try:
+            assert data_type in self.types, 'Data type is not compatible with this domain'
+        except Exception as e:
+            return {'message': str(e)}
+
+        return self.connection.get_data(self.name, data_type, pk)
 
     def post(self, data_type, data):
         try:

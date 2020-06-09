@@ -1,5 +1,5 @@
-from app.services.service import create_connection
-from app.services.settings import OPEN_ZAAK
+from services.service import create_connection
+from services.settings import OPEN_ZAAK
 
 connection = create_connection(OPEN_ZAAK)
 
