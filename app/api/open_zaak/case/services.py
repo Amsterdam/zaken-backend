@@ -1,5 +1,5 @@
 from services.service import Service
-from services.settings import OPEN_ZAAK, DOMAIN_CASES, SUB_DOMAINS_CASES, SUB_DOMAIN_CASES
+from api.open_zaak.settings import OPEN_ZAAK, DOMAIN_CASES, SUB_DOMAINS_CASES, SUB_DOMAIN_CASES
 
 class CaseService(Service):
     NAME = OPEN_ZAAK

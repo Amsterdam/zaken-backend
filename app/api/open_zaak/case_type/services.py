@@ -1,7 +1,7 @@
 from services.service import Service
-from services.settings import OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS, SUB_DOMAIN_CASE_TYPES
+from api.open_zaak.settings import OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS, SUB_DOMAIN_CASE_TYPES
 
-class CaseTypesService(Service):
+class CaseTypeService(Service):
     NAME = OPEN_ZAAK
     DOMAIN = DOMAIN_CATALOGS
     TYPES = SUB_DOMAINS_CATALOGS

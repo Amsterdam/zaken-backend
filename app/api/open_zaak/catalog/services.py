@@ -1,7 +1,7 @@
 from services.service import Service
-from services.settings import OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS, SUB_DOMAIN_CATALOGS
+from api.open_zaak.settings import OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS, SUB_DOMAIN_CATALOGS
 
-class CatalogsService(Service):
+class CatalogService(Service):
     NAME = OPEN_ZAAK
     DOMAIN = DOMAIN_CATALOGS
     TYPES = SUB_DOMAINS_CATALOGS
@@ -10,9 +10,6 @@ class CatalogsService(Service):
     def get(self, uuid=None):
         connection = self.__get_connection__()
         response = connection.get(uuid)
-        print('XXXXXXXXXXXXX')
-        print(response)
-        print('XXXXXXXXXXXXX')
         return response
 
 

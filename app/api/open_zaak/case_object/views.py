@@ -1,16 +1,18 @@
-from services.service import Service
-from services.settings import OPEN_ZAAK, DOMAIN_CASES, SUB_DOMAIN_CASE_OBJECTS, SUB_DOMAINS_CASES
+from rest_framework import viewsets
+from api.open_zaak.case_object.serializers import CaseObjectSerializer
+from api.open_zaak.case_object.wrappers import CaseObject
+from api.views import retrieve_helper, list_helper
 
-class CaseObjectsService(Service):
-    NAME = OPEN_ZAAK
-    DOMAIN = DOMAIN_CASES
-    TYPES = SUB_DOMAINS_CASES
-    DATA_TYPE = SUB_DOMAIN_CASE_OBJECTS
+class CaseObjectViewSet(viewsets.ViewSet):
+    serializer_class = CaseObjectSerializer
+    data_wrapper = CaseObject
+    lookup_field = 'uuid'
 
-    def get(self, uuid=None):
-        connection = self.__get_connection__()
-        response = connection.get(uuid)
-        return response
+    def retrieve(self, request, uuid):
+        return retrieve_helper(self, uuid)
+
+    def list(self, request):
+        return list_helper(self)
 
 
 # from services.service import create_service

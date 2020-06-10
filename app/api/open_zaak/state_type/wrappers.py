@@ -1,9 +1,9 @@
-from wrappers.wrapper import Wrapper
-from services.service_state_types import StateTypesService
+from services.wrapper import Wrapper
+from api.open_zaak.state_type.services import StateTypeService
 
 class StateType(Wrapper):
     fields = ('uuid', 'url', 'statustekst')
-    service = StateTypesService
+    service = StateTypeService
 
     def __init__(self, data):
         super().__init__(data)

@@ -2,8 +2,8 @@ from datetime import datetime
 import jwt
 import requests
 
-from services.settings import CONNECTIONS
-
+# TODO: Not sure if the CONNECTIONS should be on the open-zaak level. Refactor later so it's in the API module (one higher)
+from api.open_zaak.settings import CONNECTIONS
 
 class Connection:
     def __init__(self, connection_name, domain, data_type):

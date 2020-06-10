@@ -1,9 +1,9 @@
-from wrappers.wrapper import Wrapper
-from services.service_case_objects import CaseObjectsService
+from services.wrapper import Wrapper
+from api.open_zaak.case_object.services import CaseObjectService
 
 class CaseObject(Wrapper):
     fields = ('uuid', 'url', 'zaak', 'zaakUuid', 'object', 'objectType')
-    service = CaseObjectsService
+    service = CaseObjectService
 
     def __init__(self, data):
         super().__init__(data)

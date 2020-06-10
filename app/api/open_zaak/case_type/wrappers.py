@@ -1,9 +1,9 @@
-from wrappers.wrapper import Wrapper
-from services.service_case_types import CaseTypesService
+from services.wrapper import Wrapper
+from api.open_zaak.case_type.services import CaseTypeService
 
 class CaseType(Wrapper):
     fields = ('url', 'uuid', 'omschrijving', 'doel', 'aanleiding', 'onderwerp')
-    service = CaseTypesService
+    service = CaseTypeService
 
     def __init__(self, data):
         super().__init__(data)
