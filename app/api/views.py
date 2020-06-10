@@ -4,7 +4,6 @@ from rest_framework.response import Response
 
 from api.serializers import StateTypeSerializer
 from wrappers.state_type import StateType
-from services.service_state_types import get_state_types
 
 class StateTypeViewSet(viewsets.ViewSet):
     queryset = None

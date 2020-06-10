@@ -1,11 +1,12 @@
-from services import service_state_types as service
+from services.service_state_types import StateTypesService as Service
 
 class StateType(object):
     fields = ('pk', 'url', 'statustekst')
 
     @staticmethod
     def retrieve_all():
-        state_types_response = service.get_state_types().get('results', [])
+        service = Service()
+        state_types_response = service.get().get('results', [])
         state_types = []
 
         for state_type_response in state_types_response:
@@ -16,7 +17,8 @@ class StateType(object):
 
     @staticmethod
     def retrieve(pk):
-        data = service.get_state_type(pk)
+        service = Service()
+        data = service.get(pk)
         return StateType(data)
 
     def __init__(self, data):

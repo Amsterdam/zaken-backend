@@ -6,19 +6,19 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 
 from api import views
-from api import mocking_views
+# from api import mocking_views
 
 router = DefaultRouter()
 router.register(r'state-types', views.StateTypeViewSet, basename='state-type')
 
 urlpatterns = [
     url(r'^', include(router.urls)),
-    url('all-data', mocking_views.display_data),
-    url('generate-data', mocking_views.generate_data),
-    url('generate-case', mocking_views.generate_case),
-    url('delete-data', mocking_views.delete_data),
-    url('object', mocking_views.object_detail),
-    url('health-check', mocking_views.health_check),
+    # url('all-data', mocking_views.display_data),
+    # url('generate-data', mocking_views.generate_data),
+    # url('generate-case', mocking_views.generate_case),
+    # url('delete-data', mocking_views.delete_data),
+    # url('object', mocking_views.object_detail),
+    # url('health-check', mocking_views.health_check),
 
     # Swagger/OpenAPI documentation
     path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
