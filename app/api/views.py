@@ -1,7 +1,7 @@
 from django.http import HttpResponseBadRequest
 from rest_framework.response import Response
+from rest_framework.exceptions import APIException
 
-# Todo: cleanup helpers later
 def retrieve_helper(self, uuid):
     try:
         object = self.data_wrapper.retrieve(uuid)
@@ -18,6 +18,18 @@ def list_helper(self):
     serializer = self.serializer_class(objects, many=True)
     return Response(serializer.data)
 
-def list_debug(self):
-    objects = self.data_wrapper.retrieve_all()
-    return Response({'objects': objects})
+def create_helper(self, data):
+    serializer = self.serializer_class(data=data)
+
+    if not serializer.is_valid():
+        raise APIException('Serializer error: {}'.format(serializer.errors))
+
+    object = self.data_wrapper(data)
+    object.create()
+    serializer = self.serializer_class(object)
+    return Response(serializer.data)
+
+
+def destroy_helper(self, uuid):
+    response = self.data_wrapper.destroy(uuid)
+    return Response(response)

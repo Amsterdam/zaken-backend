@@ -23,9 +23,21 @@ class Wrapper(object):
         data = service.get(uuid)
         return cls(data)
 
+    @classmethod
+    def destroy(cls, uuid):
+        service = cls.service()
+        data = service.delete(uuid)
+        return data
+
     def __init__(self, data):
         if not self.fields:
             raise ValueError('No fields set')
 
+        self.__set_data__(data)
+
+    def __set_data__(self, data):
         for field in self.fields:
             setattr(self, field, data.get(field, None))
+
+    def create(self):
+        raise NotImplementedError('Create method not implemented')

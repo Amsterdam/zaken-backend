@@ -32,3 +32,8 @@ class CaseService(Service):
         })
 
         return response
+
+    def delete(self, uuid):
+        connection = self.__get_connection__()
+        response = connection.delete(uuid)
+        return response

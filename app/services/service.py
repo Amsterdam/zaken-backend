@@ -42,20 +42,20 @@ class Service:
     def __get_connection__(self):
         return Connection(self.name, self.domain, self.data_type)
 
-    def get(self, data_type, uuid=None):
+    def get(self, uuid=None):
         raise NotImplementedError('Get method not implemented')
 
-    def post(self, data_type, data={}):
+    def post(self, **kwargs):
         raise NotImplementedError('Post method not implemented')
 
-    def put(self, data_type, uuid=None):
+    def put(self, uuid=None):
         raise NotImplementedError('Put method not implemented')
 
-    def patch(self, data_type, uuid=None):
+    def patch(self, uuid=None):
         raise NotImplementedError('Patch method not implemented')
 
-    def delete(self, data_type, uuid=None):
+    def delete(self, uuid=None):
         raise NotImplementedError('Delete method not implemented')
 
-    def publish(self, data_type, uuid=None):
+    def publish(self, uuid=None):
         raise NotImplementedError('Publish method not implemented')

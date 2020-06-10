@@ -1,10 +1,8 @@
 from rest_framework import viewsets
-from rest_framework.exceptions import APIException
-from rest_framework.response import Response
 
 from api.open_zaak.case.serializers import CaseSerializer
 from api.open_zaak.case.wrappers import Case
-from api.views import retrieve_helper, list_helper
+from api.views import retrieve_helper, list_helper, create_helper, destroy_helper
 
 
 class CaseViewSet(viewsets.ViewSet):
@@ -19,22 +17,7 @@ class CaseViewSet(viewsets.ViewSet):
         return list_helper(self)
 
     def create(self, request):
-        data = request.data
-        serializer = self.serializer_class(data=request.data)
+        return create_helper(self, request.data)
 
-        if not serializer.is_valid():
-            raise APIException('Serializer error: {}'.format(serializer.errors))
-
-        try:
-            # TODO: Process this in the wrapper
-            from api.open_zaak.case.services import CaseService
-            service = CaseService()
-
-            response = service.post(data.get('zaaktype'),data.get('startdatum'), data.get('omschrijving'))
-
-            object = self.data_wrapper(response)
-            serializer = self.serializer_class(object)
-            return Response(serializer.data)
-
-        except Exception as e:
-            raise APIException('Could not create case: {}'.format(e))
+    def destroy(self, request, uuid):
+        return destroy_helper(self, uuid)

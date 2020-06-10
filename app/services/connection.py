@@ -1,6 +1,7 @@
 from datetime import datetime
 import jwt
 import requests
+from rest_framework.exceptions import APIException
 
 from services.settings import CONNECTIONS
 
@@ -19,32 +20,38 @@ class Connection:
     def get(self, uuid=None):
         request_method = requests.get
         path = self.__get_path__(uuid)
-        return self.__request__(path, request_method)
+        response = self.__request__(path, request_method)
+        return response.json()
 
     def post(self, uuid=None, data={}):
         request_method = requests.post
         path = self.__get_path__(uuid)
-        return self.__request__(path, request_method, data)
+        response = self.__request__(path, request_method, data)
+        return response.json()
 
     def put(self, uuid=None, data={}):
         request_method = requests.put
         path = self.__get_path__(uuid)
-        return self.__request__(path, request_method, data)
+        response = self.__request__(path, request_method, data)
+        return response.json()
 
     def patch(self, uuid=None, data={}):
         request_method = requests.patch
         path = self.__get_path__(uuid)
-        return self.__request__(path, request_method, data)
+        response = self.__request__(path, request_method, data)
+        return response.json()
 
     def delete(self, uuid=None):
         request_method = requests.delete
         path = self.__get_path__(uuid)
-        return self.__request__(path, request_method)
+        response = self.__request__(path, request_method)
+        return response
 
     def publish(self, uuid=None):
         request_method = requests.publish
         path = self.__get_path__(uuid, publish=True)
-        return self.__request__(path, request_method)
+        response = self.__request__(path, request_method)
+        return response.json()
 
     def __get_header__(self, token):
         headers = {
@@ -82,9 +89,11 @@ class Connection:
     def __request__(self, path, request_method, data=None):
         token = self.__get_token__(self.secret_key, self.client)
         headers = self.__get_header__(token)
+        response = request_method(path, headers=headers, json=data)
 
         try:
-            response = request_method(path, headers=headers, json=data)
-            return response.json()
+            response.raise_for_status()
         except Exception as e:
-            return e
+            raise APIException(str(e))
+
+        return response
