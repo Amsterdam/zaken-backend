@@ -7,7 +7,7 @@ class StateTypesService(Service):
     TYPES = SUB_DOMAINS_CATALOGS
     DATA_TYPE = SUB_DOMAIN_STATE_TYPES
 
-    def get(self, pk=None):
+    def get(self, uuid=None):
         connection = self.__get_connection__()
-        response = connection.get(pk)
+        response = connection.get(uuid)
         return response

@@ -17,34 +17,34 @@ class Connection:
         self.domain = domain
         self.data_type = data_type
 
-    def get(self, pk=None):
+    def get(self, uuid=None):
         request_method = requests.get
-        path = self.__get_path__(pk)
+        path = self.__get_path__(uuid)
         return self.__request__(path, request_method)
 
-    def post(self, pk=None):
+    def post(self, uuid=None):
         request_method = requests.post
-        path = self.__get_path__(pk)
+        path = self.__get_path__(uuid)
         return self.__request__(path, request_method)
 
-    def put(self, pk=None):
+    def put(self, uuid=None):
         request_method = requests.put
-        path = self.__get_path__(pk)
+        path = self.__get_path__(uuid)
         return self.__request__(path, request_method)
 
-    def patch(self, pk=None):
+    def patch(self, uuid=None):
         request_method = requests.patch
-        path = self.__get_path__(pk)
+        path = self.__get_path__(uuid)
         return self.__request__(path, request_method)
 
-    def delete(self, pk=None):
+    def delete(self, uuid=None):
         request_method = requests.delete
-        path = self.__get_path__(pk)
+        path = self.__get_path__(uuid)
         return self.__request__(path, request_method)
 
-    def publish(self, pk=None):
+    def publish(self, uuid=None):
         request_method = requests.publish
-        path = self.__get_path__(pk, publish=True)
+        path = self.__get_path__(uuid, publish=True)
         return self.__request__(path, request_method)
 
     def __get_header__(self, token):
@@ -70,10 +70,10 @@ class Connection:
 
         return str(token, 'utf-8')
 
-    def __get_path__(self, pk=None, publish=False):
+    def __get_path__(self, uuid=None, publish=False):
         path = 'http://{}:{}/{}/api/{}/{}'.format(self.host, self.port, self.domain, self.api_version, self.data_type)
-        if pk:
-            path = '{}/{}'.format(path, pk)
+        if uuid:
+            path = '{}/{}'.format(path, uuid)
 
         if publish:
             path = '{}/publish'.format(path)
@@ -86,9 +86,6 @@ class Connection:
 
         try:
             response = request_method(path, headers=headers, json=data)
-            print(response)
-            print('XXXXXX')
-            print(response.json())
             return response.json()
         except Exception as e:
             return e

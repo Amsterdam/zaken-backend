@@ -1,7 +1,7 @@
 import os
 
 OPEN_ZAAK = 'openzaak'
-
+# TODO: Naming of domain, sub_domains is confusing. Rewrite.
 DOMAIN_CATALOGS = 'catalogi'
 SUB_DOMAIN_CATALOGS = 'catalogussen'
 SUB_DOMAIN_CASE_TYPES = 'zaaktypen'
@@ -12,7 +12,7 @@ DOMAIN_CASES = 'zaken'
 SUB_DOMAIN_CASES = 'zaken'
 SUB_DOMAIN_STATES = 'statussen'
 SUB_DOMAIN_CASE_OBJECTS = 'zaakobjecten'
-SUB_DOMAINS_CASES = [SUB_DOMAIN_CASES, SUB_DOMAIN_CASES, SUB_DOMAIN_CASE_OBJECTS]
+SUB_DOMAINS_CASES = [SUB_DOMAIN_CASES, SUB_DOMAIN_CASES, SUB_DOMAIN_CASE_OBJECTS, SUB_DOMAIN_STATES]
 
 STATES = [
     'Issuemelding',

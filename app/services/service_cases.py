@@ -1,3 +1,18 @@
+from services.service import Service
+from services.settings import OPEN_ZAAK, DOMAIN_CASES, SUB_DOMAINS_CASES, SUB_DOMAIN_CASES
+
+class CaseService(Service):
+    NAME = OPEN_ZAAK
+    DOMAIN = DOMAIN_CASES
+    TYPES = SUB_DOMAINS_CASES
+    DATA_TYPE = SUB_DOMAIN_CASES
+
+    def get(self, uuid=None):
+        connection = self.__get_connection__()
+        response = connection.get(uuid)
+        return response
+
+
 # from services.service import create_service
 # from services.settings import OPEN_ZAAK, DOMAIN_CASES, SUB_DOMAINS_CASES, SUB_DOMAIN_CASES, ORGANISATION_RSIN
 #

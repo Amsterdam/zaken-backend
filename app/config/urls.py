@@ -10,6 +10,11 @@ from api import views
 
 router = DefaultRouter()
 router.register(r'state-types', views.StateTypeViewSet, basename='state-type')
+router.register(r'case-objects', views.CaseObjectViewSet, basename='case-objects')
+router.register(r'case-types', views.CaseTypeViewSet, basename='case-types')
+router.register(r'cases', views.CaseViewSet, basename='cases')
+router.register(r'catalogs', views.CatalogViewSet, basename='catalogs')
+router.register(r'states', views.StateViewSet, basename='states')
 
 urlpatterns = [
     url(r'^', include(router.urls)),
