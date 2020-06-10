@@ -21,20 +21,20 @@ class Connection:
         path = self.__get_path__(uuid)
         return self.__request__(path, request_method)
 
-    def post(self, uuid=None):
+    def post(self, uuid=None, data={}):
         request_method = requests.post
         path = self.__get_path__(uuid)
-        return self.__request__(path, request_method)
+        return self.__request__(path, request_method, data)
 
-    def put(self, uuid=None):
+    def put(self, uuid=None, data={}):
         request_method = requests.put
         path = self.__get_path__(uuid)
-        return self.__request__(path, request_method)
+        return self.__request__(path, request_method, data)
 
-    def patch(self, uuid=None):
+    def patch(self, uuid=None, data={}):
         request_method = requests.patch
         path = self.__get_path__(uuid)
-        return self.__request__(path, request_method)
+        return self.__request__(path, request_method, data)
 
     def delete(self, uuid=None):
         request_method = requests.delete

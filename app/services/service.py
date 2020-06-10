@@ -45,7 +45,7 @@ class Service:
     def get(self, data_type, uuid=None):
         raise NotImplementedError('Get method not implemented')
 
-    def post(self, data_type, uuid=None):
+    def post(self, data_type, data={}):
         raise NotImplementedError('Post method not implemented')
 
     def put(self, data_type, uuid=None):
