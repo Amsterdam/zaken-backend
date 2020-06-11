@@ -26,6 +26,7 @@ def create_helper(self, data):
 
     object = self.data_wrapper.create(data)
     serializer = self.serializer_class(object)
+    
     return Response(serializer.data)
 
 def destroy_helper(self, uuid):

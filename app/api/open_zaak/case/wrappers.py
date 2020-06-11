@@ -12,15 +12,9 @@ class Case(Wrapper):
         'status'
         'bronorganisatie',
         'verantwoordelijkeOrganisatie',
-        'zaaktype'
+        'zaaktype',
+        'debug'
     )
 
-    post_fields = (
-      'zaaktype',
-      'startdatum',
-      'einddatum',
-      'omschrijving'
-    )
-        
     service = CaseService
 

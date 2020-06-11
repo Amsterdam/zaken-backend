@@ -11,3 +11,4 @@ class CaseSerializer(serializers.Serializer):
     bronorganisatie = serializers.CharField(read_only=True)
     verantwoordelijkeOrganisatie = serializers.CharField(read_only=True)
     zaaktype = serializers.URLField(required=True)
+    debug = serializers.JSONField(read_only=True)

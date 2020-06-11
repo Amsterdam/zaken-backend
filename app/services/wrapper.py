@@ -1,6 +1,5 @@
 class Wrapper(object):
     fields = ()
-    post_fields = ()
     service = None
 
     @classmethod
@@ -38,12 +37,9 @@ class Wrapper(object):
 
     @classmethod
     def create(cls, data):
-        instance = cls(data)        
         service = cls.service()
-        post_data = instance.__get_post_data__()
-
-        response = service.post(post_data)
-        instance.__set_data__(response)
+        response = service.post(data)
+        instance = cls(response)
         return instance
 
     def __init__(self, data):
@@ -56,16 +52,5 @@ class Wrapper(object):
         for field in self.fields:
             setattr(self, field, data.get(field, None))
 
-    def __get_post_data__(self):
-        if not self.post_fields:
-            raise ValueError('No post fields set')
-
-        post_fields = {} 
-        
-        for field in self.post_fields:
-          if field not in self.fields:
-              raise ValueError('Post field {} does not exist in wrapper object fields'.format(field))
-          else:
-              post_fields[field] = getattr(self, field)
-
-        return post_fields 
+        if 'debug' in self.fields:
+            setattr(self, 'debug', data)
