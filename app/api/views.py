@@ -24,12 +24,15 @@ def create_helper(self, data):
     if not serializer.is_valid():
         raise APIException('Serializer error: {}'.format(serializer.errors))
 
-    object = self.data_wrapper(data)
-    object.create()
+    object = self.data_wrapper.create(data)
     serializer = self.serializer_class(object)
     return Response(serializer.data)
-
 
 def destroy_helper(self, uuid):
     response = self.data_wrapper.destroy(uuid)
     return Response(response)
+
+def update_helper(self, uuid, data):
+    response = self.data_wrapper.update(uuid, data)
+    serializer = self.serializer_class(response)
+    return Response(serializer.data)

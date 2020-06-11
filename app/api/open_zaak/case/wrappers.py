@@ -14,12 +14,13 @@ class Case(Wrapper):
         'verantwoordelijkeOrganisatie',
         'zaaktype'
     )
+
+    post_fields = (
+      'zaaktype',
+      'startdatum',
+      'einddatum',
+      'omschrijving'
+    )
+        
     service = CaseService
 
-    def __init__(self, data):
-        super().__init__(data)
-
-    def create(self):
-        service = self.service()
-        response = service.post(self.zaaktype, self.startdatum, self.omschrijving)
-        self.__set_data__(response)
