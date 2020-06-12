@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from api.open_zaak.state.serializer import StateSerializer
 from api.open_zaak.state.wrappers import State
-from api.views import retrieve_helper, list_helper
+from api.views import retrieve_helper, list_helper, create_helper
 
 class StateViewSet(viewsets.ViewSet):
     serializer_class = StateSerializer
@@ -13,3 +13,6 @@ class StateViewSet(viewsets.ViewSet):
 
     def list(self, request):
         return list_helper(self)
+
+    def create(self, request):
+        return create_helper(self, request.data)
