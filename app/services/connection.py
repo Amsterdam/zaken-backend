@@ -1,9 +1,11 @@
 from datetime import datetime
+
 import jwt
 import requests
 from rest_framework.exceptions import APIException
 
 from services.settings import CONNECTIONS
+
 
 class Connection:
     def __init__(self, connection_name, domain, data_type):
@@ -48,7 +50,7 @@ class Connection:
         return response
 
     def publish(self, uuid=None):
-        request_method = requests.publish
+        request_method = requests.post
         path = self.__get_path__(uuid, publish=True)
         response = self.__request__(path, request_method)
         return response.json()

@@ -26,3 +26,6 @@ STATES = [
 ]
 
 ORGANISATION_RSIN = '221222558'  # Just a randomly generated id for now (https://www.testnummers.nl/)
+ORGANISATION_NAME = 'Wonen'
+ORGANISATION_DOMAIN = 'WONEN'
+ORGANISATION_CONTACT = 'Beheerder Wonen'

@@ -1,5 +1,6 @@
-from services.wrapper import Wrapper
 from api.open_zaak.state_type.services import StateTypeService
+from services.wrapper import Wrapper
+
 
 class StateType(Wrapper):
     fields = ('uuid', 'url', 'statustekst', 'zaaktype', 'omschrijving', 'volgnummer')

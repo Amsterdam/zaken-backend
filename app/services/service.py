@@ -1,5 +1,6 @@
 from services.connection import Connection
 
+
 class Service:
     NAME = ''
     DOMAIN = ''
@@ -59,3 +60,6 @@ class Service:
 
     def publish(self, uuid=None):
         raise NotImplementedError('Publish method not implemented')
+
+    def mock(self):
+        raise NotImplementedError('Mock method not implemented')

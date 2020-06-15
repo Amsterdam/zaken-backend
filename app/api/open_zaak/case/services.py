@@ -1,5 +1,8 @@
-from services.service import Service
+from datetime import date
+
 from api.open_zaak.settings import OPEN_ZAAK, DOMAIN_CASES, SUB_DOMAINS_CASES, SUB_DOMAIN_CASES, ORGANISATION_RSIN
+from services.service import Service
+
 
 class CaseService(Service):
     NAME = OPEN_ZAAK
@@ -37,3 +40,17 @@ class CaseService(Service):
         all_data = {**data, **organisation_data}
         response = connection.put(uuid, all_data)
         return response
+
+    def mock(self, case_type_url):
+        responses = []
+        for i in range(10):
+            data = {
+                "omschrijving": "Hello World",
+                "startdatum": str(date.today()),
+                "einddatum": str(date.today()),
+                "zaaktype": case_type_url,
+            }
+            response = self.post(data)
+            responses.append(response)
+
+        return responses

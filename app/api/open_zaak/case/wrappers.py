@@ -1,5 +1,6 @@
-from services.wrapper import Wrapper
 from api.open_zaak.case.services import CaseService
+from services.wrapper import Wrapper
+
 
 class Case(Wrapper):
     fields = (
@@ -17,4 +18,3 @@ class Case(Wrapper):
     )
 
     service = CaseService
-

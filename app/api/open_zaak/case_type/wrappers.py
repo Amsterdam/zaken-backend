@@ -1,5 +1,6 @@
-from services.wrapper import Wrapper
 from api.open_zaak.case_type.services import CaseTypeService
+from services.wrapper import Wrapper
+
 
 class CaseType(Wrapper):
     fields = ('url', 'uuid', 'omschrijving', 'doel', 'aanleiding', 'onderwerp')

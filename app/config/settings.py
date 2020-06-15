@@ -13,7 +13,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
-    'drf_spectacular', # for generating real OpenAPI 3.0 documentation
+    'drf_spectacular',  # for generating real OpenAPI 3.0 documentation
 )
 
 DATABASES = {}

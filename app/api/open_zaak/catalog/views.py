@@ -1,7 +1,9 @@
 from rest_framework import viewsets
+
 from api.open_zaak.catalog.serializers import CatalogSerializer
 from api.open_zaak.catalog.wrappers import Catalog
 from api.views import retrieve_helper, list_helper
+
 
 class CatalogViewSet(viewsets.ViewSet):
     serializer_class = CatalogSerializer

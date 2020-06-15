@@ -1,5 +1,6 @@
-from services.wrapper import Wrapper
 from api.open_zaak.catalog.services import CatalogService
+from services.wrapper import Wrapper
+
 
 class Catalog(Wrapper):
     fields = ('uuid', 'url', 'zaaktypen')

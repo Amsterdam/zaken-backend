@@ -1,5 +1,6 @@
-from services.wrapper import Wrapper
 from api.open_zaak.case_object.services import CaseObjectService
+from services.wrapper import Wrapper
+
 
 class CaseObject(Wrapper):
     fields = ('uuid', 'url', 'zaak', 'zaakUuid', 'object', 'objectType')
