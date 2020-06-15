@@ -43,7 +43,7 @@ class CaseService(Service):
 
     def mock(self, case_type_url):
         responses = []
-        for i in range(10):
+        for i in range(4):
             data = {
                 "omschrijving": "Hello World",
                 "startdatum": str(date.today()),

@@ -12,7 +12,7 @@ from api.open_zaak.state_type.services import StateTypeService
 
 class GenerateMockViewset(viewsets.ViewSet):
     @action(detail=False, methods=['delete'])
-    def delete(self, request):
+    def delete(self, request=None):
         case_type_service = CaseTypeService()
         case_types = case_type_service.get()['results']
         responses = []
@@ -27,6 +27,9 @@ class GenerateMockViewset(viewsets.ViewSet):
         })
 
     def list(self, request):
+        # First delete al data
+        self.delete()
+       
         # Create Catalog
         catalog_service = CatalogService()
         catalog = catalog_service.mock()
