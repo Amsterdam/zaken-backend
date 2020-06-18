@@ -4,3 +4,4 @@ psycopg2
 requests
 pyjwt
 drf-spectacular
+django-cors-headers

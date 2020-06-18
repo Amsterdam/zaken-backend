@@ -7,22 +7,30 @@ DEBUG = True
 ROOT_URLCONF = 'config.urls'
 SECRET_KEY = 'FOO'
 WSGI_APPLICATION = 'config.wsgi.application'
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ('0.0.0.0', 'localhost')
+CORS_ORIGIN_WHITELIST = ('http://0.0.0.0:3000', 'http://localhost:3000')
+CORS_ORIGIN_ALLOW_ALL = False
 
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
-    'rest_framework',
+    'corsheaders',
+    'rest_framework',    
     'api',
     'drf_spectacular',  # for generating real OpenAPI 3.0 documentation
 )
 
 DATABASES = {}
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
