@@ -31,7 +31,7 @@ localhost:8080
 ## Accessing the open-zaak admin
 Run the following command and follow the steps to create a super user:
 ```
-docker-compose run --rm openzaak python src/manage.py createsuperuser
+docker-compose run --rm openzaak.local python src/manage.py createsuperuser
 ```
 
 Once you have created an account, you should be able to access the admin:
