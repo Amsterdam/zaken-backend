@@ -1,3 +1,4 @@
+# NOTE: Development settings
 import os
 from os.path import join
 
@@ -6,6 +7,7 @@ DEBUG = True
 ROOT_URLCONF = 'config.urls'
 SECRET_KEY = 'FOO'
 WSGI_APPLICATION = 'config.wsgi.application'
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = (
     'django.contrib.auth',
