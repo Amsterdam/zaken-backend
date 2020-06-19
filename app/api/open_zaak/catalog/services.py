@@ -27,4 +27,5 @@ class CatalogService(Service):
             "contactpersoonBeheerNaam": ORGANISATION_CONTACT,
         }
         connection = self.__get_connection__()
-        response = connection.post(data)
+        response = connection.post(data=data)
+        return response
