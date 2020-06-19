@@ -23,7 +23,7 @@ router.register(r'state-types', StateTypeViewSet, basename='state-type')
 router.register(r'generate-mock', GenerateMockViewset, basename='generate-mock')
 
 urlpatterns = [
-                  url(r'^', include(router.urls)),
+                  path('api/v1/', include(router.urls)),                  
                   path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
                   path('api/v1/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 
