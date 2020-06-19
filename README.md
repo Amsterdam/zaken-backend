@@ -50,18 +50,11 @@ Make sure to check the 'Heeft alle autorisaties' box.
 
 Note: These settings are for local development only! 
 
-Navigate to http://localhost:8000/ and you should see a response
+Navigate to http://localhost:8000/ and you should see a response.
 
-### Generating Mock Data
+## OpenAPI documentation
+To view the API documentation and to test the endpoints, you can navigate to http://localhost:8000/api/v1/swagger/.
+
+## Generating Mock Data
 For our proof of concept, you can generate some mock data.
-Navigate or do a GET request to http://localhost:8000/generate-data and the application will generate some data.
-(This might take a minute or two)
-
-## Accessing data
-Once the data is generated, you can request all data through: http://localhost:8000/
-Authorisation is not required at this point, and is handled in the Flask backend.
-
-Some of the response objects contain references to other objects. This reference is a unique url, and its data can be requested using a generic endpoint:
-http://localhost:8000/object?url=OBJECT_URL
-
-Replace OBJECT_URL with the object url you would like to request.
+Navigate or do a GET request to http://localhost:8000/api/v1/generate-mock/ and the application will generate some data. (This might take some time)
