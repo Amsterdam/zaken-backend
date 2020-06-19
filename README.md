@@ -50,7 +50,7 @@ Make sure to check the 'Heeft alle autorisaties' box.
 
 Note: These settings are for local development only! 
 
-Navigate to http://localhost:8000/ and you should see a response.
+Navigate to http://localhost:8000/api/v1/ and you should see a response.
 
 ## OpenAPI documentation
 To view the API documentation and to test the endpoints, you can navigate to http://localhost:8000/api/v1/swagger/.
