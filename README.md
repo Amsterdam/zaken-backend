@@ -50,11 +50,11 @@ Make sure to check the 'Heeft alle autorisaties' box.
 
 Note: These settings are for local development only! 
 
-Navigate to http://localhost:8000/api/v1/ and you should see a response.
+Navigate to http://localhost:9000/api/v1/ and you should see a response.
 
 ## OpenAPI documentation
-To view the API documentation and to test the endpoints, you can navigate to http://localhost:8000/api/v1/swagger/.
+To view the API documentation and to test the endpoints, you can navigate to http://localhost:9000/api/v1/swagger/.
 
 ## Generating Mock Data
 For our proof of concept, you can generate some mock data.
-Navigate or do a GET request to http://localhost:8000/api/v1/generate-mock/ and the application will generate some data. (This might take some time)
+Navigate or do a GET request to http://localhost:9000/api/v1/generate-mock/ and the application will generate some data. (This might take some time)

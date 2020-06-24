@@ -1,12 +1,14 @@
-version: '3.4'
+version: '3.5'
 
 services:
-  app:
+  zaak-gateway:
+    networks:
+      - fixxx-looplijsten-backend_looplijsten_backend
     build: app
     volumes:
       - .:/app
     ports:
-      - 8000:8000
+      - 9000:8000
     depends_on:
       - database
       - openzaak.local
@@ -18,19 +20,27 @@ services:
       - OPEN_ZAAK_CONTAINER_NAME=openzaak.local
       - UWSGI_STATIC_MAP=/static=/static
   database:
+    networks:
+      - fixxx-looplijsten-backend_looplijsten_backend    
     image: amsterdam/postgres11
     shm_size: '512m'
     ports:
-      - "5409:5432"
+      - "6409:5432"
     environment:
       POSTGRES_DB: zaken
       POSTGRES_USER: zaken
       POSTGRES_PASSWORD: insecure
   db:
+    networks:
+      - fixxx-looplijsten-backend_looplijsten_backend   
     image: mdillon/postgis
   redis:
+    networks:
+      - fixxx-looplijsten-backend_looplijsten_backend
     image: redis
   openzaak.local:
+    networks:
+      - fixxx-looplijsten-backend_looplijsten_backend
     image: openzaak/open-zaak
     environment:
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
@@ -41,7 +51,11 @@ services:
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
     ports:
-      - 8080:8000
+      - 9090:8000
     depends_on:
       - db
       - redis
+
+networks:
+  fixxx-looplijsten-backend_looplijsten_backend:
+    external: true

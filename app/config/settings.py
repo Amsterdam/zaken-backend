@@ -7,7 +7,7 @@ DEBUG = True
 ROOT_URLCONF = 'config.urls'
 SECRET_KEY = 'FOO'
 WSGI_APPLICATION = 'config.wsgi.application'
-ALLOWED_HOSTS = ('0.0.0.0', 'localhost')
+ALLOWED_HOSTS = ('0.0.0.0', 'localhost', 'zaak-gateway')
 CORS_ORIGIN_WHITELIST = ('http://0.0.0.0:3000', 'http://localhost:3000')
 CORS_ORIGIN_ALLOW_ALL = False
 
@@ -27,10 +27,10 @@ MIDDLEWARE = (
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # 'django.contrib.sessions.middleware.SessionMiddleware',
+    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    # 'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
