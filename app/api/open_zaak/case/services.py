@@ -13,6 +13,7 @@ class CaseService(Service):
     def get(self, uuid=None):
         connection = self.__get_connection__()
         response = connection.get(uuid)
+
         return response
 
     def post(self, data):

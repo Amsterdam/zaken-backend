@@ -76,3 +76,5 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Zaken Backend Gateway API',
     'VERSION': 'v1',
 }
+
+APPEND_SLASH=False

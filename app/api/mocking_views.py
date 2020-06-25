@@ -16,7 +16,6 @@ class GenerateMockViewset(viewsets.ViewSet):
         case_type_service = CaseTypeService()
         case_types = case_type_service.get()['results']
         responses = []
-
         for case_type in case_types:
             case_type_id = case_type['url'].split('/')[-1]
             response = case_type_service.delete(case_type_id)

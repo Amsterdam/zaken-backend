@@ -18,11 +18,15 @@ class CaseObjectService(Service):
         response = connection.post(data=data)
         return response
 
-    def mock(self, case_url):
+    def post_address(self, case_url, bag_url):
         data = {
             "zaak": case_url,
-            "object": "https://api.data.amsterdam.nl/bag/v1.1/nummeraanduiding/0363200012086033/",
+            "object": bag_url,
             "objectType": "adres"
         }
         response = self.post(data=data)
+        return response
+
+    def mock(self, case_url):
+        response = self.post_address(case_url, "https://api.data.amsterdam.nl/bag/v1.1/nummeraanduiding/0363200012086033/")
         return response
