@@ -21,8 +21,8 @@ class PushViewSet(viewsets.ViewSet):
             raise APIException('Serializer error: {}'.format(serializer.errors))
 
         try:
-            case_id = data.get('case_id')
-            case = self.get_case(case_id)
+            identificatie = data.get('identificatie')
+            case = self.get_case(identificatie)
 
             if not case:
                 case = self.create_case(data)
@@ -35,9 +35,9 @@ class PushViewSet(viewsets.ViewSet):
                 status=HttpResponseBadRequest.status_code
             )
 
-    def get_case(self, case_id):
+    def get_case(self, identificatie):
         case_service = CaseService()
-        response = case_service.get(params={'identificatie': case_id})
+        response = case_service.get(params={'identificatie': identificatie})
 
         if response.get('count') > 0:
             case = response.get('results')[0]
@@ -48,11 +48,11 @@ class PushViewSet(viewsets.ViewSet):
         case_type = case_type_service.get()['results'][0]['url']
 
         case_service = CaseService()
-        case_id = data.get('case_id')
         case = case_service.post(
             data={
-                "identificatie": case_id,
-                "omschrijving": "Hello World",
+                "identificatie": data['identificatie'],
+                "omschrijving": data['omschrijving'],
+                "toelichting": data['toelichting'],
                 "startdatum": str(date.today()),
                 "einddatum": str(date.today()),
                 "zaaktype": case_type,

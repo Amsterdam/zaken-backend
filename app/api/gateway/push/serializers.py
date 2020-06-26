@@ -1,4 +1,6 @@
 from rest_framework import serializers
 
 class PushSerializer(serializers.Serializer):
-    case_id = serializers.CharField(required=True)
+    identificatie = serializers.CharField(required=True)
+    omschrijving = serializers.CharField(required=True)
+    toelichting = serializers.CharField(required=True)
