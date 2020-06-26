@@ -13,19 +13,19 @@ docker-compose up --build
 ```
 
 ## What is currently running?
-For prototyping purposes we are running two containers. A simple Python Flask container, and the Open-zaak container. 
+For prototyping purposes we are running two containers. A Python Django container, and the Open-zaak container. 
 
-### Simple Flask Container
-This is a simple Python application that can be used for experimenting, and can be accessed through port 8000: 
-```
-localhost:8000
-```
-It's easy to set up routes and views using this application (see app directory)
-
-### Open-zaak Container
-This app can be used for experimenting with the open-zaak application, and can be accessed through port 8080:
+### Django backend gateway
+This is a Django application serves as a gateway of the open-zaak container (and other API's). 
+It can be accessed through port 8080: 
 ```
 localhost:8080
+```
+
+### Open-zaak Container
+This app can be used for experimenting with the open-zaak application, and can be accessed through port 8090:
+```
+localhost:8090
 ```
 
 ## Accessing the open-zaak admin
@@ -35,7 +35,7 @@ docker-compose run --rm openzaak.local python src/manage.py createsuperuser
 ```
 
 Once you have created an account, you should be able to access the admin:
-http://localhost:8080/admin/
+http://localhost:8090/admin/
 
 ### Configuration Auth Credentials 
 You need to configure authorization credentials so our Flask container can talk to Open Zaak.
@@ -50,11 +50,11 @@ Make sure to check the 'Heeft alle autorisaties' box.
 
 Note: These settings are for local development only! 
 
-Navigate to http://localhost:9000/api/v1/ and you should see a response.
+Navigate to http://localhost:8080/api/v1/ and you should see a response.
 
 ## OpenAPI documentation
-To view the API documentation and to test the endpoints, you can navigate to http://localhost:9000/api/v1/swagger/.
+To view the API documentation and to test the endpoints, you can navigate to http://localhost:8080/api/v1/swagger/.
 
 ## Generating Mock Data
 For our proof of concept, you can generate some mock data.
-Navigate or do a GET request to http://localhost:9000/api/v1/generate-mock/ and the application will generate some data. (This might take some time)
+Navigate or do a GET request to http://localhost:8080/api/v1/generate-mock/ and the application will generate some data. (This might take some time)
