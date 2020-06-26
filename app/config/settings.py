@@ -77,4 +77,3 @@ SPECTACULAR_SETTINGS = {
     'VERSION': 'v1',
 }
 
-APPEND_SLASH=False

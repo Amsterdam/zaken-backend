@@ -10,9 +10,9 @@ class CaseService(Service):
     TYPES = SUB_DOMAINS_CASES
     DATA_TYPE = SUB_DOMAIN_CASES
 
-    def get(self, uuid=None):
+    def get(self, uuid=None, params=None):
         connection = self.__get_connection__()
-        response = connection.get(uuid)
+        response = connection.get(uuid=uuid, params=params)
 
         return response
 

@@ -19,10 +19,10 @@ class Connection:
         self.domain = domain
         self.data_type = data_type
 
-    def get(self, uuid=None):
+    def get(self, uuid=None, params=None):
         request_method = requests.get
-        path = self.__get_path__(uuid)
-        response = self.__request__(path, request_method)
+        path = self.__get_path__(uuid=uuid)
+        response = self.__request__(path, request_method, params=params)
         return response.json()
 
     def post(self, uuid=None, data={}):
@@ -79,19 +79,19 @@ class Connection:
         return str(token, 'utf-8')
 
     def __get_path__(self, uuid=None, publish=False):
-        path = 'http://{}:{}/{}/api/{}/{}'.format(self.host, self.port, self.domain, self.api_version, self.data_type)
+        path = f'http://{self.host}:{self.port}/{self.domain}/api/{self.api_version}/{self.data_type}'
         if uuid:
-            path = '{}/{}'.format(path, uuid)
+            path = f'{path}/{uuid}'
 
         if publish:
-            path = '{}/publish'.format(path)
+            path = f'{path}/publish'
 
         return path
 
-    def __request__(self, path, request_method, data=None):
+    def __request__(self, path, request_method, data=None, params=None):
         token = self.__get_token__(self.secret_key, self.client)
         headers = self.__get_header__(token)
-        response = request_method(path, headers=headers, json=data)
+        response = request_method(path, headers=headers, json=data, params=params)
 
         try:
             response.raise_for_status()
