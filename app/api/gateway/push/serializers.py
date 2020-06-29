@@ -7,3 +7,6 @@ class PushSerializer(serializers.Serializer):
     startdatum = serializers.DateField(required=True)
     einddatum = serializers.DateField(required=False)
 
+class PushCheckActionSerializer(serializers.Serializer):
+    identificatie = serializers.CharField(required=True)
+    check_actie = serializers.BooleanField(required=True)

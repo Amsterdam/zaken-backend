@@ -12,7 +12,7 @@ from api.open_zaak.case_type.views import CaseTypeViewSet
 from api.open_zaak.catalog.views import CatalogViewSet
 from api.open_zaak.state.views import StateViewSet
 from api.open_zaak.state_type.views import StateTypeViewSet
-from api.gateway.push.views import PushViewSet
+from api.gateway.push.views import PushViewSet, PushCheckActionViewSet
 
 router = DefaultRouter()
 router.register(r'cases', CaseViewSet, basename='cases')
@@ -23,6 +23,7 @@ router.register(r'states', StateViewSet, basename='states')
 router.register(r'state-types', StateTypeViewSet, basename='state-type')
 router.register(r'generate-mock', GenerateMockViewset, basename='generate-mock')
 router.register(r'push', PushViewSet, basename='push')
+router.register(r'push-check-action', PushCheckActionViewSet, basename='push-check-action')
 
 urlpatterns = [
                   path('api/v1/', include(router.urls)),                  
