@@ -1,6 +1,4 @@
 # TODO: This just default to the first case type, something smarter should be done here
-
-from datetime import date
 from django.http import HttpResponseBadRequest
 from rest_framework import viewsets
 from rest_framework.exceptions import APIException
@@ -46,15 +44,14 @@ class PushViewSet(viewsets.ViewSet):
     def create_case(self, data):
         case_type_service = CaseTypeService()
         case_type = case_type_service.get()['results'][0]['url']
-
         case_service = CaseService()
         case = case_service.post(
             data={
                 "identificatie": data['identificatie'],
                 "omschrijving": data['omschrijving'],
                 "toelichting": data['toelichting'],
-                "startdatum": str(date.today()),
-                "einddatum": str(date.today()),
+                "startdatum": data['startdatum'],
+                "einddatum": data.get('einddatum'),
                 "zaaktype": case_type,
             }
         )
