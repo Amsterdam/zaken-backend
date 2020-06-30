@@ -8,14 +8,25 @@ from api.open_zaak.case_type.services import CaseTypeService
 from api.open_zaak.catalog.services import CatalogService
 from api.open_zaak.state.services import StateService
 from api.open_zaak.state_type.services import StateTypeService
+from api.open_zaak.information_object_type.services import InformationObjectTypeService
 
 
 class GenerateMockViewset(viewsets.ViewSet):
     @action(detail=False, methods=['delete'])
     def delete(self, request=None):
+        responses = []
+
+        information_object_type_service = InformationObjectTypeService()
+        information_object_types = information_object_type_service.get()
+
+        for information_object_type in information_object_types['results']:
+          information_object_type_id = information_object_type['url'].split('/')[-1]
+          response = information_object_type_service.delete(information_object_type_id)
+          responses.append(response)
+
         case_type_service = CaseTypeService()
         case_types = case_type_service.get()['results']
-        responses = []
+        
         for case_type in case_types:
             case_type_id = case_type['url'].split('/')[-1]
             response = case_type_service.delete(case_type_id)
@@ -33,6 +44,13 @@ class GenerateMockViewset(viewsets.ViewSet):
         catalog_service = CatalogService()
         catalog = catalog_service.mock()
         catalog_url = catalog['url']
+
+        # Create Information Object Type
+        information_object_type_service = InformationObjectTypeService()
+        information_object_type = information_object_type_service.mock(catalog_url)
+        information_object_type_url = information_object_type['url']
+        information_object_type_id = information_object_type_url.split('/')[-1]
+        information_object_type = information_object_type_service.publish(information_object_type_id)
 
         # Create Case Type
         case_type_service = CaseTypeService()
@@ -68,6 +86,7 @@ class GenerateMockViewset(viewsets.ViewSet):
 
         return Response({
             'catalog': catalog,
+            'information_object_type': information_object_type,
             'case_type': case_type,
             'state_types': state_types,
             'cases': cases,

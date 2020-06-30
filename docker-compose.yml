@@ -50,6 +50,7 @@ services:
       - SUBPATH=${SUBPATH:-/localhost}
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
+      - NOTIFICATIONS_DISABLED=True
     ports:
       - 8090:8000
     depends_on:
