@@ -8,6 +8,7 @@ class Case(Wrapper):
         'url',
         'identificatie',
         'omschrijving',
+        'toelichting',
         'startdatum',
         'einddatum',
         'status'

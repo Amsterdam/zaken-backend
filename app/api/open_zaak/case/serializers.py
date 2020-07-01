@@ -6,6 +6,7 @@ class CaseSerializer(serializers.Serializer):
     uuid = serializers.CharField(read_only=True)
     identificatie = serializers.CharField(read_only=True)
     omschrijving = serializers.CharField(required=True)
+    toelichting = serializers.CharField(required=False)
     startdatum = serializers.DateField(required=True)
     einddatum = serializers.DateField(required=False)
     status = serializers.URLField(read_only=True)
