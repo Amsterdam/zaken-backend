@@ -3,6 +3,10 @@ from services.wrapper import Wrapper
 
 
 class Case(Wrapper):
+    expand_fields = (
+      'status',
+    )
+    
     fields = (
         'uuid',
         'url',
