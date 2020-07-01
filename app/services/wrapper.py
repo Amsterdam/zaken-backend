@@ -1,5 +1,6 @@
 class Wrapper(object):
     fields = ()
+    expand_fields = ()
     service = None
 
     @classmethod
@@ -42,6 +43,14 @@ class Wrapper(object):
         instance = cls(response)
         return instance
 
+    @classmethod
+    def expand(cls, url):
+        service = cls.service()
+        connection = service.__get_connection__()
+        response = connection.get_url(url)        
+        return response
+        
+
     def __init__(self, data):
         if not self.fields:
             raise ValueError('No fields set')
@@ -51,6 +60,15 @@ class Wrapper(object):
     def __set_data__(self, data):
         for field in self.fields:
             setattr(self, field, data.get(field, None))
+
+        for field in self.expand_fields:
+          url = data.get(field, None)
+          if url:   
+            expand_data = self.expand(url)
+          else:
+            expand_data = {}
+            
+          setattr(self, field, expand_data)          
 
         if 'debug' in self.fields:
             setattr(self, 'debug', data)

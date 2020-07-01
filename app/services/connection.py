@@ -19,6 +19,11 @@ class Connection:
         self.domain = domain
         self.data_type = data_type
 
+    def get_url(self, url):
+        request_method = requests.get
+        response = self.__request__(url, request_method)
+        return response.json()
+
     def get(self, uuid=None, params=None):
         request_method = requests.get
         path = self.__get_path__(uuid=uuid)
