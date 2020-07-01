@@ -13,7 +13,12 @@ SUB_DOMAIN_STATES = 'statussen'
 SUB_DOMAIN_CASE_OBJECTS = 'zaakobjecten'
 SUB_DOMAINS_CASES = [SUB_DOMAIN_CASES, SUB_DOMAIN_CASES, SUB_DOMAIN_CASE_OBJECTS, SUB_DOMAIN_STATES]
 
+STATE_ADRES_GELOPEN = 'Adres gelopen'
+STATGE_ADRES_GELOPEN_ONGEDAAN = 'Adres gelopen ongedaan gemaakt'
+
 STATES = [
+    STATE_ADRES_GELOPEN,
+    STATGE_ADRES_GELOPEN_ONGEDAAN,
     'Issuemelding',
     'Onderzoek buitendienst',
     '2de Controle',

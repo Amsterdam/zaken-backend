@@ -8,7 +8,7 @@ ROOT_URLCONF = 'config.urls'
 SECRET_KEY = 'FOO'
 WSGI_APPLICATION = 'config.wsgi.application'
 ALLOWED_HOSTS = ('0.0.0.0', 'localhost', 'zaak-gateway')
-CORS_ORIGIN_WHITELIST = ('http://0.0.0.0:3000', 'http://localhost:3000')
+CORS_ORIGIN_WHITELIST = ('http://0.0.0.0:3000', 'http://localhost:3000', 'http://0.0.0.0:3001', 'http://localhost:3001')
 CORS_ORIGIN_ALLOW_ALL = False
 
 INSTALLED_APPS = (
