@@ -101,6 +101,6 @@ class Connection:
         try:
             response.raise_for_status()
         except Exception as e:
-            raise APIException(str(e))
+            raise APIException(f'Path: {path} Error:{str(e)}')
 
         return response

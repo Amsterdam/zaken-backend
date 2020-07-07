@@ -66,30 +66,30 @@ class GenerateMockViewset(viewsets.ViewSet):
         case_type_service.publish(case_type_id)
 
         # Add Cases
-        # case_service = CaseService()
-        # cases = case_service.mock(case_type_url)
+        case_service = CaseService()
+        cases = case_service.mock(case_type_url)
 
         # Add a state and case objects to all cases
         states = []
         case_objects = []
 
-        # for case in cases:
-        #     case_url = case['url']
-        #
-        #     state_services = StateService()
-        #     response = state_services.mock(state_types, case_url)
-        #     states.append(response)
-        #
-        #     case_object_service = CaseObjectService()
-        #     response = case_object_service.mock(case_url)
-        #     case_objects.append(response)
+        for case in cases:
+            case_url = case['url']
+        
+            state_services = StateService()
+            response = state_services.mock(state_types, case_url)
+            states.append(response)
+        
+            case_object_service = CaseObjectService()
+            response = case_object_service.mock(case_url)
+            case_objects.append(response)
 
         return Response({
             'catalog': catalog,
             'information_object_type': information_object_type,
             'case_type': case_type,
             'state_types': state_types,
-            # 'cases': cases,
-            # 'states': states,
-            # 'case_objects': case_objects
+            'cases': cases,
+            'states': states,
+            'case_objects': case_objects
         })
