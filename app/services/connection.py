@@ -96,9 +96,9 @@ class Connection:
     def __request__(self, path, request_method, data=None, params=None):
         token = self.__get_token__(self.secret_key, self.client)
         headers = self.__get_header__(token)
-        response = request_method(path, headers=headers, json=data, params=params)
 
         try:
+            response = request_method(path, headers=headers, json=data, params=params)
             response.raise_for_status()
         except Exception as e:
             raise APIException(f'Path: {path} Error:{str(e)}')
