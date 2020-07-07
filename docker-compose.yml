@@ -11,7 +11,7 @@ services:
       - 8080:8000
     depends_on:
       - database
-      - openzaak.test
+      # - openzaak.test
     environment:
       - OPEN_ZAAK_CLIENT=client
       - OPEN_ZAAK_SECRET_KEY=secret_key
@@ -31,33 +31,33 @@ services:
       POSTGRES_DB: zaken
       POSTGRES_USER: zaken
       POSTGRES_PASSWORD: insecure
-  db:
-    networks:
-      - fixxx-looplijsten-backend_looplijsten_backend   
-    image: mdillon/postgis
-  redis:
-    networks:
-      - fixxx-looplijsten-backend_looplijsten_backend
-    image: redis
-  openzaak.test:
-    networks:
-      - fixxx-looplijsten-backend_looplijsten_backend
-    image: openzaak/open-zaak
-    environment:
-      - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
-      - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
-      - IS_HTTPS=no
-      - ALLOWED_HOSTS=*
-      - SUBPATH=${SUBPATH:-/localhost}
-      - CACHE_DEFAULT=redis:6379/0
-      - CACHE_AXES=redis:6379/0
-      - NOTIFICATIONS_DISABLED=True
-      - DEBUG=yes
-    ports:
-      - 8090:8000
-    depends_on:
-      - db
-      - redis
+  # db:
+  #   networks:
+  #     - fixxx-looplijsten-backend_looplijsten_backend   
+  #   image: mdillon/postgis
+  # redis:
+  #   networks:
+  #     - fixxx-looplijsten-backend_looplijsten_backend
+  #   image: redis
+  # openzaak.test:
+  #   networks:
+  #     - fixxx-looplijsten-backend_looplijsten_backend
+  #   image: openzaak/open-zaak
+  #   environment:
+  #     - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
+  #     - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
+  #     - IS_HTTPS=no
+  #     - ALLOWED_HOSTS=*
+  #     - SUBPATH=${SUBPATH:-/localhost}
+  #     - CACHE_DEFAULT=redis:6379/0
+  #     - CACHE_AXES=redis:6379/0
+  #     - NOTIFICATIONS_DISABLED=True
+  #     - DEBUG=yes
+  #   ports:
+  #     - 8090:8000
+  #   depends_on:
+  #     - db
+  #     - redis
 
 networks:
   fixxx-looplijsten-backend_looplijsten_backend:
