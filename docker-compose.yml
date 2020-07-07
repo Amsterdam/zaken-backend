@@ -19,6 +19,7 @@ services:
       - OPEN_ZAAK_API_VERSION=v1
       - OPEN_ZAAK_CONTAINER_NAME=openzaak.local
       - UWSGI_STATIC_MAP=/static=/static
+      - DEBUG=yes
   database:
     networks:
       - fixxx-looplijsten-backend_looplijsten_backend    
@@ -51,6 +52,7 @@ services:
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
       - NOTIFICATIONS_DISABLED=True
+      - DEBUG=yes
     ports:
       - 8090:8000
     depends_on:
