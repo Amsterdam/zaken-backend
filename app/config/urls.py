@@ -2,6 +2,8 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 from django.urls import path
+from django.contrib import admin
+
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 
@@ -26,6 +28,10 @@ router.register(r'push', PushViewSet, basename='push')
 router.register(r'push-check-action', PushCheckActionViewSet, basename='push-check-action')
 
 urlpatterns = [
+                  # Admin environment
+                  path('admin/', admin.site.urls),
+
+                  # API Routing 
                   path('api/v1/', include(router.urls)),                  
                   path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
                   path('api/v1/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

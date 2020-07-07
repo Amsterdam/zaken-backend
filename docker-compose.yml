@@ -13,13 +13,20 @@ services:
       - database
       # - openzaak.test
     environment:
-      - OPEN_ZAAK_CLIENT=client
-      - OPEN_ZAAK_SECRET_KEY=secret_key
-      - OPEN_ZAAK_PORT=8000
-      - OPEN_ZAAK_API_VERSION=v1
-      - OPEN_ZAAK_CONTAINER_NAME=openzaak.test
+      # - OPEN_ZAAK_CLIENT=client
+      # - OPEN_ZAAK_SECRET_KEY=secret_key
+      # - OPEN_ZAAK_PORT=8000
+      # - OPEN_ZAAK_API_VERSION=v1
+      # - OPEN_ZAAK_CONTAINER_NAME=openzaak.test
       - UWSGI_STATIC_MAP=/static=/static
       - DEBUG=yes
+      - DATABASE_NAME=zaken
+      - DATABASE_USER=zaken
+      - DATABASE_PASSWORD=insecure
+      - DATABASE_HOST=database
+      - DATABASE_PORT=5432
+    volumes:
+      - ./app:/app
   database:
     networks:
       - fixxx-looplijsten-backend_looplijsten_backend    

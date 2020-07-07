@@ -14,8 +14,4 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY . /app/
 
-#RUN python manage.py migrate
-RUN mkdir -p /static && chown datapunt /static
-RUN python manage.py collectstatic --no-input
-
-CMD cd /app/app/ && uwsgi --http-socket 0.0.0.0:8000 --mount /=config.wsgi:application --py-auto-reload=1
+CMD ["bash", "/app/deploy/docker-entrypoint.sh"]
