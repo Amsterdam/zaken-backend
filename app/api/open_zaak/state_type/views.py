@@ -2,7 +2,7 @@ from rest_framework import viewsets
 
 from api.open_zaak.state_type.serializers import StateTypeSerializer
 from api.open_zaak.state_type.wrappers import StateType
-from api.views import retrieve_helper, list_helper
+from api.open_zaak.view_helpers import retrieve_helper, list_helper
 
 
 class StateTypeViewSet(viewsets.ViewSet):

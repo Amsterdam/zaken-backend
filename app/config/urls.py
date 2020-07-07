@@ -5,7 +5,7 @@ from django.urls import path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 
-from api.mocking_views import GenerateMockViewset
+from api.open_zaak.mocking_views import GenerateMockViewset
 from api.open_zaak.case.views import CaseViewSet
 from api.open_zaak.case_object.views import CaseObjectViewSet
 from api.open_zaak.case_type.views import CaseTypeViewSet

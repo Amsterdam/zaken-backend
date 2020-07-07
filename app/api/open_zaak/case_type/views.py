@@ -2,7 +2,7 @@ from rest_framework import viewsets
 
 from api.open_zaak.case_type.serializers import CaseTypeSerializer
 from api.open_zaak.case_type.wrappers import CaseType
-from api.views import retrieve_helper, list_helper
+from api.open_zaak.view_helpers import retrieve_helper, list_helper
 
 
 class CaseTypeViewSet(viewsets.ViewSet):
