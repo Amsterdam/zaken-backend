@@ -38,7 +38,7 @@ class GenerateMockViewset(viewsets.ViewSet):
 
     def list(self, request):
         # First delete al data
-        self.delete()
+        # self.delete()
        
         # Create Catalog
         catalog_service = CatalogService()
