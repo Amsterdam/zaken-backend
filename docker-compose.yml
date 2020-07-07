@@ -11,13 +11,13 @@ services:
       - 8080:8000
     depends_on:
       - database
-      - openzaak.local
+      - openzaak.test
     environment:
       - OPEN_ZAAK_CLIENT=client
       - OPEN_ZAAK_SECRET_KEY=secret_key
       - OPEN_ZAAK_PORT=8000
       - OPEN_ZAAK_API_VERSION=v1
-      - OPEN_ZAAK_CONTAINER_NAME=openzaak.local
+      - OPEN_ZAAK_CONTAINER_NAME=openzaak.test
       - UWSGI_STATIC_MAP=/static=/static
   database:
     networks:
@@ -38,7 +38,7 @@ services:
     networks:
       - fixxx-looplijsten-backend_looplijsten_backend
     image: redis
-  openzaak.local:
+  openzaak.test:
     networks:
       - fixxx-looplijsten-backend_looplijsten_backend
     image: openzaak/open-zaak
