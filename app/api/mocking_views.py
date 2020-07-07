@@ -76,9 +76,9 @@ class GenerateMockViewset(viewsets.ViewSet):
         for case in cases:
             case_url = case['url']
         
-            state_services = StateService()
-            response = state_services.mock(state_types, case_url)
-            states.append(response)
+            # state_services = StateService()
+            # response = state_services.mock(state_types, case_url)
+            # states.append(response)
         
             case_object_service = CaseObjectService()
             response = case_object_service.mock(case_url)
@@ -90,6 +90,6 @@ class GenerateMockViewset(viewsets.ViewSet):
             'case_type': case_type,
             'state_types': state_types,
             'cases': cases,
-            'states': states,
+            # 'states': states,
             'case_objects': case_objects
         })
