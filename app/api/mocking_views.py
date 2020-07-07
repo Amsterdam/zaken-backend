@@ -46,11 +46,11 @@ class GenerateMockViewset(viewsets.ViewSet):
         catalog_url = catalog['url']
 
         # Create Information Object Type
-        information_object_type_service = InformationObjectTypeService()
-        information_object_type = information_object_type_service.mock(catalog_url)
-        information_object_type_url = information_object_type['url']
-        information_object_type_id = information_object_type_url.split('/')[-1]
-        information_object_type = information_object_type_service.publish(information_object_type_id)
+        # information_object_type_service = InformationObjectTypeService()
+        # information_object_type = information_object_type_service.mock(catalog_url)
+        # information_object_type_url = information_object_type['url']
+        # information_object_type_id = information_object_type_url.split('/')[-1]
+        # information_object_type = information_object_type_service.publish(information_object_type_id)
 
         # Create Case Type
         case_type_service = CaseTypeService()
@@ -86,7 +86,7 @@ class GenerateMockViewset(viewsets.ViewSet):
 
         return Response({
             'catalog': catalog,
-            'information_object_type': information_object_type,
+            # 'information_object_type': information_object_type,
             'case_type': case_type,
             'state_types': state_types,
             'cases': cases,
