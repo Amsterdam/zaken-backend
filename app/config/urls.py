@@ -7,14 +7,14 @@ from django.contrib import admin
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 
-from api.open_zaak.mocking_views import GenerateMockViewset
-from api.open_zaak.case.views import CaseViewSet
-from api.open_zaak.case_object.views import CaseObjectViewSet
-from api.open_zaak.case_type.views import CaseTypeViewSet
-from api.open_zaak.catalog.views import CatalogViewSet
-from api.open_zaak.state.views import StateViewSet
-from api.open_zaak.state_type.views import StateTypeViewSet
-from api.gateway.push.views import PushViewSet, PushCheckActionViewSet
+from apps.open_zaak.mocking_views import GenerateMockViewset
+from apps.open_zaak.case.views import CaseViewSet
+from apps.open_zaak.case_object.views import CaseObjectViewSet
+from apps.open_zaak.case_type.views import CaseTypeViewSet
+from apps.open_zaak.catalog.views import CatalogViewSet
+from apps.open_zaak.state.views import StateViewSet
+from apps.open_zaak.state_type.views import StateTypeViewSet
+from apps.gateway.push.views import PushViewSet, PushCheckActionViewSet
 
 router = DefaultRouter()
 router.register(r'cases', CaseViewSet, basename='cases')

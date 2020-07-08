@@ -19,8 +19,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'rest_framework',    
-    'api',
+    'rest_framework',
     'drf_spectacular',  # for generating real OpenAPI 3.0 documentation
 )
 

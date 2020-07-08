@@ -1,5 +1,5 @@
 import os
-from api.open_zaak.settings import OPEN_ZAAK
+from apps.open_zaak.settings import OPEN_ZAAK
 
 CONNECTIONS = {
     OPEN_ZAAK: {
