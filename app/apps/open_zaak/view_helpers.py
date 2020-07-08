@@ -10,8 +10,8 @@ def retrieve_helper(self, uuid):
         return Response(serializer.data)
     except Exception as e:
         return Response(
-            {'message': 'Could not retrieve object', 'error': str(e)},
-            status=HttpResponseBadRequest.status_code
+            {"message": "Could not retrieve object", "error": str(e)},
+            status=HttpResponseBadRequest.status_code,
         )
 
 
@@ -25,7 +25,7 @@ def create_helper(self, data):
     serializer = self.serializer_class(data=data)
 
     if not serializer.is_valid():
-        raise APIException('Serializer error: {}'.format(serializer.errors))
+        raise APIException("Serializer error: {}".format(serializer.errors))
 
     object = self.data_wrapper.create(data)
     serializer = self.serializer_class(object)

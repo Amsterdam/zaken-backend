@@ -1,14 +1,19 @@
-from rest_framework import viewsets
-
 from apps.open_zaak.case.serializers import CaseSerializer
 from apps.open_zaak.case.wrappers import Case
-from apps.open_zaak.view_helpers import retrieve_helper, list_helper, create_helper, destroy_helper, update_helper
+from apps.open_zaak.view_helpers import (
+    create_helper,
+    destroy_helper,
+    list_helper,
+    retrieve_helper,
+    update_helper,
+)
+from rest_framework import viewsets
 
 
 class CaseViewSet(viewsets.ViewSet):
     serializer_class = CaseSerializer
     data_wrapper = Case
-    lookup_field = 'uuid'
+    lookup_field = "uuid"
 
     def retrieve(self, request, uuid):
         return retrieve_helper(self, uuid)

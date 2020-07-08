@@ -2,10 +2,10 @@ from services.connection import Connection
 
 
 class Service:
-    NAME = ''
-    DOMAIN = ''
+    NAME = ""
+    DOMAIN = ""
     TYPES = []
-    DATA_TYPE = ''
+    DATA_TYPE = ""
 
     def __init__(self):
         self.name = self.__get_name__()
@@ -14,29 +14,29 @@ class Service:
         self.data_type = self.__get_data_type__()
 
     def __get_name__(self):
-        if self.NAME == '':
-            raise ValueError('Name is not set')
+        if self.NAME == "":
+            raise ValueError("Name is not set")
 
         return self.NAME
 
     def __get_types__(self):
         if not self.TYPES:
-            raise ValueError('Types are not set')
+            raise ValueError("Types are not set")
 
         return self.TYPES
 
     def __get_domain__(self):
-        if self.DOMAIN == '':
-            raise ValueError('Domain is not set')
+        if self.DOMAIN == "":
+            raise ValueError("Domain is not set")
 
         return self.DOMAIN
 
     def __get_data_type__(self):
-        if self.DATA_TYPE == '':
-            raise ValueError('Data type is not set')
+        if self.DATA_TYPE == "":
+            raise ValueError("Data type is not set")
 
-        elif not self.DATA_TYPE in self.__get_types__():
-            raise ValueError('Data type is not compatible with this domain')
+        elif self.DATA_TYPE not in self.__get_types__():
+            raise ValueError("Data type is not compatible with this domain")
 
         return self.DATA_TYPE
 
@@ -44,22 +44,22 @@ class Service:
         return Connection(self.name, self.domain, self.data_type)
 
     def get(self, uuid=None):
-        raise NotImplementedError('Get method not implemented')
+        raise NotImplementedError("Get method not implemented")
 
     def post(self, **kwargs):
-        raise NotImplementedError('Post method not implemented')
+        raise NotImplementedError("Post method not implemented")
 
     def put(self, uuid=None):
-        raise NotImplementedError('Put method not implemented')
+        raise NotImplementedError("Put method not implemented")
 
     def patch(self, uuid=None):
-        raise NotImplementedError('Patch method not implemented')
+        raise NotImplementedError("Patch method not implemented")
 
     def delete(self, uuid=None):
-        raise NotImplementedError('Delete method not implemented')
+        raise NotImplementedError("Delete method not implemented")
 
     def publish(self, uuid=None):
-        raise NotImplementedError('Publish method not implemented')
+        raise NotImplementedError("Publish method not implemented")
 
     def mock(self):
-        raise NotImplementedError('Mock method not implemented')
+        raise NotImplementedError("Mock method not implemented")

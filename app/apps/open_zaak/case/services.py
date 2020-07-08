@@ -1,7 +1,14 @@
 from datetime import date
 
-from apps.open_zaak.settings import OPEN_ZAAK, DOMAIN_CASES, SUB_DOMAINS_CASES, SUB_DOMAIN_CASES, ORGANISATION_RSIN
+from apps.open_zaak.settings import (
+    DOMAIN_CASES,
+    OPEN_ZAAK,
+    ORGANISATION_RSIN,
+    SUB_DOMAIN_CASES,
+    SUB_DOMAINS_CASES,
+)
 from services.service import Service
+
 
 class CaseService(Service):
     NAME = OPEN_ZAAK
@@ -18,8 +25,8 @@ class CaseService(Service):
     def post(self, data):
         connection = self.__get_connection__()
         organisation_data = {
-            'bronorganisatie': ORGANISATION_RSIN,
-            'verantwoordelijkeOrganisatie': ORGANISATION_RSIN,
+            "bronorganisatie": ORGANISATION_RSIN,
+            "verantwoordelijkeOrganisatie": ORGANISATION_RSIN,
         }
         all_data = {**data, **organisation_data}
         response = connection.post(data=all_data)
@@ -34,8 +41,8 @@ class CaseService(Service):
     def update(self, uuid, data):
         connection = self.__get_connection__()
         organisation_data = {
-            'bronorganisatie': ORGANISATION_RSIN,
-            'verantwoordelijkeOrganisatie': ORGANISATION_RSIN,
+            "bronorganisatie": ORGANISATION_RSIN,
+            "verantwoordelijkeOrganisatie": ORGANISATION_RSIN,
         }
         all_data = {**data, **organisation_data}
         response = connection.put(uuid, all_data)

@@ -1,8 +1,15 @@
 from datetime import datetime
-from apps.open_zaak.settings import OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS, SUB_DOMAIN_INFORMATION_OBJECT_TYPE
+
+from apps.open_zaak.settings import (
+    DOMAIN_CATALOGS,
+    OPEN_ZAAK,
+    SUB_DOMAIN_INFORMATION_OBJECT_TYPE,
+    SUB_DOMAINS_CATALOGS,
+)
 from services.service import Service
 
-ACTION_CHECKED_CASE = 'Toezichthouder actie'
+ACTION_CHECKED_CASE = "Toezichthouder actie"
+
 
 class InformationObjectTypeService(Service):
     NAME = OPEN_ZAAK
@@ -14,7 +21,7 @@ class InformationObjectTypeService(Service):
         connection = self.__get_connection__()
         response = connection.delete(uuid)
         return response
-        
+
     def get(self, uuid=None):
         connection = self.__get_connection__()
         response = connection.get(uuid)
@@ -27,10 +34,10 @@ class InformationObjectTypeService(Service):
 
     def post(self, catalog_url, description):
         data = {
-            'catalogus': catalog_url,
-            'omschrijving': description,
-            'vertrouwelijkheidaanduiding': 'vertrouwelijk',
-            'beginGeldigheid':  str(datetime.now().date()),
+            "catalogus": catalog_url,
+            "omschrijving": description,
+            "vertrouwelijkheidaanduiding": "vertrouwelijk",
+            "beginGeldigheid": str(datetime.now().date()),
         }
         connection = self.__get_connection__()
         response = connection.post(data=data)

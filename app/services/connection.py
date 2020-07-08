@@ -3,18 +3,17 @@ from datetime import datetime
 import jwt
 import requests
 from rest_framework.exceptions import APIException
-
 from services.settings import CONNECTIONS
 
 
 class Connection:
     def __init__(self, connection_name, domain, data_type):
         connection_settings = CONNECTIONS[connection_name]
-        self.host = connection_settings['host']
-        self.port = connection_settings['port']
-        self.api_version = connection_settings['api_version']
-        self.secret_key = connection_settings['secret_key']
-        self.client = connection_settings['client']
+        self.host = connection_settings["host"]
+        self.port = connection_settings["port"]
+        self.api_version = connection_settings["api_version"]
+        self.secret_key = connection_settings["secret_key"]
+        self.client = connection_settings["client"]
 
         self.domain = domain
         self.data_type = data_type
@@ -62,34 +61,35 @@ class Connection:
 
     def __get_header__(self, token):
         headers = {
-            'accept': 'application/json',
-            'Authorization': 'Bearer {}'.format(token),
-            'Accept-Crs': 'EPSG:4326',
-            'Content-Crs': 'EPSG:4326',
+            "accept": "application/json",
+            "Authorization": "Bearer {}".format(token),
+            "Accept-Crs": "EPSG:4326",
+            "Content-Crs": "EPSG:4326",
         }
         return headers
 
     def __get_token__(self, key, client):
         token = jwt.encode(
-            headers={'client_identifier': client},
+            headers={"client_identifier": client},
             payload={
-                'iss': client,
-                'iat': datetime.utcnow(),
-                'client_id': client,
-                'user_id': '',
-                'user_representation': '',
+                "iss": client,
+                "iat": datetime.utcnow(),
+                "client_id": client,
+                "user_id": "",
+                "user_representation": "",
             },
-            key=key)
+            key=key,
+        )
 
-        return str(token, 'utf-8')
+        return str(token, "utf-8")
 
     def __get_path__(self, uuid=None, publish=False):
-        path = f'http://{self.host}:{self.port}/{self.domain}/api/{self.api_version}/{self.data_type}'
+        path = f"http://{self.host}:{self.port}/{self.domain}/api/{self.api_version}/{self.data_type}"
         if uuid:
-            path = f'{path}/{uuid}'
+            path = f"{path}/{uuid}"
 
         if publish:
-            path = f'{path}/publish'
+            path = f"{path}/publish"
 
         return path
 
@@ -101,6 +101,6 @@ class Connection:
             response = request_method(path, headers=headers, json=data, params=params)
             response.raise_for_status()
         except Exception as e:
-            raise APIException(f'Path: {path} Error:{str(e)}')
+            raise APIException(f"Path: {path} Error:{str(e)}")
 
         return response

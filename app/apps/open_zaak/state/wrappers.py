@@ -3,5 +3,12 @@ from services.wrapper import Wrapper
 
 
 class State(Wrapper):
-    fields = ('uuid', 'url', 'zaak', 'statustype', 'datumStatusGezet', 'statustoelichting')
+    fields = (
+        "uuid",
+        "url",
+        "zaak",
+        "statustype",
+        "datumStatusGezet",
+        "statustoelichting",
+    )
     service = StateService

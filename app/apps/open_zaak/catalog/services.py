@@ -1,5 +1,13 @@
-from apps.open_zaak.settings import OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS, SUB_DOMAIN_CATALOGS
-from apps.open_zaak.settings import ORGANISATION_RSIN, ORGANISATION_NAME, ORGANISATION_DOMAIN, ORGANISATION_CONTACT
+from apps.open_zaak.settings import (
+    DOMAIN_CATALOGS,
+    OPEN_ZAAK,
+    ORGANISATION_CONTACT,
+    ORGANISATION_DOMAIN,
+    ORGANISATION_NAME,
+    ORGANISATION_RSIN,
+    SUB_DOMAIN_CATALOGS,
+    SUB_DOMAINS_CATALOGS,
+)
 from services.service import Service
 
 
@@ -17,8 +25,8 @@ class CatalogService(Service):
     def mock(self):
         response = self.get()
 
-        if response['count'] > 0:
-            return response['results'][0]
+        if response["count"] > 0:
+            return response["results"][0]
 
         data = {
             "naam": ORGANISATION_NAME,  # Note: naam doesn't seem to be processed and saved

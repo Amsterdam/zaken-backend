@@ -1,5 +1,12 @@
-from apps.open_zaak.settings import OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS, SUB_DOMAIN_STATE_TYPES, STATES
+from apps.open_zaak.settings import (
+    DOMAIN_CATALOGS,
+    OPEN_ZAAK,
+    STATES,
+    SUB_DOMAIN_STATE_TYPES,
+    SUB_DOMAINS_CATALOGS,
+)
 from services.service import Service
+
 
 class StateTypeService(Service):
     NAME = OPEN_ZAAK
@@ -9,9 +16,9 @@ class StateTypeService(Service):
 
     # TODO: rewrite
     def get_state_type(self, state_type):
-        states = self.get()['results']
+        states = self.get()["results"]
         for state in states:
-            if state['statustekst'] == state_type:
+            if state["statustekst"] == state_type:
                 return state
 
     def get(self, uuid=None):
@@ -27,7 +34,7 @@ class StateTypeService(Service):
                 "omschrijving": state,
                 "statustekst": state,
                 "zaaktype": zaaktype_url,
-                "volgnummer": index + 1
+                "volgnummer": index + 1,
             }
             response = connection.post(data=data)
             responses.append(response)

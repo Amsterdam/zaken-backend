@@ -1,6 +1,11 @@
 from datetime import date
 
-from apps.open_zaak.settings import OPEN_ZAAK, DOMAIN_CATALOGS, SUB_DOMAINS_CATALOGS, SUB_DOMAIN_CASE_TYPES
+from apps.open_zaak.settings import (
+    DOMAIN_CATALOGS,
+    OPEN_ZAAK,
+    SUB_DOMAIN_CASE_TYPES,
+    SUB_DOMAINS_CATALOGS,
+)
 from services.service import Service
 
 
@@ -40,9 +45,7 @@ class CaseTypeService(Service):
             "verlengingMogelijk": False,
             "publicatieIndicatie": True,
             "productenOfDiensten": [],
-            "referentieproces": {
-                "naam": "Nog geen naam"
-            },
+            "referentieproces": {"naam": "Nog geen naam"},
             "catalogus": catalog_url,
             "besluittypen": [],
             "gerelateerdeZaaktypen": [],

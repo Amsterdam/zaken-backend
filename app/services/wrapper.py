@@ -6,10 +6,10 @@ class Wrapper(object):
     @classmethod
     def retrieve_all(cls):
         if not cls.service:
-            raise ValueError('Service not set')
+            raise ValueError("Service not set")
 
         service = cls.service()
-        state_types_response = service.get().get('results', [])
+        state_types_response = service.get().get("results", [])
         state_types = []
 
         for state_type_response in state_types_response:
@@ -47,13 +47,12 @@ class Wrapper(object):
     def expand(cls, url):
         service = cls.service()
         connection = service.__get_connection__()
-        response = connection.get_url(url)        
+        response = connection.get_url(url)
         return response
-        
 
     def __init__(self, data):
         if not self.fields:
-            raise ValueError('No fields set')
+            raise ValueError("No fields set")
 
         self.__set_data__(data)
 
@@ -62,13 +61,13 @@ class Wrapper(object):
             setattr(self, field, data.get(field, None))
 
         for field in self.expand_fields:
-          url = data.get(field, None)
-          if url:   
-            expand_data = self.expand(url)
-          else:
-            expand_data = {}
-            
-          setattr(self, field, expand_data)          
+            url = data.get(field, None)
+            if url:
+                expand_data = self.expand(url)
+            else:
+                expand_data = {}
 
-        if 'debug' in self.fields:
-            setattr(self, 'debug', data)
+            setattr(self, field, expand_data)
+
+        if "debug" in self.fields:
+            setattr(self, "debug", data)

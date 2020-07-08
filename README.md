@@ -13,11 +13,11 @@ docker-compose up --build
 ```
 
 ## What is currently running?
-For prototyping purposes we are running two containers. A Python Django container, and the Open-zaak container. 
+For prototyping purposes we are running two containers. A Python Django container, and the Open-zaak container.
 
 ### Django backend gateway
-This is a Django application serves as a gateway of the open-zaak container (and other API's). 
-It can be accessed through port 8080: 
+This is a Django application serves as a gateway of the open-zaak container (and other API's).
+It can be accessed through port 8080:
 ```
 localhost:8080
 ```
@@ -37,7 +37,7 @@ docker-compose run --rm openzaak.local python src/manage.py createsuperuser
 Once you have created an account, you should be able to access the admin:
 http://localhost:8090/admin/
 
-### Configuration Auth Credentials 
+### Configuration Auth Credentials
 You need to configure authorization credentials so our Flask container can talk to Open Zaak.
 In the open zaak admin add a credential by navigating to:
 
@@ -48,7 +48,7 @@ Add any label, and the following Client Credentials:
 - Secret: 'secret_key'
 Make sure to check the 'Heeft alle autorisaties' box.
 
-Note: These settings are for local development only! 
+Note: These settings are for local development only!
 
 Navigate to http://localhost:8080/api/v1/ and you should see a response.
 

@@ -1,11 +1,20 @@
 repos:
+  -   repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v2.3.0
+      hooks:
+      -   id: check-yaml
+      -   id: end-of-file-fixer
+      -   id: trailing-whitespace
+  -   repo: https://github.com/timothycrosley/isort
+      rev: ''
+      hooks:
+      -   id: isort
   -   repo: https://github.com/ambv/black
-      rev: stable
+      rev: ''
       hooks:
       - id: black
-        language_version: python3.7
+        language_version: python3
   -   repo: https://gitlab.com/pycqa/flake8
-      rev: 3.7.9
+      rev: ''
       hooks:
       - id: flake8
-  

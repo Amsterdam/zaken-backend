@@ -29,7 +29,7 @@ services:
       - ./app:/app
   database:
     networks:
-      - fixxx-looplijsten-backend_looplijsten_backend    
+      - fixxx-looplijsten-backend_looplijsten_backend
     image: amsterdam/postgres11
     shm_size: '512m'
     ports:
@@ -40,7 +40,7 @@ services:
       POSTGRES_PASSWORD: insecure
   # db:
   #   networks:
-  #     - fixxx-looplijsten-backend_looplijsten_backend   
+  #     - fixxx-looplijsten-backend_looplijsten_backend
   #   image: mdillon/postgis
   # redis:
   #   networks:
