@@ -58,3 +58,15 @@ To view the API documentation and to test the endpoints, you can navigate to htt
 ## Generating Mock Data
 For our proof of concept, you can generate some mock data.
 Navigate or do a GET request to http://localhost:8080/api/v1/generate-mock/ and the application will generate some data. (This might take some time)
+
+## Coding conventions and style
+You can add pre-commit hooks for checking and cleaning up your changes:
+```
+bash install.sh
+```
+
+You can also run the following command to ensure all files adhere to coding conventions:
+```
+bash cleanup.sh
+```
+This will autoformat your code, sort your imports and fix overal problems.

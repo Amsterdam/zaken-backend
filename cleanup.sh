@@ -1,4 +1,2 @@
-# isort
-# black
-# flake8
+bash install.sh
 pre-commit run --all-files
