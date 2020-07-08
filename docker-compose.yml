@@ -5,8 +5,8 @@ services:
     networks:
       - fixxx-looplijsten-backend_looplijsten_backend
     build: app
-    volumes:
-      - .:/app
+#    volumes:
+#      - .:/app
     ports:
       - 8080:8000
     depends_on:
