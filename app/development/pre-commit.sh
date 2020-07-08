@@ -1,2 +1,3 @@
-echo Pre Commit Hooks
-python3 --version
+echo Running pre-commit
+pip3 install black
+black ./app
