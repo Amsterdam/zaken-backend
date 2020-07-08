@@ -59,7 +59,7 @@ To view the API documentation and to test the endpoints, you can navigate to htt
 For our proof of concept, you can generate some mock data.
 Navigate or do a GET request to http://localhost:8080/api/v1/generate-mock/ and the application will generate some data. (This might take some time)
 
-## Coding conventions and style
+## Adding pre-commit hooks
 You can add pre-commit hooks for checking and cleaning up your changes:
 ```
 bash install.sh
@@ -70,3 +70,6 @@ You can also run the following command to ensure all files adhere to coding conv
 bash cleanup.sh
 ```
 This will autoformat your code, sort your imports and fix overal problems.
+
+## Coding conventions and style
+The project uses [Black](https://github.com/psf/black) for formatting and [Flake8](https://pypi.org/project/flake8/) for linting.
