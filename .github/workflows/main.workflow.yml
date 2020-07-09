@@ -18,5 +18,7 @@ jobs:
       run: bash cleanup.sh
     - name: Build Docker image
       run: docker-compose build
+    - name: Create Docker network
+      run: docker network create fixxx-looplijsten-backend_looplijsten_backend
     - name: Run Tests
       run: docker-compose run --rm zaak-gateway python manage.py test
