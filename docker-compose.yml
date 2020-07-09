@@ -18,8 +18,10 @@ services:
       # - OPEN_ZAAK_PORT=8000
       # - OPEN_ZAAK_API_VERSION=v1
       # - OPEN_ZAAK_CONTAINER_NAME=openzaak.test
+      - DJANGO_SECRET_KEY=local
+      - DJANGO_DEBUG=True
+      - UWSGI_HTTP=0.0.0.0:8000
       - UWSGI_STATIC_MAP=/static=/static
-      - DEBUG=True
       - DATABASE_NAME=zaken
       - DATABASE_USER=zaken
       - DATABASE_PASSWORD=insecure

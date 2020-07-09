@@ -3,9 +3,10 @@ import os
 from os.path import join
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEBUG = True
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+DEBUG = os.environ.get("DJANGO_DEBUG", False)
 ROOT_URLCONF = "config.urls"
-SECRET_KEY = "FOO"
+
 WSGI_APPLICATION = "config.wsgi.application"
 ALLOWED_HOSTS = ("0.0.0.0", "localhost", "zaak-gateway")
 CORS_ORIGIN_WHITELIST = (
