@@ -2,6 +2,9 @@
 import os
 from os.path import join
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 DEBUG = os.environ.get("DJANGO_DEBUG", False)
@@ -103,3 +106,8 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Zaken Backend Gateway API",
     "VERSION": "v1",
 }
+
+# Error logging through Sentry
+sentry_sdk.init(
+    dsn=os.environ.get("SENTRY_DSN", ""), integrations=[DjangoIntegration()]
+)
