@@ -8,7 +8,14 @@ DEBUG = os.environ.get("DJANGO_DEBUG", False)
 ROOT_URLCONF = "config.urls"
 
 WSGI_APPLICATION = "config.wsgi.application"
-ALLOWED_HOSTS = ("0.0.0.0", "localhost", "zaak-gateway")
+
+# TODO: Configure this in the environment variables
+ALLOWED_HOSTS = (
+    "0.0.0.0",
+    "localhost",
+    "zaak-gateway",
+    "acc.looplijst.top.amsterdam.nl",
+)
 CORS_ORIGIN_WHITELIST = (
     "http://0.0.0.0:3000",
     "http://localhost:3000",
