@@ -9,4 +9,5 @@ class GithubActionsTest(TestCase):
         self.assertEqual(True, True)
 
     def dummy_test_fail_for_github_actions(self):
+        # Tests
         self.assertEqual(True, False)
