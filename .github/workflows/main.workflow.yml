@@ -10,13 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: 3.x
     - name: Linting
       run: bash cleanup.sh
-    - name: Build Docker image
-      run: docker-compose build
-    - name: Run Tests
-      run: docker-compose run --rm zaak-gateway python manage.py test
+    # - name: Build Docker image
+    #   run: docker-compose build
+    # - name: Create Docker network
+    #   run: docker network create fixxx-looplijsten-backend_looplijsten_backend
+    # - name: Run Tests
+    #   run: docker-compose run --rm zaak-gateway python manage.py test

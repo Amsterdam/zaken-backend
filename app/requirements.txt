@@ -5,3 +5,4 @@ requests
 pyjwt
 drf-spectacular
 django-cors-headers
+sentry-sdk

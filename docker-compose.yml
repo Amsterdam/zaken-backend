@@ -26,6 +26,7 @@ services:
       - DATABASE_PASSWORD=insecure
       - DATABASE_HOST=database
       - DATABASE_PORT=5432
+      - SENTRY_DSN=https://foo@foo.data.amsterdam.nl/0
     volumes:
       - ./app:/app
   database:
