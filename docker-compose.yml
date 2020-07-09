@@ -19,7 +19,7 @@ services:
       # - OPEN_ZAAK_API_VERSION=v1
       # - OPEN_ZAAK_CONTAINER_NAME=openzaak.test
       - UWSGI_STATIC_MAP=/static=/static
-      - DEBUG=yes
+      - DEBUG=True
       - DATABASE_NAME=zaken
       - DATABASE_USER=zaken
       - DATABASE_PASSWORD=insecure
