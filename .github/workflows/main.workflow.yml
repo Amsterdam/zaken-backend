@@ -5,6 +5,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       ###################################################
+      # Set up Python
+      ###################################################
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      ###################################################
       # CHECKOUT
       ###################################################
       - name: Checkout backend
@@ -12,6 +20,13 @@ jobs:
         with:
           path: backend
           repository: amsterdam/zaken-backend
+
+      ###################################################
+      # Linting
+      ###################################################
+      - name: Linting
+      - run: bash cleanup.sh
+        working-directory: backend
 
       ###################################################
       # Build
