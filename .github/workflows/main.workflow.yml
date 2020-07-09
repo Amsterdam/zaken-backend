@@ -1,44 +1,22 @@
 name: 'Install, lint, test & build'
-on: [pull_request]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      ###################################################
-      # Set up Python
-      ###################################################
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
-
-      ###################################################
-      # CHECKOUT
-      ###################################################
-      - name: Checkout backend
-        uses: actions/checkout@v2
-        with:
-          path: backend
-          repository: amsterdam/zaken-backend
-
-      ###################################################
-      # Linting
-      ###################################################
-      - name: Linting
-      - run: bash cleanup.sh
-        working-directory: backend
-
-      ###################################################
-      # Build
-      ###################################################
-      - run: docker network create fixxx-looplijsten-backend_looplijsten_backend
-        working-directory: backend
-
-      - run: docker-compose build
-        working-directory: backend
-
-      ###################################################
-      # Tests
-      ###################################################
-      - run: docker-compose run --rm zaak-gateway python manage.py test
-        working-directory: backend
+    - uses: actions/checkout@v2
+    - name: Set up Python 
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+    - name: Linting
+      run: bash cleanup.sh
+    - name: Build Docker image
+      run: docker-compose build
+    - name: Run Tests
+      run: docker-compose run --rm zaak-gateway python manage.py test
