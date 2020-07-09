@@ -9,9 +9,8 @@ services:
 #      - .:/app
     ports:
       - 8080:8000
-    depends_on:
+    links:
       - database
-      # - openzaak.test
     environment:
       # - OPEN_ZAAK_CLIENT=client
       # - OPEN_ZAAK_SECRET_KEY=secret_key

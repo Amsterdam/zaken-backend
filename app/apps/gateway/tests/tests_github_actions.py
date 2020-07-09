@@ -5,9 +5,9 @@ from django.test import TestCase
 
 
 class GithubActionsTest(TestCase):
-    def dummy_test_for_github_actions(self):
+    def test_for_github_action(self):
         self.assertEqual(True, True)
 
-    def dummy_test_fail_for_github_actions(self):
+    def test_for_github_action_fail(self):
         # Tests
         self.assertEqual(True, False)
