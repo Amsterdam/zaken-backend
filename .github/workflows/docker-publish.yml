@@ -1,0 +1,11 @@
+# action.yml
+name: 'Install, lint, test & build'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run tests
+      - run: docker-compose build
+      - run: docker-compose run --rm zaak-gateway python manage.py test
+
