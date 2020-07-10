@@ -6,10 +6,10 @@ from apps.open_zaak.catalog.views import CatalogViewSet
 from apps.open_zaak.mocking_views import GenerateMockViewset
 from apps.open_zaak.state.views import StateViewSet
 from apps.open_zaak.state_type.views import StateTypeViewSet
+from apps.users.views import IsAuthenticatedView, ObtainAuthTokenOIDC, UserListView
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
-from django.contrib import admin
 from django.urls import path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
@@ -26,10 +26,11 @@ router.register(r"push", PushViewSet, basename="push")
 router.register(
     r"push-check-action", PushCheckActionViewSet, basename="push-check-action"
 )
+router.register(r"users", UserListView, basename="users")
 
 urlpatterns = [
     # Admin environment
-    path("admin/", admin.site.urls),
+    # path("admin/", admin.site.urls),
     # API Routing
     path("api/v1/", include(router.urls)),
     path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),
@@ -37,6 +38,18 @@ urlpatterns = [
         "api/v1/swagger/",
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
+    ),
+    # Authentication endpoint for exchanging an OIDC code for a token
+    path(
+        "api/v1/oidc-authenticate/",
+        ObtainAuthTokenOIDC.as_view(),
+        name="oidc-authenticate",
+    ),
+    # Endpoint for checking if user is authenticated
+    path(
+        "api/v1/is-authenticated/",
+        IsAuthenticatedView.as_view(),
+        name="is-authenticated",
     ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

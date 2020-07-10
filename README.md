@@ -22,6 +22,11 @@ It can be accessed through port 8080:
 localhost:8080
 ```
 
+You can run manage commands as follows:
+```
+docker-compose run --rm zaak-gateway python manage.py makemigrations
+```
+
 ### Open-zaak Container
 This app can be used for experimenting with the open-zaak application, and can be accessed through port 8090:
 ```

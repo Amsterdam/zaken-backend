@@ -27,6 +27,7 @@ services:
       - DATABASE_HOST=database
       - DATABASE_PORT=5432
       - SENTRY_DSN=https://foo@foo.data.amsterdam.nl/0
+      - LOCAL_DEVELOPMENT_AUTHENTICATION=True
     volumes:
       - ./app:/app
   database:
