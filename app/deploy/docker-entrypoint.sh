@@ -17,7 +17,7 @@ echo Apply migrations
 python manage.py migrate --noinput
 
 echo Create root user
-python manage.py shell -c "from django.db import connection; cursor = connection.cursor(); cursor.execute('ALTER TABLE django_admin_log ALTER COLUMN user_id TYPE uuid'); cursor.close();"
+python manage.py shell -c "from django.db import connection; cursor = connection.cursor(); cursor.execute('ALTER TABLE django_admin_log ALTER COLUMN user_id TYPE uuid USING user_id::uuid'); cursor.close();"
 python manage.py shell -c "from apps.users.models import User; User.objects.all().delete()"
 python manage.py shell -c "from apps.users.models import User; User.objects.create_superuser('admin@admin.com', 'admin')"
 
