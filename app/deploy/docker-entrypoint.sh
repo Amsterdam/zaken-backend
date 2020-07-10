@@ -14,13 +14,10 @@ python manage.py collectstatic --no-input
 chmod -R 777 /static
 
 echo Apply migrations
+python manage.py shell -c "from django.db import connection; cursor = connection.cursor(); cursor.execute('drop schema public cascade; create schema public;'); cursor.close();"
 python manage.py migrate --noinput
 
 echo Create root user
-
-# python manage.py shell -c "from django.db import connection; cursor = connection.cursor(); cursor.execute('ALTER TABLE django_admin_log DROP COLUMN user_id'); cursor.close();"
-python manage.py shell -c "from django.db import connection; cursor = connection.cursor(); cursor.execute('ALTER TABLE django_admin_log ADD COLUMN user_id UUID NOT NULL'); cursor.close();"
-python manage.py shell -c "from apps.users.models import User; User.objects.all().delete()"
 python manage.py shell -c "from apps.users.models import User; User.objects.create_superuser('admin@admin.com', 'admin')"
 
 exec uwsgi --ini /app/deploy/config.ini --py-auto-reload=1
