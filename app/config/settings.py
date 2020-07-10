@@ -29,32 +29,31 @@ CORS_ORIGIN_WHITELIST = (
 CORS_ORIGIN_ALLOW_ALL = False
 
 INSTALLED_APPS = (
-    # "django.contrib.admin",
+    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "mozilla_django_oidc",  # for authentication
     "corsheaders",
+    # Third party apps
+    "mozilla_django_oidc",
     "rest_framework",
-    "drf_spectacular",  # for generating real OpenAPI 3.0 documentation
+    "drf_spectacular",
+    # Apps
     "apps.users",
 )
 
-DATABASES = {}
-
-if not os.environ.get("GITHUB_WORKFLOW"):
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ.get("DATABASE_NAME"),
-            "USER": os.environ.get("DATABASE_USER"),
-            "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
-            "HOST": os.environ.get("DATABASE_HOST"),
-            "PORT": os.environ.get("DATABASE_PORT"),
-        },
-    }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DATABASE_NAME"),
+        "USER": os.environ.get("DATABASE_USER"),
+        "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
+        "HOST": os.environ.get("DATABASE_HOST"),
+        "PORT": os.environ.get("DATABASE_PORT"),
+    },
+}
 
 MIDDLEWARE = (
     "corsheaders.middleware.CorsMiddleware",
@@ -116,12 +115,6 @@ sentry_sdk.init(
     dsn=os.environ.get("SENTRY_DSN", ""), integrations=[DjangoIntegration()]
 )
 
-LOCAL_DEVELOPMENT_AUTHENTICATION = (
-    os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
-)
-
-AUTH_USER_MODEL = "users.User"
-
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
 OIDC_USERNAME_ALGO = "api.users.utils.generate_username"
@@ -158,9 +151,15 @@ OIDC_OP_JWKS_ENDPOINT = os.getenv(
 
 OIDC_USE_NONCE = True
 
+LOCAL_DEVELOPMENT_AUTHENTICATION = (
+    os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
+)
+
+AUTH_USER_MODEL = "users.User"
+
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
-    "api.users.auth.AuthenticationBackend",
+    "apps.users.auth.AuthenticationBackend",
 )
 
 REST_FRAMEWORK = {
