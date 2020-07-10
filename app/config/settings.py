@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     "mozilla_django_oidc",
     "rest_framework",
     "drf_spectacular",
+    "django_extensions",
     # Apps
     "apps.users",
 )

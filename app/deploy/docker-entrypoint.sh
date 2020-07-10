@@ -9,8 +9,7 @@ until PGPASSWORD=$DATABASE_PASSWORD psql -h $DATABASE_HOST -U $DATABASE_USER -c 
 done
 echo "Postgres is up!"
 
-# echo Flush database
-# python manage.py flush --noinput
+python manage.py reset_db --noinput
 
 echo Collecting static files
 python manage.py collectstatic --no-input
