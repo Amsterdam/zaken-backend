@@ -6,3 +6,5 @@ pyjwt
 drf-spectacular
 django-cors-headers
 sentry-sdk
+mozilla_django_oidc
+djangorestframework-simplejwt

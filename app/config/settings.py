@@ -9,6 +9,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 DEBUG = os.environ.get("DJANGO_DEBUG", False)
 ROOT_URLCONF = "config.urls"
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
 WSGI_APPLICATION = "config.wsgi.application"
 
@@ -28,15 +29,17 @@ CORS_ORIGIN_WHITELIST = (
 CORS_ORIGIN_ALLOW_ALL = False
 
 INSTALLED_APPS = (
-    "django.contrib.admin",
+    # "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "mozilla_django_oidc",  # for authentication
     "corsheaders",
     "rest_framework",
     "drf_spectacular",  # for generating real OpenAPI 3.0 documentation
+    "apps.users",
 )
 
 DATABASES = {}
@@ -59,6 +62,7 @@ MIDDLEWARE = (
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "mozilla_django_oidc.middleware.SessionRefresh",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -111,3 +115,65 @@ SPECTACULAR_SETTINGS = {
 sentry_sdk.init(
     dsn=os.environ.get("SENTRY_DSN", ""), integrations=[DjangoIntegration()]
 )
+
+LOCAL_DEVELOPMENT_AUTHENTICATION = (
+    os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
+)
+
+AUTH_USER_MODEL = "users.User"
+
+OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
+OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
+OIDC_USERNAME_ALGO = "api.users.utils.generate_username"
+
+ACCEPTANCE_OIDC_REDIRECT_URL = "https://acc.top.amsterdam.nl/authentication/callback"
+PRODUCTION_OIDC_REDIRECT_URL = "https://top.amsterdam.nl/authentication/callback"
+
+OIDC_REDIRECT_URL = ACCEPTANCE_OIDC_REDIRECT_URL
+
+if ENVIRONMENT == "production":
+    OIDC_REDIRECT_URL = PRODUCTION_OIDC_REDIRECT_URL
+
+OIDC_RP_SIGN_ALGO = "RS256"
+
+OIDC_RP_SCOPES = "openid"
+
+OIDC_VERIFY_SSL = True
+
+# https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/.well-known/openid-configuration
+OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv(
+    "OIDC_OP_AUTHORIZATION_ENDPOINT",
+    "https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/authorize",
+)
+OIDC_OP_TOKEN_ENDPOINT = os.getenv(
+    "OIDC_OP_TOKEN_ENDPOINT", "https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/token"
+)
+OIDC_OP_USER_ENDPOINT = os.getenv(
+    "OIDC_OP_USER_ENDPOINT", "https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/userinfo"
+)
+OIDC_OP_JWKS_ENDPOINT = os.getenv(
+    "OIDC_OP_JWKS_ENDPOINT",
+    "https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/.well-known/jwks.json",
+)
+
+OIDC_USE_NONCE = True
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "api.users.auth.AuthenticationBackend",
+)
+
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "PAGE_SIZE": 100,
+    "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S%z",
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
