@@ -16,8 +16,9 @@ chmod -R 777 /static
 echo Apply migrations
 python manage.py migrate --noinput
 
-
 echo Create root user
+
+python manage.py shell -c "from apps.users.models import User; User.objects.all().delete()"
 python manage.py shell -c "from apps.users.models import User; User.objects.create_superuser('admin@admin.com', 'admin')"
 
 exec uwsgi --ini /app/deploy/config.ini --py-auto-reload=1
