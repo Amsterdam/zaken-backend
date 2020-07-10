@@ -9,11 +9,18 @@ until PGPASSWORD=$DATABASE_PASSWORD psql -h $DATABASE_HOST -U $DATABASE_USER -c 
 done
 echo "Postgres is up!"
 
+echo Flush database
+python manage.py flush --noinput
+
 echo Collecting static files
 python manage.py collectstatic --no-input
 chmod -R 777 /static
 
 echo Apply migrations
 python manage.py migrate --noinput
+
+
+echo Create root user
+python manage.py shell -c "from apps.users.models import User; User.objects.create_superuser('admin@admin.com', 'admin')"
 
 exec uwsgi --ini /app/deploy/config.ini --py-auto-reload=1
