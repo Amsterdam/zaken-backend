@@ -4,10 +4,10 @@ from django.db import models
 class Address(models.Model):
     bag_id = models.CharField(max_length=255, null=False, unique=True)
     street_name = models.CharField(max_length=255, null=True, blank=True)
-    street_number = models.IntegerField(null=True, blank=True)
+    number = models.IntegerField(null=True, blank=True)
     suffix_letter = models.CharField(max_length=1, null=True, blank=True)
     suffix = models.CharField(max_length=4, null=True, blank=True)
-    postal_code = models.CharField(max_length=6, null=True, blank=True)
+    postal_code = models.CharField(max_length=7, null=True, blank=True)
     lat = models.FloatField(null=True, blank=True)
     lng = models.FloatField(null=True, blank=True)
 
@@ -15,13 +15,13 @@ class Address(models.Model):
         if self.street_name:
             return (
                 f"{self.street_name}"
-                f" {self.street_number}{self.suffix_letter}{self.suffix},"
+                f" {self.number}{self.suffix_letter}{self.suffix},"
                 f" {self.postal_code}"
             )
         return self.bag_id
 
-    def get(name):
-        return Address.objects.get_or_create(name=name)[0]
+    def get(bag_id):
+        return Address.objects.get_or_create(bag_id=bag_id)[0]
 
     def save(self, *args, **kwargs):
         # TODO: Do a BAG request and add the remaining data
