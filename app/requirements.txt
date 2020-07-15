@@ -9,3 +9,4 @@ sentry-sdk
 mozilla_django_oidc
 djangorestframework-simplejwt
 django-extensions
+faker
