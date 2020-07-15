@@ -7,7 +7,12 @@
 # from apps.open_zaak.state.views import StateViewSet
 # from apps.open_zaak.state_type.views import StateTypeViewSet
 
-from apps.cases.views import CaseViewSet, GenerateMockViewset
+from apps.cases.views import (
+    AddressViewSet,
+    CaseViewSet,
+    GenerateMockViewset,
+    ProjectViewSet,
+)
 from apps.users.views import IsAuthenticatedView, ObtainAuthTokenOIDC, UserListView
 from django.conf import settings
 from django.conf.urls import include, url
@@ -19,7 +24,10 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r"cases", CaseViewSet, basename="cases")
-router.register(r"generate-mock", GenerateMockViewset, basename="generate-mock")
+router.register(r"projects", ProjectViewSet, basename="projects")
+router.register(r"addresses", AddressViewSet, basename="addresses")
+
+# router.register(r"generate-mock", GenerateMockViewset, basename="generate-mock")
 
 # router.register(r"case-objects", CaseObjectViewSet, basename="case-objects")
 # router.register(r"case-types", CaseTypeViewSet, basename="case-types")

@@ -1,5 +1,6 @@
 # NOTE: Development settings
 import os
+from datetime import timedelta
 from os.path import join
 
 import sentry_sdk
@@ -178,4 +179,10 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=4),
+    # We don't refresh tokens yet, so we set refresh lifetime to zero
+    "REFRESH_TOKEN_LIFETIME": timedelta(seconds=0),
 }
