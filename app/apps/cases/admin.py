@@ -1,14 +1,14 @@
-from apps.cases.models import Address, Case, Project
+from apps.cases.models import Address, Case, CaseType
 from django.contrib import admin
 
 
 @admin.register(Case)
 class CaseAdmin(admin.ModelAdmin):
-    list_display = ("identification", "start_date", "end_date", "project", "address")
+    list_display = ("identification", "start_date", "end_date", "case_type", "address")
 
 
-@admin.register(Project)
-class ProjectAdmin(admin.ModelAdmin):
+@admin.register(CaseType)
+class CaseTypeAdmin(admin.ModelAdmin):
     list_display = ("name",)
 
 

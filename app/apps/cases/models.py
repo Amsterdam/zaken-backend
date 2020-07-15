@@ -28,11 +28,11 @@ class Address(models.Model):
         return super().save(*args, **kwargs)
 
 
-class Project(models.Model):
+class CaseType(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False, unique=True)
 
     def get(name):
-        return Project.objects.get_or_create(name=name)[0]
+        return CaseType.objects.get_or_create(name=name)[0]
 
     def __str__(self):
         return self.name
@@ -45,8 +45,8 @@ class Case(models.Model):
     identification = models.CharField(max_length=255, null=True, blank=True)
     start_date = models.DateField(auto_now=True)
     end_date = models.DateField(null=True)
-    project = models.ForeignKey(
-        to=Project, null=False, on_delete=models.CASCADE, related_name="cases"
+    case_type = models.ForeignKey(
+        to=CaseType, null=False, on_delete=models.CASCADE, related_name="cases"
     )
     address = models.ForeignKey(
         to=Address, null=False, on_delete=models.CASCADE, related_name="cases"

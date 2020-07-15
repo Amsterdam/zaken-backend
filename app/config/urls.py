@@ -9,9 +9,9 @@
 
 from apps.cases.views import (
     AddressViewSet,
+    CaseTypeViewSet,
     CaseViewSet,
     GenerateMockViewset,
-    ProjectViewSet,
 )
 from apps.users.views import IsAuthenticatedView, ObtainAuthTokenOIDC, UserListView
 from django.conf import settings
@@ -24,7 +24,7 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r"cases", CaseViewSet, basename="cases")
-router.register(r"projects", ProjectViewSet, basename="projects")
+router.register(r"case-types", CaseTypeViewSet, basename="case-types")
 router.register(r"addresses", AddressViewSet, basename="addresses")
 
 # router.register(r"generate-mock", GenerateMockViewset, basename="generate-mock")

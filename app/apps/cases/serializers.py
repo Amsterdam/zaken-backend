@@ -1,4 +1,4 @@
-from apps.cases.models import Address, Case, Project
+from apps.cases.models import Address, Case, CaseType
 from rest_framework import serializers
 
 
@@ -18,15 +18,15 @@ class AddressSerializer(serializers.ModelSerializer):
         ]
 
 
-class ProjectSerializer(serializers.ModelSerializer):
+class CaseTypeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Project
+        model = CaseType
         fields = "__all__"
         read_only_fields = ["id"]
 
 
 class CaseSerializer(serializers.ModelSerializer):
-    project = ProjectSerializer(required=True)
+    case_type = CaseTypeSerializer(required=True)
     address = AddressSerializer(required=True)
 
     class Meta:
@@ -34,16 +34,14 @@ class CaseSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def create(self, validated_data):
-        print("=-=-=-=-")
-        print("Valid data", validated_data)
-
-        project_data = validated_data.pop("project")
-        print("Project data", project_data)
-        project = Project.get(project_data.get("name"))
+        case_type_data = validated_data.pop("case_type")
+        case_type = CaseType.get(case_type_data.get("name"))
 
         address_data = validated_data.pop("address")
         address = Address.get(address_data.get("bag_id"))
 
-        case = Case.objects.create(**validated_data, project=project, address=address)
+        case = Case.objects.create(
+            **validated_data, case_type=case_type, address=address
+        )
 
         return case

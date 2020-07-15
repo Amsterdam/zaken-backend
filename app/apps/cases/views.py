@@ -1,6 +1,6 @@
 from apps.cases import populate
-from apps.cases.models import Address, Case, Project
-from apps.cases.serializers import AddressSerializer, CaseSerializer, ProjectSerializer
+from apps.cases.models import Address, Case, CaseType
+from apps.cases.serializers import AddressSerializer, CaseSerializer, CaseTypeSerializer
 from django.shortcuts import render
 from rest_framework.generics import (
     GenericAPIView,
@@ -16,13 +16,13 @@ from rest_framework.viewsets import ViewSet
 class GenerateMockViewset(ViewSet):
     def list(self, request):
         populate.delete_all()
-        projects = populate.create_projects()
+        case_types = populate.create_case_types()
         addresses = populate.create_addresses()
-        cases = populate.create_cases(projects, addresses)
+        cases = populate.create_cases(case_types, addresses)
 
         return Response(
             {
-                "projects": ProjectSerializer(projects, many=True).data,
+                "case_types": CaseTypeSerializer(case_types, many=True).data,
                 "addresses": AddressSerializer(addresses, many=True).data,
                 "cases": CaseSerializer(cases, many=True).data,
             }
@@ -41,7 +41,7 @@ class AddressViewSet(ViewSet, ListAPIView):
     queryset = Address.objects.all()
 
 
-class ProjectViewSet(ViewSet, ListAPIView):
+class CaseTypeViewSet(ViewSet, ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = ProjectSerializer
-    queryset = Project.objects.all()
+    serializer_class = CaseTypeSerializer
+    queryset = CaseType.objects.all()

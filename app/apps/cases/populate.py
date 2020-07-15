@@ -2,19 +2,19 @@ import random
 import uuid
 
 from apps.cases.const import MOCK_BAG_IDS, PROJECTS
-from apps.cases.models import Address, Case, Project
+from apps.cases.models import Address, Case, CaseType
 from faker import Faker
 
 
 def delete_all():
     Case.objects.all().delete()
     Address.objects.all().delete()
-    Project.objects.all().delete()
+    CaseType.objects.all().delete()
 
 
-def create_projects():
-    projects = [Project.get(project) for project in PROJECTS]
-    return projects
+def create_case_types():
+    case_types = [CaseType.get(case_type) for case_type in PROJECTS]
+    return case_types
 
 
 def create_addresses():
@@ -32,14 +32,14 @@ def create_addresses():
     return addresses
 
 
-def create_cases(projects, addresses):
+def create_cases(case_types, addresses):
     cases = []
     for i in range(10):
-        project = random.choice(projects)
+        case_type = random.choice(case_types)
         address = random.choice(addresses)
         identification = uuid.uuid4()
         case = Case.objects.create(
-            project=project, address=address, identification=identification
+            case_type=case_type, address=address, identification=identification
         )
         cases.append(case)
 
