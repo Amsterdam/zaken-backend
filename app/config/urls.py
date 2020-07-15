@@ -12,6 +12,8 @@ from apps.cases.views import (
     CaseTypeViewSet,
     CaseViewSet,
     GenerateMockViewset,
+    StateTypeViewSet,
+    StateViewSet,
 )
 from apps.users.views import IsAuthenticatedView, ObtainAuthTokenOIDC, UserListView
 from django.conf import settings
@@ -26,6 +28,8 @@ router = DefaultRouter()
 router.register(r"cases", CaseViewSet, basename="cases")
 router.register(r"case-types", CaseTypeViewSet, basename="case-types")
 router.register(r"addresses", AddressViewSet, basename="addresses")
+router.register(r"states", StateViewSet, basename="states")
+router.register(r"state-types", StateTypeViewSet, basename="state-types")
 router.register(r"generate-mock", GenerateMockViewset, basename="generate-mock")
 
 # router.register(r"case-objects", CaseObjectViewSet, basename="case-objects")

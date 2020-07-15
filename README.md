@@ -13,9 +13,9 @@ docker-compose up --build
 ```
 
 ## What is currently running?
-For prototyping purposes we are running two containers. A Python Django container, and the Open-zaak container.
+For prototyping purposes we are running two containers. A Python Django container.
 
-### Django backend gateway
+## Django backend gateway
 This is a Django application serves as a gateway of the open-zaak container (and other API's).
 It can be accessed through port 8080:
 ```
@@ -27,42 +27,22 @@ You can run manage commands as follows:
 docker-compose run --rm zaak-gateway python manage.py makemigrations
 ```
 
-### Open-zaak Container
-This app can be used for experimenting with the open-zaak application, and can be accessed through port 8090:
+You can create a superuser account as follows:
 ```
-localhost:8090
+docker-compose run --rm zaak-gateway python manage.py createsuperuser
 ```
+Follow the steps, and you'll be able to sign into http://localhost:8080/admin/
 
-## Accessing the open-zaak admin
-Run the following command and follow the steps to create a super user:
-```
-docker-compose run --rm openzaak.local python src/manage.py createsuperuser
-```
+## Accessing the API documentation
+You can access the documentation at:
+http://localhost:8000/api/v1/swagger/
 
-Once you have created an account, you should be able to access the admin:
-http://localhost:8090/admin/
-
-### Configuration Auth Credentials
-You need to configure authorization credentials so our Flask container can talk to Open Zaak.
-In the open zaak admin add a credential by navigating to:
-
-API Autorisaties -> Applicaties -> Applicatie Toevoegen
-
-Add any label, and the following Client Credentials:
-- Client ID: 'client'
-- Secret: 'secret_key'
-Make sure to check the 'Heeft alle autorisaties' box.
-
-Note: These settings are for local development only!
-
-Navigate to http://localhost:8080/api/v1/ and you should see a response.
-
-## OpenAPI documentation
-To view the API documentation and to test the endpoints, you can navigate to http://localhost:8080/api/v1/swagger/.
+## Generating an access token
+When the LOCAL_DEVELOPMENT_AUTHENTICATION environment variables, you can gain access easily in the Swagger documentation, by executing the /api/v1/oidc-authenticate/ POST request.
+You can use the 'access' token in the response as an authorization in the Authorize popup.
 
 ## Generating Mock Data
-For our proof of concept, you can generate some mock data.
-Navigate or do a GET request to http://localhost:8080/api/v1/generate-mock/ and the application will generate some data. (This might take some time)
+You can generate mock data easily (from the API swagger environment) by executing the /api/v1/generate-mock/ GET request.
 
 ## Adding pre-commit hooks
 You can add pre-commit hooks for checking and cleaning up your changes:

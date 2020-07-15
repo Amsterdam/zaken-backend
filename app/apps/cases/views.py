@@ -1,5 +1,5 @@
 from apps.cases import populate
-from apps.cases.models import Address, Case, CaseType
+from apps.cases.models import Address, Case, CaseType, State, StateType
 from apps.cases.serializers import (
     AddressSerializer,
     CaseSerializer,
@@ -57,3 +57,15 @@ class CaseTypeViewSet(ViewSet, ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CaseTypeSerializer
     queryset = CaseType.objects.all()
+
+
+class StateTypeViewSet(ViewSet, ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = StateTypeSerializer
+    queryset = StateType.objects.all()
+
+
+class StateViewSet(ViewSet, ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = StateSerializer
+    queryset = State.objects.all()
