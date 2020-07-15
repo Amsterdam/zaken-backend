@@ -1,12 +1,14 @@
 from apps.cases import populate
 from apps.cases.models import Address, Case, CaseType
 from apps.cases.serializers import AddressSerializer, CaseSerializer, CaseTypeSerializer
+from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.generics import (
     GenericAPIView,
     ListAPIView,
     ListCreateAPIView,
     RetrieveAPIView,
+    RetrieveUpdateDestroyAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -29,10 +31,20 @@ class GenerateMockViewset(ViewSet):
         )
 
 
-class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveAPIView):
+class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
+
+    def patch(self, request, pk):
+        model_object = self.get_object(pk)
+        serializer = self.serializer_class(
+            model_object, data=request.data, partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(code=201, data=serializer.data)
+        return JsonResponse(code=400, data="wrong parameters")
 
 
 class AddressViewSet(ViewSet, ListAPIView):
