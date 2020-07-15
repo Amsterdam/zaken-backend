@@ -22,7 +22,8 @@ ALLOWED_HOSTS = (
     "acc.looplijst.top.amsterdam.nl",
 )
 CORS_ORIGIN_WHITELIST = (
-    "http://0.0.0.0:3000",
+    "http://0.0.0.0:2999",
+    "http://localhost:2999",
     "http://localhost:3000",
     "http://0.0.0.0:3001",
     "http://localhost:3001",
