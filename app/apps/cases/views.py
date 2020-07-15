@@ -36,15 +36,21 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
 
+    def update(self, request, partial, pk, **kwargs):
+        # TODO: Update here
+        return JsonResponse({"message": "Hello World"})
+        # model_object = self.get_object(pk)
+
     def patch(self, request, pk):
-        model_object = self.get_object(pk)
-        serializer = self.serializer_class(
-            model_object, data=request.data, partial=True
-        )
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(code=201, data=serializer.data)
-        return JsonResponse(code=400, data="wrong parameters")
+        return JsonResponse({"message": "Hello World PATCH"})
+        # model_object = self.get_object(pk)
+        # serializer = self.serializer_class(
+        #     model_object, data=request.data, partial=True
+        # )
+        # if serializer.is_valid():
+        #     serializer.save()
+        #     return JsonResponse(code=201, data=serializer.data)
+        # return JsonResponse(code=400, data="wrong parameters")
 
 
 class AddressViewSet(ViewSet, ListAPIView):

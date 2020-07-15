@@ -43,7 +43,7 @@ class Case(models.Model):
         ordering = ["start_date"]
 
     identification = models.CharField(max_length=255, null=True, blank=True)
-    start_date = models.DateField(auto_now=True)
+    start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     case_type = models.ForeignKey(
         to=CaseType, null=False, on_delete=models.CASCADE, related_name="cases"
