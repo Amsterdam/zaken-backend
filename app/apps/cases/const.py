@@ -48,4 +48,26 @@ PROJECTS = [
     PROJECT_ZEBRA,
 ]
 
-MOCK_BAG_IDS = ["aaaa", "aaaa", "bbbb", "jjjj"]
+ONDERZOEK_BUITENDIENST = "Onderzoek buitendienst"
+TWEEDE_CONTROLE = "2de Controle"
+DERDE_CONTROLE = "3de Controle"
+HERCONTROLE = "Hercontrole"
+TWEEDE_HERCONTROLE = "2de hercontrole"
+DERDE_HERCONTROLE = "3de hercontrole"
+AVONDRONDE = "Avondronde"
+ONDERZOEK_ADVERTENTIE = "Onderzoek advertentie"
+WEEKEND_BUITENDIENST_ONDERZOEK = "Weekend buitendienstonderzoek"
+ISSUEMELDING = "Issuemelding"
+
+STADIA = [
+    ONDERZOEK_BUITENDIENST,
+    TWEEDE_CONTROLE,
+    DERDE_CONTROLE,
+    HERCONTROLE,
+    TWEEDE_HERCONTROLE,
+    DERDE_HERCONTROLE,
+    AVONDRONDE,
+    ONDERZOEK_ADVERTENTIE,
+    WEEKEND_BUITENDIENST_ONDERZOEK,
+    ISSUEMELDING,
+]

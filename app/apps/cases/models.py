@@ -59,3 +59,31 @@ class Case(models.Model):
         if self.identification:
             return self.identification
         return ""
+
+
+class StateType(models.Model):
+    name = models.CharField(max_length=255, null=False, unique=True)
+
+    def get(name):
+        return StateType.objects.get_or_create(name=name)[0]
+
+    def __str__(self):
+        return self.name
+
+
+class State(models.Model):
+    state_type = models.ForeignKey(
+        to=StateType, null=False, on_delete=models.CASCADE, related_name="states"
+    )
+    case = models.ForeignKey(
+        to=Case, null=False, on_delete=models.CASCADE, related_name="states"
+    )
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
+    gauge_date = models.DateField(null=True)
+
+    def __str__(self):
+        return (
+            f"{self.state_type} {self.case} {self.start_date} {self.end_date}"
+            f" {self.gauge_date}"
+        )

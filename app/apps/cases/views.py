@@ -1,6 +1,12 @@
 from apps.cases import populate
 from apps.cases.models import Address, Case, CaseType
-from apps.cases.serializers import AddressSerializer, CaseSerializer, CaseTypeSerializer
+from apps.cases.serializers import (
+    AddressSerializer,
+    CaseSerializer,
+    CaseTypeSerializer,
+    StateSerializer,
+    StateTypeSerializer,
+)
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.generics import (
@@ -19,14 +25,18 @@ class GenerateMockViewset(ViewSet):
     def list(self, request):
         populate.delete_all()
         case_types = populate.create_case_types()
+        state_types = populate.create_state_types()
         addresses = populate.create_addresses()
         cases = populate.create_cases(case_types, addresses)
+        states = populate.create_states(cases, state_types)
 
         return Response(
             {
                 "case_types": CaseTypeSerializer(case_types, many=True).data,
                 "addresses": AddressSerializer(addresses, many=True).data,
                 "cases": CaseSerializer(cases, many=True).data,
+                "state_types": StateTypeSerializer(state_types, many=True).data,
+                "states": StateSerializer(states, many=True).data,
             }
         )
 

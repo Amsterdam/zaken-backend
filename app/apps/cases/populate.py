@@ -1,15 +1,46 @@
 import random
 import uuid
+from datetime import date
 
-from apps.cases.const import MOCK_BAG_IDS, PROJECTS
-from apps.cases.models import Address, Case, CaseType
+from apps.cases.const import PROJECTS, STADIA
+from apps.cases.models import Address, Case, CaseType, State, StateType
 from faker import Faker
 
 
 def delete_all():
+    State.objects.all().delete()
+    StateType.objects.all().delete()
     Case.objects.all().delete()
     Address.objects.all().delete()
     CaseType.objects.all().delete()
+
+
+def create_states(cases, state_types):
+    states = []
+    for case in cases:
+        for i in range(5):
+            state_type = random.choice(state_types)
+
+            if i == 4:
+                end_date = None
+            else:
+                end_date = date.today()
+
+            state = State.objects.create(
+                state_type=state_type,
+                case=case,
+                start_date=date.today(),
+                end_date=end_date,
+                gauge_date=date.today(),
+            )
+            states.append(state)
+
+    return states
+
+
+def create_state_types():
+    state_types = [StateType.get(state_type) for state_type in STADIA]
+    return state_types
 
 
 def create_case_types():

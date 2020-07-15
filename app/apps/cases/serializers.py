@@ -1,4 +1,4 @@
-from apps.cases.models import Address, Case, CaseType
+from apps.cases.models import Address, Case, CaseType, State, StateType
 from rest_framework import serializers
 
 
@@ -66,3 +66,20 @@ class CaseSerializer(serializers.ModelSerializer):
         )
 
         return case
+
+
+class StateTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StateType
+        fields = "__all__"
+        read_only_fields = ("id",)
+
+
+class StateSerializer(serializers.ModelSerializer):
+    state_type = StateTypeSerializer(required=True)
+    case = CaseSerializer(required=True)
+
+    class Meta:
+        model = State
+        fields = "__all__"
+        read_only_fields = ("id",)

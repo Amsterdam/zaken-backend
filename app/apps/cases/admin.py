@@ -1,4 +1,4 @@
-from apps.cases.models import Address, Case, CaseType
+from apps.cases.models import Address, Case, CaseType, State, StateType
 from django.contrib import admin
 
 
@@ -14,4 +14,14 @@ class CaseTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
+    list_display = ()
+
+
+@admin.register(StateType)
+class StateTypeAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+
+
+@admin.register(State)
+class StateAdmin(admin.ModelAdmin):
     list_display = ()
