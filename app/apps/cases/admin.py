@@ -24,4 +24,4 @@ class StateTypeAdmin(admin.ModelAdmin):
 
 @admin.register(State)
 class StateAdmin(admin.ModelAdmin):
-    list_display = ()
+    list_display = ("__str__",)

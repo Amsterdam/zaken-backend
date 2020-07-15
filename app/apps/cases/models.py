@@ -84,6 +84,6 @@ class State(models.Model):
 
     def __str__(self):
         return (
-            f"{self.state_type} {self.case} {self.start_date} {self.end_date}"
+            f"{self.state_type}, {self.case.address}, {self.start_date} {self.end_date}"
             f" {self.gauge_date}"
         )
