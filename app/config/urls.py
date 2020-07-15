@@ -26,8 +26,7 @@ router = DefaultRouter()
 router.register(r"cases", CaseViewSet, basename="cases")
 router.register(r"case-types", CaseTypeViewSet, basename="case-types")
 router.register(r"addresses", AddressViewSet, basename="addresses")
-
-# router.register(r"generate-mock", GenerateMockViewset, basename="generate-mock")
+router.register(r"generate-mock", GenerateMockViewset, basename="generate-mock")
 
 # router.register(r"case-objects", CaseObjectViewSet, basename="case-objects")
 # router.register(r"case-types", CaseTypeViewSet, basename="case-types")
