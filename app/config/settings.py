@@ -123,6 +123,7 @@ sentry_sdk.init(
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
 OIDC_USERNAME_ALGO = "api.users.utils.generate_username"
+OIDC_USERNAME_ALGO = "apps.users.utils.generate_username"
 
 # TODO: Check if this is still needed
 ACCEPTANCE_OIDC_REDIRECT_URL = "https://acc.top.amsterdam.nl/authentication/callback"
