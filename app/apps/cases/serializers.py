@@ -35,6 +35,25 @@ class CaseSerializer(serializers.ModelSerializer):
         model = Case
         fields = "__all__"
 
+    def update(self, instance, validated_data):
+        case_type_data = validated_data.pop("case_type", None)
+        address_data = validated_data.pop("address", None)
+
+        if case_type_data:
+            case_type = CaseType.get(case_type_data.get("name"))
+            instance.case_type = case_type
+
+        if address_data:
+            address = Address.get(address_data.get("bag_id"))
+            instance.address = address
+
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+
+        instance.save()
+
+        return instance
+
     def create(self, validated_data):
         case_type_data = validated_data.pop("case_type")
         case_type = CaseType.get(case_type_data.get("name"))
