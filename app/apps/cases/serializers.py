@@ -6,7 +6,7 @@ class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
         fields = "__all__"
-        read_only_fields = [
+        read_only_fields = (
             "id",
             "street_name",
             "number",
@@ -15,14 +15,16 @@ class AddressSerializer(serializers.ModelSerializer):
             "postal_code",
             "lat",
             "lng",
-        ]
+        )
+        extra_kwargs = {"bag_id": {"validators": []}}
 
 
 class CaseTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseType
         fields = "__all__"
-        read_only_fields = ["id"]
+        read_only_fields = ("id",)
+        extra_kwargs = {"name": {"validators": []}}
 
 
 class CaseSerializer(serializers.ModelSerializer):

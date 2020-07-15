@@ -29,7 +29,7 @@ class Address(models.Model):
 
 
 class CaseType(models.Model):
-    name = models.CharField(max_length=255, null=False, blank=False, unique=True)
+    name = models.CharField(max_length=255, null=False, unique=True)
 
     def get(name):
         return CaseType.objects.get_or_create(name=name)[0]
