@@ -36,13 +36,17 @@ class Address(models.Model):
 
     def save(self, *args, **kwargs):
         bag_data = do_bag_search_id(self.bag_id)
-        result = bag_data.get("results", [])[0]
 
-        self.postal_code = result.get("postcode", "")
-        self.street_name = result.get("straatnaam", "")
-        self.number = result.get("huisnummer", "")
-        self.suffix_letter = result.get("bag_huisletter", "")
-        self.suffix = result.get("bag_toevoeging", "")
+        result = bag_data.get("results", [])
+
+        if len(result):
+            result = result[0]
+
+            self.postal_code = result.get("postcode", "")
+            self.street_name = result.get("straatnaam", "")
+            self.number = result.get("huisnummer", "")
+            self.suffix_letter = result.get("bag_huisletter", "")
+            self.suffix = result.get("bag_toevoeging", "")
 
         return super().save(*args, **kwargs)
 
