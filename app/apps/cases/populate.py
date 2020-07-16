@@ -70,7 +70,10 @@ def create_cases(case_types, addresses):
         address = random.choice(addresses)
         identification = uuid.uuid4()
         case = Case.objects.create(
-            case_type=case_type, address=address, identification=identification
+            case_type=case_type,
+            address=address,
+            identification=identification,
+            start_date=date.today(),
         )
         cases.append(case)
 
