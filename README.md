@@ -12,6 +12,11 @@ To build and start the project, run:
 docker-compose up --build
 ```
 
+If you are running this application without having run the fixxx-looplijsten-backend first, make sure a network is created first:
+```
+docker network create fixxx-looplijsten-backend_looplijsten_backend
+```
+
 ## Django backend
 The Django backend application can be accessed through port 8080:
 ```
