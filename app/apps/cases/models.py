@@ -1,4 +1,5 @@
 from django.db import models
+from utils.api_queries_bag import do_bag_search_id
 
 
 class Address(models.Model):
@@ -24,7 +25,15 @@ class Address(models.Model):
         return Address.objects.get_or_create(bag_id=bag_id)[0]
 
     def save(self, *args, **kwargs):
-        # TODO: Do a BAG request and add the remaining data
+        bag_data = do_bag_search_id(self.bag_id)
+        result = bag_data.get("results", [])[0]
+
+        self.postal_code = result.get("postcode", "")
+        self.street_name = result.get("straatnaam", "")
+        self.number = result.get("huisnummer", "")
+        self.suffix_letter = result.get("bag_huisletter", "")
+        self.suffix = result.get("bag_toevoeging", "")
+
         return super().save(*args, **kwargs)
 
 

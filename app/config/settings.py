@@ -189,3 +189,7 @@ SIMPLE_JWT = {
     # We don't refresh tokens yet, so we set refresh lifetime to zero
     "REFRESH_TOKEN_LIFETIME": timedelta(seconds=0),
 }
+
+
+# BAG Access request settings
+BAG_API_SEARCH_URL = "https://api.data.amsterdam.nl/atlas/search/adres/"

@@ -2,7 +2,7 @@ import random
 import uuid
 from datetime import date
 
-from apps.cases.const import PROJECTS, STADIA
+from apps.cases.const import BAG_IDS, PROJECTS, STADIA
 from apps.cases.models import Address, Case, CaseType, State, StateType
 from faker import Faker
 
@@ -49,16 +49,19 @@ def create_case_types():
 
 
 def create_addresses():
-    fake = Faker("nl_NL")
+    # fake = Faker("nl_NL")
     addresses = []
-    for i in range(10):
-        address = Address.objects.create(
-            bag_id=fake.bban(),
-            street_name=fake.street_name(),
-            number=fake.building_number(),
-            postal_code=fake.postcode(),
-        )
+    for bag_id in BAG_IDS:
+        address = Address.objects.create(bag_id=bag_id)
         addresses.append(address)
+    # for i in range(10):
+    #     address = Address.objects.create(
+    #         bag_id=fake.bban(),
+    #         street_name=fake.street_name(),
+    #         number=fake.building_number(),
+    #         postal_code=fake.postcode(),
+    #     )
+    #     addresses.append(address)
 
     return addresses
 
