@@ -193,3 +193,6 @@ SIMPLE_JWT = {
 
 # BAG Access request settings
 BAG_API_SEARCH_URL = "https://api.data.amsterdam.nl/atlas/search/adres/"
+
+# Secret keys which can be used to access certain parts of the API
+SECRET_KEY_TOP = os.getenv("SECRET_KEY_TOP", None)

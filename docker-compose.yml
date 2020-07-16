@@ -28,6 +28,7 @@ services:
       - DATABASE_PORT=5432
       - SENTRY_DSN=https://foo@foo.data.amsterdam.nl/0
       - LOCAL_DEVELOPMENT_AUTHENTICATION=True
+      - SECRET_KEY_TOP=SECRET_KEY_TOP
     volumes:
       - ./app:/app
   database:
