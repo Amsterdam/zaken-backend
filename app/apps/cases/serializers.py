@@ -5,7 +5,19 @@ from rest_framework import serializers
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = "__all__"
+        fields = (
+            "bag_id",
+            "id",
+            "full_address",
+            "street_name",
+            "number",
+            "suffix_letter",
+            "suffix",
+            "postal_code",
+            "lat",
+            "lng",
+            "full_address",
+        )
         read_only_fields = (
             "id",
             "street_name",
@@ -15,6 +27,7 @@ class AddressSerializer(serializers.ModelSerializer):
             "postal_code",
             "lat",
             "lng",
+            "full_address",
         )
         extra_kwargs = {"bag_id": {"validators": []}}
 

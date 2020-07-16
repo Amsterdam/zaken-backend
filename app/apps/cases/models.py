@@ -12,6 +12,16 @@ class Address(models.Model):
     lat = models.FloatField(null=True, blank=True)
     lng = models.FloatField(null=True, blank=True)
 
+    @property
+    def full_address(self):
+        full_address = f"{self.street_name} {self.number}"
+        if self.suffix or self.suffix_letter:
+            full_address = f"{full_address}-{self.suffix}{self.suffix_letter}"
+
+        full_address = f"{full_address}, {self.postal_code}"
+
+        return full_address
+
     def __str__(self):
         if self.street_name:
             return (

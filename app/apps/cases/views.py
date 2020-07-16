@@ -19,7 +19,6 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
-from utils.api_key_auth import ApiKeyAuth
 
 
 class GenerateMockViewset(ViewSet):
@@ -43,7 +42,7 @@ class GenerateMockViewset(ViewSet):
 
 
 class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
-    permission_classes = [ApiKeyAuth | IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
 
