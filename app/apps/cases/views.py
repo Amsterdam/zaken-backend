@@ -7,7 +7,6 @@ from apps.cases.serializers import (
     StateSerializer,
     StateTypeSerializer,
 )
-from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.generics import (
     GenericAPIView,

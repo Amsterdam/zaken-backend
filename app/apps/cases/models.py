@@ -69,10 +69,10 @@ class Case(models.Model):
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     case_type = models.ForeignKey(
-        to=CaseType, null=False, on_delete=models.CASCADE, related_name="cases"
+        to=CaseType, null=True, on_delete=models.CASCADE, related_name="cases"
     )
     address = models.ForeignKey(
-        to=Address, null=False, on_delete=models.CASCADE, related_name="cases"
+        to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )
 
     def get(identification):
