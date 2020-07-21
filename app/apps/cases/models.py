@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from utils.api_queries_bag import do_bag_search_id
 
@@ -84,6 +86,12 @@ class Case(models.Model):
         if self.identification:
             return self.identification
         return ""
+
+    def save(self, *args, **kwargs):
+        if not self.identification:
+            self.identification = str(uuid.uuid4())
+
+        super().save(*args, **kwargs)
 
 
 class StateType(models.Model):
