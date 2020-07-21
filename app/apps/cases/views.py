@@ -8,6 +8,8 @@ from apps.cases.serializers import (
     StateTypeSerializer,
 )
 from django.shortcuts import render
+from rest_framework.decorators import action
+from rest_framework.exceptions import APIException
 from rest_framework.generics import (
     GenericAPIView,
     ListAPIView,
@@ -18,6 +20,7 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
+from utils.api_queries_belastingen import get_fines, get_mock_fines
 
 
 class GenerateMockViewset(ViewSet):
@@ -44,6 +47,26 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
+    lookup_field = "identification"
+
+    @action(detail=True, methods=["get"])
+    def fines(self, request, identification):
+        """ Returns a list of fines for the given case """
+        try:
+            fines = get_fines(identification)
+
+            # TODO: Remove this once prototyping is done
+            if not fines["items"]:
+                fines = get_mock_fines(identification)
+
+            return Response(fines)
+        except Exception:
+            # TODO: Remove this once prototyping is done
+            fines = get_mock_fines(identification)
+            return Response(fines)
+
+            # TODO: Uncommment this and remove the mock data (when prototyping is done)
+            # raise APIException(f"Could not retrieve fine")
 
 
 class AddressViewSet(ViewSet, ListAPIView):

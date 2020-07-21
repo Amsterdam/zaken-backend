@@ -29,6 +29,9 @@ services:
       - SENTRY_DSN=https://foo@foo.data.amsterdam.nl/0
       - LOCAL_DEVELOPMENT_AUTHENTICATION=True
       - SECRET_KEY_TOP_ZAKEN=SECRET_KEY_TOP_ZAKEN
+      - BELASTING_API_URL=https://api-acc.belastingen.centric.eu/bel/inn/afne/vora/v1/vorderingenidentificatienummer/
+      - BAG_API_SEARCH_URL=https://api.data.amsterdam.nl/atlas/search/adres/
+
     volumes:
       - ./app:/app
   database:

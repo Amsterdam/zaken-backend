@@ -169,7 +169,14 @@ SIMPLE_JWT = {
 }
 
 # BAG Access request settings
-BAG_API_SEARCH_URL = "https://api.data.amsterdam.nl/atlas/search/adres/"
+BAG_API_SEARCH_URL = os.getenv(
+    "BAG_API_SEARCH_URL", "https://api.data.amsterdam.nl/atlas/search/adres/"
+)
+BELASTING_API_URL = os.getenv(
+    "BELASTING_API_URL",
+    "https://api-acc.belastingen.centric.eu/bel/inn/afne/vora/v1/vorderingenidentificatienummer/",
+)
+BELASTING_API_ACCESS_TOKEN = os.getenv("BELASTING_API_ACCESS_TOKEN", None)
 
 # Secret keys which can be used to access certain parts of the API
 SECRET_KEY_TOP_ZAKEN = os.getenv("SECRET_KEY_TOP_ZAKEN", None)
