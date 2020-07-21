@@ -101,6 +101,10 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated",],
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
 }
 
 SPECTACULAR_SETTINGS = {
@@ -113,6 +117,16 @@ SPECTACULAR_SETTINGS = {
 sentry_sdk.init(
     dsn=os.environ.get("SENTRY_DSN", ""), integrations=[DjangoIntegration()]
 )
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler", "level": "DEBUG"},},
+    "loggers": {
+        "apps": {"handlers": ["console"], "level": "INFO", "propagate": True,},
+        "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
+    },
+}
 
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
@@ -173,3 +187,17 @@ BAG_API_SEARCH_URL = "https://api.data.amsterdam.nl/atlas/search/adres/"
 
 # Secret keys which can be used to access certain parts of the API
 SECRET_KEY_TOP_ZAKEN = os.getenv("SECRET_KEY_TOP_ZAKEN", None)
+
+# Settings to improve security
+is_secure_environment = False if ENVIRONMENT == "devleopment" else True
+# NOTE: this is commented out because currently the internal health check is done over HTTP
+# SECURE_SSL_REDIRECT = is_secure_environment
+SESSION_COOKIE_SECURE = is_secure_environment
+CSRF_COOKIE_SECURE = is_secure_environment
+DEBUG = not is_secure_environment
+SECURE_HSTS_SECONDS = 60
+SECURE_HSTS_INCLUDE_SUBDOMAINS = is_secure_environment
+SECURE_HSTS_PRELOAD = is_secure_environment
+X_FRAME_OPTIONS = "DENY"
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
