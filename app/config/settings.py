@@ -1,4 +1,3 @@
-# NOTE: Development settings
 import os
 from datetime import timedelta
 from os.path import join
@@ -8,10 +7,11 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
-DEBUG = os.environ.get("DJANGO_DEBUG", False)
-ROOT_URLCONF = "config.urls"
-ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
+ENVIRONMENT = os.getenv("ENVIRONMENT")
+DEBUG = ENVIRONMENT == "development"
+
+ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
 # TODO: Configure this in the environment variables
@@ -21,14 +21,8 @@ ALLOWED_HOSTS = (
     "zaak-gateway",
     "acc.looplijst.top.amsterdam.nl",
 )
-CORS_ORIGIN_WHITELIST = (
-    "http://0.0.0.0:2999",
-    "http://localhost:2999",
-    "http://0.0.0.0:3000",
-    "http://localhost:3000",
-    "http://0.0.0.0:3001",
-    "http://localhost:3001",
-)
+# TODO: Configure this in the environment variables
+CORS_ORIGIN_WHITELIST = ("http://0.0.0.0:2999", "http://localhost:2999")
 CORS_ORIGIN_ALLOW_ALL = False
 
 INSTALLED_APPS = (
@@ -123,24 +117,9 @@ sentry_sdk.init(
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
 OIDC_USERNAME_ALGO = "api.users.utils.generate_username"
-OIDC_USERNAME_ALGO = "apps.users.utils.generate_username"
-
-# TODO: Check if this is still needed
-ACCEPTANCE_OIDC_REDIRECT_URL = "https://acc.top.amsterdam.nl/authentication/callback"
-PRODUCTION_OIDC_REDIRECT_URL = "https://top.amsterdam.nl/authentication/callback"
-
-OIDC_REDIRECT_URL = ACCEPTANCE_OIDC_REDIRECT_URL
-
-if ENVIRONMENT == "production":
-    OIDC_REDIRECT_URL = PRODUCTION_OIDC_REDIRECT_URL
-
 OIDC_RP_SIGN_ALGO = "RS256"
-
 OIDC_RP_SCOPES = "openid"
-
 OIDC_VERIFY_SSL = True
-
-# https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/.well-known/openid-configuration
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv(
     "OIDC_OP_AUTHORIZATION_ENDPOINT",
     "https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/authorize",
@@ -155,7 +134,6 @@ OIDC_OP_JWKS_ENDPOINT = os.getenv(
     "OIDC_OP_JWKS_ENDPOINT",
     "https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/.well-known/jwks.json",
 )
-
 OIDC_USE_NONCE = True
 
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
@@ -189,7 +167,6 @@ SIMPLE_JWT = {
     # We don't refresh tokens yet, so we set refresh lifetime to zero
     "REFRESH_TOKEN_LIFETIME": timedelta(seconds=0),
 }
-
 
 # BAG Access request settings
 BAG_API_SEARCH_URL = "https://api.data.amsterdam.nl/atlas/search/adres/"
