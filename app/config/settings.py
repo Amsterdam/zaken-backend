@@ -161,20 +161,6 @@ AUTHENTICATION_BACKENDS = (
     "apps.users.auth.AuthenticationBackend",
 )
 
-REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "PAGE_SIZE": 100,
-    "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S%z",
-    "DEFAULT_RENDERER_CLASSES": (
-        "rest_framework.renderers.JSONRenderer",
-        "rest_framework.renderers.BrowsableAPIRenderer",
-    ),
-    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
-}
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=4),
@@ -189,7 +175,7 @@ BAG_API_SEARCH_URL = "https://api.data.amsterdam.nl/atlas/search/adres/"
 SECRET_KEY_TOP_ZAKEN = os.getenv("SECRET_KEY_TOP_ZAKEN", None)
 
 # Settings to improve security
-is_secure_environment = False if ENVIRONMENT == "devleopment" else True
+is_secure_environment = False if ENVIRONMENT == "development" else True
 # NOTE: this is commented out because currently the internal health check is done over HTTP
 # SECURE_SSL_REDIRECT = is_secure_environment
 SESSION_COOKIE_SECURE = is_secure_environment
