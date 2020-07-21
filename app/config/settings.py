@@ -1,4 +1,3 @@
-# NOTE: Development settings
 import os
 from datetime import timedelta
 from os.path import join
@@ -8,10 +7,11 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
-DEBUG = os.environ.get("DJANGO_DEBUG", False)
-ROOT_URLCONF = "config.urls"
-ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
+ENVIRONMENT = os.getenv("ENVIRONMENT")
+DEBUG = ENVIRONMENT == "development"
+
+ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
 # TODO: Configure this in the environment variables
@@ -21,14 +21,8 @@ ALLOWED_HOSTS = (
     "zaak-gateway",
     "acc.looplijst.top.amsterdam.nl",
 )
-CORS_ORIGIN_WHITELIST = (
-    "http://0.0.0.0:2999",
-    "http://localhost:2999",
-    "http://0.0.0.0:3000",
-    "http://localhost:3000",
-    "http://0.0.0.0:3001",
-    "http://localhost:3001",
-)
+# TODO: Configure this in the environment variables
+CORS_ORIGIN_WHITELIST = ("http://0.0.0.0:2999", "http://localhost:2999")
 CORS_ORIGIN_ALLOW_ALL = False
 
 INSTALLED_APPS = (
@@ -107,6 +101,10 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated",],
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
 }
 
 SPECTACULAR_SETTINGS = {
@@ -120,27 +118,22 @@ sentry_sdk.init(
     dsn=os.environ.get("SENTRY_DSN", ""), integrations=[DjangoIntegration()]
 )
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler", "level": "DEBUG"},},
+    "loggers": {
+        "apps": {"handlers": ["console"], "level": "INFO", "propagate": True,},
+        "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
+    },
+}
+
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
 OIDC_USERNAME_ALGO = "api.users.utils.generate_username"
-OIDC_USERNAME_ALGO = "apps.users.utils.generate_username"
-
-# TODO: Check if this is still needed
-ACCEPTANCE_OIDC_REDIRECT_URL = "https://acc.top.amsterdam.nl/authentication/callback"
-PRODUCTION_OIDC_REDIRECT_URL = "https://top.amsterdam.nl/authentication/callback"
-
-OIDC_REDIRECT_URL = ACCEPTANCE_OIDC_REDIRECT_URL
-
-if ENVIRONMENT == "production":
-    OIDC_REDIRECT_URL = PRODUCTION_OIDC_REDIRECT_URL
-
 OIDC_RP_SIGN_ALGO = "RS256"
-
 OIDC_RP_SCOPES = "openid"
-
 OIDC_VERIFY_SSL = True
-
-# https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/.well-known/openid-configuration
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv(
     "OIDC_OP_AUTHORIZATION_ENDPOINT",
     "https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/authorize",
@@ -155,7 +148,6 @@ OIDC_OP_JWKS_ENDPOINT = os.getenv(
     "OIDC_OP_JWKS_ENDPOINT",
     "https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/.well-known/jwks.json",
 )
-
 OIDC_USE_NONCE = True
 
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
@@ -169,20 +161,6 @@ AUTHENTICATION_BACKENDS = (
     "apps.users.auth.AuthenticationBackend",
 )
 
-REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "PAGE_SIZE": 100,
-    "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S%z",
-    "DEFAULT_RENDERER_CLASSES": (
-        "rest_framework.renderers.JSONRenderer",
-        "rest_framework.renderers.BrowsableAPIRenderer",
-    ),
-    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
-}
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=4),
@@ -190,9 +168,22 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(seconds=0),
 }
 
-
 # BAG Access request settings
 BAG_API_SEARCH_URL = "https://api.data.amsterdam.nl/atlas/search/adres/"
 
 # Secret keys which can be used to access certain parts of the API
 SECRET_KEY_TOP_ZAKEN = os.getenv("SECRET_KEY_TOP_ZAKEN", None)
+
+# Settings to improve security
+is_secure_environment = False if ENVIRONMENT == "development" else True
+# NOTE: this is commented out because currently the internal health check is done over HTTP
+# SECURE_SSL_REDIRECT = is_secure_environment
+SESSION_COOKIE_SECURE = is_secure_environment
+CSRF_COOKIE_SECURE = is_secure_environment
+DEBUG = not is_secure_environment
+SECURE_HSTS_SECONDS = 60
+SECURE_HSTS_INCLUDE_SUBDOMAINS = is_secure_environment
+SECURE_HSTS_PRELOAD = is_secure_environment
+X_FRAME_OPTIONS = "DENY"
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
