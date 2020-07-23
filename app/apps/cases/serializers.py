@@ -99,7 +99,9 @@ class StateSerializer(serializers.ModelSerializer):
 
 
 class FineSerializer(serializers.Serializer):
-    identificatienummer = serializers.CharField(max_length=15)
+    # TODO: The official specifications for the max length is 15, but for our own cases we are using longer identification numbers
+    # TODO: Refactor the identification numbers of our own cases.
+    identificatienummer = serializers.CharField(max_length=64)
     vorderingnummer = serializers.IntegerField()
     jaar = serializers.IntegerField(max_value=9999)
     soort_vordering = serializers.ChoiceField(choices=("PBF", "PBN", "PRV", "SOC"))
