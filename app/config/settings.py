@@ -149,6 +149,7 @@ OIDC_OP_JWKS_ENDPOINT = os.getenv(
     "https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/.well-known/jwks.json",
 )
 OIDC_USE_NONCE = True
+OIDC_REDIRECT_URL = ""
 
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
     os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
@@ -167,6 +168,7 @@ SIMPLE_JWT = {
     # We don't refresh tokens yet, so we set refresh lifetime to zero
     "REFRESH_TOKEN_LIFETIME": timedelta(seconds=0),
 }
+
 
 # BAG Access request settings
 BAG_API_SEARCH_URL = os.getenv(
