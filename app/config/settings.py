@@ -149,7 +149,14 @@ OIDC_OP_JWKS_ENDPOINT = os.getenv(
     "https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/.well-known/jwks.json",
 )
 OIDC_USE_NONCE = True
-OIDC_REDIRECT_URL = ""
+ACCEPTANCE_OIDC_REDIRECT_URL = "https://acc.top.amsterdam.nl/authentication/callback"
+PRODUCTION_OIDC_REDIRECT_URL = "https://top.amsterdam.nl/authentication/callback"
+
+OIDC_REDIRECT_URL = ACCEPTANCE_OIDC_REDIRECT_URL
+
+if ENVIRONMENT == "production":
+    OIDC_REDIRECT_URL = PRODUCTION_OIDC_REDIRECT_URL
+
 
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
     os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
