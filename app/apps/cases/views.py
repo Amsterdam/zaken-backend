@@ -4,17 +4,14 @@ from apps.cases.serializers import (
     AddressSerializer,
     CaseSerializer,
     CaseTypeSerializer,
+    FineListSerializer,
     StateSerializer,
     StateTypeSerializer,
 )
-from django.shortcuts import render
 from rest_framework.decorators import action
-from rest_framework.exceptions import APIException
 from rest_framework.generics import (
-    GenericAPIView,
     ListAPIView,
     ListCreateAPIView,
-    RetrieveAPIView,
     RetrieveUpdateDestroyAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
@@ -49,7 +46,7 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
     queryset = Case.objects.all()
     lookup_field = "identification"
 
-    @action(detail=True, methods=["get"])
+    @action(detail=True, methods=["get"], serializer_class=FineListSerializer)
     def fines(self, request, identification):
         """ Returns a list of fines for the given case """
         try:
@@ -63,10 +60,15 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
         except Exception:
             # TODO: Remove this once prototyping is done
             fines = get_mock_fines(identification)
-            return Response(fines)
 
-            # TODO: Uncommment this and remove the mock data (when prototyping is done)
-            # raise APIException(f"Could not retrieve fine")
+        # Validates the incoming data
+        serializer = self.serializer_class(data=fines)
+        serializer.is_valid(raise_exception=True)
+
+        return Response(fines)
+
+        # TODO: Uncommment this and remove the mock data (when prototyping is done)
+        # raise APIException(f"Could not retrieve fine")
 
 
 class AddressViewSet(ViewSet, ListAPIView):
