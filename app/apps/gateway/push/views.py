@@ -1,5 +1,5 @@
-from apps.cases.models import Address, Case, CaseType
-from apps.cases.serializers import CaseSerializer
+from apps.cases.models import Address, Case, CaseType, State, StateType
+from apps.cases.serializers import CaseSerializer, StateSerializer
 from apps.gateway.push.serializers import PushCheckActionSerializer, PushSerializer
 from apps.users.auth_apps import TopKeyAuth
 from rest_framework import viewsets
@@ -49,7 +49,27 @@ class PushViewSet(viewsets.ViewSet):
             case.address = address
             case.save()
 
-            return Response({"case": CaseSerializer(case).data})
+            states_data = data.get("states")
+            states = []
+            for state_data in states_data:
+                name = state_data.get("name")
+                state_type = StateType.get(name)
+                state = State.objects.get_or_create(
+                    state_type=state_type,
+                    case=case,
+                    start_date=state_data.get("state_date"),
+                    end_date=state_data.get("state_date", None),
+                    gauge_date=state_data.get("gauge_date", None),
+                    invoice_identification=state_data.get("invoice_identification"),
+                )
+                states.append(state)
+
+            return Response(
+                {
+                    "case": CaseSerializer(case).data,
+                    "state": StateSerializer(state, many=True).data,
+                }
+            )
 
         except Exception as e:
-            raise APIException(f"Could not get or create case: {e}")
+            raise APIException(f"Could not push data: {e}")

@@ -32,6 +32,22 @@ class AddressSerializer(serializers.ModelSerializer):
         extra_kwargs = {"bag_id": {"validators": []}}
 
 
+class StateTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StateType
+        fields = "__all__"
+        read_only_fields = ("id",)
+
+
+class StateSerializer(serializers.ModelSerializer):
+    state_type = StateTypeSerializer(required=True)
+
+    class Meta:
+        model = State
+        fields = "__all__"
+        read_only_fields = ("id",)
+
+
 class CaseTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseType
@@ -43,6 +59,7 @@ class CaseTypeSerializer(serializers.ModelSerializer):
 class CaseSerializer(serializers.ModelSerializer):
     case_type = CaseTypeSerializer(required=True)
     address = AddressSerializer(required=True)
+    states = StateSerializer(many=True, read_only=True)
 
     class Meta:
         model = Case
@@ -79,23 +96,6 @@ class CaseSerializer(serializers.ModelSerializer):
         )
 
         return case
-
-
-class StateTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StateType
-        fields = "__all__"
-        read_only_fields = ("id",)
-
-
-class StateSerializer(serializers.ModelSerializer):
-    state_type = StateTypeSerializer(required=True)
-    case = CaseSerializer(required=True)
-
-    class Meta:
-        model = State
-        fields = "__all__"
-        read_only_fields = ("id",)
 
 
 class FineSerializer(serializers.Serializer):

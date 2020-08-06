@@ -114,6 +114,9 @@ class State(models.Model):
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     gauge_date = models.DateField(null=True)
+    invoice_identification = models.CharField(
+        max_length=255, null=True, blank=True, unique=True
+    )
 
     def __str__(self):
         return (
