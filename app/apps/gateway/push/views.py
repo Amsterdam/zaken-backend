@@ -25,7 +25,6 @@ class PushViewSet(viewsets.ViewSet):
     serializer_class = PushSerializer
 
     def create(self, request):
-        print("Start receiving push data")
         data = request.data
         serializer = self.serializer_class(data=data)
 
@@ -65,7 +64,6 @@ class PushViewSet(viewsets.ViewSet):
                 )
                 states.append(state)
 
-            print("End receiving push data")
             return Response(
                 {
                     "case": CaseSerializer(case).data,
