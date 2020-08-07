@@ -96,6 +96,7 @@ class Case(models.Model):
 
 class StateType(models.Model):
     name = models.CharField(max_length=255, null=False, unique=True)
+    invoice_available = models.BooleanField(default=False, null=False, blank=False)
 
     def get(name):
         return StateType.objects.get_or_create(name=name)[0]
@@ -114,6 +115,7 @@ class State(models.Model):
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     gauge_date = models.DateField(null=True)
+    # TODO: To make it more broadly applicable, we can probably just rename this to identification,
     invoice_identification = models.CharField(
         max_length=255, null=True, blank=True, unique=True
     )
