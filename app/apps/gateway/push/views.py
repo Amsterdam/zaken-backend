@@ -1,3 +1,5 @@
+import logging
+
 from apps.cases.models import Address, Case, CaseType, State, StateType
 from apps.cases.serializers import CaseSerializer, StateSerializer
 from apps.gateway.push.serializers import PushCheckActionSerializer, PushSerializer
@@ -6,6 +8,8 @@ from rest_framework import viewsets
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+LOGGER = logging.getLogger(__name__)
 
 
 class PushCheckActionViewSet(viewsets.ViewSet):
@@ -25,6 +29,9 @@ class PushViewSet(viewsets.ViewSet):
     serializer_class = PushSerializer
 
     def create(self, request):
+        LOGGER.info("Receiving pushed case")
+        LOGGER.info(request.data)
+
         data = request.data
         serializer = self.serializer_class(data=data)
 
@@ -68,7 +75,7 @@ class PushViewSet(viewsets.ViewSet):
             return Response(
                 {
                     "case": CaseSerializer(case).data,
-                    "state": StateSerializer(state, many=True).data,
+                    "states": StateSerializer(states, many=True).data,
                 }
             )
 
