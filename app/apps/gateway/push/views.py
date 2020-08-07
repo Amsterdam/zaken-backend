@@ -18,7 +18,7 @@ class PushCheckActionViewSet(viewsets.ViewSet):
 
     def create(self, request):
         data = request.data
-        print(f"POST Create CHECK actions {data}")
+        LOGGER.info(f"POST Create CHECK actions {data}")
         # format: {'identification': 'foo_id', 'check_action': True}
         # TODO: Should do something with this format
         return Response({})
@@ -30,13 +30,11 @@ class PushViewSet(viewsets.ViewSet):
 
     def create(self, request):
         LOGGER.info("Receiving pushed case")
-        LOGGER.info(request.data)
-
         data = request.data
         serializer = self.serializer_class(data=data)
 
         if not serializer.is_valid():
-            print(f"Serializer error: {serializer.errors}")
+            LOGGER.error("Serializer error: {serializer.errors}")
             raise APIException(f"Serializer error: {serializer.errors}")
 
         try:
@@ -66,10 +64,12 @@ class PushViewSet(viewsets.ViewSet):
                     case=case,
                     invoice_identification=state_data.get("invoice_identification"),
                 )[0]
-                state.start_date = start_date.get("start_date")
+
+                state.start_date = state_data.get("start_date")
                 state.end_date = state_data.get("end_date", None)
                 state.gauge_date = state_data.get("gauge_date", None)
                 state.save()
+
                 states.append(state)
 
             return Response(
@@ -80,4 +80,5 @@ class PushViewSet(viewsets.ViewSet):
             )
 
         except Exception as e:
+            LOGGER.error(f"Could not process push data: {e}")
             raise APIException(f"Could not push data: {e}")
