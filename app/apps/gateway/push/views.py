@@ -57,8 +57,8 @@ class PushViewSet(viewsets.ViewSet):
                 state = State.objects.get_or_create(
                     state_type=state_type,
                     case=case,
-                    start_date=state_data.get("state_date"),
-                    end_date=state_data.get("state_date", None),
+                    start_date=state_data.get("start_date"),
+                    end_date=state_data.get("end_date", None),
                     gauge_date=state_data.get("gauge_date", None),
                     invoice_identification=state_data.get("invoice_identification"),
                 )
