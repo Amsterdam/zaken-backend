@@ -65,8 +65,8 @@ class PushViewSet(viewsets.ViewSet):
                     state_type=state_type,
                     case=case,
                     invoice_identification=state_data.get("invoice_identification"),
-                )
-                state.start_date = state_data.get("start_date")
+                )[0]
+                state.start_date = start_date.get("start_date")
                 state.end_date = state_data.get("end_date", None)
                 state.gauge_date = state_data.get("gauge_date", None)
                 state.save()
