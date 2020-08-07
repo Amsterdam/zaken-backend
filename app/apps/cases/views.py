@@ -46,29 +46,35 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
     queryset = Case.objects.all()
     lookup_field = "identification"
 
-    @action(detail=True, methods=["get"], serializer_class=FineListSerializer)
+    @action(detail=True, methods=["get"])
     def fines(self, request, identification):
-        """ Returns a list of fines for the given case """
-        try:
-            fines = get_fines(identification)
+        """Retrieves states for a case which allow fines, and retrieve the corresponding fines"""
 
-            # TODO: Remove this once prototyping is done
-            if not fines["items"]:
-                fines = get_mock_fines(identification)
+        states = Case.objects.get(identification=identification).states
+        eligible_states = states.filter(state_type__invoice_available=True).all()
+        states_with_fines = []
 
-            return Response(fines)
-        except Exception:
-            # TODO: Remove this once prototyping is done
-            fines = get_mock_fines(identification)
+        for state in eligible_states:
+            try:
+                fines = get_fines(state.invoice_identification)
+            except Exception:
+                # TODO: Remove this once prototyping is done
+                fines = get_mock_fines(state.invoice_identification)
+                # TODO: Uncommment this and expand/improve error handling in this function
+                # raise APIException(f"Could not retrieve fine")
 
-        # Validates the incoming data
-        serializer = self.serializer_class(data=fines)
-        serializer.is_valid(raise_exception=True)
+            serialized_fines = FineListSerializer(data=fines)
+            serialized_fines.is_valid()
+            serialized_state = StateSerializer(state)
 
-        return Response(fines)
+            response_dict = {}
+            response_dict.update(serialized_state.data)
+            response_dict.update({"fines": serialized_fines.data.get("items")})
 
-        # TODO: Uncommment this and remove the mock data (when prototyping is done)
-        # raise APIException(f"Could not retrieve fine")
+            states_with_fines.append(response_dict)
+
+        # TODO: Remove 'items' from response once the frontend uses 'states_with_fines' instead
+        return Response({"items": [], "states_with_fines": states_with_fines})
 
 
 class AddressViewSet(ViewSet, ListAPIView):
