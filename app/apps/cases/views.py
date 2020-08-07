@@ -73,7 +73,7 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
             states_with_fines.append(response_dict)
 
         # TODO: Remove 'items' from response once the frontend uses 'states_with_fines' instead
-        fines = get_mock_fines(state.invoice_identification)
+        fines = get_mock_fines("foo_id")
         serialized_fines = FineListSerializer(data=fines)
         serialized_fines.is_valid()
 
