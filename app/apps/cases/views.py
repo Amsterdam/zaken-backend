@@ -49,7 +49,6 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
     @action(detail=True, methods=["get"])
     def fines(self, request, identification):
         """Retrieves states for a case which allow fines, and retrieve the corresponding fines"""
-
         states = Case.objects.get(identification=identification).states
         eligible_states = states.filter(state_type__invoice_available=True).all()
         states_with_fines = []
@@ -67,14 +66,20 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
             serialized_fines.is_valid()
             serialized_state = StateSerializer(state)
 
-            response_dict = {}
-            response_dict.update(serialized_state.data)
-            response_dict.update({"fines": serialized_fines.data.get("items")})
-
+            response_dict = {
+                **serialized_state.data,
+                "fines": serialized_fines.data.get("items"),
+            }
             states_with_fines.append(response_dict)
 
         # TODO: Remove 'items' from response once the frontend uses 'states_with_fines' instead
-        return Response({"items": [], "states_with_fines": states_with_fines})
+        fines = get_mock_fines(state.invoice_identification)
+        serialized_fines = FineListSerializer(data=fines)
+        serialized_fines.is_valid()
+
+        return Response(
+            {**serialized_fines.data, "states_with_fines": states_with_fines}
+        )
 
 
 class AddressViewSet(ViewSet, ListAPIView):
