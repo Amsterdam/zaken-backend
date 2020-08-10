@@ -46,7 +46,7 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
     queryset = Case.objects.all()
     lookup_field = "identification"
 
-    @action(detail=True, methods=["get"])
+    @action(detail=True, methods=["get"], serializer_class=FineListSerializer)
     def fines(self, request, identification):
         """Retrieves states for a case which allow fines, and retrieve the corresponding fines"""
         states = Case.objects.get(identification=identification).states
