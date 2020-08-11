@@ -48,27 +48,38 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
 
     @action(detail=True, methods=["get"], serializer_class=FineListSerializer)
     def fines(self, request, identification):
-        """ Returns a list of fines for the given case """
-        try:
-            fines = get_fines(identification)
+        """Retrieves states for a case which allow fines, and retrieve the corresponding fines"""
+        states = Case.objects.get(identification=identification).states
+        eligible_states = states.filter(state_type__invoice_available=True).all()
+        states_with_fines = []
 
-            # TODO: Remove this once prototyping is done
-            if not fines["items"]:
-                fines = get_mock_fines(identification)
+        for state in eligible_states:
+            try:
+                fines = get_fines(state.invoice_identification)
+            except Exception:
+                # TODO: Remove this once prototyping is done
+                fines = get_mock_fines(state.invoice_identification)
+                # TODO: Uncommment this and expand/improve error handling in this function
+                # raise APIException(f"Could not retrieve fine")
 
-            return Response(fines)
-        except Exception:
-            # TODO: Remove this once prototyping is done
-            fines = get_mock_fines(identification)
+            serialized_fines = FineListSerializer(data=fines)
+            serialized_fines.is_valid()
+            serialized_state = StateSerializer(state)
 
-        # Validates the incoming data
-        serializer = self.serializer_class(data=fines)
-        serializer.is_valid(raise_exception=True)
+            response_dict = {
+                **serialized_state.data,
+                "fines": serialized_fines.data.get("items"),
+            }
+            states_with_fines.append(response_dict)
 
-        return Response(fines)
+        # TODO: Remove 'items' from response once the frontend uses 'states_with_fines' instead
+        fines = get_mock_fines("foo_id")
+        serialized_fines = FineListSerializer(data=fines)
+        serialized_fines.is_valid()
 
-        # TODO: Uncommment this and remove the mock data (when prototyping is done)
-        # raise APIException(f"Could not retrieve fine")
+        return Response(
+            {**serialized_fines.data, "states_with_fines": states_with_fines}
+        )
 
 
 class AddressViewSet(ViewSet, ListAPIView):

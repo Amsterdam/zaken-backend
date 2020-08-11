@@ -9,12 +9,12 @@ logger = logging.getLogger(__name__)
 
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def get_fines(case_id):
+def get_fines(id):
     """
     Search the Belasting API for fines with case_id identification
     """
 
-    parameter = {"identificatienummer": case_id}
+    parameter = {"identificatienummer": id}
     header = {"authorization": f"Bearer {settings.BELASTING_API_ACCESS_TOKEN}"}
 
     response = requests.get(
