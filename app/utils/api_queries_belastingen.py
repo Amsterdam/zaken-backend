@@ -14,12 +14,22 @@ def get_fines(id):
     Search the Belasting API for fines with case_id identification
     """
 
+    logger.info(f"Retrieving fines for {id}")
+    # Just logging the length of the token here, to see if it's coming through correctly
+    logger.info(f"Check for access {len(settings.BELASTING_API_ACCESS_TOKEN)}")
+
     parameter = {"identificatienummer": id}
     header = {"authorization": f"Bearer {settings.BELASTING_API_ACCESS_TOKEN}"}
 
     response = requests.get(
         url=settings.BELASTING_API_URL, headers=header, params=parameter
     )
+
+    logger.info("Parameter:")
+    logger.info(parameter)
+    logger.info("Done request")
+    logger.info(response)
+
     response.raise_for_status()
 
     return response.json()
