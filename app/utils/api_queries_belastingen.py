@@ -18,12 +18,15 @@ def get_fines(id):
     # Just logging the length of the token here, to see if it's coming through correctly
     print(f"Check for access {len(settings.BELASTING_API_ACCESS_TOKEN)}")
 
-    parameter = {"identificatienummer": id}
+    parameter = {"identificatienummer": "67018_1_22"}
     header = {"authorization": f"Bearer {settings.BELASTING_API_ACCESS_TOKEN}"}
 
-    response = requests.get(
-        url=settings.BELASTING_API_URL, headers=header, params=parameter
-    )
+    try:
+        response = requests.get(
+            url=settings.BELASTING_API_URL, headers=header, params=parameter
+        )
+    except Exception as e:
+        print(e)
 
     print("Parameter:")
     print(parameter)
