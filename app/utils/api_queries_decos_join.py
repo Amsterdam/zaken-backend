@@ -15,7 +15,7 @@ def get_decos_join_permit():
             "https://decosdvl.acc.amsterdam.nl:443/decosweb/aspx/api/v1/items/90642DCCC2DB46469657C3D0DF0B1ED7/COBJECTS?filter=TEXT8"
             " eq 'Herengracht' and INITIALS eq '1'"
         )
-        headers = {"content-type": "application/json", "Accept": "application/itemdata"}
+        headers = {"Accept": "application/itemdata"}
         username = settings.DECOS_JOIN_USERNAME
         password = settings.DECOS_JOIN_PASSWORD
         print(url)
@@ -25,9 +25,11 @@ def get_decos_join_permit():
         response = requests.get(
             url, headers=headers, timeout=5, auth=(username, password)
         )
+        print("Response")
         print(response)
+        print(response.json())
         return response.json()
     except Exception as e:
         print(e)
-
+    print("Reached here")
     return {}
