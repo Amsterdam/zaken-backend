@@ -23,7 +23,7 @@ def get_decos_join_permit():
         print(len(username))
         print(len(password))
         response = requests.get(
-            url, headers=headers, timeout=0.5, auth=(username, password)
+            url, headers=headers, timeout=5, auth=(username, password)
         )
         print(response)
         return response.json()
