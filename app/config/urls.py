@@ -3,6 +3,7 @@ from apps.cases.views import (
     CaseTypeViewSet,
     CaseViewSet,
     GenerateMockViewset,
+    PermitViewSet,
     StateTypeViewSet,
     StateViewSet,
 )
@@ -24,6 +25,7 @@ router.register(r"states", StateViewSet, basename="states")
 router.register(r"state-types", StateTypeViewSet, basename="state-types")
 router.register(r"generate-mock", GenerateMockViewset, basename="generate-mock")
 router.register(r"push", PushViewSet, basename="push")
+router.register(r"permits", PermitViewSet, basename="permits")
 router.register(
     r"push-check-action", PushCheckActionViewSet, basename="push-check-action"
 )

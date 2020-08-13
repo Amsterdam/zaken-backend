@@ -18,6 +18,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from utils.api_queries_belastingen import get_fines, get_mock_fines
+from utils.api_queries_decos_join import get_decos_join_permit
 
 
 class GenerateMockViewset(ViewSet):
@@ -104,3 +105,10 @@ class StateViewSet(ViewSet, ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = StateSerializer
     queryset = State.objects.all()
+
+
+class PermitViewSet(ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        return Response(get_decos_join_permit())
