@@ -2,8 +2,8 @@ FROM amsterdam/python
 LABEL maintainer="datapunt@amsterdam.nl"
 
 # Setup Certificates for ADP/Motiv
-COPY certificates/adp_rootca.crt /usr/local/share/ca-certificates/extras/adp_rootca.crt
-RUN chmod 644 /usr/local/share/ca-certificates/extras/adp_rootca.crt \
+COPY certificates/adp_rootca.crt /usr/local/share/ca-certificates/adp_rootca.crt
+RUN chmod 644 /usr/local/share/ca-certificates/adp_rootca.crt \
   && update-ca-certificates --fresh
 
 ENV PYTHONUNBUFFERED 1
