@@ -1,10 +1,9 @@
 FROM amsterdam/python
 LABEL maintainer="datapunt@amsterdam.nl"
-RUN adduser --system datapunt
 
 # Setup Certificates for ADP/Motiv
-COPY certificates/adp_rootca.crt /usr/local/share/ca-certificates/extras/adp_rootca.crt
-RUN chmod 644 /usr/local/share/ca-certificates/extras/adp_rootca.crt \
+ADD certificates/adp_rootca.crt /usr/local/share/ca-certificates/adp_rootca.crt
+RUN chmod 644 /usr/local/share/ca-certificates/adp_rootca.crt \
   && update-ca-certificates --fresh
 
 ENV PYTHONUNBUFFERED 1
@@ -13,7 +12,6 @@ RUN apt-get update && apt-get install -y
 RUN pip install --upgrade pip
 RUN pip install uwsgi
 
-USER datapunt
 WORKDIR /app
 
 COPY requirements.txt /app/
