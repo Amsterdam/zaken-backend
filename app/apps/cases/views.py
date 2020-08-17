@@ -8,6 +8,8 @@ from apps.cases.serializers import (
     StateSerializer,
     StateTypeSerializer,
 )
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.decorators import action
 from rest_framework.generics import (
     ListAPIView,
@@ -107,8 +109,36 @@ class StateViewSet(ViewSet, ListAPIView):
     queryset = State.objects.all()
 
 
+query = OpenApiParameter(
+    name="query",
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.QUERY,
+    required=True,
+    description="Query",
+)
+
+book_id = OpenApiParameter(
+    name="book_id",
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.QUERY,
+    required=True,
+    description=(
+        "BAG Objecten: 90642DCCC2DB46469657C3D0DF0B1ED7 or Objecten onbekend:"
+        " B1FF791EA9FA44698D5ABBB1963B94EC"
+    ),
+)
+
+permit_search_parameters = [query, book_id]
+
+
 class PermitViewSet(ViewSet):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        parameters=permit_search_parameters, description="Search query parameters"
+    )
     def list(self, request):
-        return Response(get_decos_join_permit())
+        query = request.GET.get("query")
+        book_id = request.GET.get("book_id")
+        decos_join_response = get_decos_join_permit(query=query, book_id=book_id)
+        return Response(decos_join_response)

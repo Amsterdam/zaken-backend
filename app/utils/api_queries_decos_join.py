@@ -24,12 +24,42 @@ def generic_decos_request(url):
     return {}
 
 
-def get_decos_join_permit():
+# Straat + huisnummer
+# MAILADDRESS
+
+# Postcode
+# ZIPCODE
+
+# Verblijsobjectidentificatie
+# PHONE
+
+# Ligplaatsidentificatie
+# Text11
+
+# Straat
+# TEXT8
+
+# Huisnummer
+# INITIALS
+
+# Letter
+# FAX1
+
+# Toevoeging
+# PHONE2
+
+# Example parameters:
+# query="TEXT8 eq 'Herengracht' and INITIALS eq '1'"
+# book_id="90642DCCC2DB46469657C3D0DF0B1ED7"
+
+# Objectboeken:
+# BAG Objecten: 90642DCCC2DB46469657C3D0DF0B1ED7
+# Objecten onbekend: B1FF791EA9FA44698D5ABBB1963B94EC
+def get_decos_join_permit(query, book_id):
+
     print("Starting Decos Join Request")
-    url = (
-        "https://decosdvl.acc.amsterdam.nl:443/decosweb/aspx/api/v1/items/90642DCCC2DB46469657C3D0DF0B1ED7/COBJECTS?filter=TEXT8"
-        " eq 'Herengracht' and INITIALS eq '1'"
-    )
+    url = f"https://decosdvl.acc.amsterdam.nl:443/decosweb/aspx/api/v1/items/{book_id}/COBJECTS?filter={query}"
+
     data = generic_decos_request(url)
     print("First request")
     print(data)
