@@ -59,7 +59,8 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
         for state in eligible_states:
             try:
                 fines = get_fines(state.invoice_identification)
-            except Exception:
+            except Exception as e:
+                print(f"Fines exception: {e}")
                 # TODO: Remove this once prototyping is done
                 fines = get_mock_fines(state.invoice_identification)
                 # TODO: Uncommment this and expand/improve error handling in this function

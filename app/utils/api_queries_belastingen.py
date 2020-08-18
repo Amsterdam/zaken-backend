@@ -15,10 +15,7 @@ def get_fines(id):
     """
 
     print(f"Retrieving fines for {id}")
-    # Just logging the length of the token here, to see if it's coming through correctly
-    print(f"Check for access {len(settings.BELASTING_API_ACCESS_TOKEN)}")
-
-    parameter = {"identificatienummer": "67018_1_22"}
+    parameter = {"identificatienummer": id}
     header = {"authorization": f"Bearer {settings.BELASTING_API_ACCESS_TOKEN}"}
 
     try:
@@ -31,12 +28,9 @@ def get_fines(id):
     except Exception as e:
         print(e)
 
-    print("Parameter:")
-    print(parameter)
-    print("Done request")
-    print(response)
-
     response.raise_for_status()
+
+    print(response.json())
 
     return response.json()
 
