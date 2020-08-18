@@ -1,3 +1,5 @@
+import logging
+
 from apps.cases import populate
 from apps.cases.models import Address, Case, CaseType, State, StateType
 from apps.cases.serializers import (
@@ -21,6 +23,8 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from utils.api_queries_belastingen import get_fines, get_mock_fines
 from utils.api_queries_decos_join import get_decos_join_permit
+
+logger = logging.getLogger(__name__)
 
 
 class GenerateMockViewset(ViewSet):
@@ -59,22 +63,19 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
         for state in eligible_states:
             try:
                 fines = get_fines(state.invoice_identification)
+                serialized_fines = FineListSerializer(data=fines)
+                serialized_fines.is_valid()
+                serialized_state = StateSerializer(state)
+
+                response_dict = {
+                    **serialized_state.data,
+                    "fines": serialized_fines.data.get("items"),
+                }
+                states_with_fines.append(response_dict)
             except Exception as e:
-                print(f"Fines exception: {e}")
-                # TODO: Remove this once prototyping is done
-                fines = get_mock_fines(state.invoice_identification)
-                # TODO: Uncommment this and expand/improve error handling in this function
-                # raise APIException(f"Could not retrieve fine")
-
-            serialized_fines = FineListSerializer(data=fines)
-            serialized_fines.is_valid()
-            serialized_state = StateSerializer(state)
-
-            response_dict = {
-                **serialized_state.data,
-                "fines": serialized_fines.data.get("items"),
-            }
-            states_with_fines.append(response_dict)
+                logger.error(
+                    f"Could not retrieve fines for {state.invoice_identification}: {e}"
+                )
 
         # TODO: Remove 'items' from response once the frontend uses 'states_with_fines' instead
         fines = get_mock_fines("foo_id")
