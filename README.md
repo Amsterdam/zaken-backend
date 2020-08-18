@@ -61,3 +61,16 @@ This will autoformat your code, sort your imports and fix overal problems.
 
 ## Coding conventions and style
 The project uses [Black](https://github.com/psf/black) for formatting and [Flake8](https://pypi.org/project/flake8/) for linting.
+
+
+## Configuration
+
+### Fines
+Fines are coupled to certain state types.
+In order to retrieve the data for this fines, the invoice_available needs to be set to True. This can be done in the admin environment.
+
+For the domain 'Illegal vakantieverhuur' for example, the following state types need to be configured, and their respective invoice_available should be set to True:
+
+- Opleggen boete
+- Meldplicht beschikking boete
+- Invordering dwangsom
