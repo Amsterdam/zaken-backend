@@ -49,8 +49,11 @@ def generic_decos_request(url):
 # PHONE2
 
 # Example parameters:
-# query="TEXT8 eq 'Herengracht' and INITIALS eq '1'"
+# "TEXT8 eq 'Herengracht' and INITIALS eq '1'"
 # book_id="90642DCCC2DB46469657C3D0DF0B1ED7"
+
+# Bag id:
+# PHONE eq ''
 
 # Objectboeken:
 # BAG Objecten: 90642DCCC2DB46469657C3D0DF0B1ED7
@@ -61,13 +64,5 @@ def get_decos_join_permit(query, book_id):
     url = f"https://decosdvl.acc.amsterdam.nl:443/decosweb/aspx/api/v1/items/{book_id}/COBJECTS?filter={query}"
 
     data = generic_decos_request(url)
-    print("First request")
-    print(data)
-    items = data.get("links", [])
-    items_urls = [item.get("href") for item in items]
-    print("Nested items urls")
-    print(items_urls)
-    data_items = [generic_decos_request(url) for url in items_urls]
-    print("All data items")
-    print(data_items)
-    return {"items": data_items}
+
+    return data
