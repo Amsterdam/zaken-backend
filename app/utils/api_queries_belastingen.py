@@ -23,7 +23,10 @@ def get_fines(id):
 
     try:
         response = requests.get(
-            url=settings.BELASTING_API_URL, headers=header, params=parameter
+            url=settings.BELASTING_API_URL,
+            headers=header,
+            params=parameter,
+            verify="/usr/local/share/ca-certificates/adp_rootca.crt",
         )
     except Exception as e:
         print(e)
