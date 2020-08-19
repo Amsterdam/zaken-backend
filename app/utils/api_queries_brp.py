@@ -4,6 +4,33 @@ from tenacity import after_log, retry, stop_after_attempt
 
 logger = logging.getLogger(__name__)
 
+# The following fields were presented in the example spreadsheet documentation, which should mirror the BRP API:
+# (TODO: remove this once the BRP API is up and its documentation is accessible )
+# A-nummer
+# BSN
+# sleutel paraplu
+# Onderzoek algemeen
+# Burgerlijke staat
+# Geboortedatum
+# Geboortelandcode
+# Geslachtsaanduiding
+# Geslachtsnaam
+# Voorletters
+# Voornamen
+# Voorvoegsel geslachtsnaam
+# Indicatie geheim
+# Landcode immigratie
+# Datum inschrijving
+# Gemeente code inschrijving
+# Aanduiding naamgebruik
+# Datum begin relatie verblijfadres
+# Aanduiding in onderzoek verblijfadres
+# Straatnaam
+# Huisnummer
+# Huisletter 0=n.v.t.
+# Huisnummertoevoeging 0=n.v.t.
+# Postcode
+
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
 def get_brp(bag_id):
