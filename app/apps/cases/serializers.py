@@ -138,3 +138,17 @@ class FineSerializer(serializers.Serializer):
 
 class FineListSerializer(serializers.Serializer):
     items = FineSerializer(required=True, many=True)
+
+
+class ResidentSerializer(serializers.Serializer):
+    geboortedatum = serializers.DateTimeField(required=True)
+    geslachtsaanduiding = serializers.ChoiceField(choices=("M", "V", "X"))
+    geslachtsnaam = serializers.CharField(required=True)
+    voorletters = serializers.CharField(required=True)
+    voornamen = serializers.CharField(required=True)
+    voorvoegsel_geslachtsnaam = serializers.CharField(required=False)
+    datum_begin_relatie_verblijadres = serializers.DateTimeField(required=True)
+
+
+class ResidentsSerializer(serializers.Serializer):
+    items = ResidentSerializer(required=True, many=True)

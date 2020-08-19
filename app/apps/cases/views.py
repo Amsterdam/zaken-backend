@@ -7,11 +7,13 @@ from apps.cases.serializers import (
     CaseSerializer,
     CaseTypeSerializer,
     FineListSerializer,
+    ResidentsSerializer,
     StateSerializer,
     StateTypeSerializer,
 )
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import (
     ListAPIView,
@@ -22,6 +24,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from utils.api_queries_belastingen import get_fines, get_mock_fines
+from utils.api_queries_brp import get_brp
 from utils.api_queries_decos_join import get_decos_join_permit
 
 logger = logging.getLogger(__name__)
@@ -52,6 +55,26 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
     lookup_field = "identification"
+
+    @action(detail=True, methods=["get"], serializer_class=ResidentsSerializer)
+    def residents(self, request, identification):
+        try:
+            case = Case.objects.get(identification=identification)
+        except Case.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            bag_id = case.address.bag_id
+            brp_data = get_brp(bag_id)
+            serialized_residents = ResidentsSerializer(data=brp_data)
+            serialized_residents.is_valid()
+
+            return Response(serialized_residents.data)
+
+        except Exception as e:
+            logger.error(f"Could not retrieve residents for case {identification}: {e}")
+
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=["get"], serializer_class=FineListSerializer)
     def fines(self, request, identification):
