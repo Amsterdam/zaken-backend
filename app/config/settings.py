@@ -130,7 +130,7 @@ LOGGING = {
 
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
-OIDC_USERNAME_ALGO = "api.users.utils.generate_username"
+OIDC_USERNAME_ALGO = "apps.users.utils.generate_username"
 OIDC_RP_SIGN_ALGO = "RS256"
 OIDC_RP_SCOPES = "openid"
 OIDC_VERIFY_SSL = True
