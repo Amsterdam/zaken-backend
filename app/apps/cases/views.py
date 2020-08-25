@@ -38,7 +38,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from utils.api_queries_belastingen import get_fines, get_mock_fines
 from utils.api_queries_brp import get_brp
-from utils.api_queries_decos_join import get_decos_join_documents, get_decos_join_permit
+from utils.api_queries_decos_join import get_decos_join_permit, get_decos_join_request
 
 logger = logging.getLogger(__name__)
 
@@ -175,7 +175,7 @@ object_id = OpenApiParameter(
 )
 
 permit_search_parameters = [book_id, query]
-permit_docs_parameters = [book_id, query]
+permit_request_parameters = [query]
 
 
 class PermitViewSet(ViewSet):
@@ -190,13 +190,14 @@ class PermitViewSet(ViewSet):
         decos_join_response = get_decos_join_permit(query=query, book_id=book_id)
         return Response(decos_join_response)
 
-    @extend_schema(parameters=permit_docs_parameters, description="Get documents for")
+    @extend_schema(
+        parameters=permit_request_parameters, description="Request to Decos Join API"
+    )
     @action(detail=False)
     def list_documents(self, request):
-        book_id = request.GET.get("book_id")
         query = request.GET.get("query")
 
-        decos_join_response = get_decos_join_documents(book_id=book_id, query=query)
+        decos_join_response = get_decos_join_request(query=query)
 
         return Response(decos_join_response)
 
