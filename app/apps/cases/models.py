@@ -2,6 +2,7 @@ import uuid
 
 from django.db import models
 from utils.api_queries_bag import do_bag_search_id
+from apps.users.models import User
 
 
 class Address(models.Model):
@@ -125,3 +126,24 @@ class State(models.Model):
             f"{self.state_type}, {self.case.address}, {self.start_date} {self.end_date}"
             f" {self.gauge_date}"
         )
+
+
+class CaseTimelineSubject(models.Model):
+    subject = models.CharField(max_length=255)
+    is_done = models.BooleanField(default=False)
+
+
+class CaseTimelineThread(models.Model):
+    # TODO Not sure if all authors are Users
+    authors = models.ManyToManyField(to=User, related_name="authors")
+    date = models.DateField(auto_now_add=True)
+    subject = models.ForeignKey(CaseTimelineSubject, on_delete=models.CASCADE)
+    parameters = models.JSONField(default={})
+    notes = models.TextField(blank=True, null=True)
+
+
+class CaseTimelineReaction(models.Model):
+    timeline_item = models.ForeignKey(CaseTimelineThread, on_delete=models.CASCADE)
+    author = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    comment = models.TextField()
+    date = models.DateField(auto_now_add=True)

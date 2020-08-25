@@ -1,10 +1,23 @@
 import logging
 
 from apps.cases import populate
-from apps.cases.models import Address, Case, CaseType, State, StateType
+from apps.cases.models import (
+    Address,
+    Case,
+    CaseTimelineReaction,
+    CaseTimelineSubject,
+    CaseTimelineThread,
+    CaseType,
+    State,
+    StateType,
+)
 from apps.cases.serializers import (
     AddressSerializer,
     CaseSerializer,
+    CaseTimelineSerializer,
+    CaseTimelineReactionSerializer,
+    CaseTimelineSubjectSerializer,
+    CaseTimelineThreadSerializer,
     CaseTypeSerializer,
     FineListSerializer,
     ResidentsSerializer,
@@ -22,10 +35,10 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import ModelViewSet, ViewSet
 from utils.api_queries_belastingen import get_fines, get_mock_fines
 from utils.api_queries_brp import get_brp
-from utils.api_queries_decos_join import get_decos_join_permit
+from utils.api_queries_decos_join import get_decos_join_permit, get_decos_join_documents
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +166,16 @@ book_id = OpenApiParameter(
     ),
 )
 
-permit_search_parameters = [query, book_id]
+object_id = OpenApiParameter(
+    name="object_id",
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.QUERY,
+    required=True,
+    description=("ID van woningobject"),
+)
+
+permit_search_parameters = [book_id, query]
+permit_docs_parameters = [book_id, object_id]
 
 
 class PermitViewSet(ViewSet):
@@ -167,3 +189,29 @@ class PermitViewSet(ViewSet):
         book_id = request.GET.get("book_id")
         decos_join_response = get_decos_join_permit(query=query, book_id=book_id)
         return Response(decos_join_response)
+
+    @extend_schema(parameters=permit_docs_parameters, description="Get documents for")
+    def get(self, request):
+        book_id = request.GET.get("book_id")
+        object_id = request.GET.get("object_id")
+
+        decos_join_response = get_decos_join_documents(
+            book_id=book_id, object_id=object_id
+        )
+
+        return Response(decos_join_response)
+
+
+class CaseTimeLineViewSet(ModelViewSet):
+    serializer_class = CaseTimelineSerializer
+    queryset = CaseTimelineSubject
+
+
+class CaseTimeLineThreadViewSet(ModelViewSet):
+    serializer_class = CaseTimelineThreadSerializer
+    queryset = CaseTimelineThread
+
+
+class CaseTimeLineReactionViewSet(ModelViewSet):
+    serializer_class = CaseTimelineReactionSerializer
+    queryset = CaseTimelineReaction
