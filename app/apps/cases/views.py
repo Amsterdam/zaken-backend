@@ -191,7 +191,8 @@ class PermitViewSet(ViewSet):
         return Response(decos_join_response)
 
     @extend_schema(parameters=permit_docs_parameters, description="Get documents for")
-    def get(self, request):
+    @action(detail=False)
+    def list_documents(self, request):
         book_id = request.GET.get("book_id")
         query = request.GET.get("query")
 
