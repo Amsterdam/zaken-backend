@@ -1,8 +1,8 @@
 from apps.cases.views import (
     AddressViewSet,
-    CaseTimeLineViewSet,
-    CaseTimeLineThreadViewSet,
     CaseTimeLineReactionViewSet,
+    CaseTimeLineThreadViewSet,
+    CaseTimeLineViewSet,
     CaseTypeViewSet,
     CaseViewSet,
     GenerateMockViewset,

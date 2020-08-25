@@ -14,8 +14,8 @@ from apps.cases.models import (
 from apps.cases.serializers import (
     AddressSerializer,
     CaseSerializer,
-    CaseTimelineSerializer,
     CaseTimelineReactionSerializer,
+    CaseTimelineSerializer,
     CaseTimelineSubjectSerializer,
     CaseTimelineThreadSerializer,
     CaseTypeSerializer,
@@ -38,7 +38,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from utils.api_queries_belastingen import get_fines, get_mock_fines
 from utils.api_queries_brp import get_brp
-from utils.api_queries_decos_join import get_decos_join_permit, get_decos_join_documents
+from utils.api_queries_decos_join import get_decos_join_documents, get_decos_join_permit
 
 logger = logging.getLogger(__name__)
 
@@ -171,11 +171,11 @@ object_id = OpenApiParameter(
     type=OpenApiTypes.STR,
     location=OpenApiParameter.QUERY,
     required=True,
-    description=("ID van woningobject"),
+    description="ID van woningobject",
 )
 
 permit_search_parameters = [book_id, query]
-permit_docs_parameters = [book_id, object_id]
+permit_docs_parameters = [book_id, query]
 
 
 class PermitViewSet(ViewSet):
@@ -193,11 +193,9 @@ class PermitViewSet(ViewSet):
     @extend_schema(parameters=permit_docs_parameters, description="Get documents for")
     def get(self, request):
         book_id = request.GET.get("book_id")
-        object_id = request.GET.get("object_id")
+        query = request.GET.get("query")
 
-        decos_join_response = get_decos_join_documents(
-            book_id=book_id, object_id=object_id
-        )
+        decos_join_response = get_decos_join_documents(book_id=book_id, query=query)
 
         return Response(decos_join_response)
 

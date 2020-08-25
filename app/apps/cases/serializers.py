@@ -1,12 +1,12 @@
 from apps.cases.models import (
     Address,
     Case,
+    CaseTimelineReaction,
+    CaseTimelineSubject,
+    CaseTimelineThread,
     CaseType,
     State,
     StateType,
-    CaseTimelineSubject,
-    CaseTimelineThread,
-    CaseTimelineReaction,
 )
 from rest_framework import serializers
 
