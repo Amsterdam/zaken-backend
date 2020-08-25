@@ -147,6 +147,7 @@ class FineSerializer(serializers.Serializer):
 
 class FineListSerializer(serializers.Serializer):
     items = FineSerializer(required=True, many=True)
+    states_with_fines = FineSerializer(required=True, many=True)
 
 
 class ResidentSerializer(serializers.Serializer):

@@ -113,14 +113,14 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
                     f"Could not retrieve fines for {state.invoice_identification}: {e}"
                 )
 
-        # TODO: Remove 'items' from response once the frontend uses 'states_with_fines' instead
+        # TODO: Remove 'items' (because it's mock data) from response once we have an anonimizer
         fines = get_mock_fines("foo_id")
-        serialized_fines = FineListSerializer(data=fines)
+        data = {"items": fines["items"], "states_with_fines": states_with_fines}
+
+        serialized_fines = FineListSerializer(data=data)
         serialized_fines.is_valid()
 
-        return Response(
-            {**serialized_fines.data, "states_with_fines": states_with_fines}
-        )
+        return Response(serialized_fines.data)
 
 
 class AddressViewSet(ViewSet, ListAPIView):
