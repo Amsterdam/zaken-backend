@@ -1,8 +1,8 @@
 import uuid
 
+from apps.users.models import User
 from django.db import models
 from utils.api_queries_bag import do_bag_search_id
-from apps.users.models import User
 
 
 class Address(models.Model):
