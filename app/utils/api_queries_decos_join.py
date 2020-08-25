@@ -74,9 +74,9 @@ def get_decos_join_permit(query, book_id):
     return {"root": data, "items": data_items}
 
 
-def get_decos_join_documents(book_id, query):
+def get_decos_join_request(query):
     print("Starting Decos Join Request")
-    url = f"https://decosdvl.acc.amsterdam.nl:443/decosweb/aspx/api/v1/items/{book_id}/DOCUMENTS?filter={query}"
+    url = f"https://decosdvl.acc.amsterdam.nl:443/decosweb/aspx/api/v1/items{query}"
 
     data = generic_decos_request(url)
 
