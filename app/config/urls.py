@@ -1,5 +1,8 @@
 from apps.cases.views import (
     AddressViewSet,
+    CaseTimeLineViewSet,
+    CaseTimeLineThreadViewSet,
+    CaseTimeLineReactionViewSet,
     CaseTypeViewSet,
     CaseViewSet,
     GenerateMockViewset,
@@ -19,6 +22,17 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r"cases", CaseViewSet, basename="cases")
+router.register(r"case-timelines", CaseTimeLineViewSet, basename="case-timelines")
+router.register(
+    r"case-timeline-threads",
+    CaseTimeLineThreadViewSet,
+    basename="case-timeline-threads",
+)
+router.register(
+    r"case-timeline-reactions",
+    CaseTimeLineReactionViewSet,
+    basename="case-timeline-reactions",
+)
 router.register(r"case-types", CaseTypeViewSet, basename="case-types")
 router.register(r"addresses", AddressViewSet, basename="addresses")
 router.register(r"states", StateViewSet, basename="states")

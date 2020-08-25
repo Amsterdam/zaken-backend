@@ -1,4 +1,13 @@
-from apps.cases.models import Address, Case, CaseType, State, StateType
+from apps.cases.models import (
+    Address,
+    Case,
+    CaseType,
+    State,
+    StateType,
+    CaseTimelineSubject,
+    CaseTimelineThread,
+    CaseTimelineReaction,
+)
 from rest_framework import serializers
 
 
@@ -152,3 +161,29 @@ class ResidentSerializer(serializers.Serializer):
 
 class ResidentsSerializer(serializers.Serializer):
     items = ResidentSerializer(required=True, many=True)
+
+
+class CaseTimelineSubjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseTimelineSubject
+
+
+class CaseTimelineReactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseTimelineReaction
+
+
+class CaseTimelineThreadSerializer(serializers.ModelSerializer):
+    castetimelinereaction_set = CaseTimelineReactionSerializer(
+        many=True, read_only=True
+    )
+
+    class Meta:
+        model = CaseTimelineThread
+
+
+class CaseTimelineSerializer(serializers.ModelSerializer):
+    casetimelinethread_set = CaseTimelineThreadSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = CaseTimelineSubject

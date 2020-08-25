@@ -72,3 +72,18 @@ def get_decos_join_permit(query, book_id):
     data_items = [generic_decos_request(url) for url in items_urls]
 
     return {"root": data, "items": data_items}
+
+
+def get_decos_join_documents(book_id, object_id):
+    print("Starting Decos Join Request")
+    url = f"https://decosdvl.acc.amsterdam.nl:443/decosweb/aspx/api/v1/items/{book_id}/DOCUMENTS?filter={query}"
+
+    data = generic_decos_request(url)
+
+    # Nested Items
+    # items = data.get("links", [])
+    # items_urls = [item.get("href") for item in items]
+    # data_items = [generic_decos_request(url) for url in items_urls]
+
+    return {"root": data}
+
