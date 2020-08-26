@@ -38,7 +38,11 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from utils.api_queries_belastingen import get_fines, get_mock_fines
 from utils.api_queries_brp import get_brp
-from utils.api_queries_decos_join import get_decos_join_permit, get_decos_join_request
+from utils.api_queries_decos_join import (
+    get_decos_join_permit,
+    get_decos_join_request,
+    get_decos_join_request_swagger,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -198,6 +202,17 @@ class PermitViewSet(ViewSet):
         query = request.GET.get("query")
 
         decos_join_response = get_decos_join_request(query=query)
+
+        return Response(decos_join_response)
+
+    @extend_schema(
+        parameters=permit_request_parameters, description="Request to Decos Join API"
+    )
+    @action(detail=False)
+    def list_swagger(self, request):
+        query = request.GET.get("query")
+
+        decos_join_response = get_decos_join_request_swagger(query=query)
 
         return Response(decos_join_response)
 
