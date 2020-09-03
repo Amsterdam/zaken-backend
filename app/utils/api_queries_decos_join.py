@@ -90,7 +90,7 @@ def get_decos_join_request(query):
 
 def get_decos_join_request_swagger(query):
     print("Starting Decos Join Request")
-    url = f"https://decosdvl.acc.amsterdam.nl:443/decosweb/aspx/api/v1/{query}"
+    url = f"https://decosdvl.amsterdam.nl:443/decosweb/aspx/api/v1/{query}"
 
     headers = {"Accept": "application/itemdata"}
     username = settings.DECOS_JOIN_USERNAME
