@@ -20,6 +20,7 @@ from apps.cases.serializers import (
     CaseTimelineThreadSerializer,
     CaseTypeSerializer,
     FineListSerializer,
+    PermitCheckmarkSerializer,
     ResidentsSerializer,
     StateSerializer,
     StateTypeSerializer,
@@ -39,6 +40,7 @@ from rest_framework.viewsets import ModelViewSet, ViewSet
 from utils.api_queries_belastingen import get_fines, get_mock_fines
 from utils.api_queries_brp import get_brp
 from utils.api_queries_decos_join import (
+    DecosJoinRequest,
     get_decos_join_permit,
     get_decos_join_request,
     get_decos_join_request_swagger,
@@ -126,6 +128,12 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
 
         return Response(serialized_fines.data)
 
+    # @action(detail=True, methods=["get"], serializer_class=)
+    # def permits(self, request, identification):
+    #     """
+    #     Retrieve status of decos join
+    #     """
+
 
 class AddressViewSet(ViewSet, ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -178,6 +186,14 @@ object_id = OpenApiParameter(
     description="ID van woningobject",
 )
 
+bag_id = OpenApiParameter(
+    name="bag_id",
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.QUERY,
+    required=True,
+    description="Verblijfsobjectidentificatie",
+)
+
 permit_search_parameters = [book_id, query]
 permit_request_parameters = [query]
 
@@ -215,6 +231,18 @@ class PermitViewSet(ViewSet):
         decos_join_response = get_decos_join_request_swagger(query=query)
 
         return Response(decos_join_response)
+
+    @extend_schema(
+        parameters=[bag_id], description="Get permit checkmarks based on bag id"
+    )
+    @action(detail=False)
+    def get_permit_checkmarks(self, request):
+        bag_id = request.GET.get("bag_id")
+        response = DecosJoinRequest().get_checkmarks_with_bag_id(bag_id)
+
+        serializer = PermitCheckmarkSerializer(response)
+
+        return serializer.data
 
 
 class CaseTimeLineViewSet(ModelViewSet):

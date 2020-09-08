@@ -103,3 +103,68 @@ def get_decos_join_request_swagger(query):
     # data_items = [generic_decos_request(url) for url in items_urls]
 
     return response
+
+
+class DecosJoinRequest:
+    """
+    Object to connect to decos join and retrieve permits
+    """
+
+    def _process_request_to_decos_join(self, url):
+        try:
+            username = settings.DECOS_JOIN_USERNAME
+            password = settings.DECOS_JOIN_PASSWORD
+
+            response = requests.get(url, timeout=8, auth=(username, password))
+
+            return response
+        except requests.exceptions.Timeout:
+            return False
+
+    def get_decos_object_with_address(self, address):
+        url = (
+            settings.DECOS_JOIN_API
+            + "/items/"
+            + settings.DECOS_JOIN_BOOK_KNOWN_BAG_OBJECTS
+            + f"/COBJECTS?filter=SUBJECT1 eq '{address}'"
+        )
+
+        return self._process_request_to_decos_join(url)
+
+    def get_decos_object_with_bag_id(self, bag_id):
+        url = (
+            settings.DECOS_JOIN_API
+            + "/items/"
+            + settings.DECOS_JOIN_BOOK_KNOWN_BAG_OBJECTS
+            + f"/COBJECTS?filter=PHONE3 eq '{bag_id}'"
+        )
+
+        return self._process_request_to_decos_join(url)
+
+    def get_folders_with_object_id(self, object_id):
+        url = settings.DECOS_JOIN_API + f"/items/{object_id}/FOLDERS/"
+
+        return self._process_request_to_decos_join(url)
+
+    def get_documents_with_folder_id(self, folder_id):
+        url = settings.DECOS_JOIN_API + f"/items/{folder_id}/DOCUMENTS/"
+        return self._process_request_to_decos_join(url)
+
+    def get_checkmarks_with_bag_id(self, bag_id):
+        """ Get simple view """
+        response = {"has_b_and_b_permit": False, "has_vacation_rental_permit": False}
+        response_decos_obj = self.get_decos_object_with_bag_id(bag_id)
+
+        if response_decos_obj and response_decos_obj.count > 0:
+            response_decos_folder = self.get_folders_with_object_id(
+                response_decos_obj.content[0].key
+            )
+
+            if response_decos_folder and response_decos_folder.count > 0:
+                for folder in response_decos_folder.content:
+                    if folder.parentKey is settings.DECOS_JOIN_BANDB_ID:
+                        response["has_b_and_b_permit"] = True
+                    if folder.parentKey is settings.DECOS_JOIN_VAKANTIEVERHUUR_ID:
+                        response["has_vacation_rental_permit"] = True
+
+        return response
