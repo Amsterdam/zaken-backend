@@ -192,3 +192,8 @@ class CaseTimelineSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseTimelineSubject
         fields = "__all__"
+
+
+class PermitCheckmarkSerializer(serializers.Serializer):
+    has_b_and_b_permit = serializers.BooleanField()
+    has_vacation_rental_permit = serializers.BooleanField()
