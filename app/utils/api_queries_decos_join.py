@@ -117,7 +117,7 @@ class DecosJoinRequest:
 
             response = requests.get(url, timeout=8, auth=(username, password))
 
-            return response
+            return response.json()
         except requests.exceptions.Timeout:
             return False
 
