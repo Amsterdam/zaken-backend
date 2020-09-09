@@ -155,13 +155,13 @@ class DecosJoinRequest:
         response = {"has_b_and_b_permit": False, "has_vacation_rental_permit": False}
         response_decos_obj = self.get_decos_object_with_bag_id(bag_id)
 
-        if response_decos_obj and response_decos_obj.count > 0:
+        if response_decos_obj and response_decos_obj.root.count > 0:
             response_decos_folder = self.get_folders_with_object_id(
-                response_decos_obj.content[0].key
+                response_decos_obj.root.content[0].key
             )
 
-            if response_decos_folder and response_decos_folder.count > 0:
-                for folder in response_decos_folder.content:
+            if response_decos_folder and response_decos_folder.root.count > 0:
+                for folder in response_decos_folder.root.content:
                     if folder.parentKey is settings.DECOS_JOIN_BANDB_ID:
                         response["has_b_and_b_permit"] = True
                     if folder.parentKey is settings.DECOS_JOIN_VAKANTIEVERHUUR_ID:
