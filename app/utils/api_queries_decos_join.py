@@ -163,7 +163,7 @@ class DecosJoinRequest:
 
         if response_decos_obj and response_decos_obj["count"] > 0:
             response_decos_folder = self.get_folders_with_object_id(
-                response_decos_obj["content"][0].key
+                response_decos_obj["content"][0]["key"]
             )
 
             if response_decos_folder and response_decos_folder["count"] > 0:
