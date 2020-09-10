@@ -14,8 +14,8 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.x
-    - name: Linting
-      run: bash cleanup.sh
+    # - name: Linting
+    #   run: bash cleanup.sh
     # - name: Build Docker image
     #   run: docker-compose build
     # - name: Create Docker network
