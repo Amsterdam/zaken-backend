@@ -115,7 +115,7 @@ class DecosJoinRequest:
             username = settings.DECOS_JOIN_USERNAME
             password = settings.DECOS_JOIN_PASSWORD
             headers = {
-                "Accept": "application/json",
+                "Accept": "application/itemdata",
                 "content-type": "application/json",
             }
 
@@ -162,9 +162,8 @@ class DecosJoinRequest:
         response_decos_obj = self.get_decos_object_with_bag_id(bag_id)
 
         if response_decos_obj and response_decos_obj["count"] > 0:
-            response_decos_folder = self.get_folders_with_object_id(
-                response_decos_obj["content"][0]["key"]
-            )
+            decos_object_id = response_decos_obj["content"][0]["key"]
+            response_decos_folder = self.get_folders_with_object_id(decos_object_id)
 
             if response_decos_folder and response_decos_folder["count"] > 0:
                 for folder in response_decos_folder["content"]:
