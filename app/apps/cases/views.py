@@ -128,12 +128,6 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
 
         return Response(serialized_fines.data)
 
-    # @action(detail=True, methods=["get"], serializer_class=)
-    # def permits(self, request, identification):
-    #     """
-    #     Retrieve status of decos join
-    #     """
-
 
 class AddressViewSet(ViewSet, ListAPIView):
     permission_classes = [IsAuthenticated]
