@@ -168,9 +168,10 @@ class DecosJoinRequest:
 
             if response_decos_folder and response_decos_folder["count"] > 0:
                 for folder in response_decos_folder["content"]:
-                    if folder.parentKey is settings.DECOS_JOIN_BANDB_ID:
+                    parent_key = folder["fields"]["parentKey"]
+                    if parent_key == settings.DECOS_JOIN_BANDB_ID:
                         response["has_b_and_b_permit"] = True
-                    if folder.parentKey is settings.DECOS_JOIN_VAKANTIEVERHUUR_ID:
+                    if parent_key == settings.DECOS_JOIN_VAKANTIEVERHUUR_ID:
                         response["has_vacation_rental_permit"] = True
 
         return response
