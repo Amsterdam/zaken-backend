@@ -240,9 +240,11 @@ class PermitViewSet(ViewSet):
         bag_id = request.GET.get("bag_id")
         response = DecosJoinRequest().get_checkmarks_with_bag_id(bag_id)
 
-        serializer = PermitCheckmarkSerializer(response)
+        serializer = PermitCheckmarkSerializer(data=response)
 
-        return serializer.data
+        if serializer.is_valid():
+            return Response(serializer.data)
+        return Response(serializer.initial_data)
 
 
 class CaseTimeLineViewSet(ModelViewSet):
