@@ -15,12 +15,13 @@ ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
 # TODO: Configure this in the environment variables
-ALLOWED_HOSTS = (
-    "0.0.0.0",
-    "localhost",
-    "zaak-gateway",
-    "acc.looplijst.top.amsterdam.nl",
-)
+# ALLOWED_HOSTS = (
+#     "0.0.0.0",
+#     "localhost",
+#     "zaak-gateway",
+#     "acc.looplijst.top.amsterdam.nl",
+# )
+ALLOWED_HOSTS = "*"
 # TODO: Configure this in the environment variables
 CORS_ORIGIN_WHITELIST = ("http://0.0.0.0:2999", "http://localhost:2999")
 CORS_ORIGIN_ALLOW_ALL = False
