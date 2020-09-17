@@ -92,7 +92,7 @@ def get_decos_join_request(query):
 
 def get_decos_join_request_swagger(query):
     print("Starting Decos Join Request")
-    url = f"https://decosdvl.amsterdam.nl:443/decosweb/aspx/api/v1/{query}"
+    url = f"https://decosdvl.amsterdam.nl/decosweb/aspx/api/v1/{query}"
 
     headers = {"Accept": "application/itemdata"}
     username = settings.DECOS_JOIN_USERNAME
@@ -243,7 +243,7 @@ class DecosJoinRequest:
             return True
         return False
 
-    def get_checkmarks_with_bag_id(self, bag_id):
+    def get_checkmarks_by_bag_id(self, bag_id):
         """ Get simple view of the important permits"""
         # TODO Make sure the response goes through a serializer so this doesn't break on KeyError
         response = {
@@ -252,7 +252,7 @@ class DecosJoinRequest:
         }
         response_decos_obj = self.get_decos_object_with_bag_id(bag_id)
 
-        if response_decos_obj and response_decos_obj["count"] > 0:
+        if response_decos_obj:
             response_decos_folder, folder_count = self._get_decos_folder_and_key(
                 response_decos_obj
             )
