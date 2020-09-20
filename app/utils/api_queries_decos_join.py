@@ -297,5 +297,9 @@ class DecosJoinRequest:
                         permit_serializer = DecosPermitSerializer(data=ser_data)
                         if permit_serializer.is_valid():
                             permits.append(permit_serializer.data)
+                        else:
+                            p_data = permit_serializer.data
+                            print(p_data)
+                            logger.error("permit_data is not valid")
 
         return permits
