@@ -182,19 +182,26 @@ class DecosJoinRequest:
         return False
 
     def _check_if_permit_is_valid(self, permit):
-        permit_from_date = self._convert_datestring_to_date(permit["date6"])
-        permit_untill_date = self._convert_datestring_to_date(permit["date7"])
         premit_date_granted = self._convert_datestring_to_date(permit["date5"])
         permit_status = permit["dfunction"]
 
+        if "date6" in permit and "date7" in permit:
+            permit_from_date = self._convert_datestring_to_date(permit["date6"])
+            permit_untill_date = self._convert_datestring_to_date(permit["date7"])
+
+            if (
+                permit_from_date <= datetime.today()
+                and permit_untill_date >= datetime.today()
+                and premit_date_granted <= datetime.today()
+                and permit_status == "Verleend"
+            ):
+                return True
+        else:
+            if premit_date_granted <= datetime.today() and permit_status == "Verleend":
+                return True
+
         # Check if permit is valid today and has been granted
-        if (
-            permit_from_date <= datetime.today()
-            and permit_untill_date >= datetime.today()
-            and premit_date_granted <= datetime.today()
-            and permit_status == "Verleend"
-        ):
-            return True
+
         return False
 
     def get_checkmarks_by_bag_id(self, bag_id):
