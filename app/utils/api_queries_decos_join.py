@@ -302,4 +302,9 @@ class DecosJoinRequest:
                             print(p_data)
                             logger.error("permit_data is not valid")
 
+                    else:
+                        raw_data = folder["fields"]
+                        ser_errors = serializer.errors
+                        print(raw_data, ser_errors)
+                        logger.error("serializer is not valid")
         return permits

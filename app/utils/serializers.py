@@ -61,6 +61,7 @@ class DecosJoinFolderFieldsResponseSerializer(serializers.Serializer):
     date4 = serializers.CharField(allow_null=True, allow_blank=True)
     date5 = serializers.CharField(allow_null=True, allow_blank=True)
     date6 = serializers.CharField(allow_null=True, allow_blank=True)
+    date7 = serializers.CharField(allow_null=True, allow_blank=True)
     department = serializers.CharField(allow_null=True, allow_blank=True)
     document_date = serializers.CharField(allow_null=True, allow_blank=True)
     email1 = serializers.CharField(allow_null=True, allow_blank=True)
