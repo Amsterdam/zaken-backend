@@ -3,8 +3,12 @@ from datetime import datetime
 
 import requests
 from django.conf import settings
-from rest_framework import serializers
 from tenacity import after_log, retry, stop_after_attempt
+from utils.serializers import (
+    DecosJoinFolderFieldsResponseSerializer,
+    DecosJoinObjectFieldsResponseSerializer,
+    DecosPermitSerializer,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -105,56 +109,6 @@ def get_decos_join_request_swagger(query):
     # data_items = [generic_decos_request(url) for url in items_urls]
 
     return response
-
-
-class DecosJoinFolderFieldsResponseSerializer(serializers.Serializer):
-    """
-    This a serializer to just check if all fields are in the response are there
-    so we can safely access the data. All fields with allow_null=True are non essential
-    at the time of writing
-    """
-
-    subject1 = serializers.CharField()  # "Beschrijving (postadres)"
-    mark = serializers.CharField()  # "Kenmerk (Postcode/huisnr)",
-    mailaddress = serializers.CharField(
-        allow_null=True, allow_blank=True
-    )  # "Zeeburgerdijk 55-2",
-    zipcode = serializers.CharField()  # "1094AA",
-    city = serializers.CharField(allow_null=True, allow_blank=True)  # "AMSTERDAM",
-    phone3 = serializers.CharField()  # Verblijfsobjectidentificatie
-    text11 = serializers.CharField(
-        allow_null=True, allow_blank=True
-    )  # Ligplaatsidentificatie
-    text4 = serializers.CharField(allow_null=True, allow_blank=True)  # Soort object
-    text19 = serializers.CharField(
-        allow_null=True, allow_blank=True
-    )  # Verblijfsobjectstatus
-    num1 = serializers.IntegerField(allow_null=True)  # Oppervlakte (m2)
-    text7 = serializers.CharField(allow_null=True, allow_blank=True)  # Bouwjaar
-    text8 = serializers.CharField(allow_null=True, allow_blank=True)  # Straat
-    initials = serializers.CharField(allow_null=True, allow_blank=True)  # Huisnr.
-    phone2 = serializers.CharField(
-        allow_null=True, allow_blank=True
-    )  # Huisnummertoevoeging
-    text3 = serializers.CharField(allow_null=True, allow_blank=True)  # Stadsdeel
-    text16 = serializers.CharField(allow_null=True, allow_blank=True)  # Gebied
-    text17 = serializers.CharField(allow_null=True, allow_blank=True)  # Wijk
-    text18 = serializers.CharField(allow_null=True, allow_blank=True)  # Buurt
-    text21 = serializers.CharField(allow_null=True, allow_blank=True)  # Bouwblok Code
-    text20 = serializers.CharField(allow_null=True, allow_blank=True)  # Pandcode
-    dfunction = serializers.CharField(allow_null=True, allow_blank=True)  # Gebruiksdoel
-    text5 = serializers.CharField(allow_null=True, allow_blank=True)  # Latitude
-    text6 = serializers.CharField(allow_null=True, allow_blank=True)  # Longitude
-    text22 = serializers.CharField(allow_null=True, allow_blank=True)  # Ligging
-    num10 = serializers.IntegerField(allow_null=True)  # WORD NIET UITGELEGD
-    num11 = serializers.IntegerField(allow_null=True)  # WORD NIET UITGELEGD
-    text24 = serializers.CharField(allow_null=True, allow_blank=True)  # Objecttype
-    email1 = serializers.CharField(
-        allow_null=True, allow_blank=True
-    )  # WORD NIET UITGELEGD
-    sequence = serializers.IntegerField(allow_null=True)  # Volgnummer
-    itemtype_key = serializers.CharField()  # DECOS SPECIFIEK
-    parentKey = serializers.CharField()  # DECOS
 
 
 class DecosJoinRequest:
@@ -266,14 +220,15 @@ class DecosJoinRequest:
                     serializer = DecosJoinFolderFieldsResponseSerializer(
                         data=folder["fields"]
                     )
-                    parent_key = folder["fields"]["parentKey"]
 
                     if serializer.is_valid():
+                        parent_key = folder["fields"]["parentKey"]
+
                         if parent_key == settings.DECOS_JOIN_BANDB_ID:
                             response[
                                 "has_b_and_b_permit"
                             ] = self._check_if_permit_is_valid(folder["fields"])
-                        if parent_key == settings.DECOS_JOIN_VAKANTIEVERHUUR_ID:
+                        elif parent_key == settings.DECOS_JOIN_VAKANTIEVERHUUR_ID:
                             response[
                                 "has_vacation_rental_permit"
                             ] = self._check_if_permit_is_valid(folder["fields"])
@@ -284,3 +239,52 @@ class DecosJoinRequest:
                         logger.error("DECOS JOIN responded with a unexpected answer")
 
         return response
+
+    def get_permits_by_bag_id(self, bag_id):
+        response_decos_obj = self.get_decos_object_with_bag_id(bag_id)
+        permits = []
+
+        if response_decos_obj:
+            response_decos_folder, folder_count = self._get_decos_folder_and_key(
+                response_decos_obj
+            )
+
+            if response_decos_folder and folder_count:
+
+                for folder in response_decos_folder["content"]:
+                    serializer = DecosJoinFolderFieldsResponseSerializer(
+                        data=folder["fields"]
+                    )
+
+                    if serializer.is_valid():
+                        ser_data = {
+                            "permit_granted": self._check_if_permit_is_valid(
+                                folder["fields"]
+                            ),
+                            "processed": folder["fields"]["dfunction"],
+                            "date_from": datetime.strptime(
+                                folder["fields"]["date6"].split("T")[0], "%Y-%m-%d"
+                            ),
+                            "date_to": datetime.strptime(
+                                folder["fields"]["date7"].split("T")[0], "%Y-%m-%d"
+                            ),
+                        }
+
+                        parent_key = folder["fields"]["parentKey"]
+
+                        if parent_key == settings.DECOS_JOIN_BANDB_ID:
+                            ser_data[
+                                "permit_type"
+                            ] = DecosPermitSerializer.PERMIT_B_AND_B
+                        elif parent_key == settings.DECOS_JOIN_VAKANTIEVERHUUR_ID:
+                            ser_data["permit_type"] = DecosPermitSerializer.PERMIT_VV
+                        else:
+                            ser_data[
+                                "permit_type"
+                            ] = DecosPermitSerializer.PERMIT_UNKNOWN
+
+                        permit_serializer = DecosPermitSerializer(data=ser_data)
+                        if permit_serializer.is_valid():
+                            permits.append(permit_serializer.data)
+
+        return permits
