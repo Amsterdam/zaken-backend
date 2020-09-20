@@ -164,7 +164,7 @@ class DecosJoinRequest:
 
     def _convert_datestring_to_date(self, date_string):
         if "T" in date_string:
-            return date_string.split("T")[0]
+            return datetime.strptime(date_string.split("T")[0], "%Y-%m-%d")
         return False
 
     def _get_decos_folder(self, decos_object):
@@ -184,20 +184,27 @@ class DecosJoinRequest:
     def _check_if_permit_is_valid(self, permit):
         premit_date_granted = self._convert_datestring_to_date(permit["date5"])
         permit_status = permit["dfunction"]
+        permit_from_date = self._convert_datestring_to_date(permit["date6"])
 
-        if "date6" in permit and "date7" in permit:
-            permit_from_date = self._convert_datestring_to_date(permit["date6"])
+        if "date7" in permit:
             permit_untill_date = self._convert_datestring_to_date(permit["date7"])
 
             if (
-                permit_from_date <= datetime.today()
+                permit_from_date
+                and premit_date_granted
+                and permit_from_date <= datetime.today()
                 and permit_untill_date >= datetime.today()
                 and premit_date_granted <= datetime.today()
                 and permit_status == "Verleend"
             ):
                 return True
         else:
-            if premit_date_granted <= datetime.today() and permit_status == "Verleend":
+            if (
+                premit_date_granted
+                and premit_date_granted <= datetime.today()
+                and permit_from_date <= datetime.today()
+                and permit_status == "Verleend"
+            ):
                 return True
 
         # Check if permit is valid today and has been granted
