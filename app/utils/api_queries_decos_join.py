@@ -275,12 +275,13 @@ class DecosJoinRequest:
                             "date_from": datetime.strptime(
                                 folder["fields"]["date6"].split("T")[0], "%Y-%m-%d"
                             ),
-                            "date_to": datetime.strptime(
-                                folder["fields"]["date7"].split("T")[0], "%Y-%m-%d"
-                            ),
                         }
-
                         parent_key = folder["fields"]["parentKey"]
+
+                        if "date7" in folder["fields"]:
+                            ser_data["date_to"] = datetime.strptime(
+                                folder["fields"]["date7"].split("T")[0], "%Y-%m-%d"
+                            )
 
                         if parent_key == settings.DECOS_JOIN_BANDB_ID:
                             ser_data[
