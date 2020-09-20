@@ -167,7 +167,7 @@ class DecosJoinRequest:
             return date_string.split("T")[0]
         return False
 
-    def _get_decos_folder_and_key(self, decos_object):
+    def _get_decos_folder(self, decos_object):
         try:
             decos_object_id = decos_object["content"][0]["key"]
         except KeyError:
@@ -207,11 +207,9 @@ class DecosJoinRequest:
         response_decos_obj = self.get_decos_object_with_bag_id(bag_id)
 
         if response_decos_obj:
-            response_decos_folder, folder_count = self._get_decos_folder_and_key(
-                response_decos_obj
-            )
+            response_decos_folder = self._get_decos_folder(response_decos_obj)
 
-            if response_decos_folder and folder_count:
+            if response_decos_folder:
                 # Only on this moment we can say that
                 response["has_b_and_b_permit"] = "False"
                 response["has_vacation_rental_permit"] = "False"
@@ -245,11 +243,9 @@ class DecosJoinRequest:
         permits = []
 
         if response_decos_obj:
-            response_decos_folder, folder_count = self._get_decos_folder_and_key(
-                response_decos_obj
-            )
+            response_decos_folder = self._get_decos_folder(response_decos_obj)
 
-            if response_decos_folder and folder_count:
+            if response_decos_folder:
 
                 for folder in response_decos_folder["content"]:
                     serializer = DecosJoinFolderFieldsResponseSerializer(
