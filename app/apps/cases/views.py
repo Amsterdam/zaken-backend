@@ -247,7 +247,7 @@ class PermitViewSet(ViewSet):
     @action(detail=False)
     def get_permit_details(self, request):
         bag_id = request.GET.get("bag_id")
-        response = DecosJoinRequest().get_checkmarks_by_bag_id(bag_id)
+        response = DecosJoinRequest().get_permits_by_bag_id(bag_id)
 
         serializer = DecosPermitSerializer(data=response, many=True)
 
