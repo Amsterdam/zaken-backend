@@ -45,6 +45,7 @@ from utils.api_queries_decos_join import (
     get_decos_join_request,
     get_decos_join_request_swagger,
 )
+from utils.serializers import DecosPermitSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -235,6 +236,20 @@ class PermitViewSet(ViewSet):
         response = DecosJoinRequest().get_checkmarks_by_bag_id(bag_id)
 
         serializer = PermitCheckmarkSerializer(data=response)
+
+        if serializer.is_valid():
+            return Response(serializer.data)
+        return Response(serializer.initial_data)
+
+    @extend_schema(
+        parameters=[bag_id], description="Get permit details based on bag id"
+    )
+    @action(detail=False)
+    def get_permit_details(self, request):
+        bag_id = request.GET.get("bag_id")
+        response = DecosJoinRequest().get_checkmarks_by_bag_id(bag_id)
+
+        serializer = DecosPermitSerializer(data=response, many=True)
 
         if serializer.is_valid():
             return Response(serializer.data)
