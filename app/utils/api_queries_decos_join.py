@@ -268,10 +268,6 @@ class DecosJoinRequest:
             response_decos_folder = self._get_decos_folder(response_decos_obj)
 
             if response_decos_folder:
-
-                import pdb
-
-                pdb.set_trace()
                 for folder in response_decos_folder["content"]:
                     serializer = DecosJoinFolderFieldsResponseSerializer(
                         data=folder["fields"]
