@@ -8,6 +8,8 @@ from utils.serializers import (
     DecosJoinFolderFieldsResponseSerializer,
     DecosJoinObjectFieldsResponseSerializer,
     DecosPermitSerializer,
+    get_decos_join_mock_folder_fields,
+    get_decos_join_mock_object_fields,
 )
 
 logger = logging.getLogger(__name__)
@@ -144,14 +146,17 @@ class DecosJoinRequest:
         return self._process_request_to_decos_join(url)
 
     def get_decos_object_with_bag_id(self, bag_id):
-        url = (
-            settings.DECOS_JOIN_API
-            + "items/"
-            + settings.DECOS_JOIN_BOOK_KNOWN_BAG_OBJECTS
-            + f"/COBJECTS?filter=PHONE3 eq '{bag_id}'"
-        )
+        if not settings.DEBUG:
+            url = (
+                settings.DECOS_JOIN_API
+                + "items/"
+                + settings.DECOS_JOIN_BOOK_KNOWN_BAG_OBJECTS
+                + f"/COBJECTS?filter=PHONE3 eq '{bag_id}'"
+            )
 
-        return self._process_request_to_decos_join(url)
+            return self._process_request_to_decos_join(url)
+        else:
+            return get_decos_join_mock_object_fields()
 
     def get_folders_with_object_id(self, object_id):
         url = settings.DECOS_JOIN_API + f"items/{object_id}/FOLDERS/"
@@ -164,22 +169,25 @@ class DecosJoinRequest:
 
     def _convert_datestring_to_date(self, date_string):
         if "T" in date_string:
-            return datetime.strptime(date_string.split("T")[0], "%Y-%m-%d")
+            return datetime.strptime(date_string.split("T")[0], "%Y-%m-%d").date()
         return False
 
     def _get_decos_folder(self, decos_object):
-        try:
-            decos_object_id = decos_object["content"][0]["key"]
-        except KeyError:
-            decos_object_id = False
-            response_decos_folder = False
+        if not settings.DEBUG:
+            try:
+                decos_object_id = decos_object["content"][0]["key"]
+            except (KeyError, IndexError):
+                decos_object_id = False
+                response_decos_folder = False
 
-        if decos_object_id:
-            response_decos_folder = self.get_folders_with_object_id(decos_object_id)
+            if decos_object_id:
+                response_decos_folder = self.get_folders_with_object_id(decos_object_id)
 
-        if response_decos_folder and response_decos_folder["count"] > 0:
-            return response_decos_folder
-        return False
+            if response_decos_folder and response_decos_folder["count"] > 0:
+                return response_decos_folder
+            return False
+        else:
+            return get_decos_join_mock_folder_fields()
 
     def _check_if_permit_is_valid(self, permit):
         premit_date_granted = self._convert_datestring_to_date(permit["date5"])
@@ -192,17 +200,17 @@ class DecosJoinRequest:
             if (
                 permit_from_date
                 and premit_date_granted
-                and permit_from_date <= datetime.today()
-                and permit_untill_date >= datetime.today()
-                and premit_date_granted <= datetime.today()
+                and permit_from_date <= datetime.today().date()
+                and permit_untill_date >= datetime.today().date()
+                and premit_date_granted <= datetime.today().date()
                 and permit_status == "Verleend"
             ):
                 return True
         else:
             if (
                 premit_date_granted
-                and premit_date_granted <= datetime.today()
-                and permit_from_date <= datetime.today()
+                and premit_date_granted <= datetime.today().date()
+                and permit_from_date <= datetime.today().date()
                 and permit_status == "Verleend"
             ):
                 return True
@@ -261,6 +269,9 @@ class DecosJoinRequest:
 
             if response_decos_folder:
 
+                import pdb
+
+                pdb.set_trace()
                 for folder in response_decos_folder["content"]:
                     serializer = DecosJoinFolderFieldsResponseSerializer(
                         data=folder["fields"]
@@ -274,14 +285,14 @@ class DecosJoinRequest:
                             "processed": folder["fields"]["dfunction"],
                             "date_from": datetime.strptime(
                                 folder["fields"]["date6"].split("T")[0], "%Y-%m-%d"
-                            ),
+                            ).date(),
                         }
                         parent_key = folder["fields"]["parentKey"]
 
                         if "date7" in folder["fields"]:
                             ser_data["date_to"] = datetime.strptime(
                                 folder["fields"]["date7"].split("T")[0], "%Y-%m-%d"
-                            )
+                            ).date()
 
                         if parent_key == settings.DECOS_JOIN_BANDB_ID:
                             ser_data[
