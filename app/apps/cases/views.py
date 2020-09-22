@@ -228,9 +228,11 @@ class PermitViewSet(ViewSet):
         return Response(decos_join_response)
 
     @extend_schema(
-        parameters=[bag_id], description="Get permit checkmarks based on bag id"
+        parameters=[bag_id],
+        description="Get permit checkmarks based on bag id",
+        responses={200: PermitCheckmarkSerializer()},
     )
-    @action(detail=False)
+    @action(detail=False, url_name="permit checkmarks", url_path="checkmarks")
     def get_permit_checkmarks(self, request):
         bag_id = request.GET.get("bag_id")
         response = DecosJoinRequest().get_checkmarks_by_bag_id(bag_id)
@@ -242,9 +244,11 @@ class PermitViewSet(ViewSet):
         return Response(serializer.initial_data)
 
     @extend_schema(
-        parameters=[bag_id], description="Get permit details based on bag id"
+        parameters=[bag_id],
+        description="Get permit details based on bag id",
+        responses={200: DecosPermitSerializer(many=True)},
     )
-    @action(detail=False)
+    @action(detail=False, url_name="permit details", url_path="details")
     def get_permit_details(self, request):
         bag_id = request.GET.get("bag_id")
         response = DecosJoinRequest().get_permits_by_bag_id(bag_id)
