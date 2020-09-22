@@ -195,5 +195,7 @@ class CaseTimelineSerializer(serializers.ModelSerializer):
 
 
 class PermitCheckmarkSerializer(serializers.Serializer):
-    has_b_and_b_permit = serializers.BooleanField()
-    has_vacation_rental_permit = serializers.BooleanField()
+    has_b_and_b_permit = serializers.ChoiceField(choices=("True", "False", "UNKNOWN"))
+    has_vacation_rental_permit = serializers.ChoiceField(
+        choices=("True", "False", "UNKNOWN")
+    )
