@@ -16,11 +16,13 @@ logger = logging.getLogger(__name__)
 
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def generic_decos_request(url):
+def generic_decos_request(url, overwrite_password=None):
     try:
         headers = {"Accept": "application/itemdata"}
         username = settings.DECOS_JOIN_USERNAME
         password = settings.DECOS_JOIN_PASSWORD
+        if overwrite_password:
+            password = overwrite_password
         response = requests.get(
             url, headers=headers, timeout=8, auth=(username, password)
         )
@@ -102,7 +104,7 @@ def get_decos_join_request_swagger(query):
 
     headers = {"Accept": "application/itemdata"}
     username = settings.DECOS_JOIN_USERNAME
-    password = settings.DECOS_JOIN_PASSWORD
+    password = settings.DECOS_JOIN_PASSWORD_PROD
     response = requests.get(url, headers=headers, timeout=8, auth=(username, password))
 
     # Nested Items
