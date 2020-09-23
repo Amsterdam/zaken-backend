@@ -47,7 +47,7 @@ def get_decos_join_mock_object_fields():
 
 def get_decos_join_mock_folder_fields():
     return {
-        "count": 1,
+        "count": 2,
         "content": [
             {
                 "key": "1234567891337",
@@ -109,7 +109,68 @@ def get_decos_join_mock_folder_fields():
                     "num22": 2018,
                     "itemrel_key": "46F0E3D8B188442F89426C59F76C1DA8",
                 },
-            }
+            },
+            {
+                "key": "1234567891337",
+                "fields": {
+                    "bol4": False,
+                    "bol5": False,
+                    "bol7": False,
+                    "company": "Woningdelen Amsterdam",
+                    "date1": "2018-07-13T00:00:00",
+                    "date2": "2018-09-07T00:00:00",
+                    "date4": "2029-01-01T00:00:00",
+                    "date5": "2018-09-28T00:00:00",
+                    "date6": "2018-09-28T00:00:00",
+                    "department": "Stadsdeel vergunnen",
+                    "document_date": "2018-07-13T00:00:00",
+                    "email1": "info@woningdelenamsterdam.nl",
+                    "email2": "Blijvend bewaren",
+                    "email3": (
+                        "De zaak is niet verzonden naar externe applicatie(s) omdat er"
+                        " geen afnemers zijn geconfigureerd voor dit zaaktype."
+                    ),
+                    "firstname": "Centrum",
+                    "dfunction": "Verleend",
+                    "parentKey": "TBD",
+                    "sequence": 1,
+                    "itemtype_key": "FOLDER",
+                    "mailaddress": "Nieuwezijds Voorburgwal 147",
+                    "mark": "Z/69/1234567",
+                    "num5": 4,
+                    "num6": 4,
+                    "phone1": "020-1234567",
+                    "phone3": "10",
+                    "processed": True,
+                    "received_date": "2018-09-28T00:00:00",
+                    "subject1": (
+                        "Het verhuren van 4 kamers in Nieuwezijds Voorburgwal 147"
+                    ),
+                    "surname": "C.J. Los Santos",
+                    "text2": "11.1.2",
+                    "text6": "Nieuwezijds Voorburgwal 147 1012RJ AMSTERDAM",
+                    "text7": "Indische Buurt West",
+                    "text8": "Noordwestkwadrant Indische buurt Noord",
+                    "text9": "Zonder loting",
+                    "title": "Afgehandeld",
+                    "zipcode": "1012RJ",
+                    "it_extid": "RGBZ_0363aa27bf53-7b57-4e3d-b6c1-a70b5eedc393",
+                    "text13": "SDC 16-18-0068",
+                    "text16": "Mario, Super",
+                    "date10": "2020-08-26T11:59:35",
+                    "num7": 1,
+                    "text17": "https://api.secure.amsterdam.nl/vergunningen/quota/kameromzettingen/dashboard/",
+                    "text18": "https://api.secure.amsterdam.nl/vergunningen/quota/kameromzettingen/0363100012167579",
+                    "text22": "0363100012167579",
+                    "text23": "Nieuwezijds Voorburgwal 147",
+                    "text44": "1012RJ147",
+                    "text45": "Vakantie Verhuur",
+                    "date20": "2018-09-07T00:00:00",
+                    "num20": 0,
+                    "num22": 2018,
+                    "itemrel_key": "46F0E3D8B188442F89426C59F76C1DA8",
+                },
+            },
         ],
     }
 
