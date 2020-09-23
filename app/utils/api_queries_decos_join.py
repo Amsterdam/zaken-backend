@@ -148,7 +148,7 @@ class DecosJoinRequest:
         return self._process_request_to_decos_join(url)
 
     def get_decos_object_with_bag_id(self, bag_id):
-        if not settings.DEBUG or not settings.USE_DECOS_MOCK_DATA:
+        if not settings.USE_DECOS_MOCK_DATA:
             url = (
                 settings.DECOS_JOIN_API
                 + "items/"
@@ -175,7 +175,7 @@ class DecosJoinRequest:
         return False
 
     def _get_decos_folder(self, decos_object):
-        if not settings.DEBUG or not settings.USE_DECOS_MOCK_DATA:
+        if not settings.USE_DECOS_MOCK_DATA:
             try:
                 decos_object_id = decos_object["content"][0]["key"]
             except (KeyError, IndexError):
