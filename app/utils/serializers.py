@@ -234,3 +234,4 @@ class DecosPermitSerializer(serializers.Serializer):
     processed = serializers.CharField(allow_null=True, allow_blank=True)
     date_from = serializers.DateField(allow_null=True)
     date_to = serializers.DateField(allow_null=True, required=False)
+    decos_join_web_url = serializers.URLField(default="https://decosdvl.amsterdam.nl")
