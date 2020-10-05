@@ -207,6 +207,7 @@ class PermitViewSet(ViewSet):
         return Response(decos_join_response)
 
     @extend_schema(description="Test BRP connection")
+    @action(detail=False)
     def get_brp(self, request):
         response = requests.get(
             "https://acc.api.data.amsterdam.nl/v1/brp/ingeschrevenpersonen/"
