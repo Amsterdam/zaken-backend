@@ -1,5 +1,6 @@
 import logging
 
+import requests
 from apps.cases import populate
 from apps.cases.models import (
     Address,
@@ -204,6 +205,13 @@ class PermitViewSet(ViewSet):
         book_id = request.GET.get("book_id")
         decos_join_response = get_decos_join_permit(query=query, book_id=book_id)
         return Response(decos_join_response)
+
+    @extend_schema(description="Test BRP connection")
+    def get_brp(self, request):
+        response = requests.get(
+            "https://acc.api.data.amsterdam.nl/v1/brp/ingeschrevenpersonen/"
+        )
+        return Response(response)
 
     @extend_schema(
         parameters=permit_request_parameters, description="Request to Decos Join API"
