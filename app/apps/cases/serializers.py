@@ -199,3 +199,19 @@ class PermitCheckmarkSerializer(serializers.Serializer):
     has_vacation_rental_permit = serializers.ChoiceField(
         choices=("True", "False", "UNKNOWN")
     )
+
+
+class TimelineAddSerializer(serializers.Serializer):
+    case_identification = serializers.CharField()
+    subject = serializers.CharField()
+    parameters = serializers.JSONField(allow_null=True)
+    notes = serializers.CharField(allow_null=True)
+    authors = serializers.CharField(allow_null=True)
+
+
+class TimelineUpdateSerializer(serializers.Serializer):
+    thread_id = serializers.CharField()
+    subject = serializers.CharField()
+    parameters = serializers.JSONField(allow_null=True)
+    notes = serializers.CharField(allow_null=True)
+    authors = serializers.CharField(allow_null=True)

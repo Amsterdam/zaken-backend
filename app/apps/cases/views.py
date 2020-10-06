@@ -1,6 +1,5 @@
 import logging
 
-import requests
 from apps.cases import populate
 from apps.cases.models import (
     Address,
@@ -25,7 +24,10 @@ from apps.cases.serializers import (
     ResidentsSerializer,
     StateSerializer,
     StateTypeSerializer,
+    TimelineAddSerializer,
+    TimelineUpdateSerializer,
 )
+from apps.users.auth_apps import TopKeyAuth
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
@@ -206,14 +208,6 @@ class PermitViewSet(ViewSet):
         decos_join_response = get_decos_join_permit(query=query, book_id=book_id)
         return Response(decos_join_response)
 
-    @extend_schema(description="Test BRP connection")
-    @action(detail=False)
-    def get_brp(self, request):
-        response = requests.get(
-            "https://acc.api.data.amsterdam.nl/v1/brp/ingeschrevenpersonen/"
-        )
-        return Response(response)
-
     @extend_schema(
         parameters=permit_request_parameters, description="Request to Decos Join API"
     )
@@ -277,6 +271,104 @@ class CaseTimeLineViewSet(ModelViewSet):
 class CaseTimeLineThreadViewSet(ModelViewSet):
     serializer_class = CaseTimelineThreadSerializer
     queryset = CaseTimelineThread
+    permission_classes = [IsAuthenticated | TopKeyAuth]
+
+    @extend_schema(
+        request=TimelineUpdateSerializer,
+        description="Add item to timeline of case (endpoint for automation)",
+    )
+    @action(
+        methods=["post"],
+        detail=False,
+        url_name="add timeline item",
+        url_path="add-timeline-item",
+    )
+    def add_timeline_item(self, request):
+        serializer = TimelineAddSerializer(data=request.data)
+
+        if serializer.is_valid():
+            (case, created) = Case.objects.get_or_create(
+                identification=serializer.data["case_identification"]
+            )
+            (
+                case_timeline_subject,
+                created,
+            ) = CaseTimelineSubject.objects.get_or_create(
+                case=case, subject=serializer.data["subject"]
+            )
+
+            case_timeline_thread = CaseTimelineThread()
+            # case_timeline_thread.authors = serializer.data["authors"]
+            case_timeline_thread.subject = case_timeline_subject
+            case_timeline_thread.parameters = serializer.data["parameters"]
+            case_timeline_thread.notes = serializer.data["notes"]
+            case_timeline_thread.save()
+
+            serializer = CaseTimelineThreadSerializer(case_timeline_thread)
+
+            return Response(serializer.data)
+        else:
+            logger.error("Update Timeline went wrong")
+
+    @extend_schema(
+        request=TimelineUpdateSerializer,
+        description="Update item from timeline of case (endpoint for automation)",
+    )
+    @action(
+        methods=["post"],
+        detail=False,
+        url_name="update timeline item",
+        url_path="update-timeline-item",
+    )
+    def update_timeline_item(self, request):
+        serializer = TimelineUpdateSerializer(data=request.data)
+
+        if serializer.is_valid():
+            (case, created) = Case.objects.get_or_create(
+                identification=serializer.data["case_identification"]
+            )
+            (
+                case_timeline_subject,
+                created,
+            ) = CaseTimelineSubject.objects.get_or_create(
+                case=case, subject=serializer.data["subject"]
+            )
+
+            case_timeline_thread = CaseTimelineThread.objects.get(
+                id=serializer.data["thread_id"]
+            )
+            # case_timeline_thread.authors = serializer.data["authors"]
+            case_timeline_thread.subject = case_timeline_subject
+            case_timeline_thread.parameters = serializer.data["parameters"]
+            case_timeline_thread.notes = serializer.data["notes"]
+            case_timeline_thread.save()
+
+            serializer = CaseTimelineThreadSerializer(case_timeline_thread)
+
+            return Response(serializer.data)
+        else:
+            logger.error("Update Timeline went wrong")
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="thread_id",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                required=True,
+                description="ID of thread",
+            )
+        ],
+        description="Update item from timeline of case (endpoint for automation)",
+    )
+    @action(
+        detail=False, url_name="remove timeline item", url_path="remove-timeline-item"
+    )
+    def remove_timeline_item(self, request):
+        thread_id = request.GET.get("thread_id")
+
+        case_timeline_thread = CaseTimelineThread.objects.get(id=thread_id)
+        case_timeline_thread.delete()
 
 
 class CaseTimeLineReactionViewSet(ModelViewSet):
