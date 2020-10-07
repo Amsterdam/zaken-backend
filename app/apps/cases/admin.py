@@ -1,4 +1,13 @@
-from apps.cases.models import Address, Case, CaseType, State, StateType
+from apps.cases.models import (
+    Address,
+    Case,
+    CaseTimelineReaction,
+    CaseTimelineSubject,
+    CaseTimelineThread,
+    CaseType,
+    State,
+    StateType,
+)
 from django.contrib import admin
 
 
@@ -25,3 +34,8 @@ class StateTypeAdmin(admin.ModelAdmin):
 @admin.register(State)
 class StateAdmin(admin.ModelAdmin):
     list_display = ("__str__",)
+
+
+admin.site.register(CaseTimelineSubject, admin.ModelAdmin)
+admin.site.register(CaseTimelineThread, admin.ModelAdmin)
+admin.site.register(CaseTimelineReaction, admin.ModelAdmin)
