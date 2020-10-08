@@ -93,7 +93,8 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
         responses={200: ResidentsSerializer()},
     )
     @action(detail=False, methods=["get"], serializer_class=ResidentsSerializer)
-    def residents_by_bag_id(self, request, bag_id):
+    def residents_by_bag_id(self, request):
+        bag_id = request.GET.get("bag_id")
         try:
             brp_data = get_brp(bag_id)
             serialized_residents = ResidentsSerializer(data=brp_data)
