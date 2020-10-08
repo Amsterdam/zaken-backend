@@ -52,6 +52,14 @@ from utils.serializers import DecosPermitSerializer
 
 logger = logging.getLogger(__name__)
 
+bag_id = OpenApiParameter(
+    name="bag_id",
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.QUERY,
+    required=True,
+    description="Verblijfsobjectidentificatie",
+)
+
 
 class GenerateMockViewset(ViewSet):
     def list(self, request):
@@ -78,6 +86,26 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
     lookup_field = "identification"
+
+    @extend_schema(
+        parameters=[bag_id],
+        description="Get residents details based on bag id",
+        responses={200: ResidentsSerializer()},
+    )
+    @action(detail=False, methods=["get"], serializer_class=ResidentsSerializer)
+    def residents_by_bag_id(self, request):
+        bag_id = request.GET.get("bag_id")
+        try:
+            brp_data = get_brp(bag_id)
+            serialized_residents = ResidentsSerializer(data=brp_data)
+            serialized_residents.is_valid()
+
+            return Response(serialized_residents.data)
+
+        except Exception as e:
+            logger.error(f"Could not retrieve residents for bag id {bag_id}: {e}")
+
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=["get"], serializer_class=ResidentsSerializer)
     def residents(self, request, identification):
@@ -182,14 +210,6 @@ object_id = OpenApiParameter(
     location=OpenApiParameter.QUERY,
     required=True,
     description="ID van woningobject",
-)
-
-bag_id = OpenApiParameter(
-    name="bag_id",
-    type=OpenApiTypes.STR,
-    location=OpenApiParameter.QUERY,
-    required=True,
-    description="Verblijfsobjectidentificatie",
 )
 
 permit_search_parameters = [book_id, query]
