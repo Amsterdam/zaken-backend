@@ -286,14 +286,14 @@ class PermitViewSet(ViewSet):
 class CaseTimeLineViewSet(ModelViewSet):
     serializer_class = CaseTimelineSerializer
     queryset = CaseTimelineSubject.objects.all()
-    filterset_fields = ["case"]
+    filterset_fields = ["case__identification"]
 
 
 class CaseTimeLineThreadViewSet(ModelViewSet):
     serializer_class = CaseTimelineThreadSerializer
     queryset = CaseTimelineThread.objects.all()
     permission_classes = [IsAuthenticated | TopKeyAuth]
-    filterset_fields = ["subject__case"]
+    filterset_fields = ["subject__case__identification"]
 
     @extend_schema(
         request=TimelineUpdateSerializer,
