@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     "rest_framework",
     "drf_spectacular",
     "django_extensions",
+    "django_filters",
     # Apps
     "apps.users",
     "apps.cases",
@@ -94,6 +95,7 @@ TEMPLATES = [
 ]
 
 REST_FRAMEWORK = {
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "PAGE_SIZE": 100,
@@ -102,7 +104,9 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
-    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated",],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
@@ -122,9 +126,15 @@ sentry_sdk.init(
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "handlers": {"console": {"class": "logging.StreamHandler", "level": "DEBUG"},},
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "level": "DEBUG"},
+    },
     "loggers": {
-        "apps": {"handlers": ["console"], "level": "INFO", "propagate": True,},
+        "apps": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
         "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
     },
 }
