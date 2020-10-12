@@ -285,13 +285,13 @@ class PermitViewSet(ViewSet):
 
 class CaseTimeLineViewSet(ModelViewSet):
     serializer_class = CaseTimelineSerializer
-    queryset = CaseTimelineSubject
+    queryset = CaseTimelineSubject.objects.all()
     filterset_fields = ["case"]
 
 
 class CaseTimeLineThreadViewSet(ModelViewSet):
     serializer_class = CaseTimelineThreadSerializer
-    queryset = CaseTimelineThread
+    queryset = CaseTimelineThread.objects.all()
     permission_classes = [IsAuthenticated | TopKeyAuth]
     filterset_fields = ["subject__case"]
 
@@ -395,4 +395,4 @@ class CaseTimeLineThreadViewSet(ModelViewSet):
 
 class CaseTimeLineReactionViewSet(ModelViewSet):
     serializer_class = CaseTimelineReactionSerializer
-    queryset = CaseTimelineReaction
+    queryset = CaseTimelineReaction.objects.all()
