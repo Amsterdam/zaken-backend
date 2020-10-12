@@ -91,6 +91,8 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"ordering": ["start_date"],},
+            options={
+                "ordering": ["start_date"],
+            },
         ),
     ]

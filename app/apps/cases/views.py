@@ -87,26 +87,6 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
     queryset = Case.objects.all()
     lookup_field = "identification"
 
-    @extend_schema(
-        parameters=[bag_id],
-        description="Get residents details based on bag id",
-        responses={200: ResidentsSerializer()},
-    )
-    @action(detail=False, methods=["get"], serializer_class=ResidentsSerializer)
-    def residents_by_bag_id(self, request):
-        bag_id = request.GET.get("bag_id")
-        try:
-            brp_data = get_brp(bag_id)
-            serialized_residents = ResidentsSerializer(data=brp_data)
-            serialized_residents.is_valid()
-
-            return Response(serialized_residents.data)
-
-        except Exception as e:
-            logger.error(f"Could not retrieve residents for bag id {bag_id}: {e}")
-
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
     @action(detail=True, methods=["get"], serializer_class=ResidentsSerializer)
     def residents(self, request, identification):
         try:
@@ -165,6 +145,26 @@ class AddressViewSet(ViewSet, ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = AddressSerializer
     queryset = Address.objects.all()
+    lookup_field = "bag_id"
+
+    @action(
+        detail=True,
+        methods=["get"],
+        serializer_class=ResidentsSerializer,
+        url_path="residents-by-bag-id",
+    )
+    def residents_by_bag_id(self, request, bag_id):
+        try:
+            brp_data = get_brp(bag_id)
+            serialized_residents = ResidentsSerializer(data=brp_data)
+            serialized_residents.is_valid()
+
+            return Response(serialized_residents.data)
+
+        except Exception as e:
+            logger.error(f"Could not retrieve residents for bag id {bag_id}: {e}")
+
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CaseTypeViewSet(ViewSet, ListAPIView):

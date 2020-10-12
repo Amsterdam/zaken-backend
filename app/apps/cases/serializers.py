@@ -161,13 +161,7 @@ class ResidentSerializer(serializers.Serializer):
 
 
 class ResidentsSerializer(serializers.Serializer):
-    items = ResidentSerializer(required=True, many=True)
-
-
-class CaseTimelineSubjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CaseTimelineSubject
-        fields = "__all__"
+    results = ResidentSerializer(required=True, many=True)
 
 
 class CaseTimelineReactionSerializer(serializers.ModelSerializer):
@@ -189,6 +183,12 @@ class CaseTimelineThreadSerializer(serializers.ModelSerializer):
 class CaseTimelineSerializer(serializers.ModelSerializer):
     casetimelinethread_set = CaseTimelineThreadSerializer(many=True, read_only=True)
 
+    class Meta:
+        model = CaseTimelineSubject
+        fields = "__all__"
+
+
+class CaseTimelineSubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseTimelineSubject
         fields = "__all__"
