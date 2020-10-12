@@ -10,8 +10,13 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameModel(old_name="Project", new_name="CaseType",),
+        migrations.RenameModel(
+            old_name="Project",
+            new_name="CaseType",
+        ),
         migrations.RenameField(
-            model_name="case", old_name="project", new_name="case_type",
+            model_name="case",
+            old_name="project",
+            new_name="case_type",
         ),
     ]
