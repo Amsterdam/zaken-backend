@@ -42,7 +42,7 @@ def get_brp(bag_id):
 def get_mock_brp():
     return {
         "message": "mocked data",
-        "items": [
+        "results": [
             {
                 "geboortedatum": "1955-05-23T23:00:00Z",  # Note: This was marked as in spreadsheet in the following format: 19550523,
                 "geslachtsaanduiding": "V",
