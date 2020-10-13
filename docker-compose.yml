@@ -1,4 +1,4 @@
-version: '3.5'
+version: "3.5"
 
 services:
   zaak-gateway:
@@ -9,7 +9,7 @@ services:
 #      - .:/app
     ports:
       - 8080:8000
-    links:
+    depends_on:
       - database
     environment:
       # - OPEN_ZAAK_CLIENT=client
@@ -40,7 +40,7 @@ services:
     networks:
       - fixxx-looplijsten-backend_looplijsten_backend
     image: amsterdam/postgres11
-    shm_size: '512m'
+    shm_size: "512m"
     ports:
       - "6409:5432"
     environment:
