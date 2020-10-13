@@ -151,7 +151,7 @@ class AddressViewSet(ViewSet, ListAPIView):
         detail=True,
         methods=["get"],
         serializer_class=ResidentsSerializer,
-        url_path="residents-by-bag-id",
+        url_path="residents",
     )
     def residents_by_bag_id(self, request, bag_id):
         try:
@@ -376,7 +376,6 @@ class CaseTimeLineThreadViewSet(ModelViewSet):
             OpenApiParameter(
                 name="thread_id",
                 type=OpenApiTypes.STR,
-                location=OpenApiParameter.QUERY,
                 required=True,
                 description="ID of thread",
             )
@@ -384,7 +383,10 @@ class CaseTimeLineThreadViewSet(ModelViewSet):
         description="Update item from timeline of case (endpoint for automation)",
     )
     @action(
-        detail=False, url_name="remove timeline item", url_path="remove-timeline-item"
+        detail=False,
+        methods=["post"],
+        url_name="remove timeline item",
+        url_path="remove-timeline-item",
     )
     def remove_timeline_item(self, request):
         thread_id = request.GET.get("thread_id")
