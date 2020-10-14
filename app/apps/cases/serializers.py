@@ -171,7 +171,7 @@ class CaseTimelineReactionSerializer(serializers.ModelSerializer):
 
 
 class CaseTimelineThreadSerializer(serializers.ModelSerializer):
-    castetimelinereaction_set = CaseTimelineReactionSerializer(
+    casettimelinereaction_set = CaseTimelineReactionSerializer(
         many=True, read_only=True
     )
 
