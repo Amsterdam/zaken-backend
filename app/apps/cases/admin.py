@@ -1,12 +1,14 @@
 from apps.cases.models import (
     Address,
     Case,
+    CaseState,
+    CaseStateType,
     CaseTimelineReaction,
     CaseTimelineSubject,
     CaseTimelineThread,
     CaseType,
-    State,
-    StateType,
+    OpenZaakState,
+    OpenZaakStateType,
 )
 from django.contrib import admin
 
@@ -26,16 +28,18 @@ class AddressAdmin(admin.ModelAdmin):
     list_display = ()
 
 
-@admin.register(StateType)
-class StateTypeAdmin(admin.ModelAdmin):
+@admin.register(OpenZaakStateType)
+class OpenZaakStateTypeAdmin(admin.ModelAdmin):
     list_display = ("name",)
 
 
-@admin.register(State)
-class StateAdmin(admin.ModelAdmin):
+@admin.register(OpenZaakState)
+class OpenZaakStateAdmin(admin.ModelAdmin):
     list_display = ("__str__",)
 
 
+admin.site.register(CaseState, admin.ModelAdmin)
+admin.site.register(CaseStateType, admin.ModelAdmin)
 admin.site.register(CaseTimelineSubject, admin.ModelAdmin)
 admin.site.register(CaseTimelineThread, admin.ModelAdmin)
 admin.site.register(CaseTimelineReaction, admin.ModelAdmin)

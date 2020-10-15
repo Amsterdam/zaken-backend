@@ -1,7 +1,7 @@
 import logging
 
-from apps.cases.models import Address, Case, CaseType, State, StateType
-from apps.cases.serializers import CaseSerializer, StateSerializer
+from apps.cases.models import Address, Case, CaseType, OpenZaakState, OpenZaakStateType
+from apps.cases.serializers import CaseSerializer, OpenZaakStateSerializer
 from apps.gateway.push.serializers import PushCheckActionSerializer, PushSerializer
 from apps.users.auth_apps import TopKeyAuth
 from rest_framework import viewsets
@@ -44,7 +44,7 @@ class PushViewSet(viewsets.ViewSet):
             start_date = data.get("start_date")
             end_date = data.get("end_date", None)
 
-            case = Case.get(identification)
+            case = Case.objects.get_or_create(identification=identification)
             case_type = CaseType.get(case_type)
             address = Address.get(bag_id)
 
@@ -58,8 +58,8 @@ class PushViewSet(viewsets.ViewSet):
             states = []
             for state_data in states_data:
                 name = state_data.get("name")
-                state_type = StateType.get(name)
-                state = State.objects.get_or_create(
+                state_type = OpenZaakStateType.get(name)
+                state = OpenZaakState.objects.get_or_create(
                     state_type=state_type,
                     case=case,
                     invoice_identification=state_data.get("invoice_identification"),
@@ -75,7 +75,7 @@ class PushViewSet(viewsets.ViewSet):
             return Response(
                 {
                     "case": CaseSerializer(case).data,
-                    "states": StateSerializer(states, many=True).data,
+                    "states": OpenZaakStateSerializer(states, many=True).data,
                 }
             )
 

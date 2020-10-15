@@ -80,8 +80,10 @@ class Case(models.Model):
         to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )
 
-    def get(identification):
-        return Case.objects.get_or_create(identification=identification)[0]
+    def get_current_state(self):
+        if self.case_states.count() > 0:
+            return self.case_states.all().order_by("-state_date").first()
+        return None
 
     def __str__(self):
         if self.identification:
@@ -95,20 +97,42 @@ class Case(models.Model):
         super().save(*args, **kwargs)
 
 
-class StateType(models.Model):
-    name = models.CharField(max_length=255, null=False, unique=True)
-    invoice_available = models.BooleanField(default=False, null=False, blank=False)
-
-    def get(name):
-        return StateType.objects.get_or_create(name=name)[0]
+class CaseStateType(models.Model):
+    name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
 
 
-class State(models.Model):
+class CaseState(models.Model):
+    case = models.ForeignKey(Case, related_name="case_states", on_delete=models.CASCADE)
+    status = models.ForeignKey(CaseStateType, on_delete=models.PROTECT)
+    state_date = models.DateField()
+    users = models.ManyToManyField(
+        User, related_name="case_states", related_query_name="users"
+    )
+
+    def __str__(self):
+        return f"{self.state_date} - {self.case.identification} - {self.status.name}"
+
+
+class OpenZaakStateType(models.Model):
+    name = models.CharField(max_length=255, null=False, unique=True)
+    invoice_available = models.BooleanField(default=False, null=False, blank=False)
+
+    def get(name):
+        return OpenZaakStateType.objects.get_or_create(name=name)[0]
+
+    def __str__(self):
+        return self.name
+
+
+class OpenZaakState(models.Model):
     state_type = models.ForeignKey(
-        to=StateType, null=False, on_delete=models.CASCADE, related_name="states"
+        to=OpenZaakStateType,
+        null=False,
+        on_delete=models.CASCADE,
+        related_name="states",
     )
     case = models.ForeignKey(
         to=Case, null=False, on_delete=models.CASCADE, related_name="states"

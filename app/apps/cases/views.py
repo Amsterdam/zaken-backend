@@ -1,29 +1,32 @@
 import logging
 
 from apps.cases import populate
+from apps.cases.filters import CaseFilter
 from apps.cases.models import (
     Address,
     Case,
+    CaseState,
     CaseTimelineReaction,
     CaseTimelineSubject,
     CaseTimelineThread,
     CaseType,
-    State,
-    StateType,
+    OpenZaakState,
+    OpenZaakStateType,
 )
 from apps.cases.serializers import (
     AddressSerializer,
     CaseSerializer,
+    CaseStateSerializer,
     CaseTimelineReactionSerializer,
     CaseTimelineSerializer,
     CaseTimelineSubjectSerializer,
     CaseTimelineThreadSerializer,
     CaseTypeSerializer,
     FineListSerializer,
+    OpenZaakStateSerializer,
+    OpenZaakStateTypeSerializer,
     PermitCheckmarkSerializer,
     ResidentsSerializer,
-    StateSerializer,
-    StateTypeSerializer,
     TimelineAddSerializer,
     TimelineUpdateSerializer,
 )
@@ -75,8 +78,8 @@ class GenerateMockViewset(ViewSet):
                 "case_types": CaseTypeSerializer(case_types, many=True).data,
                 "addresses": AddressSerializer(addresses, many=True).data,
                 "cases": CaseSerializer(cases, many=True).data,
-                "state_types": StateTypeSerializer(state_types, many=True).data,
-                "states": StateSerializer(states, many=True).data,
+                "state_types": OpenZaakStateTypeSerializer(state_types, many=True).data,
+                "states": OpenZaakStateSerializer(states, many=True).data,
             }
         )
 
@@ -86,6 +89,7 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
     lookup_field = "identification"
+    filterset_class = CaseFilter
 
     @action(detail=True, methods=["get"], serializer_class=ResidentsSerializer)
     def residents(self, request, identification):
@@ -119,7 +123,7 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
                 fines = get_fines(state.invoice_identification)
                 serialized_fines = FineListSerializer(data=fines)
                 serialized_fines.is_valid()
-                serialized_state = StateSerializer(state)
+                serialized_state = OpenZaakStateSerializer(state)
 
                 response_dict = {
                     **serialized_state.data,
@@ -173,16 +177,22 @@ class CaseTypeViewSet(ViewSet, ListAPIView):
     queryset = CaseType.objects.all()
 
 
-class StateTypeViewSet(ViewSet, ListAPIView):
+class CaseStateViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = StateTypeSerializer
-    queryset = StateType.objects.all()
+    serializer_class = CaseStateSerializer
+    queryset = CaseState.objects.all()
 
 
-class StateViewSet(ViewSet, ListAPIView):
+class OpenZaakStateTypeViewSet(ViewSet, ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = StateSerializer
-    queryset = State.objects.all()
+    serializer_class = OpenZaakStateTypeSerializer
+    queryset = OpenZaakStateType.objects.all()
+
+
+class OpenZaakStateViewSet(ViewSet, ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = OpenZaakStateSerializer
+    queryset = OpenZaakState.objects.all()
 
 
 query = OpenApiParameter(

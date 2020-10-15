@@ -1,12 +1,14 @@
 from apps.cases.models import (
     Address,
     Case,
+    CaseState,
+    CaseStateType,
     CaseTimelineReaction,
     CaseTimelineSubject,
     CaseTimelineThread,
     CaseType,
-    State,
-    StateType,
+    OpenZaakState,
+    OpenZaakStateType,
 )
 from rest_framework import serializers
 
@@ -41,18 +43,30 @@ class AddressSerializer(serializers.ModelSerializer):
         extra_kwargs = {"bag_id": {"validators": []}}
 
 
-class StateTypeSerializer(serializers.ModelSerializer):
+class CaseStateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = StateType
+        model = CaseState
+        fields = "__all__"
+
+
+class CaseStateTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseStateType
+        fields = "__all__"
+
+
+class OpenZaakStateTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OpenZaakStateType
         fields = "__all__"
         read_only_fields = ("id",)
 
 
-class StateSerializer(serializers.ModelSerializer):
-    state_type = StateTypeSerializer(required=True)
+class OpenZaakStateSerializer(serializers.ModelSerializer):
+    state_type = OpenZaakStateTypeSerializer(required=True)
 
     class Meta:
-        model = State
+        model = OpenZaakState
         fields = "__all__"
         read_only_fields = ("id",)
 
@@ -68,7 +82,11 @@ class CaseTypeSerializer(serializers.ModelSerializer):
 class CaseSerializer(serializers.ModelSerializer):
     case_type = CaseTypeSerializer(required=True)
     address = AddressSerializer(required=True)
-    states = StateSerializer(many=True, read_only=True)
+    case_states = CaseStateSerializer(many=True)
+    current_state = CaseStateSerializer(
+        source="get_current_state", required=False, read_only=True
+    )
+    legacy_states = OpenZaakStateSerializer(many=True, read_only=True)
 
     class Meta:
         model = Case
