@@ -3,13 +3,13 @@ import uuid
 from datetime import date
 
 from apps.cases.const import BAG_IDS, PROJECTS, STADIA
-from apps.cases.models import Address, Case, CaseType, State, StateType
+from apps.cases.models import Address, Case, CaseType, LegacyState, LegacyStateType
 from faker import Faker
 
 
 def delete_all():
-    State.objects.all().delete()
-    StateType.objects.all().delete()
+    LegacyState.objects.all().delete()
+    LegacyStateType.objects.all().delete()
     Case.objects.all().delete()
     Address.objects.all().delete()
     CaseType.objects.all().delete()
@@ -26,7 +26,7 @@ def create_states(cases, state_types):
             else:
                 end_date = date.today()
 
-            state = State.objects.create(
+            state = LegacyState.objects.create(
                 state_type=state_type,
                 case=case,
                 start_date=date.today(),
@@ -39,7 +39,7 @@ def create_states(cases, state_types):
 
 
 def create_state_types():
-    state_types = [StateType.get(state_type) for state_type in STADIA]
+    state_types = [LegacyStateType.get(state_type) for state_type in STADIA]
     return state_types
 
 

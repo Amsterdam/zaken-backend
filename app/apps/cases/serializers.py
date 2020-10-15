@@ -1,12 +1,14 @@
 from apps.cases.models import (
     Address,
     Case,
+    CaseState,
+    CaseStateType,
     CaseTimelineReaction,
     CaseTimelineSubject,
     CaseTimelineThread,
     CaseType,
-    State,
-    StateType,
+    LegacyState,
+    LegacyStateType,
 )
 from rest_framework import serializers
 
@@ -41,18 +43,30 @@ class AddressSerializer(serializers.ModelSerializer):
         extra_kwargs = {"bag_id": {"validators": []}}
 
 
-class StateTypeSerializer(serializers.ModelSerializer):
+class CaseStateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = StateType
+        model = CaseState
+        fields = "__all__"
+
+
+class CaseStateTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseStateType
+        fields = "__all__"
+
+
+class LegacyStateTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LegacyStateType
         fields = "__all__"
         read_only_fields = ("id",)
 
 
-class StateSerializer(serializers.ModelSerializer):
-    state_type = StateTypeSerializer(required=True)
+class LegacyStateSerializer(serializers.ModelSerializer):
+    state_type = LegacyStateTypeSerializer(required=True)
 
     class Meta:
-        model = State
+        model = LegacyState
         fields = "__all__"
         read_only_fields = ("id",)
 
@@ -68,7 +82,8 @@ class CaseTypeSerializer(serializers.ModelSerializer):
 class CaseSerializer(serializers.ModelSerializer):
     case_type = CaseTypeSerializer(required=True)
     address = AddressSerializer(required=True)
-    states = StateSerializer(many=True, read_only=True)
+    casestate_set = CaseStateSerializer(many=True)
+    legacy_states = LegacyStateSerializer(many=True, read_only=True)
 
     class Meta:
         model = Case

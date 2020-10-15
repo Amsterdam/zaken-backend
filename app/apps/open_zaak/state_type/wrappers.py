@@ -1,10 +1,10 @@
-from apps.open_zaak.state_type.services import StateTypeService
+from apps.open_zaak.state_type.services import LegacyStateTypeService
 from services.wrapper import Wrapper
 
 
-class StateType(Wrapper):
+class LegacyStateType(Wrapper):
     fields = ("uuid", "url", "statustekst", "zaaktype", "omschrijving", "volgnummer")
-    service = StateTypeService
+    service = LegacyStateTypeService
 
     def __init__(self, data):
         super().__init__(data)

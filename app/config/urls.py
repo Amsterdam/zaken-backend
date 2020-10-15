@@ -1,14 +1,15 @@
 from apps.cases.views import (
     AddressViewSet,
+    CaseStateViewSet,
     CaseTimeLineReactionViewSet,
     CaseTimeLineThreadViewSet,
     CaseTimeLineViewSet,
     CaseTypeViewSet,
     CaseViewSet,
     GenerateMockViewset,
+    LegacyStateTypeViewSet,
+    LegacyStateViewSet,
     PermitViewSet,
-    StateTypeViewSet,
-    StateViewSet,
 )
 from apps.gateway.push.views import PushCheckActionViewSet, PushViewSet
 from apps.users.views import IsAuthenticatedView, ObtainAuthTokenOIDC, UserListView
@@ -22,6 +23,7 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r"cases", CaseViewSet, basename="cases")
+router.register(r"case-states", CaseStateViewSet, basename="cases-states")
 router.register(r"case-timelines", CaseTimeLineViewSet, basename="case-timelines")
 router.register(
     r"case-timeline-threads",
@@ -35,8 +37,8 @@ router.register(
 )
 router.register(r"case-types", CaseTypeViewSet, basename="case-types")
 router.register(r"addresses", AddressViewSet, basename="addresses")
-router.register(r"states", StateViewSet, basename="states")
-router.register(r"state-types", StateTypeViewSet, basename="state-types")
+router.register(r"states", LegacyStateViewSet, basename="states")
+router.register(r"state-types", LegacyStateTypeViewSet, basename="state-types")
 router.register(r"generate-mock", GenerateMockViewset, basename="generate-mock")
 router.register(r"push", PushViewSet, basename="push")
 router.register(r"permits", PermitViewSet, basename="permits")
