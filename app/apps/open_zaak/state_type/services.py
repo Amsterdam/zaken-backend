@@ -8,7 +8,7 @@ from apps.open_zaak.settings import (
 from services.service import Service
 
 
-class StateTypeService(Service):
+class OpenZaakStateTypeService(Service):
     NAME = OPEN_ZAAK
     DOMAIN = DOMAIN_CATALOGS
     TYPES = SUB_DOMAINS_CATALOGS

@@ -7,8 +7,8 @@ from apps.cases.views import (
     CaseTypeViewSet,
     CaseViewSet,
     GenerateMockViewset,
-    LegacyStateTypeViewSet,
-    LegacyStateViewSet,
+    OpenZaakStateTypeViewSet,
+    OpenZaakStateViewSet,
     PermitViewSet,
 )
 from apps.gateway.push.views import PushCheckActionViewSet, PushViewSet
@@ -37,8 +37,10 @@ router.register(
 )
 router.register(r"case-types", CaseTypeViewSet, basename="case-types")
 router.register(r"addresses", AddressViewSet, basename="addresses")
-router.register(r"states", LegacyStateViewSet, basename="states")
-router.register(r"state-types", LegacyStateTypeViewSet, basename="state-types")
+router.register(r"open-zaak-states", OpenZaakStateViewSet, basename="open-zaak-states")
+router.register(
+    r"open-zaak-state-types", OpenZaakStateTypeViewSet, basename="open-zaak-state-types"
+)
 router.register(r"generate-mock", GenerateMockViewset, basename="generate-mock")
 router.register(r"push", PushViewSet, basename="push")
 router.register(r"permits", PermitViewSet, basename="permits")

@@ -10,8 +10,8 @@ from apps.cases.models import (
     CaseTimelineSubject,
     CaseTimelineThread,
     CaseType,
-    LegacyState,
-    LegacyStateType,
+    OpenZaakState,
+    OpenZaakStateType,
 )
 from apps.cases.serializers import (
     AddressSerializer,
@@ -23,8 +23,8 @@ from apps.cases.serializers import (
     CaseTimelineThreadSerializer,
     CaseTypeSerializer,
     FineListSerializer,
-    LegacyStateSerializer,
-    LegacyStateTypeSerializer,
+    OpenZaakStateSerializer,
+    OpenZaakStateTypeSerializer,
     PermitCheckmarkSerializer,
     ResidentsSerializer,
     TimelineAddSerializer,
@@ -78,8 +78,8 @@ class GenerateMockViewset(ViewSet):
                 "case_types": CaseTypeSerializer(case_types, many=True).data,
                 "addresses": AddressSerializer(addresses, many=True).data,
                 "cases": CaseSerializer(cases, many=True).data,
-                "state_types": LegacyStateTypeSerializer(state_types, many=True).data,
-                "states": LegacyStateSerializer(states, many=True).data,
+                "state_types": OpenZaakStateTypeSerializer(state_types, many=True).data,
+                "states": OpenZaakStateSerializer(states, many=True).data,
             }
         )
 
@@ -123,7 +123,7 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
                 fines = get_fines(state.invoice_identification)
                 serialized_fines = FineListSerializer(data=fines)
                 serialized_fines.is_valid()
-                serialized_state = LegacyStateSerializer(state)
+                serialized_state = OpenZaakStateSerializer(state)
 
                 response_dict = {
                     **serialized_state.data,
@@ -183,16 +183,16 @@ class CaseStateViewSet(ModelViewSet):
     queryset = CaseState.objects.all()
 
 
-class LegacyStateTypeViewSet(ViewSet, ListAPIView):
+class OpenZaakStateTypeViewSet(ViewSet, ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = LegacyStateTypeSerializer
-    queryset = LegacyStateType.objects.all()
+    serializer_class = OpenZaakStateTypeSerializer
+    queryset = OpenZaakStateType.objects.all()
 
 
-class LegacyStateViewSet(ViewSet, ListAPIView):
+class OpenZaakStateViewSet(ViewSet, ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = LegacyStateSerializer
-    queryset = LegacyState.objects.all()
+    serializer_class = OpenZaakStateSerializer
+    queryset = OpenZaakState.objects.all()
 
 
 query = OpenApiParameter(

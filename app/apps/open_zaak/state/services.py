@@ -10,7 +10,7 @@ from apps.open_zaak.settings import (
 from services.service import Service
 
 
-class StateService(Service):
+class OpenZaakStateService(Service):
     NAME = OPEN_ZAAK
     DOMAIN = DOMAIN_CASES
     TYPES = SUB_DOMAINS_CASES

@@ -1,12 +1,12 @@
-from apps.open_zaak.state.serializer import LegacyStateSerializer
-from apps.open_zaak.state.wrappers import LegacyState
+from apps.open_zaak.state.serializer import OpenZaakStateSerializer
+from apps.open_zaak.state.wrappers import OpenZaakState
 from apps.open_zaak.view_helpers import create_helper, list_helper, retrieve_helper
 from rest_framework import viewsets
 
 
-class LegacyStateViewSet(viewsets.ViewSet):
-    serializer_class = LegacyStateSerializer
-    data_wrapper = LegacyState
+class OpenZaakStateViewSet(viewsets.ViewSet):
+    serializer_class = OpenZaakStateSerializer
+    data_wrapper = OpenZaakState
     lookup_field = "uuid"
 
     def retrieve(self, request, uuid):

@@ -7,8 +7,8 @@ from apps.cases.models import (
     CaseTimelineSubject,
     CaseTimelineThread,
     CaseType,
-    LegacyState,
-    LegacyStateType,
+    OpenZaakState,
+    OpenZaakStateType,
 )
 from django.contrib import admin
 
@@ -28,13 +28,13 @@ class AddressAdmin(admin.ModelAdmin):
     list_display = ()
 
 
-@admin.register(LegacyStateType)
-class LegacyStateTypeAdmin(admin.ModelAdmin):
+@admin.register(OpenZaakStateType)
+class OpenZaakStateTypeAdmin(admin.ModelAdmin):
     list_display = ("name",)
 
 
-@admin.register(LegacyState)
-class LegacyStateAdmin(admin.ModelAdmin):
+@admin.register(OpenZaakState)
+class OpenZaakStateAdmin(admin.ModelAdmin):
     list_display = ("__str__",)
 
 

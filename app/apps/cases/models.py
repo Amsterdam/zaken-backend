@@ -81,8 +81,8 @@ class Case(models.Model):
     )
 
     def get_current_state(self):
-        if self.casestate_set.count() > 0:
-            return self.casestate_set.all().order_by("-state_date").first()
+        if self.case_states.count() > 0:
+            return self.case_states.all().order_by("-state_date").first()
         return None
 
     def __str__(self):
@@ -105,7 +105,7 @@ class CaseStateType(models.Model):
 
 
 class CaseState(models.Model):
-    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    case = models.ForeignKey(Case, related_name="case_states", on_delete=models.CASCADE)
     status = models.ForeignKey(CaseStateType, on_delete=models.PROTECT)
     state_date = models.DateField()
     users = models.ManyToManyField(
@@ -116,20 +116,23 @@ class CaseState(models.Model):
         return f"{self.state_date} - {self.case.identification} - {self.status.name}"
 
 
-class LegacyStateType(models.Model):
+class OpenZaakStateType(models.Model):
     name = models.CharField(max_length=255, null=False, unique=True)
     invoice_available = models.BooleanField(default=False, null=False, blank=False)
 
     def get(name):
-        return LegacyStateType.objects.get_or_create(name=name)[0]
+        return OpenZaakStateType.objects.get_or_create(name=name)[0]
 
     def __str__(self):
         return self.name
 
 
-class LegacyState(models.Model):
+class OpenZaakState(models.Model):
     state_type = models.ForeignKey(
-        to=LegacyStateType, null=False, on_delete=models.CASCADE, related_name="states"
+        to=OpenZaakStateType,
+        null=False,
+        on_delete=models.CASCADE,
+        related_name="states",
     )
     case = models.ForeignKey(
         to=Case, null=False, on_delete=models.CASCADE, related_name="states"

@@ -7,8 +7,8 @@ from apps.cases.models import (
     CaseTimelineSubject,
     CaseTimelineThread,
     CaseType,
-    LegacyState,
-    LegacyStateType,
+    OpenZaakState,
+    OpenZaakStateType,
 )
 from rest_framework import serializers
 
@@ -55,18 +55,18 @@ class CaseStateTypeSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class LegacyStateTypeSerializer(serializers.ModelSerializer):
+class OpenZaakStateTypeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = LegacyStateType
+        model = OpenZaakStateType
         fields = "__all__"
         read_only_fields = ("id",)
 
 
-class LegacyStateSerializer(serializers.ModelSerializer):
-    state_type = LegacyStateTypeSerializer(required=True)
+class OpenZaakStateSerializer(serializers.ModelSerializer):
+    state_type = OpenZaakStateTypeSerializer(required=True)
 
     class Meta:
-        model = LegacyState
+        model = OpenZaakState
         fields = "__all__"
         read_only_fields = ("id",)
 
@@ -82,11 +82,11 @@ class CaseTypeSerializer(serializers.ModelSerializer):
 class CaseSerializer(serializers.ModelSerializer):
     case_type = CaseTypeSerializer(required=True)
     address = AddressSerializer(required=True)
-    casestate_set = CaseStateSerializer(many=True)
+    case_states = CaseStateSerializer(many=True)
     current_state = CaseStateSerializer(
         source="get_current_state", required=False, read_only=True
     )
-    legacy_states = LegacyStateSerializer(many=True, read_only=True)
+    legacy_states = OpenZaakStateSerializer(many=True, read_only=True)
 
     class Meta:
         model = Case

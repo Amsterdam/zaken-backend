@@ -3,8 +3,8 @@ from apps.open_zaak.case_object.services import CaseObjectService
 from apps.open_zaak.case_type.services import CaseTypeService
 from apps.open_zaak.catalog.services import CatalogService
 from apps.open_zaak.information_object_type.services import InformationObjectTypeService
-from apps.open_zaak.state.services import LegacyStateService
-from apps.open_zaak.state_type.services import LegacyStateTypeService
+from apps.open_zaak.state.services import OpenZaakStateService
+from apps.open_zaak.state_type.services import OpenZaakStateTypeService
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -57,8 +57,8 @@ class GenerateMockViewset(viewsets.ViewSet):
         case_type_url = case_type["url"]
         case_type_id = case_type_url.split("/")[-1]
 
-        # Create LegacyStateTypes
-        state_type_service = LegacyStateTypeService()
+        # Create OpenZaakStateTypes
+        state_type_service = OpenZaakStateTypeService()
         state_types = state_type_service.mock(case_type_url)
 
         # Publish case type
@@ -75,7 +75,7 @@ class GenerateMockViewset(viewsets.ViewSet):
         for case in cases:
             case_url = case["url"]
 
-            # state_services = LegacyStateService()
+            # state_services = OpenZaakStateService()
             # response = state_services.mock(state_types, case_url)
             # states.append(response)
 
