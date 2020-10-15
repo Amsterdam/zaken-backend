@@ -80,19 +80,9 @@ class Case(models.Model):
         to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )
 
-    # def get(identification):
-    #     return Case.objects.get_or_create(identification=identification)[0]
-
     def get_current_state(self):
         if self.casestate_set.count() > 0:
-            return self.casestate_set.all().order_by("-pk")
-        return None
-
-    def get_current_state_date(self):
-        case_state = self.get_current_state()
-
-        if case_state:
-            return case_state.date
+            return self.casestate_set.all().order_by("-state_date").first()
         return None
 
     def __str__(self):

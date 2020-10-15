@@ -83,6 +83,9 @@ class CaseSerializer(serializers.ModelSerializer):
     case_type = CaseTypeSerializer(required=True)
     address = AddressSerializer(required=True)
     casestate_set = CaseStateSerializer(many=True)
+    current_state = CaseStateSerializer(
+        source="get_current_state", required=False, read_only=True
+    )
     legacy_states = LegacyStateSerializer(many=True, read_only=True)
 
     class Meta:

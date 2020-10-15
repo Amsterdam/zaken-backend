@@ -44,7 +44,7 @@ class PushViewSet(viewsets.ViewSet):
             start_date = data.get("start_date")
             end_date = data.get("end_date", None)
 
-            case = Case.get(identification)
+            case = Case.objects.get_or_create(identification=identification)
             case_type = CaseType.get(case_type)
             address = Address.get(bag_id)
 
