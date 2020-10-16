@@ -2,7 +2,7 @@ import logging
 
 from apps.cases.models import Address, Case, CaseType, OpenZaakState, OpenZaakStateType
 from apps.cases.serializers import CaseSerializer, OpenZaakStateSerializer
-from apps.gateway.push.serializers import PushCheckActionSerializer, PushSerializer
+from apps.gateway.push.serializers import PushSerializer
 from apps.users.auth_apps import TopKeyAuth
 from rest_framework import viewsets
 from rest_framework.exceptions import APIException
@@ -10,18 +10,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 LOGGER = logging.getLogger(__name__)
-
-
-class PushCheckActionViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated | TopKeyAuth]
-    serializer_class = PushCheckActionSerializer
-
-    def create(self, request):
-        data = request.data
-        LOGGER.info(f"POST Create CHECK actions {data}")
-        # format: {'identification': 'foo_id', 'check_action': True}
-        # TODO: Should do something with this format
-        return Response({})
 
 
 class PushViewSet(viewsets.ViewSet):

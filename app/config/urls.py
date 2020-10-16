@@ -11,7 +11,7 @@ from apps.cases.views import (
     OpenZaakStateViewSet,
     PermitViewSet,
 )
-from apps.gateway.push.views import PushCheckActionViewSet, PushViewSet
+from apps.gateway.push.views import PushViewSet
 from apps.users.views import IsAuthenticatedView, ObtainAuthTokenOIDC, UserListView
 from django.conf import settings
 from django.conf.urls import include, url
@@ -44,9 +44,6 @@ router.register(
 router.register(r"generate-mock", GenerateMockViewset, basename="generate-mock")
 router.register(r"push", PushViewSet, basename="push")
 router.register(r"permits", PermitViewSet, basename="permits")
-router.register(
-    r"push-check-action", PushCheckActionViewSet, basename="push-check-action"
-)
 
 urlpatterns = [
     # Admin environment
