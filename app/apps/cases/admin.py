@@ -25,7 +25,14 @@ class CaseTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
-    list_display = ()
+    list_display = (
+        "bag_id",
+        "postal_code",
+        "street_name",
+        "number",
+        "suffix_letter",
+        "suffix",
+    )
 
 
 @admin.register(OpenZaakStateType)
