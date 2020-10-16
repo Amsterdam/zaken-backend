@@ -32,7 +32,7 @@ class PushViewSet(viewsets.ViewSet):
             start_date = data.get("start_date")
             end_date = data.get("end_date", None)
 
-            case = Case.objects.get_or_create(identification=identification)
+            case, created = Case.objects.get_or_create(identification=identification)
             case_type = CaseType.get(case_type)
             address = Address.get(bag_id)
 
@@ -47,11 +47,11 @@ class PushViewSet(viewsets.ViewSet):
             for state_data in states_data:
                 name = state_data.get("name")
                 state_type = OpenZaakStateType.get(name)
-                state = OpenZaakState.objects.get_or_create(
+                state, created = OpenZaakState.objects.get_or_create(
                     state_type=state_type,
                     case=case,
                     invoice_identification=state_data.get("invoice_identification"),
-                )[0]
+                )
 
                 state.start_date = state_data.get("start_date")
                 state.end_date = state_data.get("end_date", None)
