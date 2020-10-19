@@ -4,7 +4,7 @@ from django_filters import rest_framework as filters
 
 class CaseFilter(filters.FilterSet):
     state_date = filters.DateFilter(
-        field_name="casestate__state_date", lookup_expr="gte", distinct=True
+        field_name="case_states__state_date", lookup_expr="gte", distinct=True
     )
 
     class Meta:
