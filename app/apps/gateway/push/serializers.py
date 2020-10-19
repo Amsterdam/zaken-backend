@@ -16,8 +16,3 @@ class PushSerializer(serializers.Serializer):
     start_date = serializers.DateField(required=True)
     end_date = serializers.DateField(required=False)
     states = PushStateSerializer(many=True, required=False)
-
-
-class PushCheckActionSerializer(serializers.Serializer):
-    identification = serializers.CharField(required=True)
-    check_action = serializers.BooleanField(required=True)

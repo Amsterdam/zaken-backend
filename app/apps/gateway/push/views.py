@@ -2,7 +2,7 @@ import logging
 
 from apps.cases.models import Address, Case, CaseType, OpenZaakState, OpenZaakStateType
 from apps.cases.serializers import CaseSerializer, OpenZaakStateSerializer
-from apps.gateway.push.serializers import PushCheckActionSerializer, PushSerializer
+from apps.gateway.push.serializers import PushSerializer
 from apps.users.auth_apps import TopKeyAuth
 from rest_framework import viewsets
 from rest_framework.exceptions import APIException
@@ -10,18 +10,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 LOGGER = logging.getLogger(__name__)
-
-
-class PushCheckActionViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated | TopKeyAuth]
-    serializer_class = PushCheckActionSerializer
-
-    def create(self, request):
-        data = request.data
-        LOGGER.info(f"POST Create CHECK actions {data}")
-        # format: {'identification': 'foo_id', 'check_action': True}
-        # TODO: Should do something with this format
-        return Response({})
 
 
 class PushViewSet(viewsets.ViewSet):
@@ -44,7 +32,7 @@ class PushViewSet(viewsets.ViewSet):
             start_date = data.get("start_date")
             end_date = data.get("end_date", None)
 
-            case = Case.objects.get_or_create(identification=identification)
+            case, created = Case.objects.get_or_create(identification=identification)
             case_type = CaseType.get(case_type)
             address = Address.get(bag_id)
 
@@ -59,11 +47,11 @@ class PushViewSet(viewsets.ViewSet):
             for state_data in states_data:
                 name = state_data.get("name")
                 state_type = OpenZaakStateType.get(name)
-                state = OpenZaakState.objects.get_or_create(
+                state, created = OpenZaakState.objects.get_or_create(
                     state_type=state_type,
                     case=case,
                     invoice_identification=state_data.get("invoice_identification"),
-                )[0]
+                )
 
                 state.start_date = state_data.get("start_date")
                 state.end_date = state_data.get("end_date", None)
