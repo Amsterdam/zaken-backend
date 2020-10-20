@@ -2,7 +2,7 @@ import random
 import uuid
 from datetime import date
 
-from apps.cases.const import BAG_IDS, PROJECTS, STADIA
+from apps.cases.legacy_const import BAG_IDS, PROJECTS, STADIA
 from apps.cases.models import Address, Case, CaseType, OpenZaakState, OpenZaakStateType
 from faker import Faker
 
