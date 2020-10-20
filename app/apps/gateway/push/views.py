@@ -29,7 +29,7 @@ LOGGER = logging.getLogger(__name__)
 
 class PushViewSet(viewsets.ViewSet):
     """
-    Populates data though a push from Top, after which an "In Progress" state is created.
+    Populates data through a push from Top, after which an "In Progress" state is created.
     A push from Top occurs when a case is added to an itinerary.
     After migrating from BWV to Zaken we can remove most of this push, and Top can do a simpler (and more generic) CREATE request for adding a state.
     """
