@@ -1,4 +1,4 @@
-from apps.open_zaak.settings import (
+from services.example.const import (
     DOMAIN_CATALOGS,
     OPEN_ZAAK,
     ORGANISATION_CONTACT,
