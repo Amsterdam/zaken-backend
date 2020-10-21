@@ -1,4 +1,4 @@
-from apps.open_zaak.catalog.services import CatalogService
+from services.example.services import CatalogService
 from services.wrapper import Wrapper
 
 
