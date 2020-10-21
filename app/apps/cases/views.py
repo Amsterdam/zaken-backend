@@ -356,21 +356,10 @@ class CaseTimeLineThreadViewSet(ModelViewSet):
         serializer = TimelineUpdateSerializer(data=request.data)
 
         if serializer.is_valid():
-            (case, created) = Case.objects.get_or_create(
-                identification=serializer.data["case_identification"]
-            )
-            (
-                case_timeline_subject,
-                created,
-            ) = CaseTimelineSubject.objects.get_or_create(
-                case=case, subject=serializer.data["subject"]
-            )
-
             case_timeline_thread = CaseTimelineThread.objects.get(
                 id=serializer.data["thread_id"]
             )
             # case_timeline_thread.authors = serializer.data["authors"]
-            case_timeline_thread.subject = case_timeline_subject
             case_timeline_thread.parameters = serializer.data["parameters"]
             case_timeline_thread.notes = serializer.data["notes"]
             case_timeline_thread.save()
