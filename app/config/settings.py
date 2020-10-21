@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     # Apps
     "apps.users",
     "apps.cases",
+    "apps.debriefings",
 )
 
 DATABASES = {

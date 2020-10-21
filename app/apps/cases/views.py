@@ -30,6 +30,7 @@ from apps.cases.serializers import (
     TimelineAddSerializer,
     TimelineUpdateSerializer,
 )
+from apps.debriefings.serializers import DebriefingSerializer
 from apps.users.auth_apps import TopKeyAuth
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -90,6 +91,26 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
     queryset = Case.objects.all()
     lookup_field = "identification"
     filterset_class = CaseFilter
+
+    @action(detail=True, methods=["get"], serializer_class=ResidentsSerializer)
+    def debriefings(self, request, identification):
+        try:
+            case = Case.objects.get(identification=identification)
+        except Case.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            debriefings = case.debriefings.all()
+            serialized_debriefings = DebriefingSerializer(data=debriefings, many=True)
+            serialized_debriefings.is_valid()
+
+            return Response(serialized_debriefings.data)
+
+        except Exception as e:
+            logger.error(
+                f"Could not retrieve debriefings for case {identification}: {e}"
+            )
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=["get"], serializer_class=ResidentsSerializer)
     def residents(self, request, identification):
