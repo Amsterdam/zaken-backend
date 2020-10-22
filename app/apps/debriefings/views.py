@@ -1,6 +1,8 @@
+from apps.cases.models import Case
 from apps.debriefings.models import Debriefing
 from apps.debriefings.serializers import (
     DebriefingCreateSerializer,
+    DebriefingCreateTempSerializer,
     DebriefingSerializer,
 )
 from django.shortcuts import render
@@ -33,9 +35,12 @@ class DebriefingViewSet(
         The Debriefing Author is automatically linked to the currently authenticated user
         """
         user = request.user
-        data = {**request.data, "author": user.id}
+        case_identificaton = request.data.get("case")
+        case = Case.objects.get(identification=case_identificaton)
 
-        serializer = self.serializer_class(data=data)
+        data = {**request.data, "author": user.id, "case": case.id}
+
+        serializer = DebriefingCreateTempSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)

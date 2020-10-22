@@ -18,6 +18,21 @@ class DebriefingSerializer(serializers.ModelSerializer):
         read_only_fields = ("date",)
 
 
+# TODO: Temp
+class DebriefingCreateTempSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Debriefing
+        fields = (
+            "case",
+            "author",
+            "date_added",
+            "date_modified",
+            "violation",
+            "feedback",
+        )
+        read_only_fields = ("date",)
+
+
 class DebriefingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Debriefing
