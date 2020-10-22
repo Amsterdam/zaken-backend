@@ -12,7 +12,7 @@ class Debriefing(models.Model):
     )
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
-    hit = models.BooleanField(null=False)
+    violation = models.BooleanField(null=False)
     feedback = models.CharField(null=False, blank=False, max_length=255)
 
     def save(self, *args, **kwargs):

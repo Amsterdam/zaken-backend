@@ -154,7 +154,9 @@ class OpenZaakState(models.Model):
 
 # TODO: Consider moving this to a dedicated timelines/events app
 class CaseTimelineSubject(models.Model):
-    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    case = models.ForeignKey(
+        Case, on_delete=models.CASCADE, related_name="case_timeline_subjects"
+    )
     subject = models.CharField(max_length=255)
     is_done = models.BooleanField(default=False)
 
