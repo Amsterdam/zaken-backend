@@ -92,6 +92,24 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
     lookup_field = "identification"
     filterset_class = CaseFilter
 
+    @action(detail=True, methods=["get"], serializer_class=CaseTimelineSerializer)
+    def timeline(self, request, identification):
+        try:
+            case = Case.objects.get(identification=identification)
+        except Case.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            timeline = case.case_timeline_subjects.all()
+            serialized_timeline = CaseTimelineSerializer(data=timeline, many=True)
+            serialized_timeline.is_valid()
+
+            return Response(serialized_timeline.data)
+
+        except Exception as e:
+            logger.error(f"Could not retrieve timeline for case {identification}: {e}")
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     @action(detail=True, methods=["get"], serializer_class=ResidentsSerializer)
     def debriefings(self, request, identification):
         try:
