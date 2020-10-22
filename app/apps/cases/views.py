@@ -6,6 +6,7 @@ from apps.cases.models import (
     Address,
     Case,
     CaseState,
+    CaseStateType,
     CaseTimelineReaction,
     CaseTimelineSubject,
     CaseTimelineThread,
@@ -17,6 +18,7 @@ from apps.cases.serializers import (
     AddressSerializer,
     CaseSerializer,
     CaseStateSerializer,
+    CaseStateTypeSerializer,
     CaseTimelineReactionSerializer,
     CaseTimelineSerializer,
     CaseTimelineSubjectSerializer,
@@ -202,6 +204,12 @@ class CaseStateViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = CaseStateSerializer
     queryset = CaseState.objects.all()
+
+
+class CaseStateTypeViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CaseStateTypeSerializer
+    queryset = CaseStateType.objects.all()
 
 
 class OpenZaakStateTypeViewSet(ViewSet, ListAPIView):
