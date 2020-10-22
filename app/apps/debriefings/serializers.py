@@ -13,7 +13,7 @@ class DebriefingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Debriefing
         fields = (
-            "hit",
+            "violation",
             "feedback",
             "case",
         )

@@ -9,6 +9,6 @@ admin.site.register(
         "date_added",
         "date_modified",
         "author",
-        "hit",
+        "violation",
     ),
 )
