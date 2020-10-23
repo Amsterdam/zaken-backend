@@ -43,6 +43,7 @@ services:
     shm_size: '512m'
     ports:
       - "6409:5432"
+    hostname: postgres
     environment:
       POSTGRES_DB: zaken
       POSTGRES_USER: zaken
