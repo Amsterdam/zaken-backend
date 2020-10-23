@@ -21,4 +21,4 @@ jobs:
     - name: Create Docker network
       run: docker network create fixxx-looplijsten-backend_looplijsten_backend
     - name: Run Tests
-      run: docker-compose run --rm zaak-gateway pgwait config.settings && python manage.py test
+      run: docker-compose run --rm zaak-gateway python manage.py test
