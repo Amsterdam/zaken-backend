@@ -3,36 +3,14 @@ Tests for Debriefing models
 """
 from datetime import datetime
 
-from apps.cases.models import Case
 from apps.debriefings.models import Debriefing
-from apps.users.models import User
+from apps.debriefings.tests.tests_helpers import DebriefingTestMixin
 from django.test import TestCase
 from freezegun import freeze_time
 from pytz import UTC
 
 
-class DebriefingModelTest(TestCase):
-    def create_case(self):
-        case = Case.objects.create()
-        return case
-
-    def create_user(self):
-        USER_EMAIL = "foo@foo.com"
-        user = User.objects.create(email=USER_EMAIL)
-        return user
-
-    def create_debriefing(self):
-        case = self.create_case()
-        author = self.create_user()
-        violation = True
-        feedback = "Feedback text lorem ipsum"
-
-        debriefing = Debriefing.objects.create(
-            case=case, author=author, violation=violation, feedback=feedback
-        )
-
-        return debriefing
-
+class DebriefingModelTest(TestCase, DebriefingTestMixin):
     def test_can_create_debrief(self):
         self.assertEqual(Debriefing.objects.count(), 0)
         self.create_debriefing()

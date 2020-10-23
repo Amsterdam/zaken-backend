@@ -112,7 +112,7 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
             logger.error(f"Could not retrieve timeline for case {identification}: {e}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=["get"], serializer_class=ResidentsSerializer)
+    @action(detail=True, methods=["get"], serializer_class=DebriefingSerializer)
     def debriefings(self, request, identification):
         try:
             case = Case.objects.get(identification=identification)
