@@ -1,78 +1,78 @@
-# action.yml
-name: 'Run E2E test'
-on: pull_request
-jobs:
-  main:
-    runs-on: ubuntu-latest
-    steps:
-      ###################################################
-      # CHECKOUT
-      ###################################################
-      - name: Checkout frontend
-        uses: actions/checkout@v2
-        with:
-          path: frontend
-          repository: amsterdam/zaken-frontend
+# # action.yml
+# name: 'Run E2E test'
+# on: pull_request
+# jobs:
+#   main:
+#     runs-on: ubuntu-latest
+#     steps:
+#       ###################################################
+#       # CHECKOUT
+#       ###################################################
+#       - name: Checkout frontend
+#         uses: actions/checkout@v2
+#         with:
+#           path: frontend
+#           repository: amsterdam/zaken-frontend
 
-      - name: Checkout backend
-        uses: actions/checkout@v2
-        with:
-          path: backend
+#       - name: Checkout backend
+#         uses: actions/checkout@v2
+#         with:
+#           path: backend
 
-      ###################################################
-      # BACKEND
-      ###################################################
-      - run: docker network create fixxx-looplijsten-backend_looplijsten_backend
-        working-directory: backend
+#       ###################################################
+#       # BACKEND
+#       ###################################################
+#       - run: docker network create fixxx-looplijsten-backend_looplijsten_backend
+#         working-directory: backend
 
-      - run: docker-compose up --build --detach
-        working-directory: backend
+#       - run: docker-compose up --build --detach
+#         working-directory: backend
 
-      ###################################################
-      # FRONTEND
-      ###################################################
-      - run: npm install
-        working-directory: frontend
+#       ###################################################
+#       # FRONTEND
+#       ###################################################
+#       - run: npm install
+#         working-directory: frontend
 
-      - run: npm run generate:form-scaffolds
-        working-directory: frontend
+#       - run: npm run generate:form-scaffolds
+#         working-directory: frontend
 
-      - run: npm run generate:swagger-schema
-        working-directory: frontend
+#       - run: npm run generate:swagger-schema
+#         working-directory: frontend
 
-      - run: npm run lint:fix
-        working-directory: frontend
+#       - run: npm run lint:fix
+#         working-directory: frontend
 
-      - run: npm run start &>/dev/null &
-        working-directory: frontend
+#       - run: npm run start &>/dev/null &
+#         working-directory: frontend
 
-      - run: npm run cypress:run
-        working-directory: frontend
+#       - run: npm run cypress:run
+#         working-directory: frontend
 
-      - if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: cypress-videos
-          path: ./frontend/cypress/videos/
+#       - if: ${{ failure() }}
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: cypress-videos
+#           path: ./frontend/cypress/videos/
 
-      - if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: cypress-screenshots
-          path: ./frontend/cypress/screenshots/
+#       - if: ${{ failure() }}
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: cypress-screenshots
+#           path: ./frontend/cypress/screenshots/
 
-      ###################################################
-      # On failure
-      ###################################################
+#       ###################################################
+#       # On failure
+#       ###################################################
 
-      - if: ${{ failure() }}
-        name: "ON FAILURE: Which containers were running while failing?"
-        run: docker ps -a
+#       - if: ${{ failure() }}
+#         name: "ON FAILURE: Which containers were running while failing?"
+#         run: docker ps -a
 
-      - if: ${{ failure() }}
-        name: "ON FAILURE: Backend logs"
-        run: docker logs backend_zaak-gateway_1
+#       - if: ${{ failure() }}
+#         name: "ON FAILURE: Backend logs"
+#         run: docker logs backend_zaak-gateway_1
 
-      - if: ${{ failure() }}
-        name: "ON FAILURE: Database logs"
-        run: docker logs backend_database_1
+#       - if: ${{ failure() }}
+#         name: "ON FAILURE: Database logs"
+#         run: docker logs backend_database_1
