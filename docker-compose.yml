@@ -24,7 +24,7 @@ services:
       - DATABASE_NAME=zaken
       - DATABASE_USER=zaken
       - DATABASE_PASSWORD=insecure
-      - DATABASE_HOST=database
+      - DATABASE_HOST=0.0.0.0
       - DATABASE_PORT=5432
       - SENTRY_DSN=https://foo@foo.data.amsterdam.nl/0
       - LOCAL_DEVELOPMENT_AUTHENTICATION=True
