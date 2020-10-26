@@ -1,5 +1,6 @@
 import logging
 
+import requests
 from apps.cases import populate
 from apps.cases.filters import CaseFilter
 from apps.cases.models import (
@@ -36,7 +37,7 @@ from apps.debriefings.serializers import DebriefingSerializer
 from apps.users.auth_apps import TopKeyAuth
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.decorators import action
 from rest_framework.generics import (
     ListAPIView,
@@ -85,6 +86,26 @@ class GenerateMockViewset(ViewSet):
                 "states": OpenZaakStateSerializer(states, many=True).data,
             }
         )
+
+
+class TestSerializer(serializers.Serializer):
+    request_url = serializers.CharField()
+
+
+class TestEndPointViewSet(ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=TestSerializer,
+        description="request url",
+    )
+    @action(detail=False, methods=["post"])
+    def try_brk_api(self, request):
+        serializer = TestSerializer(data=request.data)
+
+        if serializer.is_valid():
+            response = requests.get(serializer.data["request_url"])
+        return Response(response)
 
 
 class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):

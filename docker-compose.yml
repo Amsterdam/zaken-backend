@@ -1,12 +1,12 @@
-version: '3.5'
+version: "3.5"
 
 services:
   zaak-gateway:
     networks:
       - fixxx-looplijsten-backend_looplijsten_backend
     build: app
-#    volumes:
-#      - .:/app
+    #    volumes:
+    #      - .:/app
     ports:
       - 8080:8000
     links:
@@ -36,11 +36,15 @@ services:
     command: bash -c "/app/deploy/docker-entrypoint.development.sh"
     volumes:
       - ./app:/app
+    extra_hosts:
+      - "acc.api.data.amsterdam.nl:10.240.5.72"
+    stdin_open: true
+    tty: true
   database:
     networks:
       - fixxx-looplijsten-backend_looplijsten_backend
     image: amsterdam/postgres11
-    shm_size: '512m'
+    shm_size: "512m"
     ports:
       - "6409:5432"
     environment:

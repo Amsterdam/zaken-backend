@@ -11,6 +11,7 @@ from apps.cases.views import (
     OpenZaakStateTypeViewSet,
     OpenZaakStateViewSet,
     PermitViewSet,
+    TestEndPointViewSet,
 )
 from apps.debriefings.views import DebriefingViewSet
 from apps.gateway.push.views import PushViewSet
@@ -48,6 +49,7 @@ router.register(r"generate-mock", GenerateMockViewset, basename="generate-mock")
 router.register(r"push", PushViewSet, basename="push")
 router.register(r"permits", PermitViewSet, basename="permits")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")
+router.register(r"testing-url", TestEndPointViewSet, basename="testing-url")
 
 urlpatterns = [
     # Admin environment
