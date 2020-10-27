@@ -207,7 +207,7 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
         return Response(serialized_fines.data)
 
 
-class AddressViewSet(ViewSet, ListAPIView):
+class AddressViewSet(ViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = AddressSerializer
     queryset = Address.objects.all()
