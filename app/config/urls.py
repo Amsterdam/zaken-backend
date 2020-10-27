@@ -1,10 +1,8 @@
 from apps.cases.views import (
     AddressViewSet,
-    CaseStateViewSet,
     CaseTimeLineReactionViewSet,
     CaseTimeLineThreadViewSet,
     CaseTimeLineViewSet,
-    CaseTypeViewSet,
     CaseViewSet,
     PermitViewSet,
     TestEndPointViewSet,
@@ -22,7 +20,6 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r"cases", CaseViewSet, basename="cases")
-router.register(r"case-states", CaseStateViewSet, basename="cases-states")
 router.register(r"case-timelines", CaseTimeLineViewSet, basename="case-timelines")
 router.register(
     r"case-timeline-threads",
@@ -34,7 +31,6 @@ router.register(
     CaseTimeLineReactionViewSet,
     basename="case-timeline-reactions",
 )
-router.register(r"case-types", CaseTypeViewSet, basename="case-types")
 router.register(r"addresses", AddressViewSet, basename="addresses")
 router.register(r"push", PushViewSet, basename="push")
 router.register(r"permits", PermitViewSet, basename="permits")

@@ -16,12 +16,10 @@ from apps.cases.models import (
 from apps.cases.serializers import (
     AddressSerializer,
     CaseSerializer,
-    CaseStateSerializer,
     CaseTimelineReactionSerializer,
     CaseTimelineSerializer,
     CaseTimelineSubjectSerializer,
     CaseTimelineThreadSerializer,
-    CaseTypeSerializer,
     FineListSerializer,
     OpenZaakStateSerializer,
     PermitCheckmarkSerializer,
@@ -62,22 +60,6 @@ bag_id = OpenApiParameter(
     required=True,
     description="Verblijfsobjectidentificatie",
 )
-
-# TODO: Deprecated. Fix when there's time
-# class GenerateMockViewset(ViewSet):
-#     def list(self, request):
-#         populate.delete_all()
-#         case_types = populate.create_case_types()
-#         addresses = populate.create_addresses()
-#         cases = populate.create_cases(case_types, addresses)
-
-#         return Response(
-#             {
-#                 "case_types": CaseTypeSerializer(case_types, many=True).data,
-#                 "addresses": AddressSerializer(addresses, many=True).data,
-#                 "cases": CaseSerializer(cases, many=True).data,
-#             }
-#         )
 
 
 class TestSerializer(serializers.Serializer):
@@ -204,18 +186,6 @@ class AddressViewSet(ViewSet):
             logger.error(f"Could not retrieve residents for bag id {bag_id}: {e}")
 
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class CaseTypeViewSet(ViewSet, ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = CaseTypeSerializer
-    queryset = CaseType.objects.all()
-
-
-class CaseStateViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    serializer_class = CaseStateSerializer
-    queryset = CaseState.objects.all()
 
 
 query = OpenApiParameter(
