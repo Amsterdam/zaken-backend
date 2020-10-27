@@ -1,7 +1,6 @@
 import logging
 
 import requests
-from apps.cases import populate
 from apps.cases.filters import CaseFilter
 from apps.cases.models import (
     Address,
