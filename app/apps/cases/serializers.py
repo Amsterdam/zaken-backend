@@ -43,12 +43,6 @@ class AddressSerializer(serializers.ModelSerializer):
         extra_kwargs = {"bag_id": {"validators": []}}
 
 
-class CaseStateTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CaseStateType
-        fields = "__all__"
-
-
 class CaseStateSerializer(serializers.ModelSerializer):
     status_name = serializers.CharField(source="status.name", read_only=True)
 
