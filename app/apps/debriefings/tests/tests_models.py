@@ -37,7 +37,7 @@ class DebriefingModelTest(TestCase, DebriefingTestMixin):
     def test_can_be_modified(self):
         debriefing = self.create_debriefing()
         modified_feedback = debriefing.feedback + "Adding more text"
-        modified_violation = not debriefing.violation
+        modified_violation = Debriefing.VIOLATION_ADDITIONAL_RESEARCH_REQUIRED
 
         debriefing.feedback = modified_feedback
         debriefing.violation = modified_violation

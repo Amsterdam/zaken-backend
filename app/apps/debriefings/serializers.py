@@ -8,6 +8,7 @@ class DebriefingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Debriefing
         fields = (
+            "id",
             "case",
             "author",
             "date_added",
@@ -15,7 +16,10 @@ class DebriefingSerializer(serializers.ModelSerializer):
             "violation",
             "feedback",
         )
-        read_only_fields = ("date",)
+        read_only_fields = (
+            "date",
+            "id",
+        )
 
 
 # TODO: Temp
@@ -23,6 +27,7 @@ class DebriefingCreateTempSerializer(serializers.ModelSerializer):
     class Meta:
         model = Debriefing
         fields = (
+            "id",
             "case",
             "author",
             "date_added",
@@ -30,14 +35,16 @@ class DebriefingCreateTempSerializer(serializers.ModelSerializer):
             "violation",
             "feedback",
         )
-        read_only_fields = ("date",)
+        read_only_fields = ("date", "id")
 
 
 class DebriefingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Debriefing
         fields = (
+            "id",
             "violation",
             "feedback",
             "case",
         )
+        read_only_fields = ("id",)

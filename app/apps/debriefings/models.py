@@ -4,6 +4,16 @@ from django.db import models
 
 
 class Debriefing(models.Model):
+    VIOLATION_NO = "NO"
+    VIOLATION_YES = "YES"
+    VIOLATION_ADDITIONAL_RESEARCH_REQUIRED = "ADDITIONAL_RESEARCH_REQUIRED"
+
+    VIOLATION_CHOICES = [
+        (VIOLATION_NO, "No"),
+        (VIOLATION_YES, "Yes"),
+        (VIOLATION_ADDITIONAL_RESEARCH_REQUIRED, "Additional research required"),
+    ]
+
     case = models.ForeignKey(
         to=Case, null=False, on_delete=models.RESTRICT, related_name="debriefings"
     )
@@ -12,7 +22,11 @@ class Debriefing(models.Model):
     )
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
-    violation = models.BooleanField(null=False)
+    violation = models.CharField(
+        max_length=28,
+        choices=VIOLATION_CHOICES,
+        default=VIOLATION_NO,
+    )
     feedback = models.CharField(null=False, blank=False, max_length=255)
 
     def save(self, *args, **kwargs):
