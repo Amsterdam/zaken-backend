@@ -1,3 +1,5 @@
+import logging
+
 from apps.cases.models import Case
 from apps.debriefings.models import Debriefing
 from apps.debriefings.serializers import (
@@ -5,12 +7,15 @@ from apps.debriefings.serializers import (
     DebriefingCreateTempSerializer,
     DebriefingSerializer,
 )
+from django.http import HttpResponseBadRequest
 from django.shortcuts import render
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+
+logger = logging.getLogger(__name__)
 
 
 class DebriefingViewSet(
@@ -24,7 +29,7 @@ class DebriefingViewSet(
     serializer_class = DebriefingSerializer
     queryset = Debriefing.objects.all()
 
-    def get_serializer(self):
+    def get_serializer_class(self, *args, **kwargs):
         if self.action == "create":
             return DebriefingCreateSerializer
 
@@ -36,7 +41,12 @@ class DebriefingViewSet(
         """
         user = request.user
         case_identificaton = request.data.get("case")
-        case = Case.objects.get(identification=case_identificaton)
+
+        try:
+            case = Case.objects.get(identification=case_identificaton)
+        except Exception as e:
+            logger.error("Case does not exist: {}".format(str(e)))
+            return HttpResponseBadRequest("Case does not exist")
 
         data = {**request.data, "author": user.id, "case": case.id}
 

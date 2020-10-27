@@ -1,4 +1,4 @@
-version: '3.5'
+version: "3.5"
 
 services:
   zaak-gateway:
@@ -34,6 +34,10 @@ services:
     command: bash -c "/app/deploy/docker-entrypoint.development.sh"
     volumes:
       - ./app:/app
+    extra_hosts:
+      - "acc.api.data.amsterdam.nl:10.240.5.72"
+    stdin_open: true
+    tty: true
   database:
     networks:
       - fixxx-looplijsten-backend_looplijsten_backend
