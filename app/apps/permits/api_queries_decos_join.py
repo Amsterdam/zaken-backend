@@ -2,15 +2,17 @@ import logging
 from datetime import datetime
 
 import requests
-from django.conf import settings
-from tenacity import after_log, retry, stop_after_attempt
-from utils.serializers import (
-    DecosJoinFolderFieldsResponseSerializer,
-    DecosJoinObjectFieldsResponseSerializer,
-    DecosPermitSerializer,
+from apps.permits.mocks import (
     get_decos_join_mock_folder_fields,
     get_decos_join_mock_object_fields,
 )
+from apps.permits.serializers import (
+    DecosJoinFolderFieldsResponseSerializer,
+    DecosJoinObjectFieldsResponseSerializer,
+    DecosPermitSerializer,
+)
+from django.conf import settings
+from tenacity import after_log, retry, stop_after_attempt
 
 logger = logging.getLogger(__name__)
 

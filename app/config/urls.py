@@ -4,11 +4,11 @@ from apps.cases.views import (
     CaseTimeLineThreadViewSet,
     CaseTimeLineViewSet,
     CaseViewSet,
-    PermitViewSet,
     TestEndPointViewSet,
 )
 from apps.debriefings.views import DebriefingViewSet
 from apps.gateway.push.views import PushViewSet
+from apps.permits.views import PermitViewSet
 from apps.users.views import IsAuthenticatedView, ObtainAuthTokenOIDC, UserListView
 from django.conf import settings
 from django.conf.urls import include, url

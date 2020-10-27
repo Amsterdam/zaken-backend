@@ -22,7 +22,6 @@ from apps.cases.serializers import (
     CaseTimelineThreadSerializer,
     FineListSerializer,
     OpenZaakStateSerializer,
-    PermitCheckmarkSerializer,
     ResidentsSerializer,
     TimelineAddSerializer,
     TimelineUpdateSerializer,
@@ -43,23 +42,8 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from utils.api_queries_belastingen import get_fines, get_mock_fines
 from utils.api_queries_brp import get_brp
-from utils.api_queries_decos_join import (
-    DecosJoinRequest,
-    get_decos_join_permit,
-    get_decos_join_request,
-    get_decos_join_request_swagger,
-)
-from utils.serializers import DecosPermitSerializer
 
 logger = logging.getLogger(__name__)
-
-bag_id = OpenApiParameter(
-    name="bag_id",
-    type=OpenApiTypes.STR,
-    location=OpenApiParameter.QUERY,
-    required=True,
-    description="Verblijfsobjectidentificatie",
-)
 
 
 class TestSerializer(serializers.Serializer):
@@ -186,73 +170,6 @@ class AddressViewSet(ViewSet):
             logger.error(f"Could not retrieve residents for bag id {bag_id}: {e}")
 
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
-query = OpenApiParameter(
-    name="query",
-    type=OpenApiTypes.STR,
-    location=OpenApiParameter.QUERY,
-    required=True,
-    description="Query",
-)
-
-book_id = OpenApiParameter(
-    name="book_id",
-    type=OpenApiTypes.STR,
-    location=OpenApiParameter.QUERY,
-    required=True,
-    description=(
-        "BAG Objecten: 90642DCCC2DB46469657C3D0DF0B1ED7 or Objecten onbekend:"
-        " B1FF791EA9FA44698D5ABBB1963B94EC"
-    ),
-)
-
-object_id = OpenApiParameter(
-    name="object_id",
-    type=OpenApiTypes.STR,
-    location=OpenApiParameter.QUERY,
-    required=True,
-    description="ID van woningobject",
-)
-
-permit_search_parameters = [book_id, query]
-permit_request_parameters = [query]
-
-
-class PermitViewSet(ViewSet):
-    permission_classes = [IsAuthenticated]
-
-    @extend_schema(
-        parameters=[bag_id],
-        description="Get permit checkmarks based on bag id",
-        responses={200: PermitCheckmarkSerializer()},
-    )
-    @action(detail=False, url_name="permit checkmarks", url_path="checkmarks")
-    def get_permit_checkmarks(self, request):
-        bag_id = request.GET.get("bag_id")
-        response = DecosJoinRequest().get_checkmarks_by_bag_id(bag_id)
-
-        serializer = PermitCheckmarkSerializer(data=response)
-
-        if serializer.is_valid():
-            return Response(serializer.data)
-        return Response(serializer.initial_data)
-
-    @extend_schema(
-        parameters=[bag_id],
-        description="Get permit details based on bag id",
-        responses={200: DecosPermitSerializer(many=True)},
-    )
-    @action(detail=False, url_name="permit details", url_path="details")
-    def get_permit_details(self, request):
-        bag_id = request.GET.get("bag_id")
-        response = DecosJoinRequest().get_permits_by_bag_id(bag_id)
-
-        serializer = DecosPermitSerializer(data=response, many=True)
-
-        if serializer.is_valid():
-            return Response(serializer.data)
-        return Response(serializer.initial_data)
 
 
 class CaseTimeLineViewSet(ModelViewSet):

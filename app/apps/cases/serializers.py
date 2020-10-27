@@ -208,13 +208,6 @@ class CaseTimelineSubjectSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class PermitCheckmarkSerializer(serializers.Serializer):
-    has_b_and_b_permit = serializers.ChoiceField(choices=("True", "False", "UNKNOWN"))
-    has_vacation_rental_permit = serializers.ChoiceField(
-        choices=("True", "False", "UNKNOWN")
-    )
-
-
 class TimelineAddSerializer(serializers.Serializer):
     case_identification = serializers.CharField()
     subject = serializers.CharField()
