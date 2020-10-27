@@ -298,37 +298,6 @@ class PermitViewSet(ViewSet):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
-        parameters=permit_search_parameters, description="Search query parameters"
-    )
-    def list(self, request):
-        query = request.GET.get("query")
-        book_id = request.GET.get("book_id")
-        decos_join_response = get_decos_join_permit(query=query, book_id=book_id)
-        return Response(decos_join_response)
-
-    @extend_schema(
-        parameters=permit_request_parameters, description="Request to Decos Join API"
-    )
-    @action(detail=False)
-    def list_documents(self, request):
-        query = request.GET.get("query")
-
-        decos_join_response = get_decos_join_request(query=query)
-
-        return Response(decos_join_response)
-
-    @extend_schema(
-        parameters=permit_request_parameters, description="Request to Decos Join API"
-    )
-    @action(detail=False)
-    def list_swagger(self, request):
-        query = request.GET.get("query")
-
-        decos_join_response = get_decos_join_request_swagger(query=query)
-
-        return Response(decos_join_response)
-
-    @extend_schema(
         parameters=[bag_id],
         description="Get permit checkmarks based on bag id",
         responses={200: PermitCheckmarkSerializer()},
