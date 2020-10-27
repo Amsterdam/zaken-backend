@@ -12,28 +12,22 @@ from apps.cases.models import (
     CaseTimelineSubject,
     CaseTimelineThread,
     CaseType,
-    OpenZaakState,
-    OpenZaakStateType,
 )
 from apps.cases.serializers import (
     AddressSerializer,
     CaseSerializer,
-    CaseStateSerializer,
-    CaseStateTypeSerializer,
     CaseTimelineReactionSerializer,
     CaseTimelineSerializer,
     CaseTimelineSubjectSerializer,
     CaseTimelineThreadSerializer,
-    CaseTypeSerializer,
     FineListSerializer,
     OpenZaakStateSerializer,
-    OpenZaakStateTypeSerializer,
-    PermitCheckmarkSerializer,
     ResidentsSerializer,
     TimelineAddSerializer,
     TimelineUpdateSerializer,
 )
 from apps.debriefings.serializers import DebriefingSerializer
+from apps.permits.mixins import PermitCheckmarkMixin, PermitDetailsMixin
 from apps.users.auth_apps import TopKeyAuth
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -49,43 +43,8 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from utils.api_queries_belastingen import get_fines, get_mock_fines
 from utils.api_queries_brp import get_brp
-from utils.api_queries_decos_join import (
-    DecosJoinRequest,
-    get_decos_join_permit,
-    get_decos_join_request,
-    get_decos_join_request_swagger,
-)
-from utils.serializers import DecosPermitSerializer
 
 logger = logging.getLogger(__name__)
-
-bag_id = OpenApiParameter(
-    name="bag_id",
-    type=OpenApiTypes.STR,
-    location=OpenApiParameter.QUERY,
-    required=True,
-    description="Verblijfsobjectidentificatie",
-)
-
-
-class GenerateMockViewset(ViewSet):
-    def list(self, request):
-        populate.delete_all()
-        case_types = populate.create_case_types()
-        state_types = populate.create_state_types()
-        addresses = populate.create_addresses()
-        cases = populate.create_cases(case_types, addresses)
-        states = populate.create_states(cases, state_types)
-
-        return Response(
-            {
-                "case_types": CaseTypeSerializer(case_types, many=True).data,
-                "addresses": AddressSerializer(addresses, many=True).data,
-                "cases": CaseSerializer(cases, many=True).data,
-                "state_types": OpenZaakStateTypeSerializer(state_types, many=True).data,
-                "states": OpenZaakStateSerializer(states, many=True).data,
-            }
-        )
 
 
 class TestSerializer(serializers.Serializer):
@@ -150,26 +109,7 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
             logger.error(f"Could not retrieve debriefings for pk {pk}: {e}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=["get"], serializer_class=ResidentsSerializer)
-    def residents(self, request, pk):
-        try:
-            case = Case.objects.get(pk=pk)
-        except Case.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        try:
-            bag_id = case.address.bag_id
-            brp_data = get_brp(bag_id)
-            serialized_residents = ResidentsSerializer(data=brp_data)
-            serialized_residents.is_valid()
-
-            return Response(serialized_residents.data)
-
-        except Exception as e:
-            logger.error(f"Could not retrieve residents for pk {pk}: {e}")
-
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
+    # TODO: These are using legacy OpenZaakStateSerializer update later.
     @action(detail=True, methods=["get"], serializer_class=FineListSerializer)
     def fines(self, request, pk):
         """Retrieves states for a case which allow fines, and retrieve the corresponding fines"""
@@ -204,7 +144,7 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
         return Response(serialized_fines.data)
 
 
-class AddressViewSet(ViewSet, ListAPIView):
+class AddressViewSet(ViewSet, PermitCheckmarkMixin, PermitDetailsMixin):
     permission_classes = [IsAuthenticated]
     serializer_class = AddressSerializer
     queryset = Address.objects.all()
@@ -228,134 +168,6 @@ class AddressViewSet(ViewSet, ListAPIView):
             logger.error(f"Could not retrieve residents for bag id {bag_id}: {e}")
 
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class CaseTypeViewSet(ViewSet, ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = CaseTypeSerializer
-    queryset = CaseType.objects.all()
-
-
-class CaseStateViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    serializer_class = CaseStateSerializer
-    queryset = CaseState.objects.all()
-
-
-class CaseStateTypeViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    serializer_class = CaseStateTypeSerializer
-    queryset = CaseStateType.objects.all()
-
-
-class OpenZaakStateTypeViewSet(ViewSet, ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = OpenZaakStateTypeSerializer
-    queryset = OpenZaakStateType.objects.all()
-
-
-class OpenZaakStateViewSet(ViewSet, ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = OpenZaakStateSerializer
-    queryset = OpenZaakState.objects.all()
-
-
-query = OpenApiParameter(
-    name="query",
-    type=OpenApiTypes.STR,
-    location=OpenApiParameter.QUERY,
-    required=True,
-    description="Query",
-)
-
-book_id = OpenApiParameter(
-    name="book_id",
-    type=OpenApiTypes.STR,
-    location=OpenApiParameter.QUERY,
-    required=True,
-    description=(
-        "BAG Objecten: 90642DCCC2DB46469657C3D0DF0B1ED7 or Objecten onbekend:"
-        " B1FF791EA9FA44698D5ABBB1963B94EC"
-    ),
-)
-
-object_id = OpenApiParameter(
-    name="object_id",
-    type=OpenApiTypes.STR,
-    location=OpenApiParameter.QUERY,
-    required=True,
-    description="ID van woningobject",
-)
-
-permit_search_parameters = [book_id, query]
-permit_request_parameters = [query]
-
-
-class PermitViewSet(ViewSet):
-    permission_classes = [IsAuthenticated]
-
-    @extend_schema(
-        parameters=permit_search_parameters, description="Search query parameters"
-    )
-    def list(self, request):
-        query = request.GET.get("query")
-        book_id = request.GET.get("book_id")
-        decos_join_response = get_decos_join_permit(query=query, book_id=book_id)
-        return Response(decos_join_response)
-
-    @extend_schema(
-        parameters=permit_request_parameters, description="Request to Decos Join API"
-    )
-    @action(detail=False)
-    def list_documents(self, request):
-        query = request.GET.get("query")
-
-        decos_join_response = get_decos_join_request(query=query)
-
-        return Response(decos_join_response)
-
-    @extend_schema(
-        parameters=permit_request_parameters, description="Request to Decos Join API"
-    )
-    @action(detail=False)
-    def list_swagger(self, request):
-        query = request.GET.get("query")
-
-        decos_join_response = get_decos_join_request_swagger(query=query)
-
-        return Response(decos_join_response)
-
-    @extend_schema(
-        parameters=[bag_id],
-        description="Get permit checkmarks based on bag id",
-        responses={200: PermitCheckmarkSerializer()},
-    )
-    @action(detail=False, url_name="permit checkmarks", url_path="checkmarks")
-    def get_permit_checkmarks(self, request):
-        bag_id = request.GET.get("bag_id")
-        response = DecosJoinRequest().get_checkmarks_by_bag_id(bag_id)
-
-        serializer = PermitCheckmarkSerializer(data=response)
-
-        if serializer.is_valid():
-            return Response(serializer.data)
-        return Response(serializer.initial_data)
-
-    @extend_schema(
-        parameters=[bag_id],
-        description="Get permit details based on bag id",
-        responses={200: DecosPermitSerializer(many=True)},
-    )
-    @action(detail=False, url_name="permit details", url_path="details")
-    def get_permit_details(self, request):
-        bag_id = request.GET.get("bag_id")
-        response = DecosJoinRequest().get_permits_by_bag_id(bag_id)
-
-        serializer = DecosPermitSerializer(data=response, many=True)
-
-        if serializer.is_valid():
-            return Response(serializer.data)
-        return Response(serializer.initial_data)
 
 
 class CaseTimeLineViewSet(ModelViewSet):

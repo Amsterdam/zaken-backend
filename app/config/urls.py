@@ -1,16 +1,9 @@
 from apps.cases.views import (
     AddressViewSet,
-    CaseStateTypeViewSet,
-    CaseStateViewSet,
     CaseTimeLineReactionViewSet,
     CaseTimeLineThreadViewSet,
     CaseTimeLineViewSet,
-    CaseTypeViewSet,
     CaseViewSet,
-    GenerateMockViewset,
-    OpenZaakStateTypeViewSet,
-    OpenZaakStateViewSet,
-    PermitViewSet,
     TestEndPointViewSet,
 )
 from apps.debriefings.views import DebriefingViewSet
@@ -26,8 +19,6 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r"cases", CaseViewSet, basename="cases")
-router.register(r"case-states", CaseStateViewSet, basename="cases-states")
-router.register(r"case-state-types", CaseStateTypeViewSet, basename="cases-state-types")
 router.register(r"case-timelines", CaseTimeLineViewSet, basename="case-timelines")
 router.register(
     r"case-timeline-threads",
@@ -39,15 +30,8 @@ router.register(
     CaseTimeLineReactionViewSet,
     basename="case-timeline-reactions",
 )
-router.register(r"case-types", CaseTypeViewSet, basename="case-types")
 router.register(r"addresses", AddressViewSet, basename="addresses")
-router.register(r"open-zaak-states", OpenZaakStateViewSet, basename="open-zaak-states")
-router.register(
-    r"open-zaak-state-types", OpenZaakStateTypeViewSet, basename="open-zaak-state-types"
-)
-router.register(r"generate-mock", GenerateMockViewset, basename="generate-mock")
 router.register(r"push", PushViewSet, basename="push")
-router.register(r"permits", PermitViewSet, basename="permits")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")
 router.register(r"testing-url", TestEndPointViewSet, basename="testing-url")
 

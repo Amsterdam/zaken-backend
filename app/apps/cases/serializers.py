@@ -43,12 +43,6 @@ class AddressSerializer(serializers.ModelSerializer):
         extra_kwargs = {"bag_id": {"validators": []}}
 
 
-class CaseStateTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CaseStateType
-        fields = "__all__"
-
-
 class CaseStateSerializer(serializers.ModelSerializer):
     status_name = serializers.CharField(source="status.name", read_only=True)
 
@@ -212,13 +206,6 @@ class CaseTimelineSubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseTimelineSubject
         fields = "__all__"
-
-
-class PermitCheckmarkSerializer(serializers.Serializer):
-    has_b_and_b_permit = serializers.ChoiceField(choices=("True", "False", "UNKNOWN"))
-    has_vacation_rental_permit = serializers.ChoiceField(
-        choices=("True", "False", "UNKNOWN")
-    )
 
 
 class TimelineAddSerializer(serializers.Serializer):
