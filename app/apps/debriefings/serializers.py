@@ -22,7 +22,8 @@ class DebriefingSerializer(serializers.ModelSerializer):
         )
 
 
-# TODO: Temp
+# TODO: DebriefingCreateTempSerializer and DebriefingCreateSerializer can be consolidated into the regular DebriefingSerializer
+# This should be easier to do once we're not using case.identification anymore
 class DebriefingCreateTempSerializer(serializers.ModelSerializer):
     class Meta:
         model = Debriefing
