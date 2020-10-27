@@ -8,7 +8,6 @@ from apps.permits.mocks import (
 )
 from apps.permits.serializers import (
     DecosJoinFolderFieldsResponseSerializer,
-    DecosJoinObjectFieldsResponseSerializer,
     DecosPermitSerializer,
 )
 from django.conf import settings

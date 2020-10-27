@@ -8,6 +8,7 @@ class PermitCheckmarkSerializer(serializers.Serializer):
     )
 
 
+# TODO: This is currently not used. Should it be removed?
 class DecosJoinObjectFieldsResponseSerializer(serializers.Serializer):
     """
     This a serializer to just check if all fields are in the response are there
