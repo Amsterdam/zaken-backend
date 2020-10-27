@@ -5,8 +5,6 @@ services:
     networks:
       - fixxx-looplijsten-backend_looplijsten_backend
     build: app
-#    volumes:
-#      - .:/app
     ports:
       - 8080:8000
     links:
@@ -24,7 +22,7 @@ services:
       - DATABASE_NAME=zaken
       - DATABASE_USER=zaken
       - DATABASE_PASSWORD=insecure
-      - DATABASE_HOST=0.0.0.0
+      - DATABASE_HOST=database
       - DATABASE_PORT=5432
       - SENTRY_DSN=https://foo@foo.data.amsterdam.nl/0
       - LOCAL_DEVELOPMENT_AUTHENTICATION=True
@@ -40,6 +38,7 @@ services:
     networks:
       - fixxx-looplijsten-backend_looplijsten_backend
     image: amsterdam/postgres11
+    hostname: database
     shm_size: '512m'
     ports:
       - "6409:5432"
