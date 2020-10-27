@@ -6,8 +6,6 @@ from apps.cases.models import (
     CaseTimelineReaction,
     CaseTimelineSubject,
     CaseTimelineThread,
-    OpenZaakState,
-    OpenZaakStateType,
 )
 from django.contrib import admin
 
@@ -27,16 +25,6 @@ class AddressAdmin(admin.ModelAdmin):
         "suffix_letter",
         "suffix",
     )
-
-
-@admin.register(OpenZaakStateType)
-class OpenZaakStateTypeAdmin(admin.ModelAdmin):
-    list_display = ("name",)
-
-
-@admin.register(OpenZaakState)
-class OpenZaakStateAdmin(admin.ModelAdmin):
-    list_display = ("__str__",)
 
 
 admin.site.register(CaseState, admin.ModelAdmin)

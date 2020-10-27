@@ -6,8 +6,6 @@ from apps.cases.models import (
     CaseTimelineReaction,
     CaseTimelineSubject,
     CaseTimelineThread,
-    OpenZaakState,
-    OpenZaakStateType,
 )
 from rest_framework import serializers
 
@@ -50,29 +48,12 @@ class CaseStateSerializer(serializers.ModelSerializer):
         fields = ["case", "status_name", "status", "state_date", "users"]
 
 
-class OpenZaakStateTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OpenZaakStateType
-        fields = "__all__"
-        read_only_fields = ("id",)
-
-
-class OpenZaakStateSerializer(serializers.ModelSerializer):
-    state_type = OpenZaakStateTypeSerializer(required=True)
-
-    class Meta:
-        model = OpenZaakState
-        fields = "__all__"
-        read_only_fields = ("id",)
-
-
 class CaseSerializer(serializers.ModelSerializer):
     address = AddressSerializer(required=True)
     case_states = CaseStateSerializer(many=True)
     current_state = CaseStateSerializer(
         source="get_current_state", required=False, read_only=True
     )
-    legacy_states = OpenZaakStateSerializer(many=True, read_only=True)
 
     class Meta:
         model = Case

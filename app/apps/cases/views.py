@@ -19,7 +19,6 @@ from apps.cases.serializers import (
     CaseTimelineSubjectSerializer,
     CaseTimelineThreadSerializer,
     FineListSerializer,
-    OpenZaakStateSerializer,
     ResidentsSerializer,
     TimelineAddSerializer,
     TimelineUpdateSerializer,
@@ -110,39 +109,37 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
             )
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    # TODO: These are using legacy OpenZaakStateSerializer update later.
     @action(detail=True, methods=["get"], serializer_class=FineListSerializer)
     def fines(self, request, identification):
         """Retrieves states for a case which allow fines, and retrieve the corresponding fines"""
-        states = Case.objects.get(identification=identification).states
-        eligible_states = states.filter(state_type__invoice_available=True).all()
-        states_with_fines = []
+        return Response({})
+        # states = Case.objects.get(identification=identification).states
+        # eligible_states = states.filter(state_type__invoice_available=True).all()
+        # states_with_fines = []
 
-        for state in eligible_states:
-            try:
-                fines = get_fines(state.invoice_identification)
-                serialized_fines = FineListSerializer(data=fines)
-                serialized_fines.is_valid()
-                serialized_state = OpenZaakStateSerializer(state)
+        # for state in eligible_states:
+        #     try:
+        #         fines = get_fines(state.invoice_identification)
+        #         serialized_fines = FineListSerializer(data=fines)
+        #         serialized_fines.is_valid()
 
-                response_dict = {
-                    **serialized_state.data,
-                    "fines": serialized_fines.data.get("items"),
-                }
-                states_with_fines.append(response_dict)
-            except Exception as e:
-                logger.error(
-                    f"Could not retrieve fines for {state.invoice_identification}: {e}"
-                )
+        #         response_dict = {
+        #             "fines": serialized_fines.data.get("items"),
+        #         }
+        #         states_with_fines.append(response_dict)
+        #     except Exception as e:
+        #         logger.error(
+        #             f"Could not retrieve fines for {state.invoice_identification}: {e}"
+        #         )
 
-        # TODO: Remove 'items' (because it's mock data) from response once we have an anonimizer
-        fines = get_mock_fines("foo_id")
-        data = {"items": fines["items"], "states_with_fines": states_with_fines}
+        # # TODO: Remove 'items' (because it's mock data) from response once we have an anonimizer
+        # fines = get_mock_fines("foo_id")
+        # data = {"items": fines["items"], "states_with_fines": states_with_fines}
 
-        serialized_fines = FineListSerializer(data=data)
-        serialized_fines.is_valid()
+        # serialized_fines = FineListSerializer(data=data)
+        # serialized_fines.is_valid()
 
-        return Response(serialized_fines.data)
+        # return Response(serialized_fines.data)
 
 
 class AddressViewSet(ViewSet, PermitCheckmarkMixin, PermitDetailsMixin):

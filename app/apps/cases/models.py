@@ -103,42 +103,6 @@ class CaseState(models.Model):
         return f"{self.state_date} - {self.case.identification} - {self.status.name}"
 
 
-class OpenZaakStateType(models.Model):
-    name = models.CharField(max_length=255, null=False, unique=True)
-    invoice_available = models.BooleanField(default=False, null=False, blank=False)
-
-    def get(name):
-        return OpenZaakStateType.objects.get_or_create(name=name)[0]
-
-    def __str__(self):
-        return self.name
-
-
-class OpenZaakState(models.Model):
-    state_type = models.ForeignKey(
-        to=OpenZaakStateType,
-        null=False,
-        on_delete=models.CASCADE,
-        related_name="states",
-    )
-    case = models.ForeignKey(
-        to=Case, null=False, on_delete=models.CASCADE, related_name="states"
-    )
-    start_date = models.DateField(null=True)
-    end_date = models.DateField(null=True)
-    gauge_date = models.DateField(null=True)
-    # TODO: To make it more broadly applicable, we can probably just rename this to identification,
-    invoice_identification = models.CharField(
-        max_length=255, null=True, blank=True, unique=True
-    )
-
-    def __str__(self):
-        return (
-            f"{self.state_type}, {self.case.address}, {self.start_date} {self.end_date}"
-            f" {self.gauge_date}"
-        )
-
-
 # TODO: Consider moving this to a dedicated timelines/events app
 class CaseTimelineSubject(models.Model):
     case = models.ForeignKey(

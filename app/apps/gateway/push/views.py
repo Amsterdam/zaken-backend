@@ -2,19 +2,8 @@ import logging
 from datetime import datetime
 
 from apps.cases.const import IN_PROGRESS
-from apps.cases.models import (
-    Address,
-    Case,
-    CaseState,
-    CaseStateType,
-    OpenZaakState,
-    OpenZaakStateType,
-)
-from apps.cases.serializers import (
-    CaseSerializer,
-    CaseStateSerializer,
-    OpenZaakStateSerializer,
-)
+from apps.cases.models import Address, Case, CaseState, CaseStateType
+from apps.cases.serializers import CaseSerializer, CaseStateSerializer
 from apps.gateway.push.serializers import PushSerializer
 from apps.users.auth_apps import TopKeyAuth
 from apps.users.models import User
@@ -52,21 +41,19 @@ class PushViewSet(viewsets.ViewSet):
             start_date = data.get("start_date")
             end_date = data.get("end_date", None)
             users = data.get("users", [])
-            states_data = data.get("states", [])
+            # states_data = data.get("states", [])
 
             case = self.create_case(
                 identification, case_type, bag_id, start_date, end_date
             )
-            legacy_states = self.create_legacy_states(states_data, case)
+            # TODO: Create fines based on legacy_states here instead
+            # legacy_states = self.create_legacy_states(states_data, case)
             users = self.create_users(users)
             state = self.create_state(case, users)
 
             return Response(
                 {
                     "case": CaseSerializer(case).data,
-                    "legacy_states": OpenZaakStateSerializer(
-                        legacy_states, many=True
-                    ).data,
                     "state": CaseStateSerializer(state).data,
                 }
             )
@@ -87,26 +74,28 @@ class PushViewSet(viewsets.ViewSet):
         return case
 
     def create_legacy_states(self, states_data, case):
-        states = []
-        for state_data in states_data:
-            name = state_data.get("name")
+        # TODO: Create fines objects here instead
+        return
+        # states = []
+        # for state_data in states_data:
+        #     name = state_data.get("name")
 
-            # TODO: These should be renamed BWV instead of OpenZaak
-            state_type = OpenZaakStateType.get(name)
-            state, created = OpenZaakState.objects.get_or_create(
-                state_type=state_type,
-                case=case,
-                invoice_identification=state_data.get("invoice_identification"),
-            )
+        #     # TODO: These should be renamed BWV instead of OpenZaak
+        #     state_type = OpenZaakStateType.get(name)
+        #     state, created = OpenZaakState.objects.get_or_create(
+        #         state_type=state_type,
+        #         case=case,
+        #         invoice_identification=state_data.get("invoice_identification"),
+        #     )
 
-            state.start_date = state_data.get("start_date")
-            state.end_date = state_data.get("end_date", None)
-            state.gauge_date = state_data.get("gauge_date", None)
-            state.save()
+        #     state.start_date = state_data.get("start_date")
+        #     state.end_date = state_data.get("end_date", None)
+        #     state.gauge_date = state_data.get("gauge_date", None)
+        #     state.save()
 
-            states.append(state)
+        #     states.append(state)
 
-        return states
+        # return states
 
     def create_users(self, user_emails):
         users = []
