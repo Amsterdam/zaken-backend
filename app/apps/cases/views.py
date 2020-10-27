@@ -112,13 +112,12 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
-    lookup_field = "identification"
     filterset_class = CaseFilter
 
     @action(detail=True, methods=["get"], serializer_class=CaseTimelineSerializer)
-    def timeline(self, request, identification):
+    def timeline(self, request, pk):
         try:
-            case = Case.objects.get(identification=identification)
+            case = Case.objects.get(pk=pk)
         except Case.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -130,13 +129,13 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
             return Response(serialized_timeline.data)
 
         except Exception as e:
-            logger.error(f"Could not retrieve timeline for case {identification}: {e}")
+            logger.error(f"Could not retrieve timeline for case {pk}: {e}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=["get"], serializer_class=DebriefingSerializer)
-    def debriefings(self, request, identification):
+    def debriefings(self, request, pk):
         try:
-            case = Case.objects.get(identification=identification)
+            case = Case.objects.get(pk=pk)
         except Case.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -148,15 +147,13 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
             return Response(serialized_debriefings.data)
 
         except Exception as e:
-            logger.error(
-                f"Could not retrieve debriefings for case {identification}: {e}"
-            )
+            logger.error(f"Could not retrieve debriefings for pk {pk}: {e}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=["get"], serializer_class=ResidentsSerializer)
-    def residents(self, request, identification):
+    def residents(self, request, pk):
         try:
-            case = Case.objects.get(identification=identification)
+            case = Case.objects.get(pk=pk)
         except Case.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -169,14 +166,14 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
             return Response(serialized_residents.data)
 
         except Exception as e:
-            logger.error(f"Could not retrieve residents for case {identification}: {e}")
+            logger.error(f"Could not retrieve residents for pk {pk}: {e}")
 
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=["get"], serializer_class=FineListSerializer)
-    def fines(self, request, identification):
+    def fines(self, request, pk):
         """Retrieves states for a case which allow fines, and retrieve the corresponding fines"""
-        states = Case.objects.get(identification=identification).states
+        states = Case.objects.get(pk=pk).states
         eligible_states = states.filter(state_type__invoice_available=True).all()
         states_with_fines = []
 

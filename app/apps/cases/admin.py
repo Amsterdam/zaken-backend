@@ -15,7 +15,14 @@ from django.contrib import admin
 
 @admin.register(Case)
 class CaseAdmin(admin.ModelAdmin):
-    list_display = ("identification", "start_date", "end_date", "case_type", "address")
+    list_display = (
+        "id",
+        "identification",
+        "start_date",
+        "end_date",
+        "case_type",
+        "address",
+    )
 
 
 @admin.register(CaseType)
