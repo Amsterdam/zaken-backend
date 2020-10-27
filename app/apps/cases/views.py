@@ -18,12 +18,13 @@ from apps.cases.serializers import (
     CaseTimelineSerializer,
     CaseTimelineSubjectSerializer,
     CaseTimelineThreadSerializer,
-    FineListSerializer,
     ResidentsSerializer,
     TimelineAddSerializer,
     TimelineUpdateSerializer,
 )
 from apps.debriefings.serializers import DebriefingSerializer
+from apps.fines.api_queries_belastingen import get_fines, get_mock_fines
+from apps.fines.mixins import FinesMixin
 from apps.permits.mixins import PermitCheckmarkMixin, PermitDetailsMixin
 from apps.users.auth_apps import TopKeyAuth
 from drf_spectacular.types import OpenApiTypes
@@ -38,7 +39,6 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
-from utils.api_queries_belastingen import get_fines, get_mock_fines
 from utils.api_queries_brp import get_brp
 
 logger = logging.getLogger(__name__)
@@ -64,7 +64,7 @@ class TestEndPointViewSet(ViewSet):
         return Response(response)
 
 
-class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
+class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView, FinesMixin):
     permission_classes = [IsAuthenticated]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
@@ -108,38 +108,6 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
                 f"Could not retrieve debriefings for case {identification}: {e}"
             )
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=["get"], serializer_class=FineListSerializer)
-    def fines(self, request, identification):
-        """Retrieves states for a case which allow fines, and retrieve the corresponding fines"""
-        return Response({})
-        # states = Case.objects.get(identification=identification).states
-        # eligible_states = states.filter(state_type__invoice_available=True).all()
-        # states_with_fines = []
-
-        # for state in eligible_states:
-        #     try:
-        #         fines = get_fines(state.invoice_identification)
-        #         serialized_fines = FineListSerializer(data=fines)
-        #         serialized_fines.is_valid()
-
-        #         response_dict = {
-        #             "fines": serialized_fines.data.get("items"),
-        #         }
-        #         states_with_fines.append(response_dict)
-        #     except Exception as e:
-        #         logger.error(
-        #             f"Could not retrieve fines for {state.invoice_identification}: {e}"
-        #         )
-
-        # # TODO: Remove 'items' (because it's mock data) from response once we have an anonimizer
-        # fines = get_mock_fines("foo_id")
-        # data = {"items": fines["items"], "states_with_fines": states_with_fines}
-
-        # serialized_fines = FineListSerializer(data=data)
-        # serialized_fines.is_valid()
-
-        # return Response(serialized_fines.data)
 
 
 class AddressViewSet(ViewSet, PermitCheckmarkMixin, PermitDetailsMixin):
