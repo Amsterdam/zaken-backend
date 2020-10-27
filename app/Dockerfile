@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y
 RUN pip install --upgrade pip
 RUN pip install uwsgi
 
+RUN echo "10.240.5.72     acc.api.data.amsterdam.nl" >> /etc/hosts
+
 WORKDIR /app
 
 COPY requirements.txt /app/
