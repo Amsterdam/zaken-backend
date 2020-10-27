@@ -7,7 +7,6 @@ from apps.cases.models import (
     Case,
     CaseState,
     CaseStateType,
-    CaseType,
     OpenZaakState,
     OpenZaakStateType,
 )
@@ -78,12 +77,10 @@ class PushViewSet(viewsets.ViewSet):
 
     def create_case(self, identification, case_type, bag_id, start_date, end_date):
         case, _ = Case.objects.get_or_create(identification=identification)
-        case_type = CaseType.get(case_type)
         address = Address.get(bag_id)
 
         case.start_date = start_date
         case.end_date = end_date
-        case.case_type = case_type
         case.address = address
         case.save()
 

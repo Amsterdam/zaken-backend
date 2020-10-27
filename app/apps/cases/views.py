@@ -10,7 +10,6 @@ from apps.cases.models import (
     CaseTimelineReaction,
     CaseTimelineSubject,
     CaseTimelineThread,
-    CaseType,
 )
 from apps.cases.serializers import (
     AddressSerializer,

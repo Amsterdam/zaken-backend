@@ -6,7 +6,6 @@ from apps.cases.models import (
     CaseTimelineReaction,
     CaseTimelineSubject,
     CaseTimelineThread,
-    CaseType,
     OpenZaakState,
     OpenZaakStateType,
 )
@@ -15,12 +14,7 @@ from django.contrib import admin
 
 @admin.register(Case)
 class CaseAdmin(admin.ModelAdmin):
-    list_display = ("identification", "start_date", "end_date", "case_type", "address")
-
-
-@admin.register(CaseType)
-class CaseTypeAdmin(admin.ModelAdmin):
-    list_display = ("name",)
+    list_display = ("identification", "start_date", "end_date", "address")
 
 
 @admin.register(Address)

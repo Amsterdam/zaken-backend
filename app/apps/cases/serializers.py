@@ -6,7 +6,6 @@ from apps.cases.models import (
     CaseTimelineReaction,
     CaseTimelineSubject,
     CaseTimelineThread,
-    CaseType,
     OpenZaakState,
     OpenZaakStateType,
 )
@@ -67,16 +66,7 @@ class OpenZaakStateSerializer(serializers.ModelSerializer):
         read_only_fields = ("id",)
 
 
-class CaseTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CaseType
-        fields = "__all__"
-        read_only_fields = ("id",)
-        extra_kwargs = {"name": {"validators": []}}
-
-
 class CaseSerializer(serializers.ModelSerializer):
-    case_type = CaseTypeSerializer(required=True)
     address = AddressSerializer(required=True)
     case_states = CaseStateSerializer(many=True)
     current_state = CaseStateSerializer(
@@ -89,13 +79,7 @@ class CaseSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def update(self, instance, validated_data):
-        case_type_data = validated_data.pop("case_type", None)
         address_data = validated_data.pop("address", None)
-
-        if case_type_data:
-            case_type = CaseType.get(case_type_data.get("name"))
-            instance.case_type = case_type
-
         if address_data:
             address = Address.get(address_data.get("bag_id"))
             instance.address = address
@@ -108,15 +92,10 @@ class CaseSerializer(serializers.ModelSerializer):
         return instance
 
     def create(self, validated_data):
-        case_type_data = validated_data.pop("case_type")
-        case_type = CaseType.get(case_type_data.get("name"))
-
         address_data = validated_data.pop("address")
         address = Address.get(address_data.get("bag_id"))
 
-        case = Case.objects.create(
-            **validated_data, case_type=case_type, address=address
-        )
+        case = Case.objects.create(**validated_data, address=address)
 
         return case
 

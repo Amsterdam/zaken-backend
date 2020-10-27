@@ -54,16 +54,6 @@ class Address(models.Model):
         return super().save(*args, **kwargs)
 
 
-class CaseType(models.Model):
-    name = models.CharField(max_length=255, null=False, unique=True)
-
-    def get(name):
-        return CaseType.objects.get_or_create(name=name)[0]
-
-    def __str__(self):
-        return self.name
-
-
 class Case(models.Model):
     class Meta:
         ordering = ["start_date"]
@@ -73,9 +63,6 @@ class Case(models.Model):
     )
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
-    case_type = models.ForeignKey(
-        to=CaseType, null=True, on_delete=models.CASCADE, related_name="cases"
-    )
     address = models.ForeignKey(
         to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )
