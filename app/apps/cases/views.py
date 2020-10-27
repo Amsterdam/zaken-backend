@@ -12,7 +12,6 @@ from apps.cases.models import (
     CaseTimelineSubject,
     CaseTimelineThread,
     CaseType,
-    OpenZaakStateSerializer,
 )
 from apps.cases.serializers import (
     AddressSerializer,
@@ -25,6 +24,7 @@ from apps.cases.serializers import (
     CaseTimelineThreadSerializer,
     CaseTypeSerializer,
     FineListSerializer,
+    OpenZaakStateSerializer,
     PermitCheckmarkSerializer,
     ResidentsSerializer,
     TimelineAddSerializer,
@@ -144,26 +144,6 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
             logger.error(
                 f"Could not retrieve debriefings for case {identification}: {e}"
             )
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=["get"], serializer_class=ResidentsSerializer)
-    def residents(self, request, identification):
-        try:
-            case = Case.objects.get(identification=identification)
-        except Case.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        try:
-            bag_id = case.address.bag_id
-            brp_data = get_brp(bag_id)
-            serialized_residents = ResidentsSerializer(data=brp_data)
-            serialized_residents.is_valid()
-
-            return Response(serialized_residents.data)
-
-        except Exception as e:
-            logger.error(f"Could not retrieve residents for case {identification}: {e}")
-
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     # TODO: These are using legacy OpenZaakStateSerializer update later.
