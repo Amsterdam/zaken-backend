@@ -27,6 +27,7 @@ from apps.cases.serializers import (
     TimelineUpdateSerializer,
 )
 from apps.debriefings.serializers import DebriefingSerializer
+from apps.permits.mixins import PermitCheckmarkMixin, PermitDetailsMixin
 from apps.users.auth_apps import TopKeyAuth
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -146,7 +147,7 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
         return Response(serialized_fines.data)
 
 
-class AddressViewSet(ViewSet):
+class AddressViewSet(ViewSet, PermitCheckmarkMixin, PermitDetailsMixin):
     permission_classes = [IsAuthenticated]
     serializer_class = AddressSerializer
     queryset = Address.objects.all()

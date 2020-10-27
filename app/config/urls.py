@@ -8,7 +8,6 @@ from apps.cases.views import (
 )
 from apps.debriefings.views import DebriefingViewSet
 from apps.gateway.push.views import PushViewSet
-from apps.permits.views import PermitViewSet
 from apps.users.views import IsAuthenticatedView, ObtainAuthTokenOIDC, UserListView
 from django.conf import settings
 from django.conf.urls import include, url
@@ -33,7 +32,6 @@ router.register(
 )
 router.register(r"addresses", AddressViewSet, basename="addresses")
 router.register(r"push", PushViewSet, basename="push")
-router.register(r"permits", PermitViewSet, basename="permits")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")
 router.register(r"testing-url", TestEndPointViewSet, basename="testing-url")
 
