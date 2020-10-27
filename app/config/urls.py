@@ -7,9 +7,6 @@ from apps.cases.views import (
     CaseTimeLineViewSet,
     CaseTypeViewSet,
     CaseViewSet,
-    GenerateMockViewset,
-    OpenZaakStateTypeViewSet,
-    OpenZaakStateViewSet,
     PermitViewSet,
     TestEndPointViewSet,
 )
@@ -41,11 +38,6 @@ router.register(
 )
 router.register(r"case-types", CaseTypeViewSet, basename="case-types")
 router.register(r"addresses", AddressViewSet, basename="addresses")
-router.register(r"open-zaak-states", OpenZaakStateViewSet, basename="open-zaak-states")
-router.register(
-    r"open-zaak-state-types", OpenZaakStateTypeViewSet, basename="open-zaak-state-types"
-)
-router.register(r"generate-mock", GenerateMockViewset, basename="generate-mock")
 router.register(r"push", PushViewSet, basename="push")
 router.register(r"permits", PermitViewSet, basename="permits")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")

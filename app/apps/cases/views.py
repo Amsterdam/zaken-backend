@@ -12,8 +12,7 @@ from apps.cases.models import (
     CaseTimelineSubject,
     CaseTimelineThread,
     CaseType,
-    OpenZaakState,
-    OpenZaakStateType,
+    OpenZaakStateSerializer,
 )
 from apps.cases.serializers import (
     AddressSerializer,
@@ -26,8 +25,6 @@ from apps.cases.serializers import (
     CaseTimelineThreadSerializer,
     CaseTypeSerializer,
     FineListSerializer,
-    OpenZaakStateSerializer,
-    OpenZaakStateTypeSerializer,
     PermitCheckmarkSerializer,
     ResidentsSerializer,
     TimelineAddSerializer,
@@ -67,25 +64,21 @@ bag_id = OpenApiParameter(
     description="Verblijfsobjectidentificatie",
 )
 
+# TODO: Deprecated. Fix when there's time
+# class GenerateMockViewset(ViewSet):
+#     def list(self, request):
+#         populate.delete_all()
+#         case_types = populate.create_case_types()
+#         addresses = populate.create_addresses()
+#         cases = populate.create_cases(case_types, addresses)
 
-class GenerateMockViewset(ViewSet):
-    def list(self, request):
-        populate.delete_all()
-        case_types = populate.create_case_types()
-        state_types = populate.create_state_types()
-        addresses = populate.create_addresses()
-        cases = populate.create_cases(case_types, addresses)
-        states = populate.create_states(cases, state_types)
-
-        return Response(
-            {
-                "case_types": CaseTypeSerializer(case_types, many=True).data,
-                "addresses": AddressSerializer(addresses, many=True).data,
-                "cases": CaseSerializer(cases, many=True).data,
-                "state_types": OpenZaakStateTypeSerializer(state_types, many=True).data,
-                "states": OpenZaakStateSerializer(states, many=True).data,
-            }
-        )
+#         return Response(
+#             {
+#                 "case_types": CaseTypeSerializer(case_types, many=True).data,
+#                 "addresses": AddressSerializer(addresses, many=True).data,
+#                 "cases": CaseSerializer(cases, many=True).data,
+#             }
+#         )
 
 
 class TestSerializer(serializers.Serializer):
@@ -173,6 +166,7 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
 
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    # TODO: These are using legacy OpenZaakStateSerializer update later.
     @action(detail=True, methods=["get"], serializer_class=FineListSerializer)
     def fines(self, request, identification):
         """Retrieves states for a case which allow fines, and retrieve the corresponding fines"""
@@ -249,18 +243,6 @@ class CaseStateTypeViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = CaseStateTypeSerializer
     queryset = CaseStateType.objects.all()
-
-
-class OpenZaakStateTypeViewSet(ViewSet, ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = OpenZaakStateTypeSerializer
-    queryset = OpenZaakStateType.objects.all()
-
-
-class OpenZaakStateViewSet(ViewSet, ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = OpenZaakStateSerializer
-    queryset = OpenZaakState.objects.all()
 
 
 query = OpenApiParameter(
