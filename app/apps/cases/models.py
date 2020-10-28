@@ -25,8 +25,8 @@ class Case(models.Model):
 
     def __str__(self):
         if self.identification:
-            return self.identification
-        return ""
+            return f"Case {self.id} - {self.identification}"
+        return f"Case {self.id}"
 
     def save(self, *args, **kwargs):
         if not self.identification:

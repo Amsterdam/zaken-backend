@@ -11,10 +11,9 @@ logger = logging.getLogger(__name__)
 
 class FinesMixin:
     @action(detail=True, methods=["get"], serializer_class=FineListSerializer)
-    def fines(self, request, identification):
+    def fines(self, request, pk):
         """Retrieves states for a case which allow fines, and retrieve the corresponding fines"""
-
-        fines = Case.objects.get(identification=identification).fines.all()
+        fines = Case.objects.get(pk=pk).fines.all()
         items = []
         for fine in fines:
             try:

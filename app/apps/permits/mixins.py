@@ -14,7 +14,7 @@ class PermitCheckmarkMixin:
         description="Get permit checkmarks based on bag id",
         responses={200: PermitCheckmarkSerializer()},
     )
-    @action(detail=True, url_name="permit checkmarks", url_path="permits_checkmarks")
+    @action(detail=True, url_name="permit checkmarks", url_path="permits/checkmarks")
     def checkmarks(self, request, bag_id):
         response = DecosJoinRequest().get_checkmarks_by_bag_id(bag_id)
 
@@ -30,7 +30,7 @@ class PermitDetailsMixin:
         description="Get permit details based on bag id",
         responses={200: DecosPermitSerializer(many=True)},
     )
-    @action(detail=True, url_name="permit details", url_path="permits_details")
+    @action(detail=True, url_name="permit details", url_path="permits")
     def permit_details(self, request, bag_id):
         response = DecosJoinRequest().get_permits_by_bag_id(bag_id)
         serializer = DecosPermitSerializer(data=response, many=True)
