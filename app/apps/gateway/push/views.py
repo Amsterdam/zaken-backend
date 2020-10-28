@@ -1,8 +1,9 @@
 import logging
 from datetime import datetime
 
+from apps.addresses.models import Address
 from apps.cases.const import IN_PROGRESS
-from apps.cases.models import Address, Case, CaseState, CaseStateType
+from apps.cases.models import Case, CaseState, CaseStateType
 from apps.cases.serializers import CaseSerializer, CaseStateSerializer
 from apps.fines.legacy_const import STADIA_WITH_FINES
 from apps.fines.models import Fine

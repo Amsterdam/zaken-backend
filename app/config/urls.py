@@ -1,5 +1,5 @@
+from apps.addresses.views import AddressViewSet
 from apps.cases.views import (
-    AddressViewSet,
     CaseTimeLineReactionViewSet,
     CaseTimeLineThreadViewSet,
     CaseTimeLineViewSet,

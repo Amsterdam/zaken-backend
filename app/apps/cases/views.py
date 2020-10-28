@@ -3,29 +3,23 @@ import logging
 import requests
 from apps.cases.filters import CaseFilter
 from apps.cases.models import (
-    Address,
     Case,
     CaseState,
-    CaseStateType,
     CaseTimelineReaction,
     CaseTimelineSubject,
     CaseTimelineThread,
 )
 from apps.cases.serializers import (
-    AddressSerializer,
     CaseSerializer,
     CaseTimelineReactionSerializer,
     CaseTimelineSerializer,
     CaseTimelineSubjectSerializer,
     CaseTimelineThreadSerializer,
-    ResidentsSerializer,
     TimelineAddSerializer,
     TimelineUpdateSerializer,
 )
 from apps.debriefings.serializers import DebriefingSerializer
-from apps.fines.api_queries_belastingen import get_fines, get_mock_fines
 from apps.fines.mixins import FinesMixin
-from apps.permits.mixins import PermitCheckmarkMixin, PermitDetailsMixin
 from apps.users.auth_apps import TopKeyAuth
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -39,7 +33,6 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
-from utils.api_queries_brp import get_brp
 
 logger = logging.getLogger(__name__)
 
@@ -107,32 +100,6 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView, Fine
             logger.error(
                 f"Could not retrieve debriefings for case {identification}: {e}"
             )
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AddressViewSet(ViewSet, PermitCheckmarkMixin, PermitDetailsMixin):
-    permission_classes = [IsAuthenticated]
-    serializer_class = AddressSerializer
-    queryset = Address.objects.all()
-    lookup_field = "bag_id"
-
-    @action(
-        detail=True,
-        methods=["get"],
-        serializer_class=ResidentsSerializer,
-        url_path="residents",
-    )
-    def residents_by_bag_id(self, request, bag_id):
-        try:
-            brp_data = get_brp(bag_id)
-            serialized_residents = ResidentsSerializer(data=brp_data)
-            serialized_residents.is_valid()
-
-            return Response(serialized_residents.data)
-
-        except Exception as e:
-            logger.error(f"Could not retrieve residents for bag id {bag_id}: {e}")
-
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
