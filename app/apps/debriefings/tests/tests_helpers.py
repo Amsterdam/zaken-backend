@@ -16,7 +16,7 @@ class DebriefingTestMixin:
     def create_debriefing(self):
         case = self.create_case()
         author = self.create_user()
-        violation = True
+        violation = Debriefing.VIOLATION_YES
         feedback = "Feedback text lorem ipsum"
 
         debriefing = Debriefing.objects.create(
