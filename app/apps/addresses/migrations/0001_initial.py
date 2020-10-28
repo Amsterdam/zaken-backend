@@ -38,6 +38,8 @@ class Migration(migrations.Migration):
                 ("lng", models.FloatField(blank=True, null=True)),
             ],
         ),
+        # TODO: remove when this has been deployed to acceptance once. (blocks the unit tests from runnning)
+        #
         migrations.RunSQL(
             """
             INSERT INTO addresses_address (
