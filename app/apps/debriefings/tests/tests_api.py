@@ -130,13 +130,13 @@ class DebriefingUpdateAPITest(APITestCase, DebriefingTestMixin):
 
 class CaseDebriefingGetDetailAPITest(APITestCase, DebriefingTestMixin):
     def test_unauthenticated_get(self):
-        url = reverse("cases-detail", kwargs={"identification": "foo"})
+        url = reverse("cases-detail", kwargs={"pk": 1})
         client = get_unauthenticated_client()
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_authenticated_get_no_case(self):
-        url = reverse("cases-detail", kwargs={"identification": "foo"})
+        url = reverse("cases-detail", kwargs={"pk": 1})
         url += "/debriefings/"
         client = get_authenticated_client()
         response = client.get(url)
@@ -144,7 +144,7 @@ class CaseDebriefingGetDetailAPITest(APITestCase, DebriefingTestMixin):
 
     def test_authenticated_get_no_debriefing(self):
         case = self.create_case()
-        url = reverse("cases-detail", kwargs={"identification": case.identification})
+        url = reverse("cases-detail", kwargs={"pk": case.id})
         url += "debriefings/"
 
         client = get_authenticated_client()
@@ -156,9 +156,7 @@ class CaseDebriefingGetDetailAPITest(APITestCase, DebriefingTestMixin):
     def test_authenticated_get_debriefing(self):
         debriefing = self.create_debriefing()
 
-        url = reverse(
-            "cases-detail", kwargs={"identification": debriefing.case.identification}
-        )
+        url = reverse("cases-detail", kwargs={"pk": debriefing.case.id})
         url += "debriefings/"
 
         client = get_authenticated_client()
@@ -166,7 +164,7 @@ class CaseDebriefingGetDetailAPITest(APITestCase, DebriefingTestMixin):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response_debriefing = response.json()[0]
-        self.assertEqual(response_debriefing["case"], debriefing.case.identification)
+        self.assertEqual(response_debriefing["case"], debriefing.case.id)
         self.assertEqual(response_debriefing["author"], str(debriefing.author.id))
         self.assertEqual(response_debriefing["violation"], debriefing.violation)
         self.assertEqual(response_debriefing["feedback"], debriefing.feedback)
