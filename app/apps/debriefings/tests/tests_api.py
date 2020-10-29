@@ -59,7 +59,7 @@ class DebriefingCreateAPITest(APITestCase, DebriefingTestMixin):
         data = {
             "violation": Debriefing.VIOLATION_ADDITIONAL_RESEARCH_REQUIRED,
             "feedback": "Hello World Feedback",
-            "case": case.identification,
+            "case": case.id,
         }
 
         url = reverse("debriefings-list")
