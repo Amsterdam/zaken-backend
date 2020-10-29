@@ -1,10 +1,10 @@
 from apps.cases.models import Case, CaseTimelineSubject, CaseTimelineThread
-from apps.events.models import Event, EventEmitter, EventValue
+from apps.events.models import Event, EventValue, ModelEventEmitter
 from apps.users.models import User
 from django.db import models
 
 
-class Debriefing(EventEmitter):
+class Debriefing(ModelEventEmitter):
     EVENT_TYPE = Event.TYPE_DEBRIEFING
 
     VIOLATION_NO = "NO"

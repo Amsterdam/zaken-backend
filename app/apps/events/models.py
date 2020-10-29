@@ -46,7 +46,7 @@ class Event(models.Model):
         return values
 
 
-class EventEmitter(models.Model):
+class ModelEventEmitter(models.Model):
     EVENT_TYPE = None
 
     class Meta:
