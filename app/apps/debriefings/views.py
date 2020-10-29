@@ -40,10 +40,10 @@ class DebriefingViewSet(
         The Debriefing Author is automatically linked to the currently authenticated user
         """
         user = request.user
-        case_identificaton = request.data.get("case")
+        case = request.data.get("case")
 
         try:
-            case = Case.objects.get(identification=case_identificaton)
+            case = Case.objects.get(id=case)
         except Exception as e:
             logger.error("Case does not exist: {}".format(str(e)))
             return HttpResponseBadRequest("Case does not exist")
