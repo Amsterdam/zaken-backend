@@ -1,33 +1,25 @@
 import logging
 
 import requests
-from apps.cases import populate
 from apps.cases.filters import CaseFilter
 from apps.cases.models import (
-    Address,
     Case,
     CaseState,
-    CaseStateType,
     CaseTimelineReaction,
     CaseTimelineSubject,
     CaseTimelineThread,
-    CaseType,
 )
 from apps.cases.serializers import (
-    AddressSerializer,
     CaseSerializer,
     CaseTimelineReactionSerializer,
     CaseTimelineSerializer,
     CaseTimelineSubjectSerializer,
     CaseTimelineThreadSerializer,
-    FineListSerializer,
-    OpenZaakStateSerializer,
-    ResidentsSerializer,
     TimelineAddSerializer,
     TimelineUpdateSerializer,
 )
 from apps.debriefings.serializers import DebriefingSerializer
-from apps.permits.mixins import PermitCheckmarkMixin, PermitDetailsMixin
+from apps.fines.mixins import FinesMixin
 from apps.users.auth_apps import TopKeyAuth
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -41,8 +33,6 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
-from utils.api_queries_belastingen import get_fines, get_mock_fines
-from utils.api_queries_brp import get_brp
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +57,7 @@ class TestEndPointViewSet(ViewSet):
         return Response(response)
 
 
-class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
+class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView, FinesMixin):
     permission_classes = [IsAuthenticated]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
@@ -107,66 +97,6 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView):
 
         except Exception as e:
             logger.error(f"Could not retrieve debriefings for pk {pk}: {e}")
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-    # TODO: These are using legacy OpenZaakStateSerializer update later.
-    @action(detail=True, methods=["get"], serializer_class=FineListSerializer)
-    def fines(self, request, pk):
-        """Retrieves states for a case which allow fines, and retrieve the corresponding fines"""
-        states = Case.objects.get(pk=pk).states
-        eligible_states = states.filter(state_type__invoice_available=True).all()
-        states_with_fines = []
-
-        for state in eligible_states:
-            try:
-                fines = get_fines(state.invoice_identification)
-                serialized_fines = FineListSerializer(data=fines)
-                serialized_fines.is_valid()
-                serialized_state = OpenZaakStateSerializer(state)
-
-                response_dict = {
-                    **serialized_state.data,
-                    "fines": serialized_fines.data.get("items"),
-                }
-                states_with_fines.append(response_dict)
-            except Exception as e:
-                logger.error(
-                    f"Could not retrieve fines for {state.invoice_identification}: {e}"
-                )
-
-        # TODO: Remove 'items' (because it's mock data) from response once we have an anonimizer
-        fines = get_mock_fines("foo_id")
-        data = {"items": fines["items"], "states_with_fines": states_with_fines}
-
-        serialized_fines = FineListSerializer(data=data)
-        serialized_fines.is_valid()
-
-        return Response(serialized_fines.data)
-
-
-class AddressViewSet(ViewSet, PermitCheckmarkMixin, PermitDetailsMixin):
-    permission_classes = [IsAuthenticated]
-    serializer_class = AddressSerializer
-    queryset = Address.objects.all()
-    lookup_field = "bag_id"
-
-    @action(
-        detail=True,
-        methods=["get"],
-        serializer_class=ResidentsSerializer,
-        url_path="residents",
-    )
-    def residents_by_bag_id(self, request, bag_id):
-        try:
-            brp_data = get_brp(bag_id)
-            serialized_residents = ResidentsSerializer(data=brp_data)
-            serialized_residents.is_valid()
-
-            return Response(serialized_residents.data)
-
-        except Exception as e:
-            logger.error(f"Could not retrieve residents for bag id {bag_id}: {e}")
-
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 

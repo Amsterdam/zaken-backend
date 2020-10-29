@@ -45,6 +45,8 @@ INSTALLED_APPS = (
     "apps.cases",
     "apps.debriefings",
     "apps.permits",
+    "apps.fines",
+    "apps.addresses",
 )
 
 DATABASES = {
