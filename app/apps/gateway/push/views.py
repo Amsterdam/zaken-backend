@@ -89,7 +89,7 @@ class PushViewSet(viewsets.ViewSet):
                     identification=invoice_identification, case=case
                 )
 
-            fines.append(fine)
+                fines.append(fine)
 
         return fines
 
