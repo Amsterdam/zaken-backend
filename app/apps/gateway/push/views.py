@@ -1,21 +1,12 @@
 import logging
 from datetime import datetime
 
+from apps.addresses.models import Address
 from apps.cases.const import IN_PROGRESS
-from apps.cases.models import (
-    Address,
-    Case,
-    CaseState,
-    CaseStateType,
-    CaseType,
-    OpenZaakState,
-    OpenZaakStateType,
-)
-from apps.cases.serializers import (
-    CaseSerializer,
-    CaseStateSerializer,
-    OpenZaakStateSerializer,
-)
+from apps.cases.models import Case, CaseState, CaseStateType
+from apps.cases.serializers import CaseSerializer, CaseStateSerializer
+from apps.fines.legacy_const import STADIA_WITH_FINES
+from apps.fines.models import Fine
 from apps.gateway.push.serializers import PushSerializer
 from apps.users.auth_apps import TopKeyAuth
 from apps.users.models import User
@@ -58,16 +49,13 @@ class PushViewSet(viewsets.ViewSet):
             case = self.create_case(
                 identification, case_type, bag_id, start_date, end_date
             )
-            legacy_states = self.create_legacy_states(states_data, case)
+            self.create_fines(states_data, case)
             users = self.create_users(users)
             state = self.create_state(case, users)
 
             return Response(
                 {
                     "case": CaseSerializer(case).data,
-                    "legacy_states": OpenZaakStateSerializer(
-                        legacy_states, many=True
-                    ).data,
                     "state": CaseStateSerializer(state).data,
                 }
             )
@@ -78,38 +66,32 @@ class PushViewSet(viewsets.ViewSet):
 
     def create_case(self, identification, case_type, bag_id, start_date, end_date):
         case, _ = Case.objects.get_or_create(identification=identification)
-        case_type = CaseType.get(case_type)
         address = Address.get(bag_id)
 
         case.start_date = start_date
         case.end_date = end_date
-        case.case_type = case_type
         case.address = address
         case.save()
 
         return case
 
-    def create_legacy_states(self, states_data, case):
-        states = []
+    def create_fines(self, states_data, case):
+        """
+        Creates Fine objects based on legacy stadia
+        """
+        fines = []
         for state_data in states_data:
             name = state_data.get("name")
+            invoice_identification = state_data.get("invoice_identification")
 
-            # TODO: These should be renamed BWV instead of OpenZaak
-            state_type = OpenZaakStateType.get(name)
-            state, created = OpenZaakState.objects.get_or_create(
-                state_type=state_type,
-                case=case,
-                invoice_identification=state_data.get("invoice_identification"),
-            )
+            if name in STADIA_WITH_FINES:
+                fine, _ = Fine.objects.get_or_create(
+                    identification=invoice_identification, case=case
+                )
 
-            state.start_date = state_data.get("start_date")
-            state.end_date = state_data.get("end_date", None)
-            state.gauge_date = state_data.get("gauge_date", None)
-            state.save()
+            fines.append(fine)
 
-            states.append(state)
-
-        return states
+        return fines
 
     def create_users(self, user_emails):
         users = []
