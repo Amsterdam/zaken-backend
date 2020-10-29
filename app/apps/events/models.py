@@ -64,7 +64,7 @@ class ModelEventEmitter(models.Model):
         if self.EVENT_TYPE:
             return self.EVENT_TYPE
 
-        raise NotImplementedError("Class EVENT_TYPE not set correctly")
+        raise NotImplementedError("No EVENT_TYPE set")
 
     def __get_event_values__(self):
         raise NotImplementedError("Class get_values function not implemented")
