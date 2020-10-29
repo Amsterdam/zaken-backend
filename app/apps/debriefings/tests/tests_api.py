@@ -57,7 +57,7 @@ class DebriefingCreateAPITest(APITestCase, DebriefingTestMixin):
         case = self.create_case()
 
         data = {
-            "violation": "true",
+            "violation": Debriefing.VIOLATION_ADDITIONAL_RESEARCH_REQUIRED,
             "feedback": "Hello World Feedback",
             "case": case.identification,
         }
@@ -115,7 +115,7 @@ class DebriefingUpdateAPITest(APITestCase, DebriefingTestMixin):
         client = get_authenticated_client()
 
         UPDATED_FEEDBACK = debriefing.feedback + "UPDATED FEEDBACK"
-        UPDATED_VIOLATION = not debriefing.violation
+        UPDATED_VIOLATION = Debriefing.VIOLATION_ADDITIONAL_RESEARCH_REQUIRED
 
         response = client.patch(
             url, {"feedback": UPDATED_FEEDBACK, "violation": UPDATED_VIOLATION}
