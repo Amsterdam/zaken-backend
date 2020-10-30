@@ -87,7 +87,7 @@ class ModelEventEmitter(models.Model):
         self.__validate_event_values__()
         case = self.__get_case__()
         event_type = self.__get_event_type__()
-        events = Event.objects.filter(object_id=self.id, type=event_type)
+        events = Event.objects.filter(emitter_id=self.id, type=event_type)
 
         if not events.count():
             Event.objects.create(emitter=self, type=event_type, case=case)
