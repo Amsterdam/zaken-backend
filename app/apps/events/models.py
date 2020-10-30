@@ -29,16 +29,16 @@ class Event(models.Model):
         related_name="events",
     )
     type = models.CharField(max_length=250, null=False, blank=False, choices=TYPES)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey()
+    emitter_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    emitter_id = models.PositiveIntegerField()
+    emitter = GenericForeignKey("emitter_type", "emitter_id")
 
     @property
     def values(self):
         """
         Returns a dictionary with EventValues
         """
-        event_values = self.content_object.__get_event_values__()
+        event_values = self.emitter.__get_event_values__()
         values = {}
         for event_value in event_values:
             values[event_value.key] = event_value.value
@@ -90,7 +90,7 @@ class ModelEventEmitter(models.Model):
         events = Event.objects.filter(object_id=self.id, type=event_type)
 
         if not events.count():
-            Event.objects.create(content_object=self, type=event_type, case=case)
+            Event.objects.create(emitter=self, type=event_type, case=case)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
