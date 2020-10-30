@@ -80,6 +80,10 @@ class ModelEventEmitter(models.Model):
         return True
 
     def __emit_event__(self):
+        assert (
+            self.id
+        ), "Emitter instance should exist and have an pk assigned before emitting an Event"
+
         self.__validate_event_values__()
         case = self.__get_case__()
         event_type = self.__get_event_type__()
@@ -89,5 +93,5 @@ class ModelEventEmitter(models.Model):
             Event.objects.create(content_object=self, type=event_type, case=case)
 
     def save(self, *args, **kwargs):
-        self.__emit_event__()
         super().save(*args, **kwargs)
+        self.__emit_event__()
