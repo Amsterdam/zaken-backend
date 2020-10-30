@@ -131,13 +131,14 @@ class DebriefingUpdateAPITest(APITestCase, DebriefingTestMixin):
 class CaseDebriefingGetDetailAPITest(APITestCase, DebriefingTestMixin):
     def test_unauthenticated_get(self):
         url = reverse("cases-detail", kwargs={"pk": 1})
+        url += "debriefings/"
         client = get_unauthenticated_client()
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_authenticated_get_no_case(self):
         url = reverse("cases-detail", kwargs={"pk": 1})
-        url += "/debriefings/"
+        url += "debriefings/"
         client = get_authenticated_client()
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
