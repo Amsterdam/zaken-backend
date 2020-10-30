@@ -18,7 +18,7 @@ from apps.cases.serializers import (
     TimelineAddSerializer,
     TimelineUpdateSerializer,
 )
-from apps.debriefings.serializers import DebriefingSerializer
+from apps.debriefings.mixins import DebriefingsMixin
 from apps.fines.mixins import FinesMixin
 from apps.users.auth_apps import TopKeyAuth
 from drf_spectacular.types import OpenApiTypes
@@ -57,7 +57,13 @@ class TestEndPointViewSet(ViewSet):
         return Response(response)
 
 
-class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView, FinesMixin):
+class CaseViewSet(
+    ViewSet,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+    FinesMixin,
+    DebriefingsMixin,
+):
     permission_classes = [IsAuthenticated]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
@@ -79,24 +85,6 @@ class CaseViewSet(ViewSet, ListCreateAPIView, RetrieveUpdateDestroyAPIView, Fine
 
         except Exception as e:
             logger.error(f"Could not retrieve timeline for case {pk}: {e}")
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=["get"], serializer_class=DebriefingSerializer)
-    def debriefings(self, request, pk):
-        try:
-            case = Case.objects.get(pk=pk)
-        except Case.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        try:
-            debriefings = case.debriefings.all()
-            serialized_debriefings = DebriefingSerializer(data=debriefings, many=True)
-            serialized_debriefings.is_valid()
-
-            return Response(serialized_debriefings.data)
-
-        except Exception as e:
-            logger.error(f"Could not retrieve debriefings for pk {pk}: {e}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
