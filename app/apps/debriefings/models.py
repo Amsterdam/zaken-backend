@@ -1,9 +1,12 @@
 from apps.cases.models import Case, CaseTimelineSubject, CaseTimelineThread
+from apps.events.models import Event, EventValue, ModelEventEmitter
 from apps.users.models import User
 from django.db import models
 
 
-class Debriefing(models.Model):
+class Debriefing(ModelEventEmitter):
+    EVENT_TYPE = Event.TYPE_DEBRIEFING
+
     VIOLATION_NO = "NO"
     VIOLATION_YES = "YES"
     VIOLATION_ADDITIONAL_RESEARCH_REQUIRED = "ADDITIONAL_RESEARCH_REQUIRED"
@@ -28,6 +31,14 @@ class Debriefing(models.Model):
         default=VIOLATION_NO,
     )
     feedback = models.CharField(null=False, blank=False, max_length=255)
+
+    def __get_event_values__(self):
+        return [
+            EventValue("author", self.author.full_name),
+            EventValue("date_added", self.date_added.__str__()),
+            EventValue("violation", self.violation),
+            EventValue("feedback", self.feedback),
+        ]
 
     def save(self, *args, **kwargs):
         # TODO: adding the timeline objects here is done for demo/prototyping purposes. Remove or improve later.
