@@ -54,6 +54,9 @@ class ModelEventEmitter(models.Model):
         abstract = True
 
     case = None
+    event = GenericRelation(
+        Event, content_type_field="emitter_type", object_id_field="emitter_id"
+    )
 
     def __get_case__(self):
         if self.case:
