@@ -1,11 +1,14 @@
 import uuid
 
 from apps.addresses.models import Address
+from apps.events.models import Event, ModelEventEmitter
 from apps.users.models import User
 from django.db import models
 
 
-class Case(models.Model):
+class Case(ModelEventEmitter):
+    EVENT_TYPE = Event.TYPE_CASE
+
     class Meta:
         ordering = ["start_date"]
 
@@ -17,6 +20,17 @@ class Case(models.Model):
     address = models.ForeignKey(
         to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )
+
+    def __get_event_values__(self):
+        return {
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            # TODO: This is hardcoded and will be dynamic at a later point
+            "reason": "Deze zaak bestond al voor het nieuwe zaaksysteem. Zie BWV voor de aanleiding(en).",
+        }
+
+    def __get_case__(self):
+        return self
 
     def get_current_state(self):
         if self.case_states.count() > 0:
