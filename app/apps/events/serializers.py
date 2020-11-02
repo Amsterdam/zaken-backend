@@ -3,13 +3,13 @@ from rest_framework import serializers
 
 
 class EventSerializer(serializers.ModelSerializer):
-    values = serializers.JSONField()
+    event_values = serializers.JSONField()
 
     class Meta:
         model = Event
         fields = (
             "id",
-            "values",
+            "event_values",
             "date_created",
             "type",
             "emitter_id",

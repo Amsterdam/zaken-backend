@@ -12,6 +12,14 @@ class Visit(ModelEventEmitter):
     start_time = models.DateTimeField()
     situation = models.CharField(max_length=255)
     observations = ArrayField(models.CharField(max_length=255), blank=True, null=False)
+    can_next_visit_go_ahead = models.BooleanField(default=True)
+    can_next_visit_go_ahead_description = models.TextField(
+        null=True, blank=True, default=None
+    )
+    suggest_next_visit = models.CharField(max_length=50, null=True, blank=True)
+    suggest_next_visit_description = models.TextField(
+        null=True, blank=True, default=None
+    )
     authors = models.ManyToManyField(User)
     notes = models.TextField()
 
@@ -24,6 +32,10 @@ class Visit(ModelEventEmitter):
             "authors": [],
             "situation": self.situation,
             "observations": self.observations,
+            "can_next_visit_go_ahead": self.can_next_visit_go_ahead,
+            "can_next_visit_go_ahead_description": self.can_next_visit_go_ahead_description,
+            "suggest_next_visit": self.suggest_next_visit,
+            "suggest_next_visit_description": self.suggest_next_visit_description,
             "notes": self.notes,
         }
         if self.authors:

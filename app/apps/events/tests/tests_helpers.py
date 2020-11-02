@@ -1,5 +1,5 @@
 from apps.cases.models import Case
-from apps.events.models import Event, EventValue, ModelEventEmitter
+from apps.events.models import Event, ModelEventEmitter
 from django.core import management
 from django.db import connection, models
 from django.db.models.base import ModelBase
@@ -24,7 +24,7 @@ class EventEmitterTestCase(APITestCase):
             case = models.ForeignKey(to=Case, null=False, on_delete=models.CASCADE)
 
             def __get_event_values__(self):
-                return [EventValue("foo_text", "hello"), EventValue("foo_number", "1")]
+                return {"foo_text": "hello", "foo_number": 1}
 
         cls.SubclassEventEmitter = SubclassEventEmitter
 
