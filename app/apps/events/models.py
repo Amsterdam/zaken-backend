@@ -18,13 +18,15 @@ class EventValue:
 
 class Event(models.Model):
     TYPE_DEBRIEFING = "DEBRIEFING"
-    TYPES = ((TYPE_DEBRIEFING, TYPE_DEBRIEFING),)
+    TYPE_VISIT = "VISIT"
+    TYPES = (
+        (TYPE_DEBRIEFING, TYPE_DEBRIEFING),
+        (TYPE_VISIT, TYPE_VISIT),
+    )
 
     date_created = models.DateTimeField(auto_now_add=True)
     case = models.ForeignKey(
         to=Case,
-        null=False,
-        blank=False,
         on_delete=models.CASCADE,
         related_name="events",
     )
@@ -75,7 +77,7 @@ class ModelEventEmitter(models.Model):
         for event_value in event_values:
             assert isinstance(
                 event_value, EventValue
-            ), "Event value should be an EventValue object"
+            ), f"Event value {event_value} should be an EventValue object"
 
         return True
 
@@ -89,5 +91,5 @@ class ModelEventEmitter(models.Model):
             Event.objects.create(content_object=self, type=event_type, case=case)
 
     def save(self, *args, **kwargs):
-        self.__emit_event__()
         super().save(*args, **kwargs)
+        self.__emit_event__()

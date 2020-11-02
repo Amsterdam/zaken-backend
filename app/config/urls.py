@@ -9,6 +9,7 @@ from apps.cases.views import (
 from apps.debriefings.views import DebriefingViewSet
 from apps.gateway.push.views import PushViewSet
 from apps.users.views import IsAuthenticatedView, ObtainAuthTokenOIDC, UserListView
+from apps.visits.views import VisitViewSet
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
@@ -33,6 +34,7 @@ router.register(
 router.register(r"addresses", AddressViewSet, basename="addresses")
 router.register(r"push", PushViewSet, basename="push")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")
+router.register(r"visits", VisitViewSet, basename="visits")
 router.register(r"testing-url", TestEndPointViewSet, basename="testing-url")
 
 urlpatterns = [
@@ -48,7 +50,7 @@ urlpatterns = [
     ),
     # Authentication endpoint for exchanging an OIDC code for a token
     path(
-        "api/v1/oidc-authenticate/",
+        "api/v1/_oidc-authenticate/",
         ObtainAuthTokenOIDC.as_view(),
         name="oidc-authenticate",
     ),
