@@ -1,14 +1,9 @@
 from apps.addresses.views import AddressViewSet
-from apps.cases.views import (
-    CaseTimeLineReactionViewSet,
-    CaseTimeLineThreadViewSet,
-    CaseTimeLineViewSet,
-    CaseViewSet,
-    TestEndPointViewSet,
-)
+from apps.cases.views import CaseViewSet, TestEndPointViewSet
 from apps.debriefings.views import DebriefingViewSet
 from apps.gateway.push.views import PushViewSet
 from apps.users.views import IsAuthenticatedView, ObtainAuthTokenOIDC, UserListView
+from apps.visits.views import VisitViewSet
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
@@ -19,20 +14,10 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r"cases", CaseViewSet, basename="cases")
-router.register(r"case-timelines", CaseTimeLineViewSet, basename="case-timelines")
-router.register(
-    r"case-timeline-threads",
-    CaseTimeLineThreadViewSet,
-    basename="case-timeline-threads",
-)
-router.register(
-    r"case-timeline-reactions",
-    CaseTimeLineReactionViewSet,
-    basename="case-timeline-reactions",
-)
 router.register(r"addresses", AddressViewSet, basename="addresses")
 router.register(r"push", PushViewSet, basename="push")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")
+router.register(r"visits", VisitViewSet, basename="visits")
 router.register(r"testing-url", TestEndPointViewSet, basename="testing-url")
 
 urlpatterns = [

@@ -7,7 +7,10 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = []
+    # TODO: Add dependencies to make sure the tests can be run
+    dependencies = [
+        ("cases", "0020_auto_20201027_0846"),
+    ]
 
     operations = [
         migrations.CreateModel(
@@ -37,5 +40,57 @@ class Migration(migrations.Migration):
                 ("lat", models.FloatField(blank=True, null=True)),
                 ("lng", models.FloatField(blank=True, null=True)),
             ],
+        ),
+        migrations.RunSQL(
+            """
+            INSERT INTO addresses_address (
+                id,
+                bag_id,
+                street_name,
+                number,
+                suffix_letter,
+                suffix,
+                postal_code,
+                lat,
+                lng
+            )
+            SELECT
+                id,
+                bag_id,
+                street_name,
+                number,
+                suffix_letter,
+                suffix,
+                postal_code,
+                lat,
+                lng
+            FROM
+                cases_address;
+        """,
+            reverse_sql="""
+            INSERT INTO cases_address (
+                id,
+                bag_id,
+                street_name,
+                number,
+                suffix_letter,
+                suffix,
+                postal_code,
+                lat,
+                lng
+            )
+            SELECT
+                id,
+                bag_id,
+                street_name,
+                number,
+                suffix_letter,
+                suffix,
+                postal_code,
+                lat,
+                lng
+            FROM
+                addresses_address;
+        """,
         ),
     ]
