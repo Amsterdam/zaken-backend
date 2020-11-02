@@ -1,4 +1,3 @@
-from apps.cases.models import Case
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -16,16 +15,19 @@ class EventValue:
 
 
 class Event(models.Model):
+
     TYPE_DEBRIEFING = "DEBRIEFING"
     TYPE_VISIT = "VISIT"
+    TYPE_CASE = "CASE"
     TYPES = (
         (TYPE_DEBRIEFING, TYPE_DEBRIEFING),
         (TYPE_VISIT, TYPE_VISIT),
+        (TYPE_CASE, TYPE_CASE),
     )
 
     date_created = models.DateTimeField(auto_now_add=True)
     case = models.ForeignKey(
-        to=Case,
+        to="cases.Case",
         on_delete=models.CASCADE,
         related_name="events",
     )
@@ -54,6 +56,9 @@ class ModelEventEmitter(models.Model):
         abstract = True
 
     case = None
+    event = GenericRelation(
+        Event, content_type_field="emitter_type", object_id_field="emitter_id"
+    )
 
     def __get_case__(self):
         if self.case:
