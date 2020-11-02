@@ -1,13 +1,6 @@
 from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer
-from apps.cases.models import (
-    Case,
-    CaseState,
-    CaseStateType,
-    CaseTimelineReaction,
-    CaseTimelineSubject,
-    CaseTimelineThread,
-)
+from apps.cases.models import Case, CaseState, CaseStateType
 from rest_framework import serializers
 
 
@@ -50,49 +43,3 @@ class CaseSerializer(serializers.ModelSerializer):
         case = Case.objects.create(**validated_data, address=address)
 
         return case
-
-
-class CaseTimelineReactionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CaseTimelineReaction
-        fields = "__all__"
-
-
-class CaseTimelineThreadSerializer(serializers.ModelSerializer):
-    casettimelinereaction_set = CaseTimelineReactionSerializer(
-        many=True, read_only=True
-    )
-
-    class Meta:
-        model = CaseTimelineThread
-        fields = "__all__"
-
-
-class CaseTimelineSerializer(serializers.ModelSerializer):
-    casetimelinethread_set = CaseTimelineThreadSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = CaseTimelineSubject
-        fields = "__all__"
-
-
-class CaseTimelineSubjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CaseTimelineSubject
-        fields = "__all__"
-
-
-class TimelineAddSerializer(serializers.Serializer):
-    case_identification = serializers.CharField()
-    subject = serializers.CharField()
-    parameters = serializers.JSONField(allow_null=True)
-    notes = serializers.CharField(allow_null=True)
-    authors = serializers.CharField(allow_null=True)
-
-
-class TimelineUpdateSerializer(serializers.Serializer):
-    thread_id = serializers.CharField()
-    subject = serializers.CharField()
-    parameters = serializers.JSONField(allow_null=True)
-    notes = serializers.CharField(allow_null=True)
-    authors = serializers.CharField(allow_null=True)
