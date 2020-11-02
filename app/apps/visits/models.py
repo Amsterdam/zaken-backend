@@ -1,5 +1,5 @@
 from apps.cases.models import Case
-from apps.events.models import Event, EventValue, ModelEventEmitter
+from apps.events.models import Event, ModelEventEmitter
 from apps.users.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -19,16 +19,17 @@ class Visit(ModelEventEmitter):
         return f"Case: {self.case.id} - {self.id}"
 
     def __get_event_values__(self):
-        event_list = [
-            EventValue("start_time", self.start_time),
-            EventValue("situation", self.situation),
-            EventValue("observations", ",".join(self.observations)),
-            EventValue("notes", self.notes),
-        ]
+        json_obj = {
+            "start_time": self.start_time,
+            "authors": [],
+            "situation": self.situation,
+            "observations": self.observations,
+            "notes": self.notes,
+        }
         if self.authors:
-            event_list.append(EventValue("authors", ",".join(self.authors.all())))
+            json_obj["authors"] = [author.full_name for author in self.authors.all()]
 
-        return event_list
+        return json_obj
 
     def create_from_top(self, data):
         try:

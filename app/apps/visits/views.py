@@ -1,3 +1,4 @@
+from apps.users.auth_apps import TopKeyAuth
 from django.shortcuts import render
 from drf_spectacular.utils import extend_schema
 from rest_framework import views
@@ -12,7 +13,7 @@ from .serializers import AddVisitSerializer, VisitSerializer
 
 
 class VisitViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated | TopKeyAuth]
     serializer_class = VisitSerializer
     queryset = Visit.objects.all()
 

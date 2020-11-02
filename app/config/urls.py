@@ -50,7 +50,7 @@ urlpatterns = [
     ),
     # Authentication endpoint for exchanging an OIDC code for a token
     path(
-        "api/v1/_oidc-authenticate/",
+        "api/v1/oidc-authenticate/",
         ObtainAuthTokenOIDC.as_view(),
         name="oidc-authenticate",
     ),
