@@ -35,7 +35,7 @@ class Debriefing(ModelEventEmitter):
     def __get_event_values__(self):
         return [
             EventValue("author", self.author.full_name),
-            EventValue("date_added", self.date_added.__str__()),
+            EventValue("date_added", self.date_added),
             EventValue("violation", self.violation),
             EventValue("feedback", self.feedback),
         ]

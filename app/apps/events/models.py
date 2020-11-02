@@ -11,7 +11,6 @@ class EventValue:
 
     def __init__(self, key, value):
         assert isinstance(key, str), "key should be a string"
-        assert isinstance(value, str), "value should be a string"
         self.key = key
         self.value = value
 
