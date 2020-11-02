@@ -4,17 +4,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 
-class EventValue:
-    """
-    Simple data structure to ensure the event values are flat dictionaries
-    """
-
-    def __init__(self, key, value):
-        assert isinstance(key, str), "key should be a string"
-        self.key = key
-        self.value = value
-
-
 class Event(models.Model):
     TYPE_DEBRIEFING = "DEBRIEFING"
     TYPE_VISIT = "VISIT"
@@ -35,16 +24,12 @@ class Event(models.Model):
     emitter = GenericForeignKey("emitter_type", "emitter_id")
 
     @property
-    def values(self):
+    def event_values(self):
         """
         Returns a dictionary with EventValues
         """
         event_values = self.emitter.__get_event_values__()
-        values = {}
-        for event_value in event_values:
-            values[event_value.key] = event_value.value
-
-        return values
+        return event_values
 
 
 class ModelEventEmitter(models.Model):
@@ -70,22 +55,11 @@ class ModelEventEmitter(models.Model):
     def __get_event_values__(self):
         raise NotImplementedError("Class get_values function not implemented")
 
-    def __validate_event_values__(self):
-        event_values = self.__get_event_values__()
-
-        for event_value in event_values:
-            assert isinstance(
-                event_value, EventValue
-            ), f"Event value {event_value} should be an EventValue object"
-
-        return True
-
     def __emit_event__(self):
         assert (
             self.id
         ), "Emitter instance should exist and have an pk assigned before emitting an Event"
 
-        self.__validate_event_values__()
         case = self.__get_case__()
         event_type = self.__get_event_type__()
 

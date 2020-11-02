@@ -1,5 +1,5 @@
 from apps.cases.models import Case
-from apps.events.models import Event, EventValue, ModelEventEmitter
+from apps.events.models import Event, ModelEventEmitter
 from apps.users.models import User
 from django.db import models
 
@@ -33,9 +33,9 @@ class Debriefing(ModelEventEmitter):
     feedback = models.CharField(null=False, blank=False, max_length=255)
 
     def __get_event_values__(self):
-        return [
-            EventValue("author", self.author.full_name),
-            EventValue("date_added", self.date_added),
-            EventValue("violation", self.violation),
-            EventValue("feedback", self.feedback),
-        ]
+        return {
+            "author": self.author.full_name,
+            "date_added": self.date_added,
+            "violation": self.violation,
+            "feedback": self.feedback,
+        }
