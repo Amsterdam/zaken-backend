@@ -7,9 +7,62 @@ class Migration(migrations.Migration):
 
     initial = True
 
+    # TODO: Add dependencies to make sure the tests can be run
     dependencies = []
 
     operations = [
+        migrations.RunSQL(
+            """
+            INSERT INTO addresses_address (
+                id,
+                bag_id,
+                street_name,
+                number,
+                suffix_letter,
+                suffix,
+                postal_code,
+                lat,
+                lng
+            )
+            SELECT
+                id,
+                bag_id,
+                street_name,
+                number,
+                suffix_letter,
+                suffix,
+                postal_code,
+                lat,
+                lng
+            FROM
+                cases_address;
+        """,
+            reverse_sql="""
+            INSERT INTO cases_address (
+                id,
+                bag_id,
+                street_name,
+                number,
+                suffix_letter,
+                suffix,
+                postal_code,
+                lat,
+                lng
+            )
+            SELECT
+                id,
+                bag_id,
+                street_name,
+                number,
+                suffix_letter,
+                suffix,
+                postal_code,
+                lat,
+                lng
+            FROM
+                addresses_address;
+        """,
+        ),
         migrations.CreateModel(
             name="Address",
             fields=[
