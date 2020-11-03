@@ -12,7 +12,7 @@ class VisitSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class AddVisitSerializer(serializers.Serializer):
+class TopVisitSerializer(serializers.Serializer):
     case_identification = serializers.CharField()
     start_time = serializers.CharField()
     observations = serializers.ListField(child=serializers.CharField(max_length=255))
