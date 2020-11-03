@@ -41,11 +41,15 @@ class VisitViewSet(ModelViewSet):
         serializer = TopVisitSerializer(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
-            visit = Visit.objects.get(
-                case__identification=serializer.data["case_identification"],
-                start_time=serializer.data["start_time"],
-            )
-            visit = visit.update_from_top(serializer.data)
+            try:
+                visit = Visit.objects.get(
+                    case__identification=serializer.data["case_identification"],
+                    start_time=serializer.data["start_time"],
+                )
+                visit = visit.update_from_top(serializer.data)
+            except Visit.DoesNotExist:
+                visit = Visit().create_from_top(serializer.data)
+
             if visit:
                 response = Response(VisitSerializer(visit).data)
                 return response
