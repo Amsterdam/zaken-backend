@@ -28,6 +28,7 @@ class VisitViewSet(ModelViewSet):
         if serializer.is_valid(raise_exception=True):
             visit = Visit().create_from_top(serializer.data)
             if visit:
+                visit.save()
                 response = Response(VisitSerializer(visit).data)
                 return response
             raise ValidationError("Case does not exist")
