@@ -5,7 +5,7 @@ from apps.cases.filters import CaseFilter
 from apps.cases.models import Case, CaseState
 from apps.cases.serializers import CaseSerializer
 from apps.debriefings.mixins import DebriefingsMixin
-from apps.events.mixins import EventsMixin
+from apps.events.mixins import CaseEventsMixin
 from apps.fines.mixins import FinesMixin
 from apps.users.auth_apps import TopKeyAuth
 from drf_spectacular.types import OpenApiTypes
@@ -50,7 +50,7 @@ class CaseViewSet(
     RetrieveUpdateDestroyAPIView,
     FinesMixin,
     DebriefingsMixin,
-    EventsMixin,
+    CaseEventsMixin,
 ):
     permission_classes = [IsAuthenticated]
     serializer_class = CaseSerializer

@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 
-class Event(models.Model):
+class CaseEvent(models.Model):
 
     TYPE_DEBRIEFING = "DEBRIEFING"
     TYPE_VISIT = "VISIT"
@@ -28,7 +28,7 @@ class Event(models.Model):
     @property
     def event_values(self):
         """
-        Returns a dictionary with EventValues
+        Returns a dictionary with event values retrieved from Emitter object
         """
         event_values = self.emitter.__get_event_values__()
         return event_values
@@ -42,7 +42,7 @@ class ModelEventEmitter(models.Model):
 
     case = None
     event = GenericRelation(
-        Event, content_type_field="emitter_type", object_id_field="emitter_id"
+        CaseEvent, content_type_field="emitter_type", object_id_field="emitter_id"
     )
 
     def __get_case__(self):
@@ -69,9 +69,9 @@ class ModelEventEmitter(models.Model):
         event_type = self.__get_event_type__()
 
         try:
-            Event.objects.get(emitter_id=self.id, type=event_type)
-        except Event.DoesNotExist:
-            Event.objects.create(emitter=self, type=event_type, case=case)
+            CaseEvent.objects.get(emitter_id=self.id, type=event_type)
+        except CaseEvent.DoesNotExist:
+            CaseEvent.objects.create(emitter=self, type=event_type, case=case)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

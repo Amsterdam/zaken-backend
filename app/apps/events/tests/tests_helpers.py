@@ -1,5 +1,5 @@
 from apps.cases.models import Case
-from apps.events.models import Event, ModelEventEmitter
+from apps.events.models import CaseEvent, ModelEventEmitter
 from django.core import management
 from django.db import connection, models
 from django.db.models.base import ModelBase
@@ -7,7 +7,7 @@ from django.db.utils import ProgrammingError
 from rest_framework.test import APITestCase
 
 
-class EventEmitterTestCase(APITestCase):
+class CaseEventEmitterTestCase(APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
 
@@ -20,7 +20,7 @@ class EventEmitterTestCase(APITestCase):
         class SubclassEventEmitter(ModelEventEmitter):
             """ An example EventEmitter subclass used for test purposes"""
 
-            EVENT_TYPE = Event.TYPE_DEBRIEFING
+            EVENT_TYPE = CaseEvent.TYPE_DEBRIEFING
             case = models.ForeignKey(to=Case, null=False, on_delete=models.CASCADE)
 
             def __get_event_values__(self):
@@ -46,4 +46,4 @@ class EventEmitterTestCase(APITestCase):
             # The testing models already exist, so don't do anything
             pass
 
-        super(EventEmitterTestCase, cls).setUpClass()
+        super(CaseEventEmitterTestCase, cls).setUpClass()

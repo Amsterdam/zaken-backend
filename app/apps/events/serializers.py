@@ -1,12 +1,12 @@
-from apps.events.models import Event
+from apps.events.models import CaseEvent
 from rest_framework import serializers
 
 
-class EventSerializer(serializers.ModelSerializer):
+class CaseEventSerializer(serializers.ModelSerializer):
     event_values = serializers.JSONField()
 
     class Meta:
-        model = Event
+        model = CaseEvent
         fields = (
             "id",
             "event_values",

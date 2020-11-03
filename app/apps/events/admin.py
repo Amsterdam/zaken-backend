@@ -1,6 +1,6 @@
-from apps.events.models import Event
+from apps.events.models import CaseEvent
 from django.contrib import admin
 
 admin.site.register(
-    Event, admin.ModelAdmin, readonly_fields=("date_created", "event_values")
+    CaseEvent, admin.ModelAdmin, readonly_fields=("date_created", "event_values")
 )

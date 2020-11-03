@@ -1,8 +1,8 @@
 """
-Tests for Event & EventsEmitter models
+Tests for CaseEvent & EventsEmitter models
 """
-from apps.events.models import Event
-from apps.events.tests.tests_helpers import EventEmitterTestCase
+from apps.events.models import CaseEvent
+from apps.events.tests.tests_helpers import CaseEventEmitterTestCase
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
@@ -14,21 +14,30 @@ from app.utils.unittest_helpers import (
 )
 
 
-class EventTest(EventEmitterTestCase):
+class CaseEventTest(CaseEventEmitterTestCase):
+    def test_case_creates_events(self):
+        """ Creating a new EventEmitter should also create corresponding event"""
+        self.assertEqual(0, CaseEvent.objects.count())
+
+        self.create_case()
+
+        self.assertEqual(1, CaseEvent.objects.count())
+
     def test_event_emitter_creates_events(self):
         """ Creating a new EventEmitter should also create corresponding event"""
-        self.assertEqual(0, Event.objects.count())
+        self.assertEqual(0, CaseEvent.objects.count())
 
         case = self.create_case()
-        EventTest.SubclassEventEmitter.objects.create(case=case)
+        CaseEventTest.SubclassEventEmitter.objects.create(case=case)
 
-        self.assertEqual(1, Event.objects.count())
+        # A case (which is needed for any emitter always creates an events. That's why the final counts is 2)
+        self.assertEqual(2, CaseEvent.objects.count())
 
     def test_bad_event_emitter(self):
         """ A subclassed EventEmitter that is not configured properly should throw an error"""
-        self.assertEqual(0, Event.objects.count())
+        self.assertEqual(0, CaseEvent.objects.count())
 
         with self.assertRaises(Exception):
-            EventTest.SubclassEmptyEventEmitter.objects.create()
+            CaseEventTest.SubclassEmptyEventEmitter.objects.create()
 
-        self.assertEqual(0, Event.objects.count())
+        self.assertEqual(0, CaseEvent.objects.count())

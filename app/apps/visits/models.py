@@ -1,12 +1,12 @@
 from apps.cases.models import Case
-from apps.events.models import Event, ModelEventEmitter
+from apps.events.models import CaseEvent, ModelEventEmitter
 from apps.users.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 
 class Visit(ModelEventEmitter):
-    EVENT_TYPE = Event.TYPE_VISIT
+    EVENT_TYPE = CaseEvent.TYPE_VISIT
 
     case = models.ForeignKey(Case, on_delete=models.CASCADE)
     start_time = models.DateTimeField()

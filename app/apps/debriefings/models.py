@@ -1,11 +1,11 @@
 from apps.cases.models import Case
-from apps.events.models import Event, ModelEventEmitter
+from apps.events.models import CaseEvent, ModelEventEmitter
 from apps.users.models import User
 from django.db import models
 
 
 class Debriefing(ModelEventEmitter):
-    EVENT_TYPE = Event.TYPE_DEBRIEFING
+    EVENT_TYPE = CaseEvent.TYPE_DEBRIEFING
 
     VIOLATION_NO = "NO"
     VIOLATION_YES = "YES"

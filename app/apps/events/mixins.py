@@ -1,7 +1,7 @@
 import logging
 
 from apps.cases.models import Case
-from apps.events.serializers import EventSerializer
+from apps.events.serializers import CaseEventSerializer
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -9,8 +9,8 @@ from rest_framework.response import Response
 logger = logging.getLogger(__name__)
 
 
-class EventsMixin:
-    @action(detail=True, methods=["get"], serializer_class=EventSerializer)
+class CaseEventsMixin:
+    @action(detail=True, methods=["get"], serializer_class=CaseEventSerializer)
     def events(self, request, pk):
         try:
             case = Case.objects.get(pk=pk)
@@ -19,7 +19,7 @@ class EventsMixin:
 
         try:
             events = case.events.all()
-            serialized_events = EventSerializer(data=events, many=True)
+            serialized_events = CaseEventSerializer(data=events, many=True)
             serialized_events.is_valid()
 
             return Response(serialized_events.data)

@@ -1,13 +1,13 @@
 import uuid
 
 from apps.addresses.models import Address
-from apps.events.models import Event, ModelEventEmitter
+from apps.events.models import CaseEvent, ModelEventEmitter
 from apps.users.models import User
 from django.db import models
 
 
 class Case(ModelEventEmitter):
-    EVENT_TYPE = Event.TYPE_CASE
+    EVENT_TYPE = CaseEvent.TYPE_CASE
 
     class Meta:
         ordering = ["start_date"]
