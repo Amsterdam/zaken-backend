@@ -18,4 +18,8 @@ class AddVisitSerializer(serializers.Serializer):
     observations = serializers.ListField(child=serializers.CharField(max_length=255))
     situation = serializers.CharField()
     authors = serializers.ListField(child=serializers.CharField(max_length=255))
+    can_next_visit_go_ahead = serializers.BooleanField(allow_null=True)
+    can_next_visit_go_ahead_description = serializers.CharField(allow_null=True)
+    suggest_next_visit = serializers.CharField(allow_null=True)
+    suggest_next_visit_description = serializers.CharField(allow_null=True)
     notes = serializers.CharField(allow_null=True)
