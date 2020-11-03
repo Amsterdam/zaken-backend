@@ -53,6 +53,30 @@ class Visit(ModelEventEmitter):
         self.start_time = data["start_time"]
         self.observations = data["observations"]
         self.situation = data["situation"]
+        self.can_next_visit_go_ahead = data["can_next_visit_go_ahead"]
+        self.can_next_visit_go_ahead_description = data[
+            "can_next_visit_go_ahead_description"
+        ]
+        self.suggest_next_visit = data["suggest_next_visit"]
+        self.suggest_next_visit_description = data["suggest_next_visit_description"]
+        self.notes = data["notes"]
+        self.save()
+
+        for author in data["authors"]:
+            (user, _) = User.objects.get_or_create(email=author)
+            self.authors.add(user)
+
+        return self
+
+    def update_from_top(self, data):
+        self.observations = data["observations"]
+        self.situation = data["situation"]
+        self.can_next_visit_go_ahead = data["can_next_visit_go_ahead"]
+        self.can_next_visit_go_ahead_description = data[
+            "can_next_visit_go_ahead_description"
+        ]
+        self.suggest_next_visit = data["suggest_next_visit"]
+        self.suggest_next_visit_description = data["suggest_next_visit_description"]
         self.notes = data["notes"]
         self.save()
 
