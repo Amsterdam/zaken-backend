@@ -8,7 +8,7 @@ from utils.class_mixins import ModelEditableTimeConstraint
 class Debriefing(ModelEventEmitter, ModelEditableTimeConstraint):
     EVENT_TYPE = CaseEvent.TYPE_DEBRIEFING
     # TODO: Determine the time this is editable. Making it 24 for now
-    EDITABLE_TIME = 60 * 60 * 24
+    EDITABLE_TIME_IN_SECONDS = 60 * 60 * 24
 
     VIOLATION_NO = "NO"
     VIOLATION_YES = "YES"

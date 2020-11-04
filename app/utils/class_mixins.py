@@ -40,7 +40,7 @@ class ModelEditable(ModelEditablelBase):
 
 
 class ModelEditableTimeConstraint(ModelEditablelBase):
-    EDITABLE_TIME = None
+    EDITABLE_TIME_IN_SECONDS = None
 
     class Meta:
         abstract = True
@@ -48,7 +48,7 @@ class ModelEditableTimeConstraint(ModelEditablelBase):
     @property
     def is_editable(self):
         delta_a = datetime.datetime.now() - self.date_added
-        delta_b = datetime.timedelta(seconds=self.EDITABLE_TIME)
+        delta_b = datetime.timedelta(seconds=self.EDITABLE_TIME_IN_SECONDS)
 
         return delta_a <= delta_b
 
@@ -57,5 +57,7 @@ class ModelEditableTimeConstraint(ModelEditablelBase):
             self, "date_added", False
         ), "Object should have a date_created field"
         assert self.date_added, "Date added is set"
-        assert self.EDITABLE_TIME, "Class configuration for EDITABLE_TIME should be set"
+        assert (
+            self.EDITABLE_TIME_IN_SECONDS
+        ), "Class configuration for EDITABLE_TIME_IN_SECONDS should be set"
         assert self.is_editable, "Editable time for this object has elapsed"
