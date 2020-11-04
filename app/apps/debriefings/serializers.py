@@ -13,11 +13,9 @@ class DebriefingSerializer(serializers.ModelSerializer):
             "date_modified",
             "violation",
             "feedback",
+            "is_editable",
         )
-        read_only_fields = (
-            "date",
-            "id",
-        )
+        read_only_fields = ("date", "id", "is_editable")
 
 
 # TODO: DebriefingCreateTempSerializer and DebriefingCreateSerializer can be consolidated into the regular DebriefingSerializer
@@ -33,8 +31,9 @@ class DebriefingCreateTempSerializer(serializers.ModelSerializer):
             "date_modified",
             "violation",
             "feedback",
+            "is_editable",
         )
-        read_only_fields = ("date", "id")
+        read_only_fields = ("date", "id", "is_editable")
 
 
 class DebriefingCreateSerializer(serializers.ModelSerializer):
