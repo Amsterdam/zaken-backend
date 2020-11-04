@@ -17,7 +17,9 @@ class EditableModelBase(models.Model):
         super().delete(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        self.validate()
+        # Only validate if the object has already been created and has an ID
+        if self.id:
+            self.validate()
         super().save(*args, **kwargs)
 
 
@@ -32,7 +34,7 @@ class EditableModel(EditableModelBase):
         return self.DEFAULT_EDITABLE
 
     def validate(self):
-        assert not self.is_editable(), "Object is not editable"
+        assert self.is_editable, "Object can not be edited"
 
 
 class EditableTimeConstraintModel(EditableModelBase):
@@ -48,4 +50,6 @@ class EditableTimeConstraintModel(EditableModelBase):
         assert getattr(
             self, "date_created", False
         ), "Object should have a date_created field"
-        assert not self.date_created and not self.is_editable, "Object is not editable."
+        assert (
+            not self.date_created and not self.is_editable
+        ), "Object can not be edited"
