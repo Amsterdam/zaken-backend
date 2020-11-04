@@ -47,10 +47,10 @@ class ModelEditableTimeConstraint(ModelEditablelBase):
 
     @property
     def is_editable(self):
-        delta_a = datetime.datetime.now() - self.date_added
-        delta_b = datetime.timedelta(seconds=self.EDITABLE_TIME_IN_SECONDS)
+        time_elapsed = datetime.datetime.now() - self.date_added
+        time_constraint = datetime.timedelta(seconds=self.EDITABLE_TIME_IN_SECONDS)
 
-        return delta_a <= delta_b
+        return time_elapsed <= time_constraint
 
     def validate(self):
         assert getattr(
