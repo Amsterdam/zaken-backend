@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 
@@ -38,18 +40,22 @@ class EditableModel(EditableModelBase):
 
 
 class EditableTimeConstraintModel(EditableModelBase):
+    EDITABLE_TIME = None
+
     class Meta:
         abstract = True
 
     @property
     def is_editable(self):
-        # Do time check
-        return True
+        delta_a = datetime.datetime.now() - self.date_added
+        delta_b = datetime.timedelta(seconds=self.EDITABLE_TIME)
+
+        return delta_a <= delta_b
 
     def validate(self):
         assert getattr(
-            self, "date_created", False
+            self, "date_added", False
         ), "Object should have a date_created field"
-        assert (
-            not self.date_created and not self.is_editable
-        ), "Object can not be edited"
+        assert self.date_added, "Date added is set"
+        assert self.EDITABLE_TIME, "Class configuration for EDITABLE_TIME should be set"
+        assert self.is_editable, "Editable time for this object has elapsed"

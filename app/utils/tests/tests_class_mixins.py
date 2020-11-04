@@ -1,9 +1,16 @@
 """
 Tests for class constraints models
 """
+import datetime
+
 from django.db import connection, models
 from django.test import TestCase
-from utils.class_mixins import EditableModel, EditableModelBase
+from freezegun import freeze_time
+from utils.class_mixins import (
+    EditableModel,
+    EditableModelBase,
+    EditableTimeConstraintModel,
+)
 
 
 class EditableModelBaseTest(TestCase):
@@ -154,3 +161,103 @@ class NonEditableModelTest(TestCase):
         subclass_object = self.SubClass.objects.create()
         with self.assertRaises(Exception):
             subclass_object.delete()
+
+
+class EditableTimeConstraintModelFailTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        class SubClass(EditableTimeConstraintModel):
+            """ An example EditableTimeConstraintModel subclass used for test purposes"""
+
+            class Meta:
+                app_label = "time_constraint_model_fail_test"
+
+        cls.SubClass = SubClass
+        with connection.schema_editor() as editor:
+            editor.create_model(SubClass)
+
+        super(EditableTimeConstraintModelFailTest, cls).setUpClass()
+
+    def test_creation(self):
+        self.assertEquals(self.SubClass.objects.count(), 0)
+        self.SubClass.objects.create()
+        self.assertEquals(self.SubClass.objects.count(), 1)
+
+    def test_date_created_fail(self):
+        subclass_object = self.SubClass.objects.create()
+        with self.assertRaises(Exception):
+            subclass_object.date_added
+
+    def test_is_editable_error(self):
+        subclass_object = self.SubClass.objects.create()
+        with self.assertRaises(Exception):
+            subclass_object.is_editable
+
+    def test_validate_error(self):
+        subclass_object = self.SubClass.objects.create()
+        with self.assertRaises(Exception):
+            subclass_object.validate()
+
+
+class EditableTimeConstraintModelTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        class SubClass(EditableTimeConstraintModel):
+            """ An example EditableTimeConstraintModel subclass used for test purposes"""
+
+            EDITABLE_TIME = 30
+            date_added = models.DateTimeField(auto_now_add=True)
+
+            class Meta:
+                app_label = "time_constraint_model_test"
+
+        cls.SubClass = SubClass
+        with connection.schema_editor() as editor:
+            editor.create_model(SubClass)
+
+        super(EditableTimeConstraintModelTest, cls).setUpClass()
+
+    def test_creation(self):
+        self.assertEquals(self.SubClass.objects.count(), 0)
+        self.SubClass.objects.create()
+        self.assertEquals(self.SubClass.objects.count(), 1)
+
+    def test_is_editable(self):
+        with freeze_time("2019-12-25"):
+            subclass_object = self.SubClass.objects.create()
+            self.assertTrue(subclass_object.is_editable)
+
+    def test_time_elapsed_within_constraint(self):
+        with freeze_time("2019-12-25") as frozen_datetime:
+            subclass_object = self.SubClass.objects.create()
+
+            elapsed_time = datetime.timedelta(seconds=subclass_object.EDITABLE_TIME / 2)
+            frozen_datetime.tick(delta=elapsed_time)
+
+            self.assertTrue(subclass_object.is_editable)
+
+    def test_time_elapsed_exceeds_constraint(self):
+        with freeze_time("2019-12-25") as frozen_datetime:
+            subclass_object = self.SubClass.objects.create()
+
+            elapsed_time = datetime.timedelta(seconds=subclass_object.EDITABLE_TIME + 1)
+            frozen_datetime.tick(delta=elapsed_time)
+
+            self.assertFalse(subclass_object.is_editable)
+
+    def test_validate_within_time_constraint(self):
+        with freeze_time("2019-12-25") as frozen_datetime:
+            subclass_object = self.SubClass.objects.create()
+
+            elapsed_time = datetime.timedelta(seconds=subclass_object.EDITABLE_TIME / 2)
+            frozen_datetime.tick(delta=elapsed_time)
+            subclass_object.validate()
+
+    def test_validate_outside_time_constraint(self):
+        with freeze_time("2019-12-25") as frozen_datetime:
+            subclass_object = self.SubClass.objects.create()
+
+            elapsed_time = datetime.timedelta(seconds=subclass_object.EDITABLE_TIME + 1)
+            frozen_datetime.tick(delta=elapsed_time)
+            with self.assertRaises(Exception):
+                subclass_object.validate()
