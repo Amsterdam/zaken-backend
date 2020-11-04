@@ -2,12 +2,13 @@ from apps.cases.models import Case
 from apps.events.models import CaseEvent, ModelEventEmitter
 from apps.users.models import User
 from django.db import models
-from utils.class_mixins import EditableTimeConstraintModel
+from utils.class_mixins import ModelEditableTimeConstraint
 
 
-class Debriefing(ModelEventEmitter, EditableTimeConstraintModel):
+class Debriefing(ModelEventEmitter, ModelEditableTimeConstraint):
     EVENT_TYPE = CaseEvent.TYPE_DEBRIEFING
-    EDITABLE_TIME = 60 * 60 * 48
+    # TODO: Determine the time this is editable. Making it 24 for now
+    EDITABLE_TIME = 60 * 60 * 24
 
     VIOLATION_NO = "NO"
     VIOLATION_YES = "YES"

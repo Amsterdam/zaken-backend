@@ -3,7 +3,7 @@ import datetime
 from django.db import models
 
 
-class EditableModelBase(models.Model):
+class ModelEditablelBase(models.Model):
     class Meta:
         abstract = True
 
@@ -25,21 +25,21 @@ class EditableModelBase(models.Model):
         super().save(*args, **kwargs)
 
 
-class EditableModel(EditableModelBase):
-    DEFAULT_EDITABLE = True
+class ModelEditable(ModelEditablelBase):
+    IS_EDITABLE = True
 
     class Meta:
         abstract = True
 
     @property
     def is_editable(self):
-        return self.DEFAULT_EDITABLE
+        return self.IS_EDITABLE
 
     def validate(self):
         assert self.is_editable, "Object can not be edited"
 
 
-class EditableTimeConstraintModel(EditableModelBase):
+class ModelEditableTimeConstraint(ModelEditablelBase):
     EDITABLE_TIME = None
 
     class Meta:

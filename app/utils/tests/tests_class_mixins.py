@@ -7,17 +7,17 @@ from django.db import connection, models
 from django.test import TestCase
 from freezegun import freeze_time
 from utils.class_mixins import (
-    EditableModel,
-    EditableModelBase,
-    EditableTimeConstraintModel,
+    ModelEditable,
+    ModelEditablelBase,
+    ModelEditableTimeConstraint,
 )
 
 
-class EditableModelBaseTest(TestCase):
+class ModelEditablelBaseTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        class SubClass(EditableModelBase):
-            """ An example EditableModelBase subclass used for test purposes"""
+        class SubClass(ModelEditablelBase):
+            """ An example ModelEditablelBase subclass used for test purposes"""
 
             class Meta:
                 app_label = "editable_model_base_test"
@@ -26,12 +26,12 @@ class EditableModelBaseTest(TestCase):
         with connection.schema_editor() as editor:
             editor.create_model(SubClass)
 
-        super(EditableModelBaseTest, cls).setUpClass()
+        super(ModelEditablelBaseTest, cls).setUpClass()
 
     def test_creation(self):
         self.SubClass.objects.create()
 
-    # Inheriting from the EditableModelBase without configuration should cause all methods to fail.
+    # Inheriting from the ModelEditablelBase without configuration should cause all methods to fail.
     def test_is_editable_fail(self):
         sub_class_object = self.SubClass.objects.create()
 
@@ -57,13 +57,13 @@ class EditableModelBaseTest(TestCase):
             sub_class_object.save()
 
 
-class EditableModelTest(TestCase):
+class ModelEditableTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        class SubClass(EditableModel):
-            """ An example EditableModel subclass used for test purposes"""
+        class SubClass(ModelEditable):
+            """ An example ModelEditable subclass used for test purposes"""
 
-            DEFAULT_EDITABLE = True
+            IS_EDITABLE = True
             test_boolean = models.BooleanField(default=False)
 
             class Meta:
@@ -73,7 +73,7 @@ class EditableModelTest(TestCase):
         with connection.schema_editor() as editor:
             editor.create_model(SubClass)
 
-        super(EditableModelTest, cls).setUpClass()
+        super(ModelEditableTest, cls).setUpClass()
 
     def test_creation(self):
         self.assertEquals(self.SubClass.objects.count(), 0)
@@ -107,13 +107,13 @@ class EditableModelTest(TestCase):
         self.assertEquals(subclass_object.test_boolean, updated_value)
 
 
-class NonEditableModelTest(TestCase):
+class NonModelEditableTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        class SubClass(EditableModel):
-            """ An example EditableModel subclass used for test purposes"""
+        class SubClass(ModelEditable):
+            """ An example ModelEditable subclass used for test purposes"""
 
-            DEFAULT_EDITABLE = False
+            IS_EDITABLE = False
             test_boolean = models.BooleanField(default=False)
 
             class Meta:
@@ -123,7 +123,7 @@ class NonEditableModelTest(TestCase):
         with connection.schema_editor() as editor:
             editor.create_model(SubClass)
 
-        super(NonEditableModelTest, cls).setUpClass()
+        super(NonModelEditableTest, cls).setUpClass()
 
     def test_creation(self):
         self.assertEquals(self.SubClass.objects.count(), 0)
@@ -163,11 +163,11 @@ class NonEditableModelTest(TestCase):
             subclass_object.delete()
 
 
-class EditableTimeConstraintModelFailTest(TestCase):
+class ModelEditableTimeConstraintFailTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        class SubClass(EditableTimeConstraintModel):
-            """ An example EditableTimeConstraintModel subclass used for test purposes"""
+        class SubClass(ModelEditableTimeConstraint):
+            """ An example ModelEditableTimeConstraint subclass used for test purposes"""
 
             class Meta:
                 app_label = "time_constraint_model_fail_test"
@@ -176,7 +176,7 @@ class EditableTimeConstraintModelFailTest(TestCase):
         with connection.schema_editor() as editor:
             editor.create_model(SubClass)
 
-        super(EditableTimeConstraintModelFailTest, cls).setUpClass()
+        super(ModelEditableTimeConstraintFailTest, cls).setUpClass()
 
     def test_creation(self):
         self.assertEquals(self.SubClass.objects.count(), 0)
@@ -199,11 +199,11 @@ class EditableTimeConstraintModelFailTest(TestCase):
             subclass_object.validate()
 
 
-class EditableTimeConstraintModelTest(TestCase):
+class ModelEditableTimeConstraintTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        class SubClass(EditableTimeConstraintModel):
-            """ An example EditableTimeConstraintModel subclass used for test purposes"""
+        class SubClass(ModelEditableTimeConstraint):
+            """ An example ModelEditableTimeConstraint subclass used for test purposes"""
 
             EDITABLE_TIME = 30
             date_added = models.DateTimeField(auto_now_add=True)
@@ -215,7 +215,7 @@ class EditableTimeConstraintModelTest(TestCase):
         with connection.schema_editor() as editor:
             editor.create_model(SubClass)
 
-        super(EditableTimeConstraintModelTest, cls).setUpClass()
+        super(ModelEditableTimeConstraintTest, cls).setUpClass()
 
     def test_creation(self):
         self.assertEquals(self.SubClass.objects.count(), 0)
