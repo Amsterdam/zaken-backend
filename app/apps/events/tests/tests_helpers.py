@@ -26,8 +26,6 @@ class CaseEventEmitterTestCase(APITestCase):
             def __get_event_values__(self):
                 return {"foo_text": "hello", "foo_number": 1}
 
-        cls.SubclassEventEmitter = SubclassEventEmitter
-
         class SubclassEmptyEventEmitter(ModelEventEmitter):
             """ An faulty example of an EventEmitter subclass used for test purposes"""
 

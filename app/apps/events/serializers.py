@@ -13,5 +13,6 @@ class CaseEventSerializer(serializers.ModelSerializer):
             "date_created",
             "type",
             "emitter_id",
+            "emitter_is_editable",
             "case",
         )

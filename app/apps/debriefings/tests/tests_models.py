@@ -34,6 +34,7 @@ class DebriefingModelTest(TestCase, DebriefingTestMixin):
 
         self.assertEquals(debriefing.date_modified, datetime(2019, 12, 26))
 
+    @freeze_time("2019-12-25")
     def test_can_be_modified(self):
         debriefing = self.create_debriefing()
         modified_feedback = debriefing.feedback + "Adding more text"

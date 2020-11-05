@@ -26,6 +26,13 @@ class CaseEvent(models.Model):
     emitter = GenericForeignKey("emitter_type", "emitter_id")
 
     @property
+    def emitter_is_editable(self):
+        try:
+            return self.emitter.is_editable
+        except AttributeError:
+            return True
+
+    @property
     def event_values(self):
         """
         Returns a dictionary with event values retrieved from Emitter object
