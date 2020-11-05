@@ -14,3 +14,4 @@ faker
 requests
 tenacity
 freezegun
+model-bakery

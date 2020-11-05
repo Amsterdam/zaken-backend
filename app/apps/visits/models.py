@@ -6,6 +6,16 @@ from django.db import models
 
 
 class Visit(ModelEventEmitter):
+    SITUATION_NOBODY_PRESENT = "nobody_present"
+    SITUATION_NO_COOPERATION = "no_cooperation"
+    SITUATION_ACCESS_GRANTED = "access_granted"
+
+    SITUATIONS = (
+        (SITUATION_NOBODY_PRESENT, "Niemand aanwezig"),
+        (SITUATION_NO_COOPERATION, "Geen medewerking"),
+        (SITUATION_ACCESS_GRANTED, "Toegang verleend"),
+    )
+
     EVENT_TYPE = CaseEvent.TYPE_VISIT
 
     case = models.ForeignKey(Case, on_delete=models.CASCADE)
