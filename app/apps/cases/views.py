@@ -66,17 +66,23 @@ class CaseViewSet(
 
     @action(detail=False, methods=["get"])
     def mock_cases(self, request):
-        start_date = datetime.datetime.now().replace(minute=0, second=0, microsecond=0)
-        address = baker.make(
-            Address,
-            street_name="Amstel",
-            number="1",
-            postal_code="1011 PN",
-            bag_id="0363200012145295",
+        start_date_day_before = datetime.datetime.now().replace(
+            hour=10, minute=0, second=0, microsecond=0
+        ) - datetime.timedelta(days=2)
+        start_date_yesterday = datetime.datetime.now().replace(
+            hour=10, minute=0, second=0, microsecond=0
+        ) - datetime.timedelta(days=1)
+        start_date_today = datetime.datetime.now().replace(
+            hour=10, minute=0, second=0, microsecond=0
         )
 
+        address = Address.get("0363200012145295")
+
         cases = baker.make(
-            Case, start_date=datetime.date.today(), address=address, _quantity=5
+            Case,
+            start_date=datetime.date.today() - datetime.timedelta(days=2),
+            address=address,
+            _quantity=5,
         )
         user_1, _ = User.objects.get_or_create(
             email="jake.gyllenhaal@example.com",
@@ -93,14 +99,23 @@ class CaseViewSet(
 
         for case in cases:
             baker.make(
-                CaseState, status__name="In looplijst", state_date=start_date, case=case
+                CaseState,
+                status__name="Nog niet gelopen",
+                state_date=start_date_day_before,
+                case=case,
             )
 
         for case in [cases[1], cases[2], cases[3], cases[4]]:
             baker.make(
+                CaseState,
+                status__name="Niemand aanwezig",
+                state_date=start_date_yesterday,
+                case=case,
+            )
+            baker.make(
                 Visit,
                 case=case,
-                start_time=start_date.replace(hour=10),
+                start_time=start_date_yesterday,
                 situation=Visit.SITUATION_NOBODY_PRESENT,
                 suggest_next_visit="weekend",
                 suggest_next_visit_description="Ziet er uit als feesthuis. Grote pakkans in het weekend",
@@ -109,21 +124,25 @@ class CaseViewSet(
                     "vacant",
                     "hotel_furnished",
                 ],
+                notes="Ziet er uit als feesthuis. Grote pakkans in het weekend",
                 authors=authors,
             )
 
         for case in [cases[2], cases[3], cases[4]]:
             baker.make(
+                CaseState,
+                status__name="Toegang verleend",
+                state_date=start_date_today,
+                case=case,
+            )
+            baker.make(
                 Visit,
                 case=case,
-                start_time=start_date.replace(hour=14),
+                start_time=start_date_today,
                 situation=Visit.SITUATION_ACCESS_GRANTED,
-                observations=[
-                    "malfunctioning_doorbell",
-                    "vacant",
-                    "hotel_furnished",
-                ],
                 authors=authors,
+                notes="Hit. Er zaten 8 toeristen in het gebouw.",
+                observations=[],
             )
 
         baker.make(Debriefing, case=cases[3], violation=Debriefing.VIOLATION_YES)
