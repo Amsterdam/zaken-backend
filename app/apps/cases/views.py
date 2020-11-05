@@ -5,7 +5,7 @@ from itertools import cycle
 import requests
 from apps.addresses.models import Address
 from apps.cases.filters import CaseFilter
-from apps.cases.models import Case, CaseState
+from apps.cases.models import Case, CaseState, CaseStateType
 from apps.cases.serializers import CaseSerializer
 from apps.debriefings.mixins import DebriefingsMixin
 from apps.debriefings.models import Debriefing
@@ -75,6 +75,15 @@ class CaseViewSet(
         start_date_today = datetime.datetime.now().replace(
             hour=10, minute=0, second=0, microsecond=0
         )
+        case_state_type_not_walked, _ = CaseStateType.objects.get_or_create(
+            name="Nog niet gelopen"
+        )
+        case_state_type_no_one, _ = CaseStateType.objects.get_or_create(
+            name="Niemand aanwezig"
+        )
+        case_state_type_access_granted, _ = CaseStateType.objects.get_or_create(
+            name="Toegang verleend"
+        )
 
         address = Address.get("0363200012145295")
 
@@ -100,7 +109,7 @@ class CaseViewSet(
         for case in cases:
             baker.make(
                 CaseState,
-                status__name="Nog niet gelopen",
+                status=case_state_type_not_walked,
                 state_date=start_date_day_before,
                 case=case,
             )
@@ -108,7 +117,7 @@ class CaseViewSet(
         for case in [cases[1], cases[2], cases[3], cases[4]]:
             baker.make(
                 CaseState,
-                status__name="Niemand aanwezig",
+                status=case_state_type_no_one,
                 state_date=start_date_yesterday,
                 case=case,
             )
@@ -131,7 +140,7 @@ class CaseViewSet(
         for case in [cases[2], cases[3], cases[4]]:
             baker.make(
                 CaseState,
-                status__name="Toegang verleend",
+                status=case_state_type_access_granted,
                 state_date=start_date_today,
                 case=case,
             )
