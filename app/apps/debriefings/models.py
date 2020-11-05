@@ -32,6 +32,9 @@ class Debriefing(ModelEventEmitter):
     )
     feedback = models.CharField(null=False, blank=False, max_length=255)
 
+    def __str__(self):
+        return f"{self.case.id} Case - Debriefing {self.id}"
+
     def __get_event_values__(self):
         return {
             "author": self.author.full_name,

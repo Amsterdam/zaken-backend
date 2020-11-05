@@ -23,6 +23,9 @@ class Visit(ModelEventEmitter):
     authors = models.ManyToManyField(User)
     notes = models.TextField()
 
+    class Meta:
+        ordering = ["-start_time"]
+
     def __str__(self):
         return f"Case: {self.case.id} - {self.id}"
 
