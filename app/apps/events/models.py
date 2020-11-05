@@ -33,6 +33,12 @@ class CaseEvent(models.Model):
         event_values = self.emitter.__get_event_values__()
         return event_values
 
+    def __str__(self):
+        return f"{self.case.id} Case - Event {self.id} - {self.date_created}"
+
+    class Meta:
+        ordering = ["-date_created"]
+
 
 class ModelEventEmitter(models.Model):
     EVENT_TYPE = None
