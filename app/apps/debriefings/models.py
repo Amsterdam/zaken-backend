@@ -26,6 +26,7 @@ class Debriefing(ModelEventEmitter, ModelEditableTimeConstraint):
     author = models.ForeignKey(
         to=User, null=False, on_delete=models.RESTRICT, related_name="debriefings"
     )
+    # TODO: Maybe rename this to date_created for consistency?
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     violation = models.CharField(

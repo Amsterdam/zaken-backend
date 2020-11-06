@@ -4,6 +4,8 @@ from rest_framework import serializers
 
 class CaseEventSerializer(serializers.ModelSerializer):
     event_values = serializers.JSONField()
+    emitter_is_editable = serializers.DateTimeField()
+    emitter_is_editable = serializers.BooleanField()
 
     class Meta:
         model = CaseEvent
@@ -14,5 +16,6 @@ class CaseEventSerializer(serializers.ModelSerializer):
             "type",
             "emitter_id",
             "emitter_is_editable",
+            "emitter_is_editable_until",
             "case",
         )

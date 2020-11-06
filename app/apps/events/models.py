@@ -33,6 +33,13 @@ class CaseEvent(models.Model):
             return True
 
     @property
+    def emitter_is_editable_until(self):
+        try:
+            return self.emitter.is_editable_until
+        except AttributeError:
+            return None
+
+    @property
     def event_values(self):
         """
         Returns a dictionary with event values retrieved from Emitter object
