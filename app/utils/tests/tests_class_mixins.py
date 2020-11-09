@@ -269,3 +269,14 @@ class ModelEditableTimeConstraintTest(TestCase):
             frozen_datetime.tick(delta=elapsed_time)
             with self.assertRaises(Exception):
                 subclass_object.validate()
+
+    def test_is_editable_until_property(self):
+        with freeze_time("2019-12-25"):
+            subclass_object = self.SubClass.objects.create()
+
+            editable_time = datetime.timedelta(
+                seconds=subclass_object.EDITABLE_TIME_IN_SECONDS
+            )
+            editable_until_time = subclass_object.date_added + editable_time
+
+            self.assertEquals(editable_until_time, subclass_object.is_editable_until)
