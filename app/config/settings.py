@@ -14,7 +14,8 @@ DEBUG = ENVIRONMENT == "development"
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
-# USE_TZ = True
+USE_TZ = True
+TIME_ZONE = "Europe/Amsterdam"
 
 # TODO: Configure this in the environment variables
 # ALLOWED_HOSTS = (
