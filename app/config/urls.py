@@ -32,11 +32,12 @@ urlpatterns = [
         name="swagger-ui",
     ),
     # Authentication endpoint for exchanging an OIDC code for a token
-    path(
-        "api/v1/oidc-authenticate/",
-        ObtainAuthTokenOIDC.as_view(),
-        name="oidc-authenticate",
-    ),
+    # NOTE: Not working, disabled for now
+    # path(
+    #     "api/v1/oidc-authenticate/",
+    #     ObtainAuthTokenOIDC.as_view(),
+    #     name="oidc-authenticate",
+    # ),
     # Endpoint for checking if user is authenticated
     path(
         "api/v1/is-authenticated/",
