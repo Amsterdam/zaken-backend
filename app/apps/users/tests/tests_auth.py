@@ -6,7 +6,7 @@ with the OIDC provider
 """
 from unittest.mock import Mock
 
-from apps.users.auth_grip import OIDCAuthenticationBackend
+from apps.users.auth_keycloak import OIDCAuthenticationBackend
 from django.core.exceptions import SuspiciousOperation
 from django.http.response import Http404
 from django.test import TestCase
