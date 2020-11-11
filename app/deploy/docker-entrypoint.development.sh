@@ -22,5 +22,4 @@ python manage.py migrate --noinput
 
 # echo Create root user
 # python manage.py shell -c "from apps.users.models import User; User.objects.create_superuser('admin@admin.com', 'admin')"
-
-exec uwsgi --ini /app/deploy/config.ini --py-auto-reload=1 --cheaper-initial=1 --cheaper=1 --processes=2
+python -m debugpy --listen 0.0.0.0:5678 ./manage.py runserver 0.0.0.0:8000
