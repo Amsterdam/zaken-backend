@@ -1,8 +1,11 @@
 """
-Tests for authentication.
-Note: It's possible to write more extensive tests for the auth module, but the main
-intention with these tests is to make sure a User is created of synched when authenticating
-with the OIDC provider
+TODO: These are mostly tests for getting an access token through the oidc-authenticate url.
+this authentication is somewhat deprecated, but can still be used for local development
+authentication in which this project servers as its own authentication provider.
+
+Since we are using an implicit autentication flow now with a dedicated authentication server,
+it makes for sense to write some tests which test user created/update when an authenticated
+request is done.
 """
 from unittest.mock import Mock
 
@@ -88,11 +91,11 @@ class AuthTest(TestCase):
         )
 
         # Call the authentication
-        authenticated_result = authentication_backend.authenticate(MOCK_AUTH_REQUEST)
+        with self.assertRaises(Exception):
+            authentication_backend.authenticate(MOCK_AUTH_REQUEST)
 
         # Verify is called
         authentication_backend.verify_token.assert_called_once()
 
         # But the user creation not
         authentication_backend.get_or_create_user.assert_not_called()
-        self.assertIsNone(authenticated_result)
