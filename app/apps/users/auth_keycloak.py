@@ -1,12 +1,13 @@
 import logging
 
-from django.contrib.auth.models import Group
-from django.db import transaction
+from django.conf import settings
+from django.core.exceptions import SuspiciousOperation
 from drf_spectacular.contrib.rest_framework_simplejwt import SimpleJWTScheme
 from mozilla_django_oidc import auth
 
 CLAIMS_FIRST_NAME = "given_name"
 CLAIMS_LAST_NAME = "family_name"
+CLAIMS_REALM_ACCESS = "realm_access"
 CLAIMS_ROLES = "roles"
 
 LOGGER = logging.getLogger(__name__)
@@ -18,34 +19,44 @@ class OIDCScheme(SimpleJWTScheme):
 
 
 class OIDCAuthenticationBackend(auth.OIDCAuthenticationBackend):
-    def create_user(self, claims):
-        user = super(OIDCAuthenticationBackend, self).create_user(claims)
-
+    def save_user(self, user, claims):
         user.first_name = claims.get(CLAIMS_FIRST_NAME, "")
         user.last_name = claims.get(CLAIMS_LAST_NAME, "")
         user.save()
+        return user
 
-        self.update_groups(user, claims)
+    def create_user(self, claims):
+        user = super(OIDCAuthenticationBackend, self).create_user(claims)
+        user = self.save_user(user, claims)
         return user
 
     def update_user(self, user, claims):
-        user.first_name = claims.get(CLAIMS_FIRST_NAME, "")
-        user.last_name = claims.get(CLAIMS_LAST_NAME, "")
-        user.save()
-
-        self.update_groups(user, claims)
-
+        user = self.save_user(user, claims)
         return user
 
-    # TODO: The roles aren't extracted properly yet
-    def update_groups(self, user, claims):
+    def get_roles(self, access_info):
+        realm_access = access_info.get(CLAIMS_REALM_ACCESS, {})
+        roles = realm_access.get(CLAIMS_ROLES, [])
+        return roles
+
+    def verify_roles(self, roles):
         """
-        Transform roles obtained from Grip into Django Groups and
-        add them to the user. Note that any role not passed via Grip
-        will be removed from the user.
+        Verify if the given roles are in the allowed roles settings
         """
-        with transaction.atomic():
-            user.groups.clear()
-            for role in claims.get(CLAIMS_ROLES, []):
-                group, _ = Group.objects.get_or_create(name=role)
-                group.user_set.add(user)
+        allowed_roles = settings.OIDC_ALLOWED_REALM_ACCESS_ROLES
+        intersection = set(roles) & set(allowed_roles)
+
+        if len(intersection) == 0:
+            raise SuspiciousOperation("The given roles could not be verified.")
+
+    def get_userinfo(self, access_token, id_token, payload):
+        """
+        Return the retrieved user info if the access token and roles are verified
+        """
+        user_info = super().get_userinfo(access_token, id_token, payload)
+        access_info = self.verify_token(access_token, nonce=None)
+
+        roles = self.get_roles(access_info)
+        self.verify_roles(roles)
+
+        return user_info

@@ -14,8 +14,6 @@ DEBUG = ENVIRONMENT == "development"
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
-USE_TZ = True
-
 # TODO: Configure this in the environment variables
 # ALLOWED_HOSTS = (
 #     "0.0.0.0",
@@ -147,10 +145,12 @@ LOGGING = {
     },
 }
 
-OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
-OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
+OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", None)
+OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", None)
 OIDC_USERNAME_ALGO = "apps.users.utils.generate_username"
-
+OIDC_RP_SIGN_ALGO = "RS256"
+OIDC_USE_NONCE = False
+OIDC_ALLOWED_REALM_ACCESS_ROLES = ("wonen_zaaksysteem",)
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv(
     "OIDC_OP_AUTHORIZATION_ENDPOINT",
     "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/auth",
