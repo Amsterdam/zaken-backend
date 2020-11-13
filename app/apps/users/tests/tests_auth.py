@@ -3,9 +3,8 @@ TODO: These are mostly tests for getting an access token through the oidc-authen
 this authentication is somewhat deprecated, but can still be used for local development
 authentication in which this project servers as its own authentication provider.
 
-Since we are using an implicit autentication flow now with a dedicated authentication server,
-it makes for sense to write some tests which test user created/update when an authenticated
-request is done.
+We are using an implicit autentication flow with a dedicated authentication provider/server now.
+Additional tests for user creation/update and role verification on authenticated requests are needed.
 """
 from unittest.mock import Mock
 

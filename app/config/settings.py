@@ -143,6 +143,18 @@ LOGGING = {
     },
 }
 
+"""
+TODO: Only a few of these settings are actually used for our current flow,
+but the mozilla_django_oidc OIDCAuthenticationBackend required these to be set.
+Since we are already subclassing from OIDCAuthenticationBackend, we can overwrite the requirements and cleanup these settings.
+
+The following fields are used:
+OIDC_USERNAME_ALGO
+OIDC_RP_SIGN_ALGO
+OIDC_USE_NONCE
+OIDC_ALLOWED_REALM_ACCESS_ROLES
+OIDC_OP_USER_ENDPOINT
+"""
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", None)
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", None)
 OIDC_USERNAME_ALGO = "apps.users.utils.generate_username"
