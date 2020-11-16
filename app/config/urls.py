@@ -20,7 +20,7 @@ router.register(r"push", PushViewSet, basename="push")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")
 router.register(r"visits", VisitViewSet, basename="visits")
 # router.register(r"testing-url", TestEndPointViewSet, basename="testing-url")
-router.register(r"test-permits", PermitViewSet, base_name="test-permits")
+router.register(r"test-permits", PermitViewSet, basename="test-permits")
 
 urlpatterns = [
     # Admin environment

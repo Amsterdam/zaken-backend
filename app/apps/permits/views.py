@@ -1,6 +1,12 @@
 import logging
 
-from apps.cases.serializers import PermitCheckmarkSerializer
+from apps.permits.api_queries_decos_join import (
+    DecosJoinRequest,
+    get_decos_join_permit,
+    get_decos_join_request,
+    get_decos_join_request_swagger,
+)
+from apps.permits.serializers import DecosPermitSerializer, PermitCheckmarkSerializer
 from apps.users.auth_apps import TopKeyAuth
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -8,13 +14,6 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
-from utils.api_queries_decos_join import (
-    DecosJoinRequest,
-    get_decos_join_permit,
-    get_decos_join_request,
-    get_decos_join_request_swagger,
-)
-from utils.serializers import DecosPermitSerializer
 
 bag_id = OpenApiParameter(
     name="bag_id",
