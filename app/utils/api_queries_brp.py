@@ -50,7 +50,7 @@ def get_mock_brp():
                 "voorletters": "AC",
                 "voornamen": "Anne Carmen",
                 "voorvoegsel_geslachtsnaam": "van",
-                "datum_begin_relatie_verblijadres": "1992-05-26T23:00:00Z",  # Note: This was marked as in spreadsheet in the following format: 19920526,
+                "datum_begin_relatie_verblijfadres": "1992-05-26T23:00:00Z",  # Note: This was marked as in spreadsheet in the following format: 19920526,
             }
         ],
     }

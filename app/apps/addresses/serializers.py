@@ -39,7 +39,7 @@ class ResidentSerializer(serializers.Serializer):
     voorletters = serializers.CharField(required=True)
     voornamen = serializers.CharField(required=True)
     voorvoegsel_geslachtsnaam = serializers.CharField(required=False)
-    datum_begin_relatie_verblijadres = serializers.DateTimeField(required=True)
+    datum_begin_relatie_verblijfadres = serializers.DateTimeField(required=True)
 
 
 class ResidentsSerializer(serializers.Serializer):
