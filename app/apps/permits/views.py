@@ -1,54 +1,13 @@
 import logging
 
-import requests
-from apps.cases import populate
-from apps.cases.filters import CaseFilter
-from apps.cases.models import (
-    Address,
-    Case,
-    CaseState,
-    CaseStateType,
-    CaseTimelineReaction,
-    CaseTimelineSubject,
-    CaseTimelineThread,
-    CaseType,
-    OpenZaakState,
-    OpenZaakStateType,
-)
-from apps.cases.serializers import (
-    AddressSerializer,
-    CaseSerializer,
-    CaseStateSerializer,
-    CaseStateTypeSerializer,
-    CaseTimelineReactionSerializer,
-    CaseTimelineSerializer,
-    CaseTimelineSubjectSerializer,
-    CaseTimelineThreadSerializer,
-    CaseTypeSerializer,
-    FineListSerializer,
-    OpenZaakStateSerializer,
-    OpenZaakStateTypeSerializer,
-    PermitCheckmarkSerializer,
-    ResidentsSerializer,
-    TimelineAddSerializer,
-    TimelineUpdateSerializer,
-)
-from apps.debriefings.serializers import DebriefingSerializer
+from apps.cases.serializers import PermitCheckmarkSerializer
 from apps.users.auth_apps import TopKeyAuth
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import serializers, status
 from rest_framework.decorators import action
-from rest_framework.generics import (
-    ListAPIView,
-    ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, ViewSet
-from utils.api_queries_belastingen import get_fines, get_mock_fines
-from utils.api_queries_brp import get_brp
+from rest_framework.viewsets import ViewSet
 from utils.api_queries_decos_join import (
     DecosJoinRequest,
     get_decos_join_permit,
