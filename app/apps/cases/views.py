@@ -126,7 +126,7 @@ class CaseViewSet(
                 case=case,
                 start_time=start_date_yesterday,
                 situation=Visit.SITUATION_NOBODY_PRESENT,
-                suggest_next_visit="weekend",
+                suggest_next_visit="Weekend",
                 suggest_next_visit_description="Ziet er uit als feesthuis. Grote pakkans in het weekend",
                 observations=[
                     "malfunctioning_doorbell",
