@@ -116,9 +116,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("apps.users.auth.AuthenticationClass",),
 }
 
 SPECTACULAR_SETTINGS = {
@@ -148,35 +146,45 @@ LOGGING = {
     },
 }
 
-OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
-OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
+"""
+TODO: Only a few of these settings are actually used for our current flow,
+but the mozilla_django_oidc OIDCAuthenticationBackend required these to be set.
+Since we are already subclassing from OIDCAuthenticationBackend, we can overwrite the requirements and cleanup these settings.
+
+The following fields are used:
+OIDC_USERNAME_ALGO
+OIDC_RP_SIGN_ALGO
+OIDC_USE_NONCE
+OIDC_ALLOWED_REALM_ACCESS_ROLES
+OIDC_OP_USER_ENDPOINT
+"""
+OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", None)
+OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", None)
 OIDC_USERNAME_ALGO = "apps.users.utils.generate_username"
 OIDC_RP_SIGN_ALGO = "RS256"
-OIDC_RP_SCOPES = "openid"
-OIDC_VERIFY_SSL = True
+OIDC_USE_NONCE = False
+OIDC_ALLOWED_REALM_ACCESS_ROLES = ("wonen_zaaksysteem",)
+OIDC_AUTHENTICATION_CALLBACK_URL = "oidc-authenticate"
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv(
     "OIDC_OP_AUTHORIZATION_ENDPOINT",
-    "https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/authorize",
+    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/auth",
 )
 OIDC_OP_TOKEN_ENDPOINT = os.getenv(
-    "OIDC_OP_TOKEN_ENDPOINT", "https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/token"
+    "OIDC_OP_TOKEN_ENDPOINT",
+    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/token",
 )
 OIDC_OP_USER_ENDPOINT = os.getenv(
-    "OIDC_OP_USER_ENDPOINT", "https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/userinfo"
+    "OIDC_OP_USER_ENDPOINT",
+    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/userinfo",
 )
 OIDC_OP_JWKS_ENDPOINT = os.getenv(
     "OIDC_OP_JWKS_ENDPOINT",
-    "https://auth.grip-on-it.com/v2/rjsfm52t/oidc/idp/.well-known/jwks.json",
+    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/certs",
 )
-OIDC_USE_NONCE = True
-ACCEPTANCE_OIDC_REDIRECT_URL = "https://acc.top.amsterdam.nl/authentication/callback"
-PRODUCTION_OIDC_REDIRECT_URL = "https://top.amsterdam.nl/authentication/callback"
-
-OIDC_REDIRECT_URL = ACCEPTANCE_OIDC_REDIRECT_URL
-
-if ENVIRONMENT == "production":
-    OIDC_REDIRECT_URL = PRODUCTION_OIDC_REDIRECT_URL
-
+OIDC_OP_LOGOUT_ENDPOINT = os.getenv(
+    "OIDC_OP_LOGOUT_ENDPOINT",
+    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/logout",
+)
 
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
     os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"

@@ -3,7 +3,6 @@ django-filter
 djangorestframework
 psycopg2
 requests
-pyjwt
 drf-spectacular
 django-cors-headers
 sentry-sdk
@@ -15,3 +14,4 @@ requests
 tenacity
 freezegun
 model-bakery
+debugpy
