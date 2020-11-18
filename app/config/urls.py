@@ -2,8 +2,8 @@ from apps.addresses.views import AddressViewSet
 from apps.cases.views import CaseViewSet, TestEndPointViewSet
 from apps.debriefings.views import DebriefingViewSet
 from apps.gateway.push.views import PushViewSet
+from apps.users.views import IsAuthorizedView, ObtainAuthTokenOIDC, UserListView
 from apps.permits.views import PermitViewSet
-from apps.users.views import IsAuthenticatedView, ObtainAuthTokenOIDC, UserListView
 from apps.visits.views import VisitViewSet
 from django.conf import settings
 from django.conf.urls import include, url
@@ -41,9 +41,9 @@ urlpatterns = [
     ),
     # Endpoint for checking if user is authenticated
     path(
-        "api/v1/is-authenticated/",
-        IsAuthenticatedView.as_view(),
-        name="is-authenticated",
+        "api/v1/is-authorized/",
+        IsAuthorizedView.as_view(),
+        name="is-authorized",
     ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

@@ -11,32 +11,32 @@ from app.utils.unittest_helpers import (
 )
 
 
-class IsAuthenticatedViewTest(APITestCase):
+class IsAuthorizedViewTest(APITestCase):
     """
-    Tests for the API endpoints for IsAuthenticatedView
+    Tests for the API endpoints for IsAuthorizedView
     """
 
     def test_authenticated_requests(self):
         """
-        is_authenticated is true when user is not logged in
+        is_authorized is true when user is not logged in
         """
-        url = reverse("is-authenticated")
+        url = reverse("is-authorized")
         client = get_authenticated_client()
         response = client.get(url)
 
-        expected_response = {"is_authenticated": True}
+        expected_response = {"is_authorized": True}
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEquals(response.json(), expected_response)
 
     def test_unauthenticated_requests(self):
         """
-        is_authenticated false when user is not logged in
+        is_authorized false when user is not logged in
         """
-        url = reverse("is-authenticated")
+        url = reverse("is-authorized")
         client = get_unauthenticated_client()
         response = client.get(url)
 
-        expected_response = {"is_authenticated": False}
+        expected_response = {"is_authorized": False}
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEquals(response.json(), expected_response)
 
