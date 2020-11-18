@@ -22,13 +22,13 @@ class UserListView(ViewSet, generics.ListAPIView):
     serializer_class = UserSerializer
 
 
-class IsAuthenticatedView(APIView):
+class IsAuthorizedView(APIView):
     permission_classes = ()
 
     def get(self, request):
         permission_class = IsAuthenticated()
-        is_authenticated = permission_class.has_permission(request, self)
-        return Response({"is_authenticated": is_authenticated})
+        is_authorized = permission_class.has_permission(request, self)
+        return Response({"is_authorized": is_authorized})
 
 
 class ObtainAuthTokenOIDC(APIView):
