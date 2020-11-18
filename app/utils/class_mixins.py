@@ -1,6 +1,7 @@
 import datetime
 
 from django.db import models
+from pytz import timezone
 
 
 class ModelEditablelBase(models.Model):
@@ -47,7 +48,8 @@ class ModelEditableTimeConstraint(ModelEditablelBase):
 
     @property
     def is_editable(self):
-        time_elapsed = datetime.datetime.now() - self.date_added
+        time_zone = timezone("Europe/Amsterdam")
+        time_elapsed = datetime.datetime.now(tz=time_zone) - self.date_added
         time_constraint = datetime.timedelta(seconds=self.EDITABLE_TIME_IN_SECONDS)
 
         return time_elapsed <= time_constraint

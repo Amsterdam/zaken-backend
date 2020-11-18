@@ -1,13 +1,9 @@
 """
 Tests for Debriefing models
 """
-from datetime import datetime
-
 from apps.debriefings.models import Debriefing
 from apps.debriefings.tests.tests_helpers import DebriefingTestMixin
 from django.urls import reverse
-from freezegun import freeze_time
-from pytz import UTC
 from rest_framework import status
 from rest_framework.test import APITestCase
 
