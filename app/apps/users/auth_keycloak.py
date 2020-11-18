@@ -47,7 +47,9 @@ class OIDCAuthenticationBackend(auth.OIDCAuthenticationBackend):
         intersection = set(roles) & set(allowed_roles)
 
         if len(intersection) == 0:
-            raise SuspiciousOperation("The given roles could not be verified.")
+            raise SuspiciousOperation(
+                "The user is not authorized to access this application."
+            )
 
     def get_userinfo(self, access_token, id_token, payload):
         """
