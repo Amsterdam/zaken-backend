@@ -1,3 +1,3 @@
-IN_PROGRESS = "In behandeling"
+IN_PROGRESS = "In looplijst"
 
 STATES = (IN_PROGRESS,)
