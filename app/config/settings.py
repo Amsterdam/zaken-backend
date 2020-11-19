@@ -3,6 +3,7 @@ from datetime import timedelta
 from os.path import join
 
 import sentry_sdk
+from keycloak_oidc.default_settings import *
 from sentry_sdk.integrations.django import DjangoIntegration
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -38,7 +39,7 @@ INSTALLED_APPS = (
     "django.contrib.staticfiles",
     "corsheaders",
     # Third party apps
-    "mozilla_django_oidc",
+    "keycloak_oidc",
     "rest_framework",
     "drf_spectacular",
     "django_extensions",
@@ -116,7 +117,10 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
-    "DEFAULT_AUTHENTICATION_CLASSES": ("apps.users.auth.AuthenticationClass",),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "apps.users.auth.AuthenticationClass",
+        "rest_framework.authentication.SessionAuthentication",
+    ),
 }
 
 SPECTACULAR_SETTINGS = {
@@ -155,16 +159,15 @@ The following fields are used:
 OIDC_USERNAME_ALGO
 OIDC_RP_SIGN_ALGO
 OIDC_USE_NONCE
-OIDC_ALLOWED_REALM_ACCESS_ROLES
+OIDC_ALLOWED_REALM_ACCESS_GROUPS
 OIDC_OP_USER_ENDPOINT
 """
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", None)
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", None)
-OIDC_USERNAME_ALGO = "apps.users.utils.generate_username"
-OIDC_RP_SIGN_ALGO = "RS256"
 OIDC_USE_NONCE = False
-OIDC_ALLOWED_REALM_ACCESS_ROLES = ("wonen_zaaksysteem",)
+OIDC_ALLOWED_REALM_ACCESS_GROUPS = ("wonen_zaaksysteem",)
 OIDC_AUTHENTICATION_CALLBACK_URL = "oidc-authenticate"
+
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv(
     "OIDC_OP_AUTHORIZATION_ENDPOINT",
     "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/auth",

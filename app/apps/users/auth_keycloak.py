@@ -1,21 +1,13 @@
 import logging
 
-from django.conf import settings
-from django.core.exceptions import SuspiciousOperation
-from drf_spectacular.contrib.rest_framework_simplejwt import SimpleJWTScheme
+from django.contrib.auth.models import Group
+from django.db import transaction
 from mozilla_django_oidc import auth
 
 CLAIMS_FIRST_NAME = "given_name"
 CLAIMS_LAST_NAME = "family_name"
 CLAIMS_REALM_ACCESS = "realm_access"
-CLAIMS_ROLES = "roles"
-
-LOGGER = logging.getLogger(__name__)
-
-
-class OIDCScheme(SimpleJWTScheme):
-    target_class = "mozilla_django_oidc.contrib.drf.OIDCAuthentication"
-    name = "Authenticate"
+CLAIMS_GROUPS = "roles"
 
 
 class OIDCAuthenticationBackend(auth.OIDCAuthenticationBackend):
@@ -23,6 +15,9 @@ class OIDCAuthenticationBackend(auth.OIDCAuthenticationBackend):
         user.first_name = claims.get(CLAIMS_FIRST_NAME, "")
         user.last_name = claims.get(CLAIMS_LAST_NAME, "")
         user.save()
+
+        self.update_groups(user, claims)
+
         return user
 
     def create_user(self, claims):
@@ -34,31 +29,48 @@ class OIDCAuthenticationBackend(auth.OIDCAuthenticationBackend):
         user = self.save_user(user, claims)
         return user
 
-    def get_roles(self, access_info):
+    def clear_realm_access_groups(self, user):
+        """
+        Clears the user from the realm access groups
+        """
+        realm_access_groups = self.get_settings("OIDC_ALLOWED_REALM_ACCESS_GROUPS", [])
+        for realm_access_group in realm_access_groups:
+            group, _ = Group.objects.get_or_create(name=realm_access_group)
+            group.user_set.remove(user)
+
+    def update_groups(self, user, claims):
+        """
+        Transform roles obtained from keycloak into Django Groups and
+        add them to the user. Note that any role not passed via keycloak
+        will be removed from the user.
+        """
+        with transaction.atomic():
+            self.clear_realm_access_groups(user)
+
+            for claims_group in claims.get(CLAIMS_GROUPS):
+                group, _ = Group.objects.get_or_create(name=claims_group)
+                group.user_set.add(user)
+
+    def get_groups(self, access_info):
         realm_access = access_info.get(CLAIMS_REALM_ACCESS, {})
-        roles = realm_access.get(CLAIMS_ROLES, [])
-        return roles
+        groups = realm_access.get(CLAIMS_GROUPS, [])
+        return groups
 
-    def verify_roles(self, roles):
-        """
-        Verify if the given roles are in the allowed roles settings
-        """
-        allowed_roles = settings.OIDC_ALLOWED_REALM_ACCESS_ROLES
-        intersection = set(roles) & set(allowed_roles)
+    def get_nonce(self, payload):
+        if self.get_settings("OIDC_USE_NONCE", True):
+            return payload.get("nonce")
 
-        if len(intersection) == 0:
-            raise SuspiciousOperation(
-                "The user is not authorized to access this application."
-            )
+        return None
 
     def get_userinfo(self, access_token, id_token, payload):
         """
-        Return the retrieved user info if the access token and roles are verified
+        Get user details from the access_token and id_token and return
+        them in a dict.
         """
         user_info = super().get_userinfo(access_token, id_token, payload)
-        access_info = self.verify_token(access_token, nonce=None)
-
-        roles = self.get_roles(access_info)
-        self.verify_roles(roles)
+        nonce = self.get_nonce(payload)
+        access_info = self.verify_token(access_token, nonce=nonce)
+        groups = self.get_groups(access_info)
+        user_info[CLAIMS_GROUPS] = groups
 
         return user_info
