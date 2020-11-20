@@ -8,10 +8,10 @@ Additional tests for user creation/update and role verification on authenticated
 """
 from unittest.mock import Mock
 
-from apps.users.auth_keycloak import OIDCAuthenticationBackend
 from django.core.exceptions import SuspiciousOperation
 from django.http.response import Http404
 from django.test import TestCase
+from keycloak_oidc.auth import OIDCAuthenticationBackend
 
 from app.utils.unittest_helpers import get_test_user
 

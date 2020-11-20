@@ -2,6 +2,7 @@ import logging
 
 from django.http import HttpResponseBadRequest
 from django.utils.decorators import method_decorator
+from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,7 +11,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .auth import AuthenticationBackend
 from .models import User
-from .permissions import IsInAuthorizedRealm
 from .serializers import OIDCAuthenticateSerializer, UserSerializer
 
 LOGGER = logging.getLogger(__name__)

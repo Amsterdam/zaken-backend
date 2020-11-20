@@ -10,7 +10,7 @@ from apps.fines.models import Fine
 from apps.gateway.push.serializers import PushSerializer
 from apps.users.auth_apps import TopKeyAuth
 from apps.users.models import User
-from apps.users.permissions import IsInAuthorizedRealm
+from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import viewsets
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response

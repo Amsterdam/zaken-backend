@@ -115,7 +115,7 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
-        "apps.users.permissions.IsInAuthorizedRealm",
+        "keycloak_oidc.drf.permissions.IsInAuthorizedRealm",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "apps.users.auth.AuthenticationClass",
