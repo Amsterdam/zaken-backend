@@ -6,7 +6,6 @@ from apps.permits.mixins import PermitCheckmarkMixin, PermitDetailsMixin
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from utils.api_queries_brp import get_brp
@@ -15,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class AddressViewSet(ViewSet, PermitCheckmarkMixin, PermitDetailsMixin):
-    permission_classes = [IsAuthenticated]
     serializer_class = AddressSerializer
     queryset = Address.objects.all()
     lookup_field = "bag_id"

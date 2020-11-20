@@ -10,9 +10,9 @@ from apps.fines.models import Fine
 from apps.gateway.push.serializers import PushSerializer
 from apps.users.auth_apps import TopKeyAuth
 from apps.users.models import User
+from apps.users.permissions import IsInAuthorizedRealm
 from rest_framework import viewsets
 from rest_framework.exceptions import APIException
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 LOGGER = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ class PushViewSet(viewsets.ViewSet):
     After migrating from BWV to Zaken we can remove most of this push, and Top can do a simpler (and more generic) CREATE request for adding a state.
     """
 
-    permission_classes = [IsAuthenticated | TopKeyAuth]
+    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = PushSerializer
 
     def create(self, request):

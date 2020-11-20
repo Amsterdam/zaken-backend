@@ -33,7 +33,11 @@ class OIDCAuthenticationBackend(auth.OIDCAuthenticationBackend):
         """
         Clears the user from the realm access groups
         """
-        realm_access_groups = self.get_settings("OIDC_ALLOWED_REALM_ACCESS_GROUPS", [])
+        realm_access_groups = self.get_settings("OIDC_AUTHORIZED_GROUPS", None)
+        assert (
+            realm_access_groups
+        ), "OIDC_AUTHORIZED_GROUPS access groups must be configured"
+
         for realm_access_group in realm_access_groups:
             group, _ = Group.objects.get_or_create(name=realm_access_group)
             group.user_set.remove(user)

@@ -115,7 +115,7 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        "apps.users.permissions.IsInAuthorizedRealm",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "apps.users.auth.AuthenticationClass",
@@ -159,13 +159,13 @@ The following fields are used:
 OIDC_USERNAME_ALGO
 OIDC_RP_SIGN_ALGO
 OIDC_USE_NONCE
-OIDC_ALLOWED_REALM_ACCESS_GROUPS
+OIDC_AUTHORIZED_GROUPS
 OIDC_OP_USER_ENDPOINT
 """
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", None)
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", None)
 OIDC_USE_NONCE = False
-OIDC_ALLOWED_REALM_ACCESS_GROUPS = ("wonen_zaaksysteem",)
+OIDC_AUTHORIZED_GROUPS = ("wonen_zaaksysteem",)
 OIDC_AUTHENTICATION_CALLBACK_URL = "oidc-authenticate"
 
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv(

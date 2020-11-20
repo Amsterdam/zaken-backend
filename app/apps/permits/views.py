@@ -11,7 +11,6 @@ from apps.users.auth_apps import TopKeyAuth
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
@@ -25,8 +24,6 @@ bag_id = OpenApiParameter(
 
 
 class PermitViewSet(ViewSet):
-    permission_classes = [IsAuthenticated]
-
     @extend_schema(
         parameters=[bag_id],
         description="Get permit checkmarks based on bag id",

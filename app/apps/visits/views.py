@@ -1,10 +1,10 @@
 from apps.users.auth_apps import TopKeyAuth
+from apps.users.permissions import IsInAuthorizedRealm
 from django.shortcuts import render
 from drf_spectacular.utils import extend_schema
 from rest_framework import views
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -13,7 +13,7 @@ from .serializers import TopVisitSerializer, VisitSerializer
 
 
 class VisitViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated | TopKeyAuth]
+    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = VisitSerializer
     queryset = Visit.objects.all()
 
