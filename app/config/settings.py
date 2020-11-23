@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     "drf_spectacular",
     "django_extensions",
     "django_filters",
+    "django_spaghetti",
     # Apps
     "apps.users",
     "apps.cases",
@@ -54,6 +55,21 @@ INSTALLED_APPS = (
     "apps.visits",
     "apps.events",
 )
+
+# Add apps here to make them appear in the graphing visualisation
+SPAGHETTI_SAUCE = {
+    "apps": [
+        "users",
+        "cases",
+        "debriefings",
+        "permits",
+        "fines",
+        "addresses",
+        "visits",
+        "events",
+    ],
+    "show_fields": False,
+}
 
 DATABASES = {
     "default": {

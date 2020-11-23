@@ -2,8 +2,8 @@ from apps.addresses.views import AddressViewSet
 from apps.cases.views import CaseViewSet, TestEndPointViewSet
 from apps.debriefings.views import DebriefingViewSet
 from apps.gateway.push.views import PushViewSet
-from apps.users.views import IsAuthorizedView, ObtainAuthTokenOIDC, UserListView
 from apps.permits.views import PermitViewSet
+from apps.users.views import IsAuthorizedView, ObtainAuthTokenOIDC, UserListView
 from apps.visits.views import VisitViewSet
 from django.conf import settings
 from django.conf.urls import include, url
@@ -45,6 +45,7 @@ urlpatterns = [
         IsAuthorizedView.as_view(),
         name="is-authorized",
     ),
+    path("data-model/", include("django_spaghetti.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # JSON handlers for errors
