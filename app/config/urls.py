@@ -44,6 +44,7 @@ urlpatterns = [
         IsAuthorizedView.as_view(),
         name="is-authorized",
     ),
+    path("data-model/", include("django_spaghetti.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # JSON handlers for errors
