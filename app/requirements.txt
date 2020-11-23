@@ -14,5 +14,5 @@ tenacity
 freezegun
 model-bakery
 debugpy
-git+git://github.com/petercuret/keycloak_oidc.git@master
+git+https://github.com/petercuret/keycloak_oidc.git@master
 django-spaghetti-and-meatballs
