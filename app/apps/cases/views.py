@@ -24,7 +24,6 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
 
@@ -36,8 +35,6 @@ class TestSerializer(serializers.Serializer):
 
 
 class TestEndPointViewSet(ViewSet):
-    permission_classes = [IsAuthenticated]
-
     @extend_schema(
         request=TestSerializer,
         description="request url",
@@ -59,7 +56,6 @@ class CaseViewSet(
     DebriefingsMixin,
     CaseEventsMixin,
 ):
-    permission_classes = [IsAuthenticated]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
     filterset_class = CaseFilter

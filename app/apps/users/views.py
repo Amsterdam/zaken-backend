@@ -2,8 +2,8 @@ import logging
 
 from django.http import HttpResponseBadRequest
 from django.utils.decorators import method_decorator
+from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
@@ -26,8 +26,7 @@ class IsAuthorizedView(APIView):
     permission_classes = ()
 
     def get(self, request):
-        permission_class = IsAuthenticated()
-        is_authorized = permission_class.has_permission(request, self)
+        is_authorized = IsInAuthorizedRealm().has_permission(request, self)
         return Response({"is_authorized": is_authorized})
 
 

@@ -6,7 +6,6 @@ requests
 drf-spectacular
 django-cors-headers
 sentry-sdk
-mozilla_django_oidc
 djangorestframework-simplejwt
 django-extensions
 faker
@@ -15,3 +14,4 @@ tenacity
 freezegun
 model-bakery
 debugpy
+git+git://github.com/petercuret/keycloak_oidc.git@master
