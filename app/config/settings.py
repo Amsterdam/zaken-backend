@@ -133,10 +133,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "keycloak_oidc.drf.permissions.IsInAuthorizedRealm",
     ],
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "apps.users.auth.AuthenticationClass",
-        "rest_framework.authentication.SessionAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("apps.users.auth.AuthenticationClass",),
 }
 
 SPECTACULAR_SETTINGS = {
