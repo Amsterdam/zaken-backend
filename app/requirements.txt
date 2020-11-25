@@ -16,3 +16,4 @@ model-bakery
 debugpy
 git+https://github.com/petercuret/keycloak_oidc.git@master
 django-spaghetti-and-meatballs
+django-health-check

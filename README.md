@@ -74,3 +74,8 @@ For the domain 'Illegal vakantieverhuur' for example, the following state types 
 - Opleggen boete
 - Meldplicht beschikking boete
 - Invordering dwangsom
+
+## Health check
+A path is available for checking the health of the running application, and all its connected services.
+The overview of this status can be found on the following path: {application_url}/health
+To improve reliability, the health checks should be expanded for each essential service that is added to the application. For more on how to expand the health checks, read the [Django Healh Check documentation](https://github.com/KristianOellegaard/django-health-check).
