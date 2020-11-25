@@ -214,8 +214,9 @@ AUTHENTICATION_BACKENDS = (
 )
 
 
+# Simple JWT is used for local development authentication only.
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=4),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=24),
     # We don't refresh tokens yet, so we set refresh lifetime to zero
     "REFRESH_TOKEN_LIFETIME": timedelta(seconds=0),
 }
