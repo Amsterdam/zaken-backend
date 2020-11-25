@@ -45,6 +45,7 @@ urlpatterns = [
         name="is-authorized",
     ),
     path("data-model/", include("django_spaghetti.urls")),
+    url("health/", include("health_check.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # JSON handlers for errors

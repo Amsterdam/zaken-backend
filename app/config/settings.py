@@ -45,6 +45,10 @@ INSTALLED_APPS = (
     "django_extensions",
     "django_filters",
     "django_spaghetti",
+    # Health checks. (Expand when more services become available)
+    "health_check",
+    "health_check.db",
+    "health_check.contrib.migrations",
     # Apps
     "apps.users",
     "apps.cases",
