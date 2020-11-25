@@ -13,11 +13,13 @@ class Debriefing(ModelEventEmitter, ModelEditableTimeConstraint):
     VIOLATION_NO = "NO"
     VIOLATION_YES = "YES"
     VIOLATION_ADDITIONAL_RESEARCH_REQUIRED = "ADDITIONAL_RESEARCH_REQUIRED"
+    VIOLATION_ADDITIONAL_VISIT_REQUIRED = "ADDITIONAL_VISIT_REQUIRED"
 
     VIOLATION_CHOICES = [
         (VIOLATION_NO, "No"),
         (VIOLATION_YES, "Yes"),
         (VIOLATION_ADDITIONAL_RESEARCH_REQUIRED, "Additional research required"),
+        (VIOLATION_ADDITIONAL_VISIT_REQUIRED, "Nieuw huisbezoek nodig"),
     ]
 
     case = models.ForeignKey(
