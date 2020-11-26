@@ -125,16 +125,15 @@ class DecosJoinRequest:
 
     def _process_request_to_decos_join(self, url):
         try:
-            username = settings.DECOS_JOIN_USERNAME
-            password = settings.DECOS_JOIN_PASSWORD
+            userpass = settings.DECOS_JOIN_USERNAME + ":" + settings.DECOS_JOIN_PASSWORD
+            encoded_u = base64.b64encode(userpass.encode()).decode()
             headers = {
+                "Authorization": "Basic %s" % encoded_u,
                 "Accept": "application/itemdata",
                 "content-type": "application/json",
             }
 
-            response = requests.get(
-                url, headers=headers, timeout=8, auth=(username, password)
-            )
+            response = requests.get(url, headers=headers, timeout=30)
 
             return response.json()
         except requests.exceptions.Timeout:
