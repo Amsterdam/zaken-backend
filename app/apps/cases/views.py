@@ -136,13 +136,16 @@ class CaseViewSet(
                 authors=authors,
             )
 
-        for case in cases[2:5]:
+        # add today state to all newer result cases
+        for case in cases[2:]:
             baker.make(
                 CaseState,
                 status=case_state_type_access_granted,
                 state_date=start_date_today,
                 case=case,
             )
+
+        for case in cases[2:5]:
             baker.make(
                 Visit,
                 case=case,
