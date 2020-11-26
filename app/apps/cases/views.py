@@ -71,6 +71,9 @@ class CaseViewSet(
         start_date_today = datetime.datetime.now().replace(
             hour=10, minute=0, second=0, microsecond=0
         )
+        start_date_today_but_later = datetime.datetime.now().replace(
+            hour=17, minute=0, second=0, microsecond=0
+        )
         case_state_type_not_walked, _ = CaseStateType.objects.get_or_create(
             name="Nog niet gelopen"
         )
@@ -169,7 +172,7 @@ class CaseViewSet(
         baker.make(
             Visit,
             case=cases[6],
-            start_time=start_date_today,
+            start_time=start_date_today_but_later,
             authors=authors,
             situation=Visit.SITUATION_ACCESS_GRANTED,
             notes="Extra bezoek was zeker vruchtbaar. Flyers + printout van de advertentie gevonden. Genoeg bewijs om over te gaan op handhaving",
