@@ -87,7 +87,7 @@ class CaseViewSet(
             Case,
             start_date=datetime.date.today() - datetime.timedelta(days=2),
             address=address,
-            _quantity=5,
+            _quantity=7,
         )
         user_1, _ = User.objects.get_or_create(
             email="jake.gyllenhaal@example.com",
@@ -110,7 +110,7 @@ class CaseViewSet(
                 case=case,
             )
 
-        for case in [cases[1], cases[2], cases[3], cases[4]]:
+        for case in cases[1:]:
             baker.make(
                 CaseState,
                 status=case_state_type_no_one,
@@ -133,7 +133,7 @@ class CaseViewSet(
                 authors=authors,
             )
 
-        for case in [cases[2], cases[3], cases[4]]:
+        for case in cases[2:5]:
             baker.make(
                 CaseState,
                 status=case_state_type_access_granted,
@@ -151,10 +151,29 @@ class CaseViewSet(
             )
 
         baker.make(Debriefing, case=cases[3], violation=Debriefing.VIOLATION_YES)
+
         baker.make(
             Debriefing,
             case=cases[4],
             violation=Debriefing.VIOLATION_ADDITIONAL_RESEARCH_REQUIRED,
+        )
+
+        # Nog een huisbezoek vereist
+        for case in cases[5:7]:
+            baker.make(
+                Debriefing,
+                case=case,
+                violation=Debriefing.VIOLATION_ADDITIONAL_VISIT_REQUIRED,
+            )
+
+        baker.make(
+            Visit,
+            case=cases[6],
+            start_time=start_date_today,
+            authors=authors,
+            situation=Visit.SITUATION_ACCESS_GRANTED,
+            notes="Extra bezoek was zeker vruchtbaar. Flyers + printout van de advertentie gevonden. Genoeg bewijs om over te gaan op handhaving",
+            observations=[],
         )
 
         return Response("OK")
