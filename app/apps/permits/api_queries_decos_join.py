@@ -1,3 +1,4 @@
+import base64
 import logging
 from datetime import datetime
 
@@ -17,17 +18,18 @@ logger = logging.getLogger(__name__)
 
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def generic_decos_request(url, overwrite_password=None):
+def generic_decos_request(url):
     try:
-        headers = {"Accept": "application/itemdata"}
-        username = settings.DECOS_JOIN_USERNAME
-        password = settings.DECOS_JOIN_PASSWORD
-        if overwrite_password:
-            password = overwrite_password
-        response = requests.get(
-            url, headers=headers, timeout=8, auth=(username, password)
-        )
+        userpass = settings.DECOS_JOIN_USERNAME + ":" + settings.DECOS_JOIN_PASSWORD
+        encoded_u = base64.b64encode(userpass.encode()).decode()
+        headers = {
+            "Accept": "application/itemdata",
+            "Authorization": "Basic %s" % encoded_u,
+        }
+
+        response = requests.get(url, headers=headers, timeout=30)
         data = response.json()
+
         return data
     except Exception as e:
         print(e)
