@@ -9,7 +9,7 @@ class CaseStateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CaseState
-        fields = ["case", "status_name", "status", "state_date", "users"]
+        fields = ["id", "case", "status_name", "status", "state_date", "users"]
 
 
 class CaseSerializer(serializers.ModelSerializer):
