@@ -21,4 +21,4 @@ jobs:
     - name: Build Docker image
       run: docker-compose up -d
     - name: Run Tests
-      run: docker-compose exec -T api python manage.py test
+      run: docker-compose exec -T zaak-gateway python manage.py test
