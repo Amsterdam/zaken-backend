@@ -16,6 +16,8 @@ jobs:
         python-version: 3.x
     - name: Linting
       run: bash cleanup.sh
+    - name: Create Docker network
+      run: docker network create fixxx-looplijsten-backend_looplijsten_backend
     - name: Build Docker image
       run: docker-compose up -d
     - name: Run Tests
