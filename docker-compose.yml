@@ -4,9 +4,10 @@ services:
   zaak-gateway:
     networks:
       - fixxx-looplijsten-backend_looplijsten_backend
+      - backend_link
     build: app
     ports:
-      - 8080:8000
+      - 9000:8000
       - 5678:5678
     links:
       - database
@@ -78,4 +79,6 @@ services:
 
 networks:
   fixxx-looplijsten-backend_looplijsten_backend:
+    external: true
+  top_and_zaak_backend_bridge:
     external: true
