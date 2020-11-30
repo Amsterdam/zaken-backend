@@ -1,11 +1,6 @@
 import logging
 
-from apps.permits.api_queries_decos_join import (
-    DecosJoinRequest,
-    get_decos_join_permit,
-    get_decos_join_request,
-    get_decos_join_request_swagger,
-)
+from apps.permits.api_queries_decos_join import DecosJoinRequest
 from apps.permits.serializers import DecosPermitSerializer, PermitCheckmarkSerializer
 from apps.users.auth_apps import TopKeyAuth
 from drf_spectacular.types import OpenApiTypes
