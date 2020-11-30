@@ -17,107 +17,6 @@ from tenacity import after_log, retry, stop_after_attempt
 logger = logging.getLogger(__name__)
 
 
-@retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def generic_decos_request(url):
-    try:
-        userpass = settings.DECOS_JOIN_USERNAME + ":" + settings.DECOS_JOIN_PASSWORD
-        encoded_u = base64.b64encode(userpass.encode()).decode()
-        headers = {
-            "Accept": "application/itemdata",
-            "Authorization": "Basic %s" % encoded_u,
-        }
-
-        response = requests.get(url, headers=headers, timeout=30)
-        data = response.json()
-
-        return data
-    except Exception as e:
-        print(e)
-
-    return {}
-
-
-# Straat + huisnummer
-# MAILADDRESS
-
-# Postcode
-# ZIPCODE
-
-# Verblijsobjectidentificatie
-# PHONE
-
-# Ligplaatsidentificatie
-# Text11
-
-# Straat
-# TEXT8
-
-# Huisnummer
-# INITIALS
-
-# Letter
-# FAX1
-
-# Toevoeging
-# PHONE2
-
-# Example parameters:
-# "TEXT8 eq 'Herengracht' and INITIALS eq '1'"
-# book_id="90642DCCC2DB46469657C3D0DF0B1ED7"
-
-# Bag id:
-# PHONE eq ''
-
-# Objectboeken:
-# BAG Objecten: 90642DCCC2DB46469657C3D0DF0B1ED7
-# Objecten onbekend: B1FF791EA9FA44698D5ABBB1963B94EC
-def get_decos_join_permit(query, book_id):
-
-    print("Starting Decos Join Request")
-    url = f"https://decosdvl.acc.amsterdam.nl:443/decosweb/aspx/api/v1/items/{book_id}/COBJECTS?filter={query}"
-
-    # Root
-    data = generic_decos_request(url)
-
-    # Nested Items
-    items = data.get("links", [])
-    items_urls = [item.get("href") for item in items]
-    data_items = [generic_decos_request(url) for url in items_urls]
-
-    return {"root": data, "items": data_items}
-
-
-def get_decos_join_request(query):
-    print("Starting Decos Join Request")
-    url = f"https://decosdvl.acc.amsterdam.nl:443/decosweb/aspx/api/v1/{query}"
-
-    data = generic_decos_request(url)
-
-    # Nested Items
-    # items = data.get("links", [])
-    # items_urls = [item.get("href") for item in items]
-    # data_items = [generic_decos_request(url) for url in items_urls]
-
-    return {"root": data}
-
-
-def get_decos_join_request_swagger(query):
-    print("Starting Decos Join Request")
-    url = f"https://decosdvl.amsterdam.nl/decosweb/aspx/api/v1/{query}"
-
-    headers = {"Accept": "application/itemdata"}
-    username = settings.DECOS_JOIN_USERNAME
-    password = settings.DECOS_JOIN_PASSWORD_PROD
-    response = requests.get(url, headers=headers, timeout=8, auth=(username, password))
-
-    # Nested Items
-    # items = data.get("links", [])
-    # items_urls = [item.get("href") for item in items]
-    # data_items = [generic_decos_request(url) for url in items_urls]
-
-    return response
-
-
 class DecosJoinRequest:
     """
     Object to connect to decos join and retrieve permits
@@ -125,10 +24,8 @@ class DecosJoinRequest:
 
     def _process_request_to_decos_join(self, url):
         try:
-            userpass = settings.DECOS_JOIN_USERNAME + ":" + settings.DECOS_JOIN_PASSWORD
-            encoded_u = base64.b64encode(userpass.encode()).decode()
             headers = {
-                "Authorization": "Basic %s" % encoded_u,
+                "Authorization": f"Basic {settings.DECOS_JOIN_AUTH_BASE64}",
                 "Accept": "application/itemdata",
                 "content-type": "application/json",
             }
