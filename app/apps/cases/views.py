@@ -6,7 +6,11 @@ import requests
 from apps.addresses.models import Address
 from apps.cases.filters import CaseFilter
 from apps.cases.models import Case, CaseState, CaseStateType
-from apps.cases.serializers import CaseSerializer
+from apps.cases.serializers import (
+    CaseSerializer,
+    CaseStateSerializer,
+    PushCaseStateSerializer,
+)
 from apps.debriefings.mixins import DebriefingsMixin
 from apps.debriefings.models import Debriefing
 from apps.events.mixins import CaseEventsMixin
@@ -16,9 +20,11 @@ from apps.users.models import User
 from apps.visits.models import Visit
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
+from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from model_bakery import baker
 from rest_framework import serializers, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import APIException
 from rest_framework.generics import (
     ListAPIView,
     ListCreateAPIView,
@@ -46,6 +52,44 @@ class TestEndPointViewSet(ViewSet):
         if serializer.is_valid():
             response = requests.get(serializer.data["request_url"])
         return Response(response)
+
+
+class CaseStateViewSet(ViewSet):
+    """
+    Pushes the case state
+    """
+
+    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
+    serializer_class = CaseStateSerializer
+
+    @action(
+        detail=True,
+        url_path="update-from-top",
+        methods=["post"],
+        serializer_class=PushCaseStateSerializer,
+    )
+    def update_from_top(self, request, pk):
+        logger.info("Receiving pushed state")
+        data = request.data
+        serializer = self.serializer_class(data=data)
+
+        if not serializer.is_valid():
+            logger.error("Serializer error: {serializer.errors}")
+            raise APIException(f"Serializer error: {serializer.errors}")
+
+        try:
+            case_state = CaseState.objects.get(id=pk)
+            case_state.users.clear()
+            user_emails = data.get("user_emails", [])
+
+            for user_email in user_emails:
+                user_object, _ = User.objects.get_or_create(email=user_email)
+                case_state.users.add(user_object)
+
+            return Response(CaseStateSerializer(case_state).data)
+        except Exception as e:
+            logger.error(f"Could not process push data: {e}")
+            raise logger(f"Could not push data: {e}")
 
 
 class CaseViewSet(

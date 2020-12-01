@@ -2,6 +2,10 @@ from rest_framework import serializers
 
 
 class PushStateSerializer(serializers.Serializer):
+    """
+    Serializer for State pushed from Top (this is legacy Stadia data)
+    """
+
     name = serializers.CharField(required=True)
     start_date = serializers.DateField(required=True)
     end_date = serializers.DateField(required=False, allow_null=True)
