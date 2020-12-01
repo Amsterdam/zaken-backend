@@ -71,6 +71,7 @@ class PushViewSet(viewsets.ViewSet):
         case.start_date = start_date
         case.end_date = end_date
         case.address = address
+        case.is_legacy_bwv = True
         case.save()
 
         return case

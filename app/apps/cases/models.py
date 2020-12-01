@@ -20,6 +20,7 @@ class Case(ModelEventEmitter):
     address = models.ForeignKey(
         to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )
+    is_legacy_bwv = models.BooleanField(default=False)
 
     def __get_event_values__(self):
         return {

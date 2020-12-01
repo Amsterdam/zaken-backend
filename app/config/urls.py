@@ -1,5 +1,5 @@
 from apps.addresses.views import AddressViewSet
-from apps.cases.views import CaseViewSet
+from apps.cases.views import CaseStateViewSet, CaseViewSet
 from apps.debriefings.views import DebriefingViewSet
 from apps.gateway.push.views import PushViewSet
 from apps.permits.views import PermitViewSet
@@ -15,10 +15,12 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r"cases", CaseViewSet, basename="cases")
+router.register(r"case-states", CaseStateViewSet, basename="case-states")
 router.register(r"addresses", AddressViewSet, basename="addresses")
 router.register(r"push", PushViewSet, basename="push")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")
 router.register(r"visits", VisitViewSet, basename="visits")
+
 router.register(r"test-permits", PermitViewSet, basename="test-permits")
 
 urlpatterns = [

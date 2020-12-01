@@ -43,3 +43,7 @@ class CaseSerializer(serializers.ModelSerializer):
         case = Case.objects.create(**validated_data, address=address)
 
         return case
+
+
+class PushCaseStateSerializer(serializers.Serializer):
+    user_emails = serializers.ListField(child=serializers.EmailField(), required=True)
