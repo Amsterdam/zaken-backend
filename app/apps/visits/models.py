@@ -31,7 +31,7 @@ class Visit(ModelEventEmitter):
         null=True, blank=True, default=None
     )
     authors = models.ManyToManyField(User)
-    notes = models.TextField()
+    notes = models.TextField(null=True, blank=True)
 
     class Meta:
         ordering = ["-start_time"]
@@ -49,8 +49,9 @@ class Visit(ModelEventEmitter):
             "can_next_visit_go_ahead_description": self.can_next_visit_go_ahead_description,
             "suggest_next_visit": self.suggest_next_visit,
             "suggest_next_visit_description": self.suggest_next_visit_description,
-            "notes": self.notes,
         }
+        if self.notes:
+            json_obj["notes"] = self.notes
         if self.authors:
             json_obj["authors"] = [author.full_name for author in self.authors.all()]
 
