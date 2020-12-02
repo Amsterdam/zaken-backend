@@ -69,7 +69,6 @@ class CaseStateViewSet(ViewSet):
         serializer_class=PushCaseStateSerializer,
     )
     def update_from_top(self, request, pk):
-        print("Receiving pushed state update")
         logger.info("Receiving pushed state update")
         data = request.data
         serializer = self.serializer_class(data=data)
@@ -82,13 +81,11 @@ class CaseStateViewSet(ViewSet):
             case_state = CaseState.objects.get(id=pk)
             case_state.users.clear()
             user_emails = data.get("user_emails", [])
-            print(f"Updating CaseState {len(user_emails)} users")
             logger.info(f"Updating CaseState {len(user_emails)} users")
 
             for user_email in user_emails:
                 user_object, _ = User.objects.get_or_create(email=user_email)
                 case_state.users.add(user_object)
-                print("Added user to CaseState")
                 logger.info("Added user to CaseState")
 
             return Response(CaseStateSerializer(case_state).data)
