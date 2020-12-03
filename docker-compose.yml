@@ -7,7 +7,7 @@ services:
       - top_and_zaak_backend_bridge
     build: app
     ports:
-      - 9000:8000
+      - 8080:8000
       - 5678:5678
     links:
       - database
