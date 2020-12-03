@@ -4,7 +4,7 @@ services:
   zaak-gateway:
     networks:
       - fixxx-looplijsten-backend_looplijsten_backend
-      - backend_link
+      - top_and_zaak_backend_bridge
     build: app
     ports:
       - 9000:8000
