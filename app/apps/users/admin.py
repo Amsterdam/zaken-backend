@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import User
+from .models import SupportContact, User
 
 
 @admin.register(User)
@@ -31,3 +31,6 @@ class UserAdmin(UserAdmin):
     list_display = ("full_name", "email", "is_staff")
     search_fields = ("email",)
     ordering = ("email",)
+
+
+admin.site.register(SupportContact, admin.ModelAdmin)
