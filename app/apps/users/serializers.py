@@ -1,4 +1,3 @@
-from apps.users.models import SupportContact
 from rest_framework import serializers
 
 
@@ -22,9 +21,3 @@ class UserSerializer(serializers.Serializer):
 
 class OIDCAuthenticateSerializer(serializers.Serializer):
     code = serializers.CharField(required=True)
-
-
-class SupportContactSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SupportContact
-        fields = "__all__"

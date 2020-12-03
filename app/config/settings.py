@@ -59,6 +59,7 @@ INSTALLED_APPS = (
     "apps.visits",
     "apps.events",
     "apps.health",
+    "apps.support",
 )
 
 # Add apps here to make them appear in the graphing visualisation

@@ -49,16 +49,3 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         self.username = generate_username(self.email)
         super().save(*args, **kwargs)
-
-
-class SupportContact(models.Model):
-    """
-    Name and phonenumber that users can call if they need support
-    Needs to be a model so that it can be edited in the django admin
-    """
-
-    name = models.CharField(max_length=255)
-    phone_number = models.CharField(max_length=25)
-
-    def __str__(self):
-        return f"Contact {self.name} - {self.phone_number}"

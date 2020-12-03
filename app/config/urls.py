@@ -3,12 +3,8 @@ from apps.cases.views import CaseStateViewSet, CaseViewSet
 from apps.debriefings.views import DebriefingViewSet
 from apps.gateway.push.views import PushViewSet
 from apps.permits.views import PermitViewSet
-from apps.users.views import (
-    IsAuthorizedView,
-    ObtainAuthTokenOIDC,
-    SupportContactView,
-    UserListView,
-)
+from apps.support.views import SupportContactView
+from apps.users.views import IsAuthorizedView, ObtainAuthTokenOIDC, UserListView
 from apps.visits.views import VisitViewSet
 from django.conf import settings
 from django.conf.urls import include, url

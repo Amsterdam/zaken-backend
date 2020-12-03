@@ -10,19 +10,10 @@ from rest_framework.viewsets import ViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .auth import AuthenticationBackend
-from .models import SupportContact, User
-from .serializers import (
-    OIDCAuthenticateSerializer,
-    SupportContactSerializer,
-    UserSerializer,
-)
+from .models import User
+from .serializers import OIDCAuthenticateSerializer, UserSerializer
 
 LOGGER = logging.getLogger(__name__)
-
-
-class SupportContactView(ViewSet, generics.ListAPIView):
-    queryset = SupportContact.objects.all()
-    serializer_class = SupportContactSerializer
 
 
 class UserListView(ViewSet, generics.ListAPIView):
