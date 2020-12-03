@@ -54,7 +54,7 @@ class User(AbstractUser):
 class SupportContact(models.Model):
     """
     Name and phonenumber that users can call if they need support
-    Needs to be a model so that I can be edited in the django admin
+    Needs to be a model so that it can be edited in the django admin
     """
 
     name = models.CharField(max_length=255)
