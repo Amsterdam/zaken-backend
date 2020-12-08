@@ -21,5 +21,5 @@ python manage.py migrate --noinput
 
 # echo Create root user
 # python manage.py shell -c "from apps.users.models import User; User.objects.create_superuser('admin@admin.com', 'admin')"
-
+exec celery -A config worker -l info -D
 exec uwsgi --ini /app/deploy/config.ini #--py-auto-reload=1
