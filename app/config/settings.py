@@ -3,6 +3,7 @@ from datetime import timedelta
 from os.path import join
 
 import sentry_sdk
+from celery.schedules import crontab
 from keycloak_oidc.default_settings import *
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -45,10 +46,14 @@ INSTALLED_APPS = (
     "django_extensions",
     "django_filters",
     "django_spaghetti",
+    "django_celery_beat",
+    "django_celery_results",
     # Health checks. (Expand when more services become available)
     "health_check",
     "health_check.db",
     "health_check.contrib.migrations",
+    "health_check.contrib.rabbitmq",
+    "health_check.contrib.celery_ping",
     # Apps
     "apps.users",
     "apps.cases",
@@ -262,3 +267,19 @@ DECOS_JOIN_VAKANTIEVERHUUR_ID = "TBD"
 DECOS_JOIN_BOOK_KNOWN_BAG_OBJECTS = "90642DCCC2DB46469657C3D0DF0B1ED7"
 DECOS_JOIN_BOOK_UNKNOWN_BOOK = "B1FF791EA9FA44698D5ABBB1963B94EC"
 USE_DECOS_MOCK_DATA = False
+
+RABBIT_MQ_URL = os.getenv("RABBIT_MQ_URL", "https://acc.rabbitmq.data.amsterdam.nl")
+RABBIT_MQ_USERNAME = os.getenv("RABBIT_MQ_USERNAME", "zaken")
+RABBIT_MQ_PASSWORD = os.getenv("RABBIT_MQ_PASSWORD", None)
+
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_BROKER_URL = f"amqp://{os.getenv('RABBIT_MQ_USERNAME')}:{os.getenv('RABBIT_MQ_PASSWORD')}@{os.getenv('RABBIT_MQ_URL')}"
+BROKER_URL = CELERY_BROKER_URL
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_BEAT_SCHEDULE = {
+    "queue_every_five_mins": {
+        "task": "apps.health.tasks.query_every_five_mins",
+        "schedule": crontab(minute=5),
+    },
+}

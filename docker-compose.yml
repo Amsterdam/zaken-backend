@@ -3,82 +3,83 @@ version: "3.5"
 services:
   zaak-gateway:
     networks:
-      - fixxx-looplijsten-backend_looplijsten_backend
+      - zaken_network
       - top_and_zaak_backend_bridge
     build: app
+    hostname: zaak-gateway
+    image: zaak-gateway
     ports:
       - 8080:8000
       - 5678:5678
-    links:
+    depends_on:
       - database
-    environment:
-      # - OPEN_ZAAK_CLIENT=client
-      # - OPEN_ZAAK_SECRET_KEY=secret_key
-      # - OPEN_ZAAK_PORT=8000
-      # - OPEN_ZAAK_API_VERSION=v1
-      # - OPEN_ZAAK_CONTAINER_NAME=openzaak.test
-      - ENVIRONMENT=development
-      - DJANGO_SECRET_KEY=local
-      - UWSGI_HTTP=0.0.0.0:8000
-      - UWSGI_STATIC_MAP=/static=/static
-      - DATABASE_NAME=zaken
-      - DATABASE_USER=zaken
-      - DATABASE_PASSWORD=insecure
-      - DATABASE_HOST=database
-      - DATABASE_PORT=5432
-      - SENTRY_DSN=https://foo@foo.data.amsterdam.nl/0
-      - LOCAL_DEVELOPMENT_AUTHENTICATION=True
-      - SECRET_KEY_TOP_ZAKEN=SECRET_KEY_TOP_ZAKEN
-      - BELASTING_API_URL=https://api-acc.belastingen.centric.eu/bel/inn/afne/vora/v1/vorderingenidentificatienummer/
-      - BAG_API_SEARCH_URL=https://api.data.amsterdam.nl/atlas/search/adres/
-      - DECOS_JOIN_USERNAME=ZakenTop
-      - DECOS_JOIN_PASSWORD=insecure
-    command: bash -c "/app/deploy/docker-entrypoint.development.sh"
+    env_file:
+      - .env
+    command: bash -c "/app/wait-for.sh database:5432 && /app/deploy/docker-entrypoint.development.sh"
     volumes:
       - ./app:/app
     stdin_open: true
     tty: true
+
   database:
     networks:
-      - fixxx-looplijsten-backend_looplijsten_backend
+      - zaken_network
     image: amsterdam/postgres11
     shm_size: "512m"
     ports:
       - "6409:5432"
+    env_file:
+      - .env
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3
+    networks:
+      - zaken_network
+    ports:
+      - 5672:5672
+      - 15672:15672
     environment:
-      POSTGRES_DB: zaken
-      POSTGRES_USER: zaken
-      POSTGRES_PASSWORD: insecure
-  # db:
-  #   networks:
-  #     - fixxx-looplijsten-backend_looplijsten_backend
-  #   image: mdillon/postgis
-  # redis:
-  #   networks:
-  #     - fixxx-looplijsten-backend_looplijsten_backend
-  #   image: redis
-  # openzaak.test:
-  #   networks:
-  #     - fixxx-looplijsten-backend_looplijsten_backend
-  #   image: openzaak/open-zaak
-  #   environment:
-  #     - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
-  #     - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
-  #     - IS_HTTPS=no
-  #     - ALLOWED_HOSTS=*
-  #     - SUBPATH=${SUBPATH:-/localhost}
-  #     - CACHE_DEFAULT=redis:6379/0
-  #     - CACHE_AXES=redis:6379/0
-  #     - NOTIFICATIONS_DISABLED=True
-  #     - DEBUG=yes
-  #   ports:
-  #     - 8090:8000
-  #   depends_on:
-  #     - db
-  #     - redis
+      - RABBITMQ_DEFAULT_USER=rabbit_user
+      - RABBITMQ_DEFAULT_PASS=rabbit_password
+
+  zaken_celery_worker:
+    image: zaak-gateway
+    container_name: zaken_celery_worker
+    hostname: zaken_celery_worker
+    command: bash -c "/app/wait-for.sh rabbitmq:5672 && /app/wait-for.sh zaak-gateway:8000 -- /app/celery.sh"
+    depends_on:
+      - zaak-gateway
+      - database
+      - rabbitmq
+    env_file:
+      - .env
+    networks:
+      - zaken_network
+    restart: on-failure
+
+  zaken_celery_beat:
+    image: zaak-gateway
+    container_name: zaken_celery_beat
+    hostname: zaken_celery_beat
+    command: sh -c "/app/wait-for.sh rabbitmq:5672 && /app/wait-for.sh zaak-gateway:8000 -- celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    depends_on:
+      - zaak-gateway
+      - database
+      - rabbitmq
+    env_file:
+      - .env
+    networks:
+      - zaken_network
+    restart: on-failure
+
 
 networks:
-  fixxx-looplijsten-backend_looplijsten_backend:
+  zaken_network:
     external: true
   top_and_zaak_backend_bridge:
     external: true
+
+volumes:
+  postgresql-data:
