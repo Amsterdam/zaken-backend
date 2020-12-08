@@ -272,7 +272,6 @@ RABBIT_MQ_URL = os.getenv("RABBIT_MQ_URL", "https://acc.rabbitmq.data.amsterdam.
 RABBIT_MQ_USERNAME = os.getenv("RABBIT_MQ_USERNAME", "zaken")
 RABBIT_MQ_PASSWORD = os.getenv("RABBIT_MQ_PASSWORD", None)
 
-CELERY_TIMEZONE = "Europe/Amsterdam"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
@@ -280,7 +279,7 @@ BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_BEAT_SCHEDULE = {
     "queue_every_five_mins": {
-        "task": "health.tasks.query_every_five_mins",
-        "schedule": crontab(minute=1),
+        "task": "apps.health.tasks.query_every_five_mins",
+        "schedule": crontab(minute=5),
     },
 }
