@@ -22,7 +22,7 @@ jobs:
       ###################################################
       # BACKEND
       ###################################################
-      - run: docker network create fixxx-looplijsten-backend_looplijsten_backend
+      - run: docker network create zaken_network
         working-directory: backend
 
       - run: docker network create top_and_zaak_backend_bridge
