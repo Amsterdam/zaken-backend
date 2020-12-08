@@ -12,4 +12,4 @@ def do_some_queries():
 
 @celery_app.task
 def query_every_five_mins():
-    pass
+    return Case.objects.count()

@@ -54,9 +54,3 @@ class BAGServiceCheck(APIServiceCheckBackend):
     critical_service = True
     api_url = settings.BAG_API_SEARCH_URL
     verbose_name = "BAG API Endpoint"
-
-
-class RabbitMQServiceCheck(APIServiceCheckBackend):
-    critical_service = True
-    api_url = settings.RABBIT_MQ_URL
-    verbose_name = "Rabbit MQ"

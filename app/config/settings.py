@@ -52,6 +52,8 @@ INSTALLED_APPS = (
     "health_check",
     "health_check.db",
     "health_check.contrib.migrations",
+    "health_check.contrib.rabbitmq",
+    "health_check.contrib.celery_ping",
     # Apps
     "apps.users",
     "apps.cases",
@@ -273,18 +275,12 @@ RABBIT_MQ_PASSWORD = os.getenv("RABBIT_MQ_PASSWORD", None)
 CELERY_TIMEZONE = "Europe/Amsterdam"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
-# CELERY = {
-#     "BROKER_URL": os.getenv("CELERY_BROKER"),
-#     # "CELERY_IMPORTS": ("worker.tasks",),
-#     "CELERY_TASK_SERIALIZER": "json",
-#     "CELERY_RESULT_SERIALIZER": "json",
-#     "CELERY_ACCEPT_CONTENT": ["json"],
-# }
-CELERY_BROKER = "amqp://rabbit_user:rabbit_password@rabbitmq:5672"
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_BEAT_SCHEDULE = {
     "queue_every_five_mins": {
         "task": "health.tasks.query_every_five_mins",
-        "schedule": crontab(minute=5),
+        "schedule": crontab(minute=1),
     },
 }
