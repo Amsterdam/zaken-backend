@@ -5,6 +5,7 @@ from config.celery import debug_task
 from django.conf import settings
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import ServiceUnavailable
+from kombu import Connection
 
 logger = logging.getLogger(__name__)
 
@@ -60,3 +61,26 @@ class BAGServiceCheck(APIServiceCheckBackend):
 class CeleryTest(BaseHealthCheckBackend):
     def check_status(self):
         debug_task.delay()
+
+
+class DebugRabbitMQHealthCheck(BaseHealthCheckBackend):
+    """Health check for RabbitMQ."""
+
+    def check_status(self):
+        """Check RabbitMQ service by opening and closing a broker channel."""
+        logger.info("Checking for a broker_url on django settings...")
+
+        broker_url = getattr(settings, "BROKER_URL", None)
+
+        logger.info("Got %s as the broker_url. Connecting to rabbit...", broker_url)
+        print("Got %s as the broker_url. Connecting to rabbit...", broker_url)
+        logger.info("Attempting to connect to rabbit...")
+        print("Attempting to connect to rabbit...")
+        try:
+            # conn is used as a context to release opened resources later
+            with Connection(broker_url) as conn:
+                conn.connect()
+        except Exception as e:
+            print(e)
+            logger.error(e)
+            self.add_error("Debug Error", e)

@@ -6,6 +6,7 @@ class HealthConfig(AppConfig):
     name = "apps.health"
 
     def ready(self):
-        from .health_checks import BAGServiceCheck
+        from .health_checks import BAGServiceCheck, DebugRabbitMQHealthCheck
 
         plugin_dir.register(BAGServiceCheck)
+        plugin_dir.register(DebugRabbitMQHealthCheck)
