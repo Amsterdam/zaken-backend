@@ -5,6 +5,7 @@ from config.celery import debug_task
 from django.conf import settings
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import ServiceUnavailable
+from kombu import Connection
 
 logger = logging.getLogger(__name__)
 
