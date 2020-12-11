@@ -271,6 +271,7 @@ USE_DECOS_MOCK_DATA = False
 RABBIT_MQ_URL = os.getenv("RABBIT_MQ_URL", "https://acc.rabbitmq.data.amsterdam.nl")
 RABBIT_MQ_USERNAME = os.getenv("RABBIT_MQ_USERNAME", "zaken")
 RABBIT_MQ_PASSWORD = os.getenv("RABBIT_MQ_PASSWORD", None)
+RABBIT_MQ_PORT = 5762
 
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
