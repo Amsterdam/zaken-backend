@@ -274,9 +274,7 @@ RABBIT_MQ_PASSWORD = os.getenv("RABBIT_MQ_PASSWORD", None)
 
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_BROKER_URL = f"amqp://{os.getenv('RABBIT_MQ_USERNAME')}:{os.getenv('RABBIT_MQ_PASSWORD')}@{os.getenv('RABBIT_MQ_URL')}:443".replace(
-    "https://", ""
-)
+CELERY_BROKER_URL = f"amqp://{os.getenv('RABBIT_MQ_USERNAME')}:{os.getenv('RABBIT_MQ_PASSWORD')}@rm01.acc.data.amsterdam.nl"
 BROKER_URL = CELERY_BROKER_URL
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_BEAT_SCHEDULE = {
