@@ -53,7 +53,7 @@ INSTALLED_APPS = (
     "health_check.db",
     "health_check.contrib.migrations",
     "health_check.contrib.rabbitmq",
-    "health_check.contrib.celery_ping",
+    # "health_check.contrib.celery_ping",
     # Apps
     "apps.users",
     "apps.cases",
@@ -271,6 +271,7 @@ USE_DECOS_MOCK_DATA = False
 RABBIT_MQ_URL = os.getenv("RABBIT_MQ_URL", "https://acc.rabbitmq.data.amsterdam.nl")
 RABBIT_MQ_USERNAME = os.getenv("RABBIT_MQ_USERNAME", "zaken")
 RABBIT_MQ_PASSWORD = os.getenv("RABBIT_MQ_PASSWORD", None)
+RABBIT_MQ_PORT = 443
 
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
