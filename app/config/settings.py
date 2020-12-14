@@ -53,7 +53,7 @@ INSTALLED_APPS = (
     "health_check.db",
     "health_check.contrib.migrations",
     "health_check.contrib.rabbitmq",
-    # "health_check.contrib.celery_ping",
+    "health_check.contrib.celery_ping",
     # Apps
     "apps.users",
     "apps.cases",
@@ -267,6 +267,7 @@ DECOS_JOIN_VAKANTIEVERHUUR_ID = "TBD"
 DECOS_JOIN_BOOK_KNOWN_BAG_OBJECTS = "90642DCCC2DB46469657C3D0DF0B1ED7"
 DECOS_JOIN_BOOK_UNKNOWN_BOOK = "B1FF791EA9FA44698D5ABBB1963B94EC"
 USE_DECOS_MOCK_DATA = False
+
 
 RABBIT_MQ_URL = os.getenv("RABBIT_MQ_URL")
 RABBIT_MQ_USERNAME = os.getenv("RABBIT_MQ_USERNAME")
