@@ -73,6 +73,31 @@ services:
     restart: on-failure
 
 
+
+  camunda_db:
+    image: amsterdam/postgres11
+    networks:
+      - zaken_network
+    shm_size: "512m"
+    ports:
+      - "54321:5432"
+    env_file:
+      - camunda.env
+    volumes:
+      - camunda-data:/var/lib/postgresql/data
+
+  camunda:
+    image: camunda/camunda-bpm-platform:7.14.0
+    ports:
+      - 7000:8080
+    env_file:
+      - camunda.env
+    networks:
+      - zaken_network
+    depends_on:
+      - database
+
+
 networks:
   zaken_network:
     external: true
@@ -81,3 +106,4 @@ networks:
 
 volumes:
   postgresql-data:
+  camunda-data:
