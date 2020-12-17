@@ -70,7 +70,6 @@ This will autoformat your code, sort your imports and fix overal problems.
 ## Coding conventions and style
 The project uses [Black](https://github.com/psf/black) for formatting and [Flake8](https://pypi.org/project/flake8/) for linting.
 
-
 ## Configuration
 
 ### Fines
