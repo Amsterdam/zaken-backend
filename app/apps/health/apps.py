@@ -6,7 +6,12 @@ class HealthConfig(AppConfig):
     name = "apps.health"
 
     def ready(self):
-        from .health_checks import BAGServiceCheck, CeleryTest
+        from .health_checks import (
+            BAGServiceCheck,
+            CamundaServiceCheck,
+            CeleryExecuteTask,
+        )
 
         plugin_dir.register(BAGServiceCheck)
-        plugin_dir.register(CeleryTest)
+        plugin_dir.register(CeleryExecuteTask)
+        plugin_dir.register(CamundaServiceCheck)

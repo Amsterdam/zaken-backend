@@ -7,14 +7,22 @@ Make sure you have Docker installed locally:
 
 ## Getting up and running
 Once you have Docker installed, make sure it's running.
-To build and start the project, run:
+First create the external networks using the following commands:
 ```bash
-docker-compose up --build
+docker network create zaken_network
+```
+```bash
+docker network create top_and_zaak_backend_bridge
 ```
 
-If you are running this application without having run the fixxx-looplijsten-backend first, make sure a network is created first:
+Next, build the project:
+```bash
+docker-compose build
 ```
-docker network create fixxx-looplijsten-backend_looplijsten_backend
+
+To start the project, run:
+```bash
+docker-compose up
 ```
 
 ## Django backend
