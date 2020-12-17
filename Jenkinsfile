@@ -24,9 +24,7 @@ pipeline {
     APP = "zaken"
     DOCKER_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken"
 
-    DOCKER_IMAGE_CAMUNDA = "fixxx/zaken-camunda"
     APP_CAMUNDA = "zaken-camunda"
-    DOCKER_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-camunda"
   }
 
   stages {
