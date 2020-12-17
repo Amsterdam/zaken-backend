@@ -8,12 +8,12 @@ def tag_image_as(tag) {
   }
 }
 
-def deploy(environment) {
+def deploy(environment, app_id) {
   build job: 'Subtask_Openstack_Playbook',
     parameters: [
         [$class: 'StringParameterValue', name: 'INVENTORY', value: environment],
         [$class: 'StringParameterValue', name: 'PLAYBOOK', value: 'deploy.yml'],
-        [$class: 'StringParameterValue', name: 'PLAYBOOKPARAMS', value: "-e cmdb_id=app_${env.APP}"],
+        [$class: 'StringParameterValue', name: 'PLAYBOOKPARAMS', value: "-e cmdb_id=app_${app_id}"],
     ]
 }
 
@@ -23,6 +23,10 @@ pipeline {
     DOCKER_IMAGE = "fixxx/zaken"
     APP = "zaken"
     DOCKER_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken"
+
+    DOCKER_IMAGE_CAMUNDA = "fixxx/zaken-camunda"
+    APP_CAMUNDA = "zaken-camunda"
+    DOCKER_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-camunda"
   }
 
   stages {
@@ -67,7 +71,8 @@ pipeline {
       }
       steps {
         tag_image_as("acceptance")
-        deploy("acceptance")
+        deploy("acceptance", env.APP)
+        deploy("acceptance", env.APP_CAMUNDA)
       }
     }
 
@@ -76,7 +81,8 @@ pipeline {
       steps {
         tag_image_as("production")
         tag_image_as(env.TAG_NAME)
-        deploy("production")
+        deploy("production", env.APP)
+        deploy("production", env.APP_CAMUNDA)
       }
     }
 
