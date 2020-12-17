@@ -285,3 +285,5 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute=5),
     },
 }
+
+CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
