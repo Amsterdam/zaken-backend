@@ -10,8 +10,10 @@ class HealthConfig(AppConfig):
             BAGServiceCheck,
             CamundaServiceCheck,
             CeleryExecuteTask,
+            OpenZaakCheck,
         )
 
         plugin_dir.register(BAGServiceCheck)
         plugin_dir.register(CeleryExecuteTask)
         plugin_dir.register(CamundaServiceCheck)
+        plugin_dir.register(OpenZaakCheck)
