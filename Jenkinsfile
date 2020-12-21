@@ -70,7 +70,7 @@ pipeline {
       steps {
         tag_image_as("acceptance")
         deploy("acceptance", env.APP)
-        deploy("acceptance", env.APP_CAMUNDA)
+        // deploy("acceptance", env.APP_CAMUNDA)
       }
     }
 
@@ -80,7 +80,7 @@ pipeline {
         tag_image_as("production")
         tag_image_as(env.TAG_NAME)
         deploy("production", env.APP)
-        deploy("production", env.APP_CAMUNDA)
+        // deploy("production", env.APP_CAMUNDA)
       }
     }
 
