@@ -13,24 +13,16 @@ def get_fines(id):
     """
     Search the Belasting API for fines with case_id identification
     """
-
-    print(f"Retrieving fines for {id}")
     parameter = {"identificatienummer": id}
     header = {"authorization": f"Bearer {settings.BELASTING_API_ACCESS_TOKEN}"}
 
-    try:
-        response = requests.get(
-            url=settings.BELASTING_API_URL,
-            headers=header,
-            params=parameter,
-            verify="/usr/local/share/ca-certificates/adp_rootca.crt",
-        )
-    except Exception as e:
-        print(e)
-
+    response = requests.get(
+        url=settings.BELASTING_API_URL,
+        headers=header,
+        params=parameter,
+        verify="/usr/local/share/ca-certificates/adp_rootca.crt",
+    )
     response.raise_for_status()
-
-    print(response.json())
 
     return response.json()
 
