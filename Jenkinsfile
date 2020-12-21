@@ -8,12 +8,12 @@ def tag_image_as(tag) {
   }
 }
 
-def deploy(environment, app_id) {
+def deploy(environment) {
   build job: 'Subtask_Openstack_Playbook',
     parameters: [
         [$class: 'StringParameterValue', name: 'INVENTORY', value: environment],
         [$class: 'StringParameterValue', name: 'PLAYBOOK', value: 'deploy.yml'],
-        [$class: 'StringParameterValue', name: 'PLAYBOOKPARAMS', value: "-e cmdb_id=app_${app_id}"],
+        [$class: 'StringParameterValue', name: 'PLAYBOOKPARAMS', value: "-e cmdb_id=app_${env.APP}"],
     ]
 }
 
@@ -69,7 +69,7 @@ pipeline {
       }
       steps {
         tag_image_as("acceptance")
-        deploy("acceptance", env.APP)
+        deploy("acceptance")
         // deploy("acceptance", env.APP_CAMUNDA)
       }
     }
@@ -79,7 +79,7 @@ pipeline {
       steps {
         tag_image_as("production")
         tag_image_as(env.TAG_NAME)
-        deploy("production", env.APP)
+        deploy("production")
         // deploy("production", env.APP_CAMUNDA)
       }
     }
