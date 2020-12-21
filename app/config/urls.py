@@ -1,6 +1,7 @@
 from apps.addresses.views import AddressViewSet
 from apps.cases.views import CaseStateViewSet, CaseViewSet
 from apps.debriefings.views import DebriefingViewSet
+from apps.fines.views import FinesViewSet
 from apps.gateway.push.views import PushViewSet
 from apps.permits.views import PermitViewSet
 from apps.support.views import SupportContactView
@@ -22,6 +23,7 @@ router.register(r"debriefings", DebriefingViewSet, basename="debriefings")
 router.register(r"push", PushViewSet, basename="push")
 router.register(r"support-contacts", SupportContactView, basename="support-contact")
 router.register(r"visits", VisitViewSet, basename="visits")
+router.register(r"fines", FinesViewSet, basename="fines")
 
 router.register(r"test-permits", PermitViewSet, basename="test-permits")
 
