@@ -189,7 +189,7 @@ OIDC_OP_USER_ENDPOINT
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", None)
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", None)
 OIDC_USE_NONCE = False
-OIDC_AUTHORIZED_GROUPS = ("wonen_zaaksysteem",)
+OIDC_AUTHORIZED_GROUPS = ("wonen_zaaksysteem", "wonen_zaak")
 OIDC_AUTHENTICATION_CALLBACK_URL = "oidc-authenticate"
 
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv(
