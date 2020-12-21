@@ -117,3 +117,13 @@ class DecosJoinCheck(BaseHealthCheckBackend):
             assert response, "Authenticated request failed"
         except Exception as e:
             self.add_error(ServiceUnavailable("Failed"), e)
+
+
+class KeycloakCheck(APIServiceCheckBackend):
+    """
+    Endpoint for checking Keycloak
+    """
+
+    critical_service = True
+    api_url = settings.OIDC_OP_JWKS_ENDPOINT
+    verbose_name = "Keycloak"
