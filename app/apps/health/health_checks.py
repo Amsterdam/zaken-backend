@@ -101,3 +101,19 @@ class BelastingDienstCheck(BaseHealthCheckBackend):
             get_fines("foo-id")
         except Exception as e:
             self.add_error(ServiceUnavailable("Failed"), e)
+
+
+class DecosJoinCheck(BaseHealthCheckBackend):
+    """
+    Tests an authenticated request to Decos Join
+    """
+
+    def check_status(self):
+        from apps.permits.api_queries_decos_join import DecosJoinRequest
+
+        try:
+            # The address doesn't matter, as long an authenticated request is succesful.
+            response = DecosJoinRequest().get_decos_object_with_address("foo")
+            assert response, "Authenticated request failed"
+        except Exception as e:
+            self.add_error(ServiceUnavailable("Failed"), e)

@@ -1,10 +1,10 @@
-from rest_framework import status
-from rest_framework.viewsets import ViewSet
-from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema
-
-from apps.fines.serializers import FineListSerializer
 from apps.fines.api_queries_belastingen import get_fines
+from apps.fines.serializers import FineListSerializer
+from drf_spectacular.utils import extend_schema
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.viewsets import ViewSet
+
 
 class FinesViewSet(ViewSet):
     @extend_schema(
@@ -22,6 +22,5 @@ class FinesViewSet(ViewSet):
 
         if serializer.is_valid():
             return Response(serializer.data)
-    
-        return Response(serializer.initial_data)
 
+        return Response(serializer.initial_data)

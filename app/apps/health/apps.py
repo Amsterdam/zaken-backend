@@ -10,11 +10,10 @@ class HealthConfig(AppConfig):
             BAGServiceCheck,
             BelastingDienstCheck,
             CeleryExecuteTask,
+            DecosJoinCheck,
         )
 
         plugin_dir.register(BAGServiceCheck)
-        plugin_dir.register(CeleryExecuteTask)
-
-        plugin_dir.register(BAGServiceCheck)
-        plugin_dir.register(CeleryExecuteTask)
         plugin_dir.register(BelastingDienstCheck)
+        plugin_dir.register(CeleryExecuteTask)
+        plugin_dir.register(DecosJoinCheck)
