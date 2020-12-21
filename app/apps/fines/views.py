@@ -18,7 +18,7 @@ class FinesViewSet(ViewSet):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = FineListSerializer(data=response)
+        serializer = FineListSerializer(data=fines)
 
         if serializer.is_valid():
             return Response(serializer.data)
