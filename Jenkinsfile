@@ -66,7 +66,7 @@ pipeline {
 
       steps {
         script {
-          def image = docker.image("camunda/camunda-bpm-platform:7.14.0")
+          def image = docker.image("registry.hub.docker.com/library/camunda/camunda-bpm-platform:7.14.0")
           image.push("acceptance")
           image.push("production")
         }
