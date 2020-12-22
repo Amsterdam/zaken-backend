@@ -8,12 +8,12 @@ def tag_image_as(tag) {
   }
 }
 
-def deploy(environment) {
+def deploy(environment, app) {
   build job: 'Subtask_Openstack_Playbook',
     parameters: [
         [$class: 'StringParameterValue', name: 'INVENTORY', value: environment],
         [$class: 'StringParameterValue', name: 'PLAYBOOK', value: 'deploy.yml'],
-        [$class: 'StringParameterValue', name: 'PLAYBOOKPARAMS', value: "-e cmdb_id=app_${env.APP}"],
+        [$class: 'StringParameterValue', name: 'PLAYBOOKPARAMS', value: "-e cmdb_id=app_${app}"],
     ]
 }
 
@@ -62,6 +62,17 @@ pipeline {
       }
     }
 
+    stage("Pull and push docker image") {
+
+      steps {
+        script {
+          def image = docker.image("camunda/camunda-bpm-platform:7.14.0")
+          image.push("acceptance")
+          image.push("production")
+        }
+      }
+    }    
+
     stage("Push and deploy acceptance image") {
       when {
         not { buildingTag() }
@@ -69,8 +80,8 @@ pipeline {
       }
       steps {
         tag_image_as("acceptance")
-        deploy("acceptance")
-        // deploy("acceptance", env.APP_CAMUNDA)
+        deploy("acceptance", env.APP)
+        deploy("acceptance", env.APP_CAMUNDA)
       }
     }
 
@@ -79,8 +90,8 @@ pipeline {
       steps {
         tag_image_as("production")
         tag_image_as(env.TAG_NAME)
-        deploy("production")
-        // deploy("production", env.APP_CAMUNDA)
+        deploy("production", env.APP)
+        deploy("production", env.APP_CAMUNDA)
       }
     }
 
