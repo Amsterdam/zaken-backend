@@ -17,8 +17,7 @@ def deploy(environment, app) {
     ]
 }
 
-def build(docker_image_url, src)
-{
+def build_image(docker_image_url, src) {
   script {
     def image = docker.build("${docker_image_url}:${env.COMMIT_HASH}",
       "--no-cache " +
@@ -62,8 +61,8 @@ pipeline {
       // without passing through acceptance)
       //when { not { buildingTag() } }
       steps {
-        build(DOCKER_IMAGE_URL, "./app")
-        build(CAMUNDA_DOCKER_IMAGE_URL, "./camunda")
+        build_image(DOCKER_IMAGE_URL, "./app")
+        build_image(CAMUNDA_DOCKER_IMAGE_URL, "./camunda")
       }
     }
 
