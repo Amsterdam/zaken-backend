@@ -9,6 +9,7 @@ class HealthConfig(AppConfig):
         from .health_checks import (
             BAGServiceCheck,
             BelastingDienstCheck,
+            CamundaServiceCheck,
             CeleryExecuteTask,
             DecosJoinCheck,
             KeycloakCheck,
@@ -19,3 +20,4 @@ class HealthConfig(AppConfig):
         plugin_dir.register(CeleryExecuteTask)
         plugin_dir.register(DecosJoinCheck)
         plugin_dir.register(KeycloakCheck)
+        plugin_dir.register(CamundaServiceCheck)

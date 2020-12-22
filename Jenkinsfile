@@ -71,7 +71,7 @@ pipeline {
           image.push("production")
         }
       }
-    }    
+    }
 
     stage("Push and deploy acceptance image") {
       when {
