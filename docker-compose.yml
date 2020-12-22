@@ -82,7 +82,7 @@ services:
     ports:
       - "54321:5432"
     env_file:
-      - camunda.env
+      - camunda/.env
     volumes:
       - camunda-data:/var/lib/postgresql/data
 
@@ -91,7 +91,7 @@ services:
     ports:
       - 7000:8080
     env_file:
-      - camunda.env
+      - camunda/.env
     networks:
       - zaken_network
     depends_on:
