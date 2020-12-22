@@ -17,14 +17,28 @@ def deploy(environment, app) {
     ]
 }
 
+def build(docker_image_url, src)
+{
+  script {
+    def image = docker.build("${docker_image_url}:${env.COMMIT_HASH}",
+      "--no-cache " +
+      "--shm-size 1G " +
+      "--build-arg COMMIT_HASH=${env.COMMIT_HASH} " +
+      "--build-arg BRANCH_NAME=${env.BRANCH_NAME} " +
+      " ${src}")
+    image.push()
+    tag_image_as("latest")
+  }
+}
+
 pipeline {
   agent any
   environment {
-    DOCKER_IMAGE = "fixxx/zaken"
     APP = "zaken"
     DOCKER_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken"
 
     APP_CAMUNDA = "zaken-camunda"
+    CAMUNDA_DOCKER_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-camunda"
   }
 
   stages {
@@ -33,22 +47,6 @@ pipeline {
         checkout scm
         script {
           env.COMMIT_HASH = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
-        }
-      }
-    }
-
-    stage("Pull and push docker image") {
-
-      steps {
-        script {
-          image = null;
-          docker.withRegistry('https://registry.hub.docker.com')
-          {
-            image = docker.image("camunda/camunda-bpm-platform:7.14.0")
-          }
-
-          image.push("acceptance")
-          image.push("production")
         }
       }
     }
@@ -63,18 +61,9 @@ pipeline {
       // (looplijsten actually wants to be able to hotfix to production,
       // without passing through acceptance)
       //when { not { buildingTag() } }
-
       steps {
-        script {
-          def image = docker.build("${DOCKER_IMAGE_URL}:${env.COMMIT_HASH}",
-            "--no-cache " +
-            "--shm-size 1G " +
-            "--build-arg COMMIT_HASH=${env.COMMIT_HASH} " +
-            "--build-arg BRANCH_NAME=${env.BRANCH_NAME} " +
-            " ./app")
-          image.push()
-          tag_image_as("latest")
-        }
+        build(DOCKER_IMAGE_URL, "./app")
+        build(CAMUNDA_DOCKER_IMAGE_URL, "./camunda")
       }
     }
 
