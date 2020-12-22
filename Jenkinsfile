@@ -1,10 +1,10 @@
 #!groovy
 
 // tag image, push to repo, remove local tagged image
-def tag_image_as(tag) {
+def tag_image_as(tag, docker_image_url) {
   script {
-    docker.image("${DOCKER_IMAGE_URL}:${env.COMMIT_HASH}").push(tag)
-    sh "docker rmi ${DOCKER_IMAGE_URL}:${tag} || true"
+    docker.image("${docker_image_url}:${env.COMMIT_HASH}").push(tag)
+    sh "docker rmi ${docker_image_url}:${tag} || true"
   }
 }
 
@@ -26,8 +26,13 @@ def build_image(docker_image_url, src) {
       "--build-arg BRANCH_NAME=${env.BRANCH_NAME} " +
       " ${src}")
     image.push()
-    tag_image_as("latest")
+    tag_image_as("latest", docker_image_url)
   }
+}
+
+def remove_image(docker_image_url) {
+    // delete original image built on the build server
+    sh "docker rmi ${docker_image_url}:${env.COMMIT_HASH} || true"
 }
 
 pipeline {
@@ -51,15 +56,6 @@ pipeline {
     }
 
     stage("Build docker image") {
-      // We only build a docker image when we're not deploying to production,
-      // to make make sure images deployed to production are deployed to
-      // acceptance first.
-      //
-      // To deploy to production, tag an existing commit (that has already been
-      // build) and push the tag.
-      // (looplijsten actually wants to be able to hotfix to production,
-      // without passing through acceptance)
-      //when { not { buildingTag() } }
       steps {
         build_image(DOCKER_IMAGE_URL, "./app")
         build_image(CAMUNDA_DOCKER_IMAGE_URL, "./camunda")
@@ -72,8 +68,10 @@ pipeline {
         branch 'master'
       }
       steps {
-        tag_image_as("acceptance")
+        tag_image_as("acceptance", env.APP)
         deploy("acceptance", env.APP)
+
+        tag_image_as("acceptance", env.APP)
         deploy("acceptance", env.APP_CAMUNDA)
       }
     }
@@ -81,20 +79,20 @@ pipeline {
     stage("Push and deploy production image") {
       when { buildingTag() }
       steps {
-        tag_image_as("production")
-        tag_image_as(env.TAG_NAME)
+        tag_image_as("production", env.APP)
         deploy("production", env.APP)
+
+        tag_image_as("production", env.APP_CAMUNDA)
         deploy("production", env.APP_CAMUNDA)
       }
     }
-
   }
 
   post {
     always {
       script {
-        // delete original image built on the build server
-        sh "docker rmi ${DOCKER_IMAGE_URL}:${env.COMMIT_HASH} || true"
+        remove_image(env.DOCKER_IMAGE_URL)
+        remove_image(env.CAMUNDA_DOCKER_IMAGE_URL)
       }
     }
   }
