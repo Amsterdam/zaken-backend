@@ -37,7 +37,14 @@ pipeline {
       }
     }
 
-    stage("Build docker image") {
+    stage("Ready Docker images") {
+      steps {
+        script {
+          def image = docker.image("registry.hub.docker.com/library/camunda/camunda-bpm-platform:7.14.0")
+          image.push("acceptance")
+          image.push("production")
+        }
+      }
       // We only build a docker image when we're not deploying to production,
       // to make make sure images deployed to production are deployed to
       // acceptance first.
@@ -58,17 +65,6 @@ pipeline {
             " ./app")
           image.push()
           tag_image_as("latest")
-        }
-      }
-    }
-
-    stage("Pull and push docker image") {
-
-      steps {
-        script {
-          def image = docker.image("registry.hub.docker.com/library/camunda/camunda-bpm-platform:7.14.0")
-          image.push("acceptance")
-          image.push("production")
         }
       }
     }
@@ -94,7 +90,6 @@ pipeline {
         deploy("production", env.APP_CAMUNDA)
       }
     }
-
   }
 
   post {
