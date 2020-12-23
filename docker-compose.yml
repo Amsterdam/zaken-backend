@@ -13,6 +13,7 @@ services:
       - 5678:5678
     depends_on:
       - database
+      - openzaak
     env_file:
       - .env
     command: bash -c "/app/wait-for.sh database:5432 && /app/deploy/docker-entrypoint.development.sh"
@@ -72,8 +73,6 @@ services:
       - zaken_network
     restart: on-failure
 
-
-
   camunda_db:
     image: amsterdam/postgres11
     networks:
@@ -97,6 +96,31 @@ services:
     depends_on:
       - database
 
+  openzaak:
+    image: openzaak/open-zaak
+    networks:
+      - zaken_network
+    ports:
+      - 8090:8000
+    env_file:
+      - open-zaak/.env
+    depends_on:
+      - openzaak_database
+      - openzaak_redis
+
+  openzaak_database:
+    image: amsterdam/postgres11
+    env_file:
+      - open-zaak/.env
+    networks:
+      - zaken_network
+    volumes:
+      - openzaak-data:/var/lib/postgresql/data
+
+  openzaak_redis:
+    image: redis
+    networks:
+      - zaken_network
 
 networks:
   zaken_network:
@@ -107,3 +131,4 @@ networks:
 volumes:
   postgresql-data:
   camunda-data:
+  openzaak-data:

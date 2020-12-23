@@ -1,2 +1,2 @@
-bash install.sh
+bash install_pre_commit.sh
 pre-commit run --all-files

@@ -61,6 +61,14 @@ pipeline {
     CAMUNDA_SOURCE = "./camunda"
     CAMUNDA_NAME = "zaken-camunda"
 
+    REDIS_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-redis"
+    REDIS_SOURCE = "./redis"
+    REDIS_NAME = "zaken-redis"
+
+    OPEN_ZAAK_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-open-zaak"
+    OPEN_ZAAK_SOURCE = "./open-zaak"
+    OPEN_ZAAK_NAME = "zaken-open-zaak"
+
   }
 
   stages {
@@ -77,6 +85,8 @@ pipeline {
       steps {
         build_image(env.ZAKEN_IMAGE_URL, env.ZAKEN_SOURCE)
         build_image(env.CAMUNDA_IMAGE_URL, env.CAMUNDA_SOURCE)
+        build_image(env.REDIS_IMAGE_URL, env.REDIS_SOURCE)
+        build_image(env.OPEN_ZAAK_IMAGE_URL, env.OPEN_ZAAK_SOURCE)
       }
     }
 
@@ -88,6 +98,8 @@ pipeline {
       steps {
         tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.ACCEPTANCE)
         tag_and_deploy(env.CAMUNDA_IMAGE_URL, env.CAMUNDA_NAME, env.ACCEPTANCE)
+        tag_and_deploy(env.REDIS_IMAGE_URL, env.REDIS_NAME, env.ACCEPTANCE)
+        tag_and_deploy(env.OPEN_ZAAK_IMAGE_URL, env.OPEN_ZAAK_NAME, env.ACCEPTANCE)
       }
     }
 
@@ -97,6 +109,8 @@ pipeline {
       steps {
         tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.PRODUCTION)
         tag_and_deploy(env.CAMUNDA_IMAGE_URL, env.CAMUNDA_NAME, env.PRODUCTION)
+        tag_and_deploy(env.REDIS_IMAGE_URL, env.REDIS_NAME, env.PRODUCTION)
+        tag_and_deploy(env.OPEN_ZAAK_IMAGE_URL, env.OPEN_ZAAK_NAME, env.PRODUCTION)
       }
     }
   }
@@ -105,6 +119,8 @@ pipeline {
     always {
         remove_image(env.ZAKEN_IMAGE_URL)
         remove_image(env.CAMUNDA_IMAGE_URL)
+        remove_image(env.REDIS_IMAGE_URL)
+        remove_image(env.OPEN_ZAAK_IMAGE_URL)
     }
   }
 }
