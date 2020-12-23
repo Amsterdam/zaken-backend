@@ -50,7 +50,8 @@ def get_apps(docker_registry){
 pipeline {
   agent any
   environment {
-    DOCKER_REGISTRY_NO_PROTOCOL = DOCKER_REGISTRY_NO_PROTOCOL
+    PRODUCTION = "production"
+    ACCEPTANCE = "acceptance"
   }
 
   stages {
@@ -83,8 +84,8 @@ pipeline {
         script {
           apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
           apps.each { app ->
-            tag_image_as(app.docker_image_url, "acceptance")
-            deploy(app.name, "acceptance")
+            tag_image_as(app.docker_image_url, env.ACCEPTANCE)
+            deploy(app.name, env.ACCEPTANCE)
           }
         }
       }
@@ -96,8 +97,8 @@ pipeline {
         script {
           apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
           apps.each { app ->
-            tag_image_as(app.docker_image_url, "production")
-            deploy(app.name, "production")
+            tag_image_as(app.docker_image_url, env.PRODUCTION)
+            deploy(app.name, env.PRODUCTION)
           }
         }
       }
