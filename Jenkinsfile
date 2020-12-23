@@ -20,8 +20,10 @@ def deploy(app_name, environment) {
 
 def tag_and_deploy(docker_image_url, app_name, environment) {
   // Tags the Docker with the environment, en deploys to the same environment
-  tag_image_as(docker_image_url, environment)
-  deploy(app_name, environment)
+  script {
+    tag_image_as(docker_image_url, environment)
+    deploy(app_name, environment)
+  }
 }
 
 def build_image(docker_image_url, source) {
@@ -40,7 +42,9 @@ def build_image(docker_image_url, source) {
 
 def remove_image(docker_image_url) {
     // delete original image built on the build server
-    sh "docker rmi ${docker_image_url}:${env.COMMIT_HASH} || true"
+    script {
+      sh "docker rmi ${docker_image_url}:${env.COMMIT_HASH} || true"
+    }
 }
 
 pipeline {
@@ -99,10 +103,8 @@ pipeline {
 
   post {
     always {
-      script {
         remove_image(env.ZAKEN_IMAGE_URL)
         remove_image(env.CAMUNDA_IMAGE_URL)
-      }
     }
   }
 }
