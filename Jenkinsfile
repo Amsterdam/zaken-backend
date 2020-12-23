@@ -58,7 +58,7 @@ pipeline {
     stage("Build docker image") {
       steps {
         build_image(env.DOCKER_IMAGE_URL, "./app")
-        build_image(env.CAMUNDA_DOCKER_IMAGE_URL, "./camunda")
+        // build_image(env.CAMUNDA_DOCKER_IMAGE_URL, "./camunda")
       }
     }
 
@@ -71,8 +71,8 @@ pipeline {
         tag_image_as(env.DOCKER_IMAGE_URL, "acceptance")
         deploy(env.APP, "acceptance")
 
-        tag_image_as(env.CAMUNDA_DOCKER_IMAGE_URL, "acceptance")
-        deploy(env.APP_CAMUNDA, "acceptance", )
+        // tag_image_as(env.CAMUNDA_DOCKER_IMAGE_URL, "acceptance")
+        // deploy(env.APP_CAMUNDA, "acceptance", )
       }
     }
 
@@ -82,8 +82,8 @@ pipeline {
         tag_image_as(env.DOCKER_IMAGE_URL, "production")
         deploy(env.APP, "production")
 
-        tag_image_as(env.CAMUNDA_DOCKER_IMAGE_URL, "production")
-        deploy(env.APP_CAMUNDA, "production")
+        // tag_image_as(env.CAMUNDA_DOCKER_IMAGE_URL, "production")
+        // deploy(env.APP_CAMUNDA, "production")
       }
     }
   }
@@ -92,7 +92,7 @@ pipeline {
     always {
       script {
         remove_image(env.DOCKER_IMAGE_URL)
-        remove_image(env.CAMUNDA_DOCKER_IMAGE_URL)
+        // remove_image(env.CAMUNDA_DOCKER_IMAGE_URL)
       }
     }
   }
