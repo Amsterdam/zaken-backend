@@ -67,7 +67,7 @@ pipeline {
 
     OPEN_ZAAK_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-open-zaak"
     OPEN_ZAAK_SOURCE = "./open-zaak"
-    OPEN_NAME = "zaken-open-zaak"
+    OPEN_ZAAK_NAME = "zaken-open-zaak"
 
   }
 
