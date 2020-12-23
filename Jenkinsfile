@@ -1,7 +1,7 @@
 #!groovy
 
 def tag_image_as(docker_image_url, tag) {
-  // tag image, push to repo, remove local tagged image
+  // Tag image, push to repo, remove local tagged image
   script {
     docker.image("${docker_image_url}:${env.COMMIT_HASH}").push(tag)
     sh "docker rmi ${docker_image_url}:${tag} || true"
@@ -9,6 +9,7 @@ def tag_image_as(docker_image_url, tag) {
 }
 
 def deploy(app_name, environment) {
+  // Deploys the app to the given environment
   build job: 'Subtask_Openstack_Playbook',
     parameters: [
         [$class: 'StringParameterValue', name: 'INVENTORY', value: environment],
@@ -17,7 +18,16 @@ def deploy(app_name, environment) {
     ]
 }
 
+def tag_and_deploy(docker_image_url, app_name, environment) {
+  // Tags the Docker with the environment, en deploys to the same environment
+  script {
+    tag_image_as(docker_image_url, environment)
+    deploy(app_name, environment)
+  }
+}
+
 def build_image(docker_image_url, source) {
+  // Builds the image given the source, and pushes it to the Amsterdam Docker registry
   script {
     def image = docker.build("${docker_image_url}:${env.COMMIT_HASH}",
       "--no-cache " +
@@ -32,24 +42,26 @@ def build_image(docker_image_url, source) {
 
 def remove_image(docker_image_url) {
     // delete original image built on the build server
-    sh "docker rmi ${docker_image_url}:${env.COMMIT_HASH} || true"
-}
-
-def get_apps(docker_registry){
-    // Configure which apps you want to deploy here
-    apps = [
-      [name: "zaken", docker_image_url: "${docker_registry}/fixxx/zaken", source: "./app"]
-      [name: "zaken-camunda", docker_image_url: "${docker_registry}/fixxx/zaken-camunda", source: "./camunda"]
-      [name: "zaken-open-zaak", docker_image_url: "${docker_registry}/fixxx/zaken-open-zaak", source: "./open-zaak"]
-      [name: "zaken-redis", docker_image_url: "${docker_registry}/fixxx/zaken-redis", source: "./redis"]
-    ]
-
-    return apps
+    script {
+      sh "docker rmi ${docker_image_url}:${env.COMMIT_HASH} || true"
+    }
 }
 
 pipeline {
   agent any
-  environment {}
+  environment {
+    PRODUCTION = "production"
+    ACCEPTANCE = "acceptance"
+
+    ZAKEN_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken"
+    ZAKEN_SOURCE = "./app"
+    ZAKEN_NAME = "zaken"
+
+    CAMUNDA_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-camunda"
+    CAMUNDA_SOURCE = "./camunda"
+    CAMUNDA_NAME = "zaken-camunda"
+
+  }
 
   stages {
     stage("Checkout") {
@@ -63,10 +75,8 @@ pipeline {
 
     stage("Build docker images") {
       steps {
-        apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
-        apps.each { app ->
-          build_image(app.docker_image_url, app.source)
-        }
+        build_image(env.ZAKEN_IMAGE_URL, env.ZAKEN_SOURCE)
+        build_image(env.CAMUNDA_IMAGE_URL, env.CAMUNDA_SOURCE)
       }
     }
 
@@ -76,34 +86,25 @@ pipeline {
         branch 'master'
       }
       steps {
-        apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
-        apps.each { app ->
-          tag_image_as(app.docker_image_url, "acceptance")
-          deploy(app.name, "acceptance")
-        }
+        tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.ACCEPTANCE)
+        tag_and_deploy(env.CAMUNDA_IMAGE_URL, env.CAMUNDA_NAME, env.ACCEPTANCE)
       }
     }
 
     stage("Push and deploy production images") {
+      // Only deploy to production if there is a tag
       when { buildingTag() }
       steps {
-        apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
-        apps.each { app ->
-          tag_image_as(app.docker_image_url, "production")
-          deploy(app.name, "production")
-        }
+        tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.PRODUCTION)
+        tag_and_deploy(env.CAMUNDA_IMAGE_URL, env.CAMUNDA_NAME, env.PRODUCTION)
       }
     }
   }
 
   post {
     always {
-      script {
-        apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
-        apps.each { app ->
-          remove_image(app.docker_image_url)
-        }
-      }
+        remove_image(env.ZAKEN_IMAGE_URL)
+        remove_image(env.CAMUNDA_IMAGE_URL)
     }
   }
 }
