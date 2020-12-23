@@ -49,7 +49,9 @@ def get_apps(docker_registry){
 
 pipeline {
   agent any
-  environment {}
+  environment {
+    DOCKER_REGISTRY_NO_PROTOCOL = DOCKER_REGISTRY_NO_PROTOCOL
+  }
 
   stages {
     stage("Checkout") {
@@ -63,9 +65,11 @@ pipeline {
 
     stage("Build docker images") {
       steps {
-        apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
-        apps.each { app ->
-          build_image(app.docker_image_url, app.source)
+        script {
+          apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
+          apps.each { app ->
+            build_image(app.docker_image_url, app.source)
+          }
         }
       }
     }
@@ -76,10 +80,12 @@ pipeline {
         branch 'master'
       }
       steps {
-        apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
-        apps.each { app ->
-          tag_image_as(app.docker_image_url, "acceptance")
-          deploy(app.name, "acceptance")
+        script {
+          apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
+          apps.each { app ->
+            tag_image_as(app.docker_image_url, "acceptance")
+            deploy(app.name, "acceptance")
+          }
         }
       }
     }
@@ -87,10 +93,12 @@ pipeline {
     stage("Push and deploy production images") {
       when { buildingTag() }
       steps {
-        apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
-        apps.each { app ->
-          tag_image_as(app.docker_image_url, "production")
-          deploy(app.name, "production")
+        script {
+          apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
+          apps.each { app ->
+            tag_image_as(app.docker_image_url, "production")
+            deploy(app.name, "production")
+          }
         }
       }
     }
