@@ -1,30 +1,48 @@
 #!groovy
 
-// tag image, push to repo, remove local tagged image
-def tag_image_as(tag) {
+def tag_image_as(docker_image_url, tag) {
+  // tag image, push to repo, remove local tagged image
   script {
-    docker.image("${DOCKER_IMAGE_URL}:${env.COMMIT_HASH}").push(tag)
-    sh "docker rmi ${DOCKER_IMAGE_URL}:${tag} || true"
+    docker.image("${docker_image_url}:${env.COMMIT_HASH}").push(tag)
+    sh "docker rmi ${docker_image_url}:${tag} || true"
   }
 }
 
-def deploy(environment, app_id) {
+def deploy(app_name, environment) {
   build job: 'Subtask_Openstack_Playbook',
     parameters: [
         [$class: 'StringParameterValue', name: 'INVENTORY', value: environment],
         [$class: 'StringParameterValue', name: 'PLAYBOOK', value: 'deploy.yml'],
-        [$class: 'StringParameterValue', name: 'PLAYBOOKPARAMS', value: "-e cmdb_id=app_${app_id}"],
+        [$class: 'StringParameterValue', name: 'PLAYBOOKPARAMS', value: "-e cmdb_id=app_${app_name}"],
     ]
+}
+
+def build_image(docker_image_url, source) {
+  script {
+    def image = docker.build("${docker_image_url}:${env.COMMIT_HASH}",
+      "--no-cache " +
+      "--shm-size 1G " +
+      "--build-arg COMMIT_HASH=${env.COMMIT_HASH} " +
+      "--build-arg BRANCH_NAME=${env.BRANCH_NAME} " +
+      " ${source}")
+    image.push()
+    tag_image_as(docker_image_url, "latest")
+  }
+}
+
+def remove_image(docker_image_url) {
+    // delete original image built on the build server
+    sh "docker rmi ${docker_image_url}:${env.COMMIT_HASH} || true"
 }
 
 pipeline {
   agent any
   environment {
-    DOCKER_IMAGE = "fixxx/zaken"
-    APP = "zaken"
-    DOCKER_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken"
 
-    APP_CAMUNDA = "zaken-camunda"
+    APPS = [
+      [name: "zaken", docker_image_url: "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken", source: "./app"]
+      [name: "zaken-camunda", docker_image_url: "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-camunda", source: "./camunda"]
+    ]
   }
 
   stages {
@@ -37,60 +55,44 @@ pipeline {
       }
     }
 
-    stage("Build docker image") {
-      // We only build a docker image when we're not deploying to production,
-      // to make make sure images deployed to production are deployed to
-      // acceptance first.
-      //
-      // To deploy to production, tag an existing commit (that has already been
-      // build) and push the tag.
-      // (looplijsten actually wants to be able to hotfix to production,
-      // without passing through acceptance)
-      //when { not { buildingTag() } }
-
+    stage("Build docker images") {
       steps {
-        script {
-          def image = docker.build("${DOCKER_IMAGE_URL}:${env.COMMIT_HASH}",
-            "--no-cache " +
-            "--shm-size 1G " +
-            "--build-arg COMMIT_HASH=${env.COMMIT_HASH} " +
-            "--build-arg BRANCH_NAME=${env.BRANCH_NAME} " +
-            " ./app")
-          image.push()
-          tag_image_as("latest")
+        env.APPS.each { app ->
+          build_image(app.docker_image_url, app.source)
         }
       }
     }
 
-    stage("Push and deploy acceptance image") {
+    stage("Push and deploy acceptance images") {
       when {
         not { buildingTag() }
         branch 'master'
       }
       steps {
-        tag_image_as("acceptance")
-        deploy("acceptance", env.APP)
-        deploy("acceptance", env.APP_CAMUNDA)
+        env.APPS.each { app ->
+          tag_image_as(app.docker_image_url, "acceptance")
+          deploy(app.name, "acceptance")
+        }
       }
     }
 
-    stage("Push and deploy production image") {
+    stage("Push and deploy production images") {
       when { buildingTag() }
       steps {
-        tag_image_as("production")
-        tag_image_as(env.TAG_NAME)
-        deploy("production", env.APP)
-        deploy("production", env.APP_CAMUNDA)
+        env.APPS.each { app ->
+          tag_image_as(app.docker_image_url, "production")
+          deploy(app.name, "production")
+        }
       }
     }
-
   }
 
   post {
     always {
       script {
-        // delete original image built on the build server
-        sh "docker rmi ${DOCKER_IMAGE_URL}:${env.COMMIT_HASH} || true"
+        env.APPS.each { app ->
+          remove_image(app.docker_image_url)
+        }
       }
     }
   }

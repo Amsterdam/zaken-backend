@@ -14,7 +14,6 @@ from apps.cases.serializers import (
 from apps.debriefings.mixins import DebriefingsMixin
 from apps.debriefings.models import Debriefing
 from apps.events.mixins import CaseEventsMixin
-from apps.fines.mixins import FinesMixin
 from apps.users.auth_apps import TopKeyAuth
 from apps.users.models import User
 from apps.visits.models import Visit
@@ -99,7 +98,6 @@ class CaseViewSet(
     ViewSet,
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
-    FinesMixin,
     DebriefingsMixin,
     CaseEventsMixin,
 ):

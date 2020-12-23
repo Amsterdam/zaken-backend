@@ -24,7 +24,7 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
         logger.debug("Checking status of API url...")
         try:
             assert self.api_url, "The given api_url should be set"
-            response = requests.get(self.api_url)
+            response = requests.get(self.api_url, timeout=3)
             response.raise_for_status()
         except AssertionError as e:
             self.add_error(
@@ -86,3 +86,44 @@ class OpenZaakCheck(BaseHealthCheckBackend):
             CatalogService().get()
         except Exception as e:
             self.add_error(ServiceUnavailable("Failed"), e)
+
+
+class BelastingDienstCheck(BaseHealthCheckBackend):
+    """
+    Tests an authenticated request to the Belastingdienst endpoint
+    """
+
+    def check_status(self):
+        from apps.fines.api_queries_belastingen import get_fines
+
+        try:
+            # The id doesn't matter, as long an authenticated request is succesful.
+            get_fines("foo-id")
+        except Exception as e:
+            self.add_error(ServiceUnavailable("Failed"), e)
+
+
+class DecosJoinCheck(BaseHealthCheckBackend):
+    """
+    Tests an authenticated request to Decos Join
+    """
+
+    def check_status(self):
+        from apps.permits.api_queries_decos_join import DecosJoinRequest
+
+        try:
+            # The address doesn't matter, as long an authenticated request is succesful.
+            response = DecosJoinRequest().get_decos_object_with_address("foo")
+            assert response, "Authenticated request failed"
+        except Exception as e:
+            self.add_error(ServiceUnavailable("Failed"), e)
+
+
+class KeycloakCheck(APIServiceCheckBackend):
+    """
+    Endpoint for checking Keycloak
+    """
+
+    critical_service = True
+    api_url = settings.OIDC_OP_JWKS_ENDPOINT
+    verbose_name = "Keycloak"

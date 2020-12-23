@@ -31,8 +31,10 @@ class DecosJoinRequest:
             }
 
             response = requests.get(url, headers=headers, timeout=30)
+            response.raise_for_status()
 
             return response.json()
+
         except requests.exceptions.Timeout:
             return False
 
