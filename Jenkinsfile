@@ -42,6 +42,8 @@ pipeline {
     APPS = [
       [name: "zaken", docker_image_url: "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken", source: "./app"]
       [name: "zaken-camunda", docker_image_url: "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-camunda", source: "./camunda"]
+      [name: "zaken-open-zaak", docker_image_url: "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-open-zaak", source: "./open-zaak"]
+      [name: "zaken-redis", docker_image_url: "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-redis", source: "./redis"]
     ]
   }
 
