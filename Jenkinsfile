@@ -40,8 +40,8 @@ def get_apps(docker_registry){
     apps = [
       [name: "zaken", docker_image_url: "${docker_registry}/fixxx/zaken", source: "./app"]
       [name: "zaken-camunda", docker_image_url: "${docker_registry}/fixxx/zaken-camunda", source: "./camunda"]
-      [name: "zaken-open-zaak", docker_image_url: "${docker_registry}/fixxx/zaken-open-zaak", source: "./open-zaak"]
-      [name: "zaken-redis", docker_image_url: "${docker_registry}/fixxx/zaken-redis", source: "./redis"]
+      // [name: "zaken-open-zaak", docker_image_url: "${docker_registry}/fixxx/zaken-open-zaak", source: "./open-zaak"]
+      // [name: "zaken-redis", docker_image_url: "${docker_registry}/fixxx/zaken-redis", source: "./redis"]
     ]
 
     return apps
