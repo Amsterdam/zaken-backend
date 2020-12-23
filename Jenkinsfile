@@ -35,17 +35,21 @@ def remove_image(docker_image_url) {
     sh "docker rmi ${docker_image_url}:${env.COMMIT_HASH} || true"
 }
 
+def get_apps(docker_registry){
+    // Configure which apps you want to deploy here
+    apps = [
+      [name: "zaken", docker_image_url: "${docker_registry}/fixxx/zaken", source: "./app"]
+      [name: "zaken-camunda", docker_image_url: "${docker_registry}/fixxx/zaken-camunda", source: "./camunda"]
+      [name: "zaken-open-zaak", docker_image_url: "${docker_registry}/fixxx/zaken-open-zaak", source: "./open-zaak"]
+      [name: "zaken-redis", docker_image_url: "${docker_registry}/fixxx/zaken-redis", source: "./redis"]
+    ]
+
+    return apps
+}
+
 pipeline {
   agent any
-  environment {
-
-    APPS = [
-      [name: "zaken", docker_image_url: "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken", source: "./app"]
-      [name: "zaken-camunda", docker_image_url: "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-camunda", source: "./camunda"]
-      [name: "zaken-open-zaak", docker_image_url: "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-open-zaak", source: "./open-zaak"]
-      [name: "zaken-redis", docker_image_url: "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-redis", source: "./redis"]
-    ]
-  }
+  environment {}
 
   stages {
     stage("Checkout") {
@@ -59,7 +63,8 @@ pipeline {
 
     stage("Build docker images") {
       steps {
-        env.APPS.each { app ->
+        apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
+        apps.each { app ->
           build_image(app.docker_image_url, app.source)
         }
       }
@@ -71,7 +76,8 @@ pipeline {
         branch 'master'
       }
       steps {
-        env.APPS.each { app ->
+        apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
+        apps.each { app ->
           tag_image_as(app.docker_image_url, "acceptance")
           deploy(app.name, "acceptance")
         }
@@ -81,7 +87,8 @@ pipeline {
     stage("Push and deploy production images") {
       when { buildingTag() }
       steps {
-        env.APPS.each { app ->
+        apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
+        apps.each { app ->
           tag_image_as(app.docker_image_url, "production")
           deploy(app.name, "production")
         }
@@ -92,7 +99,8 @@ pipeline {
   post {
     always {
       script {
-        env.APPS.each { app ->
+        apps = get_apps(env.DOCKER_REGISTRY_NO_PROTOCOL)
+        apps.each { app ->
           remove_image(app.docker_image_url)
         }
       }
