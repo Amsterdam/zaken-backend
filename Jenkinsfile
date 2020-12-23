@@ -49,11 +49,11 @@ pipeline {
     PRODUCTION = "production"
     ACCEPTANCE = "acceptance"
 
-    ZAKEN_IMAGE_URL = "${docker_registry}/fixxx/zaken"
+    ZAKEN_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken"
     ZAKEN_SOURCE = "./app"
     ZAKEN_NAME = "zaken"
 
-    CAMUNDA_IMAGE_URL = "${docker_registry}/fixxx/zaken-camunda"
+    CAMUNDA_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-camunda"
     CAMUNDA_SOURCE = "./camunda"
     CAMUNDA_NAME = "zaken-camunda"
 
