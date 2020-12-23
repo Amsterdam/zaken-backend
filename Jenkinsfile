@@ -8,23 +8,23 @@ def tag_image_as(docker_image_url, tag) {
   }
 }
 
-def deploy(app, environment) {
+def deploy(app_name, environment) {
   build job: 'Subtask_Openstack_Playbook',
     parameters: [
         [$class: 'StringParameterValue', name: 'INVENTORY', value: environment],
         [$class: 'StringParameterValue', name: 'PLAYBOOK', value: 'deploy.yml'],
-        [$class: 'StringParameterValue', name: 'PLAYBOOKPARAMS', value: "-e cmdb_id=app_${app}"],
+        [$class: 'StringParameterValue', name: 'PLAYBOOKPARAMS', value: "-e cmdb_id=app_${app_name}"],
     ]
 }
 
-def build_image(docker_image_url, src) {
+def build_image(docker_image_url, source) {
   script {
     def image = docker.build("${docker_image_url}:${env.COMMIT_HASH}",
       "--no-cache " +
       "--shm-size 1G " +
       "--build-arg COMMIT_HASH=${env.COMMIT_HASH} " +
       "--build-arg BRANCH_NAME=${env.BRANCH_NAME} " +
-      " ${src}")
+      " ${source}")
     image.push()
     tag_image_as(docker_image_url, "latest")
   }
@@ -38,11 +38,11 @@ def remove_image(docker_image_url) {
 pipeline {
   agent any
   environment {
-    APP = "zaken"
-    DOCKER_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken"
 
-    APP_CAMUNDA = "zaken-camunda"
-    CAMUNDA_DOCKER_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-camunda"
+    APPS = [
+      [name: "zaken", docker_image_url: "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken", source: "./app"]
+      [name: "zaken-camunda", docker_image_url: "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-camunda", source: "./camunda"]
+    ]
   }
 
   stages {
@@ -55,35 +55,34 @@ pipeline {
       }
     }
 
-    stage("Build docker image") {
+    stage("Build docker images") {
       steps {
-        build_image(env.DOCKER_IMAGE_URL, "./app")
-        // build_image(env.CAMUNDA_DOCKER_IMAGE_URL, "./camunda")
+        env.APPS.each { app ->
+          build_image(app.docker_image_url, app.source)
+        }
       }
     }
 
-    stage("Push and deploy acceptance image") {
+    stage("Push and deploy acceptance images") {
       when {
         not { buildingTag() }
         branch 'master'
       }
       steps {
-        tag_image_as(env.DOCKER_IMAGE_URL, "acceptance")
-        deploy(env.APP, "acceptance")
-
-        // tag_image_as(env.CAMUNDA_DOCKER_IMAGE_URL, "acceptance")
-        // deploy(env.APP_CAMUNDA, "acceptance", )
+        env.APPS.each { app ->
+          tag_image_as(app.docker_image_url, "acceptance")
+          deploy(app.name, "acceptance")
+        }
       }
     }
 
-    stage("Push and deploy production image") {
+    stage("Push and deploy production images") {
       when { buildingTag() }
       steps {
-        tag_image_as(env.DOCKER_IMAGE_URL, "production")
-        deploy(env.APP, "production")
-
-        // tag_image_as(env.CAMUNDA_DOCKER_IMAGE_URL, "production")
-        // deploy(env.APP_CAMUNDA, "production")
+        env.APPS.each { app ->
+          tag_image_as(app.docker_image_url, "production")
+          deploy(app.name, "production")
+        }
       }
     }
   }
@@ -91,8 +90,9 @@ pipeline {
   post {
     always {
       script {
-        remove_image(env.DOCKER_IMAGE_URL)
-        // remove_image(env.CAMUNDA_DOCKER_IMAGE_URL)
+        env.APPS.each { app ->
+          remove_image(app.docker_image_url)
+        }
       }
     }
   }
