@@ -28,7 +28,12 @@ TIME_ZONE = "Europe/Amsterdam"
 # )
 ALLOWED_HOSTS = "*"
 # TODO: Configure this in the environment variables
-CORS_ORIGIN_WHITELIST = ("http://0.0.0.0:2999", "http://localhost:2999")
+CORS_ORIGIN_WHITELIST = (
+    "https://wonen.zaken.amsterdam.nl",
+    "https://acc.wonen.zaken.amsterdam.nl",
+    "http://0.0.0.0:2999",
+    "http://localhost:2999",
+)
 CORS_ORIGIN_ALLOW_ALL = False
 
 INSTALLED_APPS = (
