@@ -1,9 +1,12 @@
 import uuid
 
 from apps.addresses.models import Address
+from apps.camunda.services import CamundaService
 from apps.events.models import CaseEvent, ModelEventEmitter
 from apps.users.models import User
 from django.db import models
+from django.db.models.signals import post_init, post_save
+from django.dispatch import receiver
 
 
 class Case(ModelEventEmitter):
@@ -21,6 +24,7 @@ class Case(ModelEventEmitter):
         to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )
     is_legacy_bwv = models.BooleanField(default=False)
+    camunda_id = models.CharField(max_length=255, null=True, blank=True)
 
     def __get_event_values__(self):
         return {
@@ -48,6 +52,14 @@ class Case(ModelEventEmitter):
             self.identification = str(uuid.uuid4())
 
         super().save(*args, **kwargs)
+
+
+@receiver(post_save, sender=Case, dispatch_uid="case_init_in_camunda")
+def create_case_instance_in_camunda(sender, instance, created, **kwargs):
+    if created:
+        camunda_id = CamundaService.start_instance()
+        instance.camunda_id = camunda_id
+        instance.save()
 
 
 class CaseStateType(models.Model):
