@@ -21,25 +21,28 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
 
     def check_status(self):
         """Check service by opening and closing a broker channel."""
-        logger.debug("Checking status of API url...")
+        logger.info("Checking status of API url...")
         try:
             assert self.api_url, "The given api_url should be set"
             response = requests.get(self.api_url, timeout=3)
             response.raise_for_status()
         except AssertionError as e:
+            logger.error(e)
             self.add_error(
                 ServiceUnavailable("The given API endpoint has not been set"),
                 e,
             )
         except ConnectionRefusedError as e:
+            logger.error(e)
             self.add_error(
                 ServiceUnavailable("Unable to connect to API: Connection was refused."),
                 e,
             )
         except BaseException as e:
+            logger.error(e)
             self.add_error(ServiceUnavailable("Unknown error"), e)
         else:
-            logger.debug("Connection established. API is healthy.")
+            logger.info("Connection established. API is healthy.")
 
     def identifier(self):
         if self.verbose_name:
@@ -114,8 +117,7 @@ class DecosJoinCheck(BaseHealthCheckBackend):
         try:
             # The address doesn't matter, as long an authenticated request is succesful.
             response = DecosJoinRequest().get_decos_object_with_address("foo")
-            logger.debug(response)
-            print(response)
+            assert response, "Could not reach Decos Join"
         except Exception as e:
             self.add_error(ServiceUnavailable("Failed"), e)
 
