@@ -15,7 +15,7 @@ jobs:
       with:
         python-version: 3.x
     - name: Linting
-      run: bash cleanup.sh
+      run: bash bin/cleanup_pre_commit.sh
     - name: Build Docker image
       run: docker-compose build
     - name: Create Docker network
