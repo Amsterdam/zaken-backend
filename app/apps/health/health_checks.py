@@ -115,7 +115,7 @@ class DecosJoinCheck(BaseHealthCheckBackend):
             # The address doesn't matter, as long an authenticated request is succesful.
             response = DecosJoinRequest().get_decos_object_with_address("foo")
             logger.debug(response)
-            assert response, "Authenticated request failed"
+            print(response)
         except Exception as e:
             self.add_error(ServiceUnavailable("Failed"), e)
 
