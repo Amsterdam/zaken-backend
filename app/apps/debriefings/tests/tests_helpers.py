@@ -1,6 +1,6 @@
 from apps.cases.models import Case
 from apps.debriefings.models import Debriefing
-from apps.users.models import User
+from django.contrib.auth import get_user_model
 
 
 class DebriefingTestMixin:
@@ -10,7 +10,8 @@ class DebriefingTestMixin:
 
     def create_user(self):
         USER_EMAIL = "foo@foo.com"
-        user = User.objects.create(email=USER_EMAIL)
+        user_model = get_user_model()
+        user = user_model.objects.create(email=USER_EMAIL)
         return user
 
     def create_debriefing(self):

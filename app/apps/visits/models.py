@@ -1,6 +1,7 @@
 from apps.cases.models import Case
 from apps.events.models import CaseEvent, ModelEventEmitter
 from apps.users.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
@@ -76,8 +77,10 @@ class Visit(ModelEventEmitter):
         self.notes = data["notes"]
         self.save()
 
+        user_model = get_user_model()
+
         for author in data["authors"]:
-            (user, _) = User.objects.get_or_create(email=author)
+            (user, _) = user_model.objects.get_or_create(email=author)
             self.authors.add(user)
 
         return self
@@ -94,8 +97,10 @@ class Visit(ModelEventEmitter):
         self.notes = data["notes"]
         self.save()
 
+        user_model = get_user_model()
+
         for author in data["authors"]:
-            (user, _) = User.objects.get_or_create(email=author)
+            (user, _) = user_model.objects.get_or_create(email=author)
             self.authors.add(user)
 
         return self
