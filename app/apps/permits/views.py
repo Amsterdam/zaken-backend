@@ -50,3 +50,16 @@ class PermitViewSet(ViewSet):
         if serializer.is_valid():
             return Response(serializer.data)
         return Response(serializer.initial_data)
+
+    @extend_schema(description="test connection with decos")
+    @action(detail=False, url_name="test decos connection", url_path="test-connect")
+    def get_test_decos_connect(self, request):
+        import requests
+
+        response = requests.get(
+            "https://decosdvl.acc.amsterdam.nl/decosweb/aspx/api/v1/"
+        )
+
+        if response.ok:
+            return Response(response)
+        return False
