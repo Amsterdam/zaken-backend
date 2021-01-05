@@ -1,6 +1,6 @@
 from apps.cases.models import Case
 from apps.events.models import CaseEvent, ModelEventEmitter
-from apps.users.models import User
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -31,7 +31,7 @@ class Visit(ModelEventEmitter):
     suggest_next_visit_description = models.TextField(
         null=True, blank=True, default=None
     )
-    authors = models.ManyToManyField(User)
+    authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     notes = models.TextField(null=True, blank=True)
 
     class Meta:
