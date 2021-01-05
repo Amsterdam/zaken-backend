@@ -1,11 +1,12 @@
 """
 Tests for cases models
 """
-from apps.users.models import User
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.test import TestCase
 
 USER_EMAIL = "foo@foo.com"
+User = get_user_model()
 
 
 class UserModelTest(TestCase):
