@@ -2,7 +2,7 @@ import uuid
 
 from apps.addresses.models import Address
 from apps.events.models import CaseEvent, ModelEventEmitter
-from apps.users.models import User
+from django.conf import settings
 from django.db import models
 
 
@@ -62,7 +62,7 @@ class CaseState(models.Model):
     status = models.ForeignKey(CaseStateType, on_delete=models.PROTECT)
     state_date = models.DateField()
     users = models.ManyToManyField(
-        User, related_name="case_states", related_query_name="users"
+        settings.AUTH_USER_MODEL, related_name="case_states", related_query_name="users"
     )
 
     def __str__(self):

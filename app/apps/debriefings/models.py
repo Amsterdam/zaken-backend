@@ -1,6 +1,6 @@
 from apps.cases.models import Case
 from apps.events.models import CaseEvent, ModelEventEmitter
-from apps.users.models import User
+from django.conf import settings
 from django.db import models
 from utils.class_mixins import ModelEditableTimeConstraint
 
@@ -26,7 +26,10 @@ class Debriefing(ModelEventEmitter, ModelEditableTimeConstraint):
         to=Case, null=False, on_delete=models.RESTRICT, related_name="debriefings"
     )
     author = models.ForeignKey(
-        to=User, null=False, on_delete=models.RESTRICT, related_name="debriefings"
+        to=settings.AUTH_USER_MODEL,
+        null=False,
+        on_delete=models.RESTRICT,
+        related_name="debriefings",
     )
     # TODO: Maybe rename this to date_created for consistency?
     date_added = models.DateTimeField(auto_now_add=True)
