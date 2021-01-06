@@ -295,4 +295,14 @@ CELERY_BEAT_SCHEDULE = {
 
 CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
 REDIS = os.getenv("REDIS")
-OPEN_ZAAK_REDIS_HEALTH_CHECK_URL = f"redis://{REDIS}/0"
+REDIS_URL = f"redis://{REDIS}"
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}

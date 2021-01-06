@@ -139,36 +139,25 @@ class OpenZaakRedisHealthCheck(BaseHealthCheckBackend):
     Redis used by Open Zaak check
     """
 
-    redis_url = settings.OPEN_ZAAK_REDIS_HEALTH_CHECK_URL
+    redis_url = settings.REDIS_URL
 
     def check_status(self):
         """Check Redis service by pinging the redis instance with a redis connection."""
         logger.info("Got %s as the redis_url. Connecting to redis...", self.redis_url)
-
         logger.info("Attempting to connect to redis...")
+
         try:
-            # conn is used as a context to release opened resources later
-            with from_url(self.redis_url) as conn:
-                conn.ping()  # exceptions may be raised upon ping
-        except ConnectionRefusedError as e:
-            logger.error(e)
-            self.add_error(
-                ServiceUnavailable(
-                    "Unable to connect to Redis: Connection was refused."
-                ),
-                e,
-            )
-        except exceptions.TimeoutError as e:
-            logger.error(e)
-            self.add_error(
-                ServiceUnavailable("Unable to connect to Redis: Timeout."), e
-            )
-        except exceptions.ConnectionError as e:
-            logger.error(e)
-            self.add_error(
-                ServiceUnavailable("Unable to connect to Redis: Connection Error"), e
-            )
-        except BaseException as e:
+            from django_redis import get_redis_connection
+
+            connection = get_redis_connection("default")
+            logger.debug("Redis Connection")
+            logger.debug(connection)
+
+            result = connection.ping()
+            logger.debug("Redis Ping")
+            logger.debug(result)
+
+        except Exception as e:
             logger.error(e)
             self.add_error(ServiceUnavailable("Unknown error"), e)
         else:
