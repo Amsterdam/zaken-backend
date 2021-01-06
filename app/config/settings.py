@@ -295,7 +295,7 @@ CELERY_BEAT_SCHEDULE = {
 
 CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
 REDIS = os.getenv("REDIS")
-REDIS_URL = f"redis://{REDIS}"
+REDIS_URL = f"redis://default:{REDIS}"
 
 CACHES = {
     "default": {
