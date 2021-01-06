@@ -143,9 +143,9 @@ class OpenZaakRedisHealthCheck(BaseHealthCheckBackend):
 
     def check_status(self):
         """Check Redis service by pinging the redis instance with a redis connection."""
-        logger.debug("Got %s as the redis_url. Connecting to redis...", self.redis_url)
+        logger.info("Got %s as the redis_url. Connecting to redis...", self.redis_url)
 
-        logger.debug("Attempting to connect to redis...")
+        logger.info("Attempting to connect to redis...")
         try:
             # conn is used as a context to release opened resources later
             with from_url(self.redis_url) as conn:
@@ -172,4 +172,4 @@ class OpenZaakRedisHealthCheck(BaseHealthCheckBackend):
             logger.error(e)
             self.add_error(ServiceUnavailable("Unknown error"), e)
         else:
-            logger.debug("Connection established. Redis is healthy.")
+            logger.info("Connection established. Redis is healthy.")
