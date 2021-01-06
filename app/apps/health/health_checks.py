@@ -7,6 +7,8 @@ from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import ServiceUnavailable
 from kombu import Connection
 
+from redis import exceptions, from_url
+
 logger = logging.getLogger(__name__)
 
 
@@ -130,3 +132,44 @@ class KeycloakCheck(APIServiceCheckBackend):
     critical_service = True
     api_url = settings.OIDC_OP_JWKS_ENDPOINT
     verbose_name = "Keycloak"
+
+
+class OpenZaakRedisHealthCheck(BaseHealthCheckBackend):
+    """
+    Redis used by Open Zaak check
+    """
+
+    redis_url = settings.OPEN_ZAAK_REDIS_HEALTH_CHECK_URL
+
+    def check_status(self):
+        """Check Redis service by pinging the redis instance with a redis connection."""
+        logger.debug("Got %s as the redis_url. Connecting to redis...", self.redis_url)
+
+        logger.debug("Attempting to connect to redis...")
+        try:
+            # conn is used as a context to release opened resources later
+            with from_url(self.redis_url) as conn:
+                conn.ping()  # exceptions may be raised upon ping
+        except ConnectionRefusedError as e:
+            logger.error(e)
+            self.add_error(
+                ServiceUnavailable(
+                    "Unable to connect to Redis: Connection was refused."
+                ),
+                e,
+            )
+        except exceptions.TimeoutError as e:
+            logger.error(e)
+            self.add_error(
+                ServiceUnavailable("Unable to connect to Redis: Timeout."), e
+            )
+        except exceptions.ConnectionError as e:
+            logger.error(e)
+            self.add_error(
+                ServiceUnavailable("Unable to connect to Redis: Connection Error"), e
+            )
+        except BaseException as e:
+            logger.error(e)
+            self.add_error(ServiceUnavailable("Unknown error"), e)
+        else:
+            logger.debug("Connection established. Redis is healthy.")
