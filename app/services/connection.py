@@ -81,7 +81,7 @@ class Connection:
             key=key,
         )
 
-        return str(token, "utf-8")
+        return token
 
     def __get_path__(self, uuid=None, publish=False):
         if self.port:
