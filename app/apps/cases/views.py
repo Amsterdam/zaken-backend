@@ -4,6 +4,8 @@ from itertools import cycle
 
 import requests
 from apps.addresses.models import Address
+from apps.camunda.serializers import CamundaTaskSerializer
+from apps.camunda.services import CamundaService
 from apps.cases.filters import CaseFilter
 from apps.cases.models import Case, CaseState, CaseStateType
 from apps.cases.serializers import (
@@ -230,3 +232,12 @@ class CaseViewSet(
 
             return Response("OK")
         return Response("Endpoint is not available")
+
+    @action(detail=True, methods=["get"], url_path="tasks")
+    def get_tasks(self, request, pk):
+        case = self.get_object()
+        camunda_tasks = CamundaService.get_all_tasks_by_instance_id(case.camunda_id)
+
+        serializer = CamundaTaskSerializer(camunda_tasks, many=True)
+
+        return Response(serializer.data)
