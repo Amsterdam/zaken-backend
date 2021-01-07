@@ -11,6 +11,7 @@ class HealthConfig(AppConfig):
             BelastingDienstCheck,
             CeleryExecuteTask,
             KeycloakCheck,
+            OpenZaakCheck,
             OpenZaakRedisHealthCheck,
         )
 
@@ -19,6 +20,6 @@ class HealthConfig(AppConfig):
         plugin_dir.register(CeleryExecuteTask)
         plugin_dir.register(KeycloakCheck)
         plugin_dir.register(OpenZaakRedisHealthCheck)
+        plugin_dir.register(OpenZaakCheck)
         # plugin_dir.register(DecosJoinCheck)
         # plugin_dir.register(CamundaServiceCheck)
-        # plugin_dir.register(OpenZaakCheck)

@@ -84,7 +84,11 @@ class Connection:
         return str(token, "utf-8")
 
     def __get_path__(self, uuid=None, publish=False):
-        path = f"http://{self.host}:{self.port}/{self.domain}/api/{self.api_version}/{self.data_type}"
+        if self.port:
+            path = f"http://{self.host}:{self.port}/{self.domain}/api/{self.api_version}/{self.data_type}"
+        else:
+            path = f"https://{self.host}/{self.domain}/api/{self.api_version}/{self.data_type}"
+
         if uuid:
             path = f"{path}/{uuid}"
 
