@@ -94,6 +94,7 @@ The credentials for the Zaken - OpenZaak connection are the defaults set in the 
 OPEN_ZAAK_CLIENT=Zaken
 OPEN_ZAAK_SECRET_KEY=Zaken
 ```
+
 These can all be configured manually as well, but this script speeds up the local setup a bit.
 
 ## Coding conventions and style
