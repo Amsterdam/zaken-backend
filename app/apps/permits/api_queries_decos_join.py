@@ -34,8 +34,8 @@ class DecosJoinRequest:
             response.raise_for_status()
 
             return response.json()
-
         except requests.exceptions.Timeout:
+            logger.error("Request to Decos Join timed out")
             return False
 
     def get_decos_object_with_address(self, address):

@@ -119,6 +119,8 @@ services:
 
   openzaak_redis:
     image: redis
+    environment:
+      - REDIS_PASSWORD=password
     networks:
       - zaken_network
 

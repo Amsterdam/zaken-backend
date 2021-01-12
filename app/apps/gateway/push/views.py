@@ -9,7 +9,7 @@ from apps.fines.legacy_const import STADIA_WITH_FINES
 from apps.fines.models import Fine
 from apps.gateway.push.serializers import PushSerializer
 from apps.users.auth_apps import TopKeyAuth
-from apps.users.models import User
+from django.contrib.auth import get_user_model
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import viewsets
 from rest_framework.exceptions import APIException
@@ -96,9 +96,10 @@ class PushViewSet(viewsets.ViewSet):
 
     def create_users(self, user_emails):
         users = []
+        user_model = get_user_model()
 
         for user_email in user_emails:
-            user, _ = User.objects.get_or_create(email=user_email)
+            user, _ = user_model.objects.get_or_create(email=user_email)
             users.append(user)
 
         return users

@@ -1,5 +1,5 @@
-from apps.users.models import User
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -23,7 +23,7 @@ def get_test_user():
     """
     Creates and returns a test user
     """
-    return User.objects.get_or_create(email=AUTHENTICATED_CLIENT_EMAIL)[0]
+    return get_user_model().objects.get_or_create(email=AUTHENTICATED_CLIENT_EMAIL)[0]
 
 
 def get_authenticated_client():

@@ -1,1 +1,3 @@
-FROM camunda/camunda-bpm-platform:7.14.0
+FROM camunda/camunda-bpm-platform:latest
+
+COPY ./web.xml /camunda/WEB-INF

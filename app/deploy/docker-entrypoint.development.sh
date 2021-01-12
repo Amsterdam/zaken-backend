@@ -21,7 +21,7 @@ echo Apply migrations
 python manage.py migrate --noinput
 
 # echo Create root user
-# python manage.py shell -c "from apps.users.models import User; User.objects.create_superuser('admin@admin.com', 'admin')"
+# python manage.py shell -c "from django.contrib.auth import get_user_model; get_user_model().objects.create_superuser('admin@admin.com', 'admin')"
 
 # opens up a port for attaching a remote debugging service using debugpy
 python -m debugpy --listen 0.0.0.0:5678 ./manage.py runserver 0.0.0.0:8000

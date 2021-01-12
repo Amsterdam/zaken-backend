@@ -67,6 +67,36 @@ bash bin/cleanup_pre_commit.sh
 ```
 This will autoformat your code, sort your imports and fix overal problems.
 
+## Quick admin and OpenZaak credentials creation (Local Development Only)
+To create all necessary credentials run the following command:
+```
+bash bin/setup_credentials.sh
+```
+This will create the authorisation objects in OpenZaak which Zaken needs for authenticated requests, and admin accounts.
+Make sure to have built and run the docker-compose at least once before running this command (the migrations should be executed first)
+
+This will create admin accounts with the following credentials:
+
+For Zaken:
+```
+email: admin@admin.com
+password: admin
+```
+
+For OpenZaak:
+```
+username: admin
+password: admin
+```
+
+The credentials for the Zaken - OpenZaak connection are the defaults set in the .env environment variables:
+```
+OPEN_ZAAK_CLIENT=Zaken
+OPEN_ZAAK_SECRET_KEY=Zaken
+```
+
+These can all be configured manually as well, but this script speeds up the local setup a bit.
+
 ## Coding conventions and style
 The project uses [Black](https://github.com/psf/black) for formatting and [Flake8](https://pypi.org/project/flake8/) for linting.
 

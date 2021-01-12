@@ -7,6 +7,8 @@ from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import ServiceUnavailable
 from kombu import Connection
 
+from redis import exceptions, from_url
+
 logger = logging.getLogger(__name__)
 
 
@@ -21,25 +23,28 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
 
     def check_status(self):
         """Check service by opening and closing a broker channel."""
-        logger.debug("Checking status of API url...")
+        logger.info("Checking status of API url...")
         try:
             assert self.api_url, "The given api_url should be set"
             response = requests.get(self.api_url, timeout=3)
             response.raise_for_status()
         except AssertionError as e:
+            logger.error(e)
             self.add_error(
                 ServiceUnavailable("The given API endpoint has not been set"),
                 e,
             )
         except ConnectionRefusedError as e:
+            logger.error(e)
             self.add_error(
                 ServiceUnavailable("Unable to connect to API: Connection was refused."),
                 e,
             )
         except BaseException as e:
+            logger.error(e)
             self.add_error(ServiceUnavailable("Unknown error"), e)
         else:
-            logger.debug("Connection established. API is healthy.")
+            logger.info("Connection established. API is healthy.")
 
     def identifier(self):
         if self.verbose_name:
@@ -114,7 +119,7 @@ class DecosJoinCheck(BaseHealthCheckBackend):
         try:
             # The address doesn't matter, as long an authenticated request is succesful.
             response = DecosJoinRequest().get_decos_object_with_address("foo")
-            assert response, "Authenticated request failed"
+            assert response, "Could not reach Decos Join"
         except Exception as e:
             self.add_error(ServiceUnavailable("Failed"), e)
 
@@ -127,3 +132,33 @@ class KeycloakCheck(APIServiceCheckBackend):
     critical_service = True
     api_url = settings.OIDC_OP_JWKS_ENDPOINT
     verbose_name = "Keycloak"
+
+
+class OpenZaakRedisHealthCheck(BaseHealthCheckBackend):
+    """
+    Redis used by Open Zaak check
+    """
+
+    redis_url = settings.REDIS_URL
+
+    def check_status(self):
+        """Check Redis service by pinging the redis instance with a redis connection."""
+        logger.info("Got %s as the redis_url. Connecting to redis...", self.redis_url)
+        logger.info("Attempting to connect to redis...")
+
+        try:
+            from django_redis import get_redis_connection
+
+            connection = get_redis_connection("default")
+            logger.debug("Redis Connection")
+            logger.debug(connection)
+
+            result = connection.ping()
+            logger.debug("Redis Ping")
+            logger.debug(result)
+
+        except Exception as e:
+            logger.error(e)
+            self.add_error(ServiceUnavailable("Unknown error"), e)
+        else:
+            logger.info("Connection established. Redis is healthy.")

@@ -17,9 +17,9 @@ from apps.debriefings.mixins import DebriefingsMixin
 from apps.debriefings.models import Debriefing
 from apps.events.mixins import CaseEventsMixin
 from apps.users.auth_apps import TopKeyAuth
-from apps.users.models import User
 from apps.visits.models import Visit
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
@@ -84,9 +84,10 @@ class CaseStateViewSet(ViewSet):
             case_state.users.clear()
             user_emails = data.get("user_emails", [])
             logger.info(f"Updating CaseState {len(user_emails)} users")
+            user_model = get_user_model()
 
             for user_email in user_emails:
-                user_object, _ = User.objects.get_or_create(email=user_email)
+                user_object, _ = user_model.objects.get_or_create(email=user_email)
                 case_state.users.add(user_object)
                 logger.info("Added user to CaseState")
 
@@ -140,18 +141,19 @@ class CaseViewSet(
                 address=address,
                 _quantity=7,
             )
-            user_1, _ = User.objects.get_or_create(
+            user_model = get_user_model()
+            user_1, _ = user_model.objects.get_or_create(
                 email="jake.gyllenhaal@example.com",
                 first_name="Jake",
                 last_name="Gyllenhaal",
             )
-            user_2, _ = User.objects.get_or_create(
+            user_2, _ = user_model.objects.get_or_create(
                 email="jessica.chastain@example.com",
                 first_name="Jessica",
                 last_name="Chastain",
             )
 
-            authors = User.objects.filter(id__in=[user_1.id, user_2.id])
+            authors = user_model.objects.filter(id__in=[user_1.id, user_2.id])
 
             for case in cases:
                 baker.make(
