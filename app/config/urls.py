@@ -1,4 +1,5 @@
 from apps.addresses.views import AddressViewSet
+from apps.camunda.views import CamundaTaskViewSet
 from apps.cases.views import CaseStateViewSet, CaseViewSet
 from apps.debriefings.views import DebriefingViewSet
 from apps.fines.views import FinesViewSet
@@ -25,6 +26,7 @@ router.register(r"support-contacts", SupportContactView, basename="support-conta
 router.register(r"visits", VisitViewSet, basename="visits")
 router.register(r"fines", FinesViewSet, basename="fines")
 
+router.register(r"tasks", CamundaTaskViewSet, basename="camunda-tasks")
 router.register(r"test-permits", PermitViewSet, basename="test-permits")
 
 urlpatterns = [
