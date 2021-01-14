@@ -11,5 +11,6 @@ For documentation purposes. This is the current situation.
 
 ![Oude Architectuur](https://github.com/Amsterdam/zaken-backend/blob/master/docs/architecture_legacy.png)
 
-## Top - Zaken tunneling communication
-TODO: Add our proposal for communciation between Top and Zaken here. (using the SSO token, inside and outside ADW etc.)
+## Proposal Top - Zaken tunneling communication
+
+![Tunneling Proposal](https://github.com/Amsterdam/zaken-backend/blob/master/docs/tunneling_proposal.png)
