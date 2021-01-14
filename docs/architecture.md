@@ -6,7 +6,7 @@ The following image is a proposal of the architecture and the direction this pro
 
 ![Voorstel Architectuur](https://github.com/Amsterdam/zaken-backend/blob/master/docs/architecture_proposal.png)
 
-## Current/Legacy architecture
+## Current/Legacy architecture (14/1/21)
 For documentation purposes. This is the current situation.
 
 ![Oude Architectuur](https://github.com/Amsterdam/zaken-backend/blob/master/docs/architecture_legacy.png)
