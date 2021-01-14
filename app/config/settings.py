@@ -70,6 +70,7 @@ INSTALLED_APPS = (
     "apps.events",
     "apps.health",
     "apps.support",
+    "apps.camunda",
 )
 
 # Add apps here to make them appear in the graphing visualisation
@@ -232,7 +233,7 @@ AUTHENTICATION_BACKENDS = (
 
 # Simple JWT is used for local development authentication only.
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=24),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=120),
     # We don't refresh tokens yet, so we set refresh lifetime to zero
     "REFRESH_TOKEN_LIFETIME": timedelta(seconds=0),
 }
@@ -294,6 +295,8 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
+CAMUNDA_REST_URL = os.getenv("CAMUNDA_REST_URL", "http://camunda:8080/engine-rest/")
+CAMUNDA_PROCESS_VAKANTIE_VERHUUR = "zaak_wonen_vakantieverhuur"
 
 REDIS = os.getenv("REDIS")
 REDIS_URL = f"redis://{REDIS}"
