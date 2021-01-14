@@ -238,7 +238,7 @@ class CaseViewSet(
     @action(detail=True, methods=["get"], url_path="tasks")
     def get_tasks(self, request, pk):
         case = self.get_object()
-        camunda_tasks = CamundaService.get_all_tasks_by_instance_id(case.camunda_id)
+        camunda_tasks = CamundaService().get_all_tasks_by_instance_id(case.camunda_id)
 
         serializer = CamundaTaskSerializer(camunda_tasks, many=True)
 

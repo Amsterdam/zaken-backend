@@ -22,7 +22,7 @@ class CamundaTaskViewSet(viewsets.ViewSet):
         serializer = CamundaTaskCompleteSerializer(data=request.data)
 
         if serializer.is_valid():
-            camunda_response = CamundaService.complete_task(
+            camunda_response = CamundaService().complete_task(
                 serializer.data["task_id"], serializer.data["variables"]
             )
 
