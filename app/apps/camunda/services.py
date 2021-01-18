@@ -57,9 +57,7 @@ class CamundaService:
         return False
 
     def get_all_tasks_by_instance_id(self, process_instance_id):
-        request_url = (
-            settings.CAMUNDA_REST_URL + f"task?processInstanceId={process_instance_id}"
-        )
+        request_url = f"task?processInstanceId={process_instance_id}"
         response = self._process_request(request_url)
 
         if response.ok:

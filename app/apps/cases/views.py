@@ -235,11 +235,17 @@ class CaseViewSet(
             return Response("OK")
         return Response("Endpoint is not available")
 
+    @extend_schema(
+        description="Get Camunda tasks for this Case",
+        responses={200: CamundaTaskSerializer(many=True)},
+    )
     @action(detail=True, methods=["get"], url_path="tasks")
     def get_tasks(self, request, pk):
         case = self.get_object()
         camunda_tasks = CamundaService().get_all_tasks_by_instance_id(case.camunda_id)
 
-        serializer = CamundaTaskSerializer(camunda_tasks, many=True)
+        if camunda_tasks:
+            serializer = CamundaTaskSerializer(camunda_tasks, many=True)
 
-        return Response(serializer.data)
+            return Response(serializer.data)
+        return Response([])
