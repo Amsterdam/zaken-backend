@@ -6,10 +6,10 @@ class CamundaTaskSerializer(serializers.Serializer):
     Serializer for Camunda tasks
     """
 
-    task_id = serializers.CharField(source="id")
+    camunda_task_id = serializers.CharField(source="id")
     # task key is used to identify specific task so for example
     # frontend knows to load a specific form when the key
-    task_key = serializers.CharField(source="taskDefinitionKey")
+    task_name_id = serializers.CharField(source="taskDefinitionKey")
     name = serializers.CharField()
 
 
@@ -25,5 +25,5 @@ class CamundaTaskCompleteSerializer(serializers.Serializer):
     }
     """
 
-    task_id = serializers.CharField(source="id")
+    camunda_task_id = serializers.CharField(source="id")
     variables = serializers.JSONField()

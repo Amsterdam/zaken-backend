@@ -26,7 +26,7 @@ router.register(r"support-contacts", SupportContactView, basename="support-conta
 router.register(r"visits", VisitViewSet, basename="visits")
 router.register(r"fines", FinesViewSet, basename="fines")
 
-router.register(r"tasks", CamundaTaskViewSet, basename="camunda-tasks")
+router.register(r"camunda/task", CamundaTaskViewSet, basename="camunda-tasks")
 router.register(r"test-permits", PermitViewSet, basename="test-permits")
 
 urlpatterns = [
