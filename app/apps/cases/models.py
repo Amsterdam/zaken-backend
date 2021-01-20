@@ -46,7 +46,7 @@ class Case(ModelEventEmitter):
         return {
             "start_date": self.start_date,
             "end_date": self.end_date,
-            "reason": self.case_reason.title,
+            "reason": self.case_reason,
         }
 
     def __get_case__(self):

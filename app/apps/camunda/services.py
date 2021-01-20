@@ -35,43 +35,50 @@ class CamundaService:
         processes = []
         response = self._process_request("process-definition")
 
-        if response.ok:
+        try:
+            response.raise_for_status()
             content = response.json()
 
             for process in content:
                 processes.append(process)
-
             return processes
-        return False
+        except Exception:
+            return False
 
     def start_instance(self, process=settings.CAMUNDA_PROCESS_VAKANTIE_VERHUUR):
         """
-        TODO: Use bussiness key instead of process key
+        TODO: Use business key instead of process key
         """
         request_url = f"process-definition/key/{process}/start"
         response = self._process_request(request_url)
 
-        if response.ok:
+        try:
+            response.raise_for_status()
             content = response.json()
             return content["id"]
-        return False
+        except Exception:
+            return False
 
     def get_all_tasks_by_instance_id(self, process_instance_id):
         request_url = f"task?processInstanceId={process_instance_id}"
         response = self._process_request(request_url)
 
-        if response.ok:
+        try:
+            response.raise_for_status()
             content = response.json()
             return content
-        return False
+        except Exception:
+            return False
 
     def get_task_form_variables(self, task_id):
         response = self._process_request(f"task/{task_id}/form-variables")
 
-        if response.ok:
+        try:
+            response.raise_for_status()
             content = response.json()
             return content
-        return False
+        except Exception:
+            return False
 
     def get_task_form_rendered(self, task_id):
         request_url = self._process_request(f"task/{task_id}/rendered-form")
