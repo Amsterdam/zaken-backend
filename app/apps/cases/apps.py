@@ -2,4 +2,7 @@ from django.apps import AppConfig
 
 
 class CasesConfig(AppConfig):
-    name = "cases"
+    name = "apps.cases"
+
+    def ready(self):
+        import apps.cases.signals

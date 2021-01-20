@@ -309,3 +309,5 @@ CACHES = {
         },
     }
 }
+
+LOGOUT_REDIRECT_URL = "/admin"
