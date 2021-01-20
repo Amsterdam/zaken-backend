@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1lcjjzz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.3.0">
-  <bpmn:process id="visit_happend" isExecutable="true">
+  <bpmn:process id="zaak_wonen_vakantieverhuur" isExecutable="true">
     <bpmn:sequenceFlow id="Flow_1xhy3c6" sourceRef="task_nader_onderzoek_nodig" targetRef="Event_0uls9y1" />
     <bpmn:sequenceFlow id="Flow_1oipi38" name="violation = extra_research_required" sourceRef="is_debrief_violation" targetRef="task_nader_onderzoek_nodig">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='extra_research_required'}</bpmn:conditionExpression>
@@ -97,7 +97,7 @@
     </bpmn:startEvent>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="visit_happend">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="zaak_wonen_vakantieverhuur">
       <bpmndi:BPMNEdge id="Flow_0lji06z_di" bpmnElement="Flow_0lji06z">
         <di:waypoint x="570" y="387" />
         <di:waypoint x="630" y="387" />
