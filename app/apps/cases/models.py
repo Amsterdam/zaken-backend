@@ -4,6 +4,7 @@ from apps.addresses.models import Address
 from apps.events.models import CaseEvent, ModelEventEmitter
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class CaseTeam(models.Model):
@@ -65,6 +66,9 @@ class Case(ModelEventEmitter):
             return self.case_states.all().order_by("-state_date").first()
 
     def save(self, *args, **kwargs):
+        if not self.start_date:
+            self.start_date = timezone.now()
+
         if not self.identification:
             self.identification = self.__generate_identification__()
 

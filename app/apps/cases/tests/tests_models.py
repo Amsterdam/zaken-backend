@@ -1,7 +1,9 @@
+from datetime import datetime, timezone
 from uuid import UUID
 
 from apps.cases.models import Case, CaseReason, CaseTeam
 from django.test import TestCase
+from freezegun import freeze_time
 
 
 class CaseTeamModelTest(TestCase):
@@ -55,3 +57,17 @@ class CaseModelTest(TestCase):
         """ When a case is created without an identification, it should have a valid UUID """
         case = Case.objects.create()
         UUID(case.identification, version=4)
+
+    @freeze_time("2019-12-25")
+    def test_auto_start_date(self):
+        """ If a start data isn't specified, it should be set to the current time """
+        case = Case.objects.create()
+        self.assertEquals(case.start_date, datetime(2019, 12, 25, tzinfo=timezone.utc))
+
+    @freeze_time("2019-12-25")
+    def test_set_start_date(self):
+        """ If a start data is specified, it should be set to correctly """
+        date = datetime(2020, 1, 1, tzinfo=timezone.utc)
+
+        case = Case.objects.create(start_date=date)
+        self.assertEquals(case.start_date, date)
