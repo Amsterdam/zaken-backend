@@ -4,10 +4,12 @@ from apps.camunda.serializers import CamundaTaskSerializer
 from apps.camunda.services import CamundaService
 from apps.cases.filters import CaseFilter
 from apps.cases.mock import mock_cases
-from apps.cases.models import Case, CaseState
+from apps.cases.models import Case, CaseState, CaseTeam
 from apps.cases.serializers import (
+    CaseReasonSerializer,
     CaseSerializer,
     CaseStateSerializer,
+    CaseTeamSerializer,
     PushCaseStateSerializer,
 )
 from apps.debriefings.mixins import DebriefingsMixin
@@ -20,7 +22,12 @@ from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import (
+    ListAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
@@ -93,7 +100,7 @@ class CaseViewSet(
 
     @extend_schema(
         description="Get Camunda tasks for this Case",
-        responses={200: CamundaTaskSerializer(many=True)},
+        responses={status.HTTP_200_OK: CamundaTaskSerializer(many=True)},
     )
     @action(detail=True, methods=["get"], url_path="tasks")
     def get_tasks(self, request, pk):
@@ -105,3 +112,27 @@ class CaseViewSet(
 
             return Response(serializer.data)
         return Response([])
+
+
+class CaseTeamViewSet(ViewSet, ListAPIView):
+    serializer_class = CaseTeamSerializer
+    queryset = CaseTeam.objects.all()
+
+    @extend_schema(
+        description="Gets the reasons associated with the requested team",
+        responses={status.HTTP_200_OK: CaseReasonSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="reasons",
+        methods=["get"],
+    )
+    def reasons(self, request, pk):
+        paginator = PageNumberPagination()
+        case_team = self.get_object()
+        query_set = case_team.case_reasons.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = CaseReasonSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)

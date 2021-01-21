@@ -1,7 +1,19 @@
 from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer
-from apps.cases.models import Case, CaseState, CaseStateType
+from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTeam
 from rest_framework import serializers
+
+
+class CaseTeamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseTeam
+        fields = "__all__"
+
+
+class CaseReasonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseReason
+        fields = "__all__"
 
 
 class CaseStateSerializer(serializers.ModelSerializer):
