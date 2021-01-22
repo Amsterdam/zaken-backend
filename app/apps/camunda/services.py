@@ -42,7 +42,7 @@ class CamundaService:
             for process in content:
                 processes.append(process)
             return processes
-        except Exception:
+        except requests.exceptions.RequestException:
             return False
 
     def start_instance(self, process=settings.CAMUNDA_PROCESS_VAKANTIE_VERHUUR):
@@ -56,7 +56,7 @@ class CamundaService:
             response.raise_for_status()
             content = response.json()
             return content["id"]
-        except Exception:
+        except requests.exceptions.RequestException:
             return False
 
     def get_all_tasks_by_instance_id(self, process_instance_id):
@@ -67,7 +67,7 @@ class CamundaService:
             response.raise_for_status()
             content = response.json()
             return content
-        except Exception:
+        except requests.exceptions.RequestException:
             return False
 
     def get_task_form_variables(self, task_id):
@@ -77,7 +77,7 @@ class CamundaService:
             response.raise_for_status()
             content = response.json()
             return content
-        except Exception:
+        except requests.exceptions.RequestException:
             return False
 
     def get_task_form_rendered(self, task_id):
