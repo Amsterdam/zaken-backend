@@ -6,6 +6,7 @@ from apps.cases.filters import CaseFilter
 from apps.cases.mock import mock_cases
 from apps.cases.models import Case, CaseState, CaseTeam
 from apps.cases.serializers import (
+    CaseCreateUpdateSerializer,
     CaseReasonSerializer,
     CaseSerializer,
     CaseStateSerializer,
@@ -19,7 +20,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
-from rest_framework import status
+from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
 from rest_framework.generics import (
@@ -29,6 +30,7 @@ from rest_framework.generics import (
 )
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
 logger = logging.getLogger(__name__)
@@ -41,6 +43,7 @@ class CaseStateViewSet(ViewSet):
 
     permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = CaseStateSerializer
+    queryset = CaseState.objects.all()
 
     @action(
         detail=True,
@@ -85,6 +88,12 @@ class CaseViewSet(
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
     filterset_class = CaseFilter
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.action in ["create", "update"]:
+            return CaseCreateUpdateSerializer
+
+        return self.serializer_class
 
     @action(detail=False, methods=["post"], url_path="generate-mock")
     def mock_cases(self, request):

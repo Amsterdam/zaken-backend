@@ -1,4 +1,4 @@
-from apps.cases.models import CaseReason, CaseTeam
+from apps.cases.models import Case, CaseReason, CaseTeam
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -90,3 +90,80 @@ class CaseTeamReasonApiTest(APITestCase):
         data = response.json()
 
         self.assertEqual(len(data["results"]), 2)
+
+
+class CaseApiTest(APITestCase):
+    def test_unauthenticated_post(self):
+        url = reverse("cases-list")
+        client = get_unauthenticated_client()
+        response = client.post(url, {})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_authenticated_post_fail(self):
+        url = reverse("cases-list")
+        client = get_authenticated_client()
+        response = client.post(url, {})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_authenticated_post_create(self):
+        self.assertEquals(Case.objects.count(), 0)
+
+        case_team = CaseTeam.objects.create(name="Foo Case Team")
+        case_reason = CaseReason.objects.create(name="Reason A", case_team=case_team)
+
+        url = reverse("cases-list")
+        client = get_authenticated_client()
+        response = client.post(
+            url,
+            {
+                "text": "Foo",
+                "case_team": case_team.pk,
+                "case_reason": case_reason.pk,
+                "address": {"bag_id": "foo bag ID"},
+            },
+            format="json",
+        )
+
+        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(Case.objects.count(), 1)
+
+    def test_authenticated_post_create_fail_wrong_team(self):
+        """ Should not be able to create a case if a wrong team ID is given """
+        case_team = CaseTeam.objects.create(name="Foo Case Team")
+        case_reason = CaseReason.objects.create(name="Reason A", case_team=case_team)
+
+        url = reverse("cases-list")
+        client = get_authenticated_client()
+        response = client.post(
+            url,
+            {
+                "text": "Foo",
+                "case_team": 10,
+                "case_reason": case_reason.pk,
+                "address": {"bag_id": "foo bag ID"},
+            },
+            format="json",
+        )
+
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEquals(Case.objects.count(), 0)
+
+    def test_authenticated_post_create_fail_wrong_reason(self):
+        """ Should not be able to create a case if a wrong team ID is given """
+        case_team = CaseTeam.objects.create(name="Foo Case Team")
+
+        url = reverse("cases-list")
+        client = get_authenticated_client()
+        response = client.post(
+            url,
+            {
+                "text": "Foo",
+                "case_team": case_team.pk,
+                "case_reason": 10,
+                "address": {"bag_id": "foo bag ID"},
+            },
+            format="json",
+        )
+
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEquals(Case.objects.count(), 0)

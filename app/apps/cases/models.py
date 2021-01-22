@@ -42,6 +42,9 @@ class Case(ModelEventEmitter):
     camunda_id = models.CharField(max_length=255, null=True, blank=True)
     case_team = models.ForeignKey(to=CaseTeam, null=True, on_delete=models.PROTECT)
     case_reason = models.ForeignKey(to=CaseReason, null=True, on_delete=models.PROTECT)
+    text = models.TextField(blank=True, null=True)
+
+    # TODO: Validate that case_reason to case_team relation
 
     def __get_event_values__(self):
         return {
