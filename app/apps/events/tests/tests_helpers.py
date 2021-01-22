@@ -4,6 +4,7 @@ from django.core import management
 from django.db import connection, models
 from django.db.models.base import ModelBase
 from django.db.utils import ProgrammingError
+from model_bakery import baker
 from rest_framework.test import APITestCase
 
 
@@ -12,7 +13,7 @@ class CaseEventEmitterTestCase(APITestCase):
         management.call_command("flush", verbosity=0, interactive=False)
 
     def create_case(self):
-        case = Case.objects.create()
+        case = baker.make(Case)
         return case
 
     @classmethod

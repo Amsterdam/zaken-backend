@@ -1,5 +1,7 @@
 from apps.cases.models import Case, CaseReason, CaseTeam
+from django.core import management
 from django.urls import reverse
+from model_bakery import baker
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -11,6 +13,9 @@ from app.utils.unittest_helpers import (
 
 
 class CaseTeamApiTest(APITestCase):
+    def setUp(self):
+        management.call_command("flush", verbosity=0, interactive=False)
+
     def test_unauthenticated_get(self):
         url = reverse("teams-list")
         client = get_unauthenticated_client()
@@ -33,8 +38,7 @@ class CaseTeamApiTest(APITestCase):
         self.assertEquals(data["results"], [])
 
     def test_authenticated_get_filled(self):
-        CaseTeam.objects.create(name="Foo Case Team A")
-        CaseTeam.objects.create(name="Foo Case Team B")
+        baker.make(CaseTeam, _quantity=2)
 
         url = reverse("teams-list")
         client = get_authenticated_client()
@@ -46,6 +50,9 @@ class CaseTeamApiTest(APITestCase):
 
 
 class CaseTeamReasonApiTest(APITestCase):
+    def setUp(self):
+        management.call_command("flush", verbosity=0, interactive=False)
+
     def test_unauthenticated_get(self):
         url = reverse("teams-reasons", kwargs={"pk": 1})
 
@@ -61,7 +68,7 @@ class CaseTeamReasonApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_authenticated_get(self):
-        team = CaseTeam.objects.create(name="Foo Case Team")
+        team = baker.make(CaseTeam)
         url = reverse("teams-reasons", kwargs={"pk": team.pk})
 
         client = get_authenticated_client()
@@ -69,7 +76,7 @@ class CaseTeamReasonApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_authenticated_get_empty(self):
-        team = CaseTeam.objects.create(name="Foo Case Team")
+        team = baker.make(CaseTeam)
         url = reverse("teams-reasons", kwargs={"pk": team.pk})
 
         client = get_authenticated_client()
@@ -79,9 +86,8 @@ class CaseTeamReasonApiTest(APITestCase):
         self.assertEqual(data["results"], [])
 
     def test_authenticated_get_list(self):
-        team = CaseTeam.objects.create(name="Foo Case Team")
-        CaseReason.objects.create(name="Reason A", team=team)
-        CaseReason.objects.create(name="Reason B", team=team)
+        team = baker.make(CaseTeam)
+        baker.make(CaseReason, team=team, _quantity=2)
 
         url = reverse("teams-reasons", kwargs={"pk": team.pk})
 
@@ -93,6 +99,9 @@ class CaseTeamReasonApiTest(APITestCase):
 
 
 class CaseApiTest(APITestCase):
+    def setUp(self):
+        management.call_command("flush", verbosity=0, interactive=False)
+
     def test_unauthenticated_post(self):
         url = reverse("cases-list")
         client = get_unauthenticated_client()
@@ -108,8 +117,8 @@ class CaseApiTest(APITestCase):
     def test_authenticated_post_create(self):
         self.assertEquals(Case.objects.count(), 0)
 
-        team = CaseTeam.objects.create(name="Foo Case Team")
-        reason = CaseReason.objects.create(name="Reason A", team=team)
+        team = baker.make(CaseTeam)
+        reason = baker.make(CaseReason, team=team)
 
         url = reverse("cases-list")
         client = get_authenticated_client()
@@ -129,8 +138,8 @@ class CaseApiTest(APITestCase):
 
     def test_authenticated_post_create_fail_wrong_team(self):
         """ Should not be able to create a case if a wrong team ID is given """
-        team = CaseTeam.objects.create(name="Foo Case Team")
-        reason = CaseReason.objects.create(name="Reason A", team=team)
+        team = baker.make(CaseTeam)
+        reason = baker.make(CaseReason, team=team)
 
         url = reverse("cases-list")
         client = get_authenticated_client()
@@ -150,7 +159,7 @@ class CaseApiTest(APITestCase):
 
     def test_authenticated_post_create_fail_wrong_reason(self):
         """ Should not be able to create a case if a wrong team ID is given """
-        team = CaseTeam.objects.create(name="Foo Case Team")
+        team = baker.make(CaseTeam)
 
         url = reverse("cases-list")
         client = get_authenticated_client()
@@ -172,9 +181,9 @@ class CaseApiTest(APITestCase):
         """ Request should fail if the CaseReason is not one of the given teams CaseReasons """
         self.assertEquals(Case.objects.count(), 0)
 
-        team_a = CaseTeam.objects.create(name="Foo Case Team A")
-        team_b = CaseTeam.objects.create(name="Foo Case Team B")
-        reason = CaseReason.objects.create(name="Reason A", team=team_a)
+        team_a = baker.make(CaseTeam)
+        team_b = baker.make(CaseTeam)
+        reason = baker.make(CaseReason, team=team_a)
 
         url = reverse("cases-list")
         client = get_authenticated_client()

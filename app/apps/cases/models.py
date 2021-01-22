@@ -17,7 +17,7 @@ class CaseTeam(models.Model):
 class CaseReason(models.Model):
     name = models.CharField(max_length=255)
     team = models.ForeignKey(
-        to=CaseTeam, related_name="case_reasons", on_delete=models.CASCADE
+        to=CaseTeam, related_name="reasons", on_delete=models.CASCADE
     )
 
     def __str__(self):
@@ -45,7 +45,7 @@ class Case(ModelEventEmitter):
     description = models.TextField(blank=True, null=True)
 
     def __get_event_values__(self):
-        reason = self.reason
+        reason = self.reason.name
         if self.is_legacy_bwv:
             reason = "Deze zaak bestond al voor het nieuwe zaaksysteem. Zie BWV voor de aanleiding(en)."
 

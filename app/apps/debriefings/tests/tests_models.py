@@ -42,7 +42,7 @@ class DebriefingModelTest(TestCase, DebriefingTestMixin):
     @freeze_time("2019-12-25")
     def test_can_be_modified(self):
         debriefing = self.create_debriefing()
-        modified_feedback = debriefing.feedback + "Adding more text"
+        modified_feedback = "Adding other text"
         modified_violation = Debriefing.VIOLATION_ADDITIONAL_RESEARCH_REQUIRED
 
         debriefing.feedback = modified_feedback
