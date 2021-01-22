@@ -47,10 +47,14 @@ class Case(ModelEventEmitter):
     # TODO: Validate that case_reason to case_team relation
 
     def __get_event_values__(self):
+        case_reason = self.case_reason
+        if self.is_legacy_bwv:
+            case_reason = "Deze zaak bestond al voor het nieuwe zaaksysteem. Zie BWV voor de aanleiding(en)."
+
         return {
             "start_date": self.start_date,
             "end_date": self.end_date,
-            "reason": self.case_reason,
+            "reason": case_reason,
         }
 
     def __get_case__(self):
