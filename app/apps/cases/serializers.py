@@ -55,13 +55,15 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         """
         Check CaseReason and CaseTeam relation
         """
-        case_team = CaseTeam.objects.get(data["case_team"])
-        case_reason = CaseReason.object.get(data["case_reason"])
+        case_team = data["case_team"]
+        case_reason = data["case_reason"]
 
         if case_reason.case_team != case_team:
             raise serializers.ValidationError(
                 "case_reason must be one of the case_team CaseReasons"
             )
+
+        return data
 
     def update(self, instance, validated_data):
         address_data = validated_data.pop("address", None)
