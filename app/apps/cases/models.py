@@ -44,8 +44,6 @@ class Case(ModelEventEmitter):
     case_reason = models.ForeignKey(to=CaseReason, null=True, on_delete=models.PROTECT)
     text = models.TextField(blank=True, null=True)
 
-    # TODO: Validate that case_reason to case_team relation
-
     def __get_event_values__(self):
         case_reason = self.case_reason
         if self.is_legacy_bwv:

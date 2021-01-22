@@ -51,6 +51,18 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         model = Case
         fields = ("address", "case_team", "case_reason", "text")
 
+    def validate(self, data):
+        """
+        Check CaseReason and CaseTeam relation
+        """
+        case_team = CaseTeam.objects.get(data["case_team"])
+        case_reason = CaseReason.object.get(data["case_reason"])
+
+        if case_reason.case_team != case_team:
+            raise serializers.ValidationError(
+                "case_reason must be one of the case_team CaseReasons"
+            )
+
     def update(self, instance, validated_data):
         address_data = validated_data.pop("address", None)
         if address_data:

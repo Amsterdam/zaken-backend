@@ -167,3 +167,27 @@ class CaseApiTest(APITestCase):
 
         self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEquals(Case.objects.count(), 0)
+
+    def test_authenticated_post_create_wrong_case_team_reason_relation(self):
+        """ Request should fail if the CaseReason is not one of the given teams CaseReasons """
+        self.assertEquals(Case.objects.count(), 0)
+
+        case_team_a = CaseTeam.objects.create(name="Foo Case Team A")
+        case_team_b = CaseTeam.objects.create(name="Foo Case Team B")
+        case_reason = CaseReason.objects.create(name="Reason A", case_team=case_team_a)
+
+        url = reverse("cases-list")
+        client = get_authenticated_client()
+        response = client.post(
+            url,
+            {
+                "text": "Foo",
+                "case_team": case_team_b.pk,
+                "case_reason": case_reason.pk,
+                "address": {"bag_id": "foo bag ID"},
+            },
+            format="json",
+        )
+
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEquals(Case.objects.count(), 0)
