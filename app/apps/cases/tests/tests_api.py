@@ -61,16 +61,16 @@ class CaseTeamReasonApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_authenticated_get(self):
-        case_team = CaseTeam.objects.create(name="Foo Case Team")
-        url = reverse("teams-reasons", kwargs={"pk": case_team.pk})
+        team = CaseTeam.objects.create(name="Foo Case Team")
+        url = reverse("teams-reasons", kwargs={"pk": team.pk})
 
         client = get_authenticated_client()
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_authenticated_get_empty(self):
-        case_team = CaseTeam.objects.create(name="Foo Case Team")
-        url = reverse("teams-reasons", kwargs={"pk": case_team.pk})
+        team = CaseTeam.objects.create(name="Foo Case Team")
+        url = reverse("teams-reasons", kwargs={"pk": team.pk})
 
         client = get_authenticated_client()
         response = client.get(url)
@@ -79,11 +79,11 @@ class CaseTeamReasonApiTest(APITestCase):
         self.assertEqual(data["results"], [])
 
     def test_authenticated_get_list(self):
-        case_team = CaseTeam.objects.create(name="Foo Case Team")
-        CaseReason.objects.create(name="Reason A", case_team=case_team)
-        CaseReason.objects.create(name="Reason B", case_team=case_team)
+        team = CaseTeam.objects.create(name="Foo Case Team")
+        CaseReason.objects.create(name="Reason A", team=team)
+        CaseReason.objects.create(name="Reason B", team=team)
 
-        url = reverse("teams-reasons", kwargs={"pk": case_team.pk})
+        url = reverse("teams-reasons", kwargs={"pk": team.pk})
 
         client = get_authenticated_client()
         response = client.get(url)
@@ -108,17 +108,17 @@ class CaseApiTest(APITestCase):
     def test_authenticated_post_create(self):
         self.assertEquals(Case.objects.count(), 0)
 
-        case_team = CaseTeam.objects.create(name="Foo Case Team")
-        case_reason = CaseReason.objects.create(name="Reason A", case_team=case_team)
+        team = CaseTeam.objects.create(name="Foo Case Team")
+        reason = CaseReason.objects.create(name="Reason A", team=team)
 
         url = reverse("cases-list")
         client = get_authenticated_client()
         response = client.post(
             url,
             {
-                "text": "Foo",
-                "case_team": case_team.pk,
-                "case_reason": case_reason.pk,
+                "description": "Foo",
+                "team": team.pk,
+                "reason": reason.pk,
                 "address": {"bag_id": "foo bag ID"},
             },
             format="json",
@@ -129,17 +129,17 @@ class CaseApiTest(APITestCase):
 
     def test_authenticated_post_create_fail_wrong_team(self):
         """ Should not be able to create a case if a wrong team ID is given """
-        case_team = CaseTeam.objects.create(name="Foo Case Team")
-        case_reason = CaseReason.objects.create(name="Reason A", case_team=case_team)
+        team = CaseTeam.objects.create(name="Foo Case Team")
+        reason = CaseReason.objects.create(name="Reason A", team=team)
 
         url = reverse("cases-list")
         client = get_authenticated_client()
         response = client.post(
             url,
             {
-                "text": "Foo",
-                "case_team": 10,
-                "case_reason": case_reason.pk,
+                "description": "Foo",
+                "team": 10,
+                "reason": reason.pk,
                 "address": {"bag_id": "foo bag ID"},
             },
             format="json",
@@ -150,16 +150,16 @@ class CaseApiTest(APITestCase):
 
     def test_authenticated_post_create_fail_wrong_reason(self):
         """ Should not be able to create a case if a wrong team ID is given """
-        case_team = CaseTeam.objects.create(name="Foo Case Team")
+        team = CaseTeam.objects.create(name="Foo Case Team")
 
         url = reverse("cases-list")
         client = get_authenticated_client()
         response = client.post(
             url,
             {
-                "text": "Foo",
-                "case_team": case_team.pk,
-                "case_reason": 10,
+                "description": "Foo",
+                "team": team.pk,
+                "reason": 10,
                 "address": {"bag_id": "foo bag ID"},
             },
             format="json",
@@ -168,22 +168,22 @@ class CaseApiTest(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEquals(Case.objects.count(), 0)
 
-    def test_authenticated_post_create_wrong_case_team_reason_relation(self):
+    def test_authenticated_post_create_wrong_team_reason_relation(self):
         """ Request should fail if the CaseReason is not one of the given teams CaseReasons """
         self.assertEquals(Case.objects.count(), 0)
 
-        case_team_a = CaseTeam.objects.create(name="Foo Case Team A")
-        case_team_b = CaseTeam.objects.create(name="Foo Case Team B")
-        case_reason = CaseReason.objects.create(name="Reason A", case_team=case_team_a)
+        team_a = CaseTeam.objects.create(name="Foo Case Team A")
+        team_b = CaseTeam.objects.create(name="Foo Case Team B")
+        reason = CaseReason.objects.create(name="Reason A", team=team_a)
 
         url = reverse("cases-list")
         client = get_authenticated_client()
         response = client.post(
             url,
             {
-                "text": "Foo",
-                "case_team": case_team_b.pk,
-                "case_reason": case_reason.pk,
+                "description": "Foo",
+                "team": team_b.pk,
+                "reason": reason.pk,
                 "address": {"bag_id": "foo bag ID"},
             },
             format="json",

@@ -138,8 +138,8 @@ class CaseTeamViewSet(ViewSet, ListAPIView):
     )
     def reasons(self, request, pk):
         paginator = PageNumberPagination()
-        case_team = self.get_object()
-        query_set = case_team.case_reasons.all()
+        team = self.get_object()
+        query_set = team.reasons.all()
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = CaseReasonSerializer(context, many=True)

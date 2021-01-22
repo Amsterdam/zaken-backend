@@ -21,19 +21,19 @@ class CaseReasonModelTest(TestCase):
         """ Tests CaseReason object creation """
         self.assertEquals(CaseTeam.objects.count(), 0)
 
-        case_team = CaseTeam.objects.create(name="Foo Case Team")
-        CaseReason.objects.create(name="Foo Reason", case_team=case_team)
+        team = CaseTeam.objects.create(name="Foo Case Team")
+        CaseReason.objects.create(name="Foo Reason", team=team)
 
         self.assertEquals(CaseTeam.objects.count(), 1)
 
     def test_teams_has_multiple_reasons(self):
-        """ Tests reverse access of case reasons through the case_team object """
+        """ Tests reverse access of case reasons through the team object """
 
-        case_team = CaseTeam.objects.create(name="Foo")
-        CaseReason.objects.create(name="Foo Reason A", case_team=case_team)
-        CaseReason.objects.create(name="Foo Reason B", case_team=case_team)
+        team = CaseTeam.objects.create(name="Foo")
+        CaseReason.objects.create(name="Foo Reason A", team=team)
+        CaseReason.objects.create(name="Foo Reason B", team=team)
 
-        self.assertEquals(case_team.case_reasons.count(), 2)
+        self.assertEquals(team.reasons.count(), 2)
 
 
 class CaseModelTest(TestCase):
@@ -41,9 +41,9 @@ class CaseModelTest(TestCase):
         """ A case can be created """
         self.assertEquals(Case.objects.count(), 0)
 
-        case_team = CaseTeam.objects.create(name="Foo Case Team")
-        case_reason = CaseReason.objects.create(name="Foo Reason", case_team=case_team)
-        Case.objects.create(case_team=case_team, case_reason=case_reason)
+        team = CaseTeam.objects.create(name="Foo Case Team")
+        reason = CaseReason.objects.create(name="Foo Reason", team=team)
+        Case.objects.create(team=team, reason=reason)
 
         self.assertEquals(Case.objects.count(), 1)
 

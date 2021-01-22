@@ -8,16 +8,16 @@ from django.utils import timezone
 
 
 class CaseTeam(models.Model):
-    name = models.CharField(max_length=255, null=False)
+    name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
 
 
 class CaseReason(models.Model):
-    name = models.CharField(max_length=255, null=False)
-    case_team = models.ForeignKey(
-        to=CaseTeam, null=False, related_name="case_reasons", on_delete=models.PROTECT
+    name = models.CharField(max_length=255)
+    team = models.ForeignKey(
+        to=CaseTeam, related_name="case_reasons", on_delete=models.CASCADE
     )
 
     def __str__(self):
@@ -40,19 +40,19 @@ class Case(ModelEventEmitter):
     )
     is_legacy_bwv = models.BooleanField(default=False)
     camunda_id = models.CharField(max_length=255, null=True, blank=True)
-    case_team = models.ForeignKey(to=CaseTeam, null=True, on_delete=models.PROTECT)
-    case_reason = models.ForeignKey(to=CaseReason, null=True, on_delete=models.PROTECT)
-    text = models.TextField(blank=True, null=True)
+    team = models.ForeignKey(to=CaseTeam, on_delete=models.PROTECT)
+    reason = models.ForeignKey(to=CaseReason, on_delete=models.PROTECT)
+    description = models.TextField(blank=True, null=True)
 
     def __get_event_values__(self):
-        case_reason = self.case_reason
+        reason = self.reason
         if self.is_legacy_bwv:
-            case_reason = "Deze zaak bestond al voor het nieuwe zaaksysteem. Zie BWV voor de aanleiding(en)."
+            reason = "Deze zaak bestond al voor het nieuwe zaaksysteem. Zie BWV voor de aanleiding(en)."
 
         return {
             "start_date": self.start_date,
             "end_date": self.end_date,
-            "reason": case_reason,
+            "reason": reason,
         }
 
     def __get_case__(self):

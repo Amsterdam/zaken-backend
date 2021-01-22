@@ -30,8 +30,8 @@ class CaseSerializer(serializers.ModelSerializer):
     current_state = CaseStateSerializer(
         source="get_current_state", required=False, read_only=True
     )
-    case_team = CaseTeamSerializer(required=True)
-    case_reason = CaseReasonSerializer(required=True)
+    team = CaseTeamSerializer(required=True)
+    reason = CaseReasonSerializer(required=True)
 
     class Meta:
         model = Case
@@ -40,27 +40,27 @@ class CaseSerializer(serializers.ModelSerializer):
 
 class CaseCreateUpdateSerializer(serializers.ModelSerializer):
     address = AddressSerializer(required=True)
-    case_team = serializers.PrimaryKeyRelatedField(
+    team = serializers.PrimaryKeyRelatedField(
         many=False, required=True, queryset=CaseTeam.objects.all()
     )
-    case_reason = serializers.PrimaryKeyRelatedField(
+    reason = serializers.PrimaryKeyRelatedField(
         many=False, required=True, queryset=CaseReason.objects.all()
     )
 
     class Meta:
         model = Case
-        fields = ("address", "case_team", "case_reason", "text")
+        fields = ("address", "team", "reason", "description")
 
     def validate(self, data):
         """
         Check CaseReason and CaseTeam relation
         """
-        case_team = data["case_team"]
-        case_reason = data["case_reason"]
+        team = data["team"]
+        reason = data["reason"]
 
-        if case_reason.case_team != case_team:
+        if reason.team != team:
             raise serializers.ValidationError(
-                "case_reason must be one of the case_team CaseReasons"
+                "reason must be one of the team CaseReasons"
             )
 
         return data

@@ -311,3 +311,6 @@ CACHES = {
 }
 
 LOGOUT_REDIRECT_URL = "/admin"
+
+DEFAULT_TEAM = os.getenv("DEFAULT_TEAM", "Vakantieverhuur")
+DEFAULT_REASON = os.getenv("DEFAULT_REASON", "Melding")
