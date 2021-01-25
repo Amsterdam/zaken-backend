@@ -31,25 +31,28 @@ class CamundaService:
                 )
             return response
         except requests.exceptions.Timeout:
-            return Response(
+            response = Response(
                 "Camunda service is offline",
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
+            response.ok = False
+            return response
         except requests.exceptions.RequestException:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.ok = False
+            return response
 
     def get_process_definitions(self):
         processes = []
         response = self._process_request("/process-definition")
 
-        try:
-            response.raise_for_status()
+        if response.ok:
             content = response.json()
 
             for process in content:
                 processes.append(process)
             return processes
-        except requests.exceptions.RequestException:
+        else:
             return False
 
     def start_instance(self, process=settings.CAMUNDA_PROCESS_VAKANTIE_VERHUUR):
@@ -59,32 +62,29 @@ class CamundaService:
         request_path = f"/process-definition/key/{process}/start"
         response = self._process_request(request_path, post=True)
 
-        try:
-            response.raise_for_status()
+        if response.ok:
             content = response.json()
             return content["id"]
-        except requests.exceptions.RequestException:
+        else:
             return False
 
     def get_all_tasks_by_instance_id(self, process_instance_id):
         request_path = f"/task?processInstanceId={process_instance_id}"
         response = self._process_request(request_path)
 
-        try:
-            response.raise_for_status()
+        if response.ok:
             content = response.json()
             return content
-        except requests.exceptions.RequestException:
+        else:
             return False
 
     def get_task_form_variables(self, task_id):
         response = self._process_request(f"/task/{task_id}/form-variables")
 
-        try:
-            response.raise_for_status()
+        if response.ok:
             content = response.json()
             return content
-        except requests.exceptions.RequestException:
+        else:
             return False
 
     def get_task_form_rendered(self, task_id):
