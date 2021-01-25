@@ -31,11 +31,13 @@ class CamundaTaskViewSet(viewsets.ViewSet):
 
         if serializer.is_valid():
             camunda_response = CamundaService().complete_task(
-                serializer.data["task_id"], serializer.data["variables"]
+                serializer.data["camunda_task_id"], serializer.data["variables"]
             )
 
             if camunda_response:
-                return Response(f"Task {serializer.data['task_id']} has been completed")
+                return Response(
+                    f"Task {serializer.data['camunda_task_id']} has been completed"
+                )
             else:
                 return Response(
                     "Camunda service is offline",
