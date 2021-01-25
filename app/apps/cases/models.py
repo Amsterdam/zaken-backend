@@ -1,12 +1,27 @@
 import uuid
 
 from apps.addresses.models import Address
-from apps.camunda.services import CamundaService
 from apps.events.models import CaseEvent, ModelEventEmitter
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import post_init, post_save
-from django.dispatch import receiver
+from django.utils import timezone
+
+
+class CaseTeam(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
+class CaseReason(models.Model):
+    name = models.CharField(max_length=255)
+    team = models.ForeignKey(
+        to=CaseTeam, related_name="reasons", on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.name
 
 
 class Case(ModelEventEmitter):
@@ -25,41 +40,44 @@ class Case(ModelEventEmitter):
     )
     is_legacy_bwv = models.BooleanField(default=False)
     camunda_id = models.CharField(max_length=255, null=True, blank=True)
+    team = models.ForeignKey(to=CaseTeam, on_delete=models.PROTECT)
+    reason = models.ForeignKey(to=CaseReason, on_delete=models.PROTECT)
+    description = models.TextField(blank=True, null=True)
 
     def __get_event_values__(self):
+        reason = self.reason.name
+        if self.is_legacy_bwv:
+            reason = "Deze zaak bestond al voor het nieuwe zaaksysteem. Zie BWV voor de aanleiding(en)."
+
         return {
             "start_date": self.start_date,
             "end_date": self.end_date,
-            # TODO: This is hardcoded and will be dynamic at a later point
-            "reason": "Deze zaak bestond al voor het nieuwe zaaksysteem. Zie BWV voor de aanleiding(en).",
+            "reason": reason,
         }
 
     def __get_case__(self):
         return self
 
-    def get_current_state(self):
-        if self.case_states.count() > 0:
-            return self.case_states.all().order_by("-state_date").first()
-        return None
+    def __generate_identification__(self):
+        return str(uuid.uuid4())
 
     def __str__(self):
         if self.identification:
             return f"Case {self.id} - {self.identification}"
         return f"Case {self.id}"
 
+    def get_current_state(self):
+        if self.case_states.count() > 0:
+            return self.case_states.all().order_by("-state_date").first()
+
     def save(self, *args, **kwargs):
+        if not self.start_date:
+            self.start_date = timezone.now()
+
         if not self.identification:
-            self.identification = str(uuid.uuid4())
+            self.identification = self.__generate_identification__()
 
         super().save(*args, **kwargs)
-
-
-@receiver(post_save, sender=Case, dispatch_uid="case_init_in_camunda")
-def create_case_instance_in_camunda(sender, instance, created, **kwargs):
-    if created:
-        camunda_id = CamundaService().start_instance()
-        instance.camunda_id = camunda_id
-        instance.save()
 
 
 class CaseStateType(models.Model):

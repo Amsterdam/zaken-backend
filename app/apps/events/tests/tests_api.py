@@ -1,4 +1,5 @@
 from apps.events.tests.tests_helpers import CaseEventEmitterTestCase
+from django.core import management
 from django.urls import reverse
 from rest_framework import status
 

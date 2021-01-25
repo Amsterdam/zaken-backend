@@ -1,4 +1,4 @@
-from apps.cases.models import Case, CaseState, CaseStateType
+from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTeam
 from django.contrib import admin
 
 
@@ -9,3 +9,5 @@ class CaseAdmin(admin.ModelAdmin):
 
 admin.site.register(CaseState, admin.ModelAdmin)
 admin.site.register(CaseStateType, admin.ModelAdmin)
+admin.site.register(CaseTeam, admin.ModelAdmin)
+admin.site.register(CaseReason, admin.ModelAdmin)

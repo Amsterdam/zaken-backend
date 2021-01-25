@@ -110,7 +110,7 @@ class DebriefingUpdateAPITest(APITestCase, DebriefingTestMixin):
         url = reverse("debriefings-detail", kwargs={"pk": debriefing.id})
         client = get_authenticated_client()
 
-        UPDATED_FEEDBACK = debriefing.feedback + "UPDATED FEEDBACK"
+        UPDATED_FEEDBACK = "UPDATED FEEDBACK"
         UPDATED_VIOLATION = Debriefing.VIOLATION_ADDITIONAL_RESEARCH_REQUIRED
 
         response = client.patch(

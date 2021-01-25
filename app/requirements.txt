@@ -21,3 +21,4 @@ git+https://github.com/petercuret/keycloak_oidc.git@master
 django-spaghetti-and-meatballs
 django-health-check
 django-redis==4.11.0
+PyJWT<2.0.0
