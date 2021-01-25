@@ -72,33 +72,33 @@ class CamundaService:
             return content
         return False
 
-    def get_task_form_variables(self, task_id):
-        response = self._process_request(f"/task/{task_id}/form-variables")
+    def get_task_form_variables(self, camunda_task_id):
+        response = self._process_request(f"/task/{camunda_task_id}/form-variables")
 
         if response.ok:
             content = response.json()
             return content
         return False
 
-    def get_task_form_rendered(self, task_id):
-        request_path = f"/task/{task_id}/rendered-form"
+    def get_task_form_rendered(self, camunda_task_id):
+        request_path = f"/task/{camunda_task_id}/rendered-form"
         response = self._process_request(request_path)
 
         return response.content.decode("utf-8").replace("\n", "")
 
-    def submit_form_json(self, task_id, form_values):
+    def submit_form_json(self, camunda_task_id, form_values):
         """
         https://docs.camunda.org/manual/7.5/reference/rest/task/post-submit-form/#request
         """
-        request_path = f"/task/{task_id}/submit-form"
+        request_path = f"/task/{camunda_task_id}/submit-form"
         request_body = json.dumps({"variables": form_values})
 
         response = self._process_request(request_path, request_body, post=True)
 
         return response
 
-    def complete_task(self, task_id, variables={}):
-        request_path = f"/task/{task_id}/complete"
+    def complete_task(self, camunda_task_id, variables={}):
+        request_path = f"/task/{camunda_task_id}/complete"
         request_body = json.dumps({"variables": variables})
 
         response = self._process_request(request_path, request_body, post=True)
