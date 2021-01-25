@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1lcjjzz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.3.0">
   <bpmn:process id="zaak_wonen_vakantieverhuur" isExecutable="true">
-    <bpmn:sequenceFlow id="Flow_1xhy3c6" sourceRef="task_nader_onderzoek_nodig" targetRef="Event_0uls9y1" />
-    <bpmn:sequenceFlow id="Flow_1oipi38" name="violation = extra_research_required" sourceRef="is_debrief_violation" targetRef="task_nader_onderzoek_nodig">
+    <bpmn:sequenceFlow id="Flow_1oipi38" name="violation &#10;= &#10;extra_research_required" sourceRef="is_debrief_violation" targetRef="task_nader_onderzoek_nodig">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='extra_research_required'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1dopikc" sourceRef="task_opstellen_aanschrijving" targetRef="Event_0dvx92k" />
     <bpmn:sequenceFlow id="Flow_006wtg4" sourceRef="task_close_case" targetRef="Event_1pmbcxw" />
-    <bpmn:sequenceFlow id="Flow_0xbzrb4" sourceRef="task_sia_terugkoppeling_2" targetRef="task_close_case" />
-    <bpmn:sequenceFlow id="Flow_09fde08" name="violation = false" sourceRef="is_debrief_violation" targetRef="task_sia_terugkoppeling_2">
+    <bpmn:sequenceFlow id="Flow_0xbzrb4" sourceRef="task_sia_terugkoppeling_2" targetRef="Gateway_1h8osuo" />
+    <bpmn:sequenceFlow id="Flow_09fde08" name="violation = false" sourceRef="is_debrief_violation" targetRef="Gateway_0hh2brn">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='false'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1fkr530" sourceRef="task_sia_terugkoppeling" targetRef="Gateway_1cbngmn" />
@@ -18,32 +17,22 @@
     <bpmn:sequenceFlow id="Flow_1xhnyyp" sourceRef="task_beeldverslag_opstellen" targetRef="Gateway_1cbngmn" />
     <bpmn:sequenceFlow id="Flow_0inubyk" sourceRef="Gateway_0289ucr" targetRef="task_rapport_van_bevindingen_opstellen" />
     <bpmn:sequenceFlow id="Flow_1w9hb8b" sourceRef="Gateway_0289ucr" targetRef="task_beeldverslag_opstellen" />
-    <bpmn:sequenceFlow id="Flow_0ioz92r" sourceRef="task_has_violation_occured" targetRef="is_debrief_violation" />
     <bpmn:sequenceFlow id="Flow_090pn4r" name="violation = true" sourceRef="is_debrief_violation" targetRef="Gateway_0289ucr">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='true'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0dedd3r" sourceRef="StartEvent_1" targetRef="task_visit_succesful" />
-    <bpmn:sequenceFlow id="Flow_1nodwrq" sourceRef="task_visit_succesful" targetRef="task_create_debrief" />
-    <bpmn:sequenceFlow id="Flow_0lji06z" sourceRef="task_create_debrief" targetRef="task_has_violation_occured" />
-    <bpmn:endEvent id="Event_0uls9y1">
-      <bpmn:incoming>Flow_1xhy3c6</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:userTask id="task_nader_onderzoek_nodig" name="Nader onderzoek nodig">
+    <bpmn:sequenceFlow id="Flow_0lji06z" sourceRef="task_create_debrief" targetRef="is_debrief_violation" />
+    <bpmn:userTask id="task_nader_onderzoek_nodig" name="Uitzetten huisbezoek">
       <bpmn:incoming>Flow_1oipi38</bpmn:incoming>
-      <bpmn:outgoing>Flow_1xhy3c6</bpmn:outgoing>
+      <bpmn:outgoing>Flow_00jr9tv</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:exclusiveGateway id="is_debrief_violation" name="Is er een overtreding gepleegd">
-      <bpmn:incoming>Flow_0ioz92r</bpmn:incoming>
+      <bpmn:incoming>Flow_0lji06z</bpmn:incoming>
       <bpmn:outgoing>Flow_090pn4r</bpmn:outgoing>
       <bpmn:outgoing>Flow_09fde08</bpmn:outgoing>
       <bpmn:outgoing>Flow_1oipi38</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_has_violation_occured" name="Heeft een overtreding plaatsgevonden" camunda:candidateGroups="projecthandhaver">
-      <bpmn:incoming>Flow_0lji06z</bpmn:incoming>
-      <bpmn:outgoing>Flow_0ioz92r</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:userTask id="task_close_case" name="Zaak afsluiten">
-      <bpmn:incoming>Flow_0xbzrb4</bpmn:incoming>
+      <bpmn:incoming>Flow_08g1vll</bpmn:incoming>
       <bpmn:outgoing>Flow_006wtg4</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:endEvent id="Event_1pmbcxw">
@@ -53,7 +42,7 @@
       <bpmn:incoming>Flow_1dopikc</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:userTask id="task_sia_terugkoppeling_2" name="SIA Terugkoppeling aan melder">
-      <bpmn:incoming>Flow_09fde08</bpmn:incoming>
+      <bpmn:incoming>Flow_07k5tia</bpmn:incoming>
       <bpmn:outgoing>Flow_0xbzrb4</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:userTask id="task_sia_terugkoppeling" name="SIA Terugkoppeling aan melder">
@@ -85,162 +74,259 @@
       <bpmn:outgoing>Flow_1mvvhfy</bpmn:outgoing>
     </bpmn:parallelGateway>
     <bpmn:userTask id="task_create_debrief" name="Debrief aanmaken" camunda:candidateGroups="projectmedewerkers">
-      <bpmn:incoming>Flow_1nodwrq</bpmn:incoming>
+      <bpmn:incoming>Flow_0otwfql</bpmn:incoming>
       <bpmn:outgoing>Flow_0lji06z</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_visit_succesful" name="Er is een bezoek geweest en ze zijn binnen geweest" camunda:candidateGroups="toezichthouders">
-      <bpmn:incoming>Flow_0dedd3r</bpmn:incoming>
-      <bpmn:outgoing>Flow_1nodwrq</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:startEvent id="StartEvent_1">
-      <bpmn:outgoing>Flow_0dedd3r</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1p8gwr1</bpmn:outgoing>
     </bpmn:startEvent>
+    <bpmn:subProcess id="Activity_0lkzwez">
+      <bpmn:incoming>Flow_1p8gwr1</bpmn:incoming>
+      <bpmn:incoming>Flow_0ioch14</bpmn:incoming>
+      <bpmn:incoming>Flow_00jr9tv</bpmn:incoming>
+      <bpmn:outgoing>Flow_1mmzhem</bpmn:outgoing>
+      <bpmn:startEvent id="Event_1blre1s">
+        <bpmn:outgoing>Flow_141opl1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:userTask id="task_create_visit" name="Huisbezoek resultaat doorgeven" camunda:candidateGroups="toezichthouders">
+        <bpmn:incoming>Flow_141opl1</bpmn:incoming>
+        <bpmn:outgoing>Flow_1nhftu3</bpmn:outgoing>
+      </bpmn:userTask>
+      <bpmn:sequenceFlow id="Flow_141opl1" sourceRef="Event_1blre1s" targetRef="task_create_visit" />
+      <bpmn:endEvent id="Event_0oa0doy">
+        <bpmn:incoming>Flow_1nhftu3</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_1nhftu3" sourceRef="task_create_visit" targetRef="Event_0oa0doy" />
+    </bpmn:subProcess>
+    <bpmn:sequenceFlow id="Flow_1p8gwr1" sourceRef="StartEvent_1" targetRef="Activity_0lkzwez" />
+    <bpmn:exclusiveGateway id="Gateway_1odl5bp" default="Flow_0ioch14">
+      <bpmn:incoming>Flow_1mmzhem</bpmn:incoming>
+      <bpmn:outgoing>Flow_0otwfql</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0ioch14</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1mmzhem" sourceRef="Activity_0lkzwez" targetRef="Gateway_1odl5bp" />
+    <bpmn:sequenceFlow id="Flow_0otwfql" name="situation&#10;==&#10;access_granted" sourceRef="Gateway_1odl5bp" targetRef="task_create_debrief">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${situation=='access_granted'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0ioch14" sourceRef="Gateway_1odl5bp" targetRef="Activity_0lkzwez" />
+    <bpmn:sequenceFlow id="Flow_00jr9tv" sourceRef="task_nader_onderzoek_nodig" targetRef="Activity_0lkzwez" />
+    <bpmn:userTask id="Activity_02t4qsu" name="Opstellen rapportage huisbezoek">
+      <bpmn:incoming>Flow_1385vas</bpmn:incoming>
+      <bpmn:outgoing>Flow_1c3b8q1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:parallelGateway id="Gateway_0hh2brn">
+      <bpmn:incoming>Flow_09fde08</bpmn:incoming>
+      <bpmn:outgoing>Flow_07k5tia</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1385vas</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_07k5tia" sourceRef="Gateway_0hh2brn" targetRef="task_sia_terugkoppeling_2" />
+    <bpmn:sequenceFlow id="Flow_1385vas" sourceRef="Gateway_0hh2brn" targetRef="Activity_02t4qsu" />
+    <bpmn:sequenceFlow id="Flow_1c3b8q1" sourceRef="Activity_02t4qsu" targetRef="Gateway_1h8osuo" />
+    <bpmn:parallelGateway id="Gateway_1h8osuo">
+      <bpmn:incoming>Flow_1c3b8q1</bpmn:incoming>
+      <bpmn:incoming>Flow_0xbzrb4</bpmn:incoming>
+      <bpmn:outgoing>Flow_08g1vll</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_08g1vll" sourceRef="Gateway_1h8osuo" targetRef="task_close_case" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="zaak_wonen_vakantieverhuur">
       <bpmndi:BPMNEdge id="Flow_0lji06z_di" bpmnElement="Flow_0lji06z">
-        <di:waypoint x="570" y="387" />
-        <di:waypoint x="630" y="387" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1nodwrq_di" bpmnElement="Flow_1nodwrq">
-        <di:waypoint x="390" y="387" />
-        <di:waypoint x="470" y="387" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0dedd3r_di" bpmnElement="Flow_0dedd3r">
-        <di:waypoint x="195" y="387" />
-        <di:waypoint x="290" y="387" />
+        <di:waypoint x="930" y="387" />
+        <di:waypoint x="995" y="387" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_090pn4r_di" bpmnElement="Flow_090pn4r">
-        <di:waypoint x="930" y="362" />
-        <di:waypoint x="930" y="210" />
-        <di:waypoint x="1185" y="210" />
+        <di:waypoint x="1020" y="362" />
+        <di:waypoint x="1020" y="210" />
+        <di:waypoint x="1275" y="210" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="965" y="193" width="72" height="14" />
+          <dc:Bounds x="1055" y="193" width="72" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0ioz92r_di" bpmnElement="Flow_0ioz92r">
-        <di:waypoint x="730" y="387" />
-        <di:waypoint x="905" y="387" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1w9hb8b_di" bpmnElement="Flow_1w9hb8b">
-        <di:waypoint x="1210" y="185" />
-        <di:waypoint x="1210" y="120" />
-        <di:waypoint x="1310" y="120" />
+        <di:waypoint x="1300" y="185" />
+        <di:waypoint x="1300" y="120" />
+        <di:waypoint x="1400" y="120" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0inubyk_di" bpmnElement="Flow_0inubyk">
-        <di:waypoint x="1210" y="235" />
-        <di:waypoint x="1210" y="290" />
-        <di:waypoint x="1310" y="290" />
+        <di:waypoint x="1300" y="235" />
+        <di:waypoint x="1300" y="290" />
+        <di:waypoint x="1400" y="290" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1xhnyyp_di" bpmnElement="Flow_1xhnyyp">
-        <di:waypoint x="1410" y="120" />
-        <di:waypoint x="1520" y="120" />
-        <di:waypoint x="1520" y="185" />
+        <di:waypoint x="1500" y="120" />
+        <di:waypoint x="1610" y="120" />
+        <di:waypoint x="1610" y="185" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_128bhfd_di" bpmnElement="Flow_128bhfd">
-        <di:waypoint x="1410" y="290" />
-        <di:waypoint x="1520" y="290" />
-        <di:waypoint x="1520" y="235" />
+        <di:waypoint x="1500" y="290" />
+        <di:waypoint x="1610" y="290" />
+        <di:waypoint x="1610" y="235" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1cqni6t_di" bpmnElement="Flow_1cqni6t">
-        <di:waypoint x="1545" y="210" />
-        <di:waypoint x="1620" y="210" />
+        <di:waypoint x="1635" y="210" />
+        <di:waypoint x="1730" y="210" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1mvvhfy_di" bpmnElement="Flow_1mvvhfy">
-        <di:waypoint x="1210" y="235" />
-        <di:waypoint x="1210" y="400" />
-        <di:waypoint x="1310" y="400" />
+        <di:waypoint x="1300" y="235" />
+        <di:waypoint x="1300" y="400" />
+        <di:waypoint x="1400" y="400" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1fkr530_di" bpmnElement="Flow_1fkr530">
-        <di:waypoint x="1410" y="400" />
-        <di:waypoint x="1520" y="400" />
-        <di:waypoint x="1520" y="235" />
+        <di:waypoint x="1500" y="400" />
+        <di:waypoint x="1610" y="400" />
+        <di:waypoint x="1610" y="235" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_09fde08_di" bpmnElement="Flow_09fde08">
-        <di:waypoint x="930" y="412" />
-        <di:waypoint x="930" y="540" />
-        <di:waypoint x="1310" y="540" />
+        <di:waypoint x="1020" y="412" />
+        <di:waypoint x="1020" y="600" />
+        <di:waypoint x="1290" y="600" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="951" y="523" width="77" height="14" />
+          <dc:Bounds x="1024" y="583" width="77" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0xbzrb4_di" bpmnElement="Flow_0xbzrb4">
-        <di:waypoint x="1410" y="540" />
-        <di:waypoint x="1620" y="540" />
+        <di:waypoint x="1500" y="520" />
+        <di:waypoint x="1620" y="520" />
+        <di:waypoint x="1620" y="575" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_006wtg4_di" bpmnElement="Flow_006wtg4">
-        <di:waypoint x="1720" y="540" />
-        <di:waypoint x="1822" y="540" />
+        <di:waypoint x="1830" y="600" />
+        <di:waypoint x="1912" y="600" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1dopikc_di" bpmnElement="Flow_1dopikc">
-        <di:waypoint x="1720" y="210" />
-        <di:waypoint x="1822" y="210" />
+        <di:waypoint x="1830" y="210" />
+        <di:waypoint x="1912" y="210" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1oipi38_di" bpmnElement="Flow_1oipi38">
-        <di:waypoint x="930" y="412" />
-        <di:waypoint x="930" y="720" />
-        <di:waypoint x="1310" y="720" />
+        <di:waypoint x="1020" y="412" />
+        <di:waypoint x="1020" y="720" />
+        <di:waypoint x="800" y="720" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="978" y="660" width="84" height="40" />
+          <dc:Bounds x="928" y="653" width="84" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1xhy3c6_di" bpmnElement="Flow_1xhy3c6">
-        <di:waypoint x="1410" y="720" />
-        <di:waypoint x="1822" y="720" />
+      <bpmndi:BPMNEdge id="Flow_1p8gwr1_di" bpmnElement="Flow_1p8gwr1">
+        <di:waypoint x="188" y="387" />
+        <di:waypoint x="260" y="387" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="159" y="369" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0hb8ttg_di" bpmnElement="task_visit_succesful">
-        <dc:Bounds x="290" y="347" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0aawy2h_di" bpmnElement="task_create_debrief">
-        <dc:Bounds x="470" y="347" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_07ltdve_di" bpmnElement="Gateway_0289ucr">
-        <dc:Bounds x="1185" y="185" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1ujxflh_di" bpmnElement="task_beeldverslag_opstellen">
-        <dc:Bounds x="1310" y="80" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_09x9dt8_di" bpmnElement="task_rapport_van_bevindingen_opstellen">
-        <dc:Bounds x="1310" y="250" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1mu8a3h_di" bpmnElement="Gateway_1cbngmn">
-        <dc:Bounds x="1495" y="185" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0nrlpjs_di" bpmnElement="task_opstellen_aanschrijving">
-        <dc:Bounds x="1620" y="170" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_05rh5fi_di" bpmnElement="task_sia_terugkoppeling">
-        <dc:Bounds x="1310" y="360" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0oclfeu_di" bpmnElement="task_sia_terugkoppeling_2">
-        <dc:Bounds x="1310" y="500" width="100" height="80" />
+      <bpmndi:BPMNEdge id="Flow_1mmzhem_di" bpmnElement="Flow_1mmzhem">
+        <di:waypoint x="610" y="387" />
+        <di:waypoint x="685" y="387" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0otwfql_di" bpmnElement="Flow_0otwfql">
+        <di:waypoint x="735" y="387" />
+        <di:waypoint x="830" y="387" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="731" y="390" width="78" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ioch14_di" bpmnElement="Flow_0ioch14">
+        <di:waypoint x="710" y="362" />
+        <di:waypoint x="710" y="230" />
+        <di:waypoint x="450" y="230" />
+        <di:waypoint x="450" y="287" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00jr9tv_di" bpmnElement="Flow_00jr9tv">
+        <di:waypoint x="700" y="720" />
+        <di:waypoint x="450" y="720" />
+        <di:waypoint x="450" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07k5tia_di" bpmnElement="Flow_07k5tia">
+        <di:waypoint x="1320" y="575" />
+        <di:waypoint x="1320" y="520" />
+        <di:waypoint x="1400" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1385vas_di" bpmnElement="Flow_1385vas">
+        <di:waypoint x="1320" y="625" />
+        <di:waypoint x="1320" y="680" />
+        <di:waypoint x="1400" y="680" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1c3b8q1_di" bpmnElement="Flow_1c3b8q1">
+        <di:waypoint x="1500" y="680" />
+        <di:waypoint x="1620" y="680" />
+        <di:waypoint x="1620" y="625" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08g1vll_di" bpmnElement="Flow_08g1vll">
+        <di:waypoint x="1645" y="600" />
+        <di:waypoint x="1730" y="600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Gateway_1in3cjy_di" bpmnElement="is_debrief_violation" isMarkerVisible="true">
+        <dc:Bounds x="995" y="362" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1052" y="367" width="56" height="40" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0dvx92k_di" bpmnElement="Event_0dvx92k">
-        <dc:Bounds x="1822" y="192" width="36" height="36" />
+        <dc:Bounds x="1912" y="192" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1pmbcxw_di" bpmnElement="Event_1pmbcxw">
-        <dc:Bounds x="1822" y="522" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_05rh5fi_di" bpmnElement="task_sia_terugkoppeling">
+        <dc:Bounds x="1400" y="360" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1xa1hzv_di" bpmnElement="task_close_case">
-        <dc:Bounds x="1620" y="500" width="100" height="80" />
+      <bpmndi:BPMNShape id="Gateway_1mu8a3h_di" bpmnElement="Gateway_1cbngmn">
+        <dc:Bounds x="1585" y="185" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1uygfeb_di" bpmnElement="task_has_violation_occured">
-        <dc:Bounds x="630" y="347" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_09x9dt8_di" bpmnElement="task_rapport_van_bevindingen_opstellen">
+        <dc:Bounds x="1400" y="250" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1in3cjy_di" bpmnElement="is_debrief_violation" isMarkerVisible="true">
-        <dc:Bounds x="905" y="362" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="962" y="367" width="56" height="40" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="Activity_1ujxflh_di" bpmnElement="task_beeldverslag_opstellen">
+        <dc:Bounds x="1400" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_07ltdve_di" bpmnElement="Gateway_0289ucr">
+        <dc:Bounds x="1275" y="185" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="369" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1odl5bp_di" bpmnElement="Gateway_1odl5bp" isMarkerVisible="true">
+        <dc:Bounds x="685" y="362" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0hbqdsq_di" bpmnElement="task_nader_onderzoek_nodig">
-        <dc:Bounds x="1310" y="680" width="100" height="80" />
+        <dc:Bounds x="700" y="680" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0uls9y1_di" bpmnElement="Event_0uls9y1">
-        <dc:Bounds x="1822" y="702" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_0aawy2h_di" bpmnElement="task_create_debrief">
+        <dc:Bounds x="830" y="347" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_12mo680_di" bpmnElement="Gateway_1h8osuo">
+        <dc:Bounds x="1595" y="575" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_011q3bo_di" bpmnElement="Gateway_0hh2brn">
+        <dc:Bounds x="1295" y="575" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0oclfeu_di" bpmnElement="task_sia_terugkoppeling_2">
+        <dc:Bounds x="1400" y="480" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0icy5dk_di" bpmnElement="Activity_02t4qsu">
+        <dc:Bounds x="1400" y="640" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1pmbcxw_di" bpmnElement="Event_1pmbcxw">
+        <dc:Bounds x="1912" y="582" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xa1hzv_di" bpmnElement="task_close_case">
+        <dc:Bounds x="1730" y="560" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0nrlpjs_di" bpmnElement="task_opstellen_aanschrijving">
+        <dc:Bounds x="1730" y="170" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0lkzwez_di" bpmnElement="Activity_0lkzwez" isExpanded="true">
+        <dc:Bounds x="260" y="287" width="350" height="193" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_141opl1_di" bpmnElement="Flow_141opl1">
+        <di:waypoint x="316" y="387" />
+        <di:waypoint x="400" y="387" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1nhftu3_di" bpmnElement="Flow_1nhftu3">
+        <di:waypoint x="500" y="387" />
+        <di:waypoint x="542" y="387" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1blre1s_di" bpmnElement="Event_1blre1s">
+        <dc:Bounds x="280" y="369" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0hb8ttg_di" bpmnElement="task_create_visit">
+        <dc:Bounds x="400" y="347" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0oa0doy_di" bpmnElement="Event_0oa0doy">
+        <dc:Bounds x="542" y="369" width="36" height="36" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
