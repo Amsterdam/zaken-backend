@@ -13,7 +13,7 @@ services:
       - 5678:5678
     depends_on:
       - database
-      - openzaak
+      - openzaak.local
     env_file:
       - .env
     command: bash -c "/app/wait-for.sh database:5432 && /app/deploy/docker-entrypoint.development.sh"
@@ -96,7 +96,7 @@ services:
     depends_on:
       - database
 
-  openzaak:
+  openzaak.local:
     image: openzaak/open-zaak
     networks:
       - zaken_network

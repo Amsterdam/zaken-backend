@@ -53,6 +53,7 @@ INSTALLED_APPS = (
     "django_spaghetti",
     "django_celery_beat",
     "django_celery_results",
+    "zgw_consumers",
     # Health checks. (Expand when more services become available)
     "health_check",
     "health_check.db",
@@ -314,3 +315,7 @@ LOGOUT_REDIRECT_URL = "/admin"
 
 DEFAULT_TEAM = os.getenv("DEFAULT_TEAM", "Vakantieverhuur")
 DEFAULT_REASON = os.getenv("DEFAULT_REASON", "Melding")
+
+# ZGW_CONSUMERS_OAS_CACHE = django_redis.cache.RedisCache
+
+LOGOUT_REDIRECT_URL = "/admin"
