@@ -49,7 +49,7 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Case
-        fields = ("address", "team", "reason", "description")
+        fields = ("id", "address", "team", "reason", "description")
 
     def validate(self, data):
         """
