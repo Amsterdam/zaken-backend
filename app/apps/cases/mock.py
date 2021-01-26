@@ -58,6 +58,7 @@ def mock_cases():
         team=team,
         start_date=datetime.date.today() - datetime.timedelta(days=2),
         address=address,
+        description="Melding gedaan door de buren",
         _quantity=7,
     )
 
