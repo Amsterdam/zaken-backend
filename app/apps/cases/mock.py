@@ -37,14 +37,6 @@ def mock_cases():
     reason = CaseReason.objects.get(name=settings.DEFAULT_REASON)
     address = Address.get("0363200012145295")
 
-    cases = baker.make(
-        Case,
-        reason=reason,
-        team=team,
-        start_date=datetime.date.today() - datetime.timedelta(days=2),
-        address=address,
-        _quantity=7,
-    )
     user_model = get_user_model()
     user_1, _ = user_model.objects.get_or_create(
         email="jake.gyllenhaal@example.com",
@@ -58,6 +50,16 @@ def mock_cases():
     )
 
     authors = user_model.objects.filter(id__in=[user_1.id, user_2.id])
+
+    cases = baker.make(
+        Case,
+        author=user_1,
+        reason=reason,
+        team=team,
+        start_date=datetime.date.today() - datetime.timedelta(days=2),
+        address=address,
+        _quantity=7,
+    )
 
     for case in cases:
         baker.make(

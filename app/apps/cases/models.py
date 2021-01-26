@@ -2,6 +2,7 @@ import uuid
 
 from apps.addresses.models import Address
 from apps.events.models import CaseEvent, ModelEventEmitter
+from apps.users.models import User
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -47,6 +48,9 @@ class Case(ModelEventEmitter):
     is_legacy_bwv = models.BooleanField(default=False)
     camunda_id = models.CharField(max_length=255, null=True, blank=True)
     team = models.ForeignKey(to=CaseTeam, on_delete=models.PROTECT)
+    author = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT
+    )
     reason = models.ForeignKey(to=CaseReason, on_delete=models.PROTECT)
     description = models.TextField(blank=True, null=True)
 
@@ -55,10 +59,17 @@ class Case(ModelEventEmitter):
         if self.is_legacy_bwv:
             reason = "Deze zaak bestond al voor het nieuwe zaaksysteem. Zie BWV voor de aanleiding(en)."
 
+        if self.author:
+            author = self.author.full_name
+        else:
+            author = "Medewerker onbekend"
+
         return {
             "start_date": self.start_date,
             "end_date": self.end_date,
             "reason": reason,
+            "description": self.description,
+            "author": author,
         }
 
     def __get_case__(self):
