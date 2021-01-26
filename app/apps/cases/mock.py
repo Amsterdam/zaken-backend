@@ -1,9 +1,10 @@
 import datetime
 
 from apps.addresses.models import Address
-from apps.cases.models import Case, CaseState, CaseStateType
+from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTeam
 from apps.debriefings.models import Debriefing
 from apps.visits.models import Visit
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from model_bakery import baker
 
@@ -31,10 +32,15 @@ def mock_cases():
         name="Toegang verleend"
     )
 
+    # These should exist due to a data migration
+    team = CaseTeam.objects.get(name=settings.DEFAULT_TEAM)
+    reason = CaseReason.objects.get(name=settings.DEFAULT_REASON)
     address = Address.get("0363200012145295")
 
     cases = baker.make(
         Case,
+        reason=reason,
+        team=team,
         start_date=datetime.date.today() - datetime.timedelta(days=2),
         address=address,
         _quantity=7,
