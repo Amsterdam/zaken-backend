@@ -8,6 +8,9 @@ from django.utils import timezone
 
 
 class CaseTeam(models.Model):
+    class Meta:
+        ordering = ["name"]
+
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -15,6 +18,9 @@ class CaseTeam(models.Model):
 
 
 class CaseReason(models.Model):
+    class Meta:
+        ordering = ["name"]
+
     name = models.CharField(max_length=255)
     team = models.ForeignKey(
         to=CaseTeam, related_name="reasons", on_delete=models.CASCADE
