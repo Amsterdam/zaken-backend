@@ -177,9 +177,19 @@ class OpenZaakClientCheck(BaseHealthCheckBackend):
             from zgw_consumers.models import Service
             from zgw_consumers.service import get_paginated_results
 
-            zrc_client = (
-                Service.objects.filter(api_type=APITypes.zrc).get().build_client()
+            ztc_client = (
+                Service.objects.filter(api_type=APITypes.ztc).get().build_client()
             )
-            zrc_client.list("zaak")
+
+            results = ztc_client.list(
+                "catalogus", {"rsin": settings.DEFAULT_CATALOGUS_RSIN}
+            )
+            assert results["count"] != 0, "The default catalogus doesn't exist"
+
+            results = ztc_client.list(
+                "zaaktype", {"identificatie": settings.DEFAULT_TEAM}
+            )
+            assert results["count"] != 0, "The default casetype doesn't exist"
+
         except Exception as e:
             self.add_error(ServiceUnavailable("Failed"), e)

@@ -7,7 +7,7 @@ from zgw_consumers.models import Service
 
 
 class Command(BaseCommand):
-    help = "Initializes OpenZaak consumers and data structures"
+    help = "Used locally during debugging, since deletion of Zaaktypes isn't allowed through the OpenZaak Admin"
     OAS_SCHEMA = "schema/openapi.yaml"
 
     def _client_from_url(self, url):
