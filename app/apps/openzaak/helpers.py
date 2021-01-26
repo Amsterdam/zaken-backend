@@ -21,7 +21,7 @@ def create_open_zaak_case(identification, description):
     today = date.today().strftime("%Y-%m-%d")
     zaak_body = {
         "identificatie": identification,
-        "omschrijving": description,
+        "toelichting": description,
         "zaaktype": zaak_type["url"],
         "bronorganisatie": settings.DEFAULT_CATALOGUS_RSIN,
         "verantwoordelijkeOrganisatie": settings.DEFAULT_CATALOGUS_RSIN,
