@@ -200,3 +200,30 @@ class CaseApiTest(APITestCase):
 
         self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEquals(Case.objects.count(), 0)
+
+    def test_authenticated_post_create_author(self):
+        """
+        The author of the case should automatically be set to the authenticated user who made the POST request
+        """
+        self.assertEquals(Case.objects.count(), 0)
+
+        team = baker.make(CaseTeam)
+        reason = baker.make(CaseReason, team=team)
+
+        url = reverse("cases-list")
+        client = get_authenticated_client()
+        response = client.post(
+            url,
+            {
+                "description": "Foo",
+                "team": team.pk,
+                "reason": reason.pk,
+                "address": {"bag_id": "foo bag ID"},
+            },
+            format="json",
+        )
+
+        test_user = get_test_user()
+        case = Case.objects.get(id=response.data["id"])
+
+        self.assertEquals(case.author, test_user)

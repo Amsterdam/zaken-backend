@@ -42,6 +42,17 @@ docker-compose run --rm zaak-gateway python manage.py createsuperuser
 ```
 Follow the steps, and you'll be able to sign into http://localhost:8080/admin/
 
+## Running tests
+Run unit tests locally with:
+```
+docker-compose run --rm zaak-gateway python manage.py test
+```
+
+To run tests for a specific module, add a path:
+```
+docker-compose run --rm zaak-gateway python manage.py test ./apps/cases/tests
+```
+
 ## Accessing the API documentation
 You can access the documentation at:
 http://localhost:8080/api/v1/swagger/

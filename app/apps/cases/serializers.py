@@ -39,6 +39,7 @@ class CaseSerializer(serializers.ModelSerializer):
 
 
 class CaseCreateUpdateSerializer(serializers.ModelSerializer):
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     address = AddressSerializer(required=True)
     team = serializers.PrimaryKeyRelatedField(
         many=False, required=True, queryset=CaseTeam.objects.all()
@@ -49,7 +50,7 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Case
-        fields = ("id", "address", "team", "reason", "description")
+        fields = ("id", "address", "team", "reason", "description", "author")
 
     def validate(self, data):
         """

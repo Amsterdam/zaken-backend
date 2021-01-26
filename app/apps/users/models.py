@@ -39,7 +39,7 @@ class User(AbstractUser):
             full_name = self.email.split("@")[0].split(".")
             full_name = [capitalize(part) for part in full_name]
             full_name = [add_punctuation(part) for part in full_name]
-            full_name = "".join(full_name)
+            full_name = "".join(full_name).strip()
 
             return full_name
 
