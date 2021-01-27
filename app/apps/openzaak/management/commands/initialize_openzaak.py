@@ -56,6 +56,15 @@ class Command(BaseCommand):
 
     def create_catalogus(self):
         logger.info("Attempting to create catalogus...")
+        logger.info("ZTC type")
+        logger.info(APITypes.ztc)
+        logger.info("Service Object")
+        logger.info(Service.objects.filter(api_type=APITypes.ztc))
+        logger.info("Service Object Get")
+        logger.info(Service.objects.filter(api_type=APITypes.ztc).get())
+        logger.info("Client")
+        logger.info(Service.objects.filter(api_type=APITypes.ztc).get().build_client())
+
         ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
         logger.info("Created client...")
         logger.info(f"Creating catalogus with {settings.DEFAULT_CATALOGUS_RSIN}")
