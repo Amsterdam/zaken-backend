@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class DebriefingsConfig(AppConfig):
-    name = "debriefings"
+    name = "apps.debriefings"
 
     def ready(self):
         import apps.debriefings.signals
