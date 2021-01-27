@@ -56,23 +56,11 @@ class Command(BaseCommand):
 
     def create_catalogus(self):
         logger.info("Attempting to create catalogus...")
-        logger.info("ZTC type")
-        logger.info(APITypes.ztc)
-        logger.info("Service Object")
-        logger.info(Service.objects.filter(api_type=APITypes.ztc))
-        logger.info("Service Object Get")
-        logger.info(Service.objects.filter(api_type=APITypes.ztc).get())
-        logger.info("Client")
-        logger.info(Service.objects.filter(api_type=APITypes.ztc).get().build_client())
 
         ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
-        logger.info("Created client...")
-        logger.info(f"Creating catalogus with {settings.DEFAULT_CATALOGUS_RSIN}")
         results = ztc_client.list(
             "catalogus", {"rsin": settings.DEFAULT_CATALOGUS_RSIN}
         )
-        logger.info("Created client...")
-        logger.info(results)
 
         if results["count"] == 0:
             body = {
@@ -126,18 +114,20 @@ class Command(BaseCommand):
 
             zaaktype = ztc_client.create("zaaktype", body)
             zaaktype_url = zaaktype["url"]
-
-            client = self._client_from_url(zaaktype_url)
-            client.request(
-                f"{zaaktype_url}/publish",
-                "zaaktype_publish",
-                "POST",
-                expected_status=200,
-            )
-
             self.stdout.write(self.style.SUCCESS("Created zaaktype"))
         else:
+            zaaktype_url = results["results"][0]["url"]
             self.stdout.write(self.style.SUCCESS("Zaaktype already created"))
+
+        logger.info(f"Publishing {zaaktype_url}")
+        client = self._client_from_url(zaaktype_url)
+        client.request(
+            f"{zaaktype_url}/publish",
+            "zaaktype_publish",
+            "POST",
+            expected_status=200,
+        )
+        self.stdout.write(self.style.SUCCESS("Zaaktype published"))
 
     def handle(self, *args, **options):
         try:
