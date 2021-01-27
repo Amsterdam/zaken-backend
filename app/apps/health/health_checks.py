@@ -162,3 +162,34 @@ class OpenZaakRedisHealthCheck(BaseHealthCheckBackend):
             self.add_error(ServiceUnavailable("Unknown error"), e)
         else:
             logger.info("Connection established. Redis is healthy.")
+
+
+class OpenZaakClientCheck(BaseHealthCheckBackend):
+    """
+    Tests the Open Zaak client
+    """
+
+    def check_status(self):
+        try:
+            from zgw_consumers.api_models.base import factory
+            from zgw_consumers.api_models.zaken import Zaak
+            from zgw_consumers.constants import APITypes
+            from zgw_consumers.models import Service
+            from zgw_consumers.service import get_paginated_results
+
+            ztc_client = (
+                Service.objects.filter(api_type=APITypes.ztc).get().build_client()
+            )
+
+            results = ztc_client.list(
+                "catalogus", {"rsin": settings.DEFAULT_CATALOGUS_RSIN}
+            )
+            assert results["count"] != 0, "The default catalogus doesn't exist"
+
+            results = ztc_client.list(
+                "zaaktype", {"identificatie": settings.DEFAULT_TEAM}
+            )
+            assert results["count"] != 0, "The default casetype doesn't exist"
+
+        except Exception as e:
+            self.add_error(ServiceUnavailable("Failed"), e)

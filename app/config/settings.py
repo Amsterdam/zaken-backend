@@ -53,6 +53,7 @@ INSTALLED_APPS = (
     "django_spaghetti",
     "django_celery_beat",
     "django_celery_results",
+    "zgw_consumers",
     # Health checks. (Expand when more services become available)
     "health_check",
     "health_check.db",
@@ -71,6 +72,7 @@ INSTALLED_APPS = (
     "apps.health",
     "apps.support",
     "apps.camunda",
+    "apps.openzaak",
 )
 
 # Add apps here to make them appear in the graphing visualisation
@@ -314,3 +316,22 @@ LOGOUT_REDIRECT_URL = "/admin"
 
 DEFAULT_TEAM = os.getenv("DEFAULT_TEAM", "Vakantieverhuur")
 DEFAULT_REASON = os.getenv("DEFAULT_REASON", "Melding")
+
+# ZGW_CONSUMERS_OAS_CACHE = django_redis.cache.RedisCache
+
+LOGOUT_REDIRECT_URL = "/admin"
+
+
+OPEN_ZAAK_CONTAINER_HOST = os.getenv("OPEN_ZAAK_CONTAINER_HOST", None)
+OPEN_ZAAK_PORT = os.getenv("OPEN_ZAAK_PORT", None)
+OPEN_ZAAK_HOST = (
+    f"http://{OPEN_ZAAK_CONTAINER_HOST}:{OPEN_ZAAK_PORT}"
+    if OPEN_ZAAK_PORT
+    else OPEN_ZAAK_CONTAINER_HOST
+)
+
+OPEN_ZAAK_CLIENT = os.getenv("OPEN_ZAAK_CLIENT", None)
+OPEN_ZAAK_SECRET_KEY = os.getenv("OPEN_ZAAK_SECRET_KEY", None)
+OPEN_ZAAK_API_VERSION = os.getenv("OPEN_ZAAK_API_VERSION", "v1")
+DEFAULT_CATALOGUS_RSIN = os.getenv("DEFAULT_CATALOGUS_RSIN")
+DEFAULT_CATALOGUS = os.getenv("DEFAULT_CATALOGUS")
