@@ -106,17 +106,13 @@ class Command(BaseCommand):
             zaaktype = ztc_client.create("zaaktype", body)
             zaaktype_url = zaaktype["url"]
 
-            try:
-                client = self._client_from_url(zaaktype_url)
-                client.request(
-                    f"{zaaktype_url}/publish",
-                    "zaaktype_publish",
-                    "POST",
-                    expected_status=201,
-                )
-            except AssertionError:
-                # For some reason publishing throws an assertion error, but still works.
-                pass
+            client = self._client_from_url(zaaktype_url)
+            client.request(
+                f"{zaaktype_url}/publish",
+                "zaaktype_publish",
+                "POST",
+                expected_status=200,
+            )
 
             self.stdout.write(self.style.SUCCESS("Created zaaktype"))
         else:
