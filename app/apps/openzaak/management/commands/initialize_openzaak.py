@@ -57,9 +57,12 @@ class Command(BaseCommand):
     def create_catalogus(self):
         logger.info("Attempting to create catalogus...")
         ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
+        logger.info("Created client...")
+        logger.info(f"Creating catalogus with {settings.DEFAULT_CATALOGUS_RSIN}")
         results = ztc_client.list(
             "catalogus", {"rsin": settings.DEFAULT_CATALOGUS_RSIN}
         )
+        logger.info("Created client...")
         logger.info(results)
 
         if results["count"] == 0:
