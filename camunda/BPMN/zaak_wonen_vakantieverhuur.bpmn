@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1lcjjzz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.3.0">
   <bpmn:process id="zaak_wonen_vakantieverhuur" name="Basis Zaak Wonen VakantieVerhuur" isExecutable="true" camunda:versionTag="0.0.5">
-    <bpmn:sequenceFlow id="Flow_1oipi38" name="violation &#10;= &#10;extra_research_required" sourceRef="is_debrief_violation" targetRef="task_nader_onderzoek_nodig">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='extra_research_required'}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_1oipi38" name="violation &#10;=&#10;RESEARCH&#10;or&#10;VISIT" sourceRef="is_debrief_violation" targetRef="task_nader_onderzoek_nodig">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='ADDITIONAL_VISIT_REQUIRED' or violation=='ADDITIONAL_RESEARCH_REQUIRED'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1dopikc" sourceRef="task_opstellen_aanschrijving" targetRef="Event_0dvx92k" />
     <bpmn:sequenceFlow id="Flow_006wtg4" sourceRef="task_close_case" targetRef="Event_1pmbcxw" />
     <bpmn:sequenceFlow id="Flow_0xbzrb4" sourceRef="task_sia_terugkoppeling_2" targetRef="Gateway_1h8osuo" />
-    <bpmn:sequenceFlow id="Flow_09fde08" name="violation = false" sourceRef="is_debrief_violation" targetRef="Gateway_0hh2brn">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='false'}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_09fde08" name="violation = NO" sourceRef="is_debrief_violation" targetRef="Gateway_0hh2brn" />
     <bpmn:sequenceFlow id="Flow_1fkr530" sourceRef="task_sia_terugkoppeling" targetRef="Gateway_1cbngmn" />
     <bpmn:sequenceFlow id="Flow_1mvvhfy" sourceRef="Gateway_0289ucr" targetRef="task_sia_terugkoppeling" />
     <bpmn:sequenceFlow id="Flow_1cqni6t" sourceRef="Gateway_1cbngmn" targetRef="task_opstellen_aanschrijving" />
@@ -17,15 +15,15 @@
     <bpmn:sequenceFlow id="Flow_1xhnyyp" sourceRef="task_beeldverslag_opstellen" targetRef="Gateway_1cbngmn" />
     <bpmn:sequenceFlow id="Flow_0inubyk" sourceRef="Gateway_0289ucr" targetRef="task_rapport_van_bevindingen_opstellen" />
     <bpmn:sequenceFlow id="Flow_1w9hb8b" sourceRef="Gateway_0289ucr" targetRef="task_beeldverslag_opstellen" />
-    <bpmn:sequenceFlow id="Flow_090pn4r" name="violation = true" sourceRef="is_debrief_violation" targetRef="Gateway_0289ucr">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='true'}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_090pn4r" name="violation = YES" sourceRef="is_debrief_violation" targetRef="Gateway_0289ucr">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='YES'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0lji06z" sourceRef="task_create_debrief" targetRef="is_debrief_violation" />
     <bpmn:userTask id="task_nader_onderzoek_nodig" name="Uitzetten huisbezoek">
       <bpmn:incoming>Flow_1oipi38</bpmn:incoming>
       <bpmn:outgoing>Flow_00jr9tv</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:exclusiveGateway id="is_debrief_violation" name="Is er een overtreding gepleegd">
+    <bpmn:exclusiveGateway id="is_debrief_violation" name="Is er een overtreding gepleegd" default="Flow_09fde08">
       <bpmn:incoming>Flow_0lji06z</bpmn:incoming>
       <bpmn:outgoing>Flow_090pn4r</bpmn:outgoing>
       <bpmn:outgoing>Flow_09fde08</bpmn:outgoing>
@@ -209,7 +207,7 @@
         <di:waypoint x="1440" y="210" />
         <di:waypoint x="1695" y="210" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1475" y="193" width="72" height="14" />
+          <dc:Bounds x="1474" y="193" width="75" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1w9hb8b_di" bpmnElement="Flow_1w9hb8b">
@@ -251,7 +249,7 @@
         <di:waypoint x="1440" y="600" />
         <di:waypoint x="1710" y="600" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1491" y="563" width="77" height="14" />
+          <dc:Bounds x="1495" y="563" width="70" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0xbzrb4_di" bpmnElement="Flow_0xbzrb4">
@@ -272,7 +270,7 @@
         <di:waypoint x="1440" y="600" />
         <di:waypoint x="1220" y="600" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1318" y="533" width="84" height="53" />
+          <dc:Bounds x="1340" y="607" width="62" height="66" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_0hbqdsq_di" bpmnElement="task_nader_onderzoek_nodig">
@@ -338,13 +336,13 @@
       <bpmndi:BPMNShape id="Activity_0njpxhy_di" bpmnElement="Activity_0njpxhy" isExpanded="true">
         <dc:Bounds x="280" y="340" width="550" height="265" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_07ldquq_di" bpmnElement="Flow_07ldquq">
-        <di:waypoint x="348" y="410" />
-        <di:waypoint x="385" y="410" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_113ltrm_di" bpmnElement="Flow_113ltrm">
         <di:waypoint x="610" y="410" />
         <di:waypoint x="712" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07ldquq_di" bpmnElement="Flow_07ldquq">
+        <di:waypoint x="348" y="410" />
+        <di:waypoint x="385" y="410" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1kwa3lo_di" bpmnElement="Flow_1kwa3lo">
         <di:waypoint x="410" y="435" />
@@ -367,11 +365,11 @@
       <bpmndi:BPMNShape id="Gateway_1ibw80y_di" bpmnElement="Gateway_1w4cxfu">
         <dc:Bounds x="385" y="385" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_0qmxu9g_di" bpmnElement="TextAnnotation_0qmxu9g">
-        <dc:Bounds x="640" y="500" width="100" height="82" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0i2kyli_di" bpmnElement="Event_1qgnmnb">
         <dc:Bounds x="712" y="392" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_0qmxu9g_di" bpmnElement="TextAnnotation_0qmxu9g">
+        <dc:Bounds x="640" y="500" width="100" height="82" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_11z73zf_di" bpmnElement="Association_11z73zf">
         <di:waypoint x="610" y="532" />
