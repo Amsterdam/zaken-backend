@@ -1,11 +1,14 @@
+from apps.users.models import User
 from apps.users.serializers import UserSerializer
+from apps.visits.models import Visit
 from rest_framework import serializers
-
-from .models import Visit
 
 
 class VisitSerializer(serializers.ModelSerializer):
-    authors = UserSerializer(many=True)
+    authors = UserSerializer(many=True, read_only=True)
+    author_ids = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), write_only=True, source="authors", many=True
+    )
 
     class Meta:
         model = Visit
