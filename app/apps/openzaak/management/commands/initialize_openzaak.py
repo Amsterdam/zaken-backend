@@ -1,9 +1,12 @@
+import logging
 from datetime import date
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -52,10 +55,13 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("Created Zaken consumer"))
 
     def create_catalogus(self):
+        logger.info("Attempting to create catalogus...")
         ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
         results = ztc_client.list(
             "catalogus", {"rsin": settings.DEFAULT_CATALOGUS_RSIN}
         )
+        logger.info(results)
+
         if results["count"] == 0:
             body = {
                 "naam": settings.DEFAULT_CATALOGUS,
@@ -69,8 +75,11 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("Catalogus already created"))
 
     def create_case_type(self):
+        logger.info("Attempting to create case type...")
         ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
         results = ztc_client.list("zaaktype", {"identificatie": settings.DEFAULT_TEAM})
+
+        logger.info(results)
 
         if results["count"] == 0:
             catalogus = ztc_client.list(
