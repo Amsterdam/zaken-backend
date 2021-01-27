@@ -78,6 +78,17 @@ class CamundaService:
         else:
             return False
 
+    def get_task_by_task_name_id_and_camunda_id(self, task_name_id, camunda_id):
+        response = self._process_request(
+            f"/task/?taskDefinitionKey={task_name_id}&processInstanceId={camunda_id}"
+        )
+        task_list = json.loads(response.content)
+
+        if len(task_list) > 0:
+            return task_list[0]
+        else:
+            return False
+
     def get_task_form_variables(self, camunda_task_id):
         response = self._process_request(f"/task/{camunda_task_id}/form-variables")
 
@@ -88,6 +99,9 @@ class CamundaService:
             return False
 
     def get_task_form_rendered(self, camunda_task_id):
+        """
+        TODO: probably not needed but could be nice refrence
+        """
         request_path = f"/task/{camunda_task_id}/rendered-form"
         response = self._process_request(request_path)
 
