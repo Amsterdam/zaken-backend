@@ -1,3 +1,5 @@
+import sys
+
 from apps.camunda.services import CamundaService
 from apps.cases.models import Case
 from apps.openzaak.helpers import create_open_zaak_case
@@ -8,14 +10,16 @@ from django.dispatch import receiver
 @receiver(post_save, sender=Case, dispatch_uid="case_init_in_camunda")
 def create_case_instance_in_camunda(sender, instance, created, **kwargs):
     if created:
-        camunda_id = CamundaService().start_instance()
-        instance.camunda_id = camunda_id
-        instance.save()
+        if "test" not in sys.argv:
+            camunda_id = CamundaService().start_instance()
+            instance.camunda_id = camunda_id
+            instance.save()
 
 
 @receiver(post_save, sender=Case)
 def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
     if created:
-        create_open_zaak_case(
-            identification=instance.identification, description=instance.description
-        )
+        if "test" not in sys.argv:
+            create_open_zaak_case(
+                identification=instance.identification, description=instance.description
+            )
