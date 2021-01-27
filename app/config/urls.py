@@ -26,6 +26,8 @@ router.register(r"push", PushViewSet, basename="push")
 router.register(r"support-contacts", SupportContactView, basename="support-contact")
 router.register(r"visits", VisitViewSet, basename="visits")
 router.register(r"fines", FinesViewSet, basename="fines")
+router.register(r"authors", UserListView, basename="authors")
+
 
 router.register(r"camunda/task", CamundaTaskViewSet, basename="camunda-tasks")
 router.register(r"test-permits", PermitViewSet, basename="test-permits")
