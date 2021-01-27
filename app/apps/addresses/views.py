@@ -65,7 +65,11 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitCheckmarkMixin, PermitDetail
     )
     def cases(self, request, bag_id, **kwargs):
         try:
-            address = self.get_object()
+            address = Address.objects.get(bag_id=bag_id)
+        except Address.DoesNotExist:
+            return Response({"results": []})
+
+        try:
             open_cases = request.GET.get(OPEN_CASES_QUERY_PARAMETER, None)
 
             if open_cases is None:

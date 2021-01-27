@@ -26,12 +26,22 @@ class AddressCasesApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_authenticated_get_no_address(self):
+        """
+        If the Address does not exist, the endpoint should return an empty results list
+        """
         url = reverse("addresses-cases", kwargs={"bag_id": "foo"})
         client = get_authenticated_client()
         response = client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response = client.get(url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["results"], [])
 
     def test_authenticated_get_no_results(self):
+        """
+        If the Address exists but not cases use it, the endpoint should return an empty results list
+        """
         BAG_ID = "foo"
         baker.make(Address, bag_id=BAG_ID)
 
