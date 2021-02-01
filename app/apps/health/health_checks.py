@@ -79,20 +79,6 @@ class CeleryExecuteTask(BaseHealthCheckBackend):
         assert result, "Debug task executes successfully"
 
 
-class OpenZaakCheck(BaseHealthCheckBackend):
-    """
-    Tests an authenticated request to the OpenZaak instance
-    """
-
-    def check_status(self):
-        from services.example.catalog.services import CatalogService
-
-        try:
-            CatalogService().get()
-        except Exception as e:
-            self.add_error(ServiceUnavailable("Failed"), e)
-
-
 class BelastingDienstCheck(BaseHealthCheckBackend):
     """
     Tests an authenticated request to the Belastingdienst endpoint
