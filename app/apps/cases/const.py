@@ -1,3 +1,3 @@
 IN_PROGRESS = "In looplijst"
-
-STATES = (IN_PROGRESS,)
+PLAN_VISIT = "Huisbezoek uitzetten"
+STATES = (IN_PROGRESS, PLAN_VISIT)
