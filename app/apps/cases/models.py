@@ -37,8 +37,8 @@ class Case(ModelEventEmitter):
     class Meta:
         ordering = ["start_date"]
 
-    identification = models.CharField(
-        max_length=255, null=True, blank=True, unique=True
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)

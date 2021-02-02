@@ -60,7 +60,7 @@ class Visit(ModelEventEmitter):
 
     def create_from_top(self, data):
         try:
-            case = Case.objects.get(identification=data["case_identification"])
+            case = Case.objects.get(id=data["case_identification"])
         except Case.DoesNotExist:
             return False
 

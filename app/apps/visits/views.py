@@ -44,7 +44,7 @@ class VisitViewSet(ModelViewSet):
         if serializer.is_valid(raise_exception=True):
             try:
                 visit = Visit.objects.get(
-                    case__identification=serializer.data["case_identification"],
+                    case__id=serializer.data["case_identification"],
                     start_time=serializer.data["start_time"],
                 )
                 visit = visit.update_from_top(serializer.data)

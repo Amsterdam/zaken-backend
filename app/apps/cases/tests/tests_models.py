@@ -53,19 +53,6 @@ class CaseModelTest(TestCase):
 
         self.assertEquals(Case.objects.count(), 1)
 
-    def test_create_case_with_identification(self):
-        """ A case can be created with a given identification """
-        IDENTIFICATION = "FOO ID"
-
-        case = baker.make(Case, identification=IDENTIFICATION)
-
-        self.assertEquals(IDENTIFICATION, case.identification)
-
-    def test_create_case_has_valid_automatic_identification(self):
-        """ When a case is created without an identification, it should have a valid UUID """
-        case = baker.make(Case)
-        UUID(case.identification, version=4)
-
     @freeze_time("2019-12-25")
     def test_auto_start_date(self):
         """ If a start data isn't specified, it should be set to the current time """
