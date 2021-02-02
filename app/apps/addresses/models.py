@@ -35,9 +35,11 @@ class Address(models.Model):
         return Address.objects.get_or_create(bag_id=bag_id)[0]
 
     def save(self, *args, **kwargs):
-        bag_data = do_bag_search_id(self.bag_id)
-
-        result = bag_data.get("results", [])
+        try:
+            bag_data = do_bag_search_id(self.bag_id)
+            result = bag_data.get("results", [])
+        except Exception:
+            result = []
 
         if len(result):
             result = result[0]

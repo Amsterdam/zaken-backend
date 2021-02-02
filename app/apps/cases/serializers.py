@@ -1,5 +1,8 @@
+from datetime import datetime
+
 from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer
+from apps.cases.const import PLAN_VISIT
 from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTeam
 from rest_framework import serializers
 
@@ -87,6 +90,11 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         address = Address.get(address_data.get("bag_id"))
 
         case = Case.objects.create(**validated_data, address=address)
+
+        case_state_type, _ = CaseStateType.objects.get_or_create(name=PLAN_VISIT)
+        case_state, _ = CaseState.objects.get_or_create(
+            case=case, status=case_state_type, state_date=datetime.now().date()
+        )
 
         return case
 

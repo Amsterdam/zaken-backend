@@ -1,3 +1,4 @@
+from apps.cases.const import PLAN_VISIT
 from apps.cases.models import Case, CaseReason, CaseTeam
 from django.core import management
 from django.urls import reverse
@@ -227,3 +228,30 @@ class CaseApiTest(APITestCase):
         case = Case.objects.get(id=response.data["id"])
 
         self.assertEquals(case.author, test_user)
+
+    def test_authenticated_post_create_state(self):
+        """
+        A initial state should be set whenever a case is created
+        """
+        self.assertEquals(Case.objects.count(), 0)
+
+        team = baker.make(CaseTeam)
+        reason = baker.make(CaseReason, team=team)
+
+        url = reverse("cases-list")
+        client = get_authenticated_client()
+        response = client.post(
+            url,
+            {
+                "description": "Foo",
+                "team": team.pk,
+                "reason": reason.pk,
+                "address": {"bag_id": "foo bag ID"},
+            },
+            format="json",
+        )
+
+        case = Case.objects.get(id=response.data["id"])
+        state = case.get_current_state()
+
+        self.assertEquals(state.status.name, PLAN_VISIT)
