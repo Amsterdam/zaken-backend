@@ -18,9 +18,8 @@ def create_case_instance_in_camunda(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Case)
 def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
-    pass
-    # if created:
-    #     if "test" not in sys.argv:
-    #         create_open_zaak_case(
-    #             identification=instance.identification, description=instance.description
-    #         )
+    if created:
+        if "test" not in sys.argv:
+            create_open_zaak_case(
+                identification=instance.identification, description=instance.description
+            )
