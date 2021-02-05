@@ -73,6 +73,7 @@ INSTALLED_APPS = (
     "apps.support",
     "apps.camunda",
     "apps.openzaak",
+    "apps.summons",
 )
 
 # Add apps here to make them appear in the graphing visualisation
