@@ -1,6 +1,7 @@
 from apps.cases.models import Case, CaseTeam
 from apps.events.models import CaseEvent, ModelEventEmitter
 from apps.summons.const import SUMMON_TYPES
+from django.conf import settings
 from django.db import models
 
 
@@ -10,7 +11,7 @@ class SummonType(models.Model):
 
     name = models.CharField(max_length=255)
     team = models.ForeignKey(
-        to=CaseTeam, related_name="summons", on_delete=models.CASCADE
+        to=CaseTeam, related_name="summon_types", on_delete=models.CASCADE
     )
 
     def __str__(self):
@@ -28,6 +29,9 @@ class Summon(ModelEventEmitter):
     )
     date_added = models.DateTimeField(auto_now_add=True)
     description = models.TextField()
+    author = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT
+    )
 
     def __get_event_values__(self):
         return {
@@ -41,6 +45,13 @@ class SummonedPerson(models.Model):
     first_name = models.CharField(max_length=255)
     preposition = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255)
+    summon = models.ForeignKey(
+        to=Summon,
+        related_name="persons",
+        on_delete=models.CASCADE,
+        blank=False,
+        null=True,
+    )
 
     def __str__(self):
         return f"{self.first_name} {self.preposition} {self.last_name}"

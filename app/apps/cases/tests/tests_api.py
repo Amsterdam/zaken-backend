@@ -1,5 +1,6 @@
 from apps.cases.const import PLAN_VISIT
 from apps.cases.models import Case, CaseReason, CaseTeam
+from apps.summons.models import SummonType
 from django.core import management
 from django.urls import reverse
 from model_bakery import baker
@@ -255,3 +256,52 @@ class CaseApiTest(APITestCase):
         state = case.get_current_state()
 
         self.assertEquals(state.status.name, PLAN_VISIT)
+
+
+class CaseTeamSummonTypeApiTest(APITestCase):
+    def setUp(self):
+        management.call_command("flush", verbosity=0, interactive=False)
+
+    def test_unauthenticated_get(self):
+        url = reverse("teams-summon-types", kwargs={"pk": 1})
+
+        client = get_unauthenticated_client()
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_authenticated_get_not_found(self):
+        url = reverse("teams-summon-types", kwargs={"pk": 1})
+
+        client = get_authenticated_client()
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_authenticated_get(self):
+        summon_type = baker.make(SummonType)
+        url = reverse("teams-summon-types", kwargs={"pk": summon_type.team.pk})
+
+        client = get_authenticated_client()
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_authenticated_get_empty(self):
+        team = baker.make(CaseTeam)
+        url = reverse("teams-summon-types", kwargs={"pk": team.pk})
+
+        client = get_authenticated_client()
+        response = client.get(url)
+        data = response.json()
+
+        self.assertEqual(data["results"], [])
+
+    def test_authenticated_get_list(self):
+        team = baker.make(CaseTeam)
+        baker.make(SummonType, team=team, _quantity=2)
+
+        url = reverse("teams-summon-types", kwargs={"pk": team.pk})
+
+        client = get_authenticated_client()
+        response = client.get(url)
+        data = response.json()
+
+        self.assertEqual(len(data["results"]), 2)
