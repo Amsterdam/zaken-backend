@@ -15,6 +15,7 @@ from apps.cases.serializers import (
 )
 from apps.debriefings.mixins import DebriefingsMixin
 from apps.events.mixins import CaseEventsMixin
+from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -143,5 +144,24 @@ class CaseTeamViewSet(ViewSet, ListAPIView):
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = CaseReasonSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the SummonTypes associated with the given team",
+        responses={status.HTTP_200_OK: SummonTypeSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="summon-types",
+        methods=["get"],
+    )
+    def summon_types(self, request, pk):
+        paginator = PageNumberPagination()
+        team = self.get_object()
+        query_set = team.summon_types.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = SummonTypeSerializer(context, many=True)
 
         return paginator.get_paginated_response(serializer.data)
