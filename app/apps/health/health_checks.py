@@ -6,6 +6,11 @@ from django.conf import settings
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import ServiceUnavailable
 from kombu import Connection
+from utils.api_queries_vakantieverhuur_registraties import (
+    get_bag_vakantieverhuur_registrations,
+    get_bsn_vakantieverhuur_registrations,
+    get_vakantieverhuur_registration,
+)
 
 from redis import exceptions, from_url
 
@@ -179,3 +184,44 @@ class OpenZaakClientCheck(BaseHealthCheckBackend):
 
         except Exception as e:
             self.add_error(ServiceUnavailable("Failed"), e)
+
+
+class VakantieVerhuurRegistratieCheck(BaseHealthCheckBackend):
+    """
+    Check if a connection can be made with the Vakantieverhuur Registratie API
+    """
+
+    critical_service = False
+    verbose_name = "Vakantieverhuur Registratie API"
+
+    def check_status(self):
+
+        try:
+            registration = get_vakantieverhuur_registration(
+                settings.VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER
+            )
+            assert bool(
+                registration
+            ), "The registration data is empty and could not be retrieved"
+
+            bsn_registrations = get_bsn_vakantieverhuur_registrations(
+                settings.VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_BSN
+            )
+            assert (
+                len(bsn_registrations) > 0
+            ), "The registration data is empty and could not be retrieved using the BSN number"
+
+            bag_registrations = get_bag_vakantieverhuur_registrations(
+                settings.VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_BAG_ID
+            )
+            assert (
+                len(bag_registrations) > 0
+            ), "The registration data is empty and could not be retrieved using the BAG id"
+
+        except Exception as e:
+            logger.error(e)
+            self.add_error(ServiceUnavailable("Failed"), e)
+        else:
+            logger.info(
+                "Connection established. Vakantieverhuur Registratie API connection is healthy."
+            )
