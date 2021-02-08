@@ -18,6 +18,7 @@ def get_vakantieverhuur_registration(registration_number):
     response = requests.get(
         url=url,
         headers=header,
+        verify="/usr/local/share/ca-certificates/adp_rootca.crt",
     )
     response.raise_for_status()
 
@@ -35,6 +36,7 @@ def get_bsn_vakantieverhuur_registrations(bsn_number):
     response = requests.get(
         url=url,
         headers=header,
+        verify="/usr/local/share/ca-certificates/adp_rootca.crt",
     )
     response.raise_for_status()
 
@@ -52,6 +54,7 @@ def get_bag_vakantieverhuur_registrations(bag_id):
     response = requests.get(
         url=url,
         headers=header,
+        verify="/usr/local/share/ca-certificates/adp_rootca.crt",
     )
     response.raise_for_status()
 
