@@ -15,9 +15,13 @@ def get_vakantieverhuur_registration(registration_number):
     header = {"x-api-key": settings.VAKANTIEVERHUUR_REGISTRATIE_API_ACCESS_TOKEN}
     url = f"{settings.VAKANTIEVERHUUR_REGISTRATIE_API_URL}{registration_number}"
 
+    logger.info(header)
+    logger.info(url)
+
     response = requests.get(
         url=url,
         headers=header,
+        verify="/usr/local/share/ca-certificates/adp_rootca.crt",
     )
     response.raise_for_status()
 
@@ -35,6 +39,7 @@ def get_bsn_vakantieverhuur_registrations(bsn_number):
     response = requests.get(
         url=url,
         headers=header,
+        verify="/usr/local/share/ca-certificates/adp_rootca.crt",
     )
     response.raise_for_status()
 
@@ -52,6 +57,7 @@ def get_bag_vakantieverhuur_registrations(bag_id):
     response = requests.get(
         url=url,
         headers=header,
+        verify="/usr/local/share/ca-certificates/adp_rootca.crt",
     )
     response.raise_for_status()
 
