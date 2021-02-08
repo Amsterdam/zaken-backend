@@ -34,10 +34,17 @@ class Summon(ModelEventEmitter):
     )
 
     def __get_event_values__(self):
+        persons = []
+
+        for person in self.persons.all():
+            persons.append(person.__str__())
+
         return {
+            "author": self.author.__str__(),
             "date_added": self.date_added,
             "description": self.description,
             "type": self.type.name,
+            "persons": persons,
         }
 
 
@@ -54,4 +61,7 @@ class SummonedPerson(models.Model):
     )
 
     def __str__(self):
-        return f"{self.first_name} {self.preposition} {self.last_name}"
+        if self.preposition:
+            return f"{self.first_name} {self.preposition} {self.last_name}"
+
+        return f"{self.first_name} {self.last_name}"

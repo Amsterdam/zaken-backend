@@ -21,6 +21,7 @@ services:
       - ./app:/app
     stdin_open: true
     tty: true
+    # tty: true
 
   database:
     networks:
