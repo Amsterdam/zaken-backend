@@ -88,10 +88,10 @@ class Case(ModelEventEmitter):
             return self.case_states.all().order_by("-state_date").first()
 
     def save(self, *args, **kwargs):
-        if self.start_date:
+        if not self.start_date:
             self.start_date = timezone.now()
 
-        if self.identification:
+        if not self.identification:
             self.identification = self.__generate_identification__()
 
         super().save(*args, **kwargs)
