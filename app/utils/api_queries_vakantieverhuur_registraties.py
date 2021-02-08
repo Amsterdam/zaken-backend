@@ -7,7 +7,7 @@ from tenacity import after_log, retry, stop_after_attempt
 logger = logging.getLogger(__name__)
 
 
-@retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
+# @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
 def get_vakantieverhuur_registration(registration_number):
     """
     Get the Vakantieverhuur registration
