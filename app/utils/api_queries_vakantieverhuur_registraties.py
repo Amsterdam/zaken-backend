@@ -12,11 +12,16 @@ def get_vakantieverhuur_registration(registration_number):
     """
     Get the Vakantieverhuur registration
     """
+    logger.info("Get vakantieverhuur registration")
+    logger.info("Access Token")
+    logger.info(settings.VAKANTIEVERHUUR_REGISTRATIE_API_ACCESS_TOKEN)
+
     header = {"x-api-key": settings.VAKANTIEVERHUUR_REGISTRATIE_API_ACCESS_TOKEN}
     url = f"{settings.VAKANTIEVERHUUR_REGISTRATIE_API_URL}{registration_number}"
 
     logger.info(header)
     logger.info(url)
+    logger.info("END LOGGING")
 
     response = requests.get(
         url=url,
