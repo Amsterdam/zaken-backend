@@ -1,8 +1,10 @@
+from apps.camunda.models import GenericCompletedTask
 from apps.camunda.serializers import (
     CamundaTaskCompleteSerializer,
     CamundaTaskSerializer,
 )
 from apps.camunda.services import CamundaService
+from apps.cases.models import Case
 from apps.users.auth_apps import TopKeyAuth
 from django.shortcuts import render
 from drf_spectacular.utils import extend_schema
@@ -13,6 +15,7 @@ from rest_framework.response import Response
 
 
 class CamundaTaskViewSet(viewsets.ViewSet):
+    # TODO: not sure if this needs the TopKeyAuth permission
     permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = CamundaTaskCompleteSerializer
 
@@ -30,11 +33,25 @@ class CamundaTaskViewSet(viewsets.ViewSet):
         serializer = CamundaTaskCompleteSerializer(data=request.data)
 
         if serializer.is_valid():
-            camunda_response = CamundaService().complete_task(
-                serializer.data["camunda_task_id"], serializer.data["variables"]
-            )
+            # TODO: get the case id from the serialized data once the frontend is updated
+            case_id = 4
+            case = Case.objects.get(id=case_id)
+            task_id = serializer.data["camunda_task_id"]
+            variables = serializer.data["variables"]
+            author = request.user
+            task = CamundaService().get_task(task_id)
+            task_name = task["name"]
 
-            if camunda_response:
+            completed_task = CamundaService().complete_task(task_id, variables)
+
+            if completed_task:
+                GenericCompletedTask.objects.create(
+                    case=case,
+                    description=task_name,
+                    state=case.get_current_state(),
+                    author=author,
+                )
+
                 return Response(
                     f"Task {serializer.data['camunda_task_id']} has been completed"
                 )
