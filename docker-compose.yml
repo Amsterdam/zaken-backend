@@ -95,7 +95,7 @@ services:
     networks:
       - zaken_network
     depends_on:
-      - database
+      - camunda_db
 
   openzaak.local:
     image: openzaak/open-zaak

@@ -33,8 +33,7 @@ class CamundaTaskViewSet(viewsets.ViewSet):
         serializer = CamundaTaskCompleteSerializer(data=request.data)
 
         if serializer.is_valid():
-            # TODO: get the case id from the serialized data once the frontend is updated
-            case_id = 4
+            case_id = serializer.data["case"]
             case = Case.objects.get(id=case_id)
             task_id = serializer.data["camunda_task_id"]
             variables = serializer.data["variables"]
@@ -51,7 +50,6 @@ class CamundaTaskViewSet(viewsets.ViewSet):
                     state=case.get_current_state(),
                     author=author,
                 )
-
                 return Response(
                     f"Task {serializer.data['camunda_task_id']} has been completed"
                 )

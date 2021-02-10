@@ -27,5 +27,5 @@ class CamundaTaskCompleteSerializer(serializers.Serializer):
     """
 
     camunda_task_id = serializers.CharField(source="id")
-    # case = serializers.PrimaryKeyRelatedField(queryset=Case.objects.all())
+    case = serializers.PrimaryKeyRelatedField(queryset=Case.objects.all())
     variables = serializers.JSONField()
