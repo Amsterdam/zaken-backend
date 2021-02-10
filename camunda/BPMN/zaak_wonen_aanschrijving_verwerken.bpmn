@@ -21,6 +21,8 @@
         <bpmn:flowNodeRef>Event_0nfpu7u</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0ia10qb</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0irxplj</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1l9d0ho</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1wmg5k8</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1dyri3u" name="Handhavingsjurist" />
       <bpmn:lane id="Lane_1wein50" name="Projectmedewerker" />
@@ -67,7 +69,16 @@
     <bpmn:endEvent id="Event_0zxf8et">
       <bpmn:incoming>Flow_1j9xuu5</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:userTask id="Activity_1mkl5rk" name="Monitoren actie burger" camunda:candidateGroups="projecthandhavers">
+    <bpmn:userTask id="Activity_1mkl5rk" name="Monitoren actie burger" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="projecthandhavers">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="form_field_action_civilian" label="Actie burger" type="enum">
+            <camunda:value id="yes_situation_ended" name="Ja, situatie beëindigd" />
+            <camunda:value id="yes_permit_requested" name="Ja vergunning aangevraagd" />
+            <camunda:value id="no_action" name="Burger heef geen actie ondernomen" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_0p4fa1b</bpmn:incoming>
       <bpmn:outgoing>Flow_10upkzz</bpmn:outgoing>
     </bpmn:userTask>
@@ -89,9 +100,10 @@
       <bpmn:incoming>Flow_10upkzz</bpmn:incoming>
       <bpmn:outgoing>Flow_0qhgq6t</bpmn:outgoing>
       <bpmn:outgoing>Flow_11igweb</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1gpl6ug</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0qhgq6t" name="Nee actie" sourceRef="Gateway_1pwflrj" targetRef="Event_0nfpu7u" />
-    <bpmn:sequenceFlow id="Flow_11igweb" name="Ja actie" sourceRef="Gateway_1pwflrj" targetRef="Activity_1k03k9a" />
+    <bpmn:sequenceFlow id="Flow_11igweb" name="Ja vergunning aangevraagd" sourceRef="Gateway_1pwflrj" targetRef="Activity_1k03k9a" />
     <bpmn:userTask id="Activity_1k03k9a" name="Monitoren vergunningsprocedure">
       <bpmn:incoming>Flow_11igweb</bpmn:incoming>
       <bpmn:outgoing>Flow_1i77oze</bpmn:outgoing>
@@ -106,7 +118,7 @@
       <bpmn:outgoing>Flow_0029983</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1i77oze" sourceRef="Activity_1k03k9a" targetRef="Gateway_0ddrey0" />
-    <bpmn:sequenceFlow id="Flow_18cv8bi" name="Ja vergunning/ ja anders opgelost" sourceRef="Gateway_0ddrey0" targetRef="Activity_0ia10qb" />
+    <bpmn:sequenceFlow id="Flow_18cv8bi" name="Ja vergunning" sourceRef="Gateway_0ddrey0" targetRef="Activity_0ia10qb" />
     <bpmn:endEvent id="Event_0frp4m5">
       <bpmn:incoming>Flow_0029983</bpmn:incoming>
     </bpmn:endEvent>
@@ -122,14 +134,21 @@
       <bpmn:incoming>Flow_1nuqqgx</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1nuqqgx" sourceRef="Activity_0ia10qb" targetRef="Event_0irxplj" />
+    <bpmn:sequenceFlow id="Flow_1gpl6ug" name="Ja situatie beëindigd" sourceRef="Gateway_1pwflrj" targetRef="Activity_1l9d0ho">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" />
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="Activity_1l9d0ho" name="Inplannen hercontrole">
+      <bpmn:incoming>Flow_1gpl6ug</bpmn:incoming>
+      <bpmn:outgoing>Flow_1w3zycp</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_1wmg5k8">
+      <bpmn:incoming>Flow_1w3zycp</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1w3zycp" sourceRef="Activity_1l9d0ho" targetRef="Event_1wmg5k8" />
     <bpmn:textAnnotation id="TextAnnotation_1d5wfwx">
       <bpmn:text>Start process zienswijze</bpmn:text>
     </bpmn:textAnnotation>
     <bpmn:association id="Association_0rs9bw6" sourceRef="Event_1gn39j0" targetRef="TextAnnotation_1d5wfwx" />
-    <bpmn:textAnnotation id="TextAnnotation_0cftn87">
-      <bpmn:text>8 weken</bpmn:text>
-    </bpmn:textAnnotation>
-    <bpmn:association id="Association_0dfpsta" sourceRef="Activity_1k03k9a" targetRef="TextAnnotation_0cftn87" />
     <bpmn:textAnnotation id="TextAnnotation_0g5i4nd">
       <bpmn:text>Opstellen aanschrijving</bpmn:text>
     </bpmn:textAnnotation>
@@ -146,6 +165,10 @@
       <bpmn:text>4.5 week</bpmn:text>
     </bpmn:textAnnotation>
     <bpmn:association id="Association_1h1dj2x" sourceRef="Activity_1mkl5rk" targetRef="TextAnnotation_0ullz1f" />
+    <bpmn:textAnnotation id="TextAnnotation_0cftn87">
+      <bpmn:text>8 weken</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_0dfpsta" sourceRef="Activity_1k03k9a" targetRef="TextAnnotation_0cftn87" />
   </bpmn:process>
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -157,19 +180,16 @@
         <dc:Bounds x="191" y="80" width="2958" height="220" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1wein50_di" bpmnElement="Lane_1wein50" isHorizontal="true">
-        <dc:Bounds x="191" y="300" width="2958" height="300" />
+        <dc:Bounds x="191" y="300" width="2958" height="210" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1dyri3u_di" bpmnElement="Lane_1dyri3u" isHorizontal="true">
         <dc:Bounds x="191" y="1060" width="2958" height="640" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1szfa18_di" bpmnElement="Lane_1szfa18" isHorizontal="true">
-        <dc:Bounds x="191" y="600" width="2958" height="460" />
+        <dc:Bounds x="191" y="510" width="2958" height="550" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_047b5fk_di" bpmnElement="Lane_047b5fk" isHorizontal="true">
         <dc:Bounds x="191" y="1700" width="2958" height="350" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_0cftn87_di" bpmnElement="TextAnnotation_0cftn87">
-        <dc:Bounds x="1240" y="550" width="100" height="30" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1i20m52_di" bpmnElement="TextAnnotation_1i20m52">
         <dc:Bounds x="1240" y="970" width="100" height="40" />
@@ -182,6 +202,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_0ullz1f_di" bpmnElement="TextAnnotation_0ullz1f">
         <dc:Bounds x="800" y="550" width="100" height="30" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_0cftn87_di" bpmnElement="TextAnnotation_0cftn87">
+        <dc:Bounds x="1240" y="750" width="100" height="30" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1j9xuu5_di" bpmnElement="Flow_1j9xuu5">
         <di:waypoint x="900" y="990" />
@@ -246,7 +269,7 @@
         <di:waypoint x="1085" y="690" />
         <di:waypoint x="1240" y="690" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1144" y="672" width="38" height="14" />
+          <dc:Bounds x="1128" y="656" width="70" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1i77oze_di" bpmnElement="Flow_1i77oze">
@@ -257,7 +280,7 @@
         <di:waypoint x="1435" y="690" />
         <di:waypoint x="1610" y="690" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1486" y="656" width="84" height="27" />
+          <dc:Bounds x="1485" y="673" width="70" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0029983_di" bpmnElement="Flow_0029983">
@@ -271,6 +294,18 @@
       <bpmndi:BPMNEdge id="Flow_1nuqqgx_di" bpmnElement="Flow_1nuqqgx">
         <di:waypoint x="1710" y="690" />
         <di:waypoint x="1782" y="690" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1gpl6ug_di" bpmnElement="Flow_1gpl6ug">
+        <di:waypoint x="1060" y="665" />
+        <di:waypoint x="1060" y="565" />
+        <di:waypoint x="1230" y="565" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1105" y="531" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1w3zycp_di" bpmnElement="Flow_1w3zycp">
+        <di:waypoint x="1330" y="565" />
+        <di:waypoint x="1382" y="565" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_0a33neb_di" bpmnElement="Event_18zpkht">
         <dc:Bounds x="352" y="832" width="36" height="36" />
@@ -326,13 +361,15 @@
       <bpmndi:BPMNShape id="Event_0irxplj_di" bpmnElement="Event_0irxplj">
         <dc:Bounds x="1782" y="672" width="36" height="36" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1licd17_di" bpmnElement="Activity_1l9d0ho">
+        <dc:Bounds x="1230" y="525" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1wmg5k8_di" bpmnElement="Event_1wmg5k8">
+        <dc:Bounds x="1382" y="547" width="36" height="36" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_0rs9bw6_di" bpmnElement="Association_0rs9bw6">
         <di:waypoint x="2480" y="172" />
         <di:waypoint x="2480" y="170" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Association_0dfpsta_di" bpmnElement="Association_0dfpsta">
-        <di:waypoint x="1290" y="650" />
-        <di:waypoint x="1290" y="580" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Association_08r2i68_di" bpmnElement="Association_08r2i68">
         <di:waypoint x="1198" y="990" />
@@ -349,6 +386,10 @@
       <bpmndi:BPMNEdge id="Association_1h1dj2x_di" bpmnElement="Association_1h1dj2x">
         <di:waypoint x="850" y="650" />
         <di:waypoint x="850" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_0dfpsta_di" bpmnElement="Association_0dfpsta">
+        <di:waypoint x="1290" y="730" />
+        <di:waypoint x="1290" y="750" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

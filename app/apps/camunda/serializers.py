@@ -11,6 +11,8 @@ class CamundaTaskSerializer(serializers.Serializer):
     # frontend knows to load a specific form when the key
     task_name_id = serializers.CharField(source="taskDefinitionKey")
     name = serializers.CharField()
+    due_date = serializers.DateField(source="due")
+    roles = serializers.CharField(source="roles")
 
 
 class CamundaTaskCompleteSerializer(serializers.Serializer):
