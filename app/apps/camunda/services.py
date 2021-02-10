@@ -73,8 +73,19 @@ class CamundaService:
         response = self._process_request(request_path)
 
         if response.ok:
-            content = response.json()
-            return content
+            task_list = response.json()
+
+            for index, task in enumerate(task_list):
+                roles = []
+                task_roles = self.get_task_user_role(task["id"])
+
+                for role in task_roles:
+                    roles.append(role["groupId"])
+
+                role_dict = {"roles": roles}
+                task_list[index].update(role_dict)
+
+            return task_list
         else:
             return False
 
@@ -86,6 +97,15 @@ class CamundaService:
 
         if len(task_list) > 0:
             return task_list[0]
+        else:
+            return False
+
+    def get_task_user_role(self, camunda_task_id):
+        response = self._process_request(f"/task/{camunda_task_id}/identity-links")
+
+        if response.ok:
+            content = response.json()
+            return content
         else:
             return False
 

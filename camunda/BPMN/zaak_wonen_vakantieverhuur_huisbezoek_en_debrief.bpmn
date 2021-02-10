@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_1tztuvt">
     <bpmn:participant id="Participant_08m4w5n" name="Process" processRef="zaak_wonen_vakantieverhuur" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_vakantieverhuur" name="Basis Zaak Wonen VakantieVerhuur" isExecutable="true" camunda:versionTag="0.0.5">
+  <bpmn:process id="zaak_wonen_vakantieverhuur" name="Basis Zaak Wonen VakantieVerhuur" isExecutable="true" camunda:versionTag="0.0.6">
     <bpmn:laneSet id="LaneSet_07j24vc">
       <bpmn:lane id="Lane_1hxgg1r" name="handhavingsjurist">
         <bpmn:flowNodeRef>Activity_0xocoed</bpmn:flowNodeRef>
@@ -62,14 +62,14 @@
     <bpmn:sequenceFlow id="Flow_1oipi38" name="violation&#10;=&#10;ADDITIONAL_RESEARCH_REQUIRED&#10;" sourceRef="is_debrief_violation" targetRef="task_create_debrief">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='ADDITIONAL_RESEARCH_REQUIRED'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:userTask id="task_create_summon" name="Verwerken definitieve aanshrijving(en)" camunda:candidateGroups="projecthandhavers">
+    <bpmn:userTask id="task_create_summon" name="Verwerken definitieve aanshrijving(en)" camunda:candidateGroups="projecthandhavers" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_01v0e6p</bpmn:incoming>
       <bpmn:outgoing>Flow_1n58njb</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:endEvent id="Event_0biznfy">
       <bpmn:incoming>Flow_1n58njb</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:userTask id="Activity_0xocoed" name="Nakijken aanschrijving(en)" camunda:candidateGroups="handhavingsjurist">
+    <bpmn:userTask id="Activity_0xocoed" name="Nakijken aanschrijving(en)" camunda:candidateGroups="handhavingsjurist" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_1qjgqta</bpmn:incoming>
       <bpmn:outgoing>Flow_01v0e6p</bpmn:outgoing>
     </bpmn:userTask>
@@ -79,11 +79,11 @@
       <bpmn:incoming>Flow_0c9qrai</bpmn:incoming>
       <bpmn:outgoing>Flow_1qjgqta</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:userTask id="task_beeldverslag_opstellen" name="Opstellen beeldverslag" camunda:candidateGroups="toezichthouders">
+    <bpmn:userTask id="task_beeldverslag_opstellen" name="Opstellen beeldverslag" camunda:candidateGroups="toezichthouders" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_1w9hb8b</bpmn:incoming>
       <bpmn:outgoing>Flow_1xhnyyp</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_rapport_van_bevindingen_opstellen" name="Opstellen rapport van bevindingen" camunda:candidateGroups="toezichthouders">
+    <bpmn:userTask id="task_rapport_van_bevindingen_opstellen" name="Opstellen rapport van bevindingen" camunda:candidateGroups="toezichthouders" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_0inubyk</bpmn:incoming>
       <bpmn:outgoing>Flow_128bhfd</bpmn:outgoing>
     </bpmn:userTask>
@@ -93,11 +93,11 @@
       <bpmn:outgoing>Flow_0inubyk</bpmn:outgoing>
       <bpmn:outgoing>Flow_1ufgtkv</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:userTask id="task_nader_onderzoek_nodig" name="Uitzetten huisbezoek" camunda:candidateGroups="projectmedewerkers">
+    <bpmn:userTask id="task_nader_onderzoek_nodig" name="Uitzetten huisbezoek" camunda:candidateGroups="projectmedewerkers" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_09q4ikx</bpmn:incoming>
       <bpmn:outgoing>Flow_00jr9tv</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_create_debrief" name="Aanmaken debrief" camunda:candidateGroups="projecthandhavers">
+    <bpmn:userTask id="task_create_debrief" name="Aanmaken debrief" camunda:candidateGroups="projecthandhavers" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_0oi0xmk</bpmn:incoming>
       <bpmn:incoming>Flow_1oipi38</bpmn:incoming>
       <bpmn:outgoing>Flow_0lji06z</bpmn:outgoing>
@@ -105,15 +105,15 @@
     <bpmn:endEvent id="Event_1pmbcxw">
       <bpmn:incoming>Flow_006wtg4</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:userTask id="task_close_case" name="Afsluiten zaak" camunda:candidateGroups="projectmedewerkers">
+    <bpmn:userTask id="task_close_case" name="Afsluiten zaak" camunda:candidateGroups="projectmedewerkers" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_1c3b8q1</bpmn:incoming>
       <bpmn:outgoing>Flow_006wtg4</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_02t4qsu" name="Opstellen  verkorte rapportage huisbezoek" camunda:candidateGroups="toezichthouders">
+    <bpmn:userTask id="Activity_02t4qsu" name="Opstellen  verkorte rapportage huisbezoek" camunda:candidateGroups="toezichthouders" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_09fde08</bpmn:incoming>
       <bpmn:outgoing>Flow_1c3b8q1</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_0cen5zg" name="Opstellen concept aanschrijving(en)" camunda:candidateGroups="projecthandhavers">
+    <bpmn:userTask id="Activity_0cen5zg" name="Opstellen concept aanschrijving(en)" camunda:candidateGroups="projecthandhavers" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_1ufgtkv</bpmn:incoming>
       <bpmn:outgoing>Flow_0c9qrai</bpmn:outgoing>
     </bpmn:userTask>
@@ -132,7 +132,7 @@
       <bpmn:outgoing>Flow_0ioch14</bpmn:outgoing>
       <bpmn:outgoing>Flow_0oi0xmk</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_create_visit" name="Doorgeven huisbezoek resultaat" camunda:candidateGroups="toezichthouders">
+    <bpmn:userTask id="task_create_visit" name="Doorgeven huisbezoek resultaat" camunda:candidateGroups="toezichthouders, developers" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
       <bpmn:incoming>Flow_0ioch14</bpmn:incoming>
       <bpmn:incoming>Flow_00jr9tv</bpmn:incoming>
       <bpmn:incoming>Flow_0dfunn3</bpmn:incoming>
@@ -277,14 +277,44 @@
         <di:waypoint x="3010" y="1190" />
         <di:waypoint x="3072" y="1190" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Activity_0hb8ttg_di" bpmnElement="task_create_visit">
-        <dc:Bounds x="420" y="260" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_03jgupx_di" bpmnElement="task_create_summon">
+        <dc:Bounds x="2910" y="1150" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1odl5bp_di" bpmnElement="Gateway_1odl5bp" isMarkerVisible="true">
-        <dc:Bounds x="975" y="275" width="50" height="50" />
+      <bpmndi:BPMNShape id="Event_1vvgj3e_di" bpmnElement="Event_0biznfy">
+        <dc:Bounds x="3072" y="1172" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="262" y="282" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_1nymqyy_di" bpmnElement="Activity_0xocoed">
+        <dc:Bounds x="2740" y="1330" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1mu8a3h_di" bpmnElement="Gateway_1cbngmn">
+        <dc:Bounds x="2635" y="1085" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ujxflh_di" bpmnElement="task_beeldverslag_opstellen">
+        <dc:Bounds x="2450" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_09x9dt8_di" bpmnElement="task_rapport_van_bevindingen_opstellen">
+        <dc:Bounds x="2450" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_07ltdve_di" bpmnElement="Gateway_0289ucr">
+        <dc:Bounds x="2325" y="195" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0hbqdsq_di" bpmnElement="task_nader_onderzoek_nodig">
+        <dc:Bounds x="830" y="670" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0aawy2h_di" bpmnElement="task_create_debrief">
+        <dc:Bounds x="1190" y="1130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1pmbcxw_di" bpmnElement="Event_1pmbcxw">
+        <dc:Bounds x="2282" y="692" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xa1hzv_di" bpmnElement="task_close_case">
+        <dc:Bounds x="2120" y="670" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0icy5dk_di" bpmnElement="Activity_02t4qsu">
+        <dc:Bounds x="1880" y="400" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0cen5zg_di" bpmnElement="Activity_0cen5zg">
+        <dc:Bounds x="2480" y="1160" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1in3cjy_di" bpmnElement="is_debrief_violation" isMarkerVisible="true">
         <dc:Bounds x="1475" y="685" width="50" height="50" />
@@ -292,44 +322,14 @@
           <dc:Bounds x="1432" y="650" width="56" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0cen5zg_di" bpmnElement="Activity_0cen5zg">
-        <dc:Bounds x="2480" y="1160" width="100" height="80" />
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="262" y="282" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0icy5dk_di" bpmnElement="Activity_02t4qsu">
-        <dc:Bounds x="1880" y="400" width="100" height="80" />
+      <bpmndi:BPMNShape id="Gateway_1odl5bp_di" bpmnElement="Gateway_1odl5bp" isMarkerVisible="true">
+        <dc:Bounds x="975" y="275" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1xa1hzv_di" bpmnElement="task_close_case">
-        <dc:Bounds x="2120" y="670" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1pmbcxw_di" bpmnElement="Event_1pmbcxw">
-        <dc:Bounds x="2282" y="692" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0aawy2h_di" bpmnElement="task_create_debrief">
-        <dc:Bounds x="1190" y="1130" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0hbqdsq_di" bpmnElement="task_nader_onderzoek_nodig">
-        <dc:Bounds x="830" y="670" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_07ltdve_di" bpmnElement="Gateway_0289ucr">
-        <dc:Bounds x="2325" y="195" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_09x9dt8_di" bpmnElement="task_rapport_van_bevindingen_opstellen">
-        <dc:Bounds x="2450" y="260" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1ujxflh_di" bpmnElement="task_beeldverslag_opstellen">
-        <dc:Bounds x="2450" y="90" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1mu8a3h_di" bpmnElement="Gateway_1cbngmn">
-        <dc:Bounds x="2635" y="1085" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1nymqyy_di" bpmnElement="Activity_0xocoed">
-        <dc:Bounds x="2740" y="1330" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1vvgj3e_di" bpmnElement="Event_0biznfy">
-        <dc:Bounds x="3072" y="1172" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_03jgupx_di" bpmnElement="task_create_summon">
-        <dc:Bounds x="2910" y="1150" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_0hb8ttg_di" bpmnElement="task_create_visit">
+        <dc:Bounds x="420" y="260" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
