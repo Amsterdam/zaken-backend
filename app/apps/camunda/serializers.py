@@ -12,7 +12,7 @@ class CamundaTaskSerializer(serializers.Serializer):
     task_name_id = serializers.CharField(source="taskDefinitionKey")
     name = serializers.CharField()
     due_date = serializers.DateField(source="due")
-    roles = serializers.CharField(source="roles")
+    roles = serializers.CharField()
 
 
 class CamundaTaskCompleteSerializer(serializers.Serializer):
