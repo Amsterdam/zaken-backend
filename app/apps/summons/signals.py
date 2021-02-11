@@ -11,11 +11,11 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=Summon, dispatch_uid="summon_init_in_camunda")
 def create_summon_instance_in_camunda(sender, instance, created, **kwargs):
-    if created and "test" not in sys.argv:
-        pass  # pass for now
-    #     camunda_id = CamundaService().start_instance()
-    #     instance.camunda_id = camunda_id
-    #     instance.save()
+    task = CamundaService().get_task_by_task_name_id_and_camunda_id(
+        "task_create_summon", instance.case.camunda_id
+    )
+    if task:
+        CamundaService().complete_task(task["id"])
 
 
 @receiver(post_save, sender=Summon)
