@@ -15,9 +15,7 @@ def create_summon_instance_in_camunda(sender, instance, created, **kwargs):
         "task_create_summon", instance.case.camunda_id
     )
     if task:
-        CamundaService().complete_task(
-            task["id"], {"violation": {"value": instance.violation}}
-        )
+        CamundaService().complete_task(task["id"])
 
 
 @receiver(post_save, sender=Summon)
