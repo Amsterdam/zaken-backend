@@ -5,16 +5,16 @@
   </bpmn:collaboration>
   <bpmn:process id="zaak_wonen_vakantieverhuur" name="Basis Zaak Wonen VakantieVerhuur" isExecutable="true" camunda:versionTag="0.0.6">
     <bpmn:laneSet id="LaneSet_07j24vc">
-      <bpmn:lane id="Lane_1hxgg1r" name="handhavingsjurist">
+      <bpmn:lane id="Lane_1hxgg1r" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_0xocoed</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_0ixqkif" name="projectmedewerkers">
+      <bpmn:lane id="Lane_0ixqkif" name="Projectmedewerker">
         <bpmn:flowNodeRef>is_debrief_violation</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_close_case</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1pmbcxw</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_nader_onderzoek_nodig</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_09nxy3j" name="toezichthouders">
+      <bpmn:lane id="Lane_09nxy3j" name="Toezichthouder">
         <bpmn:flowNodeRef>task_create_visit</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1odl5bp</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
@@ -23,7 +23,7 @@
         <bpmn:flowNodeRef>task_rapport_van_bevindingen_opstellen</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_beeldverslag_opstellen</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_1j0x4ei" name="projecthandhavers">
+      <bpmn:lane id="Lane_1j0x4ei" name="Projecthandhaver">
         <bpmn:flowNodeRef>Activity_0cen5zg</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_create_debrief</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1cbngmn</bpmn:flowNodeRef>
@@ -62,14 +62,14 @@
     <bpmn:sequenceFlow id="Flow_1oipi38" name="violation&#10;=&#10;ADDITIONAL_RESEARCH_REQUIRED&#10;" sourceRef="is_debrief_violation" targetRef="task_create_debrief">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='ADDITIONAL_RESEARCH_REQUIRED'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:userTask id="task_create_summon" name="Verwerken definitieve aanshrijving(en)" camunda:candidateGroups="projecthandhavers" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_create_summon" name="Verwerken definitieve aanschrijving(en)" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_01v0e6p</bpmn:incoming>
       <bpmn:outgoing>Flow_1n58njb</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:endEvent id="Event_0biznfy">
       <bpmn:incoming>Flow_1n58njb</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:userTask id="Activity_0xocoed" name="Nakijken aanschrijving(en)" camunda:candidateGroups="handhavingsjurist" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="Activity_0xocoed" name="Nakijken aanschrijving(en)" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_1qjgqta</bpmn:incoming>
       <bpmn:outgoing>Flow_01v0e6p</bpmn:outgoing>
     </bpmn:userTask>
@@ -79,11 +79,11 @@
       <bpmn:incoming>Flow_0c9qrai</bpmn:incoming>
       <bpmn:outgoing>Flow_1qjgqta</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:userTask id="task_beeldverslag_opstellen" name="Opstellen beeldverslag" camunda:candidateGroups="toezichthouders" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_beeldverslag_opstellen" name="Opstellen beeldverslag" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_1w9hb8b</bpmn:incoming>
       <bpmn:outgoing>Flow_1xhnyyp</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_rapport_van_bevindingen_opstellen" name="Opstellen rapport van bevindingen" camunda:candidateGroups="toezichthouders" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_rapport_van_bevindingen_opstellen" name="Opstellen rapport van bevindingen" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_0inubyk</bpmn:incoming>
       <bpmn:outgoing>Flow_128bhfd</bpmn:outgoing>
     </bpmn:userTask>
@@ -93,11 +93,11 @@
       <bpmn:outgoing>Flow_0inubyk</bpmn:outgoing>
       <bpmn:outgoing>Flow_1ufgtkv</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:userTask id="task_nader_onderzoek_nodig" name="Uitzetten huisbezoek" camunda:candidateGroups="projectmedewerkers" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_nader_onderzoek_nodig" name="Uitzetten huisbezoek" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_09q4ikx</bpmn:incoming>
       <bpmn:outgoing>Flow_00jr9tv</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_create_debrief" name="Aanmaken debrief" camunda:candidateGroups="projecthandhavers" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_create_debrief" name="Aanmaken debrief" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_0oi0xmk</bpmn:incoming>
       <bpmn:incoming>Flow_1oipi38</bpmn:incoming>
       <bpmn:outgoing>Flow_0lji06z</bpmn:outgoing>
@@ -105,15 +105,15 @@
     <bpmn:endEvent id="Event_1pmbcxw">
       <bpmn:incoming>Flow_006wtg4</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:userTask id="task_close_case" name="Afsluiten zaak" camunda:candidateGroups="projectmedewerkers" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_close_case" name="Afsluiten zaak" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_1c3b8q1</bpmn:incoming>
       <bpmn:outgoing>Flow_006wtg4</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_02t4qsu" name="Opstellen  verkorte rapportage huisbezoek" camunda:candidateGroups="toezichthouders" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="Activity_02t4qsu" name="Opstellen  verkorte rapportage huisbezoek" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_09fde08</bpmn:incoming>
       <bpmn:outgoing>Flow_1c3b8q1</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_0cen5zg" name="Opstellen concept aanschrijving(en)" camunda:candidateGroups="projecthandhavers" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="Activity_0cen5zg" name="Opstellen concept aanschrijving(en)" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_1ufgtkv</bpmn:incoming>
       <bpmn:outgoing>Flow_0c9qrai</bpmn:outgoing>
     </bpmn:userTask>
@@ -132,7 +132,7 @@
       <bpmn:outgoing>Flow_0ioch14</bpmn:outgoing>
       <bpmn:outgoing>Flow_0oi0xmk</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_create_visit" name="Doorgeven huisbezoek resultaat" camunda:candidateGroups="toezichthouders, developers" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
+    <bpmn:userTask id="task_create_visit" name="Doorgeven huisbezoek resultaat" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
       <bpmn:incoming>Flow_0ioch14</bpmn:incoming>
       <bpmn:incoming>Flow_00jr9tv</bpmn:incoming>
       <bpmn:incoming>Flow_0dfunn3</bpmn:incoming>
