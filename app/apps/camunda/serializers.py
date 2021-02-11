@@ -2,6 +2,14 @@ from apps.cases.models import Case
 from rest_framework import serializers
 
 
+class CamundaWorkerSerializer(serializers.Serializer):
+    """
+    Serializer for Worker Data
+    """
+
+    description = serializers.CharField()
+
+
 class CamundaTaskSerializer(serializers.Serializer):
     """
     Serializer for Camunda tasks

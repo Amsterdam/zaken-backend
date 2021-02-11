@@ -60,7 +60,19 @@ class CamundaService:
         TODO: Use business key instead of process key
         """
         request_path = f"/process-definition/key/{process}/start"
-        response = self._process_request(request_path, post=True)
+        request_body = json.dumps(
+            {
+                "variables": {
+                    "zaken_access_token": {
+                        "value": settings.CAMUNDA_SECRET_KEY,
+                        "type": "String",
+                    },
+                },
+            }
+        )
+        response = self._process_request(
+            request_path, request_body=request_body, post=True
+        )
 
         if response.ok:
             content = response.json()
