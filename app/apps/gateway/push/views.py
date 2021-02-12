@@ -30,6 +30,7 @@ class PushViewSet(viewsets.ViewSet):
 
     def create(self, request):
         LOGGER.info("Receiving pushed case")
+        LOGGER.info(f"Get Host: {request.get_host()}")
         data = request.data
         serializer = self.serializer_class(data=data)
 
