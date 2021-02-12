@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 @receiver(post_save, sender=Case, dispatch_uid="case_init_in_camunda")
 def create_case_instance_in_camunda(sender, instance, created, **kwargs):
     if created and "test" not in sys.argv:
-        camunda_id = CamundaService().start_instance()
+        camunda_id = CamundaService().start_instance(
+            case_identification=instance.identification
+        )
         instance.camunda_id = camunda_id
         instance.save()
 

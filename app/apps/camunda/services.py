@@ -3,6 +3,7 @@ import logging
 
 import requests
 from django.conf import settings
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -55,12 +56,34 @@ class CamundaService:
         else:
             return False
 
-    def start_instance(self, process=settings.CAMUNDA_PROCESS_VAKANTIE_VERHUUR):
+    def start_instance(
+        self, case_identification, process=settings.CAMUNDA_PROCESS_VAKANTIE_VERHUUR
+    ):
         """
         TODO: Use business key instead of process key
         """
         request_path = f"/process-definition/key/{process}/start"
-        response = self._process_request(request_path, post=True)
+        request_body = json.dumps(
+            {
+                "variables": {
+                    "zaken_access_token": {
+                        "value": settings.CAMUNDA_SECRET_KEY,
+                        "type": "String",
+                    },
+                    "zaken_state_endpoint": {
+                        "value": f'{settings.ZAKEN_CONTAINER_HOST}{reverse("camunda-workers-state")}',
+                        "type": "String",
+                    },
+                    "case_identification": {
+                        "value": case_identification,
+                        "type": "String",
+                    },
+                },
+            }
+        )
+        response = self._process_request(
+            request_path, request_body=request_body, post=True
+        )
 
         if response.ok:
             content = response.json()

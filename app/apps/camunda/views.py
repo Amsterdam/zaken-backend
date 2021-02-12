@@ -1,11 +1,12 @@
 from apps.camunda.models import GenericCompletedTask
 from apps.camunda.serializers import (
+    CamundaStateWorkerSerializer,
     CamundaTaskCompleteSerializer,
     CamundaTaskSerializer,
 )
 from apps.camunda.services import CamundaService
 from apps.cases.models import Case
-from apps.users.auth_apps import TopKeyAuth
+from apps.users.auth_apps import CamundaKeyAuth
 from django.shortcuts import render
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
@@ -14,9 +15,39 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 
+class CamundaWorkerViewSet(viewsets.ViewSet):
+    """
+    This is a view which can be be request from the Camunda workflow.
+    """
+
+    permission_classes = [IsInAuthorizedRealm | CamundaKeyAuth]
+    serializer_class = CamundaStateWorkerSerializer
+
+    @extend_schema(
+        description="A Camunda worker POC",
+        responses={200: None},
+    )
+    @action(
+        detail=False,
+        url_path="state",
+        methods=["post"],
+        serializer_class=CamundaStateWorkerSerializer,
+    )
+    def state(self, request):
+        serializer = CamundaStateWorkerSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(status=status.HTTP_201_CREATED)
+
+
 class CamundaTaskViewSet(viewsets.ViewSet):
-    # TODO: not sure if this needs the TopKeyAuth permission
-    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
+    permission_classes = [
+        IsInAuthorizedRealm,
+    ]
     serializer_class = CamundaTaskCompleteSerializer
 
     @extend_schema(

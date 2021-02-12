@@ -3,8 +3,8 @@ from datetime import datetime
 
 from apps.addresses.models import Address
 from apps.cases.const import IN_PROGRESS
-from apps.cases.models import Case, CaseState, CaseStateType
-from apps.cases.serializers import CaseSerializer, CaseStateSerializer
+from apps.cases.models import Case
+from apps.cases.serializers import CaseSerializer
 from apps.fines.legacy_const import STADIA_WITH_FINES
 from apps.fines.models import Fine
 from apps.gateway.push.serializers import PushSerializer
@@ -51,12 +51,10 @@ class PushViewSet(viewsets.ViewSet):
             )
             self.create_fines(states_data, case)
             users = self.create_users(users)
-            state = self.create_state(case, users)
 
             return Response(
                 {
                     "case": CaseSerializer(case).data,
-                    "state": CaseStateSerializer(state).data,
                 }
             )
 
@@ -103,14 +101,3 @@ class PushViewSet(viewsets.ViewSet):
             users.append(user)
 
         return users
-
-    def create_state(self, case, users):
-        case_state_type, _ = CaseStateType.objects.get_or_create(name=IN_PROGRESS)
-        case_state, _ = CaseState.objects.get_or_create(
-            case=case, status=case_state_type, state_date=datetime.now().date()
-        )
-
-        case_state.users.set(users)
-        case_state.save()
-
-        return case_state

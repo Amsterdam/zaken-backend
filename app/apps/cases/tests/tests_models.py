@@ -7,6 +7,9 @@ from django.test import TestCase
 from freezegun import freeze_time
 from model_bakery import baker
 
+# TODO: Tests for CaseState
+# TODO: Tests for CaseStateType
+
 
 class CaseTeamModelTest(TestCase):
     def setUp(self):
