@@ -19,7 +19,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 USE_TZ = True
 TIME_ZONE = "Europe/Amsterdam"
 
-ZAAK_CONTAINER_HOST = os.getenv("ZAAK_CONTAINER_HOST")
+ZAKEN_CONTAINER_HOST = os.getenv("ZAKEN_CONTAINER_HOST")
 
 ALLOWED_HOSTS = "*"
 
