@@ -81,6 +81,10 @@ class CamundaService:
                 },
             }
         )
+        logger.info("Starting camunda process instance")
+        logger.info(f"Instance: {request_body}")
+        print(request_body)
+
         response = self._process_request(
             request_path, request_body=request_body, post=True
         )
