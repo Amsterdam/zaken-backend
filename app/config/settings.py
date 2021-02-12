@@ -19,14 +19,10 @@ WSGI_APPLICATION = "config.wsgi.application"
 USE_TZ = True
 TIME_ZONE = "Europe/Amsterdam"
 
-# TODO: Configure this in the environment variables
-# ALLOWED_HOSTS = (
-#     "0.0.0.0",
-#     "localhost",
-#     "zaak-gateway",
-#     "acc.looplijst.top.amsterdam.nl",
-# )
+ZAAK_CONTAINER_HOST = os.getenv("ZAAK_CONTAINER_HOST")
+
 ALLOWED_HOSTS = "*"
+
 # TODO: Configure this in the environment variables
 CORS_ORIGIN_WHITELIST = (
     "https://wonen.zaken.amsterdam.nl",
@@ -255,7 +251,8 @@ BELASTING_API_ACCESS_TOKEN = os.getenv("BELASTING_API_ACCESS_TOKEN", None)
 
 # Secret keys which can be used to access certain parts of the API
 SECRET_KEY_TOP_ZAKEN = os.getenv("SECRET_KEY_TOP_ZAKEN", None)
-CAMUNDA_SECRET_KEY = os.getenv("CAMUNDA_SECRET_KEY", "CAMUNDA_SECRET_KEY")
+CAMUNDA_SECRET_KEY = os.getenv("CAMUNDA_SECRET_KEY")
+
 
 # Settings to improve security
 is_secure_environment = False if ENVIRONMENT == "development" else True

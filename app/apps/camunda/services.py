@@ -3,6 +3,7 @@ import logging
 
 import requests
 from django.conf import settings
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -55,7 +56,9 @@ class CamundaService:
         else:
             return False
 
-    def start_instance(self, process=settings.CAMUNDA_PROCESS_VAKANTIE_VERHUUR):
+    def start_instance(
+        self, case_identification, process=settings.CAMUNDA_PROCESS_VAKANTIE_VERHUUR
+    ):
         """
         TODO: Use business key instead of process key
         """
@@ -65,6 +68,14 @@ class CamundaService:
                 "variables": {
                     "zaken_access_token": {
                         "value": settings.CAMUNDA_SECRET_KEY,
+                        "type": "String",
+                    },
+                    "zaken_state_endpoint": {
+                        "value": f'{settings.ZAAK_CONTAINER_HOST}{reverse("camunda-workers-state")}',
+                        "type": "String",
+                    },
+                    "case_identification": {
+                        "value": case_identification,
                         "type": "String",
                     },
                 },

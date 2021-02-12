@@ -114,3 +114,7 @@ class CaseState(models.Model):
 
     def __str__(self):
         return f"{self.state_date} - {self.case.identification} - {self.status.name}"
+
+    def save(self, *args, **kwargs):
+        if not self.state_date:
+            self.state_date = timezone.now()

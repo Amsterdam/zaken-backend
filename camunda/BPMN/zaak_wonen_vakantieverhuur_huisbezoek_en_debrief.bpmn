@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_1tztuvt">
     <bpmn:participant id="Participant_08m4w5n" name="Process" processRef="zaak_wonen_vakantieverhuur" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_vakantieverhuur" name="Basis Zaak Wonen VakantieVerhuur" isExecutable="true" camunda:versionTag="0.0.6c">
+  <bpmn:process id="zaak_wonen_vakantieverhuur" name="Basis Zaak Wonen VakantieVerhuur" isExecutable="true" camunda:versionTag="0.0.7">
     <bpmn:laneSet id="LaneSet_07j24vc">
       <bpmn:lane id="Lane_1hxgg1r" name="handhavingsjurist">
         <bpmn:flowNodeRef>Activity_0xocoed</bpmn:flowNodeRef>
@@ -21,8 +21,8 @@
         <bpmn:flowNodeRef>Gateway_0289ucr</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_rapport_van_bevindingen_opstellen</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_beeldverslag_opstellen</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_1v3fu2t</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1v3fu2t</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1j0x4ei" name="projecthandhavers">
         <bpmn:flowNodeRef>Activity_0cen5zg</bpmn:flowNodeRef>
@@ -137,19 +137,25 @@
       <bpmn:outgoing>Flow_1mmzhem</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_0w35brp" sourceRef="Activity_1v3fu2t" targetRef="task_create_visit" />
-    <bpmn:serviceTask id="Activity_1v3fu2t" name="Zaak Gateway Worker">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0dfunn3</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Activity_1v3fu2t" name="Status Bijwerken: &#39;Huisbezoek uitzetten&#39;">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state": "Huisbezoek uitzetten",
+"case_identification": "${case_identification}"
+}</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
                 <camunda:entry key="content-type">application/json</camunda:entry>
                 <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
               </camunda:map>
             </camunda:inputParameter>
-            <camunda:inputParameter name="method">GET</camunda:inputParameter>
-            <camunda:inputParameter name="url">http://zaak-gateway:8000/api/v1/camunda/worker/poc/</camunda:inputParameter>
-            <camunda:outputParameter name="nameLength">${response}</camunda:outputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
@@ -157,9 +163,6 @@
       <bpmn:incoming>Flow_0dfunn3</bpmn:incoming>
       <bpmn:outgoing>Flow_0w35brp</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:startEvent id="StartEvent_1">
-      <bpmn:outgoing>Flow_0dfunn3</bpmn:outgoing>
-    </bpmn:startEvent>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1tztuvt">
@@ -179,7 +182,7 @@
         <dc:Bounds x="190" y="1310" width="2958" height="120" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0w35brp_di" bpmnElement="Flow_0w35brp">
-        <di:waypoint x="400" y="300" />
+        <di:waypoint x="390" y="300" />
         <di:waypoint x="420" y="300" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1oipi38_di" bpmnElement="Flow_1oipi38">
@@ -230,7 +233,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0dfunn3_di" bpmnElement="Flow_0dfunn3">
         <di:waypoint x="268" y="300" />
-        <di:waypoint x="300" y="300" />
+        <di:waypoint x="290" y="300" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1c3b8q1_di" bpmnElement="Flow_1c3b8q1">
         <di:waypoint x="1980" y="440" />
@@ -354,11 +357,11 @@
       <bpmndi:BPMNShape id="Activity_0hb8ttg_di" bpmnElement="task_create_visit">
         <dc:Bounds x="420" y="260" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1v3fu2t_di" bpmnElement="Activity_1v3fu2t">
-        <dc:Bounds x="300" y="260" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="232" y="282" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1v3fu2t_di" bpmnElement="Activity_1v3fu2t">
+        <dc:Bounds x="290" y="260" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

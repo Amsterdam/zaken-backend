@@ -1,8 +1,8 @@
 from apps.camunda.models import GenericCompletedTask
 from apps.camunda.serializers import (
+    CamundaStateWorkerSerializer,
     CamundaTaskCompleteSerializer,
     CamundaTaskSerializer,
-    CamundaWorkerSerializer,
 )
 from apps.camunda.services import CamundaService
 from apps.cases.models import Case
@@ -21,7 +21,7 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
     """
 
     permission_classes = [IsInAuthorizedRealm | CamundaKeyAuth]
-    serializer_class = CamundaWorkerSerializer
+    serializer_class = CamundaStateWorkerSerializer
 
     @extend_schema(
         description="A Camunda worker POC",
@@ -29,15 +29,19 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
     )
     @action(
         detail=False,
-        url_path="poc",
-        methods=["get"],
-        serializer_class=CamundaWorkerSerializer,
+        url_path="state",
+        methods=["post"],
+        serializer_class=CamundaStateWorkerSerializer,
     )
-    def poc(self, request):
-        data = {"description": "Lorem Ipsum"}
-        serializer = CamundaWorkerSerializer(data=data)
-        serializer.is_valid()
-        return Response(serializer.data)
+    def state(self, request):
+        serializer = CamundaStateWorkerSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(status=status.HTTP_201_CREATED)
 
 
 class CamundaTaskViewSet(viewsets.ViewSet):
