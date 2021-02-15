@@ -69,6 +69,12 @@ class CaseModelTest(TestCase):
         case = baker.make(Case)
         UUID(case.identification, version=4)
 
+    def test_case_initial_state(self):
+        """ A case always starts with an initial state """
+        case = baker.make(Case)
+        self.assertIsNotNone(case.get_current_state())
+        self.assertEquals(len(case.case_states.all()), 1)
+
     @freeze_time("2019-12-25")
     def test_auto_start_date(self):
         """ If a start data isn't specified, it should be set to the current time """

@@ -1,6 +1,7 @@
 import uuid
 
 from apps.addresses.models import Address
+from apps.cases.const import INITIAL_STATE
 from apps.events.models import CaseEvent, ModelEventEmitter
 from apps.users.models import User
 from django.conf import settings
@@ -87,7 +88,16 @@ class Case(ModelEventEmitter):
         if self.case_states.count() > 0:
             return self.case_states.all().order_by("-state_date").first()
 
+    def set_state(self, state_name):
+        state_type, _ = CaseStateType.objects.get_or_create(name=state_name)
+        state = CaseState.objects.create(case=self, status=state_type)
+
+        return state
+
     def save(self, *args, **kwargs):
+        if not self.get_current_state():
+            self.state = self.set_state(INITIAL_STATE)
+
         if not self.start_date:
             self.start_date = timezone.now()
 
