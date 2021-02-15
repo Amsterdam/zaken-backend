@@ -87,6 +87,12 @@ class Case(ModelEventEmitter):
         if self.case_states.count() > 0:
             return self.case_states.all().order_by("-state_date").first()
 
+    def set_state(self, state_name):
+        state_type, _ = CaseStateType.objects.get_or_create(name=state_name)
+        state = CaseState.objects.create(case=self, status=state_type)
+
+        return state
+
     def save(self, *args, **kwargs):
         if not self.start_date:
             self.start_date = timezone.now()
