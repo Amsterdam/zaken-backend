@@ -15,7 +15,7 @@ class CamundaStateWorkerSerializer(serializers.Serializer):
             Case.objects.get(identification=data["case_identification"])
         except Case.DoesNotExist:
             raise serializers.ValidationError(
-                "Case with the given case_identification doesn not exist"
+                "Case with the given case_identification does not exist"
             )
         return data
 
