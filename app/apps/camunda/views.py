@@ -61,29 +61,29 @@ class CamundaTaskViewSet(viewsets.ViewSet):
         serializer_class=CamundaTaskCompleteSerializer,
     )
     def complete_task(self, request):
-        serializer = CamundaTaskCompleteSerializer(data=request.data)
+        context = {"request": self.request}
+        serializer = CamundaTaskCompleteSerializer(data=request.data, context=context)
 
         if serializer.is_valid():
-            case_id = serializer.data["case"]
-            case = Case.objects.get(id=case_id)
-            task_id = serializer.data["camunda_task_id"]
-            variables = serializer.data["variables"]
-            author = request.user
-            task = CamundaService().get_task(task_id)
-            task_name = task["name"]
+            data = serializer.validated_data
 
-            completed_task = CamundaService().complete_task(task_id, variables)
+            # Task data can't be retrieved after it's been completed, so make sure to retrieve it first.
+            task = CamundaService().get_task(data["camunda_task_id"])
 
-            if completed_task:
+            task_completed = CamundaService().complete_task(
+                data["camunda_task_id"], data.get("variables", {})
+            )
+
+            if task_completed:
                 GenericCompletedTask.objects.create(
-                    case=case,
-                    description=task_name,
-                    state=case.get_current_state(),
-                    author=author,
+                    author=data["author"],
+                    case=data["case"],
+                    state=data["case"].get_current_state(),
+                    description=task["name"],
+                    variables=data.get("variables", {}),
                 )
-                return Response(
-                    f"Task {serializer.data['camunda_task_id']} has been completed"
-                )
+
+                return Response(f"Task {data['camunda_task_id']} has been completed")
             else:
                 return Response(
                     "Camunda service is offline",
