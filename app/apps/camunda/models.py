@@ -13,6 +13,7 @@ class GenericCompletedTask(ModelEventEmitter):
     date_added = models.DateTimeField(auto_now_add=True)
     description = models.TextField()
     author = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    variables = models.JSONField(null=True)
 
     def __get_event_values__(self):
 
@@ -20,4 +21,5 @@ class GenericCompletedTask(ModelEventEmitter):
             "author": self.author.__str__(),
             "date_added": self.date_added,
             "description": self.description,
+            "variables": self.variables,
         }
