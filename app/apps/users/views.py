@@ -17,7 +17,6 @@ LOGGER = logging.getLogger(__name__)
 
 
 class UserListView(ViewSet, generics.ListAPIView):
-    permission_classes = ()
     queryset = User.objects.filter(is_staff=False, is_active=True, is_superuser=False)
     serializer_class = UserSerializer
 
