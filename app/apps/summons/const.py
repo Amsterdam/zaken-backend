@@ -8,7 +8,7 @@ SUMMON_TYPES = (
     "Voornemen invordering dwangsom",
     "Meldplicht voornemen boete",
     "Voornemen preventieve last",
-    "Voornemen tot intrekking shortstay",
+    "Voornemen intrekking SS-vergunning",
     "Voornemen intrekking BB-vergunning",
     "Voornemen intrekking VV-vergunning",
 )
