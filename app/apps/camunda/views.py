@@ -1,3 +1,5 @@
+import logging
+
 from apps.camunda.models import GenericCompletedTask
 from apps.camunda.serializers import (
     CamundaStateWorkerSerializer,
@@ -14,6 +16,8 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+logger = logging.getLogger(__name__)
+
 
 class CamundaWorkerViewSet(viewsets.ViewSet):
     """
@@ -24,7 +28,7 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
     serializer_class = CamundaStateWorkerSerializer
 
     @extend_schema(
-        description="A Camunda worker POC",
+        description="A Camunda service task for setting state",
         responses={200: None},
     )
     @action(
@@ -34,14 +38,19 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
         serializer_class=CamundaStateWorkerSerializer,
     )
     def state(self, request):
+        logger.info(
+            f"Camunda is setting state for case {request.data['case_identification']}"
+        )
+
         serializer = CamundaStateWorkerSerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
+            logger.info("State set succesfully")
+            return Response(status=status.HTTP_201_CREATED)
         else:
+            logger.info(f"State could not be set: {serializer.errors}")
             return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(status=status.HTTP_201_CREATED)
 
 
 class CamundaTaskViewSet(viewsets.ViewSet):
