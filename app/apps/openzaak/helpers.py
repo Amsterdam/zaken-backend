@@ -17,6 +17,8 @@ def get_default_zaaktype():
 
 def create_open_zaak_case(identification, description):
     zaak_type = get_default_zaaktype()
+    print("Creating Case with zaaktype:")
+    print(zaak_type)
 
     today = date.today().strftime("%Y-%m-%d")
     zaak_body = {
