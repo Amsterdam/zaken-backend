@@ -31,7 +31,7 @@ djangorestframework-simplejwt==4.6.0
 drf-spectacular==0.13.1
 Faker==5.7.0
 freezegun==1.1.0
-gemma-zds-client==0.14.0
+gemma-zds-client==0.14.1
 idna==2.10
 importlib-metadata==3.4.0
 inflection==0.5.1
