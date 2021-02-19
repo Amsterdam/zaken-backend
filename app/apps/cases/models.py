@@ -88,12 +88,9 @@ class Case(ModelEventEmitter):
             return self.case_states.all().order_by("-state_date").first()
 
     def set_state(self, state_name):
-        print("creating state type")
         state_type, _ = CaseStateType.objects.get_or_create(name=state_name)
-        print(state_type)
-        print("creating state")
         state = CaseState.objects.create(case=self, status=state_type)
-        print(state)
+
         return state
 
     def save(self, *args, **kwargs):

@@ -21,6 +21,15 @@ class CamundaStateWorkerSerializer(serializers.Serializer):
             )
         return data
 
+    def create(self, validated_data):
+        state_name = validated_data["state"]
+        case_identification = validated_data["case_identification"]
+
+        case = Case.objects.get(identification=case_identification)
+        state = case.set_state(state_name)
+
+        return state
+
 
 class CamundaTaskSerializer(serializers.Serializer):
     """
