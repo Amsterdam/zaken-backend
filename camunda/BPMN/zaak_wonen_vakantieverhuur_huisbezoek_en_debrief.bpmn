@@ -146,7 +146,7 @@
           <camunda:inputOutput>
             <camunda:inputParameter name="payload">{
 "state": "Huisbezoek uitzetten",
-"case_identification": "${case_identification}"
+"case_identification": ${case_identification}
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
