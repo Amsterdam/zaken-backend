@@ -49,8 +49,9 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
             case_identification = serializer.validated_data["case_identification"]
             case = Case.objects.get(identification=case_identification)
             state = case.set_state(state_name)
+            print("State:")
+            print(state)
             state.save()
-
             logger.info("State set succesfully")
             print("P State set succesfully")
             return Response(status=status.HTTP_201_CREATED)
