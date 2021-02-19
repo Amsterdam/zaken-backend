@@ -93,7 +93,6 @@ class Case(ModelEventEmitter):
         print(state_type)
         print("creating state")
         state = CaseState.objects.create(case=self, status=state_type)
-
         return state
 
     def save(self, *args, **kwargs):
