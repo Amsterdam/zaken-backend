@@ -84,6 +84,7 @@ SPAGHETTI_SAUCE = {
         "visits",
         "events",
         "summons",
+        "camunda",
     ],
     "show_fields": False,
 }
