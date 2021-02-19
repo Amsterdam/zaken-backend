@@ -93,6 +93,7 @@ class Case(ModelEventEmitter):
         print(state_type)
         print("creating state")
         state = CaseState.objects.create(case=self, status=state_type)
+        print(state)
         return state
 
     def save(self, *args, **kwargs):
@@ -126,3 +127,5 @@ class CaseState(models.Model):
     def save(self, *args, **kwargs):
         if not self.state_date:
             self.state_date = timezone.now()
+
+        return super().save(*args, **kwargs)
