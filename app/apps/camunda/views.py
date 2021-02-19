@@ -38,12 +38,15 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
         serializer_class=CamundaStateWorkerSerializer,
     )
     def state(self, request):
-        logger.info(
-            f"Camunda is setting state for case {request.data['case_identification']}"
-        )
-        print(
-            f"P Camunda is setting state for case {request.data['case_identification']}"
-        )
+        print("Starting Camunda service task")
+        print(request)
+        print(request.data)
+        # logger.info(
+        #     f"Camunda is setting state for case {request.data['case_identification']}"
+        # )
+        # print(
+        #     f"P Camunda is setting state for case {request.data['case_identification']}"
+        # )
 
         serializer = CamundaStateWorkerSerializer(data=request.data)
 
