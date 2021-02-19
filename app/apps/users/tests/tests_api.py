@@ -11,6 +11,24 @@ from app.utils.unittest_helpers import (
 )
 
 
+class UserListViewTest(APITestCase):
+    """
+    Tests for the API endpoints for UserListView
+    """
+
+    def test_unauthenticated_get(self):
+        url = reverse("authors-list")
+        client = get_unauthenticated_client()
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_authenticated_get(self):
+        url = reverse("authors-list")
+        client = get_authenticated_client()
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
 class IsAuthorizedViewTest(APITestCase):
     """
     Tests for the API endpoints for IsAuthorizedView
