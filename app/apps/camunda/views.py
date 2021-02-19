@@ -9,6 +9,7 @@ from apps.camunda.serializers import (
 from apps.camunda.services import CamundaService
 from apps.cases.models import Case
 from apps.users.auth_apps import CamundaKeyAuth
+from django.db import transaction
 from django.shortcuts import render
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
@@ -48,7 +49,10 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
             state_name = serializer.validated_data["state"]
             case_identification = serializer.validated_data["case_identification"]
             case = Case.objects.get(identification=case_identification)
-            state = case.set_state(state_name)
+
+            with transaction.atomic():
+                state = case.set_state(state_name)
+
             print("State:")
             print(state)
             state.save()
