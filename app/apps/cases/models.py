@@ -97,7 +97,7 @@ class Case(ModelEventEmitter):
         if not self.start_date:
             self.start_date = timezone.now()
 
-        if not self.identification:
+        if self.identification in (None, ""):
             self.identification = self.__generate_identification__()
 
         super().save(*args, **kwargs)
