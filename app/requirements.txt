@@ -28,7 +28,7 @@ django-spaghetti-and-meatballs==0.4.2
 django-timezone-field==4.1.1
 djangorestframework==3.12.2
 djangorestframework-simplejwt==4.6.0
-drf-spectacular==0.13.1
+drf-spectacular==0.13.2
 Faker==5.7.0
 freezegun==1.1.0
 gemma-zds-client==0.14.1
