@@ -97,7 +97,7 @@ class Case(ModelEventEmitter):
         if not self.start_date:
             self.start_date = timezone.now()
 
-        if not self.identification:
+        if self.identification in (None, ""):
             self.identification = self.__generate_identification__()
 
         super().save(*args, **kwargs)
@@ -124,3 +124,5 @@ class CaseState(models.Model):
     def save(self, *args, **kwargs):
         if not self.state_date:
             self.state_date = timezone.now()
+
+        return super().save(*args, **kwargs)
