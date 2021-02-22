@@ -125,6 +125,13 @@ class CamundaService:
         else:
             return False
 
+    def get_task_variables(self, task_id):
+        response = self._process_request(f"/task/{task_id}/variables")
+        if response.ok:
+            return response.json()
+        else:
+            return False
+
     def get_task_by_task_name_id_and_camunda_id(self, task_name_id, camunda_id):
         response = self._process_request(
             f"/task/?taskDefinitionKey={task_name_id}&processInstanceId={camunda_id}"

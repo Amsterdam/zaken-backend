@@ -8,7 +8,7 @@ from apps.camunda.serializers import (
     CamundaTaskSerializer,
 )
 from apps.camunda.services import CamundaService
-from apps.cases.models import Case
+from apps.cases.models import Case, CaseState
 from apps.users.auth_apps import CamundaKeyAuth
 from django.db import transaction
 from django.shortcuts import render
@@ -99,8 +99,14 @@ class CamundaTaskViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             data = serializer.validated_data
 
+            service = CamundaService()
+            task_id = data["camunda_task_id"]
+
             # Task data can't be retrieved after it's been completed, so make sure to retrieve it first.
-            task = CamundaService().get_task(data["camunda_task_id"])
+            task = service.get_task(task_id)
+            task_variables = service.get_task_variables(task_id)
+            state_identification = task_variables["state_identification"]["value"]
+            state = CaseState.objects.get(id=state_identification)
 
             task_completed = CamundaService().complete_task(
                 data["camunda_task_id"], data.get("variables", {})
@@ -110,7 +116,7 @@ class CamundaTaskViewSet(viewsets.ViewSet):
                 GenericCompletedTask.objects.create(
                     author=data["author"],
                     case=data["case"],
-                    state=data["case"].get_current_state(),
+                    state=state,
                     description=task["name"],
                     variables=data.get("variables", {}),
                 )

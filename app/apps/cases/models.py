@@ -83,10 +83,8 @@ class Case(ModelEventEmitter):
             return f"Case {self.id} - {self.identification}"
         return f"Case {self.id}"
 
-    def get_current_state(self):
-        # TODO: This needs to be rewritten if we have multiple "parallel" states
-        if self.case_states.count() > 0:
-            return self.case_states.all().order_by("-start_date").first()
+    def get_current_states(self):
+        return self.case_states.filter(end_date__isnull=True)
 
     def set_state(self, state_name):
         state_type, _ = CaseStateType.objects.get_or_create(name=state_name)
