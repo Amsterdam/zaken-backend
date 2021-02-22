@@ -2,6 +2,7 @@ import logging
 
 from apps.camunda.models import GenericCompletedTask
 from apps.camunda.serializers import (
+    CamundaEndStateWorkerSerializer,
     CamundaStateWorkerSerializer,
     CamundaTaskCompleteSerializer,
     CamundaTaskSerializer,
@@ -43,11 +44,35 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
         serializer = CamundaStateWorkerSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
+            state = serializer.save()
             logger.info("State set succesfully")
-            return Response(status=status.HTTP_201_CREATED)
+            return Response(data=state.id, status=status.HTTP_201_CREATED)
         else:
             logger.error(f"State could not be set: {serializer.errors}")
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        description="A Camunda service task for ending a state",
+        responses={200: None},
+    )
+    @action(
+        detail=False,
+        url_path="end-state",
+        methods=["post"],
+        serializer_class=CamundaEndStateWorkerSerializer,
+    )
+    def end_state(self, request):
+        logger.info("Starting Camunda service task")
+        serializer = CamundaEndStateWorkerSerializer(data=request.data)
+
+        if serializer.is_valid():
+            state = serializer.validated_data["state_identification"]
+            state.end_state()
+            state.save()
+            logger.info("State ended succesfully")
+            return Response(status=status.HTTP_200_OK)
+        else:
+            logger.error(f"State could not be ended: {serializer.errors}")
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 

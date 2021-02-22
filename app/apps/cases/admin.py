@@ -7,7 +7,16 @@ class CaseAdmin(admin.ModelAdmin):
     list_display = ("id", "identification", "start_date", "end_date", "address")
 
 
-admin.site.register(CaseState, admin.ModelAdmin)
+@admin.register(CaseState)
+class CaseStateAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "status",
+        "start_date",
+        "end_date",
+    )
+
+
 admin.site.register(CaseStateType, admin.ModelAdmin)
 admin.site.register(CaseTeam, admin.ModelAdmin)
 admin.site.register(CaseReason, admin.ModelAdmin)

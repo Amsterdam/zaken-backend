@@ -74,6 +74,10 @@ class CamundaService:
                         "value": f'{settings.ZAKEN_CONTAINER_HOST}{reverse("camunda-workers-state")}',
                         "type": "String",
                     },
+                    "zaken_end_state_endpoint": {
+                        "value": f'{settings.ZAKEN_CONTAINER_HOST}{reverse("camunda-workers-end-state")}',
+                        "type": "String",
+                    },
                     "case_identification": {
                         "value": case_identification,
                         "type": "String",
