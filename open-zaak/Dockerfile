@@ -6,3 +6,6 @@ ENV REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 ADD certificates/adp_rootca.crt /usr/local/share/ca-certificates/adp_rootca.crt
 RUN chmod 644 /usr/local/share/ca-certificates/adp_rootca.crt \
     && update-ca-certificates --fresh
+
+# TODO: Add the cmis_mapper json to the following directory, in order to configure the Alfresco document management system correctly:
+# /app/cmis/cmis_mapper.json
