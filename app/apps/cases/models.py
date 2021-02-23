@@ -123,7 +123,7 @@ class CaseState(models.Model):
 
     def end_state(self):
         if not self.end_date:
-            self.end_date = timezone.now()
+            self.end_date = timezone.now().date()
 
         else:
             raise AttributeError("End date is already set")
