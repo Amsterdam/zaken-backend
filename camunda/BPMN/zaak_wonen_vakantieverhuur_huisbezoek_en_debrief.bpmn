@@ -40,7 +40,7 @@
         <bpmn:flowNodeRef>Activity_0xocoed</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:userTask id="Activity_1rzt0o9" name="Afsluiten zaak" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(5).toDate()}">
+    <bpmn:userTask id="Activity_1rzt0o9" name="Afsluiten zaak" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(7).toDate()}">
       <bpmn:incoming>Flow_1rh2wya</bpmn:incoming>
       <bpmn:outgoing>Flow_0gbzqdn</bpmn:outgoing>
     </bpmn:userTask>
@@ -95,7 +95,7 @@
       <bpmn:outgoing>Flow_09fde08</bpmn:outgoing>
       <bpmn:outgoing>Flow_09q4ikx</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_close_case" name="Afsluiten zaak" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(5).toDate()}">
+    <bpmn:userTask id="task_close_case" name="Afsluiten zaak" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(7).toDate()}">
       <bpmn:incoming>Flow_1c3b8q1</bpmn:incoming>
       <bpmn:outgoing>Flow_006wtg4</bpmn:outgoing>
     </bpmn:userTask>
