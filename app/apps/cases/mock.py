@@ -113,10 +113,13 @@ def mock_cases():
             observations=[],
         )
 
-    baker.make(Debriefing, case=cases[3], violation=Debriefing.VIOLATION_YES)
+    baker.make(
+        Debriefing, author=user_1, case=cases[3], violation=Debriefing.VIOLATION_YES
+    )
 
     baker.make(
         Debriefing,
+        author=user_1,
         case=cases[4],
         violation=Debriefing.VIOLATION_ADDITIONAL_RESEARCH_REQUIRED,
     )
@@ -125,6 +128,7 @@ def mock_cases():
     for case in cases[5:7]:
         baker.make(
             Debriefing,
+            author=user_2,
             case=case,
             violation=Debriefing.VIOLATION_ADDITIONAL_VISIT_REQUIRED,
         )
