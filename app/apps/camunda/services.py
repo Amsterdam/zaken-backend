@@ -43,6 +43,30 @@ class CamundaService:
             response.ok = False
             return response
 
+    def _get_form_with_task(self, camunda_task_id):
+        task_list = []
+        response = self._process_request(f"/task/{camunda_task_id}/form-variables")
+
+        if response.ok:
+            response_json = response.json()
+
+            for task in response_json:
+                if not response_json[task]["value"]:
+                    task_list.append(response_json[task])
+
+            return task_list
+        else:
+            return False
+
+    def _get_task_user_role(self, camunda_task_id):
+        response = self._process_request(f"/task/{camunda_task_id}/identity-links")
+
+        if response.ok:
+            content = response.json()
+            return content
+        else:
+            return False
+
     def get_process_definitions(self):
         processes = []
         response = self._process_request("/process-definition")
@@ -102,13 +126,14 @@ class CamundaService:
 
             for index, task in enumerate(task_list):
                 roles = []
-                task_roles = self.get_task_user_role(task["id"])
+                task_roles = self._get_task_user_role(task["id"])
+                task_form = self._get_form_with_task(task["id"])
 
                 for role in task_roles:
                     roles.append(role["groupId"])
 
-                role_dict = {"roles": roles}
-                task_list[index].update(role_dict)
+                extra_info_dict = {"roles": roles, "form": task_form}
+                task_list[index].update(extra_info_dict)
 
             return task_list
         else:
@@ -129,15 +154,6 @@ class CamundaService:
 
         if len(task_list) > 0:
             return task_list[0]
-        else:
-            return False
-
-    def get_task_user_role(self, camunda_task_id):
-        response = self._process_request(f"/task/{camunda_task_id}/identity-links")
-
-        if response.ok:
-            content = response.json()
-            return content
         else:
             return False
 

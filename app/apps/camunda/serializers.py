@@ -43,6 +43,7 @@ class CamundaTaskSerializer(serializers.Serializer):
     name = serializers.CharField()
     due_date = serializers.DateField(source="due")
     roles = serializers.ListField(serializers.CharField(max_length=255))
+    form = serializers.JSONField()
 
 
 class CamundaTaskCompleteSerializer(serializers.Serializer):
