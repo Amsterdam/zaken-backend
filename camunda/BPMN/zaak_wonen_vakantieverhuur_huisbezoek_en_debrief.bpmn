@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_1tztuvt">
     <bpmn:participant id="Participant_08m4w5n" name="Process" processRef="zaak_wonen_vakantieverhuur" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_vakantieverhuur" name="Basis Zaak Wonen VakantieVerhuur" isExecutable="true" camunda:versionTag="0.0.7xx7">
+  <bpmn:process id="zaak_wonen_vakantieverhuur" name="Basis Zaak Wonen VakantieVerhuur" isExecutable="true" camunda:versionTag="0.0.7b">
     <bpmn:laneSet id="LaneSet_07j24vc">
       <bpmn:lane id="Lane_1hxgg1r" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_0xocoed</bpmn:flowNodeRef>
@@ -134,7 +134,7 @@
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_0dfunn3</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:serviceTask id="Activity_1v3fu2t" name="Status Bijwerken: &#39;Huisbezoek uitzetten&#39;">
+    <bpmn:serviceTask id="Activity_1v3fu2t" name="Status Bijwerken: &#39;Huisbezoek uitzetten&#39;" camunda:asyncBefore="true" camunda:exclusive="false">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -160,12 +160,12 @@
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0xo2jtn" sourceRef="task_create_visit" targetRef="Activity_0ku5u38" />
     <bpmn:sequenceFlow id="Flow_1k2647r" sourceRef="Activity_0ku5u38" targetRef="Gateway_1odl5bp" />
-    <bpmn:serviceTask id="Activity_0ku5u38" name="Status Beëindigen">
+    <bpmn:serviceTask id="Activity_0ku5u38" name="Status Beëindigen" camunda:asyncBefore="true" camunda:exclusive="false">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
             <camunda:inputParameter name="payload">{
-"state_identification": ${state_identification}
+"state_identification": "${state_identification}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -206,6 +206,10 @@
       <bpmndi:BPMNShape id="Lane_1hxgg1r_di" bpmnElement="Lane_1hxgg1r" isHorizontal="true">
         <dc:Bounds x="190" y="1310" width="2958" height="120" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1k2647r_di" bpmnElement="Flow_1k2647r">
+        <di:waypoint x="730" y="300" />
+        <di:waypoint x="975" y="300" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0xo2jtn_di" bpmnElement="Flow_0xo2jtn">
         <di:waypoint x="550" y="300" />
         <di:waypoint x="630" y="300" />
@@ -330,10 +334,6 @@
       <bpmndi:BPMNEdge id="Flow_1n58njb_di" bpmnElement="Flow_1n58njb">
         <di:waypoint x="3010" y="1190" />
         <di:waypoint x="3072" y="1190" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1k2647r_di" bpmnElement="Flow_1k2647r">
-        <di:waypoint x="730" y="300" />
-        <di:waypoint x="975" y="300" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_03jgupx_di" bpmnElement="task_create_summon">
         <dc:Bounds x="2910" y="1150" width="100" height="80" />
