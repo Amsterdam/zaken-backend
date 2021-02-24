@@ -14,12 +14,18 @@ class CamundaService:
     def __init__(self, rest_url=settings.CAMUNDA_REST_URL):
         self.rest_url = rest_url
 
-    def _process_request(self, request_path, request_body=None, post=False):
+    def _process_request(self, request_path, request_body=None, post=False, put=False):
         request_path = self.rest_url + request_path
 
         try:
             if post:
                 response = requests.post(
+                    request_path,
+                    data=request_body,
+                    headers={"content-type": "application/json"},
+                )
+            elif put:
+                response = requests.put(
                     request_path,
                     data=request_body,
                     headers={"content-type": "application/json"},
@@ -42,6 +48,30 @@ class CamundaService:
             response = Response(status=status.HTTP_400_BAD_REQUEST)
             response.ok = False
             return response
+
+    def _get_form_with_task(self, camunda_task_id):
+        task_list = []
+        response = self._process_request(f"/task/{camunda_task_id}/form-variables")
+
+        if response.ok:
+            response_json = response.json()
+
+            for task in response_json:
+                if not response_json[task]["value"]:
+                    task_list.append(response_json[task])
+
+            return task_list
+        else:
+            return False
+
+    def _get_task_user_role(self, camunda_task_id):
+        response = self._process_request(f"/task/{camunda_task_id}/identity-links")
+
+        if response.ok:
+            content = response.json()
+            return content
+        else:
+            return False
 
     def get_process_definitions(self):
         processes = []
@@ -106,13 +136,17 @@ class CamundaService:
 
             for index, task in enumerate(task_list):
                 roles = []
-                task_roles = self.get_task_user_role(task["id"])
+                task_roles = self._get_task_user_role(task["id"])
+                task_form = self._get_form_with_task(task["id"])
 
-                for role in task_roles:
-                    roles.append(role["groupId"])
+                if task_roles:
+                    for role in task_roles:
+                        roles.append(role["groupId"])
+                else:
+                    return False
 
-                role_dict = {"roles": roles}
-                task_list[index].update(role_dict)
+                extra_info_dict = {"roles": roles, "form": task_form}
+                task_list[index].update(extra_info_dict)
 
             return task_list
         else:
@@ -140,15 +174,6 @@ class CamundaService:
 
         if len(task_list) > 0:
             return task_list[0]
-        else:
-            return False
-
-    def get_task_user_role(self, camunda_task_id):
-        response = self._process_request(f"/task/{camunda_task_id}/identity-links")
-
-        if response.ok:
-            content = response.json()
-            return content
         else:
             return False
 
@@ -186,6 +211,14 @@ class CamundaService:
         request_body = json.dumps({"variables": variables})
 
         response = self._process_request(request_path, request_body, post=True)
+
+        return response
+
+    def update_due_date_task(self, camunda_task_id, date):
+        request_path = f"/task/{camunda_task_id}/"
+        request_body = json.dumps({"due": date})
+
+        response = self._process_request(request_path, request_body, put=True)
 
         return response
 

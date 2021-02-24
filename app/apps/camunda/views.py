@@ -2,6 +2,7 @@ import logging
 
 from apps.camunda.models import GenericCompletedTask
 from apps.camunda.serializers import (
+    CamundaDateUpdateSerializer,
     CamundaEndStateWorkerSerializer,
     CamundaStateWorkerSerializer,
     CamundaTaskCompleteSerializer,
@@ -127,5 +128,35 @@ class CamundaTaskViewSet(viewsets.ViewSet):
                     "Camunda service is offline",
                     status=status.HTTP_503_SERVICE_UNAVAILABLE,
                 )
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @action(
+        detail=False,
+        url_path="date",
+        methods=["post"],
+        serializer_class=CamundaDateUpdateSerializer,
+    )
+    def update_due_date(self, request):
+        serializer = CamundaDateUpdateSerializer(data=request.data)
+
+        if serializer.is_valid():
+            data = serializer.validated_data
+
+            response = CamundaService().update_due_date_task(
+                data["camunda_task_id"], data["date"]
+            )
+
+            if response:
+                task_response = CamundaService().get_task(data["camunda_task_id"])
+
+                if task_response:
+                    serializer = CamundaTaskSerializer(task_response)
+                    return Response(serializer.data)
+
+            return Response(
+                "Camunda service is offline",
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
