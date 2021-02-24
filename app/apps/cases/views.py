@@ -121,7 +121,10 @@ class CaseViewSet(
             serializer = CamundaTaskSerializer(camunda_tasks, many=True)
 
             return Response(serializer.data)
-        return Response([])
+        return Response(
+            "Camunda service is offline",
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
 
 
 class CaseTeamViewSet(ViewSet, ListAPIView):

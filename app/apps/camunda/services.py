@@ -135,8 +135,11 @@ class CamundaService:
                 task_roles = self._get_task_user_role(task["id"])
                 task_form = self._get_form_with_task(task["id"])
 
-                for role in task_roles:
-                    roles.append(role["groupId"])
+                if task_roles:
+                    for role in task_roles:
+                        roles.append(role["groupId"])
+                else:
+                    return False
 
                 extra_info_dict = {"roles": roles, "form": task_form}
                 task_list[index].update(extra_info_dict)
