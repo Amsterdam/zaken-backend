@@ -62,3 +62,8 @@ class CamundaTaskCompleteSerializer(serializers.Serializer):
     camunda_task_id = serializers.CharField()
     case = serializers.PrimaryKeyRelatedField(queryset=Case.objects.all())
     variables = serializers.JSONField()
+
+
+class CamundaDateUpdateSerializer(serializers.Serializer):
+    camunda_task_id = serializers.CharField()
+    date = serializers.DateTimeField(format="iso-8601")

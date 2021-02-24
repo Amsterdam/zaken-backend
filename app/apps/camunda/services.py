@@ -14,12 +14,18 @@ class CamundaService:
     def __init__(self, rest_url=settings.CAMUNDA_REST_URL):
         self.rest_url = rest_url
 
-    def _process_request(self, request_path, request_body=None, post=False):
+    def _process_request(self, request_path, request_body=None, post=False, put=False):
         request_path = self.rest_url + request_path
 
         try:
             if post:
                 response = requests.post(
+                    request_path,
+                    data=request_body,
+                    headers={"content-type": "application/json"},
+                )
+            elif put:
+                response = requests.put(
                     request_path,
                     data=request_body,
                     headers={"content-type": "application/json"},
@@ -191,6 +197,14 @@ class CamundaService:
         request_body = json.dumps({"variables": variables})
 
         response = self._process_request(request_path, request_body, post=True)
+
+        return response
+
+    def update_due_date_task(self, camunda_task_id, date):
+        request_path = f"/task/{camunda_task_id}/"
+        request_body = json.dumps({"due": date})
+
+        response = self._process_request(request_path, request_body, put=True)
 
         return response
 
