@@ -30,40 +30,42 @@ class PushViewSet(viewsets.ViewSet):
     serializer_class = PushSerializer
 
     def create(self, request):
+        return Response({})
+        # NOTE: Disabled for now since we're currently not using this fuctionality
         # TODO: We'll need to refactor this functionality at some point, since we won't be creating cases with pushed data
-        LOGGER.info("Receiving pushed case")
-        LOGGER.info(f"Get Host: {request.get_host()}")
-        data = request.data
-        serializer = self.serializer_class(data=data)
+        # LOGGER.info("Receiving pushed case")
+        # LOGGER.info(f"Get Host: {request.get_host()}")
+        # data = request.data
+        # serializer = self.serializer_class(data=data)
 
-        if not serializer.is_valid():
-            LOGGER.error("Serializer error: {serializer.errors}")
-            raise APIException(f"Serializer error: {serializer.errors}")
+        # if not serializer.is_valid():
+        #     LOGGER.error("Serializer error: {serializer.errors}")
+        #     raise APIException(f"Serializer error: {serializer.errors}")
 
-        try:
-            identification = data.get("identification")
-            case_type = data.get("case_type")
-            bag_id = data.get("bag_id")
-            start_date = data.get("start_date")
-            end_date = data.get("end_date", None)
-            users = data.get("users", [])
-            states_data = data.get("states", [])
+        # try:
+        #     identification = data.get("identification")
+        #     case_type = data.get("case_type")
+        #     bag_id = data.get("bag_id")
+        #     start_date = data.get("start_date")
+        #     end_date = data.get("end_date", None)
+        #     users = data.get("users", [])
+        #     states_data = data.get("states", [])
 
-            case = self.create_case(
-                identification, case_type, bag_id, start_date, end_date
-            )
-            self.create_fines(states_data, case)
-            users = self.create_users(users)
+        #     case = self.create_case(
+        #         identification, case_type, bag_id, start_date, end_date
+        #     )
+        #     self.create_fines(states_data, case)
+        #     users = self.create_users(users)
 
-            return Response(
-                {
-                    "case": CaseSerializer(case).data,
-                }
-            )
+        #     return Response(
+        #         {
+        #             "case": CaseSerializer(case).data,
+        #         }
+        #     )
 
-        except Exception as e:
-            LOGGER.error(f"Could not process push data: {e}")
-            raise APIException(f"Could not push data: {e}")
+        # except Exception as e:
+        #     LOGGER.error(f"Could not process push data: {e}")
+        #     raise APIException(f"Could not push data: {e}")
 
     def create_case(self, identification, case_type, bag_id, start_date, end_date):
         # NOTE: We're using the default reason for now. Deprecate this once we stop pushing cases from Top
