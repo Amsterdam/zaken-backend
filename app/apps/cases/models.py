@@ -110,6 +110,9 @@ class CaseStateType(models.Model):
 
 
 class CaseState(models.Model):
+    class Meta:
+        ordering = ["start_date"]
+
     case = models.ForeignKey(Case, related_name="case_states", on_delete=models.CASCADE)
     status = models.ForeignKey(CaseStateType, on_delete=models.PROTECT)
     start_date = models.DateField()
