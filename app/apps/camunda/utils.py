@@ -20,6 +20,9 @@ def get_form_details(form):
         # get type of input form control
         input_type = input_tag.attrs.get("type", "text")
 
+        # get the Camunda type
+        camunda_input_type = input_tag.attrs.get("cam-variable-type")
+
         # get name attribute
         input_name = input_tag.attrs.get("name")
 
@@ -35,14 +38,19 @@ def get_form_details(form):
             input_tag.parent.find(string=re.compile("Required field")) is not None
         )
 
+        # Check for a date field
+        is_date = input_tag.parent.find(string=re.compile(".date")) is not None
+
         # add everything to that list
         inputs.append(
             {
                 "type": input_type,
+                "camunda_type": camunda_input_type,
                 "name": input_name,
-                "value": input_value,
+                "default_value": input_value,
                 "label": label,
                 "required": required,
+                "is_date": is_date,
             }
         )
 

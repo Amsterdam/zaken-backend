@@ -104,31 +104,39 @@ print(form_details)
 #     "inputs": [
 #         {
 #             "type": "text",
+#             "camunda_type": "String",
 #             "name": "situation",
-#             "value": "",
+#             "default_value": "",
 #             "label": "Wat is de situatie?",
 #             "required": True,
+#             "is_date": False,
 #         },
 #         {
 #             "type": "checkbox",
+#             "camunda_type": "Boolean",
 #             "name": "can_next_visit_go_ahead",
-#             "value": "",
+#             "default_value": "",
 #             "label": "Kan volgende bezoek doorgaan?",
 #             "required": True,
+#             "is_date": False,
 #         },
 #         {
 #             "type": "text",
+#             "camunda_type": "String",
 #             "name": "FormField_3vj52a2",
-#             "value": "",
+#             "default_value": "",
 #             "label": "LABEL 1",
 #             "required": False,
+#             "is_date": True,
 #         },
 #         {
 #             "type": "text",
+#             "camunda_type": "Long",
 #             "name": "FormField_0cgfa15",
-#             "value": "",
+#             "default_value": "",
 #             "label": "LABEL 3",
 #             "required": True,
+#             "is_date": False,
 #         },
 #     ]
 # }
