@@ -106,8 +106,15 @@ class CamundaTaskViewSet(viewsets.ViewSet):
             # Task data can't be retrieved after it's been completed, so make sure to retrieve it first.
             task = service.get_task(task_id)
             task_variables = service.get_task_variables(task_id)
-            state_identification = task_variables["state_identification"]["value"]
-            state = CaseState.objects.get(id=state_identification)
+
+            try:
+                state_identification = task_variables["state_identification"]["value"]
+                state = CaseState.objects.get(id=state_identification)
+            except KeyError:
+                logger.error(
+                    "State identification could not be retrieved from task variables. Completing task without state."
+                )
+                state = None
 
             task_completed = CamundaService().complete_task(
                 data["camunda_task_id"], data.get("variables", {})
