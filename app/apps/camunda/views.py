@@ -3,12 +3,13 @@ import logging
 from apps.camunda.models import GenericCompletedTask
 from apps.camunda.serializers import (
     CamundaDateUpdateSerializer,
+    CamundaEndStateWorkerSerializer,
     CamundaStateWorkerSerializer,
     CamundaTaskCompleteSerializer,
     CamundaTaskSerializer,
 )
 from apps.camunda.services import CamundaService
-from apps.cases.models import Case
+from apps.cases.models import Case, CaseState
 from apps.users.auth_apps import CamundaKeyAuth
 from django.db import transaction
 from django.shortcuts import render
@@ -44,11 +45,35 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
         serializer = CamundaStateWorkerSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
+            state = serializer.save()
             logger.info("State set succesfully")
-            return Response(status=status.HTTP_201_CREATED)
+            return Response(data=state.id, status=status.HTTP_201_CREATED)
         else:
             logger.error(f"State could not be set: {serializer.errors}")
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        description="A Camunda service task for ending a state",
+        responses={200: None},
+    )
+    @action(
+        detail=False,
+        url_path="end-state",
+        methods=["post"],
+        serializer_class=CamundaEndStateWorkerSerializer,
+    )
+    def end_state(self, request):
+        logger.info("Starting Camunda service task")
+        serializer = CamundaEndStateWorkerSerializer(data=request.data)
+
+        if serializer.is_valid():
+            state = serializer.validated_data["state_identification"]
+            state.end_state()
+            state.save()
+            logger.info("State ended succesfully")
+            return Response(status=status.HTTP_200_OK)
+        else:
+            logger.error(f"State could not be ended: {serializer.errors}")
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -75,8 +100,14 @@ class CamundaTaskViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             data = serializer.validated_data
 
+            service = CamundaService()
+            task_id = data["camunda_task_id"]
+
             # Task data can't be retrieved after it's been completed, so make sure to retrieve it first.
-            task = CamundaService().get_task(data["camunda_task_id"])
+            task = service.get_task(task_id)
+            task_variables = service.get_task_variables(task_id)
+            state_identification = task_variables["state_identification"]["value"]
+            state = CaseState.objects.get(id=state_identification)
 
             task_completed = CamundaService().complete_task(
                 data["camunda_task_id"], data.get("variables", {})
@@ -86,7 +117,7 @@ class CamundaTaskViewSet(viewsets.ViewSet):
                 GenericCompletedTask.objects.create(
                     author=data["author"],
                     case=data["case"],
-                    state=data["case"].get_current_state(),
+                    state=state,
                     description=task["name"],
                     variables=data.get("variables", {}),
                 )

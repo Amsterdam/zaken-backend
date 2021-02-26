@@ -83,9 +83,8 @@ class Case(ModelEventEmitter):
             return f"Case {self.id} - {self.identification}"
         return f"Case {self.id}"
 
-    def get_current_state(self):
-        if self.case_states.count() > 0:
-            return self.case_states.all().order_by("-state_date").first()
+    def get_current_states(self):
+        return self.case_states.filter(end_date__isnull=True)
 
     def set_state(self, state_name):
         state_type, _ = CaseStateType.objects.get_or_create(name=state_name)
@@ -111,18 +110,29 @@ class CaseStateType(models.Model):
 
 
 class CaseState(models.Model):
+    class Meta:
+        ordering = ["start_date"]
+
     case = models.ForeignKey(Case, related_name="case_states", on_delete=models.CASCADE)
     status = models.ForeignKey(CaseStateType, on_delete=models.PROTECT)
-    state_date = models.DateField()
+    start_date = models.DateField()
+    end_date = models.DateField(null=True)
     users = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="case_states", related_query_name="users"
     )
 
     def __str__(self):
-        return f"{self.state_date} - {self.case.identification} - {self.status.name}"
+        return f"{self.start_date} - {self.end_date} - {self.case.identification} - {self.status.name}"
+
+    def end_state(self):
+        if not self.end_date:
+            self.end_date = timezone.now().date()
+
+        else:
+            raise AttributeError("End date is already set")
 
     def save(self, *args, **kwargs):
-        if not self.state_date:
-            self.state_date = timezone.now()
+        if not self.start_date:
+            self.start_date = timezone.now()
 
         return super().save(*args, **kwargs)

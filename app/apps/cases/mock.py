@@ -66,7 +66,7 @@ def mock_cases():
         baker.make(
             CaseState,
             status=case_state_type_not_walked,
-            state_date=start_date_day_before,
+            start_date=start_date_day_before,
             case=case,
         )
 
@@ -74,7 +74,7 @@ def mock_cases():
         baker.make(
             CaseState,
             status=case_state_type_no_one,
-            state_date=start_date_yesterday,
+            start_date=start_date_yesterday,
             case=case,
         )
         baker.make(
@@ -98,7 +98,7 @@ def mock_cases():
         baker.make(
             CaseState,
             status=case_state_type_access_granted,
-            state_date=start_date_today,
+            start_date=start_date_today,
             case=case,
         )
 

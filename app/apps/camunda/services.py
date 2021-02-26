@@ -104,6 +104,10 @@ class CamundaService:
                         "value": f'{settings.ZAKEN_CONTAINER_HOST}{reverse("camunda-workers-state")}',
                         "type": "String",
                     },
+                    "zaken_end_state_endpoint": {
+                        "value": f'{settings.ZAKEN_CONTAINER_HOST}{reverse("camunda-workers-end-state")}',
+                        "type": "String",
+                    },
                     "case_identification": {
                         "value": case_identification,
                         "type": "String",
@@ -150,6 +154,13 @@ class CamundaService:
 
     def get_task(self, task_id):
         response = self._process_request(f"/task/{task_id}")
+        if response.ok:
+            return response.json()
+        else:
+            return False
+
+    def get_task_variables(self, task_id):
+        response = self._process_request(f"/task/{task_id}/variables")
         if response.ok:
             return response.json()
         else:
