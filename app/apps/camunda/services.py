@@ -239,11 +239,27 @@ class CamundaService:
         return response
 
     def update_due_date_task(self, camunda_task_id, date):
+        task = self.get_task(camunda_task_id)
         request_path = f"/task/{camunda_task_id}/"
-        request_body = json.dumps({"due": date})
+
+        # changes only due date but is needed for some f'ing reason
+        request_body = json.dumps(
+            {
+                "name": task["name"],
+                "description": task["description"],
+                "priority": task["priority"],
+                "assignee": task["assignee"],
+                "owner": task["owner"],
+                "delegationState": task["delegationState"],
+                "due": date.strftime("%Y-%m-%dT%H:%M:%S.000+0200"),
+                "followUp": task["followUp"],
+                "parentTaskId": task["parentTaskId"],
+                "caseInstanceId": task["caseInstanceId"],
+                "tenantId": task["tenantId"],
+            }
+        )
 
         response = self._process_request(request_path, request_body, put=True)
-
         return response
 
     def send_message(self, message_name, message_process_variables):
