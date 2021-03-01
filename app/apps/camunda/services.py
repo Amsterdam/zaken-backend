@@ -2,6 +2,7 @@ import json
 import logging
 
 import requests
+from apps.camunda.utils import get_form_details, get_form_details_old, get_forms
 from django.conf import settings
 from django.urls import reverse
 from rest_framework import status
@@ -63,6 +64,14 @@ class CamundaService:
             return task_list
         else:
             return False
+
+    def _get_rendered_form_with_task(self, camunda_task_id):
+        request_path = f"/task/{camunda_task_id}/rendered-form"
+        response = self._process_request(request_path)
+
+        if response.ok:
+            return response.content.decode("utf-8")
+        return False
 
     def _get_task_user_role(self, camunda_task_id):
         response = self._process_request(f"/task/{camunda_task_id}/identity-links")
@@ -133,7 +142,9 @@ class CamundaService:
             for index, task in enumerate(task_list):
                 roles = []
                 task_roles = self._get_task_user_role(task["id"])
-                task_form = self._get_form_with_task(task["id"])
+                task_form_variables = self.get_task_form_variables(task["id"])
+                task_render_form = self._get_rendered_form_with_task(task["id"])
+                task_json_form = self.get_task_form_rendered(task["id"])
 
                 if task_roles:
                     for role in task_roles:
@@ -141,7 +152,12 @@ class CamundaService:
                 else:
                     return False
 
-                extra_info_dict = {"roles": roles, "form": task_form}
+                extra_info_dict = {
+                    "roles": roles,
+                    "form": task_json_form,
+                    "render_form": task_render_form,
+                    "form_variables": task_form_variables,
+                }
                 task_list[index].update(extra_info_dict)
 
             return task_list
@@ -176,13 +192,21 @@ class CamundaService:
             return False
 
     def get_task_form_rendered(self, camunda_task_id):
-        """
-        TODO: probably not needed but could be nice refrence
-        """
         request_path = f"/task/{camunda_task_id}/rendered-form"
         response = self._process_request(request_path)
 
-        return response.content.decode("utf-8").replace("\n", "")
+        if response.ok:
+            response_form = get_forms(response.content)
+            if len(response_form) == 1:
+                response_json_form = get_form_details(response_form[0])
+
+                return response_json_form
+            else:
+                response = Response(status=status.HTTP_400_BAD_REQUEST)
+                response.ok = False
+                return response
+
+        return False
 
     def submit_form_json(self, camunda_task_id, form_values):
         """
