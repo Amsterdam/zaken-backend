@@ -31,6 +31,12 @@ class CamundaStateWorkerSerializer(serializers.Serializer):
         return state
 
 
+class CamundaEndStateWorkerSerializer(serializers.Serializer):
+    state_identification = serializers.PrimaryKeyRelatedField(
+        queryset=CaseState.objects.all()
+    )
+
+
 class CamundaTaskSerializer(serializers.Serializer):
     """
     Serializer for Camunda tasks

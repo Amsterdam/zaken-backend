@@ -23,17 +23,24 @@ class CaseStateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CaseState
-        fields = ["id", "case", "status_name", "status", "state_date", "users"]
+        fields = [
+            "id",
+            "case",
+            "status_name",
+            "status",
+            "start_date",
+            "end_date",
+            "users",
+        ]
 
 
 class CaseSerializer(serializers.ModelSerializer):
     address = AddressSerializer(required=True)
     case_states = CaseStateSerializer(many=True)
-    current_state = CaseStateSerializer(
-        source="get_current_state",
-        required=False,
+    current_states = CaseStateSerializer(
+        source="get_current_states",
+        many=True,
         read_only=True,
-        allow_null=True,
     )
     team = CaseTeamSerializer(required=True)
     reason = CaseReasonSerializer(required=True)

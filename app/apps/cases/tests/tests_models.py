@@ -1,14 +1,70 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from uuid import UUID
 
-from apps.cases.models import Case, CaseReason, CaseTeam
+from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTeam
 from django.core import management
 from django.test import TestCase
 from freezegun import freeze_time
 from model_bakery import baker
 
-# TODO: Tests for CaseState
-# TODO: Tests for CaseStateType
+
+class CaseStateStypeModelTest(TestCase):
+    def setUp(self):
+        management.call_command("flush", verbosity=0, interactive=False)
+
+    def test_can_create_state_type(self):
+        """ Tests CaseStateType object creation """
+        self.assertEquals(CaseStateType.objects.count(), 0)
+
+        baker.make(CaseStateType)
+
+        self.assertEquals(CaseStateType.objects.count(), 1)
+
+    def test_create_duplicate_state_type_fails(self):
+        """ Should fail if a duplicate name is used """
+        case_state_type = baker.make(CaseStateType)
+
+        with self.assertRaises(Exception):
+            baker.make(CaseStateType, name=case_state_type.name)
+
+
+class CaseStateModelTest(TestCase):
+    def setUp(self):
+        management.call_command("flush", verbosity=0, interactive=False)
+
+    def test_can_create_state(self):
+        """ Tests CaseStateType object creation """
+        self.assertEquals(CaseState.objects.count(), 0)
+
+        baker.make(CaseState)
+
+        self.assertEquals(CaseStateType.objects.count(), 1)
+
+    @freeze_time("2019-12-25")
+    def test_no_start_date(self):
+        """ Uses the current date if no start_date is provided """
+        case_state = baker.make(CaseState)
+        self.assertEquals(case_state.start_date, date(2019, 12, 25))
+
+    @freeze_time("2019-12-25")
+    def test_set_start_date(self):
+        """ Uses the given start_date """
+        mock_date = date(2021, 12, 25)
+        case_state = baker.make(CaseState, start_date=mock_date)
+        self.assertEquals(case_state.start_date, mock_date)
+
+    @freeze_time("2019-12-25")
+    def test_no_end_date(self):
+        """ end_date is none, if not provided """
+        case_state = baker.make(CaseState)
+        self.assertIsNone(case_state.end_date)
+
+    @freeze_time("2019-12-25")
+    def test_end_date(self):
+        """ end_state function sets the end_date to the current date """
+        case_state = baker.make(CaseState)
+        case_state.end_state()
+        self.assertEquals(case_state.end_date, date(2019, 12, 25))
 
 
 class CaseTeamModelTest(TestCase):
@@ -82,3 +138,67 @@ class CaseModelTest(TestCase):
         case = baker.make(Case, start_date=date)
 
         self.assertEquals(case.start_date, date)
+
+    def test_set_state(self):
+        """ set_state function creates a state with the given name """
+        self.assertEqual(CaseState.objects.count(), 0)
+        STATE_TYPE_NAME = "MOCK_STATE_TYPE"
+        case = baker.make(Case)
+        case.set_state(STATE_TYPE_NAME)
+        self.assertEqual(CaseState.objects.count(), 1)
+
+    def test_set_state_type(self):
+        """
+        set_state creates a state type if it doesn't exist yet
+        """
+        self.assertEqual(CaseStateType.objects.count(), 0)
+        STATE_TYPE_NAME = "MOCK_STATE_TYPE"
+        case = baker.make(Case)
+        case.set_state(STATE_TYPE_NAME)
+        self.assertEqual(CaseStateType.objects.count(), 1)
+
+    def test_set_state_type_duplicate(self):
+        """
+        only one state type can exist after calling set_state twice with the same state type
+        """
+        self.assertEqual(CaseStateType.objects.count(), 0)
+        STATE_TYPE_NAME = "MOCK_STATE_TYPE"
+        case = baker.make(Case)
+        case.set_state(STATE_TYPE_NAME)
+        case.set_state(STATE_TYPE_NAME)
+        self.assertEqual(CaseStateType.objects.count(), 1)
+
+    def test_get_open_states(self):
+        """
+        get_current_states returns open states
+        """
+        STATE_TYPE_NAME_A = "MOCK_STATE_TYPE_A"
+        STATE_TYPE_NAME_B = "MOCK_STATE_TYPE_B"
+
+        case = baker.make(Case)
+
+        state_a = case.set_state(STATE_TYPE_NAME_A)
+        state_b = case.set_state(STATE_TYPE_NAME_B)
+
+        open_states = list(case.get_current_states())
+        self.assertListEqual(open_states, [state_a, state_b])
+
+    def test_get_only_open_states(self):
+        """
+        get_current_states returns no closed states
+        """
+        STATE_TYPE_NAME_A = "MOCK_STATE_TYPE_A"
+        STATE_TYPE_NAME_B = "MOCK_STATE_TYPE_B"
+        STATE_TYPE_NAME_C = "MOCK_STATE_TYPE_C"
+
+        case = baker.make(Case)
+
+        state_a = case.set_state(STATE_TYPE_NAME_A)
+        state_b = case.set_state(STATE_TYPE_NAME_B)
+        state_c = case.set_state(STATE_TYPE_NAME_C)
+
+        state_b.end_state()
+        state_b.save()
+
+        open_states = list(case.get_current_states())
+        self.assertListEqual(open_states, [state_a, state_c])

@@ -39,6 +39,15 @@ def get_authenticated_client():
     return client
 
 
+def get_authenticated_with_token_client(access_token):
+    """
+    Some endpoints can be accessed using a special designated token. This creates a client for such an authenticated request.
+    """
+    client = APIClient()
+    client.credentials(HTTP_AUTHORIZATION="{}".format(access_token))
+    return client
+
+
 def get_unauthenticated_client():
     """
     Returns an unauthenticated APIClient, for unit testing API requests
