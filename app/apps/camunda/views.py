@@ -155,11 +155,7 @@ class CamundaTaskViewSet(viewsets.ViewSet):
             )
 
             if response:
-                task_response = CamundaService().get_task(data["camunda_task_id"])
-
-                if task_response:
-                    serializer = CamundaTaskSerializer(task_response)
-                    return Response(serializer.data)
+                return Response(status=status.HTTP_200_OK)
 
             return Response(
                 "Camunda service is offline",
