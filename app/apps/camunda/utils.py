@@ -79,7 +79,7 @@ def get_form_details(form):
                 {
                     "label": label,
                     "type": input_type,
-                    "camunda-type": camunda_input_type,
+                    "camunda_type": camunda_input_type,
                     "name": input_name,
                     "default_value": input_value,
                     "required": required,
@@ -106,7 +106,7 @@ def get_form_details(form):
                 {
                     "label": label,
                     "type": "select",
-                    "camunda-type": camunda_input_type,
+                    "camunda_type": camunda_input_type,
                     "name": input_name,
                     "default_value": None,
                     "required": required,

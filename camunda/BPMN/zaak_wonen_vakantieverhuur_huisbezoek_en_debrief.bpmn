@@ -77,7 +77,7 @@
     <bpmn:endEvent id="Event_1pmbcxw">
       <bpmn:incoming>Flow_006wtg4</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:userTask id="Activity_02t4qsu" name="Opstellen  verkorte rapportage huisbezoek" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+    <bpmn:userTask id="Activity_02t4qsu" name="Opstellen  verkorte rapportage huisbezoek" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
       <bpmn:incoming>Flow_09fde08</bpmn:incoming>
       <bpmn:outgoing>Flow_1c3b8q1</bpmn:outgoing>
     </bpmn:userTask>
