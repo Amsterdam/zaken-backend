@@ -65,5 +65,5 @@ uWSGI==2.0.19.1
 vine==5.0.0
 wcwidth==0.2.5
 zgw-consumers==0.15.2
-zipp==3.4.0
+zipp==3.4.1
 beautifulsoup4==4.9.3
