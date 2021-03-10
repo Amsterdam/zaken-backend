@@ -1,3 +1,4 @@
+import json
 import logging
 import sys
 
@@ -11,11 +12,49 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=Summon, dispatch_uid="summon_init_in_camunda")
 def create_summon_instance_in_camunda(sender, instance, created, **kwargs):
-    task = CamundaService().get_task_by_task_name_id_and_camunda_id(
-        "task_create_summon", instance.case.camunda_id
-    )
-    if task:
-        CamundaService().complete_task(task["id"])
+    # CamundaService().send_message(
+    #     "model_create_summon",
+    #     json.dumps(
+    #         {
+    #             "names": {
+    #                 "value": ", ".join(
+    #                     [person.__str__() for person in instance.persons.all()]
+    #                 )
+    #             },
+    #             "type_aanschrijving": {
+    #                 "value": instance.type.camunda_option,
+    #             },
+    #             "sluitingsbesluit": {
+    #                 "value": instance.intention_closing_decision,
+    #             },
+    #         }
+    #     ),
+    # )
+    if created and "test" not in sys.argv:
+        camunda_id = CamundaService().start_instance(
+            case_identification=instance.case.identification,
+            process="model_create_summon",
+            request_body=json.dumps(
+                {
+                    "variables": {
+                        "names": {
+                            "value": ", ".join(
+                                [person.__str__() for person in instance.persons.all()]
+                            )
+                        },
+                        "type_aanschrijving": {
+                            "value": instance.type.camunda_option,
+                        },
+                        "sluitingsbesluit": {
+                            "value": instance.intention_closing_decision,
+                        },
+                    }
+                }
+            ),
+        )
+        case = instance.case
+        case.camunda_id = camunda_id
+        case.save()
 
 
 @receiver(post_save, sender=Summon)
