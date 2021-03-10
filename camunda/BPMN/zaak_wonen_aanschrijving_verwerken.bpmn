@@ -243,7 +243,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${type_aanschrijving=="waarschuwingsbrief_vakantieverhuur" or type_aanschrijving=="waarschuwingsbrief_shortstay" or type_aanschrijving=="waarschuwingsbrief_bnb"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1jm0gf6" name="Sluitingsbesluit == true" sourceRef="Gateway_1t6r1v4" targetRef="Event_15dmyha">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(sluitingsbesluit==true)</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(sluitingsbesluit == "true")</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1r6rd9d" sourceRef="Activity_1m69y46" targetRef="Activity_1mkl5rk" />
     <bpmn:sequenceFlow id="Flow_18sph1h" name="Gelegaliseerd wacht op andere aanschrijving" sourceRef="Gateway_0puuu8q" targetRef="Event_1pgrt7r">
@@ -257,32 +257,32 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1t6e5pj" sourceRef="Activity_0ia10qb" targetRef="Gateway_0puuu8q" />
     <bpmn:sequenceFlow id="Flow_0qhgq6t" name="Nee, vergunning niet aangevraagd" sourceRef="Gateway_1pwflrj" targetRef="Event_0nfpu7u">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(action_civilian_permit_requested==false)</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(action_civilian_permit_requested == "false")</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_11igweb" name="Ja vergunning aangevraagd" sourceRef="Gateway_1pwflrj" targetRef="Activity_1k03k9a">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(action_civilian_permit_requested==true)</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(action_civilian_permit_requested == "true")</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1i77oze" sourceRef="Activity_1k03k9a" targetRef="Gateway_0ddrey0" />
     <bpmn:sequenceFlow id="Flow_18cv8bi" name="Ja vergunning" sourceRef="Gateway_0ddrey0" targetRef="Activity_0ia10qb">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(civilian_has_gotten_permit==true)</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(civilian_has_gotten_permit== "true")</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0029983" name="Nee, geen vergunning verleend" sourceRef="Gateway_0ddrey0" targetRef="Event_0frp4m5">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(civilian_has_gotten_permit==false)</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(civilian_has_gotten_permit== "false")</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0gbg0yp" sourceRef="Activity_1o8bq7o" targetRef="Event_0irxplj" />
     <bpmn:sequenceFlow id="Flow_023d51s" sourceRef="Activity_1j9qmld" targetRef="Event_1kaqui8" />
     <bpmn:sequenceFlow id="Flow_1m5qenh" name="Ja is binnengekomen" sourceRef="Gateway_0dunbbn" targetRef="Activity_0jjgz6l">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(zienswijze_binnengekomen == true)</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(zienswijze_binnengekomen == "true')</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1lvze3e" name="Nee geen zienswijze binnengekomen" sourceRef="Gateway_0dunbbn" targetRef="Activity_14ltql1">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(zienswijze_binnengekomen == false)</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(zienswijze_binnengekomen == "false")</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0ckmjw7" name="Nee geen geldig bezwaar" sourceRef="Gateway_074ue8s" targetRef="Activity_1ts71uy">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(beoordelen_bezwaar==false)</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(beoordelen_bezwaar== "false")</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1hgl50g" sourceRef="Activity_0jjgz6l" targetRef="Gateway_074ue8s" />
     <bpmn:sequenceFlow id="Flow_0dlpo3p" name="Ja geldig bezwaar" sourceRef="Gateway_074ue8s" targetRef="Activity_1mvz8v7">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(beoordelen_bezwaar==true)</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(beoordelen_bezwaar== "true")</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0vqoqbc" sourceRef="Activity_14ltql1" targetRef="Activity_1ts71uy" />
     <bpmn:sequenceFlow id="Flow_1txz7fj" sourceRef="Activity_1ts71uy" targetRef="Event_0ab1scr" />
