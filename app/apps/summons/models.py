@@ -9,6 +9,7 @@ class SummonType(models.Model):
     class Meta:
         ordering = ["name"]
 
+    camunda_option = models.CharField(max_length=255, default="aanschrijvingen")
     name = models.CharField(max_length=255)
     team = models.ForeignKey(
         to=CaseTeam, related_name="summon_types", on_delete=models.CASCADE
@@ -32,6 +33,7 @@ class Summon(ModelEventEmitter):
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT
     )
+    intention_closing_decision = models.BooleanField(default=False)
 
     def __get_event_values__(self):
         persons = []

@@ -22,7 +22,7 @@ class SummonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Summon
-        fields = ("id", "author", "description", "case", "type", "persons")
+        fields = "__all__"
 
     def create(self, validated_data):
         persons = validated_data.pop("persons")
