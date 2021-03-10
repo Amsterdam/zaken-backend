@@ -120,10 +120,6 @@ class CamundaTaskViewSet(viewsets.ViewSet):
                 data["camunda_task_id"], data.get("variables", {})
             )
 
-            import pdb
-
-            pdb.set_trace()
-
             if task_completed:
                 GenericCompletedTask.objects.create(
                     author=data["author"],
