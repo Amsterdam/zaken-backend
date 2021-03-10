@@ -1,5 +1,6 @@
 import logging
 
+from apps.addresses.utils import search
 from apps.camunda.serializers import CamundaTaskSerializer
 from apps.camunda.services import CamundaService
 from apps.cases.filters import CaseFilter
@@ -13,12 +14,14 @@ from apps.cases.serializers import (
     CaseTeamSerializer,
     PushCaseStateSerializer,
 )
+from apps.cases.swagger_parameters import case_search_parameters
 from apps.debriefings.mixins import DebriefingsMixin
 from apps.events.mixins import CaseEventsMixin
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.http import HttpResponseBadRequest
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import mixins, status
@@ -95,6 +98,39 @@ class CaseViewSet(
             return CaseCreateUpdateSerializer
 
         return self.serializer_class
+
+    @extend_schema(
+        parameters=case_search_parameters,
+        description="Search query parameters",
+        responses={200: CaseSerializer(many=True)},
+    )
+    @action(detail=False, methods=["get"], url_path="search")
+    def search(self, request):
+        postal_code = request.GET.get("postalCode", None)
+        street_name = request.GET.get("streetName", None)
+        number = request.GET.get("streetNumber", None)
+        suffix = request.GET.get("suffix", None)
+
+        if postal_code is None and street_name is None:
+            return HttpResponseBadRequest(
+                "A postal_code or street_name queryparameter should be provided"
+            )
+        if postal_code is not None and number is None:
+            return HttpResponseBadRequest("number queryparameter is required")
+        if street_name is not None and number is None:
+            return HttpResponseBadRequest("number queryparameter is required")
+
+        address_queryset = search(
+            street_name=street_name,
+            postal_code=postal_code,
+            number=number,
+            suffix=suffix,
+        )
+        print(address_queryset)
+
+        # TODO: Map the address to cases and serialize them
+
+        return Response(status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["post"], url_path="generate-mock")
     def mock_cases(self, request):
