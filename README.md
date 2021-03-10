@@ -51,7 +51,7 @@ Make sure the containers are running:
 docker-compose up
 ```
 
-Once everything is running, sign into the OpenZaak admin (http://localhost:8080/admin/).
+Once everything is running, sign into the OpenZaak admin (http://localhost:8090/admin/).
 Select the Zaken application in the applications, which can be found under API Autorisaties -> Applicaties.
 Here, make sure the 'Heeft alle autorisaties' checkbox is checked and press 'Opslaan' to save.
 
