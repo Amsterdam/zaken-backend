@@ -45,7 +45,6 @@
         <bpmn:flowNodeRef>Activity_0rztr7y</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0kg00aw</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>start_event_create_summon</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_0ga97ol</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_14ltql1</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1m69y46</bpmn:flowNodeRef>
       </bpmn:lane>
@@ -54,7 +53,7 @@
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:exclusiveGateway id="Gateway_1t6r1v4" default="Flow_0ca7pn4">
-      <bpmn:incoming>Flow_1uu7mlz</bpmn:incoming>
+      <bpmn:incoming>Flow_06je06y</bpmn:incoming>
       <bpmn:outgoing>Flow_0p4fa1b</bpmn:outgoing>
       <bpmn:outgoing>Flow_025eea2</bpmn:outgoing>
       <bpmn:outgoing>Flow_1jm0gf6</bpmn:outgoing>
@@ -236,7 +235,7 @@
     <bpmn:sequenceFlow id="Flow_0p4fa1b" name="type_aanschrijving = legalisatie brief" sourceRef="Gateway_1t6r1v4" targetRef="Activity_1m69y46">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">$(type_aanschrijving == "legalisatie-brief" )</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_06je06y" sourceRef="start_event_create_summon" targetRef="Activity_0ga97ol" />
+    <bpmn:sequenceFlow id="Flow_06je06y" sourceRef="start_event_create_summon" targetRef="Gateway_1t6r1v4" />
     <bpmn:sequenceFlow id="Flow_1tpuwoi" sourceRef="Activity_0t0wwb4" targetRef="Gateway_0dunbbn" />
     <bpmn:sequenceFlow id="Flow_025eea2" name="type_aanschrijving == waarschuwingsbrief*3" sourceRef="Gateway_1t6r1v4" targetRef="Activity_0hrlz4l">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${type_aanschrijving=="waarschuwingsbrief_vakantieverhuur" or type_aanschrijving=="waarschuwingsbrief_shortstay" or type_aanschrijving=="waarschuwingsbrief_bnb"}</bpmn:conditionExpression>
@@ -302,35 +301,22 @@
     <bpmn:sequenceFlow id="Flow_06m51lz" sourceRef="Activity_1nb8hy7" targetRef="Activity_0t0wwb4" />
     <bpmn:sequenceFlow id="Flow_0ne6otv" sourceRef="Activity_0hrlz4l" targetRef="Activity_1wbjkdg" />
     <bpmn:sequenceFlow id="Flow_12m4h17" sourceRef="Activity_1wbjkdg" targetRef="Event_0sv4e8w" />
-    <bpmn:sequenceFlow id="Flow_1uu7mlz" sourceRef="Activity_0ga97ol" targetRef="Gateway_1t6r1v4" />
     <bpmn:startEvent id="start_event_create_summon" camunda:formKey="start_aanschrijving_form">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="names" type="string" />
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:outgoing>Flow_06je06y</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0g4ekfp" messageRef="Message_14wp5u8" />
-    </bpmn:startEvent>
-    <bpmn:userTask id="Activity_0ga97ol" name="Verwerk aanschrijving" camunda:formKey="concept_aanschrijving_type_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
           <camunda:formField id="type_aanschrijving" label="Welk type aanschrijving heb je opgesteld?" type="enum">
             <camunda:value id="waarschuwingsbrief_vakantieverhuur" name="Waarschuwingsbrief vakantieverhuur-vergunning" />
             <camunda:value id="waarschuwingsbrief_shortstay" name="Waarschuwingsbrief shortstay-vergunning" />
             <camunda:value id="waarschuwingsbrief_bnb" name="Waarschuwingsbrief Bed-and-Breakfast-vergunning" />
             <camunda:value id="aanschrijvingen" name="Overige aanschrijvingen" />
           </camunda:formField>
-          <camunda:formField id="sluitingsbesluit" label="Zit er ook een sluitingsbesluit bij?" type="boolean" defaultValue="false">
-            <camunda:properties>
-              <camunda:property id="description" value="Dit is een test" />
-            </camunda:properties>
-          </camunda:formField>
+          <camunda:formField id="sluitingsbesluit" label="Zit er ook een sluitingsbesluit bij?" type="boolean" defaultValue="false" />
         </camunda:formData>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_06je06y</bpmn:incoming>
-      <bpmn:outgoing>Flow_1uu7mlz</bpmn:outgoing>
-    </bpmn:userTask>
+      <bpmn:outgoing>Flow_06je06y</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0g4ekfp" messageRef="Message_14wp5u8" />
+    </bpmn:startEvent>
     <bpmn:task id="Activity_14ltql1" name="Status bijwerken: &#34;Besluit {Katrien}&#34;">
       <bpmn:incoming>Flow_1lvze3e</bpmn:incoming>
       <bpmn:outgoing>Flow_0vqoqbc</bpmn:outgoing>
@@ -424,18 +410,6 @@ EN FORM</bpmn:text>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_0ku7kbe_di" bpmnElement="Lane_0ku7kbe" isHorizontal="true">
         <dc:Bounds x="191" y="80" width="4339" height="170" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_0g5i4nd_di" bpmnElement="TextAnnotation_0g5i4nd">
-        <dc:Bounds x="1580" y="842" width="100" height="55" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_0vd487z_di" bpmnElement="TextAnnotation_0vd487z">
-        <dc:Bounds x="3020" y="800" width="100" height="40" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_14flu6i_di" bpmnElement="TextAnnotation_14flu6i">
-        <dc:Bounds x="3990" y="570" width="100" height="40" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_1mmc07e_di" bpmnElement="TextAnnotation_1mmc07e">
-        <dc:Bounds x="3990" y="660" width="100" height="40" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_12m4h17_di" bpmnElement="Flow_12m4h17">
         <di:waypoint x="978" y="400" />
@@ -612,7 +586,7 @@ EN FORM</bpmn:text>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_06je06y_di" bpmnElement="Flow_06je06y">
         <di:waypoint x="268" y="750" />
-        <di:waypoint x="300" y="750" />
+        <di:waypoint x="445" y="750" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0p4fa1b_di" bpmnElement="Flow_0p4fa1b">
         <di:waypoint x="495" y="750" />
@@ -648,10 +622,6 @@ EN FORM</bpmn:text>
         <di:waypoint x="3330" y="980" />
         <di:waypoint x="3330" y="680" />
         <di:waypoint x="3380" y="680" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1uu7mlz_di" bpmnElement="Flow_1uu7mlz">
-        <di:waypoint x="400" y="750" />
-        <di:waypoint x="445" y="750" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Gateway_1t6r1v4_di" bpmnElement="Gateway_1t6r1v4" isMarkerVisible="true">
         <dc:Bounds x="445" y="725" width="50" height="50" />
@@ -761,6 +731,21 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="Event_0sv4e8w_di" bpmnElement="Event_0sv4e8w">
         <dc:Bounds x="1050" y="382" width="36" height="36" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1idzx7n_di" bpmnElement="start_event_create_summon">
+        <dc:Bounds x="232" y="732" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xqmhrx_di" bpmnElement="Activity_14ltql1">
+        <dc:Bounds x="2580" y="780" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1e2szph_di" bpmnElement="Activity_1nb8hy7">
+        <dc:Bounds x="590" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_17khupw_di" bpmnElement="Activity_0hrlz4l">
+        <dc:Bounds x="650" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0u5lj7w_di" bpmnElement="Activity_1m69y46">
+        <dc:Bounds x="650" y="710" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_0vbp35o_di" bpmnElement="TextAnnotation_0vbp35o">
         <dc:Bounds x="840" y="560" width="100" height="112" />
       </bpmndi:BPMNShape>
@@ -791,23 +776,17 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="TextAnnotation_1tzmrdz_di" bpmnElement="TextAnnotation_1tzmrdz">
         <dc:Bounds x="1100" y="380" width="100" height="39" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1idzx7n_di" bpmnElement="start_event_create_summon">
-        <dc:Bounds x="232" y="732" width="36" height="36" />
+      <bpmndi:BPMNShape id="TextAnnotation_0g5i4nd_di" bpmnElement="TextAnnotation_0g5i4nd">
+        <dc:Bounds x="1580" y="842" width="100" height="55" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0ga97ol_di" bpmnElement="Activity_0ga97ol">
-        <dc:Bounds x="300" y="710" width="100" height="80" />
+      <bpmndi:BPMNShape id="TextAnnotation_0vd487z_di" bpmnElement="TextAnnotation_0vd487z">
+        <dc:Bounds x="3020" y="800" width="100" height="40" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1xqmhrx_di" bpmnElement="Activity_14ltql1">
-        <dc:Bounds x="2580" y="780" width="100" height="80" />
+      <bpmndi:BPMNShape id="TextAnnotation_14flu6i_di" bpmnElement="TextAnnotation_14flu6i">
+        <dc:Bounds x="3990" y="570" width="100" height="40" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1e2szph_di" bpmnElement="Activity_1nb8hy7">
-        <dc:Bounds x="590" y="130" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_17khupw_di" bpmnElement="Activity_0hrlz4l">
-        <dc:Bounds x="650" y="360" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0u5lj7w_di" bpmnElement="Activity_1m69y46">
-        <dc:Bounds x="650" y="710" width="100" height="80" />
+      <bpmndi:BPMNShape id="TextAnnotation_1mmc07e_di" bpmnElement="TextAnnotation_1mmc07e">
+        <dc:Bounds x="3990" y="660" width="100" height="40" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_1achjih_di" bpmnElement="Association_1achjih">
         <di:waypoint x="861" y="710" />
