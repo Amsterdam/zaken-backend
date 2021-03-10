@@ -29,11 +29,11 @@ class Summon(ModelEventEmitter):
         to=SummonType, related_name="summons", on_delete=models.RESTRICT
     )
     date_added = models.DateTimeField(auto_now_add=True)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT
     )
-    intention_closing_decision = models.BooleanField(default=False)
+    intention_closing_decision = models.BooleanField()
 
     def __get_event_values__(self):
         persons = []

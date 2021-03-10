@@ -96,34 +96,15 @@ class CamundaService:
             return False
 
     def start_instance(
-        self, case_identification, process=settings.CAMUNDA_PROCESS_VAKANTIE_VERHUUR
+        self,
+        case_identification,
+        request_body,
+        process=settings.CAMUNDA_PROCESS_VAKANTIE_VERHUUR,
     ):
         """
         TODO: Use business key instead of process key
         """
         request_path = f"/process-definition/key/{process}/start"
-        request_body = json.dumps(
-            {
-                "variables": {
-                    "zaken_access_token": {
-                        "value": settings.CAMUNDA_SECRET_KEY,
-                        "type": "String",
-                    },
-                    "zaken_state_endpoint": {
-                        "value": f'{settings.ZAKEN_CONTAINER_HOST}{reverse("camunda-workers-state")}',
-                        "type": "String",
-                    },
-                    "zaken_end_state_endpoint": {
-                        "value": f'{settings.ZAKEN_CONTAINER_HOST}{reverse("camunda-workers-end-state")}',
-                        "type": "String",
-                    },
-                    "case_identification": {
-                        "value": case_identification,
-                        "type": "String",
-                    },
-                },
-            }
-        )
         logger.info("Starting camunda process instance")
 
         response = self._process_request(
@@ -264,7 +245,11 @@ class CamundaService:
 
     def send_message(self, message_name, message_process_variables):
         request_body = json.dumps(
-            {"messageName": message_name, "processVariables": message_process_variables}
+            {
+                "messageName": message_name,
+                "processVariables": message_process_variables,
+                "resultEnabled": True,
+            }
         )
         response = self._process_request("/message", request_body, post=True)
 

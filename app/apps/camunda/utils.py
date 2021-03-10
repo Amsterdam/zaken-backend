@@ -91,6 +91,8 @@ def get_form_details(form):
         elif len(form_group.find_all("select")) == 1:
             form_select = form_group.find("select")
             input_name = form_select.attrs.get("name")
+            camunda_input_type = form_select.attrs.get("cam-variable-type")
+            required = form_group.find(string=re.compile("Required field")) is not None
 
             options = []
 
