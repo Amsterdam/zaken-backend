@@ -111,3 +111,10 @@ The project uses [Black](https://github.com/psf/black) for formatting and [Flake
 A path is available for checking the health of the running application, and all its connected services.
 The overview of this status can be found on the following path: {application_url}/health
 To improve reliability, the health checks should be expanded for each essential service that is added to the application. For more on how to expand the health checks, read the [Django Healh Check documentation](https://github.com/KristianOellegaard/django-health-check).
+
+## Generating Model Graph
+It's possible to generate a graph of the datamodel using the following command:
+```
+docker-compose run --rm zaak-gateway python manage.py graph_models cases camunda debriefings permits fines addresses events visits summons -X ModelEventEmitter,ModelEditableTimeConstraint,ModelEditablelBase --pygraphviz -o diagram.png
+```
+Note that the apps and models should be updated whenever applications and models are added or modified.
