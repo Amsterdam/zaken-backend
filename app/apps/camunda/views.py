@@ -110,14 +110,24 @@ class CamundaTaskViewSet(viewsets.ViewSet):
             try:
                 state_identification = task_variables["state_identification"]["value"]
                 state = CaseState.objects.get(id=state_identification)
-            except KeyError:
+            except (KeyError, TypeError):
                 logger.error(
                     "State identification could not be retrieved from task variables. Completing task without state."
                 )
                 state = None
 
+            # Boolean values should be converted to string values #ThanksCamunda
+            variables = data.get("variables", {})
+
+            for key in variables.keys():
+                if "value" in variables[key]:
+                    if variables[key]["value"] is True:
+                        variables[key]["value"] = "true"
+                    elif variables[key]["value"] is False:
+                        variables[key]["value"] = "false"
+
             task_completed = CamundaService().complete_task(
-                data["camunda_task_id"], data.get("variables", {})
+                data["camunda_task_id"], variables
             )
 
             if task_completed:
@@ -126,7 +136,7 @@ class CamundaTaskViewSet(viewsets.ViewSet):
                     case=data["case"],
                     state=state,
                     description=task["name"],
-                    variables=data.get("variables", {}),
+                    variables=variables,
                 )
 
                 return Response(f"Task {data['camunda_task_id']} has been completed")
