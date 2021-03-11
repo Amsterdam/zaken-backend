@@ -46,7 +46,7 @@ def create_summon_instance_in_camunda(sender, instance, created, **kwargs):
                             "value": instance.type.camunda_option,
                         },
                         "sluitingsbesluit": {
-                            "value": instance.intention_closing_decision,
+                            "value": False,
                         },
                     }
                 }
