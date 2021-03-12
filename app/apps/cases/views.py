@@ -21,6 +21,7 @@ from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.models.query import QuerySet
 from django.http import HttpResponseBadRequest
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
@@ -126,11 +127,18 @@ class CaseViewSet(
             number=number,
             suffix=suffix,
         )
-        print(address_queryset)
 
-        # TODO: Map the address to cases and serialize them
+        cases = Case.objects.none()
+        for address in address_queryset:
+            cases = cases | address.cases.all()
 
-        return Response(status=status.HTTP_200_OK)
+        cases = cases.filter(end_date=None)
+
+        paginator = PageNumberPagination()
+        context = paginator.paginate_queryset(cases, request)
+        serializer = CaseSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
 
     @action(detail=False, methods=["post"], url_path="generate-mock")
     def mock_cases(self, request):

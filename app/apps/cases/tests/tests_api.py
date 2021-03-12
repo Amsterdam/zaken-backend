@@ -1,3 +1,6 @@
+import datetime
+
+from apps.addresses.models import Address
 from apps.cases.models import Case, CaseReason, CaseTeam
 from apps.summons.models import SummonType
 from django.core import management
@@ -277,3 +280,159 @@ class CaseTeamSummonTypeApiTest(APITestCase):
         data = response.json()
 
         self.assertEqual(len(data["results"]), 2)
+
+
+class CaseSearchApiTest(APITestCase):
+    def setUp(self):
+        management.call_command("flush", verbosity=0, interactive=False)
+
+    def test_unauthenticated_get(self):
+        url = reverse("cases-search")
+        client = get_unauthenticated_client()
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_authenticated_get(self):
+        # Should fail if no parameters are given
+        url = reverse("cases-search")
+        client = get_authenticated_client()
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_fail_postal_code_no_number(self):
+        url = reverse("cases-search")
+        client = get_authenticated_client()
+
+        SEARCH_QUERY_PARAMETERS = {
+            "postalCode": "FOO_POSTAL_CODE",
+        }
+        response = client.get(url, SEARCH_QUERY_PARAMETERS)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_fail_street_name_no_number(self):
+        url = reverse("cases-search")
+        client = get_authenticated_client()
+
+        SEARCH_QUERY_PARAMETERS = {
+            "streetName": "FOO_STREET_NUMBER",
+        }
+        response = client.get(url, SEARCH_QUERY_PARAMETERS)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_empty_results(self):
+        url = reverse("cases-search")
+        client = get_authenticated_client()
+
+        SEARCH_QUERY_PARAMETERS = {
+            "streetName": "FOO_STREET_NUMBER",
+            "streetNumber": "5",
+        }
+        response = client.get(url, SEARCH_QUERY_PARAMETERS)
+        data = response.json()
+
+        self.assertEquals(data["results"], [])
+
+    def test_one_result(self):
+        url = reverse("cases-search")
+        client = get_authenticated_client()
+
+        MOCK_STREET_NAME = "FOO STREET NAME"
+        MOCK_STREET_NUMBER = 5
+
+        address = baker.make(
+            Address, street_name=MOCK_STREET_NAME, number=MOCK_STREET_NUMBER
+        )
+        baker.make(Case, address=address)
+
+        SEARCH_QUERY_PARAMETERS = {
+            "streetName": MOCK_STREET_NAME,
+            "streetNumber": MOCK_STREET_NUMBER,
+        }
+        response = client.get(url, SEARCH_QUERY_PARAMETERS)
+        data = response.json()
+
+        self.assertEquals(len(data["results"]), 1)
+
+    def test_multiple_result(self):
+        url = reverse("cases-search")
+        client = get_authenticated_client()
+
+        MOCK_STREET_NAME = "FOO STREET NAME"
+        MOCK_STREET_NUMBER = 5
+        QUANTITY = 3
+
+        address = baker.make(
+            Address, street_name=MOCK_STREET_NAME, number=MOCK_STREET_NUMBER
+        )
+        baker.make(Case, address=address, _quantity=QUANTITY)
+
+        SEARCH_QUERY_PARAMETERS = {
+            "streetName": MOCK_STREET_NAME,
+            "streetNumber": MOCK_STREET_NUMBER,
+        }
+        response = client.get(url, SEARCH_QUERY_PARAMETERS)
+        data = response.json()
+
+        self.assertEquals(len(data["results"]), QUANTITY)
+
+    def test_multiple_address_result(self):
+        url = reverse("cases-search")
+        client = get_authenticated_client()
+
+        MOCK_STREET_NAME = "FOO STREET NAME"
+        MOCK_STREET_NUMBER = 5
+
+        address_a = baker.make(
+            Address,
+            street_name=MOCK_STREET_NAME,
+            number=MOCK_STREET_NUMBER,
+            suffix="A",
+        )
+        address_b = baker.make(
+            Address,
+            street_name=MOCK_STREET_NAME,
+            number=MOCK_STREET_NUMBER,
+            suffix="B",
+        )
+
+        baker.make(Case, address=address_a)
+        baker.make(Case, address=address_b)
+
+        SEARCH_QUERY_PARAMETERS = {
+            "streetName": MOCK_STREET_NAME,
+            "streetNumber": MOCK_STREET_NUMBER,
+        }
+        response = client.get(url, SEARCH_QUERY_PARAMETERS)
+        data = response.json()
+
+        self.assertEquals(len(data["results"]), 2)
+
+    def test_results_open_cases(self):
+        """
+        Should only returns cases which haven't ended yet
+        """
+        url = reverse("cases-search")
+        client = get_authenticated_client()
+
+        MOCK_STREET_NAME = "FOO STREET NAME"
+        MOCK_STREET_NUMBER = 5
+
+        address = baker.make(
+            Address, street_name=MOCK_STREET_NAME, number=MOCK_STREET_NUMBER
+        )
+
+        baker.make(Case, address=address)
+
+        # Closed cases
+        baker.make(
+            Case, address=address, end_date=datetime.datetime.now(), _quantity=10
+        )
+
+        SEARCH_QUERY_PARAMETERS = {
+            "streetName": MOCK_STREET_NAME,
+            "streetNumber": MOCK_STREET_NUMBER,
+        }
+        response = client.get(url, SEARCH_QUERY_PARAMETERS)
+        data = response.json()
+
+        self.assertEquals(len(data["results"]), 1)
