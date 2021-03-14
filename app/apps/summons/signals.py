@@ -4,8 +4,10 @@ import sys
 
 from apps.camunda.services import CamundaService
 from apps.summons.models import Summon
+from django.conf import settings
 from django.db.models.signals import post_init, post_save
 from django.dispatch import receiver
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +33,7 @@ def create_summon_instance_in_camunda(sender, instance, created, **kwargs):
     #     ),
     # )
     if created and "test" not in sys.argv:
-        camunda_id = CamundaService().start_instance(
+        (camunda_id, _) = CamundaService().start_instance(
             case_identification=instance.case.identification,
             process="model_create_summon",
             request_body=json.dumps(
@@ -40,13 +42,32 @@ def create_summon_instance_in_camunda(sender, instance, created, **kwargs):
                         "names": {
                             "value": ", ".join(
                                 [person.__str__() for person in instance.persons.all()]
-                            )
+                            ),
+                            "type": "String",
                         },
                         "type_aanschrijving": {
                             "value": instance.type.camunda_option,
+                            "type": "String",
                         },
                         "sluitingsbesluit": {
                             "value": False,
+                            "type": "Boolean",
+                        },
+                        "case_identification": {
+                            "value": instance.case.identification,
+                            "type": "String",
+                        },
+                        "zaken_access_token": {
+                            "value": settings.CAMUNDA_SECRET_KEY,
+                            "type": "String",
+                        },
+                        "zaken_state_endpoint": {
+                            "value": f'{settings.ZAKEN_CONTAINER_HOST}{reverse("camunda-workers-state")}',
+                            "type": "String",
+                        },
+                        "zaken_end_state_endpoint": {
+                            "value": f'{settings.ZAKEN_CONTAINER_HOST}{reverse("camunda-workers-end-state")}',
+                            "type": "String",
                         },
                     }
                 }
