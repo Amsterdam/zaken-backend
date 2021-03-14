@@ -80,8 +80,8 @@ class Case(ModelEventEmitter):
 
     def __str__(self):
         if self.identification:
-            return f"Case {self.id} - {self.identification}"
-        return f"Case {self.id}"
+            return f"{self.id} Case - {self.identification}"
+        return f"{self.id} Case"
 
     def get_current_states(self):
         return self.case_states.filter(end_date__isnull=True)

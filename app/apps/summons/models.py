@@ -49,6 +49,9 @@ class Summon(ModelEventEmitter):
             "persons": persons,
         }
 
+    def __str__(self):
+        return f"{self.id} Summon - {self.type} - Case {self.case.id}"
+
 
 class SummonedPerson(models.Model):
     first_name = models.CharField(max_length=255)

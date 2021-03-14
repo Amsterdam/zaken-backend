@@ -113,9 +113,9 @@ class CamundaService:
 
         if response.ok:
             content = response.json()
-            return content["id"]
+            return (content["id"], response)
         else:
-            return False
+            return (False, response)
 
     def get_all_tasks_by_instance_id(self, process_instance_id):
         request_path = f"/task?processInstanceId={process_instance_id}"
