@@ -44,16 +44,6 @@ The credentials for this Zaken - OpenZaak connection are the defaults set in the
 OPEN_ZAAK_CLIENT=Zaken
 OPEN_ZAAK_SECRET_KEY=Zaken
 ```
-This application is not completely authorised yet, and one manual step is still necessary.
-Make sure the containers are running:
-
-```
-docker-compose up
-```
-
-Once everything is running, sign into the OpenZaak admin (http://localhost:8090/admin/).
-Select the Zaken application in the applications, which can be found under API Autorisaties -> Applicaties.
-Here, make sure the 'Heeft alle autorisaties' checkbox is checked and press 'Opslaan' to save.
 
 Now the Zaken application is fully authorised for adding and retrieving resources from the OpenZaak instance.
 This is done using ZGW Consumers, which need to be configured in the Zaken backend. To do this automatically run:
