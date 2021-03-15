@@ -77,10 +77,10 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1t6e5pj" sourceRef="Activity_0ia10qb" targetRef="Gateway_0puuu8q" />
     <bpmn:sequenceFlow id="Flow_0qhgq6t" name="Nee, vergunning niet aangevraagd" sourceRef="Gateway_1pwflrj" targetRef="Event_0nfpu7u">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested=="false"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested=="no_action"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_11igweb" name="Ja vergunning aangevraagd" sourceRef="Gateway_1pwflrj" targetRef="Activity_1k03k9a">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested=="true"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested=="yes_permit_requested"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1i77oze" sourceRef="Activity_1k03k9a" targetRef="Gateway_0ddrey0" />
     <bpmn:sequenceFlow id="Flow_18cv8bi" name="Ja vergunning" sourceRef="Gateway_0ddrey0" targetRef="Activity_0ia10qb">

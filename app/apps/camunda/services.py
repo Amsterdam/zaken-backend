@@ -17,6 +17,7 @@ class CamundaService:
 
     def _process_request(self, request_path, request_body=None, post=False, put=False):
         request_path = self.rest_url + request_path
+        response = None
 
         try:
             if post:
@@ -46,8 +47,8 @@ class CamundaService:
             response.ok = False
             return response
         except requests.exceptions.RequestException:
-            response = Response(status=status.HTTP_400_BAD_REQUEST)
-            response.ok = False
+            # response = Response(status=status.HTTP_400_BAD_REQUEST)
+            # response.ok = False
             return response
 
     def _get_form_with_task(self, camunda_task_id):
@@ -145,9 +146,9 @@ class CamundaService:
                 }
                 task_list[index].update(extra_info_dict)
 
-            return task_list
+            return (task_list, response)
         else:
-            return False
+            return (False, response)
 
     def get_task(self, task_id):
         response = self._process_request(f"/task/{task_id}")

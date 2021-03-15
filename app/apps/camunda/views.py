@@ -142,11 +142,11 @@ class CamundaTaskViewSet(viewsets.ViewSet):
                 return Response(f"Task {data['camunda_task_id']} has been completed")
             else:
                 return Response(
-                    "Camunda service is offline",
-                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    data=task_completed,
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(
         detail=False,

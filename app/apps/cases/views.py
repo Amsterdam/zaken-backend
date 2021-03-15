@@ -115,13 +115,16 @@ class CaseViewSet(
     @action(detail=True, methods=["get"], url_path="tasks")
     def get_tasks(self, request, pk):
         case = self.get_object()
-        camunda_tasks = CamundaService().get_all_tasks_by_instance_id(case.camunda_id)
+        (camunda_tasks, response) = CamundaService().get_all_tasks_by_instance_id(
+            case.camunda_id
+        )
 
-        if camunda_tasks:
+        if camunda_tasks or len(camunda_tasks) == 0:
             serializer = CamundaTaskSerializer(camunda_tasks, many=True)
 
             return Response(serializer.data)
 
+        return response
         return Response(
             "Camunda service is offline",
             status=status.HTTP_503_SERVICE_UNAVAILABLE,
