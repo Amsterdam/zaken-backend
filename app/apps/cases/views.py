@@ -111,6 +111,7 @@ class CaseViewSet(
         street_name = request.GET.get("streetName", None)
         number = request.GET.get("streetNumber", None)
         suffix = request.GET.get("suffix", None)
+        team = request.GET.get("team", None)
 
         if postal_code is None and street_name is None:
             return HttpResponseBadRequest(
@@ -133,6 +134,9 @@ class CaseViewSet(
             cases = cases | address.cases.all()
 
         cases = cases.filter(end_date=None)
+
+        if team:
+            cases = cases.filter(team__name=team)
 
         paginator = PageNumberPagination()
         context = paginator.paginate_queryset(cases, request)
