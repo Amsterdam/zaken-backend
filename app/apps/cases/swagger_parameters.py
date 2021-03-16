@@ -30,4 +30,42 @@ suffix = OpenApiParameter(
     description="Suffix",
 )
 
-case_search_parameters = [postal_code, street_number, street_name, suffix]
+start_date = OpenApiParameter(
+    name="startDate",
+    type=OpenApiTypes.DATE,
+    location=OpenApiParameter.QUERY,
+    required=False,
+    description="Date",
+)
+
+open_cases = OpenApiParameter(
+    name="openCases",
+    type=OpenApiTypes.BOOL,
+    location=OpenApiParameter.QUERY,
+    required=False,
+    description="Open Cases",
+)
+
+team = OpenApiParameter(
+    name="team",
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.QUERY,
+    required=False,
+    description="Team Name",
+)
+
+reason = OpenApiParameter(
+    name="reason",
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.QUERY,
+    required=False,
+    description="Case Reason",
+)
+
+open_status = OpenApiParameter(
+    name="openStatus",
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.QUERY,
+    required=False,
+    description="Case Status",
+)

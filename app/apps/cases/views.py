@@ -3,7 +3,6 @@ import logging
 from apps.addresses.utils import search
 from apps.camunda.serializers import CamundaTaskSerializer
 from apps.camunda.services import CamundaService
-from apps.cases.filters import CaseFilter
 from apps.cases.mock import mock_cases
 from apps.cases.models import Case, CaseState, CaseTeam
 from apps.cases.serializers import (
@@ -14,7 +13,17 @@ from apps.cases.serializers import (
     CaseTeamSerializer,
     PushCaseStateSerializer,
 )
-from apps.cases.swagger_parameters import case_search_parameters
+from apps.cases.swagger_parameters import (
+    open_cases,
+    open_status,
+    postal_code,
+    reason,
+    start_date,
+    street_name,
+    street_number,
+    suffix,
+    team,
+)
 from apps.debriefings.mixins import DebriefingsMixin
 from apps.events.mixins import CaseEventsMixin
 from apps.summons.serializers import SummonTypeSerializer
@@ -92,7 +101,6 @@ class CaseViewSet(
 ):
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
-    filterset_class = CaseFilter
 
     def get_serializer_class(self, *args, **kwargs):
         if self.action in ["create", "update"]:
@@ -101,16 +109,51 @@ class CaseViewSet(
         return self.serializer_class
 
     @extend_schema(
-        parameters=case_search_parameters,
+        parameters=[start_date, open_cases, team, reason, open_status],
+        description="Case filter query parameters",
+        responses={200: CaseSerializer(many=True)},
+    )
+    def list(self, request):
+        start_date = request.GET.get(start_date.name, None)
+        open_cases = request.GET.get(open_cases.name, None)
+        team = request.GET.get(team.name, None)
+        reason = request.GET.get(reason.name, None)
+        open_status = request.GET.get(open_status.name, None)
+
+        queryset = self.get_queryset()
+
+        if start_date:
+            queryset = queryset.filter(start_date__gt=start_date)
+        if open_cases:
+            queryset = queryset.filter(end_date__isnull=open_cases)
+        if team:
+            queryset = queryset.filter(team__name=team)
+        if reason:
+            queryset = queryset.filter(reason__name=reason)
+        if open_status:
+            queryset = queryset.filter(
+                case_states__end_date__isnull=True,
+                case_states__status__name=open_status,
+            )
+
+        paginator = PageNumberPagination()
+        context = paginator.paginate_queryset(queryset, request)
+        serializer = CaseSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        parameters=[postal_code, street_number, street_name, suffix],
         description="Search query parameters",
         responses={200: CaseSerializer(many=True)},
+        operation=None,
     )
     @action(detail=False, methods=["get"], url_path="search")
     def search(self, request):
-        postal_code = request.GET.get("postalCode", None)
-        street_name = request.GET.get("streetName", None)
-        number = request.GET.get("streetNumber", None)
-        suffix = request.GET.get("suffix", None)
+        postal_code = request.GET.get(postal_code.name, None)
+        street_name = request.GET.get(street_name.name, None)
+        number = request.GET.get(street_number.name, None)
+        suffix = request.GET.get(suffix.name, None)
 
         if postal_code is None and street_name is None:
             return HttpResponseBadRequest(
