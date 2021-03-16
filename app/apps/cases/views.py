@@ -127,8 +127,9 @@ class CaseViewSet(
         queryset = self.get_queryset()
 
         if start_date:
-            queryset = queryset.filter(start_date__gt=start_date)
+            queryset = queryset.filter(start_date__gte=start_date)
         if open_cases:
+            open_cases = open_cases == "true"
             queryset = queryset.filter(end_date__isnull=open_cases)
         if team:
             queryset = queryset.filter(team__name=team)
