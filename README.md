@@ -26,7 +26,7 @@ bash bin/setup_credentials.sh
 
 This will create superuser admin accounts with the following credentials:
 
-For Zaken Admin, located at http://localhost:8080/admin/:
+For Zaken Admin, located at http://localhost:8080/admin/
 ```
 email: admin@admin.com
 password: admin
@@ -87,6 +87,9 @@ When the LOCAL_DEVELOPMENT_AUTHENTICATION environment variable is set to True, y
 You can use the 'access' token in the response:
 Click on the 'Authorize' button in the top right corner of the page, and enter the given access token.
 This allows you to execute the API endpoints in the page.
+
+## Enabling Keycloak authentication for a locally run zaken-frontend
+Set LOCAL_DEVELOPMENT_AUTHENTICATION environment variable to False
 
 ## Generating Mock Data
 You can generate mock data easily (from the API swagger environment) by executing the /api/v1/generate-mock/ GET request.
