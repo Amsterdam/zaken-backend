@@ -30,4 +30,12 @@ suffix = OpenApiParameter(
     description="Suffix",
 )
 
-case_search_parameters = [postal_code, street_number, street_name, suffix]
+team = OpenApiParameter(
+    name="team",
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.QUERY,
+    required=False,
+    description="Team to which the cases should belong",
+)
+
+case_search_parameters = [postal_code, street_number, street_name, suffix, team]

@@ -436,3 +436,33 @@ class CaseSearchApiTest(APITestCase):
         data = response.json()
 
         self.assertEquals(len(data["results"]), 1)
+
+    def test_results_team_filter(self):
+        """
+        Should only returns cases for the given team
+        """
+        url = reverse("cases-search")
+        client = get_authenticated_client()
+
+        MOCK_STREET_NAME = "FOO STREET NAME"
+        MOCK_STREET_NUMBER = 5
+        MOCK_TEAM = "The A-Team"
+
+        address = baker.make(
+            Address, street_name=MOCK_STREET_NAME, number=MOCK_STREET_NUMBER
+        )
+        team_a = baker.make(CaseTeam, name=MOCK_TEAM)
+        team_b = baker.make(CaseTeam)
+
+        baker.make(Case, team=team_a, address=address)
+        baker.make(Case, team=team_b, address=address)
+
+        SEARCH_QUERY_PARAMETERS = {
+            "streetName": MOCK_STREET_NAME,
+            "streetNumber": MOCK_STREET_NUMBER,
+            "team": MOCK_TEAM,
+        }
+        response = client.get(url, SEARCH_QUERY_PARAMETERS)
+        data = response.json()
+
+        self.assertEquals(len(data["results"]), 1)
