@@ -133,7 +133,7 @@ class Command(BaseCommand):
         try:
             self.create_zaken_consumer()
             self.create_zaaktypen_consumer()
-            # self.create_catalogus()
+            self.create_catalogus()
             # self.create_case_type()
         except Exception as e:
             raise CommandError("Generic error", e)
