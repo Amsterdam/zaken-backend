@@ -13,17 +13,15 @@ from apps.cases.serializers import (
     CaseTeamSerializer,
     PushCaseStateSerializer,
 )
-from apps.cases.swagger_parameters import (
-    open_cases,
-    open_status,
-    postal_code,
-    reason,
-    start_date,
-    street_name,
-    street_number,
-    suffix,
-    team,
-)
+from apps.cases.swagger_parameters import open_cases as open_cases_parameter
+from apps.cases.swagger_parameters import open_status as open_status_parameter
+from apps.cases.swagger_parameters import postal_code as postal_code_parameter
+from apps.cases.swagger_parameters import reason as reason_parameter
+from apps.cases.swagger_parameters import start_date as start_date_parameter
+from apps.cases.swagger_parameters import street_name as street_name_parameter
+from apps.cases.swagger_parameters import street_number as street_number_parameter
+from apps.cases.swagger_parameters import suffix as suffix_parameter
+from apps.cases.swagger_parameters import team as team_parameter
 from apps.debriefings.mixins import DebriefingsMixin
 from apps.events.mixins import CaseEventsMixin
 from apps.summons.serializers import SummonTypeSerializer
@@ -109,16 +107,22 @@ class CaseViewSet(
         return self.serializer_class
 
     @extend_schema(
-        parameters=[start_date, open_cases, team, reason, open_status],
+        parameters=[
+            start_date_parameter,
+            open_cases_parameter,
+            team_parameter,
+            reason_parameter,
+            open_status_parameter,
+        ],
         description="Case filter query parameters",
         responses={200: CaseSerializer(many=True)},
     )
     def list(self, request):
-        start_date = request.GET.get(start_date.name, None)
-        open_cases = request.GET.get(open_cases.name, None)
-        team = request.GET.get(team.name, None)
-        reason = request.GET.get(reason.name, None)
-        open_status = request.GET.get(open_status.name, None)
+        start_date = request.GET.get(start_date_parameter.name, None)
+        open_cases = request.GET.get(open_cases_parameter.name, None)
+        team = request.GET.get(team_parameter.name, None)
+        reason = request.GET.get(reason_parameter.name, None)
+        open_status = request.GET.get(open_status_parameter.name, None)
 
         queryset = self.get_queryset()
 
@@ -143,17 +147,22 @@ class CaseViewSet(
         return paginator.get_paginated_response(serializer.data)
 
     @extend_schema(
-        parameters=[postal_code, street_number, street_name, suffix],
+        parameters=[
+            postal_code_parameter,
+            street_number_parameter,
+            street_name_parameter,
+            suffix_parameter,
+        ],
         description="Search query parameters",
         responses={200: CaseSerializer(many=True)},
         operation=None,
     )
     @action(detail=False, methods=["get"], url_path="search")
     def search(self, request):
-        postal_code = request.GET.get(postal_code.name, None)
-        street_name = request.GET.get(street_name.name, None)
-        number = request.GET.get(street_number.name, None)
-        suffix = request.GET.get(suffix.name, None)
+        postal_code = request.GET.get(postal_code_parameter.name, None)
+        street_name = request.GET.get(street_name_parameter.name, None)
+        number = request.GET.get(street_number_parameter.name, None)
+        suffix = request.GET.get(suffix_parameter.name, None)
 
         if postal_code is None and street_name is None:
             return HttpResponseBadRequest(
