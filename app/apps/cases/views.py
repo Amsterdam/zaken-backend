@@ -16,6 +16,7 @@ from apps.cases.serializers import (
 )
 from apps.cases.swagger_parameters import case_search_parameters
 from apps.debriefings.mixins import DebriefingsMixin
+from apps.decisions.serializers import DecisionTypeSerializer
 from apps.events.mixins import CaseEventsMixin
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
@@ -216,5 +217,24 @@ class CaseTeamViewSet(ViewSet, ListAPIView):
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = SummonTypeSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the DecisionTypes associated with the given team",
+        responses={status.HTTP_200_OK: DecisionTypeSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="decision-types",
+        methods=["get"],
+    )
+    def decision_types(self, request, pk):
+        paginator = PageNumberPagination()
+        team = self.get_object()
+        query_set = team.decision_types.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = DecisionTypeSerializer(context, many=True)
 
         return paginator.get_paginated_response(serializer.data)
