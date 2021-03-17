@@ -14,6 +14,9 @@ class DecisionType(models.Model):
     def __str__(self):
         return f"{self.team.name} - {self.name}"
 
+    class Meta:
+        ordering = ["name"]
+
 
 class Decision(models.Model):
     """
@@ -24,7 +27,7 @@ class Decision(models.Model):
         to=Case, on_delete=models.CASCADE, related_name="decisions"
     )
     summon = models.OneToOneField(
-        to=Summon, on_delete=models.CASCADE, related_name="decision"
+        to=Summon, on_delete=models.CASCADE, related_name="decision", null=True
     )
     decision_type = models.ForeignKey(to=DecisionType, on_delete=models.RESTRICT)
     description = models.TextField(blank=True, null=True)

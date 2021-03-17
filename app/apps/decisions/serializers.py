@@ -11,4 +11,4 @@ class DecisionTypeSerializer(serializers.ModelSerializer):
 class DecisionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Decision
-        fields = "__all__"
+        fields = ["case", "decision_type", "description"]
