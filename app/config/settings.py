@@ -72,6 +72,7 @@ INSTALLED_APPS = (
     "apps.camunda",
     "apps.openzaak",
     "apps.summons",
+    "apps.schedules",
 )
 
 # Add apps here to make them appear in the graphing visualisation
@@ -87,6 +88,8 @@ SPAGHETTI_SAUCE = {
         "events",
         "summons",
         "camunda",
+        "decisions",
+        "schedules",
     ],
     "show_fields": False,
 }
