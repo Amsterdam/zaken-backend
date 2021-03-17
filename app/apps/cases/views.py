@@ -90,6 +90,7 @@ class CaseViewSet(
     DebriefingsMixin,
     CaseEventsMixin,
 ):
+    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
     filterset_class = CaseFilter
