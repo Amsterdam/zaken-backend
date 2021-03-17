@@ -59,6 +59,7 @@ INSTALLED_APPS = (
     # Apps
     "apps.users",
     "apps.cases",
+    "apps.decisions",
     "apps.debriefings",
     "apps.permits",
     "apps.fines",

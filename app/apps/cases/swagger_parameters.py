@@ -35,7 +35,7 @@ start_date = OpenApiParameter(
     type=OpenApiTypes.DATE,
     location=OpenApiParameter.QUERY,
     required=False,
-    description="Date",
+    description="Start Date",
 )
 
 open_cases = OpenApiParameter(
@@ -51,7 +51,7 @@ team = OpenApiParameter(
     type=OpenApiTypes.STR,
     location=OpenApiParameter.QUERY,
     required=False,
-    description="Team Name",
+    description="Team to which the cases should belong",
 )
 
 reason = OpenApiParameter(

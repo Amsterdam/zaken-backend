@@ -23,6 +23,7 @@ from apps.cases.swagger_parameters import street_number as street_number_paramet
 from apps.cases.swagger_parameters import suffix as suffix_parameter
 from apps.cases.swagger_parameters import team as team_parameter
 from apps.debriefings.mixins import DebriefingsMixin
+from apps.decisions.serializers import DecisionTypeSerializer
 from apps.events.mixins import CaseEventsMixin
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
@@ -97,6 +98,7 @@ class CaseViewSet(
     DebriefingsMixin,
     CaseEventsMixin,
 ):
+    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
 
@@ -153,6 +155,7 @@ class CaseViewSet(
             street_number_parameter,
             street_name_parameter,
             suffix_parameter,
+            team_parameter,
         ],
         description="Search query parameters",
         responses={200: CaseSerializer(many=True)},
@@ -164,6 +167,7 @@ class CaseViewSet(
         street_name = request.GET.get(street_name_parameter.name, None)
         number = request.GET.get(street_number_parameter.name, None)
         suffix = request.GET.get(suffix_parameter.name, None)
+        team = request.GET.get(team_parameter.name, None)
 
         if postal_code is None and street_name is None:
             return HttpResponseBadRequest(
@@ -186,6 +190,9 @@ class CaseViewSet(
             cases = cases | address.cases.all()
 
         cases = cases.filter(end_date=None)
+
+        if team:
+            cases = cases.filter(team__name=team)
 
         paginator = PageNumberPagination()
         context = paginator.paginate_queryset(cases, request)
@@ -264,5 +271,24 @@ class CaseTeamViewSet(ViewSet, ListAPIView):
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = SummonTypeSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the DecisionTypes associated with the given team",
+        responses={status.HTTP_200_OK: DecisionTypeSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="decision-types",
+        methods=["get"],
+    )
+    def decision_types(self, request, pk):
+        paginator = PageNumberPagination()
+        team = self.get_object()
+        query_set = team.decision_types.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = DecisionTypeSerializer(context, many=True)
 
         return paginator.get_paginated_response(serializer.data)
