@@ -10,8 +10,3 @@ logger = logging.getLogger(__name__)
 class DecisionViewSet(ModelViewSet):
     serializer_class = DecisionSerializer
     queryset = Decision.objects.all()
-
-
-class DecisionTypeViewSet(ModelViewSet):
-    serializer_class = DecisionTypeSerializer
-    queryset = DecisionType.objects.all()
