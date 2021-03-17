@@ -111,3 +111,20 @@ It's possible to generate a graph of the datamodel using the following command:
 docker-compose run --rm zaak-gateway python manage.py graph_models cases camunda debriefings permits fines addresses events visits summons -X ModelEventEmitter,ModelEditableTimeConstraint,ModelEditablelBase --pygraphviz -o diagram.png
 ```
 Note that the apps and models should be updated whenever applications and models are added or modified.
+
+
+## Camunda process deploying
+The easiest way to do this is to download the [Camunda Modeler](https://camunda.com/download/modeler/) and use its "Deploy current diagram" function (It is in the toolbar topside al the way to the right next to the play button (start process instance) button. It looks like a horizontal bar with an up arrow on top of it). Makeup a good deployment name and for the REST Endpoint type the url of the base api endpoint. For localhost it is `http://localhost:7000/engine-rest` (NOTE: no end slash) otherwise consult app settings for different environments.
+
+You can also deploy via the REST endpoint.
+```
+URL: http://localhost:7000/engine-rest/deployment/create
+Headers
+Content-Type: multipart/form-data
+
+Body
+upload: file.bpmn
+deployment-name: zaak_wonen_vakantieverhuur (for example. see settings.py for camunda deployments)
+```
+
+(*Don't forget to change the version tag* Camunda will make one for you if you don't but make it nice and correct ;). if you can find the context menu where you can change the version tag: switch to XML mode and search for the `camunda:versionTag` attribute and change it there.)
