@@ -5,6 +5,7 @@ from apps.summons.serializers import SummonSerializer, SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render
+from django_filters.rest_framework import DjangoFilterBackend
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import mixins, status
 from rest_framework.decorators import action
@@ -17,3 +18,5 @@ logger = logging.getLogger(__name__)
 class SummonViewSet(ModelViewSet):
     serializer_class = SummonSerializer
     queryset = Summon.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["case"]
