@@ -8,10 +8,10 @@ def add_default_values(apps, schema_editor):
     CaseTeam = apps.get_model("cases", "CaseTeam")
     default_team, _ = CaseTeam.objects.get_or_create(name=settings.DEFAULT_TEAM)
 
-    ScheduleType = apps.get_model("schedules", "ScheduleType")
+    Action = apps.get_model("schedules", "Action")
 
-    for schedule_type in settings.DEFAULT_SCHEDULE_TYPES:
-        ScheduleType.objects.get_or_create(name=schedule_type, team=default_team)
+    for action in settings.DEFAULT_SCHEDULE_ACTION:
+        Action.objects.get_or_create(name=action, team=default_team)
 
     WeekSegment = apps.get_model("schedules", "WeekSegment")
     for week_segment in settings.DEFAULT_SCHEDULE_WEEK_SEGMENTS:

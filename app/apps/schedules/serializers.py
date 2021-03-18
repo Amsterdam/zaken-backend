@@ -1,17 +1,11 @@
 from apps.cases.models import CaseTeam
-from apps.schedules.models import (
-    DaySegment,
-    Priority,
-    Schedule,
-    ScheduleType,
-    WeekSegment,
-)
+from apps.schedules.models import Action, DaySegment, Priority, Schedule, WeekSegment
 from rest_framework import serializers
 
 
-class ScheduleTypeSerializer(serializers.ModelSerializer):
+class ActionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ScheduleType
+        model = Action
         fields = ["id", "name"]
 
 
@@ -34,7 +28,7 @@ class PrioritySerializer(serializers.ModelSerializer):
 
 
 class ScheduleSerializer(serializers.ModelSerializer):
-    schedule_type = ScheduleTypeSerializer(required=True)
+    action = ActionSerializer(required=True)
     week_segment = WeekSegmentSerializer(required=True)
     day_segment = DaySegmentSerializer(required=True)
     priority = PrioritySerializer(required=True)
@@ -45,11 +39,11 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
 
 class TeamScheduleTypesSerializer(serializers.ModelSerializer):
-    schedule_types = ScheduleTypeSerializer(many=True)
+    action = ActionSerializer(many=True)
     week_segments = WeekSegmentSerializer(many=True)
     day_segments = DaySegmentSerializer(many=True)
     priorities = PrioritySerializer(many=True)
 
     class Meta:
         model = CaseTeam
-        fields = ["schedule_types", "week_segments", "day_segments", "priorities"]
+        fields = ["actions", "week_segments", "day_segments", "priorities"]

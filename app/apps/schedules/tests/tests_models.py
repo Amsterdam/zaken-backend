@@ -1,17 +1,11 @@
-from apps.schedules.models import (
-    DaySegment,
-    Priority,
-    Schedule,
-    ScheduleType,
-    WeekSegment,
-)
+from apps.schedules.models import Action, DaySegment, Priority, Schedule, WeekSegment
 from django.core import management
 from django.test import TestCase
 from model_bakery import baker
 
 
-class ScheduleTypeModelTest(TestCase):
-    MODEL = ScheduleType
+class ActionModelTest(TestCase):
+    MODEL = Action
 
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
@@ -107,6 +101,4 @@ class ScheduleModelTest(TestCase):
         model_object = baker.make(self.MODEL)
 
         with self.assertRaises(Exception):
-            baker.make(
-                self.MODEL, name=model_object.case, team=model_object.schedule_type
-            )
+            baker.make(self.MODEL, name=model_object.case, team=model_object.action)

@@ -2,10 +2,10 @@ from apps.cases.models import Case, CaseTeam
 from django.db import models
 
 
-class ScheduleType(models.Model):
+class Action(models.Model):
     name = models.CharField(max_length=255)
     team = models.ForeignKey(
-        to=CaseTeam, on_delete=models.CASCADE, related_name="schedule_types"
+        to=CaseTeam, on_delete=models.CASCADE, related_name="actions"
     )
 
     def __str__(self):
@@ -60,7 +60,7 @@ class Priority(models.Model):
 
 
 class Schedule(models.Model):
-    schedule_type = models.ForeignKey(to=ScheduleType, on_delete=models.CASCADE)
+    action = models.ForeignKey(to=Action, on_delete=models.CASCADE)
     week_segment = models.ForeignKey(to=WeekSegment, on_delete=models.CASCADE)
     day_segment = models.ForeignKey(to=DaySegment, on_delete=models.CASCADE)
     priority = models.ForeignKey(to=Priority, on_delete=models.CASCADE)
@@ -69,4 +69,4 @@ class Schedule(models.Model):
     )
 
     class Meta:
-        unique_together = ["case", "schedule_type"]
+        unique_together = ["case", "action"]
