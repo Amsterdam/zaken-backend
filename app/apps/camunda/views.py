@@ -42,6 +42,8 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
     )
     def state(self, request):
         logger.info("Starting Camunda service task for setting state")
+        logger.info(request.data)
+        logger.info("X")
         serializer = CamundaStateWorkerSerializer(data=request.data)
         logger.info("A")
 
