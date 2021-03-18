@@ -39,7 +39,7 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
 
 class TeamScheduleTypesSerializer(serializers.ModelSerializer):
-    action = ActionSerializer(many=True)
+    actions = ActionSerializer(many=True)
     week_segments = WeekSegmentSerializer(many=True)
     day_segments = DaySegmentSerializer(many=True)
     priorities = PrioritySerializer(many=True)
