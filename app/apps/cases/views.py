@@ -135,9 +135,9 @@ class CaseViewSet(
             open_cases = open_cases == "true"
             queryset = queryset.filter(end_date__isnull=open_cases)
         if team:
-            queryset = queryset.filter(team__name=team)
+            queryset = queryset.filter(team=team)
         if reason:
-            queryset = queryset.filter(reason__name=reason)
+            queryset = queryset.filter(reason=reason)
         if open_status:
             queryset = queryset.filter(
                 case_states__end_date__isnull=True,
@@ -193,7 +193,7 @@ class CaseViewSet(
         cases = cases.filter(end_date=None)
 
         if team:
-            cases = cases.filter(team__name=team)
+            cases = cases.filter(team=team)
 
         paginator = PageNumberPagination()
         context = paginator.paginate_queryset(cases, request)
