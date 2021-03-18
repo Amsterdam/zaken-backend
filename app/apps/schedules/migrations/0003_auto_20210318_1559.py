@@ -39,32 +39,9 @@ class Migration(migrations.Migration):
                 to="cases.caseteam",
             ),
         ),
-        migrations.CreateModel(
-            name="Action",
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("name", models.CharField(max_length=255)),
-                (
-                    "team",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="actions",
-                        to="cases.caseteam",
-                    ),
-                ),
-            ],
-            options={
-                "ordering": ["name"],
-                "unique_together": {("name", "team")},
-            },
+        migrations.RenameModel(
+            old_name="ScheduleType",
+            new_name="Action",
         ),
         migrations.AlterField(
             model_name="schedule",
@@ -73,7 +50,13 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.CASCADE, to="schedules.action"
             ),
         ),
-        migrations.DeleteModel(
-            name="ScheduleType",
+        migrations.RenameField(
+            model_name="schedule",
+            old_name="schedule_type",
+            new_name="action",
+        ),
+        migrations.AlterUniqueTogether(
+            name="schedule",
+            unique_together={("case", "action")},
         ),
     ]
