@@ -43,13 +43,18 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
     def state(self, request):
         logger.info("Starting Camunda service task for setting state")
         serializer = CamundaStateWorkerSerializer(data=request.data)
+        logger.info("A")
 
         if serializer.is_valid():
+            logger.info("B")
             state = serializer.save()
+            logger.info("C")
             logger.info("State set succesfully")
             return Response(data=state.id, status=status.HTTP_201_CREATED)
         else:
+            logger.info("D")
             logger.error(f"State could not be set: {serializer.errors}")
+            logger.info(serializer.errors)
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
