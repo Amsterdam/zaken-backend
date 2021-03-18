@@ -10,61 +10,58 @@ class Migration(migrations.Migration):
 
         (team, _) = CaseTeam.objects.get_or_create(name="Vakantieverhuur")
 
-        decision_type_1 = DecisionType()
-        decision_type_1.camunda_option = "boete"
-        decision_type_1.name = "Boete"
-        decision_type_1.is_sanction = False
-        decision_type_1.team = team
-        decision_type_1.save()
+        DecisionType.objects.get_or_create(
+            camunda_option="boete", name="Boete", is_sanction=True, team=team
+        )
 
-        decision_type_2 = DecisionType()
-        decision_type_2.camunda_option = "invordering_dwangsom"
-        decision_type_2.name = "Invordering dwangsom"
-        decision_type_2.is_sanction = False
-        decision_type_2.team = team
-        decision_type_2.save()
+        DecisionType.objects.get_or_create(
+            camunda_option="invordering_dwangsom",
+            name="Invordering dwangsom",
+            is_sanction=True,
+            team=team,
+        )
 
-        decision_type_3 = DecisionType()
-        decision_type_3.camunda_option = "meldplicht_beschikking_boete"
-        decision_type_3.name = "Meldplicht beschikking dwangsom"
-        decision_type_3.is_sanction = False
-        decision_type_3.team = team
-        decision_type_3.save()
+        DecisionType.objects.get_or_create(
+            camunda_option="meldplicht_beschikking_boete",
+            name="Meldplicht beschikking dwangsom",
+            is_sanction=False,
+            team=team,
+        )
 
-        decision_type_4 = DecisionType()
-        decision_type_4.camunda_option = "preventieve_last"
-        decision_type_4.name = "Preventieve last"
-        decision_type_4.is_sanction = False
-        decision_type_4.team = team
-        decision_type_4.save()
+        DecisionType.objects.get_or_create(
+            camunda_option="preventieve_last",
+            name="Preventieve last",
+            is_sanction=False,
+            team=team,
+        )
 
-        decision_type_5 = DecisionType()
-        decision_type_5.camunda_option = "last_onder_dwangsom"
-        decision_type_5.name = "Last onder dwangsom"
-        decision_type_5.is_sanction = False
-        decision_type_5.team = team
-        decision_type_5.save()
+        DecisionType.objects.get_or_create(
+            camunda_option="last_onder_dwangsom",
+            name="Last onder dwangsom",
+            is_sanction=True,
+            team=team,
+        )
 
-        decision_type_6 = DecisionType()
-        decision_type_6.camunda_option = "intrekken_vv_vergunning"
-        decision_type_6.name = "Intrekken VV vergunning"
-        decision_type_6.is_sanction = False
-        decision_type_6.team = team
-        decision_type_6.save()
+        DecisionType.objects.get_or_create(
+            camunda_option="intrekken_vv_vergunning",
+            name="Intrekken VV vergunning",
+            is_sanction=False,
+            team=team,
+        )
 
-        decision_type_7 = DecisionType()
-        decision_type_7.camunda_option = "intrekken_bb_vergunning"
-        decision_type_7.name = "Intrekken BB vergunning"
-        decision_type_7.is_sanction = False
-        decision_type_7.team = team
-        decision_type_7.save()
+        DecisionType.objects.get_or_create(
+            camunda_option="intrekken_bb_vergunning",
+            name="Intrekken BB vergunning",
+            is_sanction=False,
+            team=team,
+        )
 
-        decision_type_8 = DecisionType()
-        decision_type_8.camunda_option = "intrekken_shortstay_vergunning"
-        decision_type_8.name = "Intrekken Shortstay vergunning"
-        decision_type_8.is_sanction = False
-        decision_type_8.team = team
-        decision_type_8.save()
+        DecisionType.objects.get_or_create(
+            camunda_option="intrekken_shortstay_vergunning",
+            name="Intrekken Shortstay vergunning",
+            is_sanction=False,
+            team=team,
+        )
 
     dependencies = [
         ("decisions", "0001_initial"),

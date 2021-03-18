@@ -116,7 +116,7 @@ class CaseState(models.Model):
     case = models.ForeignKey(Case, related_name="case_states", on_delete=models.CASCADE)
     status = models.ForeignKey(CaseStateType, on_delete=models.PROTECT)
     start_date = models.DateField()
-    end_date = models.DateField(null=True)
+    end_date = models.DateField(null=True, blank=True)
     users = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="case_states", related_query_name="users"
     )
