@@ -10,6 +10,7 @@ def update_decision_with_summon(sender, instance, created, **kwargs):
     This will be resolved when we support multiple summons.
     """
     if created:
+        # TODO: create belastingdienst number
         if instance.case.summons.count() == 1:
             instance.summon = instance.case.summons.all()[0]
             instance.save()
