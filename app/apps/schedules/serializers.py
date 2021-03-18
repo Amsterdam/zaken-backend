@@ -1,3 +1,4 @@
+from apps.cases.models import CaseTeam
 from apps.schedules.models import (
     DaySegment,
     Priority,
@@ -40,4 +41,15 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Schedule
-        fiels = "__all__"
+        fields = "__all__"
+
+
+class TeamScheduleTypesSerializer(serializers.ModelSerializer):
+    schedule_types = ScheduleTypeSerializer(many=True)
+    week_segments = WeekSegmentSerializer(many=True)
+    day_segments = DaySegmentSerializer(many=True)
+    priorities = PrioritySerializer(many=True)
+
+    class Meta:
+        model = CaseTeam
+        fields = ["schedule_types", "week_segments", "day_segments", "priorities"]

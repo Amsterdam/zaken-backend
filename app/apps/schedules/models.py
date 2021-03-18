@@ -4,7 +4,9 @@ from django.db import models
 
 class ScheduleType(models.Model):
     name = models.CharField(max_length=255)
-    team = models.ForeignKey(to=CaseTeam, on_delete=models.CASCADE)
+    team = models.ForeignKey(
+        to=CaseTeam, on_delete=models.CASCADE, related_name="schedule_types"
+    )
 
     def __str__(self):
         return self.name
@@ -16,7 +18,9 @@ class ScheduleType(models.Model):
 
 class WeekSegment(models.Model):
     name = models.CharField(max_length=255)
-    team = models.ForeignKey(to=CaseTeam, on_delete=models.CASCADE)
+    team = models.ForeignKey(
+        to=CaseTeam, on_delete=models.CASCADE, related_name="week_segments"
+    )
 
     def __str__(self):
         return self.name
@@ -28,7 +32,9 @@ class WeekSegment(models.Model):
 
 class DaySegment(models.Model):
     name = models.CharField(max_length=255)
-    team = models.ForeignKey(to=CaseTeam, on_delete=models.CASCADE)
+    team = models.ForeignKey(
+        to=CaseTeam, on_delete=models.CASCADE, related_name="day_segments"
+    )
 
     def __str__(self):
         return self.name
@@ -40,7 +46,9 @@ class DaySegment(models.Model):
 
 class Priority(models.Model):
     name = models.CharField(max_length=255)
-    team = models.ForeignKey(to=CaseTeam, on_delete=models.CASCADE)
+    team = models.ForeignKey(
+        to=CaseTeam, on_delete=models.CASCADE, related_name="priorities"
+    )
     weight = models.FloatField()
 
     def __str__(self):
