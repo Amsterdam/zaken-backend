@@ -6,6 +6,7 @@ from apps.decisions.views import DecisionViewSet
 from apps.fines.views import FinesViewSet
 from apps.gateway.push.views import PushViewSet
 from apps.permits.views import PermitViewSet
+from apps.schedules.views import ScheduleViewSet
 from apps.summons.views import SummonViewSet
 from apps.support.views import SupportContactView
 from apps.users.views import IsAuthorizedView, ObtainAuthTokenOIDC, UserListView
@@ -31,7 +32,7 @@ router.register(r"visits", VisitViewSet, basename="visits")
 router.register(r"fines", FinesViewSet, basename="fines")
 router.register(r"authors", UserListView, basename="authors")
 router.register(r"summons", SummonViewSet, basename="summons")
-
+router.register(r"schedules", ScheduleViewSet, basename="schedules")
 
 router.register(r"camunda/task", CamundaTaskViewSet, basename="camunda-tasks")
 router.register(r"camunda/worker", CamundaWorkerViewSet, basename="camunda-workers")
