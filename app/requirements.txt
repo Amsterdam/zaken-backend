@@ -67,3 +67,4 @@ zgw-consumers==0.15.2
 zipp==3.4.1
 beautifulsoup4==4.9.3
 django-extensions
+django-filter

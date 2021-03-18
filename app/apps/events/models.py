@@ -9,6 +9,7 @@ class CaseEvent(models.Model):
     TYPE_VISIT = "VISIT"
     TYPE_CASE = "CASE"
     TYPE_SUMMON = "SUMMON"
+    TYPE_DECISION = "DECISION"
     TYPE_GENERIC_TASK = "GENERIC_TASK"
     TYPES = (
         (TYPE_DEBRIEFING, TYPE_DEBRIEFING),

@@ -9,6 +9,8 @@ class DecisionTypeSerializer(serializers.ModelSerializer):
 
 
 class DecisionSerializer(serializers.ModelSerializer):
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = Decision
-        fields = ["case", "decision_type", "description"]
+        exclude = ["summon"]

@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
         DecisionType.objects.get_or_create(
             camunda_option="last_onder_dwangsom",
             name="Last onder dwangsom",
-            is_sanction=False,
+            is_sanction=True,
             team=team,
         )
 
