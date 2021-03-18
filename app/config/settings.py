@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     "rest_framework",
     "drf_spectacular",
     "django_extensions",
+    "django_filters",
     "django_spaghetti",
     "django_celery_beat",
     "django_celery_results",
