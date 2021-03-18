@@ -15,6 +15,7 @@ class SummonSerializer(serializers.ModelSerializer):
     type = serializers.PrimaryKeyRelatedField(
         many=False, required=True, queryset=SummonType.objects.all()
     )
+    type_name = serializers.CharField(source="type.name", read_only=True)
     case = serializers.PrimaryKeyRelatedField(
         many=False, required=True, queryset=Case.objects.all()
     )
