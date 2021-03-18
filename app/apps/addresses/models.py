@@ -50,4 +50,9 @@ class Address(models.Model):
             self.suffix_letter = result.get("bag_huisletter", "")
             self.suffix = result.get("bag_toevoeging", "")
 
+            centroid = result.get("centroid", None)
+            if centroid:
+                self.lng = centroid[0]
+                self.lat = centroid[1]
+
         return super().save(*args, **kwargs)
