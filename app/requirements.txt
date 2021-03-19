@@ -28,7 +28,7 @@ django-timezone-field==4.1.2
 djangorestframework==3.12.2
 djangorestframework-simplejwt==4.6.0
 drf-spectacular==0.14.0
-Faker==6.6.1
+Faker==6.6.2
 freezegun==1.1.0
 gemma-zds-client==0.15.0
 idna==2.10
