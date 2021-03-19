@@ -300,7 +300,9 @@ CELERY_BEAT_SCHEDULE = {
 
 CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
 CAMUNDA_REST_URL = os.getenv("CAMUNDA_REST_URL", "http://camunda:8080/engine-rest/")
-CAMUNDA_PROCESS_VAKANTIE_VERHUUR = "zaak_wonen_vakantieverhuur"
+CAMUNDA_PROCESS_VISIT = "zaak_wonen_visit"
+CAMUNDA_PROCESS_SUMMON = "zaak_wonen_summon"
+CAMUNDA_PROCESS_DECISION = "zaak_wonen_decision"
 
 REDIS = os.getenv("REDIS")
 REDIS_URL = f"redis://{REDIS}"
