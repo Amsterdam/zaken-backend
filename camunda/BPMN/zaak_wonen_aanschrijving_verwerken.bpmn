@@ -54,7 +54,7 @@
     <bpmn:sequenceFlow id="Flow_0v1sqfs" sourceRef="Activity_1e9dx60" targetRef="Activity_01qjx7x" />
     <bpmn:sequenceFlow id="Flow_0bnacib" sourceRef="Activity_01qjx7x" targetRef="Gateway_0rds8zy" />
     <bpmn:sequenceFlow id="Flow_015tlu4" sourceRef="Activity_1mvz8v7" targetRef="Activity_1e9dx60" />
-    <bpmn:sequenceFlow id="Flow_0ca7pn4" name="Andere aanschrijvingen" sourceRef="Gateway_1t6r1v4" targetRef="Activity_1yxvl6p">
+    <bpmn:sequenceFlow id="Flow_0ca7pn4" name="type_aanschrijving = Andere aanschrijvingen" sourceRef="Gateway_1t6r1v4" targetRef="Activity_1yxvl6p">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${type_aanschrijving=="aanschrijvingen"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_10upkzz" sourceRef="Activity_1mkl5rk" targetRef="Gateway_1pwflrj" />
@@ -63,7 +63,7 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_06je06y" sourceRef="start_event_create_summon" targetRef="Gateway_1t6r1v4" />
     <bpmn:sequenceFlow id="Flow_1tpuwoi" sourceRef="Activity_0t0wwb4" targetRef="Gateway_0dunbbn" />
-    <bpmn:sequenceFlow id="Flow_025eea2" name="waarschuwingsbrief" sourceRef="Gateway_1t6r1v4" targetRef="Activity_0j1vbxy">
+    <bpmn:sequenceFlow id="Flow_025eea2" name="type_aanschrijving = waarschuwingsbrief" sourceRef="Gateway_1t6r1v4" targetRef="Activity_0j1vbxy">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${type_aanschrijving == "waarschuwingsbrief"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_18sph1h" name="Gelegaliseerd wacht op andere aanschrijving" sourceRef="Gateway_0puuu8q" targetRef="Event_1pgrt7r">
@@ -627,7 +627,7 @@ EN FORM</bpmn:text>
         <di:waypoint x="490" y="400" />
         <di:waypoint x="590" y="400" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="477" y="366" width="88" height="27" />
+          <dc:Bounds x="477" y="366" width="88" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1tpuwoi_di" bpmnElement="Flow_1tpuwoi">
@@ -656,7 +656,7 @@ EN FORM</bpmn:text>
         <di:waypoint x="440" y="170" />
         <di:waypoint x="550" y="170" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="431" y="136.00000000000813" width="77" height="27" />
+          <dc:Bounds x="427" y="136" width="85" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_015tlu4_di" bpmnElement="Flow_015tlu4">

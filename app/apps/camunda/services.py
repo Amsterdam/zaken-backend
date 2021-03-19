@@ -99,7 +99,7 @@ class CamundaService:
         self,
         case_identification,
         request_body,
-        process=settings.CAMUNDA_PROCESS_VAKANTIE_VERHUUR,
+        process=settings.CAMUNDA_PROCESS_VISIT,
     ):
         """
         TODO: Use business key instead of process key
