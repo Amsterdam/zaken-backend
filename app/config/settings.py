@@ -72,6 +72,7 @@ INSTALLED_APPS = (
     "apps.camunda",
     "apps.openzaak",
     "apps.summons",
+    "apps.schedules",
 )
 
 # Add apps here to make them appear in the graphing visualisation
@@ -87,6 +88,8 @@ SPAGHETTI_SAUCE = {
         "events",
         "summons",
         "camunda",
+        "decisions",
+        "schedules",
     ],
     "show_fields": False,
 }
@@ -320,6 +323,12 @@ LOGOUT_REDIRECT_URL = "/admin"
 
 DEFAULT_TEAM = os.getenv("DEFAULT_TEAM", "Vakantieverhuur")
 DEFAULT_REASON = os.getenv("DEFAULT_REASON", "Melding")
+
+DEFAULT_SCHEDULE_ACTIONS = os.getenv("DEFAULT_SCHEDULE_ACTIONS").split(",")
+DEFAULT_SCHEDULE_WEEK_SEGMENTS = os.getenv("DEFAULT_SCHEDULE_WEEK_SEGMENTS").split(",")
+DEFAULT_SCHEDULE_DAY_SEGMENTS = os.getenv("DEFAULT_SCHEDULE_DAY_SEGMENTS").split(",")
+DEFAULT_SCHEDULE_HIGH_PRIORITY = os.getenv("DEFAULT_SCHEDULE_HIGH_PRIORITY")
+DEFAULT_SCHEDULE_NORMAL_PRIORITY = os.getenv("DEFAULT_SCHEDULE_NORMAL_PRIORITY")
 
 # ZGW_CONSUMERS_OAS_CACHE = django_redis.cache.RedisCache
 

@@ -195,7 +195,7 @@ class CaseListApiTest(APITestCase):
         url = reverse("cases-list")
         client = get_authenticated_client()
 
-        FILTER_PARAMETERS = {"team": TEAM_A}
+        FILTER_PARAMETERS = {"team": team_a.id}
         response = client.get(url, FILTER_PARAMETERS)
 
         results = response.data["results"]
@@ -212,7 +212,7 @@ class CaseListApiTest(APITestCase):
         url = reverse("cases-list")
         client = get_authenticated_client()
 
-        FILTER_PARAMETERS = {"reason": reason_a}
+        FILTER_PARAMETERS = {"reason": reason_a.id}
         response = client.get(url, FILTER_PARAMETERS)
 
         results = response.data["results"]
@@ -610,7 +610,7 @@ class CaseSearchApiTest(APITestCase):
         SEARCH_QUERY_PARAMETERS = {
             "streetName": MOCK_STREET_NAME,
             "streetNumber": MOCK_STREET_NUMBER,
-            "team": MOCK_TEAM,
+            "team": team_a.id,
         }
         response = client.get(url, SEARCH_QUERY_PARAMETERS)
         data = response.json()
