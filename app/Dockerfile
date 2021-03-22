@@ -17,7 +17,7 @@ RUN pip install uwsgi
 RUN apt-get install graphviz graphviz-dev -y
 RUN pip install pygraphviz
 
-RUN echo "10.240.5.72     acc.api.data.amsterdam.nl" >> /etc/hosts
+RUN echo "10.240.5.72     acc.api.data.amsterdam.nl" >> /etc/hosts || echo "Could not write to /etc/hosts"
 
 WORKDIR /app
 
