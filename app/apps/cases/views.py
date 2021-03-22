@@ -222,16 +222,14 @@ class CaseViewSet(
         case = self.get_object()
         camunda_tasks = CamundaService().get_all_tasks_by_instance_id(case.camunda_id)
 
-        if camunda_tasks:
-            serializer = CamundaTaskSerializer(camunda_tasks, many=True)
+        if camunda_tasks==False:
+            return Response(
+                "Camunda service is offline",
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
 
-            return Response(serializer.data)
-
-        return Response(
-            "Camunda service is offline",
-            status=status.HTTP_503_SERVICE_UNAVAILABLE,
-        )
-
+        serializer = CamundaTaskSerializer(camunda_tasks, many=True)
+        return Response(serializer.data)
 
 class CaseTeamViewSet(ViewSet, ListAPIView):
     permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
