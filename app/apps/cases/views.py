@@ -234,6 +234,7 @@ class CaseViewSet(
 
 
 class CaseTeamViewSet(ViewSet, ListAPIView):
+    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = CaseTeamSerializer
     queryset = CaseTeam.objects.all()
 
