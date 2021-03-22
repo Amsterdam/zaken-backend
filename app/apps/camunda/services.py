@@ -37,8 +37,11 @@ class CamundaService:
                     data=request_body,
                     headers={"content-type": "application/json"},
                 )
+
+            logger.info(f"Request to Camunda succesful. Response: {response.content}")
             return response
         except requests.exceptions.Timeout:
+            logger.info("Request to Camunda timed out")
             response = Response(
                 "Camunda service is offline",
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -46,6 +49,7 @@ class CamundaService:
             response.ok = False
             return response
         except requests.exceptions.RequestException:
+            logger.info("Request to Camunda threw an exception")
             response = Response(status=status.HTTP_400_BAD_REQUEST)
             response.ok = False
             return response

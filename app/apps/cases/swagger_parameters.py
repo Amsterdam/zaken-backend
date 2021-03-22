@@ -48,7 +48,7 @@ open_cases = OpenApiParameter(
 
 team = OpenApiParameter(
     name="team",
-    type=OpenApiTypes.STR,
+    type=OpenApiTypes.INT,
     location=OpenApiParameter.QUERY,
     required=False,
     description="Team to which the cases should belong",
@@ -56,7 +56,7 @@ team = OpenApiParameter(
 
 reason = OpenApiParameter(
     name="reason",
-    type=OpenApiTypes.STR,
+    type=OpenApiTypes.INT,
     location=OpenApiParameter.QUERY,
     required=False,
     description="Case Reason",

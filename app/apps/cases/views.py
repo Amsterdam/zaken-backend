@@ -25,6 +25,7 @@ from apps.cases.swagger_parameters import team as team_parameter
 from apps.debriefings.mixins import DebriefingsMixin
 from apps.decisions.serializers import DecisionTypeSerializer
 from apps.events.mixins import CaseEventsMixin
+from apps.schedules.serializers import TeamScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
 from django.conf import settings
@@ -134,9 +135,9 @@ class CaseViewSet(
             open_cases = open_cases == "true"
             queryset = queryset.filter(end_date__isnull=open_cases)
         if team:
-            queryset = queryset.filter(team__name=team)
+            queryset = queryset.filter(team=team)
         if reason:
-            queryset = queryset.filter(reason__name=reason)
+            queryset = queryset.filter(reason=reason)
         if open_status:
             queryset = queryset.filter(
                 case_states__end_date__isnull=True,
@@ -192,7 +193,7 @@ class CaseViewSet(
         cases = cases.filter(end_date=None)
 
         if team:
-            cases = cases.filter(team__name=team)
+            cases = cases.filter(team=team)
 
         paginator = PageNumberPagination()
         context = paginator.paginate_queryset(cases, request)
@@ -220,19 +221,19 @@ class CaseViewSet(
     def get_tasks(self, request, pk):
         case = self.get_object()
         camunda_tasks = CamundaService().get_all_tasks_by_instance_id(case.camunda_id)
+        # Camunda tasks can be an empty list or boolean. TODO: This should just be one datatype
+        if camunda_tasks is False:
+            return Response(
+                "Camunda service is offline",
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
 
-        if camunda_tasks:
-            serializer = CamundaTaskSerializer(camunda_tasks, many=True)
-
-            return Response(serializer.data)
-
-        return Response(
-            "Camunda service is offline",
-            status=status.HTTP_503_SERVICE_UNAVAILABLE,
-        )
+        serializer = CamundaTaskSerializer(camunda_tasks, many=True)
+        return Response(serializer.data)
 
 
 class CaseTeamViewSet(ViewSet, ListAPIView):
+    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = CaseTeamSerializer
     queryset = CaseTeam.objects.all()
 
@@ -292,3 +293,17 @@ class CaseTeamViewSet(ViewSet, ListAPIView):
         serializer = DecisionTypeSerializer(context, many=True)
 
         return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the Scheduling Types associated with the given team",
+        responses={status.HTTP_200_OK: DecisionTypeSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="schedule-types",
+        methods=["get"],
+    )
+    def schedule_types(self, request, pk):
+        team = self.get_object()
+        serializer = TeamScheduleTypesSerializer(team)
+        return Response(serializer.data)
