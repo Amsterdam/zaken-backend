@@ -7,7 +7,7 @@ User = get_user_model()
 
 
 class VisitSerializer(serializers.ModelSerializer):
-    authors = UserSerializer(many=True)
+    authors = UserSerializer(many=True, required=False)
     author_ids = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         write_only=True,
@@ -16,25 +16,17 @@ class VisitSerializer(serializers.ModelSerializer):
         required=False,
     )
 
-    def validate(self, data):
-        if data.get("author_ids", None) and data.get("authors", None):
-            raise serializers.ValidationError(
-                "Either author_ids or authors should be provided"
-            )
-        return data
-
     def get_authors(self, validated_data):
-        try:
-            authors_data = validated_data.pop("authors")
-        except KeyError:
-            return []
-
-        author_emails = [author_data["email"] for author_data in authors_data]
+        authors_data = validated_data.pop("authors")
         authors = []
 
-        for author_email in author_emails:
-            author, _ = User.objects.get_or_create(email=author_email)
-            authors.append(author)
+        for author in authors_data:
+            if isinstance(author, User):
+                authors.append(author)
+            else:
+                email = author.get("email")
+                author, _ = User.objects.get_or_create(email=email)
+                authors.append(author)
 
         return authors
 
