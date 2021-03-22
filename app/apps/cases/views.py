@@ -221,16 +221,15 @@ class CaseViewSet(
     def get_tasks(self, request, pk):
         case = self.get_object()
         camunda_tasks = CamundaService().get_all_tasks_by_instance_id(case.camunda_id)
+        # Camunda tasks can be an empty list or boolean. TODO: This should just be one datatype
+        if camunda_tasks is False:
+            return Response(
+                "Camunda service is offline",
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
 
-        if camunda_tasks:
-            serializer = CamundaTaskSerializer(camunda_tasks, many=True)
-
-            return Response(serializer.data)
-
-        return Response(
-            "Camunda service is offline",
-            status=status.HTTP_503_SERVICE_UNAVAILABLE,
-        )
+        serializer = CamundaTaskSerializer(camunda_tasks, many=True)
+        return Response(serializer.data)
 
 
 class CaseTeamViewSet(ViewSet, ListAPIView):
