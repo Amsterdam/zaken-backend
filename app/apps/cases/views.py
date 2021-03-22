@@ -222,7 +222,7 @@ class CaseViewSet(
         case = self.get_object()
         camunda_tasks = CamundaService().get_all_tasks_by_instance_id(case.camunda_id)
 
-        if camunda_tasks==False:
+        if camunda_tasks is False:
             return Response(
                 "Camunda service is offline",
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
