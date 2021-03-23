@@ -10,14 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Use Node.js for BPMN Linting
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - name: Install dependencies for BPMN Linting
+      run: npm install bpmnlint
+    - name: Linting BPMN models
+      run: bash camunda/bin/validate_bpmn.sh
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: 3.x
     - name: Linting
       run: bash bin/cleanup_pre_commit.sh
-    - name: Linting BPMN models
-      run: bash camunda/bin/validate_bpmn.sh
     - name: Build Docker image
       run: docker-compose build
     - name: Create Docker network
