@@ -112,7 +112,7 @@ class CaseStateType(models.Model):
     name = models.CharField(max_length=255, unique=True)
     team = models.ForeignKey(
         to=CaseTeam,
-        related_name="states",
+        related_name="state_types",
         on_delete=models.CASCADE,
         default=default_team,
     )
