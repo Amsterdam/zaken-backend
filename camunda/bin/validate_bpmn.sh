@@ -1,4 +1,7 @@
 apt-get install -y npm
-npm install -g bpmnlint
+npm install bpmnlint
 
-bpmnlint BPMN/zaak_wonen_visit.bpmn
+for filename in BPMN/*.bpmn; do
+        bpmnlint "$filename"
+    done
+done
