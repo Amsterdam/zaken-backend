@@ -10,6 +10,7 @@ from apps.cases.serializers import (
     CaseReasonSerializer,
     CaseSerializer,
     CaseStateSerializer,
+    CaseStateTypeSerializer,
     CaseTeamSerializer,
     PushCaseStateSerializer,
 )
@@ -307,3 +308,22 @@ class CaseTeamViewSet(ViewSet, ListAPIView):
         team = self.get_object()
         serializer = TeamScheduleTypesSerializer(team)
         return Response(serializer.data)
+
+    @extend_schema(
+        description="Gets the CaseStateTypes associated with the given team",
+        responses={status.HTTP_200_OK: CaseStateTypeSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="state-types",
+        methods=["get"],
+    )
+    def state_types(self, request, pk):
+        paginator = PageNumberPagination()
+        team = self.get_object()
+        query_set = team.state_types.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = CaseStateTypeSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
