@@ -15,7 +15,7 @@ jobs:
       with:
         node-version: '12.x'
     - name: Install dependencies for BPMN Linting
-      run: npm install bpmnlint
+      run: npm install -g bpmnlint
     - name: Linting BPMN models
       run: bash camunda/bin/validate_bpmn.sh
     - name: Set up Python
