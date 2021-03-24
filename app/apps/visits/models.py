@@ -21,8 +21,8 @@ class Visit(ModelEventEmitter):
 
     case = models.ForeignKey(Case, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
-    situation = models.CharField(max_length=255)
-    observations = ArrayField(models.CharField(max_length=255), blank=True, null=False)
+    situation = models.CharField(max_length=255, null=True, blank=True)
+    observations = ArrayField(models.CharField(max_length=255), blank=True, null=True)
     can_next_visit_go_ahead = models.BooleanField(default=True)
     can_next_visit_go_ahead_description = models.TextField(
         null=True, blank=True, default=None
