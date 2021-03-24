@@ -39,7 +39,7 @@ jsonschema==3.2.0
 kombu==5.0.2
 model-bakery==1.2.1
 mozilla-django-oidc==1.2.4
-prompt-toolkit==3.0.17
+prompt-toolkit==3.0.18
 psycopg2==2.8.6
 pycparser==2.20
 PyJWT==2.0.1
