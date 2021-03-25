@@ -46,7 +46,7 @@ from rest_framework.generics import (
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import GenericViewSet, ViewSet
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +94,7 @@ class CaseStateViewSet(ViewSet):
 
 
 class CaseViewSet(
-    ViewSet,
+    GenericViewSet,
     CreateModelMixin,
     ListModelMixin,
     RetrieveModelMixin,
