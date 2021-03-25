@@ -1,7 +1,7 @@
 import logging
 
 from apps.schedules.models import Schedule
-from apps.schedules.serializers import ScheduleCreateSerializer, ScheduleSerializer
+from apps.schedules.serializers import ScheduleCreateSerializer
 from apps.users.auth_apps import TopKeyAuth
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework.mixins import CreateModelMixin
