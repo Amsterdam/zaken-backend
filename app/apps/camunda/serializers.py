@@ -1,6 +1,4 @@
-from apps.camunda.models import GenericCompletedTask
-from apps.camunda.services import CamundaService
-from apps.cases.models import Case, CaseState, CaseStateType
+from apps.cases.models import Case, CaseState
 from rest_framework import serializers
 
 

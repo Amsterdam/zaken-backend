@@ -1,6 +1,3 @@
-from datetime import date, datetime, timezone
-from uuid import UUID
-
 from apps.addresses.models import Address
 from django.core import management
 from django.test import TestCase

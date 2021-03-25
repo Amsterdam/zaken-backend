@@ -3,9 +3,6 @@ Tests for CaseEvent & EventsEmitter models
 """
 from apps.events.models import CaseEvent
 from apps.events.tests.tests_helpers import CaseEventEmitterTestCase
-from django.test import TestCase
-from django.urls import reverse
-from rest_framework import status
 
 from app.utils.unittest_helpers import (
     get_authenticated_client,
