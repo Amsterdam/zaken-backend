@@ -2,10 +2,8 @@ import logging
 
 from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer, ResidentsSerializer
-from apps.cases.models import Case
 from apps.cases.serializers import CaseSerializer
 from apps.permits.mixins import PermitCheckmarkMixin, PermitDetailsMixin
-from django.shortcuts import render
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status

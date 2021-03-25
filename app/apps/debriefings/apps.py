@@ -5,4 +5,4 @@ class DebriefingsConfig(AppConfig):
     name = "apps.debriefings"
 
     def ready(self):
-        import apps.debriefings.signals
+        import apps.debriefings.signals  # noqa

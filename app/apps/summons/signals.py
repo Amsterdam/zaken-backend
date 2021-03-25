@@ -5,7 +5,7 @@ import sys
 from apps.camunda.services import CamundaService
 from apps.summons.models import Summon
 from django.conf import settings
-from django.db.models.signals import post_init, post_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 

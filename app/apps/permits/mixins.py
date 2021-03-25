@@ -1,11 +1,8 @@
 from apps.permits.api_queries_decos_join import DecosJoinRequest
 from apps.permits.serializers import DecosPermitSerializer, PermitCheckmarkSerializer
-from django.shortcuts import render
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiParameter, extend_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.viewsets import ViewSet
 
 
 class PermitCheckmarkMixin:

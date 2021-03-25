@@ -7,7 +7,7 @@ from apps.cases.tasks import start_camunda_instance
 from apps.openzaak.helpers import create_open_zaak_case
 from django.conf import settings
 from django.db import transaction
-from django.db.models.signals import post_init, post_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 
