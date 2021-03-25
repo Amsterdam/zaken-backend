@@ -5,4 +5,4 @@ class VisitsConfig(AppConfig):
     name = "apps.visits"
 
     def ready(self):
-        pass
+        import apps.visits.signals  # noqa
