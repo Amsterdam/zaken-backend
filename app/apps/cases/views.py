@@ -14,6 +14,7 @@ from apps.cases.serializers import (
     CaseTeamSerializer,
     PushCaseStateSerializer,
 )
+from apps.cases.swagger_parameters import no_pagination as no_pagination_parameter
 from apps.cases.swagger_parameters import open_cases as open_cases_parameter
 from apps.cases.swagger_parameters import open_status as open_status_parameter
 from apps.cases.swagger_parameters import postal_code as postal_code_parameter
@@ -117,6 +118,7 @@ class CaseViewSet(
             team_parameter,
             reason_parameter,
             open_status_parameter,
+            no_pagination_parameter,
         ],
         description="Case filter query parameters",
         responses={200: CaseSerializer(many=True)},
@@ -127,6 +129,7 @@ class CaseViewSet(
         team = request.GET.get(team_parameter.name, None)
         reason = request.GET.get(reason_parameter.name, None)
         open_status = request.GET.get(open_status_parameter.name, None)
+        no_pagination = request.GET.get(no_pagination_parameter.name, None)
 
         queryset = self.get_queryset()
 
@@ -144,6 +147,10 @@ class CaseViewSet(
                 case_states__end_date__isnull=True,
                 case_states__status__name=open_status,
             )
+
+        if no_pagination == "true":
+            serializer = CaseSerializer(queryset, many=True)
+            return Response(serializer.data)
 
         paginator = PageNumberPagination()
         context = paginator.paginate_queryset(queryset, request)
@@ -297,7 +304,7 @@ class CaseTeamViewSet(ViewSet, ListAPIView):
 
     @extend_schema(
         description="Gets the Scheduling Types associated with the given team",
-        responses={status.HTTP_200_OK: DecisionTypeSerializer(many=True)},
+        responses={status.HTTP_200_OK: TeamScheduleTypesSerializer(many=True)},
     )
     @action(
         detail=True,
