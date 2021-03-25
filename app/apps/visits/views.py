@@ -5,18 +5,15 @@ from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import views
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ViewSet
 
 from .models import Visit
 from .serializers import VisitSerializer
 
 
-class VisitViewSet(ModelViewSet):
+class VisitViewSet(ViewSet, CreateModelMixin):
     permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = VisitSerializer
     queryset = Visit.objects.all()
-
-    def create(self, request):
-        print(request.data)
-        return super().create(request)

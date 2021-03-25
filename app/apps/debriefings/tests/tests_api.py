@@ -14,27 +14,6 @@ from app.utils.unittest_helpers import (
 )
 
 
-class DebriefingGetDetailAPITest(APITestCase, DebriefingTestMixin):
-    def test_unauthenticated_get(self):
-        url = reverse("debriefings-detail", kwargs={"pk": "foo"})
-        client = get_unauthenticated_client()
-        response = client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_authenticated_get_no_object(self):
-        url = reverse("debriefings-detail", kwargs={"pk": "foo"})
-        client = get_authenticated_client()
-        response = client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_authenticated_get_object(self):
-        debriefing = self.create_debriefing()
-        url = reverse("debriefings-detail", kwargs={"pk": debriefing.id})
-        client = get_authenticated_client()
-        response = client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-
 class DebriefingCreateAPITest(APITestCase, DebriefingTestMixin):
     def test_unauthenticated_post(self):
         url = reverse("debriefings-list")
@@ -64,64 +43,6 @@ class DebriefingCreateAPITest(APITestCase, DebriefingTestMixin):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Debriefing.objects.count(), 1)
-
-
-class DebriefingDeleteAPITest(APITestCase, DebriefingTestMixin):
-    def test_unauthenticated_delete(self):
-        url = reverse("debriefings-detail", kwargs={"pk": "foo"})
-        client = get_unauthenticated_client()
-        response = client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_authenticated_post_delete_request(self):
-        url = reverse("debriefings-detail", kwargs={"pk": "foo"})
-        client = get_authenticated_client()
-        response = client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_authenticated_delete(self):
-        debriefing = self.create_debriefing()
-        self.assertEqual(Debriefing.objects.count(), 1)
-
-        url = reverse("debriefings-detail", kwargs={"pk": debriefing.id})
-        client = get_authenticated_client()
-        response = client.delete(url)
-
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Debriefing.objects.count(), 0)
-
-
-class DebriefingUpdateAPITest(APITestCase, DebriefingTestMixin):
-    def test_unauthenticated_update(self):
-        url = reverse("debriefings-detail", kwargs={"pk": "foo"})
-        client = get_unauthenticated_client()
-        response = client.put(url, {})
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_authenticated_update_bad_request(self):
-        url = reverse("debriefings-detail", kwargs={"pk": "foo"})
-        client = get_authenticated_client()
-        response = client.put(url, {})
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_authenticated_update(self):
-        debriefing = self.create_debriefing()
-
-        url = reverse("debriefings-detail", kwargs={"pk": debriefing.id})
-        client = get_authenticated_client()
-
-        UPDATED_FEEDBACK = "UPDATED FEEDBACK"
-        UPDATED_VIOLATION = Debriefing.VIOLATION_ADDITIONAL_RESEARCH_REQUIRED
-
-        response = client.patch(
-            url, {"feedback": UPDATED_FEEDBACK, "violation": UPDATED_VIOLATION}
-        )
-
-        debriefing = Debriefing.objects.all()[0]
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(debriefing.feedback, UPDATED_FEEDBACK)
-        self.assertEqual(debriefing.violation, UPDATED_VIOLATION)
 
 
 class CaseDebriefingGetDetailAPITest(APITestCase, DebriefingTestMixin):

@@ -9,13 +9,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import mixins, status
 from rest_framework.decorators import action
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ViewSet
 
 logger = logging.getLogger(__name__)
 
 
-class SummonViewSet(ModelViewSet):
+class SummonViewSet(ViewSet, CreateModelMixin):
     serializer_class = SummonSerializer
     queryset = Summon.objects.all()
     filter_backends = [DjangoFilterBackend]

@@ -44,6 +44,7 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -96,8 +97,9 @@ class CaseStateViewSet(ViewSet):
 
 class CaseViewSet(
     ViewSet,
-    ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView,
+    CreateModelMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
     DebriefingsMixin,
     CaseEventsMixin,
 ):

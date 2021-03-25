@@ -2,32 +2,18 @@ import logging
 
 from apps.cases.models import Case
 from apps.debriefings.models import Debriefing
-from apps.debriefings.serializers import (
-    DebriefingCreateSerializer,
-    DebriefingSerializer,
-)
+from apps.debriefings.serializers import DebriefingCreateSerializer
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render
 from rest_framework import mixins, status
 from rest_framework.decorators import action
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import ViewSet
 
 logger = logging.getLogger(__name__)
 
 
-class DebriefingViewSet(
-    GenericViewSet,
-    mixins.RetrieveModelMixin,
-    mixins.CreateModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-):
-    serializer_class = DebriefingSerializer
+class DebriefingViewSet(ViewSet, CreateModelMixin):
+    serializer_class = DebriefingCreateSerializer
     queryset = Debriefing.objects.all()
-
-    def get_serializer_class(self, *args, **kwargs):
-        if self.action == "create":
-            return DebriefingCreateSerializer
-
-        return self.serializer_class
