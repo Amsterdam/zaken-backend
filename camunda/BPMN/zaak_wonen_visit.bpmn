@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_1tztuvt">
     <bpmn:participant id="Participant_08m4w5n" name="Process" processRef="zaak_wonen_visit" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_visit" name="Basis Zaak Wonen VakantieVerhuur Huisbezoek" isExecutable="true" camunda:versionTag="0.0.9">
+  <bpmn:process id="zaak_wonen_visit" name="Basis Zaak Wonen VakantieVerhuur Huisbezoek" isExecutable="true" camunda:versionTag="0.0.8">
     <bpmn:laneSet id="LaneSet_07j24vc">
       <bpmn:lane id="Lane_1j0x4ei" name="Projecthandhaver">
         <bpmn:flowNodeRef>task_create_summon</bpmn:flowNodeRef>
@@ -35,121 +35,12 @@
         <bpmn:flowNodeRef>task_close_case</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1pmbcxw</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1v3fu2t</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_create_schedule</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1hxgg1r" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_0xocoed</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:userTask id="Activity_1rzt0o9" name="Afsluiten zaak" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(7).toDate()}">
-      <bpmn:incoming>Flow_1rh2wya</bpmn:incoming>
-      <bpmn:outgoing>Flow_0gbzqdn</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:endEvent id="Event_0b1qefu">
-      <bpmn:incoming>Flow_0gbzqdn</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:startEvent id="StartEvent_1">
-      <bpmn:outgoing>Flow_0dfunn3</bpmn:outgoing>
-    </bpmn:startEvent>
-    <bpmn:userTask id="Activity_1ry762s" name="Uitzetten huisbezoek" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
-      <bpmn:incoming>Flow_0u5knyo</bpmn:incoming>
-      <bpmn:incoming>Flow_09q4ikx</bpmn:incoming>
-      <bpmn:incoming>Flow_1q6u6g4</bpmn:incoming>
-      <bpmn:incoming>Flow_100ib64</bpmn:incoming>
-      <bpmn:outgoing>Flow_1hofkzc</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:exclusiveGateway id="is_debrief_violation" name="Is er een overtreding gepleegd">
-      <bpmn:incoming>Flow_0lji06z</bpmn:incoming>
-      <bpmn:outgoing>Flow_090pn4r</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1oipi38</bpmn:outgoing>
-      <bpmn:outgoing>Flow_09fde08</bpmn:outgoing>
-      <bpmn:outgoing>Flow_09q4ikx</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_close_case" name="Afsluiten zaak" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(7).toDate()}">
-      <bpmn:incoming>Flow_1c3b8q1</bpmn:incoming>
-      <bpmn:outgoing>Flow_006wtg4</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:endEvent id="Event_1pmbcxw">
-      <bpmn:incoming>Flow_006wtg4</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:userTask id="Activity_02t4qsu" name="Opstellen  verkorte rapportage huisbezoek" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
-      <bpmn:incoming>Flow_09fde08</bpmn:incoming>
-      <bpmn:outgoing>Flow_1c3b8q1</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:parallelGateway id="Gateway_0289ucr">
-      <bpmn:incoming>Flow_090pn4r</bpmn:incoming>
-      <bpmn:outgoing>Flow_1w9hb8b</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0inubyk</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0kzynfb</bpmn:outgoing>
-    </bpmn:parallelGateway>
-    <bpmn:userTask id="task_beeldverslag_opstellen" name="Opstellen beeldverslag" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
-      <bpmn:incoming>Flow_1w9hb8b</bpmn:incoming>
-      <bpmn:outgoing>Flow_1xhnyyp</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:userTask id="task_rapport_van_bevindingen_opstellen" name="Opstellen rapport van bevindingen" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
-      <bpmn:incoming>Flow_0inubyk</bpmn:incoming>
-      <bpmn:outgoing>Flow_128bhfd</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:parallelGateway id="Gateway_1cbngmn">
-      <bpmn:incoming>Flow_1xhnyyp</bpmn:incoming>
-      <bpmn:incoming>Flow_128bhfd</bpmn:incoming>
-      <bpmn:incoming>Flow_0m1sb6f</bpmn:incoming>
-      <bpmn:outgoing>Flow_1e63pco</bpmn:outgoing>
-    </bpmn:parallelGateway>
-    <bpmn:userTask id="task_create_visit" name="Doorgeven huisbezoek resultaat" camunda:formKey="doorgeven_huisbezoek_resultaat" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(60).toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="situation" label="Wat is de situatie?" type="string" />
-          <camunda:formField id="can_next_visit_go_ahead" label="Kan volgende bezoek doorgaan?" type="boolean" defaultValue="true" />
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1hofkzc</bpmn:incoming>
-      <bpmn:outgoing>Flow_1mmzhem</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:exclusiveGateway id="Gateway_1odl5bp" name="Wat is het resultaat">
-      <bpmn:incoming>Flow_1mmzhem</bpmn:incoming>
-      <bpmn:outgoing>Flow_0ioch14</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0oi0xmk</bpmn:outgoing>
-      <bpmn:outgoing>Flow_100ib64</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_create_summon" name="Verwerken definitieve aanschrijving(en)" camunda:formKey="concept_aanschrijving_type_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="type_aanschrijving" label="Welk type aanschrijving heb je opgesteld?" type="enum">
-            <camunda:value id="waarschuwingsbrief_vakantieverhuur" name="Waarschuwingsbrief vakantieverhuur-vergunning" />
-            <camunda:value id="waarschuwingsbrief_shortstay" name="Waarschuwingsbrief shortstay-vergunning" />
-            <camunda:value id="waarschuwingsbrief_bnb" name="Waarschuwingsbrief Bed-and-Breakfast-vergunning" />
-            <camunda:value id="aanschrijvingen" name="Overige aanschrijvingen" />
-          </camunda:formField>
-          <camunda:formField id="sluitingsbesluit" label="Zit er ook een sluitingsbesluit bij?" type="boolean" defaultValue="false" />
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_19wypde</bpmn:incoming>
-      <bpmn:outgoing>Flow_1k51zjk</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:userTask id="task_create_debrief" name="Aanmaken debrief" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
-      <bpmn:incoming>Flow_1oipi38</bpmn:incoming>
-      <bpmn:incoming>Flow_14k2xx3</bpmn:incoming>
-      <bpmn:outgoing>Flow_0lji06z</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:userTask id="Activity_0oln0hw" name="Overleggen zaaksituatie" camunda:formKey="form_overleggen_zaaksituatie" camunda:candidateGroups="Projecthandhaver">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="continue_case" label="Gaan we zaak verder zetten?" type="boolean" />
-          <camunda:formField id="toelichting" label="Toelichting" type="string" />
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0ioch14</bpmn:incoming>
-      <bpmn:outgoing>Flow_10r4dnl</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:exclusiveGateway id="Gateway_1rjkb2i">
-      <bpmn:incoming>Flow_10r4dnl</bpmn:incoming>
-      <bpmn:outgoing>Flow_1q6u6g4</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1rh2wya</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:userTask id="Activity_0xocoed" name="Nakijken aanschrijving(en)" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
-      <bpmn:incoming>Flow_1e63pco</bpmn:incoming>
-      <bpmn:outgoing>Flow_19wypde</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_1rh2wya" name="continue_case = false" sourceRef="Gateway_1rjkb2i" targetRef="Activity_1rzt0o9">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${continue_case==false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -197,37 +88,14 @@
     <bpmn:sequenceFlow id="Flow_10r4dnl" sourceRef="Activity_0oln0hw" targetRef="Gateway_1rjkb2i" />
     <bpmn:sequenceFlow id="Flow_1ppxaqu" sourceRef="Activity_0oth5y5" targetRef="Activity_1s4ejxs" />
     <bpmn:sequenceFlow id="Flow_0f5ufmf" sourceRef="Activity_0cah3n3" targetRef="Activity_0hjc13h" />
-    <bpmn:serviceTask id="Activity_1v3fu2t" name="Status Bijwerken: &#39;Uitzetten huisbezoek&#39;" camunda:asyncBefore="true" camunda:exclusive="false">
-      <bpmn:extensionElements>
-        <camunda:connector>
-          <camunda:inputOutput>
-            <camunda:inputParameter name="payload">{
-"state": "Huisbezoek uitzetten",
-"case_identification": "${case_identification}"
-}</camunda:inputParameter>
-            <camunda:inputParameter name="headers">
-              <camunda:map>
-                <camunda:entry key="content-type">application/json</camunda:entry>
-                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
-              </camunda:map>
-            </camunda:inputParameter>
-            <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
-            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
-          </camunda:inputOutput>
-          <camunda:connectorId>http-connector</camunda:connectorId>
-        </camunda:connector>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0dfunn3</bpmn:incoming>
-      <bpmn:outgoing>Flow_0u5knyo</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_14k2xx3" sourceRef="Activity_1s4ejxs" targetRef="task_create_debrief" />
-    <bpmn:serviceTask id="Activity_1s4ejxs" name="Status Bijwerken: &#39;Debrief&#39;" camunda:asyncBefore="true" camunda:exclusive="false">
+    <bpmn:sequenceFlow id="Flow_1bb4c8d" sourceRef="Activity_0hjc13h" targetRef="Activity_15hr2wx" />
+    <bpmn:serviceTask id="Activity_0hjc13h" name="Status Bijwerken: &#39;Aanschrijvingen&#39;" camunda:asyncBefore="true" camunda:exclusive="false">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
             <camunda:inputParameter name="payload">{
-"state": "Debrief",
+"state": "Aanschrijvingen",
 "case_identification": "${case_identification}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
@@ -238,36 +106,20 @@
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
-            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1ppxaqu</bpmn:incoming>
-      <bpmn:outgoing>Flow_14k2xx3</bpmn:outgoing>
+      <bpmn:incoming>Flow_0f5ufmf</bpmn:incoming>
+      <bpmn:outgoing>Flow_1bb4c8d</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="Activity_0oth5y5" name="Status Beëindigen" camunda:asyncBefore="true" camunda:exclusive="false">
-      <bpmn:extensionElements>
-        <camunda:connector>
-          <camunda:inputOutput>
-            <camunda:inputParameter name="payload">{
-"state_identification": "${state_identification}"
-}</camunda:inputParameter>
-            <camunda:inputParameter name="headers">
-              <camunda:map>
-                <camunda:entry key="content-type">application/json</camunda:entry>
-                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
-              </camunda:map>
-            </camunda:inputParameter>
-            <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${zaken_end_state_endpoint}</camunda:inputParameter>
-          </camunda:inputOutput>
-          <camunda:connectorId>http-connector</camunda:connectorId>
-        </camunda:connector>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0dfunn3</bpmn:incoming>
-      <bpmn:outgoing>Flow_0u5knyo</bpmn:outgoing>
-    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_0biznfy">
+      <bpmn:incoming>Flow_1k51zjk</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Activity_15hr2wx" name="Opstellen concept aanschrijvingen" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
+      <bpmn:incoming>Flow_1bb4c8d</bpmn:incoming>
+      <bpmn:outgoing>Flow_0m1sb6f</bpmn:outgoing>
+    </bpmn:userTask>
     <bpmn:serviceTask id="Activity_0cah3n3" name="Status Beëindigen" camunda:asyncBefore="true" camunda:exclusive="false">
       <bpmn:extensionElements>
         <camunda:connector>
@@ -290,19 +142,12 @@
       <bpmn:incoming>Flow_0kzynfb</bpmn:incoming>
       <bpmn:outgoing>Flow_0f5ufmf</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="Activity_15hr2wx" name="Opstellen concept aanschrijvingen" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
-      <bpmn:incoming>Flow_1bb4c8d</bpmn:incoming>
-      <bpmn:outgoing>Flow_0m1sb6f</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:endEvent id="Event_0biznfy">
-      <bpmn:incoming>Flow_1k51zjk</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:serviceTask id="Activity_0hjc13h" name="Status Bijwerken: &#39;Aanschrijvingen&#39;" camunda:asyncBefore="true" camunda:exclusive="false">
+    <bpmn:serviceTask id="Activity_0oth5y5" name="Status Beëindigen" camunda:asyncBefore="true" camunda:exclusive="false">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
             <camunda:inputParameter name="payload">{
-"state": "Aanschrijvingen",
+"state": "Huisbezoek uitzetten",
 "case_identification": "${case_identification}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
@@ -313,20 +158,179 @@
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
-            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0f5ufmf</bpmn:incoming>
-      <bpmn:outgoing>Flow_1bb4c8d</bpmn:outgoing>
+      <bpmn:incoming>Flow_0dfunn3</bpmn:incoming>
+      <bpmn:outgoing>Flow_0u5knyo</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_1bb4c8d" sourceRef="Activity_0hjc13h" targetRef="Activity_15hr2wx" />
-    <bpmn:textAnnotation id="TextAnnotation_00h0tuq">
-      <bpmn:text>TODO: Dynamische datum na additional research is +2 dagen</bpmn:text>
-    </bpmn:textAnnotation>
+    <bpmn:serviceTask id="Activity_1s4ejxs" name="Status Bijwerken: &#39;Debrief&#39;" camunda:asyncBefore="true" camunda:exclusive="false">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state": "Debrief",
+"case_identification": "${case_identification}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ppxaqu</bpmn:incoming>
+      <bpmn:outgoing>Flow_14k2xx3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_1v3fu2t" name="Status Bijwerken: &#39;Uitzetten huisbezoek&#39;" camunda:asyncBefore="true" camunda:exclusive="false">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state": "Huisbezoek uitzetten",
+"case_identification": "${case_identification}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0dfunn3</bpmn:incoming>
+      <bpmn:outgoing>Flow_0u5knyo</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Activity_0xocoed" name="Nakijken aanschrijving(en)" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+      <bpmn:incoming>Flow_1e63pco</bpmn:incoming>
+      <bpmn:outgoing>Flow_19wypde</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_1rjkb2i">
+      <bpmn:incoming>Flow_10r4dnl</bpmn:incoming>
+      <bpmn:outgoing>Flow_1q6u6g4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1rh2wya</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Activity_0oln0hw" name="Overleggen zaaksituatie" camunda:formKey="form_overleggen_zaaksituatie" camunda:candidateGroups="Projecthandhaver">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="continue_case" label="Gaan we zaak verder zetten?" type="boolean" />
+          <camunda:formField id="toelichting" label="Toelichting" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0ioch14</bpmn:incoming>
+      <bpmn:outgoing>Flow_10r4dnl</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_create_debrief" name="Aanmaken debrief" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:incoming>Flow_1oipi38</bpmn:incoming>
+      <bpmn:incoming>Flow_14k2xx3</bpmn:incoming>
+      <bpmn:outgoing>Flow_0lji06z</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_create_summon" name="Verwerken definitieve aanschrijving(en)" camunda:formKey="concept_aanschrijving_type_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="type_aanschrijving" label="Welk type aanschrijving heb je opgesteld?" type="enum">
+            <camunda:value id="waarschuwingsbrief_vakantieverhuur" name="Waarschuwingsbrief vakantieverhuur-vergunning" />
+            <camunda:value id="waarschuwingsbrief_shortstay" name="Waarschuwingsbrief shortstay-vergunning" />
+            <camunda:value id="waarschuwingsbrief_bnb" name="Waarschuwingsbrief Bed-and-Breakfast-vergunning" />
+            <camunda:value id="aanschrijvingen" name="Overige aanschrijvingen" />
+          </camunda:formField>
+          <camunda:formField id="sluitingsbesluit" label="Zit er ook een sluitingsbesluit bij?" type="boolean" defaultValue="false" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_19wypde</bpmn:incoming>
+      <bpmn:outgoing>Flow_1k51zjk</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_1odl5bp" name="Wat is het resultaat">
+      <bpmn:incoming>Flow_1mmzhem</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ioch14</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0oi0xmk</bpmn:outgoing>
+      <bpmn:outgoing>Flow_100ib64</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="task_create_visit" name="Doorgeven huisbezoek resultaat" camunda:formKey="doorgeven_huisbezoek_resultaat" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(60).toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="situation" label="Wat is de situatie?" type="string" />
+          <camunda:formField id="can_next_visit_go_ahead" label="Kan volgende bezoek doorgaan?" type="boolean" defaultValue="true" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1hofkzc</bpmn:incoming>
+      <bpmn:outgoing>Flow_1mmzhem</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:parallelGateway id="Gateway_1cbngmn">
+      <bpmn:incoming>Flow_1xhnyyp</bpmn:incoming>
+      <bpmn:incoming>Flow_128bhfd</bpmn:incoming>
+      <bpmn:incoming>Flow_0m1sb6f</bpmn:incoming>
+      <bpmn:outgoing>Flow_1e63pco</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:userTask id="task_rapport_van_bevindingen_opstellen" name="Opstellen rapport van bevindingen" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+      <bpmn:incoming>Flow_0inubyk</bpmn:incoming>
+      <bpmn:outgoing>Flow_128bhfd</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_beeldverslag_opstellen" name="Opstellen beeldverslag" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+      <bpmn:incoming>Flow_1w9hb8b</bpmn:incoming>
+      <bpmn:outgoing>Flow_1xhnyyp</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:parallelGateway id="Gateway_0289ucr">
+      <bpmn:incoming>Flow_090pn4r</bpmn:incoming>
+      <bpmn:outgoing>Flow_1w9hb8b</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0inubyk</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0kzynfb</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:userTask id="Activity_02t4qsu" name="Opstellen  verkorte rapportage huisbezoek" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+      <bpmn:incoming>Flow_09fde08</bpmn:incoming>
+      <bpmn:outgoing>Flow_1c3b8q1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_1pmbcxw">
+      <bpmn:incoming>Flow_006wtg4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="task_close_case" name="Afsluiten zaak" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(7).toDate()}">
+      <bpmn:incoming>Flow_1c3b8q1</bpmn:incoming>
+      <bpmn:outgoing>Flow_006wtg4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="is_debrief_violation" name="Is er een overtreding gepleegd">
+      <bpmn:incoming>Flow_0lji06z</bpmn:incoming>
+      <bpmn:outgoing>Flow_090pn4r</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1oipi38</bpmn:outgoing>
+      <bpmn:outgoing>Flow_09fde08</bpmn:outgoing>
+      <bpmn:outgoing>Flow_09q4ikx</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Activity_1ry762s" name="Uitzetten huisbezoek" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:incoming>Flow_0u5knyo</bpmn:incoming>
+      <bpmn:incoming>Flow_09q4ikx</bpmn:incoming>
+      <bpmn:incoming>Flow_1q6u6g4</bpmn:incoming>
+      <bpmn:incoming>Flow_100ib64</bpmn:incoming>
+      <bpmn:outgoing>Flow_1hofkzc</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0dfunn3</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0iw43ev</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="Event_0b1qefu">
+      <bpmn:incoming>Flow_0gbzqdn</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Activity_1rzt0o9" name="Afsluiten zaak" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(7).toDate()}">
+      <bpmn:incoming>Flow_1rh2wya</bpmn:incoming>
+      <bpmn:outgoing>Flow_0gbzqdn</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0iw43ev" sourceRef="StartEvent_1" targetRef="task_create_schedule" />
+    <bpmn:userTask id="task_create_schedule" name="Inplannen Huisbezoek" camunda:candidateGroups="Projectmedewerker">
+      <bpmn:incoming>Flow_0iw43ev</bpmn:incoming>
+    </bpmn:userTask>
     <bpmn:textAnnotation id="TextAnnotation_04cfd4s">
       <bpmn:text>Form?</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="TextAnnotation_00h0tuq">
+      <bpmn:text>TODO: Dynamische datum na additional research is +2 dagen</bpmn:text>
     </bpmn:textAnnotation>
     <bpmn:association id="Association_03uaj75" sourceRef="Activity_0oln0hw" targetRef="TextAnnotation_04cfd4s" />
     <bpmn:association id="Association_03jk7ur" sourceRef="task_create_debrief" targetRef="TextAnnotation_00h0tuq" />
@@ -403,7 +407,7 @@
         <di:waypoint x="520" y="540" />
         <di:waypoint x="520" y="500" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1201" y="490" width="82" height="40" />
+          <dc:Bounds x="1201" y="490" width="83" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0u5knyo_di" bpmnElement="Flow_0u5knyo">
@@ -487,7 +491,7 @@
         <di:waypoint x="1650" y="270" />
         <di:waypoint x="1720" y="270" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1562" y="518" width="69" height="14" />
+          <dc:Bounds x="1562" y="518" width="70" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1oipi38_di" bpmnElement="Flow_1oipi38">
@@ -525,6 +529,11 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1556" y="796" width="81" height="27" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0iw43ev_di" bpmnElement="Flow_0iw43ev">
+        <di:waypoint x="268" y="460" />
+        <di:waypoint x="320" y="460" />
+        <di:waypoint x="320" y="550" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_0b1aibw_di" bpmnElement="Activity_1rzt0o9">
         <dc:Bounds x="1740" y="560" width="100" height="80" />
@@ -615,6 +624,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_04cfd4s_di" bpmnElement="TextAnnotation_04cfd4s">
         <dc:Bounds x="1350" y="780" width="100" height="30" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1wsvvw4_di" bpmnElement="task_create_schedule">
+        <dc:Bounds x="310" y="550" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_03uaj75_di" bpmnElement="Association_03uaj75">
         <di:waypoint x="1330" y="815" />
