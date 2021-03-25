@@ -69,3 +69,11 @@ open_status = OpenApiParameter(
     required=False,
     description="Case Status",
 )
+
+no_pages = OpenApiParameter(
+    name="noPages",
+    type=OpenApiTypes.BOOL,
+    location=OpenApiParameter.QUERY,
+    required=False,
+    description="Disable Pagination",
+)
