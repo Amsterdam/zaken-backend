@@ -14,7 +14,7 @@ from apps.cases.serializers import (
     CaseTeamSerializer,
     PushCaseStateSerializer,
 )
-from apps.cases.swagger_parameters import no_pagingation as no_pagination_parameter
+from apps.cases.swagger_parameters import no_pagination as no_pagination_parameter
 from apps.cases.swagger_parameters import open_cases as open_cases_parameter
 from apps.cases.swagger_parameters import open_status as open_status_parameter
 from apps.cases.swagger_parameters import postal_code as postal_code_parameter
