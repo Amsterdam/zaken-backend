@@ -70,7 +70,7 @@ open_status = OpenApiParameter(
     description="Case Status",
 )
 
-no_pagingation = OpenApiParameter(
+no_pagination = OpenApiParameter(
     name="noPagination",
     type=OpenApiTypes.BOOL,
     location=OpenApiParameter.QUERY,
