@@ -4,7 +4,6 @@ from os.path import join
 
 import sentry_sdk
 from celery.schedules import crontab
-from keycloak_oidc.default_settings import *
 from sentry_sdk.integrations.django import DjangoIntegration
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

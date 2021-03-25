@@ -1,4 +1,3 @@
-import base64
 import logging
 from datetime import datetime
 
@@ -12,7 +11,6 @@ from apps.permits.serializers import (
     DecosPermitSerializer,
 )
 from django.conf import settings
-from tenacity import after_log, retry, stop_after_attempt
 
 logger = logging.getLogger(__name__)
 

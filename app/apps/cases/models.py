@@ -2,7 +2,6 @@ import uuid
 
 from apps.addresses.models import Address
 from apps.events.models import CaseEvent, ModelEventEmitter
-from apps.users.models import User
 from django.conf import settings
 from django.db import models
 from django.utils import timezone

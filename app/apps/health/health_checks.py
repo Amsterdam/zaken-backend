@@ -5,14 +5,11 @@ from config.celery import debug_task
 from django.conf import settings
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import ServiceUnavailable
-from kombu import Connection
 from utils.api_queries_vakantieverhuur_registraties import (
     get_bag_vakantieverhuur_registrations,
     get_bsn_vakantieverhuur_registrations,
     get_vakantieverhuur_registration,
 )
-
-from redis import exceptions, from_url
 
 logger = logging.getLogger(__name__)
 
@@ -162,11 +159,8 @@ class OpenZaakClientCheck(BaseHealthCheckBackend):
 
     def check_status(self):
         try:
-            from zgw_consumers.api_models.base import factory
-            from zgw_consumers.api_models.zaken import Zaak
             from zgw_consumers.constants import APITypes
             from zgw_consumers.models import Service
-            from zgw_consumers.service import get_paginated_results
 
             ztc_client = (
                 Service.objects.filter(api_type=APITypes.ztc).get().build_client()
