@@ -9,10 +9,8 @@ from apps.camunda.serializers import (
     CamundaTaskSerializer,
 )
 from apps.camunda.services import CamundaService
-from apps.cases.models import Case, CaseState
+from apps.cases.models import CaseState
 from apps.users.auth_apps import CamundaKeyAuth
-from django.db import transaction
-from django.shortcuts import render
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import status, viewsets

@@ -38,6 +38,19 @@ class ScheduleSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class ScheduleCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Schedule
+        fields = (
+            "action",
+            "week_segment",
+            "day_segment",
+            "priority",
+            "case",
+        )
+        read_only_fields = ("id",)
+
+
 class TeamScheduleTypesSerializer(serializers.ModelSerializer):
     actions = ActionSerializer(many=True)
     week_segments = WeekSegmentSerializer(many=True)

@@ -1,10 +1,7 @@
 import logging
-from datetime import datetime
 
 from apps.addresses.models import Address
-from apps.cases.const import IN_PROGRESS
 from apps.cases.models import Case, CaseReason
-from apps.cases.serializers import CaseSerializer
 from apps.fines.legacy_const import STADIA_WITH_FINES
 from apps.fines.models import Fine
 from apps.gateway.push.serializers import PushSerializer
@@ -13,7 +10,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import viewsets
-from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 
 LOGGER = logging.getLogger(__name__)
