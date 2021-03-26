@@ -1,13 +1,10 @@
-from apps.summons.signals import (
-    create_summon_instance_in_camunda,
-    create_summon_instance_in_openzaak,
-)
+from apps.schedules.signals import complete_camunda_task_create_schedule
 from django.core import management
 from django.db.models import signals
 from django.test import TestCase
 
 
-class SummonsSignalsTest(TestCase):
+class ScheduleSignalsTest(TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
 
@@ -18,9 +15,4 @@ class SummonsSignalsTest(TestCase):
     def test_camunda_signal_connected(self):
         """ Tests if the camunda signal is registered """
         registered_functions = self.__get_registered_functions__()
-        self.assertIn(create_summon_instance_in_camunda, registered_functions)
-
-    def test_open_zaak_signal_connected(self):
-        """ Tests if the openzaak signal is registered """
-        registered_functions = self.__get_registered_functions__()
-        self.assertIn(create_summon_instance_in_openzaak, registered_functions)
+        self.assertIn(complete_camunda_task_create_schedule, registered_functions)
