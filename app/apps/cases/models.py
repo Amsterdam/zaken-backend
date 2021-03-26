@@ -34,7 +34,7 @@ class Case(ModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CASE
 
     class Meta:
-        ordering = ["start_date"]
+        ordering = ["-start_date"]
 
     identification = models.CharField(
         max_length=255, null=True, blank=True, unique=True
