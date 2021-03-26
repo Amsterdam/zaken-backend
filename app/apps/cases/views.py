@@ -24,7 +24,6 @@ from apps.cases.swagger_parameters import street_name as street_name_parameter
 from apps.cases.swagger_parameters import street_number as street_number_parameter
 from apps.cases.swagger_parameters import suffix as suffix_parameter
 from apps.cases.swagger_parameters import team as team_parameter
-from apps.debriefings.mixins import DebriefingsMixin
 from apps.decisions.serializers import DecisionTypeSerializer
 from apps.events.mixins import CaseEventsMixin
 from apps.schedules.serializers import TeamScheduleTypesSerializer
@@ -43,9 +42,10 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import GenericViewSet, ViewSet
 
 logger = logging.getLogger(__name__)
 
@@ -93,10 +93,10 @@ class CaseStateViewSet(ViewSet):
 
 
 class CaseViewSet(
-    ViewSet,
-    ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-    DebriefingsMixin,
+    GenericViewSet,
+    CreateModelMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
     CaseEventsMixin,
 ):
     permission_classes = [IsInAuthorizedRealm | TopKeyAuth]

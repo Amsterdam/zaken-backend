@@ -1,28 +1,13 @@
 import logging
 
 from apps.debriefings.models import Debriefing
-from apps.debriefings.serializers import (
-    DebriefingCreateSerializer,
-    DebriefingSerializer,
-)
-from rest_framework import mixins
+from apps.debriefings.serializers import DebriefingCreateSerializer
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.viewsets import GenericViewSet
 
 logger = logging.getLogger(__name__)
 
 
-class DebriefingViewSet(
-    GenericViewSet,
-    mixins.RetrieveModelMixin,
-    mixins.CreateModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-):
-    serializer_class = DebriefingSerializer
+class DebriefingViewSet(GenericViewSet, CreateModelMixin):
+    serializer_class = DebriefingCreateSerializer
     queryset = Debriefing.objects.all()
-
-    def get_serializer_class(self, *args, **kwargs):
-        if self.action == "create":
-            return DebriefingCreateSerializer
-
-        return self.serializer_class
