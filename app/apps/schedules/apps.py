@@ -5,4 +5,4 @@ class SchedulesConfig(AppConfig):
     name = "schedules"
 
     def ready(self):
-        import apps.schedules.signals
+        import apps.schedules.signals  # noqa
