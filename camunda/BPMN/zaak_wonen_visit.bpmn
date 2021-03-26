@@ -147,8 +147,7 @@
         <camunda:connector>
           <camunda:inputOutput>
             <camunda:inputParameter name="payload">{
-"state": "Huisbezoek uitzetten",
-"case_identification": "${case_identification}"
+"state_identification": "${state_identification}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -352,6 +351,11 @@
       <bpmndi:BPMNShape id="Lane_1j0x4ei_di" bpmnElement="Lane_1j0x4ei" isHorizontal="true">
         <dc:Bounds x="190" y="650" width="3130" height="350" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0iw43ev_di" bpmnElement="Flow_0iw43ev">
+        <di:waypoint x="268" y="460" />
+        <di:waypoint x="320" y="460" />
+        <di:waypoint x="320" y="550" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1bb4c8d_di" bpmnElement="Flow_1bb4c8d">
         <di:waypoint x="2480" y="740" />
         <di:waypoint x="2510" y="740" />
@@ -530,52 +534,41 @@
           <dc:Bounds x="1556" y="796" width="81" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0iw43ev_di" bpmnElement="Flow_0iw43ev">
-        <di:waypoint x="268" y="460" />
-        <di:waypoint x="320" y="460" />
-        <di:waypoint x="320" y="550" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Activity_0b1aibw_di" bpmnElement="Activity_1rzt0o9">
-        <dc:Bounds x="1740" y="560" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_0hjc13h_di" bpmnElement="Activity_0hjc13h">
+        <dc:Bounds x="2380" y="700" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0b1qefu_di" bpmnElement="Event_0b1qefu">
-        <dc:Bounds x="1892" y="582" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_1q45naz_di" bpmnElement="Event_0biznfy">
+        <dc:Bounds x="3252" y="817" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="232" y="442" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_1x1eeq8_di" bpmnElement="Activity_15hr2wx">
+        <dc:Bounds x="2510" y="700" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1ee51w4_di" bpmnElement="Activity_1ry762s">
-        <dc:Bounds x="470" y="420" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_0cah3n3_di" bpmnElement="Activity_0cah3n3">
+        <dc:Bounds x="2240" y="700" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1in3cjy_di" bpmnElement="is_debrief_violation" isMarkerVisible="true">
-        <dc:Bounds x="1475" y="515" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1512" y="480" width="56" height="40" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="Activity_0oth5y5_di" bpmnElement="Activity_0oth5y5">
+        <dc:Bounds x="950" y="680" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1xa1hzv_di" bpmnElement="task_close_case">
-        <dc:Bounds x="1940" y="500" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_1s4ejxs_di" bpmnElement="Activity_1s4ejxs">
+        <dc:Bounds x="1080" y="680" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1pmbcxw_di" bpmnElement="Event_1pmbcxw">
-        <dc:Bounds x="2102" y="522" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_1v3fu2t_di" bpmnElement="Activity_1v3fu2t">
+        <dc:Bounds x="310" y="420" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0icy5dk_di" bpmnElement="Activity_02t4qsu">
-        <dc:Bounds x="1720" y="230" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_1nymqyy_di" bpmnElement="Activity_0xocoed">
+        <dc:Bounds x="2900" y="1030" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_07ltdve_di" bpmnElement="Gateway_0289ucr">
-        <dc:Bounds x="2165" y="145" width="50" height="50" />
+      <bpmndi:BPMNShape id="Gateway_1rjkb2i_di" bpmnElement="Gateway_1rjkb2i" isMarkerVisible="true">
+        <dc:Bounds x="1485" y="805" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1ujxflh_di" bpmnElement="task_beeldverslag_opstellen">
-        <dc:Bounds x="2380" y="130" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_1y73yd1_di" bpmnElement="Activity_0oln0hw">
+        <dc:Bounds x="1230" y="790" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_09x9dt8_di" bpmnElement="task_rapport_van_bevindingen_opstellen">
-        <dc:Bounds x="2380" y="230" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_0aawy2h_di" bpmnElement="task_create_debrief">
+        <dc:Bounds x="1230" y="680" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1mu8a3h_di" bpmnElement="Gateway_1cbngmn">
-        <dc:Bounds x="2635" y="145" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0hb8ttg_di" bpmnElement="task_create_visit">
-        <dc:Bounds x="650" y="200" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_0cen5zg_di" bpmnElement="task_create_summon">
+        <dc:Bounds x="3120" y="795" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1odl5bp_di" bpmnElement="Gateway_1odl5bp" isMarkerVisible="true">
         <dc:Bounds x="795" y="215" width="50" height="50" />
@@ -583,50 +576,56 @@
           <dc:Bounds x="796" y="185" width="49" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0cen5zg_di" bpmnElement="task_create_summon">
-        <dc:Bounds x="3120" y="795" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_0hb8ttg_di" bpmnElement="task_create_visit">
+        <dc:Bounds x="650" y="200" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0aawy2h_di" bpmnElement="task_create_debrief">
-        <dc:Bounds x="1230" y="680" width="100" height="80" />
+      <bpmndi:BPMNShape id="Gateway_1mu8a3h_di" bpmnElement="Gateway_1cbngmn">
+        <dc:Bounds x="2635" y="145" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1y73yd1_di" bpmnElement="Activity_0oln0hw">
-        <dc:Bounds x="1230" y="790" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_09x9dt8_di" bpmnElement="task_rapport_van_bevindingen_opstellen">
+        <dc:Bounds x="2380" y="230" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1rjkb2i_di" bpmnElement="Gateway_1rjkb2i" isMarkerVisible="true">
-        <dc:Bounds x="1485" y="805" width="50" height="50" />
+      <bpmndi:BPMNShape id="Activity_1ujxflh_di" bpmnElement="task_beeldverslag_opstellen">
+        <dc:Bounds x="2380" y="130" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1nymqyy_di" bpmnElement="Activity_0xocoed">
-        <dc:Bounds x="2900" y="1030" width="100" height="80" />
+      <bpmndi:BPMNShape id="Gateway_07ltdve_di" bpmnElement="Gateway_0289ucr">
+        <dc:Bounds x="2165" y="145" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1v3fu2t_di" bpmnElement="Activity_1v3fu2t">
-        <dc:Bounds x="310" y="420" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_0icy5dk_di" bpmnElement="Activity_02t4qsu">
+        <dc:Bounds x="1720" y="230" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1s4ejxs_di" bpmnElement="Activity_1s4ejxs">
-        <dc:Bounds x="1080" y="680" width="100" height="80" />
+      <bpmndi:BPMNShape id="Event_1pmbcxw_di" bpmnElement="Event_1pmbcxw">
+        <dc:Bounds x="2102" y="522" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0oth5y5_di" bpmnElement="Activity_0oth5y5">
-        <dc:Bounds x="950" y="680" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_1xa1hzv_di" bpmnElement="task_close_case">
+        <dc:Bounds x="1940" y="500" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0cah3n3_di" bpmnElement="Activity_0cah3n3">
-        <dc:Bounds x="2240" y="700" width="100" height="80" />
+      <bpmndi:BPMNShape id="Gateway_1in3cjy_di" bpmnElement="is_debrief_violation" isMarkerVisible="true">
+        <dc:Bounds x="1475" y="515" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1512" y="480" width="56" height="40" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1x1eeq8_di" bpmnElement="Activity_15hr2wx">
-        <dc:Bounds x="2510" y="700" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_1ee51w4_di" bpmnElement="Activity_1ry762s">
+        <dc:Bounds x="470" y="420" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1q45naz_di" bpmnElement="Event_0biznfy">
-        <dc:Bounds x="3252" y="817" width="36" height="36" />
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="232" y="442" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0hjc13h_di" bpmnElement="Activity_0hjc13h">
-        <dc:Bounds x="2380" y="700" width="100" height="80" />
+      <bpmndi:BPMNShape id="Event_0b1qefu_di" bpmnElement="Event_0b1qefu">
+        <dc:Bounds x="1892" y="582" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_00h0tuq_di" bpmnElement="TextAnnotation_00h0tuq">
-        <dc:Bounds x="1150" y="560" width="100" height="96" />
+      <bpmndi:BPMNShape id="Activity_0b1aibw_di" bpmnElement="Activity_1rzt0o9">
+        <dc:Bounds x="1740" y="560" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1wsvvw4_di" bpmnElement="task_create_schedule">
+        <dc:Bounds x="310" y="550" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_04cfd4s_di" bpmnElement="TextAnnotation_04cfd4s">
         <dc:Bounds x="1350" y="780" width="100" height="30" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1wsvvw4_di" bpmnElement="task_create_schedule">
-        <dc:Bounds x="310" y="550" width="100" height="80" />
+      <bpmndi:BPMNShape id="TextAnnotation_00h0tuq_di" bpmnElement="TextAnnotation_00h0tuq">
+        <dc:Bounds x="1150" y="560" width="100" height="96" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_03uaj75_di" bpmnElement="Association_03uaj75">
         <di:waypoint x="1330" y="815" />
