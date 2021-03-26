@@ -24,7 +24,6 @@ from apps.cases.swagger_parameters import street_name as street_name_parameter
 from apps.cases.swagger_parameters import street_number as street_number_parameter
 from apps.cases.swagger_parameters import suffix as suffix_parameter
 from apps.cases.swagger_parameters import team as team_parameter
-from apps.debriefings.mixins import DebriefingsMixin
 from apps.decisions.serializers import DecisionTypeSerializer
 from apps.events.mixins import CaseEventsMixin
 from apps.schedules.serializers import TeamScheduleTypesSerializer
@@ -98,7 +97,6 @@ class CaseViewSet(
     CreateModelMixin,
     ListModelMixin,
     RetrieveModelMixin,
-    DebriefingsMixin,
     CaseEventsMixin,
 ):
     permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
