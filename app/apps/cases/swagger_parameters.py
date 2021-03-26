@@ -30,12 +30,20 @@ suffix = OpenApiParameter(
     description="Suffix",
 )
 
+date = OpenApiParameter(
+    name="date",
+    type=OpenApiTypes.DATE,
+    location=OpenApiParameter.QUERY,
+    required=False,
+    description="Shows cases that started on the given date",
+)
+
 start_date = OpenApiParameter(
     name="startDate",
     type=OpenApiTypes.DATE,
     location=OpenApiParameter.QUERY,
     required=False,
-    description="Start Date",
+    description="Shows cases that started from that date and later",
 )
 
 open_cases = OpenApiParameter(
