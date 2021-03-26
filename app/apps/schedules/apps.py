@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class SchedulesConfig(AppConfig):
-    name = "schedules"
+    name = "apps.schedules"
 
     def ready(self):
         import apps.schedules.signals  # noqa
