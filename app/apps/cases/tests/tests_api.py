@@ -136,12 +136,35 @@ class CaseListApiTest(APITestCase):
         self.assertEqual(len(results), QUANTITY)
 
     def test_filter_start_date(self):
+        # Should only returb dates on the given date and newer
         DATE_A = datetime.datetime.now()
         DATE_B = DATE_A - datetime.timedelta(days=2)
+        DATE_C = DATE_A + datetime.timedelta(days=2)
+
         FILTER_PARAMETERS = {"startDate": DATE_A.strftime("%Y-%m-%d")}
 
         baker.make(Case, start_date=DATE_A)
         baker.make(Case, start_date=DATE_B)
+        baker.make(Case, start_date=DATE_C)
+
+        url = reverse("cases-list")
+        client = get_authenticated_client()
+        response = client.get(url, FILTER_PARAMETERS)
+
+        results = response.data["results"]
+        self.assertEqual(len(results), 2)
+
+    def test_filter_date(self):
+        # Should only return dates on the given date
+        DATE_A = datetime.datetime.now()
+        DATE_B = DATE_A - datetime.timedelta(days=2)
+        DATE_C = DATE_A + datetime.timedelta(days=2)
+
+        FILTER_PARAMETERS = {"date": DATE_A.strftime("%Y-%m-%d")}
+
+        baker.make(Case, start_date=DATE_A)
+        baker.make(Case, start_date=DATE_B)
+        baker.make(Case, start_date=DATE_C)
 
         url = reverse("cases-list")
         client = get_authenticated_client()

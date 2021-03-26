@@ -14,6 +14,7 @@ from apps.cases.serializers import (
     CaseTeamSerializer,
     PushCaseStateSerializer,
 )
+from apps.cases.swagger_parameters import date as date_parameter
 from apps.cases.swagger_parameters import no_pagination as no_pagination_parameter
 from apps.cases.swagger_parameters import open_cases as open_cases_parameter
 from apps.cases.swagger_parameters import open_status as open_status_parameter
@@ -111,6 +112,7 @@ class CaseViewSet(
 
     @extend_schema(
         parameters=[
+            date_parameter,
             start_date_parameter,
             open_cases_parameter,
             team_parameter,
@@ -122,6 +124,7 @@ class CaseViewSet(
         responses={200: CaseSerializer(many=True)},
     )
     def list(self, request):
+        date = request.GET.get(date_parameter.name, None)
         start_date = request.GET.get(start_date_parameter.name, None)
         open_cases = request.GET.get(open_cases_parameter.name, None)
         team = request.GET.get(team_parameter.name, None)
@@ -131,6 +134,8 @@ class CaseViewSet(
 
         queryset = self.get_queryset()
 
+        if date:
+            queryset = queryset.filter(start_date=date)
         if start_date:
             queryset = queryset.filter(start_date__gte=start_date)
         if open_cases:
