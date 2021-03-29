@@ -3,7 +3,7 @@ import logging
 from apps.addresses.utils import search
 from apps.camunda.serializers import CamundaTaskSerializer
 from apps.camunda.services import CamundaService
-from apps.cases.mock import mock_cases
+from apps.cases.mock import mock
 from apps.cases.models import Case, CaseState, CaseTeam
 from apps.cases.serializers import (
     CaseCreateUpdateSerializer,
@@ -218,7 +218,7 @@ class CaseViewSet(
             assert (
                 settings.DEBUG or settings.ENVIRONMENT == "acceptance"
             ), "Incorrect enviroment"
-            mock_cases()
+            mock()
         except Exception as e:
             return Response(data={"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
