@@ -1,6 +1,8 @@
 import datetime
+import time
 
 from apps.addresses.models import Address
+from apps.camunda.services import CamundaService
 from apps.cases.models import Case, CaseReason, CaseTeam
 from apps.schedules.models import Action, DaySegment, Priority, Schedule, WeekSegment
 from django.conf import settings
@@ -56,8 +58,19 @@ def mock_cases():
     return cases
 
 
+def get_schedule_task(case):
+    task = CamundaService().get_task_by_task_name_id_and_camunda_id(
+        "task_create_schedule", case.camunda_id
+    )
+    return task
+
+
 def mock_schedules(cases):
     for case in cases:
+        # This make sure the schedule task is available before creating one
+        while not get_schedule_task(case):
+            time.sleep(1)
+
         action = Action.objects.get(name=settings.DEFAULT_SCHEDULE_ACTIONS[0])
         week_segment = WeekSegment.objects.get(
             name=settings.DEFAULT_SCHEDULE_WEEK_SEGMENTS[0]
