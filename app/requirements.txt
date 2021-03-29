@@ -25,7 +25,7 @@ django-relativedelta==1.1.2
 django-solo==1.1.5
 django-spaghetti-and-meatballs==0.4.2
 django-timezone-field==4.1.2
-djangorestframework==3.12.3
+djangorestframework==3.12.4
 djangorestframework-simplejwt==4.6.0
 drf-spectacular==0.14.0
 Faker==6.6.3
