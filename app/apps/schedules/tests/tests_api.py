@@ -63,7 +63,7 @@ class ScheduleCreateAPITest(APITestCase):
         schedule = baker.make(Schedule)
 
         new_priority = baker.make(Priority)
-        new_week_segment = baker.make()
+        new_week_segment = baker.make(WeekSegment)
         new_day_segment = baker.make(DaySegment)
         new_priority = baker.make(Priority)
 
