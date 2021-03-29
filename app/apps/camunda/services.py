@@ -2,9 +2,8 @@ import json
 import logging
 
 import requests
-from apps.camunda.utils import get_form_details, get_form_details_old, get_forms
+from apps.camunda.utils import get_form_details, get_forms
 from django.conf import settings
-from django.urls import reverse
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -38,8 +37,11 @@ class CamundaService:
                     data=request_body,
                     headers={"content-type": "application/json"},
                 )
+
+            logger.info(f"Request to Camunda succesful. Response: {response.content}")
             return response
         except requests.exceptions.Timeout:
+            logger.info("Request to Camunda timed out")
             response = Response(
                 "Camunda service is offline",
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -47,8 +49,10 @@ class CamundaService:
             response.ok = False
             return response
         except requests.exceptions.RequestException:
-            # response = Response(status=status.HTTP_400_BAD_REQUEST)
-            # response.ok = False
+            logger.info("Request to Camunda threw an exception")
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.ok = False
+
             return response
 
     def _get_form_with_task(self, camunda_task_id):
@@ -100,7 +104,7 @@ class CamundaService:
         self,
         case_identification,
         request_body,
-        process=settings.CAMUNDA_PROCESS_VAKANTIE_VERHUUR,
+        process=settings.CAMUNDA_PROCESS_VISIT,
     ):
         """
         TODO: Use business key instead of process key

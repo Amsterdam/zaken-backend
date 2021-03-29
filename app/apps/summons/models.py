@@ -1,6 +1,5 @@
 from apps.cases.models import Case, CaseTeam
 from apps.events.models import CaseEvent, ModelEventEmitter
-from apps.summons.const import SUMMON_TYPES
 from django.conf import settings
 from django.db import models
 

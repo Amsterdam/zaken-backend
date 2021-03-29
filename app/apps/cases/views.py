@@ -1,8 +1,8 @@
 import logging
 
+from apps.addresses.utils import search
 from apps.camunda.serializers import CamundaTaskSerializer
 from apps.camunda.services import CamundaService
-from apps.cases.filters import CaseFilter
 from apps.cases.mock import mock_cases
 from apps.cases.models import Case, CaseState, CaseTeam
 from apps.cases.serializers import (
@@ -10,18 +10,32 @@ from apps.cases.serializers import (
     CaseReasonSerializer,
     CaseSerializer,
     CaseStateSerializer,
+    CaseStateTypeSerializer,
     CaseTeamSerializer,
     PushCaseStateSerializer,
 )
-from apps.debriefings.mixins import DebriefingsMixin
+from apps.cases.swagger_parameters import date as date_parameter
+from apps.cases.swagger_parameters import no_pagination as no_pagination_parameter
+from apps.cases.swagger_parameters import open_cases as open_cases_parameter
+from apps.cases.swagger_parameters import open_status as open_status_parameter
+from apps.cases.swagger_parameters import postal_code as postal_code_parameter
+from apps.cases.swagger_parameters import reason as reason_parameter
+from apps.cases.swagger_parameters import start_date as start_date_parameter
+from apps.cases.swagger_parameters import street_name as street_name_parameter
+from apps.cases.swagger_parameters import street_number as street_number_parameter
+from apps.cases.swagger_parameters import suffix as suffix_parameter
+from apps.cases.swagger_parameters import team as team_parameter
+from apps.decisions.serializers import DecisionTypeSerializer
 from apps.events.mixins import CaseEventsMixin
+from apps.schedules.serializers import TeamScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.http import HttpResponseBadRequest
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
-from rest_framework import mixins, status
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
 from rest_framework.generics import (
@@ -29,10 +43,10 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import GenericViewSet, ViewSet
 
 logger = logging.getLogger(__name__)
 
@@ -80,21 +94,123 @@ class CaseStateViewSet(ViewSet):
 
 
 class CaseViewSet(
-    ViewSet,
-    ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-    DebriefingsMixin,
+    GenericViewSet,
+    CreateModelMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
     CaseEventsMixin,
 ):
+    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
-    filterset_class = CaseFilter
 
     def get_serializer_class(self, *args, **kwargs):
         if self.action in ["create", "update"]:
             return CaseCreateUpdateSerializer
 
         return self.serializer_class
+
+    @extend_schema(
+        parameters=[
+            date_parameter,
+            start_date_parameter,
+            open_cases_parameter,
+            team_parameter,
+            reason_parameter,
+            open_status_parameter,
+            no_pagination_parameter,
+        ],
+        description="Case filter query parameters",
+        responses={200: CaseSerializer(many=True)},
+    )
+    def list(self, request):
+        date = request.GET.get(date_parameter.name, None)
+        start_date = request.GET.get(start_date_parameter.name, None)
+        open_cases = request.GET.get(open_cases_parameter.name, None)
+        team = request.GET.get(team_parameter.name, None)
+        reason = request.GET.get(reason_parameter.name, None)
+        open_status = request.GET.get(open_status_parameter.name, None)
+        no_pagination = request.GET.get(no_pagination_parameter.name, None)
+
+        queryset = self.get_queryset()
+
+        if date:
+            queryset = queryset.filter(start_date=date)
+        if start_date:
+            queryset = queryset.filter(start_date__gte=start_date)
+        if open_cases:
+            open_cases = open_cases == "true"
+            queryset = queryset.filter(end_date__isnull=open_cases)
+        if team:
+            queryset = queryset.filter(team=team)
+        if reason:
+            queryset = queryset.filter(reason=reason)
+        if open_status:
+            queryset = queryset.filter(
+                case_states__end_date__isnull=True,
+                case_states__status__name=open_status,
+            )
+
+        if no_pagination == "true":
+            serializer = CaseSerializer(queryset, many=True)
+            return Response(serializer.data)
+
+        paginator = PageNumberPagination()
+        context = paginator.paginate_queryset(queryset, request)
+        serializer = CaseSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        parameters=[
+            postal_code_parameter,
+            street_number_parameter,
+            street_name_parameter,
+            suffix_parameter,
+            team_parameter,
+        ],
+        description="Search query parameters",
+        responses={200: CaseSerializer(many=True)},
+        operation=None,
+    )
+    @action(detail=False, methods=["get"], url_path="search")
+    def search(self, request):
+        postal_code = request.GET.get(postal_code_parameter.name, None)
+        street_name = request.GET.get(street_name_parameter.name, None)
+        number = request.GET.get(street_number_parameter.name, None)
+        suffix = request.GET.get(suffix_parameter.name, None)
+        team = request.GET.get(team_parameter.name, None)
+
+        if postal_code is None and street_name is None:
+            return HttpResponseBadRequest(
+                "A postal_code or street_name queryparameter should be provided"
+            )
+        if postal_code is not None and number is None:
+            return HttpResponseBadRequest("number queryparameter is required")
+        if street_name is not None and number is None:
+            return HttpResponseBadRequest("number queryparameter is required")
+
+        address_queryset = search(
+            street_name=street_name,
+            postal_code=postal_code,
+            number=number,
+            suffix=suffix,
+        )
+
+        cases = Case.objects.none()
+        for address in address_queryset:
+            cases = cases | address.cases.all()
+
+        cases = cases.filter(end_date=None)
+
+        if team:
+            cases = cases.filter(team=team)
+
+        paginator = PageNumberPagination()
+        context = paginator.paginate_queryset(cases, request)
+        serializer = CaseSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
 
     @action(detail=False, methods=["post"], url_path="generate-mock")
     def mock_cases(self, request):
@@ -115,23 +231,20 @@ class CaseViewSet(
     @action(detail=True, methods=["get"], url_path="tasks")
     def get_tasks(self, request, pk):
         case = self.get_object()
-        (camunda_tasks, response) = CamundaService().get_all_tasks_by_instance_id(
-            case.camunda_id
-        )
+        camunda_tasks = CamundaService().get_all_tasks_by_instance_id(case.camunda_id)
+        # Camunda tasks can be an empty list or boolean. TODO: This should just be one datatype
+        if camunda_tasks is False:
+            return Response(
+                "Camunda service is offline",
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
 
-        if camunda_tasks or len(camunda_tasks) == 0:
-            serializer = CamundaTaskSerializer(camunda_tasks, many=True)
-
-            return Response(serializer.data)
-
-        return response
-        return Response(
-            "Camunda service is offline",
-            status=status.HTTP_503_SERVICE_UNAVAILABLE,
-        )
+        serializer = CamundaTaskSerializer(camunda_tasks, many=True)
+        return Response(serializer.data)
 
 
 class CaseTeamViewSet(ViewSet, ListAPIView):
+    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = CaseTeamSerializer
     queryset = CaseTeam.objects.all()
 
@@ -170,5 +283,57 @@ class CaseTeamViewSet(ViewSet, ListAPIView):
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = SummonTypeSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the DecisionTypes associated with the given team",
+        responses={status.HTTP_200_OK: DecisionTypeSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="decision-types",
+        methods=["get"],
+    )
+    def decision_types(self, request, pk):
+        paginator = PageNumberPagination()
+        team = self.get_object()
+        query_set = team.decision_types.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = DecisionTypeSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the Scheduling Types associated with the given team",
+        responses={status.HTTP_200_OK: TeamScheduleTypesSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="schedule-types",
+        methods=["get"],
+    )
+    def schedule_types(self, request, pk):
+        team = self.get_object()
+        serializer = TeamScheduleTypesSerializer(team)
+        return Response(serializer.data)
+
+    @extend_schema(
+        description="Gets the CaseStateTypes associated with the given team",
+        responses={status.HTTP_200_OK: CaseStateTypeSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="state-types",
+        methods=["get"],
+    )
+    def state_types(self, request, pk):
+        paginator = PageNumberPagination()
+        team = self.get_object()
+        query_set = team.state_types.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = CaseStateTypeSerializer(context, many=True)
 
         return paginator.get_paginated_response(serializer.data)

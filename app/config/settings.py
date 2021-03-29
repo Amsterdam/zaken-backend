@@ -4,7 +4,7 @@ from os.path import join
 
 import sentry_sdk
 from celery.schedules import crontab
-from keycloak_oidc.default_settings import *
+from keycloak_oidc.default_settings import *  # noqa
 from sentry_sdk.integrations.django import DjangoIntegration
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
     "corsheaders",
     # Third party apps
     "keycloak_oidc",
@@ -59,6 +60,7 @@ INSTALLED_APPS = (
     # Apps
     "apps.users",
     "apps.cases",
+    "apps.decisions",
     "apps.debriefings",
     "apps.permits",
     "apps.fines",
@@ -70,6 +72,7 @@ INSTALLED_APPS = (
     "apps.camunda",
     "apps.openzaak",
     "apps.summons",
+    "apps.schedules",
 )
 
 # Add apps here to make them appear in the graphing visualisation
@@ -85,6 +88,8 @@ SPAGHETTI_SAUCE = {
         "events",
         "summons",
         "camunda",
+        "decisions",
+        "schedules",
     ],
     "show_fields": False,
 }
@@ -139,7 +144,6 @@ TEMPLATES = [
 ]
 
 REST_FRAMEWORK = {
-    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "PAGE_SIZE": 100,
@@ -299,7 +303,9 @@ CELERY_BEAT_SCHEDULE = {
 
 CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
 CAMUNDA_REST_URL = os.getenv("CAMUNDA_REST_URL", "http://camunda:8080/engine-rest/")
-CAMUNDA_PROCESS_VAKANTIE_VERHUUR = "zaak_wonen_vakantieverhuur"
+CAMUNDA_PROCESS_VISIT = "zaak_wonen_visit"
+CAMUNDA_PROCESS_SUMMON = "zaak_wonen_summon"
+CAMUNDA_PROCESS_DECISION = "zaak_wonen_decision"
 
 REDIS = os.getenv("REDIS")
 REDIS_URL = f"redis://{REDIS}"
@@ -317,6 +323,12 @@ LOGOUT_REDIRECT_URL = "/admin"
 
 DEFAULT_TEAM = os.getenv("DEFAULT_TEAM", "Vakantieverhuur")
 DEFAULT_REASON = os.getenv("DEFAULT_REASON", "Melding")
+
+DEFAULT_SCHEDULE_ACTIONS = os.getenv("DEFAULT_SCHEDULE_ACTIONS").split(",")
+DEFAULT_SCHEDULE_WEEK_SEGMENTS = os.getenv("DEFAULT_SCHEDULE_WEEK_SEGMENTS").split(",")
+DEFAULT_SCHEDULE_DAY_SEGMENTS = os.getenv("DEFAULT_SCHEDULE_DAY_SEGMENTS").split(",")
+DEFAULT_SCHEDULE_HIGH_PRIORITY = os.getenv("DEFAULT_SCHEDULE_HIGH_PRIORITY")
+DEFAULT_SCHEDULE_NORMAL_PRIORITY = os.getenv("DEFAULT_SCHEDULE_NORMAL_PRIORITY")
 
 # ZGW_CONSUMERS_OAS_CACHE = django_redis.cache.RedisCache
 

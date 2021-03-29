@@ -5,4 +5,4 @@ class SummonsConfig(AppConfig):
     name = "apps.summons"
 
     def ready(self):
-        import apps.summons.signals
+        import apps.summons.signals  # noqa

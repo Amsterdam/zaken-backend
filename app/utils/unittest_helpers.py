@@ -16,7 +16,6 @@ def add_user_to_authorized_groups(user):
     for realm_access_group in realm_access_groups:
         group, _ = Group.objects.get_or_create(name=realm_access_group)
         group.user_set.add(user)
-    pass
 
 
 def get_test_user():

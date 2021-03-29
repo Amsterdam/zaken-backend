@@ -7,7 +7,7 @@ from django.db.models import signals
 from django.test import TestCase
 
 
-class CaseSignalsTest(TestCase):
+class SummonsSignalsTest(TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
 

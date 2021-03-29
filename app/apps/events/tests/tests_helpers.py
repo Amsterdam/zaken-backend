@@ -2,7 +2,6 @@ from apps.cases.models import Case
 from apps.events.models import CaseEvent, ModelEventEmitter
 from django.core import management
 from django.db import connection, models
-from django.db.models.base import ModelBase
 from django.db.utils import ProgrammingError
 from model_bakery import baker
 from rest_framework.test import APITestCase

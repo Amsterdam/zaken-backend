@@ -9,6 +9,7 @@ class CaseEvent(models.Model):
     TYPE_VISIT = "VISIT"
     TYPE_CASE = "CASE"
     TYPE_SUMMON = "SUMMON"
+    TYPE_DECISION = "DECISION"
     TYPE_GENERIC_TASK = "GENERIC_TASK"
     TYPES = (
         (TYPE_DEBRIEFING, TYPE_DEBRIEFING),
@@ -28,20 +29,6 @@ class CaseEvent(models.Model):
     emitter_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     emitter_id = models.PositiveIntegerField()
     emitter = GenericForeignKey("emitter_type", "emitter_id")
-
-    @property
-    def emitter_is_editable(self):
-        try:
-            return self.emitter.is_editable
-        except AttributeError:
-            return True
-
-    @property
-    def emitter_is_editable_until(self):
-        try:
-            return self.emitter.is_editable_until
-        except AttributeError:
-            return None
 
     @property
     def event_values(self):

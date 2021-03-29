@@ -2,7 +2,6 @@ import uuid
 
 from apps.addresses.models import Address
 from apps.events.models import CaseEvent, ModelEventEmitter
-from apps.users.models import User
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -35,7 +34,7 @@ class Case(ModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CASE
 
     class Meta:
-        ordering = ["start_date"]
+        ordering = ["-start_date"]
 
     identification = models.CharField(
         max_length=255, null=True, blank=True, unique=True
@@ -87,7 +86,9 @@ class Case(ModelEventEmitter):
         return self.case_states.filter(end_date__isnull=True)
 
     def set_state(self, state_name):
-        state_type, _ = CaseStateType.objects.get_or_create(name=state_name)
+        state_type, _ = CaseStateType.objects.get_or_create(
+            name=state_name, team=self.team
+        )
         state = CaseState.objects.create(case=self, status=state_type)
 
         return state
@@ -103,7 +104,17 @@ class Case(ModelEventEmitter):
 
 
 class CaseStateType(models.Model):
+    def default_team():
+        team, _ = CaseTeam.objects.get_or_create(name=settings.DEFAULT_TEAM)
+        return team.id
+
     name = models.CharField(max_length=255, unique=True)
+    team = models.ForeignKey(
+        to=CaseTeam,
+        related_name="state_types",
+        on_delete=models.CASCADE,
+        default=default_team,
+    )
 
     def __str__(self):
         return self.name
@@ -116,7 +127,7 @@ class CaseState(models.Model):
     case = models.ForeignKey(Case, related_name="case_states", on_delete=models.CASCADE)
     status = models.ForeignKey(CaseStateType, on_delete=models.PROTECT)
     start_date = models.DateField()
-    end_date = models.DateField(null=True)
+    end_date = models.DateField(null=True, blank=True)
     users = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="case_states", related_query_name="users"
     )
