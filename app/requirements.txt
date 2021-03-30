@@ -10,7 +10,7 @@ click==7.1.2
 click-didyoumean==0.0.3
 click-plugins==1.1.1
 click-repl==0.1.6
-cryptography==3.4.6
+cryptography==3.4.7
 datapunt-keycloak-oidc @ git+https://github.com/petercuret/keycloak_oidc.git@9161a9ed1e7d6f2b603bf6b0ca17f4da75660bbb
 debugpy==1.2.1
 Django==3.1.7
@@ -25,21 +25,21 @@ django-relativedelta==1.1.2
 django-solo==1.1.5
 django-spaghetti-and-meatballs==0.4.2
 django-timezone-field==4.1.2
-djangorestframework==3.12.2
+djangorestframework==3.12.4
 djangorestframework-simplejwt==4.6.0
 drf-spectacular==0.14.0
-Faker==6.6.2
+Faker==7.0.1
 freezegun==1.1.0
-gemma-zds-client==0.15.0
+gemma-zds-client==1.0.0
 idna==2.10
-importlib-metadata==3.7.3
+importlib-metadata==3.10.0
 inflection==0.5.1
 josepy==1.8.0
 jsonschema==3.2.0
 kombu==5.0.2
 model-bakery==1.2.1
 mozilla-django-oidc==1.2.4
-prompt-toolkit==3.0.17
+prompt-toolkit==3.0.18
 psycopg2==2.8.6
 pycparser==2.20
 PyJWT==2.0.1

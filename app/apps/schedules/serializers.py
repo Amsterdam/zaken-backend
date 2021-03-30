@@ -38,6 +38,27 @@ class ScheduleSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class ScheduleCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Schedule
+        fields = (
+            "action",
+            "week_segment",
+            "day_segment",
+            "priority",
+            "case",
+        )
+        read_only_fields = ("id",)
+
+    def create(self, validated_data):
+        action = validated_data.pop("action")
+        case = validated_data.pop("case")
+        schedule, _ = Schedule.objects.update_or_create(
+            action=action, case=case, defaults=validated_data
+        )
+        return schedule
+
+
 class TeamScheduleTypesSerializer(serializers.ModelSerializer):
     actions = ActionSerializer(many=True)
     week_segments = WeekSegmentSerializer(many=True)

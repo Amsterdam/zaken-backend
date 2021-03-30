@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0c2217g" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.5.0">
+  <bpmn:collaboration id="Collaboration_1kyvsgi">
+    <bpmn:participant id="Participant_1vq8p2w" name="Service Task Library" processRef="Process_0p53v4f" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_0p53v4f" name="" isExecutable="true">
+    <bpmn:serviceTask id="Activity_1xnwdpd" name="Status Bijwerken: &#39;STATE&#39;" camunda:asyncBefore="true" camunda:exclusive="false">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state": "NAME",
+"case_identification": "${case_identification}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
+            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_11neujl" name="Status Beëindigen" camunda:asyncBefore="true" camunda:exclusive="false">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state_identification": "${state_identification}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${zaken_end_state_endpoint}</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:textAnnotation id="TextAnnotation_07hhzb9">
+      <bpmn:text>Service task for ending the current state. The service taks uses the state_identification id and the zaken_end_state_endpoint from the process variables.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="TextAnnotation_0ldraq5">
+      <bpmn:text>Service task for setting a state.
+This task calls the backend using the zaken_state_endpoint url which is stored in the processvariables. The response is stored as state_identication in the process variables, and can be used by other service tasks. Set the state string in the payload to the correct state.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_1v7x087" sourceRef="Activity_11neujl" targetRef="TextAnnotation_07hhzb9" />
+    <bpmn:association id="Association_1wcd453" sourceRef="Activity_1xnwdpd" targetRef="TextAnnotation_0ldraq5" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1kyvsgi">
+      <bpmndi:BPMNShape id="Participant_1vq8p2w_di" bpmnElement="Participant_1vq8p2w" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="600" height="280" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_07hhzb9_di" bpmnElement="TextAnnotation_07hhzb9">
+        <dc:Bounds x="390" y="285" width="310" height="54" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_0ldraq5_di" bpmnElement="TextAnnotation_0ldraq5">
+        <dc:Bounds x="390" y="125" width="350" height="96" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xnwdpd_di" bpmnElement="Activity_1xnwdpd">
+        <dc:Bounds x="210" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_11neujl_di" bpmnElement="Activity_11neujl">
+        <dc:Bounds x="210" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_1v7x087_di" bpmnElement="Association_1v7x087">
+        <di:waypoint x="310" y="300" />
+        <di:waypoint x="390" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_1wcd453_di" bpmnElement="Association_1wcd453">
+        <di:waypoint x="310" y="140" />
+        <di:waypoint x="390" y="140" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

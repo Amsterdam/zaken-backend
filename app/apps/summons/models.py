@@ -1,6 +1,5 @@
 from apps.cases.models import Case, CaseTeam
 from apps.events.models import CaseEvent, ModelEventEmitter
-from apps.summons.const import SUMMON_TYPES
 from django.conf import settings
 from django.db import models
 
@@ -35,18 +34,21 @@ class Summon(ModelEventEmitter):
     )
     # intention_closing_decision = models.BooleanField()
 
-    def __get_event_values__(self):
+    def __get_person_event_values__(self):
         persons = []
 
         for person in self.persons.all():
             persons.append(person.__str__())
 
+        return persons
+
+    def __get_event_values__(self):
         return {
             "author": self.author.__str__(),
             "date_added": self.date_added,
             "description": self.description,
             "type": self.type.name,
-            "persons": persons,
+            "persons": self.__get_person_event_values__(),
         }
 
     def __str__(self):

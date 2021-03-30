@@ -1,7 +1,6 @@
 from apps.cases.models import Case
 from apps.events.models import CaseEvent, ModelEventEmitter
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
@@ -21,9 +20,9 @@ class Visit(ModelEventEmitter):
 
     case = models.ForeignKey(Case, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
-    situation = models.CharField(max_length=255)
-    observations = ArrayField(models.CharField(max_length=255), blank=True, null=False)
-    can_next_visit_go_ahead = models.BooleanField(default=True)
+    situation = models.CharField(max_length=255, null=True, blank=True)
+    observations = ArrayField(models.CharField(max_length=255), blank=True, null=True)
+    can_next_visit_go_ahead = models.BooleanField(default=True, null=True)
     can_next_visit_go_ahead_description = models.TextField(
         null=True, blank=True, default=None
     )
@@ -57,50 +56,3 @@ class Visit(ModelEventEmitter):
             json_obj["authors"] = [author.full_name for author in self.authors.all()]
 
         return json_obj
-
-    def create_from_top(self, data):
-        try:
-            case = Case.objects.get(identification=data["case_identification"])
-        except Case.DoesNotExist:
-            return False
-
-        self.case = case
-        self.start_time = data["start_time"]
-        self.observations = data["observations"]
-        self.situation = data["situation"]
-        self.can_next_visit_go_ahead = data["can_next_visit_go_ahead"]
-        self.can_next_visit_go_ahead_description = data[
-            "can_next_visit_go_ahead_description"
-        ]
-        self.suggest_next_visit = data["suggest_next_visit"]
-        self.suggest_next_visit_description = data["suggest_next_visit_description"]
-        self.notes = data["notes"]
-        self.save()
-
-        user_model = get_user_model()
-
-        for author in data["authors"]:
-            (user, _) = user_model.objects.get_or_create(email=author)
-            self.authors.add(user)
-
-        return self
-
-    def update_from_top(self, data):
-        self.observations = data["observations"]
-        self.situation = data["situation"]
-        self.can_next_visit_go_ahead = data["can_next_visit_go_ahead"]
-        self.can_next_visit_go_ahead_description = data[
-            "can_next_visit_go_ahead_description"
-        ]
-        self.suggest_next_visit = data["suggest_next_visit"]
-        self.suggest_next_visit_description = data["suggest_next_visit_description"]
-        self.notes = data["notes"]
-        self.save()
-
-        user_model = get_user_model()
-
-        for author in data["authors"]:
-            (user, _) = user_model.objects.get_or_create(email=author)
-            self.authors.add(user)
-
-        return self

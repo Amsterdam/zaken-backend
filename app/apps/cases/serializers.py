@@ -1,10 +1,14 @@
-from datetime import datetime
-
 from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer
 from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTeam
 from apps.schedules.serializers import ScheduleSerializer
 from rest_framework import serializers
+
+
+class CaseStateTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseStateType
+        fields = "__all__"
 
 
 class CaseTeamSerializer(serializers.ModelSerializer):

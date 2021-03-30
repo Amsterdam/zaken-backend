@@ -9,10 +9,11 @@ def complete_camunda_task_create_visit(sender, instance, created, **kwargs):
     task = CamundaService().get_task_by_task_name_id_and_camunda_id(
         "task_create_visit", instance.case.camunda_id
     )
-    CamundaService().complete_task(
-        task["id"],
-        {
-            "situation": {"value": instance.situation},
-            "can_next_visit_go_ahead": {"value": instance.can_next_visit_go_ahead},
-        },
-    )
+    if task:
+        CamundaService().complete_task(
+            task["id"],
+            {
+                "situation": {"value": instance.situation},
+                "can_next_visit_go_ahead": {"value": instance.can_next_visit_go_ahead},
+            },
+        )

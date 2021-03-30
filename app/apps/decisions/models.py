@@ -25,7 +25,7 @@ class Decision(ModelEventEmitter):
     Model is used to repesent the decision after a summon
     """
 
-    EVENT_TYPE = CaseEvent.TYPE_SUMMON
+    EVENT_TYPE = CaseEvent.TYPE_DECISION
 
     case = models.ForeignKey(
         to=Case, on_delete=models.CASCADE, related_name="decisions"
@@ -44,10 +44,10 @@ class Decision(ModelEventEmitter):
     date_added = models.DateTimeField(auto_now_add=True)
 
     def __get_event_values__(self):
-        persons = []
-
-        for person in self.summon.persons.all():
-            persons.append(person.__str__())
+        if self.summon:
+            persons = self.summon.__get_person_event_values__()
+        else:
+            persons = []
 
         return {
             "author": self.author.__str__(),

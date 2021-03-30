@@ -3,16 +3,19 @@ import logging
 from apps.addresses.utils import search
 from apps.camunda.serializers import CamundaTaskSerializer
 from apps.camunda.services import CamundaService
-from apps.cases.mock import mock_cases
+from apps.cases.mock import mock
 from apps.cases.models import Case, CaseState, CaseTeam
 from apps.cases.serializers import (
     CaseCreateUpdateSerializer,
     CaseReasonSerializer,
     CaseSerializer,
     CaseStateSerializer,
+    CaseStateTypeSerializer,
     CaseTeamSerializer,
     PushCaseStateSerializer,
 )
+from apps.cases.swagger_parameters import date as date_parameter
+from apps.cases.swagger_parameters import no_pagination as no_pagination_parameter
 from apps.cases.swagger_parameters import open_cases as open_cases_parameter
 from apps.cases.swagger_parameters import open_status as open_status_parameter
 from apps.cases.swagger_parameters import postal_code as postal_code_parameter
@@ -22,7 +25,6 @@ from apps.cases.swagger_parameters import street_name as street_name_parameter
 from apps.cases.swagger_parameters import street_number as street_number_parameter
 from apps.cases.swagger_parameters import suffix as suffix_parameter
 from apps.cases.swagger_parameters import team as team_parameter
-from apps.debriefings.mixins import DebriefingsMixin
 from apps.decisions.serializers import DecisionTypeSerializer
 from apps.events.mixins import CaseEventsMixin
 from apps.schedules.serializers import TeamScheduleTypesSerializer
@@ -30,11 +32,10 @@ from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db.models.query import QuerySet
 from django.http import HttpResponseBadRequest
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
-from rest_framework import mixins, status
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
 from rest_framework.generics import (
@@ -42,10 +43,10 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import GenericViewSet, ViewSet
 
 logger = logging.getLogger(__name__)
 
@@ -93,10 +94,10 @@ class CaseStateViewSet(ViewSet):
 
 
 class CaseViewSet(
-    ViewSet,
-    ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-    DebriefingsMixin,
+    GenericViewSet,
+    CreateModelMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
     CaseEventsMixin,
 ):
     permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
@@ -111,24 +112,30 @@ class CaseViewSet(
 
     @extend_schema(
         parameters=[
+            date_parameter,
             start_date_parameter,
             open_cases_parameter,
             team_parameter,
             reason_parameter,
             open_status_parameter,
+            no_pagination_parameter,
         ],
         description="Case filter query parameters",
         responses={200: CaseSerializer(many=True)},
     )
     def list(self, request):
+        date = request.GET.get(date_parameter.name, None)
         start_date = request.GET.get(start_date_parameter.name, None)
         open_cases = request.GET.get(open_cases_parameter.name, None)
         team = request.GET.get(team_parameter.name, None)
         reason = request.GET.get(reason_parameter.name, None)
         open_status = request.GET.get(open_status_parameter.name, None)
+        no_pagination = request.GET.get(no_pagination_parameter.name, None)
 
         queryset = self.get_queryset()
 
+        if date:
+            queryset = queryset.filter(start_date=date)
         if start_date:
             queryset = queryset.filter(start_date__gte=start_date)
         if open_cases:
@@ -143,6 +150,10 @@ class CaseViewSet(
                 case_states__end_date__isnull=True,
                 case_states__status__name=open_status,
             )
+
+        if no_pagination == "true":
+            serializer = CaseSerializer(queryset, many=True)
+            return Response(serializer.data)
 
         paginator = PageNumberPagination()
         context = paginator.paginate_queryset(queryset, request)
@@ -207,7 +218,7 @@ class CaseViewSet(
             assert (
                 settings.DEBUG or settings.ENVIRONMENT == "acceptance"
             ), "Incorrect enviroment"
-            mock_cases()
+            mock()
         except Exception as e:
             return Response(data={"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -296,7 +307,7 @@ class CaseTeamViewSet(ViewSet, ListAPIView):
 
     @extend_schema(
         description="Gets the Scheduling Types associated with the given team",
-        responses={status.HTTP_200_OK: DecisionTypeSerializer(many=True)},
+        responses={status.HTTP_200_OK: TeamScheduleTypesSerializer(many=True)},
     )
     @action(
         detail=True,
@@ -307,3 +318,22 @@ class CaseTeamViewSet(ViewSet, ListAPIView):
         team = self.get_object()
         serializer = TeamScheduleTypesSerializer(team)
         return Response(serializer.data)
+
+    @extend_schema(
+        description="Gets the CaseStateTypes associated with the given team",
+        responses={status.HTTP_200_OK: CaseStateTypeSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="state-types",
+        methods=["get"],
+    )
+    def state_types(self, request, pk):
+        paginator = PageNumberPagination()
+        team = self.get_object()
+        query_set = team.state_types.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = CaseStateTypeSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)

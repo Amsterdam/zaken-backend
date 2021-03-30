@@ -55,7 +55,7 @@ class Priority(models.Model):
         return self.name
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["weight"]
         unique_together = ["name", "team"]
 
 
@@ -67,6 +67,3 @@ class Schedule(models.Model):
     case = models.ForeignKey(
         to=Case, related_name="schedules", on_delete=models.CASCADE
     )
-
-    class Meta:
-        unique_together = ["case", "action"]

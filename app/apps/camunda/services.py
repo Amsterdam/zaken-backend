@@ -2,9 +2,8 @@ import json
 import logging
 
 import requests
-from apps.camunda.utils import get_form_details, get_form_details_old, get_forms
+from apps.camunda.utils import get_form_details, get_forms
 from django.conf import settings
-from django.urls import reverse
 from rest_framework import status
 from rest_framework.response import Response
 
