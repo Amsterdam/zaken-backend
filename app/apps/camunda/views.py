@@ -9,7 +9,6 @@ from apps.camunda.serializers import (
     CamundaTaskSerializer,
 )
 from apps.camunda.services import CamundaService
-from apps.cases.models import CaseState
 from apps.users.auth_apps import CamundaKeyAuth
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
@@ -100,21 +99,9 @@ class CamundaTaskViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             data = serializer.validated_data
 
-            service = CamundaService()
-            task_id = data["camunda_task_id"]
-
             # Task data can't be retrieved after it's been completed, so make sure to retrieve it first.
-            task = service.get_task(task_id)
-            task_variables = service.get_task_variables(task_id)
-
-            try:
-                state_identification = task_variables["state_identification"]["value"]
-                state = CaseState.objects.get(id=state_identification)
-            except (KeyError, TypeError):
-                logger.error(
-                    "State identification could not be retrieved from task variables. Completing task without state."
-                )
-                state = None
+            task_id = data["camunda_task_id"]
+            task = CamundaService().get_task(task_id)
 
             # Boolean values should be converted to string values #ThanksCamunda
             variables = data.get("variables", {})
@@ -134,7 +121,6 @@ class CamundaTaskViewSet(viewsets.ViewSet):
                 GenericCompletedTask.objects.create(
                     author=data["author"],
                     case=data["case"],
-                    state=state,
                     description=task["name"],
                     variables=variables,
                 )
