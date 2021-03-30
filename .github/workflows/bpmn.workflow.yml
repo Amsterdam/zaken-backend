@@ -2,6 +2,8 @@ name: 'Validate BPMN'
 on:
   push:
     branches: [ master ]
+    paths:
+    - 'camunda/BPMN/**.bpmn'
   pull_request:
     branches: [ master ]
 
