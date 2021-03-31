@@ -1,4 +1,5 @@
 from apps.cases.models import Case, CaseTeam
+from apps.events.models import CaseEvent, ModelEventEmitter
 from django.db import models
 
 
@@ -59,7 +60,9 @@ class Priority(models.Model):
         unique_together = ["name", "team"]
 
 
-class Schedule(models.Model):
+class Schedule(ModelEventEmitter):
+    EVENT_TYPE = CaseEvent.TYPE_SCHEDULE
+
     action = models.ForeignKey(to=Action, on_delete=models.CASCADE)
     week_segment = models.ForeignKey(to=WeekSegment, on_delete=models.CASCADE)
     day_segment = models.ForeignKey(to=DaySegment, on_delete=models.CASCADE)
