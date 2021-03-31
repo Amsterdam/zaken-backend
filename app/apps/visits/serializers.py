@@ -16,6 +16,10 @@ class VisitSerializer(serializers.ModelSerializer):
     #     required=False,
     # )
 
+    def validate(self, data):
+        print(data)
+        return data
+
     def get_authors(self, validated_data):
         authors_data = validated_data.pop("authors")
         print("Getting authors")
