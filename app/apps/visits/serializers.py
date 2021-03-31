@@ -7,7 +7,14 @@ User = get_user_model()
 
 
 class VisitSerializer(serializers.ModelSerializer):
-    authors = UserSerializer(many=True, required=True)
+    authors = UserSerializer(many=True, required=False)
+    author_ids = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        write_only=True,
+        source="authors",
+        many=True,
+        required=False,
+    )
 
     def get_authors(self, validated_data):
         authors_data = validated_data.pop("authors")
