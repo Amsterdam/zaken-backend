@@ -7,18 +7,21 @@ User = get_user_model()
 
 
 class VisitSerializer(serializers.ModelSerializer):
-    authors = UserSerializer(many=True, required=False)
+    authors = UserSerializer(many=True, required=True)
 
     def get_authors(self, validated_data):
         authors_data = validated_data.pop("authors")
         authors = []
 
         for author in authors_data:
-            if isinstance(author, User):
+            author_id = author.get("id", None)
+            author_email = author.get("email", None)
+
+            if author_id:
+                author = User.objects.get(id=author_id)
                 authors.append(author)
-            else:
-                email = author.get("email")
-                author, _ = User.objects.get_or_create(email=email)
+            elif author_email:
+                author, _ = User.objects.get_or_create(email=author_email)
                 authors.append(author)
 
         return authors
