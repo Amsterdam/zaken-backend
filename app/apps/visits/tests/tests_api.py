@@ -98,6 +98,9 @@ class VisitApiTest(APITestCase):
             "case": case.id,
         }
         response = client.post(url, data=data, format="json")
+
+        visit = Visit.objects.all()[0]
+        self.assertEqual(len(visit.authors.all()), 2)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(User.objects.count(), 2)
 
@@ -111,10 +114,12 @@ class VisitApiTest(APITestCase):
         client = get_authenticated_with_token_client(settings.SECRET_KEY_TOP_ZAKEN)
 
         data = {
-            "author_ids": [{"id": user_a.id}, {"id": user_b.id}],
+            "author_ids": [user_a.id, user_b.id],
             "start_time": "2021-03-31T17:17:52.126Z",
             "case": case.id,
         }
         response = client.post(url, data=data, format="json")
 
+        visit = Visit.objects.all()[0]
+        self.assertEqual(len(visit.authors.all()), 2)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
