@@ -10,6 +10,7 @@ class CaseEvent(models.Model):
     TYPE_CASE = "CASE"
     TYPE_SUMMON = "SUMMON"
     TYPE_DECISION = "DECISION"
+    TYPE_SCHEDULE = "SCHEDULE"
     TYPE_GENERIC_TASK = "GENERIC_TASK"
     TYPES = (
         (TYPE_DEBRIEFING, TYPE_DEBRIEFING),
@@ -17,6 +18,7 @@ class CaseEvent(models.Model):
         (TYPE_CASE, TYPE_CASE),
         (TYPE_SUMMON, TYPE_SUMMON),
         (TYPE_GENERIC_TASK, TYPE_GENERIC_TASK),
+        (TYPE_SCHEDULE, TYPE_SCHEDULE),
     )
 
     date_created = models.DateTimeField(auto_now_add=True)
