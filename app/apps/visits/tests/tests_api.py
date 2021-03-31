@@ -40,7 +40,7 @@ class VisitApiTest(APITestCase):
     def test_authenticated_get_filled(self):
         baker.make(Visit, _quantity=2)
 
-        url = reverse("teams-list")
+        url = reverse("visits-list")
         client = get_authenticated_client()
 
         response = client.get(url)
@@ -49,13 +49,13 @@ class VisitApiTest(APITestCase):
         self.assertEquals(len(data["results"]), 2)
 
     def test_unauthenticated_post(self):
-        url = reverse("teams-list")
+        url = reverse("visits-list")
         client = get_unauthenticated_client()
         response = client.post(url, data={}, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_authenticated_post_bad_request(self):
-        url = reverse("teams-list")
+        url = reverse("visits-list")
         client = get_authenticated_client()
         response = client.post(url, data={}, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
