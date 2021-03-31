@@ -1,4 +1,6 @@
+from apps.cases.models import Case
 from apps.visits.models import Visit
+from django.contrib.auth import get_user_model
 from django.core import management
 from django.urls import reverse
 from model_bakery import baker
@@ -10,6 +12,8 @@ from app.utils.unittest_helpers import (
     get_test_user,
     get_unauthenticated_client,
 )
+
+User = get_user_model()
 
 
 class VisitApiTest(APITestCase):
@@ -59,3 +63,55 @@ class VisitApiTest(APITestCase):
         client = get_authenticated_client()
         response = client.post(url, data={}, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_authenticated_post_201(self):
+        self.assertEquals(Visit.objects.count(), 0)
+
+        case = baker.make(Case)
+
+        url = reverse("visits-list")
+        client = get_authenticated_client()
+
+        data = {
+            "authors": [{"email": "user@example.com"}],
+            "start_time": "2021-03-31T17:17:52.126Z",
+            "case": case.id,
+        }
+        response = client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(Visit.objects.count(), 0)
+
+    def test_authenticated_user_create(self):
+        # Should create users using the given email if they don't exist yet
+        self.assertEquals(User.objects.count(), 0)
+
+        case = baker.make(Case)
+
+        url = reverse("visits-list")
+        client = get_authenticated_client()
+
+        data = {
+            "authors": [{"email": "userA@example.com"}, {"email": "userB@example.com"}],
+            "start_time": "2021-03-31T17:17:52.126Z",
+            "case": case.id,
+        }
+        response = client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(User.objects.count(), 2)
+
+    def test_authenticated_visit_create_existing_users(self):
+        # Should be able to process a visit using existing Users and their ids
+        case = baker.make(Case)
+        user_a = baker.make(User)
+        user_b = baker.make(User)
+
+        url = reverse("visits-list")
+        client = get_authenticated_client()
+
+        data = {
+            "authors": [{"id": user_a.id}, {"email": user_b.id}],
+            "start_time": "2021-03-31T17:17:52.126Z",
+            "case": case.id,
+        }
+        response = client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
