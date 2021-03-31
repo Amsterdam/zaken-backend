@@ -70,3 +70,14 @@ class Schedule(ModelEventEmitter):
     case = models.ForeignKey(
         to=Case, related_name="schedules", on_delete=models.CASCADE
     )
+    date_added = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+    def __get_event_values__(self):
+        return {
+            "date_added": self.date_added,
+            "action": self.action.name,
+            "week_segment": self.week_segment.name,
+            "day_segment": self.day_segment.name,
+            "priority": self.priority.name,
+        }
