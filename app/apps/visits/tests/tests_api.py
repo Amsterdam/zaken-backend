@@ -111,7 +111,7 @@ class VisitApiTest(APITestCase):
         client = get_authenticated_with_token_client(settings.SECRET_KEY_TOP_ZAKEN)
 
         data = {
-            "authors": [{"id": user_a.id}, {"id": user_b.id}],
+            "author_ids": [{"id": user_a.id}, {"id": user_b.id}],
             "start_time": "2021-03-31T17:17:52.126Z",
             "case": case.id,
         }
