@@ -23,6 +23,6 @@ class HealthConfig(AppConfig):
         plugin_dir.register(KeycloakCheck)
         plugin_dir.register(OpenZaakRedisHealthCheck)
         plugin_dir.register(OpenZaakClientCheck)
-        plugin_dir.register(VakantieVerhuurRegistratieCheck)
+        # plugin_dir.register(VakantieVerhuurRegistratieCheck)
         plugin_dir.register(DecosJoinCheck)
         # plugin_dir.register(CamundaServiceCheck)
