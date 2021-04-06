@@ -165,6 +165,7 @@
         <camunda:formData businessKey="FormField_276df5o">
           <camunda:formField id="aanschrijving_id" type="string" />
           <camunda:formField id="zaken_access_token" type="string" />
+          <camunda:formField id="case_identification" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0wd1lwv</bpmn:outgoing>
