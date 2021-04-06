@@ -35,7 +35,7 @@ def create_summon_instance_in_camunda(sender, instance, created, **kwargs):
     if created and "test" not in sys.argv:
         (camunda_id, _) = CamundaService().start_instance(
             case_identification=instance.case.identification,
-            process="model_create_summon",
+            process="zaak_wonen_summon",
             request_body=json.dumps(
                 {
                     "variables": {

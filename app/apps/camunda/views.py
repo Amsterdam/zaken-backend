@@ -4,11 +4,13 @@ from apps.camunda.models import GenericCompletedTask
 from apps.camunda.serializers import (
     CamundaDateUpdateSerializer,
     CamundaEndStateWorkerSerializer,
+    CamundaMessagerSerializer,
     CamundaStateWorkerSerializer,
     CamundaTaskCompleteSerializer,
     CamundaTaskSerializer,
 )
 from apps.camunda.services import CamundaService
+from apps.cases.models import Case
 from apps.users.auth_apps import CamundaKeyAuth
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
@@ -70,6 +72,42 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
             state.end_state()
             state.save()
             logger.info("State ended succesfully")
+            return Response(status=status.HTTP_200_OK)
+        else:
+            logger.error(f"State could not be ended: {serializer.errors}")
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        description="A Camunda service task for ending a state",
+        responses={200: None},
+    )
+    @action(
+        detail=False,
+        url_path="send-message",
+        methods=["post"],
+        serializer_class=CamundaMessagerSerializer,
+    )
+    def send_message(self, request):
+        logger.info("Sending message based on Camunda message end event")
+        serializer = CamundaMessagerSerializer(data=request.data)
+
+        if serializer.is_valid():
+            message_name = serializer.validated_data["message_name"]
+            process_variables = serializer.validated_data["process_variables"]
+            case_identification = serializer.validated_data["case_id"]
+
+            raw_response = CamundaService().send_message(
+                message_name=message_name, message_process_variables=process_variables
+            )
+
+            response = raw_response.json()[0]
+            camunda_id = response["processInstance"]["id"]
+
+            case = Case.objects.get(identification=case_identification)
+            case.camunda_id = camunda_id
+            case.save()
+
+            logger.info(f"Message send {message_name} ended succesfully")
             return Response(status=status.HTTP_200_OK)
         else:
             logger.error(f"State could not be ended: {serializer.errors}")

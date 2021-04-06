@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_1t5ylmo">
     <bpmn:participant id="Participant_1ciseh2" name="Process" processRef="zaak_wonen_summon" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_summon" name="Basis Zaak Wonen VakantieVerhuur" isExecutable="true" camunda:versionTag="0.0.6">
+  <bpmn:process id="zaak_wonen_summon" name="Zaak Wonen VakantieVerhuur - Aanschrijving" isExecutable="true" camunda:versionTag="0.0.6">
     <bpmn:laneSet id="LaneSet_0iy1emi">
       <bpmn:lane id="Lane_0ku7kbe" name="Projectmedewerker, Projecthandhaver">
         <bpmn:flowNodeRef>Activity_0t0wwb4</bpmn:flowNodeRef>
@@ -27,7 +27,6 @@
         <bpmn:flowNodeRef>Activity_1mvz8v7</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_074ue8s</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0jjgz6l</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_0ab1scr</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1ts71uy</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0dunbbn</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0irxplj</bpmn:flowNodeRef>
@@ -46,6 +45,7 @@
         <bpmn:flowNodeRef>Gateway_1t6r1v4</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0ma57of</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0z3f2uf</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>start_decision_process</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1o6yxo7" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_1e9dx60</bpmn:flowNodeRef>
@@ -104,7 +104,7 @@
     <bpmn:sequenceFlow id="Flow_0dlpo3p" name="Ja geldig bezwaar" sourceRef="Gateway_074ue8s" targetRef="Activity_1mvz8v7">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${beoordelen_bezwaar=="true"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1txz7fj" sourceRef="Activity_1ts71uy" targetRef="Event_0ab1scr" />
+    <bpmn:sequenceFlow id="Flow_1txz7fj" sourceRef="Activity_1ts71uy" targetRef="start_decision_process" />
     <bpmn:sequenceFlow id="Flow_0e9z63g" sourceRef="Activity_0h3fcbr" targetRef="Event_0vsuud2" />
     <bpmn:sequenceFlow id="Flow_045qk4z" sourceRef="Gateway_0rds8zy" targetRef="Event_1ircr3x">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" />
@@ -213,9 +213,6 @@
       <bpmn:incoming>Flow_1lovgt2</bpmn:incoming>
       <bpmn:outgoing>Flow_1txz7fj</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:endEvent id="Event_0ab1scr">
-      <bpmn:incoming>Flow_1txz7fj</bpmn:incoming>
-    </bpmn:endEvent>
     <bpmn:userTask id="Activity_0jjgz6l" name="Beoordelen zienswijze" camunda:formKey="is_zienswijze_geldig" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
@@ -356,8 +353,15 @@
         <camunda:connector>
           <camunda:inputOutput>
             <camunda:inputParameter name="payload">{
-"state": "Vergunnings check ${names}",
-"case_identification": ${case_identification}
+    "message_name": "start_decision_process",
+    "process_variables": {
+        "case_identification": {
+            "value": ${case_identification},
+        },
+        "zaken_access_token": {
+            "value": ${zaken_access_token},
+        }
+    }
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -398,6 +402,35 @@
       <bpmn:incoming>Flow_1lvze3e</bpmn:incoming>
       <bpmn:outgoing>Flow_1lovgt2</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:endEvent id="start_decision_process" name="Opstellen besluit process">
+      <bpmn:incoming>Flow_1txz7fj</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0qjhb7z" messageRef="Message_1k1jpww">
+        <bpmn:extensionElements>
+          <camunda:connector>
+            <camunda:inputOutput>
+              <camunda:inputParameter name="url">http://zaak-gateway:8000​/api/v1/camunda/worker/send-message/</camunda:inputParameter>
+              <camunda:inputParameter name="method">POST</camunda:inputParameter>
+              <camunda:inputParameter name="payload">{
+    "message_name": "start_decision_process",
+    "process_variables": {
+        "case_identification": {"value": "${case_identification}"},
+        "zaken_access_token": {"value": "${zaken_access_token}"},
+        "zaken_state_endpoint": {"value": "${zaken_state_endpoint}"}
+    },
+    "case_id": "${case_identification}"
+}</camunda:inputParameter>
+              <camunda:inputParameter name="headers">
+                <camunda:map>
+                  <camunda:entry key="content-type">application/json</camunda:entry>
+                  <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+                </camunda:map>
+              </camunda:inputParameter>
+            </camunda:inputOutput>
+            <camunda:connectorId>http-connector</camunda:connectorId>
+          </camunda:connector>
+        </bpmn:extensionElements>
+      </bpmn:messageEventDefinition>
+    </bpmn:endEvent>
     <bpmn:textAnnotation id="TextAnnotation_0vbp35o">
       <bpmn:text>Dynamische datum kiezen in form waaruit deadline "Monitoren vergunningsprocedure" is</bpmn:text>
     </bpmn:textAnnotation>
@@ -424,9 +457,6 @@ EN FORM</bpmn:text>
     <bpmn:textAnnotation id="TextAnnotation_0g5i4nd">
       <bpmn:text>Opstellen concept aanschrijving</bpmn:text>
     </bpmn:textAnnotation>
-    <bpmn:textAnnotation id="TextAnnotation_0vd487z">
-      <bpmn:text>Opstellen besluit process</bpmn:text>
-    </bpmn:textAnnotation>
     <bpmn:textAnnotation id="TextAnnotation_14flu6i">
       <bpmn:text>Start hercontrolle</bpmn:text>
     </bpmn:textAnnotation>
@@ -439,7 +469,6 @@ EN FORM</bpmn:text>
     <bpmn:association id="Association_1m9p9lm" sourceRef="Event_0nfpu7u" targetRef="TextAnnotation_1gb87eu" />
     <bpmn:association id="Association_1q0nwwc" sourceRef="Event_1pgrt7r" targetRef="TextAnnotation_17zv2a0" />
     <bpmn:association id="Association_0ungrpv" sourceRef="Event_0irxplj" targetRef="TextAnnotation_1oj8wov" />
-    <bpmn:association id="Association_143deqy" sourceRef="Event_0ab1scr" targetRef="TextAnnotation_0vd487z" />
     <bpmn:association id="Association_0q3ghlv" sourceRef="Activity_0jjgz6l" targetRef="TextAnnotation_0zta1fz" />
     <bpmn:association id="Association_1f16r5h" sourceRef="Activity_01qjx7x" targetRef="TextAnnotation_0765scc" />
     <bpmn:association id="Association_0k95c50" sourceRef="Event_0vsuud2" targetRef="TextAnnotation_14flu6i" />
@@ -454,6 +483,7 @@ EN FORM</bpmn:text>
   </bpmn:process>
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
   <bpmn:message id="Message_14wp5u8" name="model_create_summon" />
+  <bpmn:message id="Message_1k1jpww" name="start_decision_process" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1t5ylmo">
       <bpmndi:BPMNShape id="Participant_1ciseh2_di" bpmnElement="Participant_1ciseh2" isHorizontal="true">
@@ -627,7 +657,7 @@ EN FORM</bpmn:text>
         <di:waypoint x="490" y="400" />
         <di:waypoint x="590" y="400" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="477" y="366" width="88" height="53" />
+          <dc:Bounds x="477" y="343" width="88" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1tpuwoi_di" bpmnElement="Flow_1tpuwoi">
@@ -656,7 +686,7 @@ EN FORM</bpmn:text>
         <di:waypoint x="440" y="170" />
         <di:waypoint x="550" y="170" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="427" y="136" width="85" height="40" />
+          <dc:Bounds x="427" y="120" width="85" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_015tlu4_di" bpmnElement="Flow_015tlu4">
@@ -726,9 +756,6 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="Activity_0758rbj_di" bpmnElement="Activity_1ts71uy">
         <dc:Bounds x="2760" y="780" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0ab1scr_di" bpmnElement="Event_0ab1scr">
-        <dc:Bounds x="2962" y="802" width="36" height="36" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0l0k8jy_di" bpmnElement="Activity_0jjgz6l">
         <dc:Bounds x="2590" y="640" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -795,6 +822,12 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="Activity_0z3f2uf_di" bpmnElement="Activity_0z3f2uf">
         <dc:Bounds x="2590" y="780" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1okb3dh_di" bpmnElement="start_decision_process">
+        <dc:Bounds x="2962" y="802" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2939" y="845" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_0vbp35o_di" bpmnElement="TextAnnotation_0vbp35o">
         <dc:Bounds x="840" y="560" width="100" height="112" />
       </bpmndi:BPMNShape>
@@ -818,9 +851,6 @@ EN FORM</bpmn:text>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_0g5i4nd_di" bpmnElement="TextAnnotation_0g5i4nd">
         <dc:Bounds x="1580" y="842" width="100" height="55" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_0vd487z_di" bpmnElement="TextAnnotation_0vd487z">
-        <dc:Bounds x="3020" y="800" width="100" height="40" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_14flu6i_di" bpmnElement="TextAnnotation_14flu6i">
         <dc:Bounds x="3990" y="570" width="100" height="40" />
@@ -857,10 +887,6 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNEdge id="Association_0ungrpv_di" bpmnElement="Association_0ungrpv">
         <di:waypoint x="2147" y="611" />
         <di:waypoint x="2170" y="604" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Association_143deqy_di" bpmnElement="Association_143deqy">
-        <di:waypoint x="2998" y="820" />
-        <di:waypoint x="3020" y="820" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Association_0q3ghlv_di" bpmnElement="Association_0q3ghlv">
         <di:waypoint x="2670" y="640" />
