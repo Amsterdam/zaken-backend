@@ -10,7 +10,7 @@ from apps.camunda.serializers import (
     CamundaTaskSerializer,
 )
 from apps.camunda.services import CamundaService
-from apps.cases.models import Case, CaseState
+from apps.cases.models import Case
 from apps.users.auth_apps import CamundaKeyAuth
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
@@ -88,10 +88,6 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
         serializer_class=CamundaMessagerSerializer,
     )
     def send_message(self, request):
-        import pdb
-
-        pdb.set_trace()
-
         logger.info("Sending message based on Camunda message end event")
         serializer = CamundaMessagerSerializer(data=request.data)
 
