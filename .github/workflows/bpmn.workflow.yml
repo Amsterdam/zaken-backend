@@ -1,0 +1,22 @@
+name: 'Validate BPMN'
+on:
+  push:
+    branches: [ master ]
+    paths:
+    - 'camunda/BPMN/**.bpmn'
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js for BPMN Linting
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - name: Install dependencies for BPMN Linting
+      run: npm install -g bpmnlint
+    - name: Linting BPMN models
+      run: bash camunda/bin/validate_bpmn.sh

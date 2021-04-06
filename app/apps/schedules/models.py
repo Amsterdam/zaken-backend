@@ -1,4 +1,5 @@
 from apps.cases.models import Case, CaseTeam
+from apps.events.models import CaseEvent, ModelEventEmitter
 from django.db import models
 
 
@@ -55,11 +56,13 @@ class Priority(models.Model):
         return self.name
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["weight"]
         unique_together = ["name", "team"]
 
 
-class Schedule(models.Model):
+class Schedule(ModelEventEmitter):
+    EVENT_TYPE = CaseEvent.TYPE_SCHEDULE
+
     action = models.ForeignKey(to=Action, on_delete=models.CASCADE)
     week_segment = models.ForeignKey(to=WeekSegment, on_delete=models.CASCADE)
     day_segment = models.ForeignKey(to=DaySegment, on_delete=models.CASCADE)
@@ -67,3 +70,14 @@ class Schedule(models.Model):
     case = models.ForeignKey(
         to=Case, related_name="schedules", on_delete=models.CASCADE
     )
+    date_added = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+    def __get_event_values__(self):
+        return {
+            "date_added": self.date_added,
+            "action": self.action.name,
+            "week_segment": self.week_segment.name,
+            "day_segment": self.day_segment.name,
+            "priority": self.priority.name,
+        }

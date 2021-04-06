@@ -11,3 +11,7 @@ class VisitViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
     permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = VisitSerializer
     queryset = Visit.objects.all()
+
+    def create(self, request):
+        print(request.data)
+        super().create(request)

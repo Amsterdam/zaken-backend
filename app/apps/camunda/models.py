@@ -1,4 +1,4 @@
-from apps.cases.models import Case, CaseState
+from apps.cases.models import Case
 from apps.events.models import CaseEvent, ModelEventEmitter
 from django.conf import settings
 from django.db import models
