@@ -246,14 +246,19 @@ class CamundaService:
         response = self._process_request(request_path, request_body, put=True)
         return response
 
-    def send_message(self, message_name, message_process_variables):
-        request_body = json.dumps(
-            {
-                "messageName": message_name,
-                "processVariables": message_process_variables,
-                "resultEnabled": True,
-            }
-        )
-        response = self._process_request("/message", request_body, post=True)
+    def send_message(
+        self, message_name, business_key=False, message_process_variables={}
+    ):
+        request_body = {
+            "messageName": message_name,
+            "processVariables": message_process_variables,
+            "resultEnabled": True,
+        }
+
+        if business_key:
+            request_body["businessKey"] = business_key
+
+        request_json_body = json.dumps(request_body)
+        response = self._process_request("/message", request_json_body, post=True)
 
         return response

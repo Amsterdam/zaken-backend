@@ -8,19 +8,16 @@ from django.utils import timezone
 
 
 class CaseTeam(models.Model):
-    class Meta:
-        ordering = ["name"]
-
     name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.name
 
-
-class CaseReason(models.Model):
     class Meta:
         ordering = ["name"]
 
+
+class CaseReason(models.Model):
     name = models.CharField(max_length=255)
     team = models.ForeignKey(
         to=CaseTeam, related_name="reasons", on_delete=models.CASCADE
@@ -29,12 +26,17 @@ class CaseReason(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ["name"]
+
 
 class Case(ModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CASE
 
-    class Meta:
-        ordering = ["-start_date"]
+    # RESULT_NOT_COMPLETED = "ACTIVE"
+    # RESULT_ACHIEVED = "RESULT"
+    # RESULT_MISSED
+    # RESULTS = ()
 
     identification = models.CharField(
         max_length=255, null=True, blank=True, unique=True
@@ -102,6 +104,9 @@ class Case(ModelEventEmitter):
 
         super().save(*args, **kwargs)
 
+    class Meta:
+        ordering = ["-start_date"]
+
 
 class CaseStateType(models.Model):
     def default_team():
@@ -121,9 +126,6 @@ class CaseStateType(models.Model):
 
 
 class CaseState(models.Model):
-    class Meta:
-        ordering = ["start_date"]
-
     case = models.ForeignKey(Case, related_name="case_states", on_delete=models.CASCADE)
     status = models.ForeignKey(CaseStateType, on_delete=models.PROTECT)
     start_date = models.DateField()
@@ -147,3 +149,13 @@ class CaseState(models.Model):
             self.start_date = timezone.now()
 
         return super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ["start_date"]
+
+
+class CaseCloseReason(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
