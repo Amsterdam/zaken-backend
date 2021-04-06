@@ -154,8 +154,8 @@ class CaseState(models.Model):
         ordering = ["start_date"]
 
 
-class CaseCloseReason(models.Model):
-    name = models.CharField(max_length=255)
+# class CaseCloseReason(models.Model):
+#     name = models.CharField(max_length=255)
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
