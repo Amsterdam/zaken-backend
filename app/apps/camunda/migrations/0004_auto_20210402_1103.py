@@ -7,7 +7,6 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("cases", "0047_caseclosereason"),
         ("camunda", "0003_genericcompletedtask_variables"),
     ]
 
