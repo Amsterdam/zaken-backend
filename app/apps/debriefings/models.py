@@ -20,7 +20,7 @@ class Debriefing(ModelEventEmitter):
     ]
 
     case = models.ForeignKey(
-        to=Case, null=False, on_delete=models.RESTRICT, related_name="debriefings"
+        to=Case, null=False, on_delete=models.CASCADE, related_name="debriefings"
     )
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,

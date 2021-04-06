@@ -22,7 +22,7 @@ class Summon(ModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_SUMMON
 
     case = models.ForeignKey(
-        to=Case, null=False, on_delete=models.RESTRICT, related_name="summons"
+        to=Case, null=False, on_delete=models.CASCADE, related_name="summons"
     )
     type = models.ForeignKey(
         to=SummonType, related_name="summons", on_delete=models.RESTRICT
