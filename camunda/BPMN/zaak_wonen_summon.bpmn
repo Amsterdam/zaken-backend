@@ -134,7 +134,7 @@
       <bpmn:outgoing>Flow_11igweb</bpmn:outgoing>
       <bpmn:outgoing>Flow_0qhgq6t</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="Activity_1mkl5rk" name="Monitoren binnenkomen vergunnings aanvraag" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(32).toDate()}">
+    <bpmn:userTask id="Activity_1mkl5rk" name="Monitoren binnenkomen vergunningaanvraag" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(32).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="action_civilian_permit_requested" label="Actie burger" type="enum">
