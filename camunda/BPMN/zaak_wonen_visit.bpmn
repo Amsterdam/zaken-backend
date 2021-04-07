@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_1tztuvt">
     <bpmn:participant id="Participant_08m4w5n" name="Process" processRef="zaak_wonen_visit" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_visit" name="Zaak Wonen VakantieVerhuur - Huisbezoek" isExecutable="true" camunda:versionTag="0.0.9">
+  <bpmn:process id="zaak_wonen_visit" name="Zaak Wonen VakantieVerhuur - Huisbezoek" isExecutable="true" camunda:versionTag="0.0.10">
     <bpmn:laneSet id="LaneSet_07j24vc">
       <bpmn:lane id="Lane_1hxgg1r" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_0xocoed</bpmn:flowNodeRef>

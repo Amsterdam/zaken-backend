@@ -96,7 +96,7 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
             message_name = serializer.validated_data["message_name"]
             case_identification = serializer.validated_data["case_id"]
             process_variables = serializer.validated_data["process_variables"]
-            process_variables["endpoint"] = settings.ZAKEN_CONTAINER_HOST
+            process_variables["endpoint"] = {"value": settings.ZAKEN_CONTAINER_HOST}
 
             raw_response = CamundaService().send_message(
                 message_name=message_name, message_process_variables=process_variables

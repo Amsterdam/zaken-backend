@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_19t4o88">
     <bpmn:participant id="Participant_0mil4ed" name="Besluitproces" processRef="zaak_wonen_decision" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_decision" name="Zaak Wonen VakantieVerhuur - Besluit" isExecutable="true" camunda:versionTag="0.0.2">
+  <bpmn:process id="zaak_wonen_decision" name="Zaak Wonen VakantieVerhuur - Besluit" isExecutable="true" camunda:versionTag="0.0.3">
     <bpmn:laneSet id="LaneSet_0togpvw">
       <bpmn:lane id="Lane_138dlau" name="Projecthandhaver">
         <bpmn:flowNodeRef>Event_0n016y6</bpmn:flowNodeRef>
@@ -163,10 +163,10 @@
     <bpmn:startEvent id="start_decision_process" name="Start Besluit Process" camunda:formKey="start_besluit">
       <bpmn:extensionElements>
         <camunda:formData businessKey="FormField_276df5o">
-          <camunda:formField id="aanschrijving_id" type="string" />
           <camunda:formField id="zaken_access_token" type="string" />
           <camunda:formField id="case_identification" type="string" />
           <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+          <camunda:formField id="zaken_state_endpoint" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0wd1lwv</bpmn:outgoing>
