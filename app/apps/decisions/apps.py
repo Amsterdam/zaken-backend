@@ -5,4 +5,4 @@ class DecisionsConfig(AppConfig):
     name = "apps.decisions"
 
     def ready(self):
-        pass
+        import apps.decisions.signals
