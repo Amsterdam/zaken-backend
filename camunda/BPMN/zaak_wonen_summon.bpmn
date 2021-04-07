@@ -27,7 +27,6 @@
         <bpmn:flowNodeRef>Activity_1mvz8v7</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_074ue8s</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0jjgz6l</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_1ts71uy</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0dunbbn</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0irxplj</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1o8bq7o</bpmn:flowNodeRef>
@@ -44,8 +43,8 @@
         <bpmn:flowNodeRef>Activity_1k03k9a</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1t6r1v4</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0ma57of</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_0z3f2uf</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>start_decision_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0zw90ih</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1o6yxo7" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_1e9dx60</bpmn:flowNodeRef>
@@ -94,17 +93,13 @@
     <bpmn:sequenceFlow id="Flow_1m5qenh" name="Ja is binnengekomen" sourceRef="Gateway_0dunbbn" targetRef="Activity_0jjgz6l">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${zienswijze_binnengekomen=="true"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1lvze3e" name="Nee geen zienswijze binnengekomen" sourceRef="Gateway_0dunbbn" targetRef="Activity_0z3f2uf">
+    <bpmn:sequenceFlow id="Flow_1lvze3e" name="Nee geen zienswijze binnengekomen" sourceRef="Gateway_0dunbbn" targetRef="Activity_0zw90ih">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${zienswijze_binnengekomen=="false"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0ckmjw7" name="Nee geen geldig bezwaar" sourceRef="Gateway_074ue8s" targetRef="Activity_1ts71uy">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${beoordelen_bezwaar=="false"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1hgl50g" sourceRef="Activity_0jjgz6l" targetRef="Gateway_074ue8s" />
     <bpmn:sequenceFlow id="Flow_0dlpo3p" name="Ja geldig bezwaar" sourceRef="Gateway_074ue8s" targetRef="Activity_1mvz8v7">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${beoordelen_bezwaar=="true"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1txz7fj" sourceRef="Activity_1ts71uy" targetRef="start_decision_process" />
     <bpmn:sequenceFlow id="Flow_0e9z63g" sourceRef="Activity_0h3fcbr" targetRef="Event_0vsuud2" />
     <bpmn:sequenceFlow id="Flow_045qk4z" sourceRef="Gateway_0rds8zy" targetRef="Event_1ircr3x">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" />
@@ -168,10 +163,10 @@
       <bpmn:incoming>Flow_18cv8bi</bpmn:incoming>
       <bpmn:outgoing>Flow_1t6e5pj</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:endEvent id="Event_0frp4m5">
+    <bpmn:endEvent id="Event_0frp4m5" name="Opstellen concept aanschrijvingen">
       <bpmn:incoming>Flow_0029983</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:endEvent id="Event_0nfpu7u">
+    <bpmn:endEvent id="Event_0nfpu7u" name="Opstellen concept aanschrijving">
       <bpmn:incoming>Flow_0qhgq6t</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:exclusiveGateway id="Gateway_0puuu8q">
@@ -184,17 +179,17 @@
       <bpmn:incoming>Flow_1eszwat</bpmn:incoming>
       <bpmn:outgoing>Flow_023d51s</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:endEvent id="Event_1kaqui8">
+    <bpmn:endEvent id="Event_1kaqui8" name="Afsluiten zaak">
       <bpmn:incoming>Flow_023d51s</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:endEvent id="Event_1pgrt7r">
+    <bpmn:endEvent id="Event_1pgrt7r" name="Gelegaliseerd">
       <bpmn:incoming>Flow_18sph1h</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:userTask id="Activity_1o8bq7o" name="Uitzetten hercontrole" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_10zlmsl</bpmn:incoming>
       <bpmn:outgoing>Flow_0gbg0yp</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:endEvent id="Event_0irxplj">
+    <bpmn:endEvent id="Event_0irxplj" name="Start hercontrole">
       <bpmn:incoming>Flow_0gbg0yp</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:exclusiveGateway id="Gateway_0dunbbn" name="Is er een zienswijze binnengekomen">
@@ -202,11 +197,6 @@
       <bpmn:outgoing>Flow_1m5qenh</bpmn:outgoing>
       <bpmn:outgoing>Flow_1lvze3e</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="Activity_1ts71uy" name="Opstellen concept besluit" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
-      <bpmn:incoming>Flow_0ckmjw7</bpmn:incoming>
-      <bpmn:incoming>Flow_1lovgt2</bpmn:incoming>
-      <bpmn:outgoing>Flow_1txz7fj</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:userTask id="Activity_0jjgz6l" name="Beoordelen zienswijze" camunda:formKey="is_zienswijze_geldig" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
@@ -219,7 +209,7 @@
     <bpmn:exclusiveGateway id="Gateway_074ue8s" name="Is het bezwaar zienswijze geldig?">
       <bpmn:incoming>Flow_1hgl50g</bpmn:incoming>
       <bpmn:outgoing>Flow_0dlpo3p</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0ckmjw7</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0v7wvsk</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:userTask id="Activity_1mvz8v7" name="Opstellen concept voornemen afzien" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_0dlpo3p</bpmn:incoming>
@@ -244,20 +234,20 @@
       <bpmn:incoming>Flow_136wf3m</bpmn:incoming>
       <bpmn:outgoing>Flow_0e9z63g</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:endEvent id="Event_0vsuud2">
+    <bpmn:endEvent id="Event_0vsuud2" name="Start hercontrole">
       <bpmn:incoming>Flow_0e9z63g</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:endEvent id="Event_1ircr3x">
+    <bpmn:endEvent id="Event_1ircr3x" name="Nieuwe aanschrijvingen">
       <bpmn:incoming>Flow_045qk4z</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:endEvent id="Event_0zv9jh8">
+    <bpmn:endEvent id="Event_0zv9jh8" name="Proces afgerond">
       <bpmn:incoming>Flow_089rr1f</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:userTask id="Activity_0rztr7y" name="Afsluiten zaak" camunda:candidateGroups="Projecthandhaveer" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_1w8616g</bpmn:incoming>
       <bpmn:outgoing>Flow_0pmib99</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:endEvent id="Event_0kg00aw">
+    <bpmn:endEvent id="Event_0kg00aw" name="Afsluiten zaak">
       <bpmn:incoming>Flow_0pmib99</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:userTask id="Activity_0t0wwb4" name="Controleren binnenkomen zienswijze" camunda:formKey="zienswijze_binnengekomen_form" camunda:candidateGroups="Projectmedewerker, Projecthandhaver" camunda:dueDate="${dateTime().plusDays(18).toDate()}">
@@ -305,6 +295,7 @@
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
+            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
@@ -328,6 +319,7 @@
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
+            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
@@ -339,7 +331,7 @@
       <bpmn:incoming>Flow_1dcdx7q</bpmn:incoming>
       <bpmn:outgoing>Flow_12m4h17</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:endEvent id="Event_0sv4e8w">
+    <bpmn:endEvent id="Event_0sv4e8w" name="Hercontrole">
       <bpmn:incoming>Flow_12m4h17</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1kedpc9" sourceRef="Activity_0ma57of" targetRef="Activity_1mkl5rk" />
@@ -366,6 +358,7 @@
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
+            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
@@ -373,32 +366,12 @@
       <bpmn:incoming>Flow_0p4fa1b</bpmn:incoming>
       <bpmn:outgoing>Flow_1kedpc9</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_1lovgt2" sourceRef="Activity_0z3f2uf" targetRef="Activity_1ts71uy" />
-    <bpmn:serviceTask id="Activity_0z3f2uf" name="Status bijwerken: &#34;Besluit {names}&#34;">
-      <bpmn:extensionElements>
-        <camunda:connector>
-          <camunda:inputOutput>
-            <camunda:inputParameter name="payload">{
-"state": "Besluit ${names}",
-"case_identification": ${case_identification}
-}</camunda:inputParameter>
-            <camunda:inputParameter name="headers">
-              <camunda:map>
-                <camunda:entry key="content-type">application/json</camunda:entry>
-                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
-              </camunda:map>
-            </camunda:inputParameter>
-            <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
-          </camunda:inputOutput>
-          <camunda:connectorId>http-connector</camunda:connectorId>
-        </camunda:connector>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1lvze3e</bpmn:incoming>
-      <bpmn:outgoing>Flow_1lovgt2</bpmn:outgoing>
-    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0v7wvsk" sourceRef="Gateway_074ue8s" targetRef="Activity_0zw90ih">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${beoordelen_bezwaar=="false"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_08n34dt" sourceRef="Activity_0zw90ih" targetRef="start_decision_process" />
     <bpmn:endEvent id="start_decision_process" name="Opstellen besluit process">
-      <bpmn:incoming>Flow_1txz7fj</bpmn:incoming>
+      <bpmn:incoming>Flow_08n34dt</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0qjhb7z" messageRef="Message_1k1jpww">
         <bpmn:extensionElements>
           <camunda:connector>
@@ -426,6 +399,27 @@
         </bpmn:extensionElements>
       </bpmn:messageEventDefinition>
     </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_0zw90ih" name="Status Beëindigen">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{"state_identification": "${state_identification}"}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${zaken_end_state_endpoint}</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1lvze3e</bpmn:incoming>
+      <bpmn:incoming>Flow_0v7wvsk</bpmn:incoming>
+      <bpmn:outgoing>Flow_08n34dt</bpmn:outgoing>
+    </bpmn:serviceTask>
     <bpmn:textAnnotation id="TextAnnotation_0vbp35o">
       <bpmn:text>Dynamische datum kiezen in form waaruit deadline "Monitoren vergunningsprocedure" is</bpmn:text>
     </bpmn:textAnnotation>
@@ -496,9 +490,13 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="Lane_0ku7kbe_di" bpmnElement="Lane_0ku7kbe" isHorizontal="true">
         <dc:Bounds x="191" y="80" width="4339" height="170" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1lovgt2_di" bpmnElement="Flow_1lovgt2">
-        <di:waypoint x="2690" y="820" />
-        <di:waypoint x="2760" y="820" />
+      <bpmndi:BPMNEdge id="Flow_08n34dt_di" bpmnElement="Flow_08n34dt">
+        <di:waypoint x="2860" y="820" />
+        <di:waypoint x="2992" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0v7wvsk_di" bpmnElement="Flow_0v7wvsk">
+        <di:waypoint x="2810" y="705" />
+        <di:waypoint x="2810" y="780" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1kedpc9_di" bpmnElement="Flow_1kedpc9">
         <di:waypoint x="750" y="750" />
@@ -546,10 +544,6 @@ EN FORM</bpmn:text>
         <di:waypoint x="3840" y="590" />
         <di:waypoint x="3928" y="590" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1txz7fj_di" bpmnElement="Flow_1txz7fj">
-        <di:waypoint x="2860" y="820" />
-        <di:waypoint x="2962" y="820" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0dlpo3p_di" bpmnElement="Flow_0dlpo3p">
         <di:waypoint x="2835" y="680" />
         <di:waypoint x="2960" y="680" />
@@ -561,19 +555,12 @@ EN FORM</bpmn:text>
         <di:waypoint x="2690" y="680" />
         <di:waypoint x="2785" y="680" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0ckmjw7_di" bpmnElement="Flow_0ckmjw7">
-        <di:waypoint x="2810" y="705" />
-        <di:waypoint x="2810" y="780" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2809" y="726" width="81" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1lvze3e_di" bpmnElement="Flow_1lvze3e">
         <di:waypoint x="2420" y="705" />
         <di:waypoint x="2420" y="820" />
-        <di:waypoint x="2590" y="820" />
+        <di:waypoint x="2760" y="820" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2403" y="700" width="79" height="40" />
+          <dc:Bounds x="2422" y="830" width="79" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1m5qenh_di" bpmnElement="Flow_1m5qenh">
@@ -720,9 +707,15 @@ EN FORM</bpmn:text>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0frp4m5_di" bpmnElement="Event_0frp4m5">
         <dc:Bounds x="1522" y="852" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1496" y="895" width="89" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0nfpu7u_di" bpmnElement="Event_0nfpu7u">
         <dc:Bounds x="1162" y="852" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1136" y="895" width="89" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0puuu8q_di" bpmnElement="Gateway_0puuu8q" isMarkerVisible="true">
         <dc:Bounds x="1775" y="725" width="50" height="50" />
@@ -732,24 +725,30 @@ EN FORM</bpmn:text>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1kaqui8_di" bpmnElement="Event_1kaqui8">
         <dc:Bounds x="2112" y="732" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2096" y="775" width="69" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1pgrt7r_di" bpmnElement="Event_1pgrt7r">
         <dc:Bounds x="2112" y="852" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2096" y="895" width="68" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0vehsw9_di" bpmnElement="Activity_1o8bq7o">
         <dc:Bounds x="1920" y="576" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0irxplj_di" bpmnElement="Event_0irxplj">
         <dc:Bounds x="2112" y="598" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2089" y="641" width="82" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0dunbbn_di" bpmnElement="Gateway_0dunbbn" isMarkerVisible="true">
         <dc:Bounds x="2395" y="655" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2370" y="610" width="79" height="40" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0758rbj_di" bpmnElement="Activity_1ts71uy">
-        <dc:Bounds x="2760" y="780" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0l0k8jy_di" bpmnElement="Activity_0jjgz6l">
         <dc:Bounds x="2590" y="640" width="100" height="80" />
@@ -777,18 +776,30 @@ EN FORM</bpmn:text>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0vsuud2_di" bpmnElement="Event_0vsuud2">
         <dc:Bounds x="3928" y="572" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3905" y="615" width="82" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1ircr3x_di" bpmnElement="Event_1ircr3x">
         <dc:Bounds x="3928" y="662" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3908" y="705" width="77" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0zv9jh8_di" bpmnElement="Event_0zv9jh8">
         <dc:Bounds x="3928" y="752" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3906" y="795" width="81" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_01nwvop_di" bpmnElement="Activity_0rztr7y">
         <dc:Bounds x="3740" y="820" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0kg00aw_di" bpmnElement="Event_0kg00aw">
         <dc:Bounds x="3928" y="842" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3912" y="885" width="69" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0a7nc0y_di" bpmnElement="Activity_0t0wwb4">
         <dc:Bounds x="758" y="130" width="100" height="80" />
@@ -810,18 +821,21 @@ EN FORM</bpmn:text>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0sv4e8w_di" bpmnElement="Event_0sv4e8w">
         <dc:Bounds x="952" y="382" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="942" y="425" width="57" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0ma57of_di" bpmnElement="Activity_0ma57of">
         <dc:Bounds x="650" y="710" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0z3f2uf_di" bpmnElement="Activity_0z3f2uf">
-        <dc:Bounds x="2590" y="780" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1okb3dh_di" bpmnElement="start_decision_process">
-        <dc:Bounds x="2962" y="802" width="36" height="36" />
+        <dc:Bounds x="2992" y="802" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2939" y="845" width="82" height="27" />
+          <dc:Bounds x="2969" y="845" width="82" height="27" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1te8d54_di" bpmnElement="Activity_0zw90ih">
+        <dc:Bounds x="2760" y="780" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_0vbp35o_di" bpmnElement="TextAnnotation_0vbp35o">
         <dc:Bounds x="840" y="560" width="100" height="112" />

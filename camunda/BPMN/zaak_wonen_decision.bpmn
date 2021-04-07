@@ -15,7 +15,7 @@
         <bpmn:flowNodeRef>Gateway_0h8vjtw</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0iv6djb</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_08cj18o</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_155qiq4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_create_decision</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0oomlec</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_02ewdul</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>start_decision_process</bpmn:flowNodeRef>
@@ -32,13 +32,13 @@
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:sequenceFlow id="Flow_0wd1lwv" sourceRef="start_decision_process" targetRef="Activity_0oomlec" />
-    <bpmn:sequenceFlow id="Flow_10ujifg" sourceRef="Activity_155qiq4" targetRef="Gateway_12p2b5t" />
+    <bpmn:sequenceFlow id="Flow_10ujifg" sourceRef="task_create_decision" targetRef="Gateway_12p2b5t" />
     <bpmn:sequenceFlow id="Flow_15jrvwj" name="Besluit = sanctie (boete, invordering dwangsom, meldplicht beschikking boete)" sourceRef="Gateway_0h8vjtw" targetRef="Activity_14kdv7u" />
     <bpmn:sequenceFlow id="Flow_1boz1xa" name="Besluit = Intrekken vergunning *3" sourceRef="Gateway_0h8vjtw" targetRef="Activity_1tl73nx">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${type_besluit=="intrekken_vv_vergunning" || type_besluit=="intrekken_bb_vergunning" || type_besluit=="intrekken_shortstay_vergunning"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0pifsrz" sourceRef="Activity_08cj18o" targetRef="Activity_1j6vc31" />
-    <bpmn:sequenceFlow id="Flow_0q95btx" sourceRef="Activity_1j6vc31" targetRef="Activity_155qiq4" />
+    <bpmn:sequenceFlow id="Flow_0q95btx" sourceRef="Activity_1j6vc31" targetRef="task_create_decision" />
     <bpmn:sequenceFlow id="Flow_1mn1e0n" name="Besluit = Last onder dwangssom" sourceRef="Gateway_0h8vjtw" targetRef="Activity_0iv6djb">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${type_besluit=="last_onder_dwangsom"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -57,7 +57,7 @@
     <bpmn:sequenceFlow id="Flow_091eyfc" sourceRef="Activity_0iv6djb" targetRef="Gateway_0f59geq" />
     <bpmn:sequenceFlow id="Flow_1r2nz2z" sourceRef="Activity_1tl73nx" targetRef="Gateway_0f59geq" />
     <bpmn:sequenceFlow id="Flow_0agc8hf" sourceRef="Gateway_0f59geq" targetRef="Event_0n016y6" />
-    <bpmn:endEvent id="Event_0n016y6">
+    <bpmn:endEvent id="Event_0n016y6" name="Einde">
       <bpmn:incoming>Flow_0agc8hf</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:inclusiveGateway id="Gateway_0f59geq">
@@ -113,7 +113,7 @@
       <bpmn:incoming>Flow_1iai8dg</bpmn:incoming>
       <bpmn:outgoing>Flow_0pifsrz</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_155qiq4" name="Verwerken definitieve besluit" camunda:formKey="verwerken_def_besluit" camunda:candidateGroups="Projecthandhaver">
+    <bpmn:userTask id="task_create_decision" name="Verwerken definitieve besluit" camunda:formKey="verwerken_def_besluit" camunda:candidateGroups="Projecthandhaver">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="type_besluit" label="Wat voor een besluit neem je" type="enum">
@@ -173,10 +173,10 @@
       <bpmn:messageEventDefinition id="MessageEventDefinition_1so2spg" messageRef="Message_1k5s52q" />
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_1g346ld" sourceRef="Activity_1fwbdmm" targetRef="Activity_0kxilhv" />
-    <bpmn:endEvent id="Event_00pad6z">
+    <bpmn:endEvent id="Event_00pad6z" name="Hercontrole">
       <bpmn:incoming>Flow_08x4ebs</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:endEvent id="Event_1wv10r3">
+    <bpmn:endEvent id="Event_1wv10r3" name="Afsluiten zaak">
       <bpmn:incoming>Flow_1lkqfuw</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:serviceTask id="Activity_1fwbdmm" name="Status bijwerken: &#34;Afsluiten zaak&#34;">
@@ -327,6 +327,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_0n016y6_di" bpmnElement="Event_0n016y6">
         <dc:Bounds x="1322" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1326" y="285" width="29" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0l8m44t_di" bpmnElement="Gateway_0f59geq">
         <dc:Bounds x="1235" y="235" width="50" height="50" />
@@ -358,7 +361,7 @@
       <bpmndi:BPMNShape id="Activity_093kfdn_di" bpmnElement="Activity_08cj18o">
         <dc:Bounds x="520" y="390" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0v48bwq_di" bpmnElement="Activity_155qiq4">
+      <bpmndi:BPMNShape id="Activity_0v48bwq_di" bpmnElement="task_create_decision">
         <dc:Bounds x="720" y="390" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0qkr075_di" bpmnElement="Activity_0oomlec">
@@ -378,9 +381,15 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_00pad6z_di" bpmnElement="Event_00pad6z">
         <dc:Bounds x="1572" y="412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1562" y="455" width="57" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1wv10r3_di" bpmnElement="Event_1wv10r3">
         <dc:Bounds x="1572" y="1062" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1556" y="1105" width="69" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1fwbdmm_di" bpmnElement="Activity_1fwbdmm">
         <dc:Bounds x="1350" y="840" width="100" height="80" />

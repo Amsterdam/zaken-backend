@@ -353,7 +353,7 @@
       <bpmn:incoming>Flow_0ozrgdh</bpmn:incoming>
       <bpmn:outgoing>Flow_0x95ke6</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:endEvent id="Event_1wo36z3">
+    <bpmn:endEvent id="Event_1wo36z3" name="Informeer">
       <bpmn:incoming>Flow_1d2hx1m</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1d2hx1m" sourceRef="Activity_0bc2n3t" targetRef="Event_1wo36z3" />
@@ -427,7 +427,7 @@
       <bpmn:outgoing>Flow_1vj8j71</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_1j3v702" sourceRef="Activity_1hqxpcj" targetRef="Event_0biznfy" />
-    <bpmn:endEvent id="Event_0biznfy">
+    <bpmn:endEvent id="Event_0biznfy" name="Start aanschrijving">
       <bpmn:incoming>Flow_1j3v702</bpmn:incoming>
       <bpmn:terminateEventDefinition id="TerminateEventDefinition_1qr1iz5" />
     </bpmn:endEvent>
@@ -453,7 +453,7 @@
       <bpmn:incoming>Flow_1k51zjk</bpmn:incoming>
       <bpmn:outgoing>Flow_1j3v702</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:endEvent id="Event_1pmbcxw">
+    <bpmn:endEvent id="Event_1pmbcxw" name="Afsluiten zaak">
       <bpmn:incoming>Flow_006wtg4</bpmn:incoming>
       <bpmn:terminateEventDefinition id="TerminateEventDefinition_18jw2zx" />
     </bpmn:endEvent>
@@ -810,6 +810,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1wo36z3_di" bpmnElement="Event_1wo36z3">
         <dc:Bounds x="1092" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1086" y="265" width="48" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_08um7qq_di" bpmnElement="Activity_08um7qq">
         <dc:Bounds x="2300" y="600" width="100" height="80" />
@@ -822,12 +825,18 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0ghz25t_di" bpmnElement="Event_0biznfy">
         <dc:Bounds x="2802" y="1052" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2788" y="1095" width="65" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1hqxpcj_di" bpmnElement="Activity_1hqxpcj">
         <dc:Bounds x="2670" y="1030" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_180llsq_di" bpmnElement="Event_1pmbcxw">
         <dc:Bounds x="2802" y="482" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2786" y="525" width="69" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_00h0tuq_di" bpmnElement="TextAnnotation_00h0tuq">
         <dc:Bounds x="1600" y="1120" width="180" height="40" />
