@@ -36,6 +36,10 @@ def create_case_instance_in_camunda(sender, instance, created, **kwargs):
                         "value": instance.identification,
                         "type": "String",
                     },
+                    "endpoint": {
+                        "value": settings.ZAKEN_CONTAINER_HOST,
+                        "type": "String",
+                    },
                 },
             }
         )
