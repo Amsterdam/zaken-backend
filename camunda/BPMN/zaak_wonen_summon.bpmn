@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0k0da6k" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0k0da6k" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.5.0">
   <bpmn:collaboration id="Collaboration_1t5ylmo">
     <bpmn:participant id="Participant_1ciseh2" name="Process" processRef="zaak_wonen_summon" />
   </bpmn:collaboration>
@@ -76,10 +76,10 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${next_step=="hercontrole"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1t6e5pj" sourceRef="Activity_0ia10qb" targetRef="Gateway_0puuu8q" />
-    <bpmn:sequenceFlow id="Flow_0qhgq6t" name="Nee, vergunning niet aangevraagd" sourceRef="Gateway_1pwflrj" targetRef="Event_0nfpu7u">
+    <bpmn:sequenceFlow id="Flow_0qhgq6t" name="Nee, geen vergunning aangevraagd" sourceRef="Gateway_1pwflrj" targetRef="Event_0nfpu7u">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested=="false"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_11igweb" name="Ja vergunning aangevraagd" sourceRef="Gateway_1pwflrj" targetRef="Activity_1k03k9a">
+    <bpmn:sequenceFlow id="Flow_11igweb" name="Ja, vergunning aangevraagd" sourceRef="Gateway_1pwflrj" targetRef="Activity_1k03k9a">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested=="true"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1i77oze" sourceRef="Activity_1k03k9a" targetRef="Gateway_0ddrey0" />
@@ -129,27 +129,21 @@
       <bpmn:incoming>Flow_11igweb</bpmn:incoming>
       <bpmn:outgoing>Flow_1i77oze</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:exclusiveGateway id="Gateway_1pwflrj" name="Is de vergunning aangevraagd">
+    <bpmn:exclusiveGateway id="Gateway_1pwflrj" name="Is vergunning aangevraagd?">
       <bpmn:incoming>Flow_10upkzz</bpmn:incoming>
       <bpmn:outgoing>Flow_11igweb</bpmn:outgoing>
       <bpmn:outgoing>Flow_0qhgq6t</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="Activity_1mkl5rk" name="Monitoren binnenkomen vergunnings aanvraag" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(32).toDate()}">
+    <bpmn:userTask id="Activity_1mkl5rk" name="Monitoren binnenkomen vergunningaanvraag" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(32).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="action_civilian_permit_requested" label="Actie burger" type="enum">
+          <camunda:formField id="action_civilian_permit_requested" label="Is vergunning aangevraagd?" type="enum">
             <camunda:properties>
               <camunda:property id="description" value="Dit is een testerino" />
               <camunda:property id="tooltip" value="Dit is een testerino ook" />
             </camunda:properties>
-            <camunda:value id="yes_permit_requested" name="Ja vergunning aangevraagd" />
-            <camunda:value id="no_action" name="Burger heef geen actie ondernomen" />
-          </camunda:formField>
-          <camunda:formField id="date_new_form" label="Vergunning zou vergeven worden op" type="date">
-            <camunda:properties>
-              <camunda:property id="description" value="Dit is een test" />
-              <camunda:property id="tooltip" value="Dit is ook een test" />
-            </camunda:properties>
+            <camunda:value id="yes_permit_requested" name="Ja, vergunning aangevraagd" />
+            <camunda:value id="no_action" name="Nee, geen vergunning aangevraagd" />
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
@@ -620,7 +614,7 @@ EN FORM</bpmn:text>
         <di:waypoint x="1025" y="750" />
         <di:waypoint x="1130" y="750" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1052" y="696" width="70" height="27" />
+          <dc:Bounds x="1051" y="696" width="73" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0qhgq6t_di" bpmnElement="Flow_0qhgq6t">
@@ -628,7 +622,7 @@ EN FORM</bpmn:text>
         <di:waypoint x="1000" y="870" />
         <di:waypoint x="1162" y="870" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1017" y="836" width="86" height="27" />
+          <dc:Bounds x="1029" y="836" width="65" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1t6e5pj_di" bpmnElement="Flow_1t6e5pj">
@@ -712,7 +706,7 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="Gateway_1pwflrj_di" bpmnElement="Gateway_1pwflrj" isMarkerVisible="true">
         <dc:Bounds x="975" y="725" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="960" y="695" width="82" height="27" />
+          <dc:Bounds x="966" y="695" width="71" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1ptqws9_di" bpmnElement="Activity_1mkl5rk">
