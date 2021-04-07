@@ -166,6 +166,7 @@
           <camunda:formField id="aanschrijving_id" type="string" />
           <camunda:formField id="zaken_access_token" type="string" />
           <camunda:formField id="case_identification" type="string" />
+          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0wd1lwv</bpmn:outgoing>

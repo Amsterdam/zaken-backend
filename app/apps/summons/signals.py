@@ -69,6 +69,10 @@ def create_summon_instance_in_camunda(sender, instance, created, **kwargs):
                             "value": f'{settings.ZAKEN_CONTAINER_HOST}{reverse("camunda-workers-end-state")}',
                             "type": "String",
                         },
+                        "endpoint": {
+                            "value": settings.ZAKEN_CONTAINER_HOST,
+                            "type": "String",
+                        },
                     }
                 }
             ),

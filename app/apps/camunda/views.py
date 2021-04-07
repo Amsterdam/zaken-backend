@@ -12,6 +12,7 @@ from apps.camunda.serializers import (
 from apps.camunda.services import CamundaService
 from apps.cases.models import Case
 from apps.users.auth_apps import CamundaKeyAuth
+from django.conf import settings
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import status, viewsets
@@ -78,12 +79,12 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
-        description="A Camunda service task for ending a state",
+        description="A Camunda service task for starting process based on message",
         responses={200: None},
     )
     @action(
         detail=False,
-        url_path="send-message",
+        url_path="send-message-start-process",
         methods=["post"],
         serializer_class=CamundaMessagerSerializer,
     )
@@ -93,24 +94,30 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
 
         if serializer.is_valid():
             message_name = serializer.validated_data["message_name"]
-            process_variables = serializer.validated_data["process_variables"]
             case_identification = serializer.validated_data["case_id"]
+            process_variables = serializer.validated_data["process_variables"]
+            process_variables["endpoint"] = settings.ZAKEN_CONTAINER_HOST
 
             raw_response = CamundaService().send_message(
                 message_name=message_name, message_process_variables=process_variables
             )
 
-            response = raw_response.json()[0]
-            camunda_id = response["processInstance"]["id"]
+            if raw_response.ok:
+                response = raw_response.json()[0]
+                camunda_id = response["processInstance"]["id"]
 
-            case = Case.objects.get(identification=case_identification)
-            case.camunda_id = camunda_id
-            case.save()
+                case = Case.objects.get(identification=case_identification)
+                case.camunda_id = camunda_id
+                case.save()
 
-            logger.info(f"Message send {message_name} ended succesfully")
-            return Response(status=status.HTTP_200_OK)
+                logger.info(f"Message send {message_name} ended succesfully")
+                return Response(status=status.HTTP_200_OK)
+
+            rendered_content = raw_response.content.decode("UTF-8")
+            logger.error(f"FAIL: Message send response:{rendered_content}")
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            logger.error(f"State could not be ended: {serializer.errors}")
+            logger.error(f"FAIL: Message send {serializer.errors}")
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
