@@ -282,6 +282,7 @@
           <camunda:formField id="type_aanschrijving" label="Welk type aanschrijving heb je opgesteld?" type="string" />
           <camunda:formField id="sluitingsbesluit" label="Zit er ook een sluitingsbesluit bij?" type="boolean" defaultValue="false" />
           <camunda:formField id="case_identification" label="Wat is de ID van de zaak?" type="string" />
+          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_06je06y</bpmn:outgoing>
@@ -408,7 +409,7 @@
         <bpmn:extensionElements>
           <camunda:connector>
             <camunda:inputOutput>
-              <camunda:inputParameter name="url">http://zaak-gateway:8000​/api/v1/camunda/worker/send-message/</camunda:inputParameter>
+              <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/send-message-start-process/</camunda:inputParameter>
               <camunda:inputParameter name="method">POST</camunda:inputParameter>
               <camunda:inputParameter name="payload">{
     "message_name": "start_decision_process",
