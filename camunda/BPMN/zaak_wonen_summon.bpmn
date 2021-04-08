@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0k0da6k" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.5.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0k0da6k" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
   <bpmn:collaboration id="Collaboration_1t5ylmo">
     <bpmn:participant id="Participant_1ciseh2" name="Process" processRef="zaak_wonen_summon" />
   </bpmn:collaboration>
@@ -11,6 +11,7 @@
       </bpmn:lane>
       <bpmn:lane id="Lane_1wein50" name="Projectmedewerker">
         <bpmn:flowNodeRef>Activity_0j1vbxy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1mkl5rk</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1wbjkdg</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0sv4e8w</bpmn:flowNodeRef>
       </bpmn:lane>
@@ -38,7 +39,6 @@
         <bpmn:flowNodeRef>Event_0frp4m5</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0ia10qb</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0ddrey0</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_1mkl5rk</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1pwflrj</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1k03k9a</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1t6r1v4</bpmn:flowNodeRef>
@@ -76,29 +76,29 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1t6e5pj" sourceRef="Activity_0ia10qb" targetRef="Gateway_0puuu8q" />
     <bpmn:sequenceFlow id="Flow_0qhgq6t" name="Nee, geen vergunning aangevraagd" sourceRef="Gateway_1pwflrj" targetRef="Event_0nfpu7u">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested=="false"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested=="no_action"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_11igweb" name="Ja, vergunning aangevraagd" sourceRef="Gateway_1pwflrj" targetRef="Activity_1k03k9a">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested=="true"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested=="yes_permit_requested"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1i77oze" sourceRef="Activity_1k03k9a" targetRef="Gateway_0ddrey0" />
     <bpmn:sequenceFlow id="Flow_18cv8bi" name="Ja vergunning" sourceRef="Gateway_0ddrey0" targetRef="Activity_0ia10qb">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${civilian_has_gotten_permit=="true"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${civilian_has_gotten_permit=="yes_permit"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0029983" name="Nee, geen vergunning verleend" sourceRef="Gateway_0ddrey0" targetRef="Event_0frp4m5">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${civilian_has_gotten_permit=="false"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${civilian_has_gotten_permit=="no_permit"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0gbg0yp" sourceRef="Activity_1o8bq7o" targetRef="Event_0irxplj" />
     <bpmn:sequenceFlow id="Flow_023d51s" sourceRef="Activity_1j9qmld" targetRef="Event_1kaqui8" />
     <bpmn:sequenceFlow id="Flow_1m5qenh" name="Ja is binnengekomen" sourceRef="Gateway_0dunbbn" targetRef="Activity_0jjgz6l">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${zienswijze_binnengekomen=="true"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${zienswijze_binnengekomen=="yes_zienswijze"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1lvze3e" name="Nee geen zienswijze binnengekomen" sourceRef="Gateway_0dunbbn" targetRef="Activity_0zw90ih">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${zienswijze_binnengekomen=="false"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${zienswijze_binnengekomen=="no_zienswijze"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1hgl50g" sourceRef="Activity_0jjgz6l" targetRef="Gateway_074ue8s" />
     <bpmn:sequenceFlow id="Flow_0dlpo3p" name="Ja geldig bezwaar" sourceRef="Gateway_074ue8s" targetRef="Activity_1mvz8v7">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${beoordelen_bezwaar=="true"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${beoordelen_bezwaar=="yes_objection"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0e9z63g" sourceRef="Activity_0h3fcbr" targetRef="Event_0vsuud2" />
     <bpmn:sequenceFlow id="Flow_045qk4z" sourceRef="Gateway_0rds8zy" targetRef="Event_1ircr3x">
@@ -118,7 +118,10 @@
     <bpmn:userTask id="Activity_1k03k9a" name="Monitoren vergunningsprocedure" camunda:formKey="form_monitoren_vergunningsprocedure" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(56).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="civilian_has_gotten_permit" label="Heeft de burger nu een vergunning?" type="boolean" />
+          <camunda:formField id="civilian_has_gotten_permit" label="Heeft de burger nu een vergunning?" type="enum">
+            <camunda:value id="yes_permit" name="Ja, burger heeft nu een vergunning" />
+            <camunda:value id="no_permit" name="Nee, geen vergunning verleend" />
+          </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_11igweb</bpmn:incoming>
@@ -129,22 +132,6 @@
       <bpmn:outgoing>Flow_11igweb</bpmn:outgoing>
       <bpmn:outgoing>Flow_0qhgq6t</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="Activity_1mkl5rk" name="Monitoren binnenkomen vergunningaanvraag" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(32).toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="action_civilian_permit_requested" label="Is vergunning aangevraagd?" type="enum">
-            <camunda:properties>
-              <camunda:property id="description" value="Dit is een testerino" />
-              <camunda:property id="tooltip" value="Dit is een testerino ook" />
-            </camunda:properties>
-            <camunda:value id="yes_permit_requested" name="Ja, vergunning aangevraagd" />
-            <camunda:value id="no_action" name="Nee, geen vergunning aangevraagd" />
-          </camunda:formField>
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1kedpc9</bpmn:incoming>
-      <bpmn:outgoing>Flow_10upkzz</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:exclusiveGateway id="Gateway_0ddrey0">
       <bpmn:incoming>Flow_1i77oze</bpmn:incoming>
       <bpmn:outgoing>Flow_18cv8bi</bpmn:outgoing>
@@ -200,7 +187,10 @@
     <bpmn:userTask id="Activity_0jjgz6l" name="Beoordelen zienswijze" camunda:formKey="is_zienswijze_geldig" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="beoordelen_bezwaar" label="Is het bezwaar zienswijze geldig?" type="boolean" />
+          <camunda:formField id="beoordelen_bezwaar" label="Is het bezwaar zienswijze geldig?" type="enum">
+            <camunda:value id="yes_objection" name="Ja, bezwaar is geldig" />
+            <camunda:value id="no_objection" name="Nee, bezwaar is niet geldig" />
+          </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1m5qenh</bpmn:incoming>
@@ -253,7 +243,10 @@
     <bpmn:userTask id="Activity_0t0wwb4" name="Controleren binnenkomen zienswijze" camunda:formKey="zienswijze_binnengekomen_form" camunda:candidateGroups="Projectmedewerker, Projecthandhaver" camunda:dueDate="${dateTime().plusDays(18).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="zienswijze_binnengekomen" label="Is er een zienswijze binnengekomen?" type="boolean" />
+          <camunda:formField id="zienswijze_binnengekomen" label="Is er een zienswijze binnengekomen?" type="enum">
+            <camunda:value id="yes_zienswijze" name="Ja, zienswijze is binnengekomen" />
+            <camunda:value id="no_zienswijze" name="Nee, er is geen zienswijze binnengekomen binnen de beschikbare tijd" />
+          </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0esnfyv</bpmn:incoming>
@@ -279,30 +272,6 @@
       <bpmn:outgoing>Flow_0ca7pn4</bpmn:outgoing>
       <bpmn:outgoing>Flow_025eea2</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="Activity_0j1vbxy" name="Status Bijwerken: &#39;Uitzetten hercontrole&#39;">
-      <bpmn:extensionElements>
-        <camunda:connector>
-          <camunda:inputOutput>
-            <camunda:inputParameter name="payload">{
-"state": "Uitzetten hercontrole",
-"case_identification": ${case_identification}
-}</camunda:inputParameter>
-            <camunda:inputParameter name="headers">
-              <camunda:map>
-                <camunda:entry key="content-type">application/json</camunda:entry>
-                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
-              </camunda:map>
-            </camunda:inputParameter>
-            <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
-            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
-          </camunda:inputOutput>
-          <camunda:connectorId>http-connector</camunda:connectorId>
-        </camunda:connector>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_025eea2</bpmn:incoming>
-      <bpmn:outgoing>Flow_1dcdx7q</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:serviceTask id="Activity_1yxvl6p" name="Status bijwerken: &#34;Zienswijze {names}&#34;">
       <bpmn:extensionElements>
         <camunda:connector>
@@ -327,13 +296,6 @@
       <bpmn:incoming>Flow_0ca7pn4</bpmn:incoming>
       <bpmn:outgoing>Flow_0esnfyv</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="Activity_1wbjkdg" name="Uitzetten hercontrole" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(4).toDate()}">
-      <bpmn:incoming>Flow_1dcdx7q</bpmn:incoming>
-      <bpmn:outgoing>Flow_12m4h17</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:endEvent id="Event_0sv4e8w" name="Hercontrole">
-      <bpmn:incoming>Flow_12m4h17</bpmn:incoming>
-    </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1kedpc9" sourceRef="Activity_0ma57of" targetRef="Activity_1mkl5rk" />
     <bpmn:serviceTask id="Activity_0ma57of" name="Status bijwerken: &#34;Vergunnings check  {names}&#34;">
       <bpmn:extensionElements>
@@ -367,7 +329,7 @@
       <bpmn:outgoing>Flow_1kedpc9</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0v7wvsk" sourceRef="Gateway_074ue8s" targetRef="Activity_0zw90ih">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${beoordelen_bezwaar=="false"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${beoordelen_bezwaar=="no_objection"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_08n34dt" sourceRef="Activity_0zw90ih" targetRef="start_decision_process" />
     <bpmn:endEvent id="start_decision_process" name="Opstellen besluit process">
@@ -420,9 +382,53 @@
       <bpmn:incoming>Flow_0v7wvsk</bpmn:incoming>
       <bpmn:outgoing>Flow_08n34dt</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:textAnnotation id="TextAnnotation_0vbp35o">
-      <bpmn:text>Dynamische datum kiezen in form waaruit deadline "Monitoren vergunningsprocedure" is</bpmn:text>
-    </bpmn:textAnnotation>
+    <bpmn:serviceTask id="Activity_0j1vbxy" name="Status Bijwerken: &#39;Uitzetten hercontrole&#39;">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state": "Uitzetten hercontrole",
+"case_identification": ${case_identification}
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
+            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_025eea2</bpmn:incoming>
+      <bpmn:outgoing>Flow_1dcdx7q</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Activity_1mkl5rk" name="Monitoren binnenkomen vergunningaanvraag" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(32).toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="action_civilian_permit_requested" label="Is vergunning aangevraagd?" type="enum">
+            <camunda:properties>
+              <camunda:property id="description" value="Dit is een testerino" />
+              <camunda:property id="tooltip" value="Dit is een testerino ook" />
+            </camunda:properties>
+            <camunda:value id="yes_permit_requested" name="Ja, vergunning aangevraagd" />
+            <camunda:value id="no_action" name="Nee, geen vergunning aangevraagd" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1kedpc9</bpmn:incoming>
+      <bpmn:outgoing>Flow_10upkzz</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_1wbjkdg" name="Uitzetten hercontrole" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(4).toDate()}">
+      <bpmn:incoming>Flow_1dcdx7q</bpmn:incoming>
+      <bpmn:outgoing>Flow_12m4h17</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_0sv4e8w" name="Hercontrole">
+      <bpmn:incoming>Flow_12m4h17</bpmn:incoming>
+    </bpmn:endEvent>
     <bpmn:textAnnotation id="TextAnnotation_1gb87eu">
       <bpmn:text>Opstellen concept aanschrijving</bpmn:text>
     </bpmn:textAnnotation>
@@ -452,7 +458,6 @@ EN FORM</bpmn:text>
     <bpmn:textAnnotation id="TextAnnotation_1mmc07e">
       <bpmn:text>Nieuwe aanschrijving</bpmn:text>
     </bpmn:textAnnotation>
-    <bpmn:association id="Association_1achjih" sourceRef="Activity_1mkl5rk" targetRef="TextAnnotation_0vbp35o" />
     <bpmn:association id="Association_0jjhu5i" sourceRef="Activity_0ia10qb" targetRef="TextAnnotation_1fo7u53" />
     <bpmn:association id="Association_1uwfefv" sourceRef="Event_0frp4m5" targetRef="TextAnnotation_0g5i4nd" />
     <bpmn:association id="Association_1m9p9lm" sourceRef="Event_0nfpu7u" targetRef="TextAnnotation_1gb87eu" />
@@ -462,13 +467,13 @@ EN FORM</bpmn:text>
     <bpmn:association id="Association_1f16r5h" sourceRef="Activity_01qjx7x" targetRef="TextAnnotation_0765scc" />
     <bpmn:association id="Association_0k95c50" sourceRef="Event_0vsuud2" targetRef="TextAnnotation_14flu6i" />
     <bpmn:association id="Association_0pdiupn" sourceRef="Event_1ircr3x" targetRef="TextAnnotation_1mmc07e" />
-    <bpmn:textAnnotation id="TextAnnotation_048wbe6">
-      <bpmn:text>Uitzetten hercontrole onderdeel maken van hercontrole process</bpmn:text>
-    </bpmn:textAnnotation>
     <bpmn:textAnnotation id="TextAnnotation_1tzmrdz">
       <bpmn:text>Hercontrole process</bpmn:text>
     </bpmn:textAnnotation>
     <bpmn:association id="Association_0jaqhyu" sourceRef="Event_0sv4e8w" targetRef="TextAnnotation_1tzmrdz" />
+    <bpmn:textAnnotation id="TextAnnotation_048wbe6">
+      <bpmn:text>Uitzetten hercontrole onderdeel maken van hercontrole process</bpmn:text>
+    </bpmn:textAnnotation>
   </bpmn:process>
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
   <bpmn:message id="Message_14wp5u8" name="model_create_summon" />
@@ -500,19 +505,21 @@ EN FORM</bpmn:text>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1kedpc9_di" bpmnElement="Flow_1kedpc9">
         <di:waypoint x="750" y="750" />
-        <di:waypoint x="810" y="750" />
+        <di:waypoint x="785" y="750" />
+        <di:waypoint x="785" y="450" />
+        <di:waypoint x="820" y="450" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0esnfyv_di" bpmnElement="Flow_0esnfyv">
         <di:waypoint x="650" y="170" />
         <di:waypoint x="758" y="170" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1dcdx7q_di" bpmnElement="Flow_1dcdx7q">
-        <di:waypoint x="690" y="400" />
-        <di:waypoint x="758" y="400" />
+        <di:waypoint x="1100" y="350" />
+        <di:waypoint x="1130" y="350" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_12m4h17_di" bpmnElement="Flow_12m4h17">
-        <di:waypoint x="858" y="400" />
-        <di:waypoint x="952" y="400" />
+        <di:waypoint x="1230" y="350" />
+        <di:waypoint x="1342" y="350" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0pmib99_di" bpmnElement="Flow_0pmib99">
         <di:waypoint x="3840" y="860" />
@@ -609,7 +616,7 @@ EN FORM</bpmn:text>
         <di:waypoint x="1000" y="870" />
         <di:waypoint x="1162" y="870" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1029" y="836" width="65" height="40" />
+          <dc:Bounds x="1029" y="820" width="65" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1t6e5pj_di" bpmnElement="Flow_1t6e5pj">
@@ -636,10 +643,10 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNEdge id="Flow_025eea2_di" bpmnElement="Flow_025eea2">
         <di:waypoint x="465" y="750" />
         <di:waypoint x="490" y="750" />
-        <di:waypoint x="490" y="400" />
-        <di:waypoint x="590" y="400" />
+        <di:waypoint x="490" y="350" />
+        <di:waypoint x="1000" y="350" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="477" y="343" width="88" height="53" />
+          <dc:Bounds x="604" y="293" width="88" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1tpuwoi_di" bpmnElement="Flow_1tpuwoi">
@@ -660,8 +667,9 @@ EN FORM</bpmn:text>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_10upkzz_di" bpmnElement="Flow_10upkzz">
-        <di:waypoint x="910" y="750" />
-        <di:waypoint x="975" y="750" />
+        <di:waypoint x="920" y="450" />
+        <di:waypoint x="1000" y="450" />
+        <di:waypoint x="1000" y="725" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ca7pn4_di" bpmnElement="Flow_0ca7pn4">
         <di:waypoint x="440" y="725" />
@@ -693,11 +701,8 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="Gateway_1pwflrj_di" bpmnElement="Gateway_1pwflrj" isMarkerVisible="true">
         <dc:Bounds x="975" y="725" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="966" y="695" width="71" height="27" />
+          <dc:Bounds x="893.5" y="736" width="71" height="27" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1ptqws9_di" bpmnElement="Activity_1mkl5rk">
-        <dc:Bounds x="810" y="710" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0ddrey0_di" bpmnElement="Gateway_0ddrey0" isMarkerVisible="true">
         <dc:Bounds x="1335" y="725" width="50" height="50" />
@@ -810,20 +815,8 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="Gateway_1t6r1v4_di" bpmnElement="Gateway_1t6r1v4" isMarkerVisible="true">
         <dc:Bounds x="415" y="725" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0j1vbxy_di" bpmnElement="Activity_0j1vbxy">
-        <dc:Bounds x="590" y="360" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1yxvl6p_di" bpmnElement="Activity_1yxvl6p">
         <dc:Bounds x="550" y="130" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1wbjkdg_di" bpmnElement="Activity_1wbjkdg">
-        <dc:Bounds x="758" y="360" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0sv4e8w_di" bpmnElement="Event_0sv4e8w">
-        <dc:Bounds x="952" y="382" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="942" y="425" width="57" height="14" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0ma57of_di" bpmnElement="Activity_0ma57of">
         <dc:Bounds x="650" y="710" width="100" height="80" />
@@ -837,8 +830,20 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="Activity_1te8d54_di" bpmnElement="Activity_0zw90ih">
         <dc:Bounds x="2760" y="780" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_0vbp35o_di" bpmnElement="TextAnnotation_0vbp35o">
-        <dc:Bounds x="840" y="560" width="100" height="112" />
+      <bpmndi:BPMNShape id="Activity_0j1vbxy_di" bpmnElement="Activity_0j1vbxy">
+        <dc:Bounds x="1000" y="310" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ptqws9_di" bpmnElement="Activity_1mkl5rk">
+        <dc:Bounds x="820" y="410" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1wbjkdg_di" bpmnElement="Activity_1wbjkdg">
+        <dc:Bounds x="1130" y="310" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0sv4e8w_di" bpmnElement="Event_0sv4e8w">
+        <dc:Bounds x="1342" y="332" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1332" y="375" width="57" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1gb87eu_di" bpmnElement="TextAnnotation_1gb87eu">
         <dc:Bounds x="1220" y="842" width="100" height="55" />
@@ -867,16 +872,12 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="TextAnnotation_1mmc07e_di" bpmnElement="TextAnnotation_1mmc07e">
         <dc:Bounds x="3990" y="660" width="100" height="40" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_048wbe6_di" bpmnElement="TextAnnotation_048wbe6">
-        <dc:Bounds x="870" y="270" width="100" height="96" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1tzmrdz_di" bpmnElement="TextAnnotation_1tzmrdz">
-        <dc:Bounds x="1020" y="380" width="100" height="39" />
+        <dc:Bounds x="1440" y="330" width="100" height="39" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Association_1achjih_di" bpmnElement="Association_1achjih">
-        <di:waypoint x="861" y="710" />
-        <di:waypoint x="864" y="672" />
-      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="TextAnnotation_048wbe6_di" bpmnElement="TextAnnotation_048wbe6">
+        <dc:Bounds x="1240" y="390" width="100" height="96" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_0jjhu5i_di" bpmnElement="Association_0jjhu5i">
         <di:waypoint x="1540" y="710" />
         <di:waypoint x="1540" y="679" />
@@ -914,8 +915,8 @@ EN FORM</bpmn:text>
         <di:waypoint x="3990" y="679" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Association_0jaqhyu_di" bpmnElement="Association_0jaqhyu">
-        <di:waypoint x="988" y="400" />
-        <di:waypoint x="1020" y="400" />
+        <di:waypoint x="1378" y="350" />
+        <di:waypoint x="1440" y="350" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
