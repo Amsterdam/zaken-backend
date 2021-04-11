@@ -2,6 +2,7 @@
   "extends": "bpmnlint:recommended",
   "rules": {
     "label-required": "off",
-    "no-inclusive-gateway": "off"
+    "no-inclusive-gateway": "off",
+    "no-bpmndi": "off"
   }
 }
