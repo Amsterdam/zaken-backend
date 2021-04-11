@@ -39,16 +39,18 @@
         <bpmn:flowNodeRef>is_debrief_violation</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_close_case</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_17rmiyo</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_1vjsmtf</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0bc2n3t</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Gateway_1geavg5</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0h60qot</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1xpwi2u</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1u23sd7</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1wo36z3</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1pvwx7l</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1pmbcxw</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1vjsmtf</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_0e7c9ew</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_0zhcipe</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_1xlpyzt</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:userTask id="task_create_visit" name="Doorgeven huisbezoek TOP" camunda:formKey="doorgeven_huisbezoek_resultaat" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(60).toDate()}">
@@ -70,7 +72,7 @@
       <bpmn:outgoing>Flow_0oi0xmk</bpmn:outgoing>
       <bpmn:outgoing>Flow_100ib64</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:exclusiveGateway id="Gateway_136vx0p">
+    <bpmn:exclusiveGateway id="Gateway_136vx0p" name="Start Hercontrole">
       <bpmn:incoming>Flow_1ud05n0</bpmn:incoming>
       <bpmn:incoming>Flow_0co89x0</bpmn:incoming>
       <bpmn:incoming>Flow_100ib64</bpmn:incoming>
@@ -85,7 +87,7 @@
       <bpmn:incoming>Flow_0aiyxmw</bpmn:incoming>
       <bpmn:outgoing>Flow_0co89x0</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:parallelGateway id="Gateway_0289ucr">
+    <bpmn:parallelGateway id="Gateway_0289ucr" name="+">
       <bpmn:incoming>Flow_090pn4r</bpmn:incoming>
       <bpmn:outgoing>Flow_1w9hb8b</bpmn:outgoing>
       <bpmn:outgoing>Flow_0inubyk</bpmn:outgoing>
@@ -99,7 +101,7 @@
       <bpmn:incoming>Flow_0inubyk</bpmn:incoming>
       <bpmn:outgoing>Flow_128bhfd</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:parallelGateway id="Gateway_1cbngmn">
+    <bpmn:parallelGateway id="Gateway_1cbngmn" name="+">
       <bpmn:incoming>Flow_1xhnyyp</bpmn:incoming>
       <bpmn:incoming>Flow_128bhfd</bpmn:incoming>
       <bpmn:incoming>Flow_0m1sb6f</bpmn:incoming>
@@ -216,7 +218,7 @@
       <bpmn:incoming>Flow_1pdbmx6</bpmn:incoming>
       <bpmn:outgoing>Flow_006wtg4</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:exclusiveGateway id="Gateway_1t0o489">
+    <bpmn:exclusiveGateway id="Gateway_1t0o489" name="Start (nieuwe) debrief">
       <bpmn:incoming>Flow_14k2xx3</bpmn:incoming>
       <bpmn:incoming>Flow_0woi9k1</bpmn:incoming>
       <bpmn:outgoing>Flow_0zox8jb</bpmn:outgoing>
@@ -226,32 +228,18 @@
       <bpmn:outgoing>Flow_19qs7p9</bpmn:outgoing>
       <bpmn:outgoing>Flow_0woi9k1</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:inclusiveGateway id="Gateway_17rmiyo">
+    <bpmn:inclusiveGateway id="Gateway_17rmiyo" name="Start termijn als aanleiding melding is">
       <bpmn:incoming>Flow_0dfunn3</bpmn:incoming>
-      <bpmn:outgoing>Flow_07fvv7l</bpmn:outgoing>
       <bpmn:outgoing>Flow_0ozrgdh</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1vf6p6a</bpmn:outgoing>
     </bpmn:inclusiveGateway>
-    <bpmn:intermediateCatchEvent id="Event_1vjsmtf" name="3 weken">
-      <bpmn:incoming>Flow_05xhp4b</bpmn:incoming>
-      <bpmn:outgoing>Flow_1l9n8yi</bpmn:outgoing>
-      <bpmn:timerEventDefinition id="TimerEventDefinition_076kejo">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">P21D</bpmn:timeDuration>
-      </bpmn:timerEventDefinition>
-    </bpmn:intermediateCatchEvent>
     <bpmn:userTask id="Activity_0bc2n3t" name="Informeer melder over status melding">
-      <bpmn:incoming>Flow_1l9n8yi</bpmn:incoming>
+      <bpmn:incoming>Flow_0c4ii4y</bpmn:incoming>
       <bpmn:outgoing>Flow_1d2hx1m</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_0dfunn3</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:eventBasedGateway id="Gateway_1geavg5">
-      <bpmn:incoming>Flow_07fvv7l</bpmn:incoming>
-      <bpmn:outgoing>Flow_05xhp4b</bpmn:outgoing>
-    </bpmn:eventBasedGateway>
-    <bpmn:sequenceFlow id="Flow_05xhp4b" sourceRef="Gateway_1geavg5" targetRef="Event_1vjsmtf" />
-    <bpmn:sequenceFlow id="Flow_1l9n8yi" sourceRef="Event_1vjsmtf" targetRef="Activity_0bc2n3t" />
-    <bpmn:sequenceFlow id="Flow_07fvv7l" name="Termijnbewaking" sourceRef="Gateway_17rmiyo" targetRef="Gateway_1geavg5" />
     <bpmn:sequenceFlow id="Flow_0woi9k1" name="violation = ADDITIONAL_RESEARCH_REQUIRED" sourceRef="Gateway_0et8kzm" targetRef="Gateway_1t0o489">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='ADDITIONAL_RESEARCH_REQUIRED'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -297,7 +285,7 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0co89x0" sourceRef="Activity_03lt0e7" targetRef="Gateway_136vx0p" />
     <bpmn:sequenceFlow id="Flow_0ozrgdh" sourceRef="Gateway_17rmiyo" targetRef="Activity_1u23sd7" />
-    <bpmn:exclusiveGateway id="Gateway_0h60qot">
+    <bpmn:exclusiveGateway id="Gateway_0h60qot" name="Start inplannen Huisbezoek">
       <bpmn:incoming>Flow_1gfx0v0</bpmn:incoming>
       <bpmn:incoming>Flow_0x95ke6</bpmn:incoming>
       <bpmn:outgoing>Flow_07yq2lt</bpmn:outgoing>
@@ -457,6 +445,34 @@
       <bpmn:incoming>Flow_006wtg4</bpmn:incoming>
       <bpmn:terminateEventDefinition id="TerminateEventDefinition_18jw2zx" />
     </bpmn:endEvent>
+    <bpmn:intermediateCatchEvent id="Event_1vjsmtf" name="3 weken">
+      <bpmn:incoming>Flow_0eedlzm</bpmn:incoming>
+      <bpmn:outgoing>Flow_1l9n8yi</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_076kejo">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">P21D</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_1l9n8yi" sourceRef="Event_1vjsmtf" targetRef="Gateway_1xlpyzt" />
+    <bpmn:sequenceFlow id="Flow_1vf6p6a" sourceRef="Gateway_17rmiyo" targetRef="Gateway_0e7c9ew" />
+    <bpmn:eventBasedGateway id="Gateway_0e7c9ew">
+      <bpmn:incoming>Flow_1vf6p6a</bpmn:incoming>
+      <bpmn:outgoing>Flow_0eedlzm</bpmn:outgoing>
+      <bpmn:outgoing>Flow_00j41kr</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:sequenceFlow id="Flow_0eedlzm" sourceRef="Gateway_0e7c9ew" targetRef="Event_1vjsmtf" />
+    <bpmn:intermediateCatchEvent id="Event_0zhcipe" name="Forceer informeer">
+      <bpmn:incoming>Flow_00j41kr</bpmn:incoming>
+      <bpmn:outgoing>Flow_1eth85l</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1120sde" messageRef="Message_1x25hwu" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_00j41kr" sourceRef="Gateway_0e7c9ew" targetRef="Event_0zhcipe" />
+    <bpmn:exclusiveGateway id="Gateway_1xlpyzt">
+      <bpmn:incoming>Flow_1l9n8yi</bpmn:incoming>
+      <bpmn:incoming>Flow_1eth85l</bpmn:incoming>
+      <bpmn:outgoing>Flow_0c4ii4y</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0c4ii4y" sourceRef="Gateway_1xlpyzt" targetRef="Activity_0bc2n3t" />
+    <bpmn:sequenceFlow id="Flow_1eth85l" sourceRef="Event_0zhcipe" targetRef="Gateway_1xlpyzt" />
     <bpmn:textAnnotation id="TextAnnotation_00h0tuq">
       <bpmn:text>TODO: Dynamische datum na additional research is +2 dagen</bpmn:text>
     </bpmn:textAnnotation>
@@ -473,6 +489,7 @@
     <bpmn:association id="Association_15p0sl9" sourceRef="StartEvent_1" targetRef="TextAnnotation_03q2obb" />
   </bpmn:process>
   <bpmn:signal id="Signal_039rhog" name="S" />
+  <bpmn:message id="Message_1x25hwu" name="force_inform_civilian" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1tztuvt">
       <bpmndi:BPMNShape id="Participant_08m4w5n_di" bpmnElement="Participant_08m4w5n" isHorizontal="true">
@@ -687,21 +704,32 @@
           <dc:Bounds x="1418" y="923" width="84" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_07fvv7l_di" bpmnElement="Flow_07fvv7l">
+      <bpmndi:BPMNEdge id="Flow_1l9n8yi_di" bpmnElement="Flow_1l9n8yi">
+        <di:waypoint x="718" y="240" />
+        <di:waypoint x="815" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vf6p6a_di" bpmnElement="Flow_1vf6p6a">
         <di:waypoint x="550" y="475" />
         <di:waypoint x="550" y="240" />
-        <di:waypoint x="675" y="240" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="559" y="223" width="82" height="14" />
-        </bpmndi:BPMNLabel>
+        <di:waypoint x="595" y="240" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1l9n8yi_di" bpmnElement="Flow_1l9n8yi">
-        <di:waypoint x="848" y="240" />
+      <bpmndi:BPMNEdge id="Flow_0eedlzm_di" bpmnElement="Flow_0eedlzm">
+        <di:waypoint x="645" y="240" />
+        <di:waypoint x="682" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00j41kr_di" bpmnElement="Flow_00j41kr">
+        <di:waypoint x="620" y="215" />
+        <di:waypoint x="620" y="150" />
+        <di:waypoint x="682" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0c4ii4y_di" bpmnElement="Flow_0c4ii4y">
+        <di:waypoint x="865" y="240" />
         <di:waypoint x="940" y="240" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_05xhp4b_di" bpmnElement="Flow_05xhp4b">
-        <di:waypoint x="725" y="240" />
-        <di:waypoint x="812" y="240" />
+      <bpmndi:BPMNEdge id="Flow_1eth85l_di" bpmnElement="Flow_1eth85l">
+        <di:waypoint x="718" y="150" />
+        <di:waypoint x="840" y="150" />
+        <di:waypoint x="840" y="215" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_0hb8ttg_di" bpmnElement="task_create_visit">
         <dc:Bounds x="940" y="690" width="100" height="80" />
@@ -717,6 +745,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_136vx0p_di" bpmnElement="Gateway_136vx0p" isMarkerVisible="true">
         <dc:Bounds x="1115" y="385" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1098" y="442" width="84" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1nufvqr_di" bpmnElement="is_authorisation_required" isMarkerVisible="true">
         <dc:Bounds x="1385" y="385" width="50" height="50" />
@@ -729,6 +760,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_07ltdve_di" bpmnElement="Gateway_0289ucr">
         <dc:Bounds x="1855" y="735" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1877" y="705" width="7" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1ujxflh_di" bpmnElement="task_beeldverslag_opstellen">
         <dc:Bounds x="2070" y="720" width="100" height="80" />
@@ -738,6 +772,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1mu8a3h_di" bpmnElement="Gateway_1cbngmn">
         <dc:Bounds x="2325" y="735" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2347" y="705" width="7" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0icy5dk_di" bpmnElement="Activity_02t4qsu">
         <dc:Bounds x="2070" y="600" width="100" height="80" />
@@ -774,6 +811,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1t0o489_di" bpmnElement="Gateway_1t0o489" isMarkerVisible="true">
         <dc:Bounds x="1395" y="1045" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1386" y="1102" width="69" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0et8kzm_di" bpmnElement="Gateway_0et8kzm" isMarkerVisible="true">
         <dc:Bounds x="1515" y="955" width="50" height="50" />
@@ -783,11 +823,8 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_020si5h_di" bpmnElement="Gateway_17rmiyo">
         <dc:Bounds x="525" y="475" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1vy9h1p_di" bpmnElement="Event_1vjsmtf">
-        <dc:Bounds x="812" y="222" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="810" y="265" width="41" height="14" />
+          <dc:Bounds x="512" y="532" width="77" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0jgg6bn_di" bpmnElement="Activity_0bc2n3t">
@@ -796,11 +833,11 @@
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="362" y="482" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1m46mph_di" bpmnElement="Gateway_1geavg5">
-        <dc:Bounds x="675" y="215" width="50" height="50" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0h60qot_di" bpmnElement="Gateway_0h60qot" isMarkerVisible="true">
         <dc:Bounds x="815" y="475" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="803" y="532" width="74" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1xpwi2u_di" bpmnElement="Activity_1xpwi2u">
         <dc:Bounds x="790" y="370" width="100" height="80" />
@@ -846,6 +883,24 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_03q2obb_di" bpmnElement="TextAnnotation_03q2obb">
         <dc:Bounds x="290" y="410" width="140" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1vy9h1p_di" bpmnElement="Event_1vjsmtf">
+        <dc:Bounds x="682" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="265" width="41" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0q06mzt_di" bpmnElement="Gateway_0e7c9ew">
+        <dc:Bounds x="595" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0zhcipe_di" bpmnElement="Event_0zhcipe">
+        <dc:Bounds x="682" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="656" y="175" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1xlpyzt_di" bpmnElement="Gateway_1xlpyzt" isMarkerVisible="true">
+        <dc:Bounds x="815" y="215" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_03jk7ur_di" bpmnElement="Association_03jk7ur">
         <di:waypoint x="1589" y="1104" />

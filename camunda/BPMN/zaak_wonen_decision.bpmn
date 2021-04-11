@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_114td5r" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.5.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_114td5r" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
   <bpmn:collaboration id="Collaboration_19t4o88">
     <bpmn:participant id="Participant_0mil4ed" name="Besluitproces" processRef="zaak_wonen_decision" />
   </bpmn:collaboration>
@@ -149,7 +149,7 @@
       <bpmn:incoming>Flow_0wd1lwv</bpmn:incoming>
       <bpmn:outgoing>Flow_1iai8dg</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:exclusiveGateway id="Gateway_02ewdul">
+    <bpmn:exclusiveGateway id="Gateway_02ewdul" name="Wat is de vervolgstap?">
       <bpmn:incoming>Flow_1rogqd3</bpmn:incoming>
       <bpmn:outgoing>Flow_08x4ebs</bpmn:outgoing>
       <bpmn:outgoing>Flow_0uyhm2i</bpmn:outgoing>
@@ -351,6 +351,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_02ewdul_di" bpmnElement="Gateway_02ewdul" isMarkerVisible="true">
         <dc:Bounds x="1375" y="405" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1369" y="375" width="63" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1l3v0km_di" bpmnElement="start_decision_process">
         <dc:Bounds x="242" y="412" width="36" height="36" />
