@@ -70,7 +70,7 @@
       <bpmn:outgoing>Flow_0oi0xmk</bpmn:outgoing>
       <bpmn:outgoing>Flow_100ib64</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:exclusiveGateway id="Gateway_136vx0p" name="-">
+    <bpmn:exclusiveGateway id="Gateway_136vx0p" name="Start Hercontrole">
       <bpmn:incoming>Flow_1ud05n0</bpmn:incoming>
       <bpmn:incoming>Flow_0co89x0</bpmn:incoming>
       <bpmn:incoming>Flow_100ib64</bpmn:incoming>
@@ -85,7 +85,7 @@
       <bpmn:incoming>Flow_0aiyxmw</bpmn:incoming>
       <bpmn:outgoing>Flow_0co89x0</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:parallelGateway id="Gateway_0289ucr">
+    <bpmn:parallelGateway id="Gateway_0289ucr" name="+">
       <bpmn:incoming>Flow_090pn4r</bpmn:incoming>
       <bpmn:outgoing>Flow_1w9hb8b</bpmn:outgoing>
       <bpmn:outgoing>Flow_0inubyk</bpmn:outgoing>
@@ -99,7 +99,7 @@
       <bpmn:incoming>Flow_0inubyk</bpmn:incoming>
       <bpmn:outgoing>Flow_128bhfd</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:parallelGateway id="Gateway_1cbngmn">
+    <bpmn:parallelGateway id="Gateway_1cbngmn" name="+">
       <bpmn:incoming>Flow_1xhnyyp</bpmn:incoming>
       <bpmn:incoming>Flow_128bhfd</bpmn:incoming>
       <bpmn:incoming>Flow_0m1sb6f</bpmn:incoming>
@@ -216,7 +216,7 @@
       <bpmn:incoming>Flow_1pdbmx6</bpmn:incoming>
       <bpmn:outgoing>Flow_006wtg4</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:exclusiveGateway id="Gateway_1t0o489">
+    <bpmn:exclusiveGateway id="Gateway_1t0o489" name="Start (nieuwe) debrief">
       <bpmn:incoming>Flow_14k2xx3</bpmn:incoming>
       <bpmn:incoming>Flow_0woi9k1</bpmn:incoming>
       <bpmn:outgoing>Flow_0zox8jb</bpmn:outgoing>
@@ -283,7 +283,7 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0co89x0" sourceRef="Activity_03lt0e7" targetRef="Gateway_136vx0p" />
     <bpmn:sequenceFlow id="Flow_0ozrgdh" sourceRef="Gateway_17rmiyo" targetRef="Activity_1u23sd7" />
-    <bpmn:exclusiveGateway id="Gateway_0h60qot">
+    <bpmn:exclusiveGateway id="Gateway_0h60qot" name="Start inplannen Huisbezoek">
       <bpmn:incoming>Flow_1gfx0v0</bpmn:incoming>
       <bpmn:incoming>Flow_0x95ke6</bpmn:incoming>
       <bpmn:outgoing>Flow_07yq2lt</bpmn:outgoing>
@@ -715,7 +715,7 @@
       <bpmndi:BPMNShape id="Gateway_136vx0p_di" bpmnElement="Gateway_136vx0p" isMarkerVisible="true">
         <dc:Bounds x="1115" y="385" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1138" y="442" width="4" height="14" />
+          <dc:Bounds x="1098" y="442" width="84" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1nufvqr_di" bpmnElement="is_authorisation_required" isMarkerVisible="true">
@@ -781,7 +781,7 @@
       <bpmndi:BPMNShape id="Gateway_1t0o489_di" bpmnElement="Gateway_1t0o489" isMarkerVisible="true">
         <dc:Bounds x="1395" y="1045" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1418" y="1102" width="4" height="14" />
+          <dc:Bounds x="1386" y="1102" width="69" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0et8kzm_di" bpmnElement="Gateway_0et8kzm" isMarkerVisible="true">
@@ -804,6 +804,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0h60qot_di" bpmnElement="Gateway_0h60qot" isMarkerVisible="true">
         <dc:Bounds x="815" y="475" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="803" y="532" width="74" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1xpwi2u_di" bpmnElement="Activity_1xpwi2u">
         <dc:Bounds x="790" y="370" width="100" height="80" />
