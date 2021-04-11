@@ -5,4 +5,4 @@ class DecisionsConfig(AppConfig):
     name = "apps.decisions"
 
     def ready(self):
-        import apps.decisions.signals
+        import apps.decisions.signals  # noqa
