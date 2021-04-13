@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0k0da6k" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0k0da6k" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.5.0">
   <bpmn:collaboration id="Collaboration_1t5ylmo">
     <bpmn:participant id="Participant_1ciseh2" name="Process" processRef="zaak_wonen_summon" />
   </bpmn:collaboration>
@@ -188,9 +188,9 @@
     <bpmn:userTask id="Activity_0jjgz6l" name="Beoordelen zienswijze" camunda:formKey="is_zienswijze_geldig" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="beoordelen_bezwaar" label="Is het bezwaar zienswijze geldig?" type="enum">
-            <camunda:value id="yes_objection" name="Ja, bezwaar is geldig" />
-            <camunda:value id="no_objection" name="Nee, bezwaar is niet geldig" />
+          <camunda:formField id="beoordelen_bezwaar" label="Is er reden tot afzien voornemen?" type="enum">
+            <camunda:value id="yes_objection" name="Ja, afzien voornemen" />
+            <camunda:value id="no_objection" name="Nee, besluit opleggen" />
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
@@ -497,6 +497,10 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="Lane_0ku7kbe_di" bpmnElement="Lane_0ku7kbe" isHorizontal="true">
         <dc:Bounds x="191" y="80" width="4339" height="170" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1to91wf_di" bpmnElement="Flow_1to91wf">
+        <di:waypoint x="2835" y="820" />
+        <di:waypoint x="2880" y="820" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_08n34dt_di" bpmnElement="Flow_08n34dt">
         <di:waypoint x="2980" y="820" />
         <di:waypoint x="3022" y="820" />
@@ -706,10 +710,6 @@ EN FORM</bpmn:text>
         <di:waypoint x="3330" y="680" />
         <di:waypoint x="3380" y="680" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1to91wf_di" bpmnElement="Flow_1to91wf">
-        <di:waypoint x="2835" y="820" />
-        <di:waypoint x="2880" y="820" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_0g6kz7m_di" bpmnElement="Activity_1k03k9a">
         <dc:Bounds x="1130" y="710" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -863,6 +863,18 @@ EN FORM</bpmn:text>
           <dc:Bounds x="1332" y="375" width="57" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0tlf1tq_di" bpmnElement="Gateway_0tlf1tq" isMarkerVisible="true">
+        <dc:Bounds x="2785" y="795" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1okb3dh_di" bpmnElement="start_decision_process">
+        <dc:Bounds x="3022" y="802" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2999" y="845" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1te8d54_di" bpmnElement="Activity_0zw90ih">
+        <dc:Bounds x="2880" y="780" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1gb87eu_di" bpmnElement="TextAnnotation_1gb87eu">
         <dc:Bounds x="1220" y="842" width="100" height="55" />
       </bpmndi:BPMNShape>
@@ -892,18 +904,6 @@ EN FORM</bpmn:text>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_048wbe6_di" bpmnElement="TextAnnotation_048wbe6">
         <dc:Bounds x="1240" y="390" width="100" height="96" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0tlf1tq_di" bpmnElement="Gateway_0tlf1tq" isMarkerVisible="true">
-        <dc:Bounds x="2785" y="795" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1okb3dh_di" bpmnElement="start_decision_process">
-        <dc:Bounds x="3022" y="802" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2999" y="845" width="82" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1te8d54_di" bpmnElement="Activity_0zw90ih">
-        <dc:Bounds x="2880" y="780" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_0jjhu5i_di" bpmnElement="Association_0jjhu5i">
         <di:waypoint x="1540" y="710" />
