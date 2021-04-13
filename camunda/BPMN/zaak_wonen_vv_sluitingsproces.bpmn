@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0kmmw5l" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0" camunda:diagramRelationId="e88c9773-9689-4d05-a16c-37b8418d1d11">
+  <bpmn:collaboration id="Collaboration_0vydiok">
+    <bpmn:participant id="Participant_0kmebvt" name="Sluitingsproces fase 1 (MVP)" processRef="start_sluitings_proces" />
+  </bpmn:collaboration>
+  <bpmn:process id="start_sluitings_proces" name="start_sluitings_proces" isExecutable="true" camunda:versionTag="0.0.1">
+    <bpmn:laneSet id="LaneSet_1tfu3yy">
+      <bpmn:lane id="Lane_12tuydi" name="Projecthandhaver">
+        <bpmn:flowNodeRef>Activity_0crjphq</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_0gccki2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_1lt3h8w</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_19r9rzm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_0njt55h</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_00idzvu</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_10xkn94</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_0kephnh" name="Projectmedewerker">
+        <bpmn:flowNodeRef>Activity_0wienly</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:serviceTask id="Activity_0crjphq" name="Status bijwerken: Sluiting">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state": "Sluiting",
+"case_identification": "${case_identification}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
+            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0kae0tb</bpmn:incoming>
+      <bpmn:outgoing>Flow_0zuu52l</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:parallelGateway id="Gateway_0gccki2">
+      <bpmn:incoming>Flow_0zuu52l</bpmn:incoming>
+      <bpmn:outgoing>Flow_06qtx3g</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0zkclz8</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:parallelGateway id="Gateway_1lt3h8w">
+      <bpmn:incoming>Flow_1hbki6x</bpmn:incoming>
+      <bpmn:incoming>Flow_0ojxyru</bpmn:incoming>
+      <bpmn:outgoing>Flow_0d03o2o</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:userTask id="Activity_19r9rzm" name="Opslaan brandweeradvies" camunda:candidateGroups="Projecthandhaver">
+      <bpmn:incoming>Flow_0zkclz8</bpmn:incoming>
+      <bpmn:outgoing>Flow_1hbki6x</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_0wienly" name="Monitoren heropeningsverzoek" camunda:candidateGroups="Projectmedewerker">
+      <bpmn:incoming>Flow_06qtx3g</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ojxyru</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:startEvent id="Event_0njt55h" name="start_sluitings_proces" camunda:formKey="sluitingprocess_start_form">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="endpoint" type="string" />
+          <camunda:formField id="case_identification" type="string" />
+          <camunda:formField id="zaken_access_token" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_0kae0tb</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_06nbh5d" messageRef="Message_1sy8xje" />
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0ojxyru" sourceRef="Activity_0wienly" targetRef="Gateway_1lt3h8w" />
+    <bpmn:sequenceFlow id="Flow_0kae0tb" sourceRef="Event_0njt55h" targetRef="Activity_0crjphq" />
+    <bpmn:sequenceFlow id="Flow_0zuu52l" sourceRef="Activity_0crjphq" targetRef="Gateway_0gccki2" />
+    <bpmn:sequenceFlow id="Flow_06qtx3g" sourceRef="Gateway_0gccki2" targetRef="Activity_0wienly" />
+    <bpmn:sequenceFlow id="Flow_0zkclz8" sourceRef="Gateway_0gccki2" targetRef="Activity_19r9rzm" />
+    <bpmn:sequenceFlow id="Flow_1hbki6x" sourceRef="Activity_19r9rzm" targetRef="Gateway_1lt3h8w" />
+    <bpmn:sequenceFlow id="Flow_0d03o2o" sourceRef="Gateway_1lt3h8w" targetRef="Activity_10xkn94" />
+    <bpmn:endEvent id="Event_00idzvu">
+      <bpmn:incoming>Flow_0tskrou</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_10xkn94" name="Status Beëindigen">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state_identification": "${state_identification}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/end-state/</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0d03o2o</bpmn:incoming>
+      <bpmn:outgoing>Flow_0tskrou</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0tskrou" sourceRef="Activity_10xkn94" targetRef="Event_00idzvu" />
+  </bpmn:process>
+  <bpmn:message id="Message_1sy8xje" name="start_sluitings_proces" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0vydiok">
+      <bpmndi:BPMNShape id="Participant_0kmebvt_di" bpmnElement="Participant_0kmebvt" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="968" height="330" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_0kephnh_di" bpmnElement="Lane_0kephnh" isHorizontal="true">
+        <dc:Bounds x="190" y="250" width="938" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_12tuydi_di" bpmnElement="Lane_12tuydi" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="938" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0tskrou_di" bpmnElement="Flow_0tskrou">
+        <di:waypoint x="940" y="160" />
+        <di:waypoint x="992" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0d03o2o_di" bpmnElement="Flow_0d03o2o">
+        <di:waypoint x="785" y="160" />
+        <di:waypoint x="840" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1hbki6x_di" bpmnElement="Flow_1hbki6x">
+        <di:waypoint x="680" y="160" />
+        <di:waypoint x="735" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zkclz8_di" bpmnElement="Flow_0zkclz8">
+        <di:waypoint x="515" y="160" />
+        <di:waypoint x="580" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06qtx3g_di" bpmnElement="Flow_06qtx3g">
+        <di:waypoint x="490" y="185" />
+        <di:waypoint x="490" y="330" />
+        <di:waypoint x="580" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zuu52l_di" bpmnElement="Flow_0zuu52l">
+        <di:waypoint x="420" y="160" />
+        <di:waypoint x="465" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0kae0tb_di" bpmnElement="Flow_0kae0tb">
+        <di:waypoint x="268" y="160" />
+        <di:waypoint x="320" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ojxyru_di" bpmnElement="Flow_0ojxyru">
+        <di:waypoint x="680" y="330" />
+        <di:waypoint x="760" y="330" />
+        <di:waypoint x="760" y="185" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_08xi26s_di" bpmnElement="Activity_0crjphq">
+        <dc:Bounds x="320" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0en5tv8_di" bpmnElement="Gateway_0gccki2">
+        <dc:Bounds x="465" y="135" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_02as9d5_di" bpmnElement="Gateway_1lt3h8w">
+        <dc:Bounds x="735" y="135" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1llsv5i_di" bpmnElement="Activity_19r9rzm">
+        <dc:Bounds x="580" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1rkt6o5_di" bpmnElement="Activity_0wienly">
+        <dc:Bounds x="580" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1n4uwkg_di" bpmnElement="Event_0njt55h">
+        <dc:Bounds x="232" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="208" y="185" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_00idzvu_di" bpmnElement="Event_00idzvu">
+        <dc:Bounds x="992" y="142" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_10xkn94_di" bpmnElement="Activity_10xkn94">
+        <dc:Bounds x="840" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
