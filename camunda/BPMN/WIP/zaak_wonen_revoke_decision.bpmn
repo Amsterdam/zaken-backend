@@ -21,7 +21,7 @@
         <bpmn:flowNodeRef>Gateway_03r5s5p</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:userTask id="Activity_11sb5wp" name="Verwerken besluit" camunda:candidateGroups="Projecthandhaver">
+    <bpmn:userTask id="Activity_11sb5wp" name="Verwerken besluit" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
       <bpmn:incoming>Flow_0q7l749</bpmn:incoming>
       <bpmn:outgoing>Flow_0b9pz5i</bpmn:outgoing>
     </bpmn:userTask>
@@ -31,11 +31,11 @@
     <bpmn:endEvent id="Event_0qqr9tm">
       <bpmn:incoming>Flow_0b9pz5i</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:userTask id="Activity_12loe9j" name="Intrekken vordering" camunda:candidateGroups="Projecthandhaver">
+    <bpmn:userTask id="Activity_12loe9j" name="Intrekken vordering" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
       <bpmn:incoming>Flow_1m4fc06</bpmn:incoming>
       <bpmn:outgoing>Flow_08x255n</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_1pozna9" name="Nakijken besluit" camunda:candidateGroups="Handhavingsjurist">
+    <bpmn:userTask id="Activity_1pozna9" name="Nakijken besluit" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
       <bpmn:incoming>Flow_03ijy5m</bpmn:incoming>
       <bpmn:outgoing>Flow_152r3rt</bpmn:outgoing>
     </bpmn:userTask>
@@ -55,7 +55,7 @@
       <bpmn:outgoing>Flow_0orgc73</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0o49ys8" />
     </bpmn:startEvent>
-    <bpmn:userTask id="Activity_0gutlpz" name="Opstellen intrekken besluit" camunda:candidateGroups="Projecthandhaver">
+    <bpmn:userTask id="Activity_0gutlpz" name="Opstellen intrekken besluit" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_0993q4e</bpmn:incoming>
       <bpmn:outgoing>Flow_03ijy5m</bpmn:outgoing>
     </bpmn:userTask>
