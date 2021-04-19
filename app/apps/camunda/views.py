@@ -1,10 +1,11 @@
 import logging
 
-from apps.camunda.models import GenericCompletedTask
+from apps.camunda.models import CamundaProcess, GenericCompletedTask
 from apps.camunda.serializers import (
     CamundaDateUpdateSerializer,
     CamundaEndStateWorkerSerializer,
     CamundaMessagerSerializer,
+    CamundaProcessSerializer,
     CamundaStateWorkerSerializer,
     CamundaTaskCompleteSerializer,
     CamundaTaskSerializer,
@@ -15,7 +16,7 @@ from apps.users.auth_apps import CamundaKeyAuth
 from django.conf import settings
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
-from rest_framework import status, viewsets
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -207,3 +208,30 @@ class CamundaTaskViewSet(viewsets.ViewSet):
             )
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class CamundaProcessViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = CamundaProcessSerializer
+    queryset = CamundaProcess.objects.all()
+
+    @action(
+        detail=True,
+        url_path="start_sub_process",
+        methods=["post"],
+    )
+    def start_sub_process(self, request, pk):
+        try:
+            instance = CamundaProcess.objects.get(id=pk)
+        except CamundaProcess.DoesNotExist:
+            return Response(
+                data="Camunda process not found", status=status.HTTP_404_NOT_FOUND
+            )
+
+        response = CamundaService().send_message(
+            message_name=instance.camunda_message_name
+        )
+
+        return Response(
+            data=f"Process has started {str(response.content)}",
+            status=status.HTTP_200_OK,
+        )
