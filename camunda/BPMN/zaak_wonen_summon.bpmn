@@ -28,7 +28,6 @@
         <bpmn:flowNodeRef>Gateway_0dunbbn</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0jjgz6l</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_074ue8s</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_1mvz8v7</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_01qjx7x</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0rds8zy</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0h3fcbr</bpmn:flowNodeRef>
@@ -45,6 +44,8 @@
         <bpmn:flowNodeRef>Activity_0ma57of</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_13bywna</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0ysomyy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1mvz8v7</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>start_renounce_intention</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1o6yxo7" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_1e9dx60</bpmn:flowNodeRef>
@@ -196,10 +197,6 @@
       <bpmn:outgoing>Flow_0dlpo3p</bpmn:outgoing>
       <bpmn:outgoing>Flow_0v7wvsk</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="Activity_1mvz8v7" name="Opstellen concept voornemen afzien" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
-      <bpmn:incoming>Flow_0dlpo3p</bpmn:incoming>
-      <bpmn:outgoing>Flow_015tlu4</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:userTask id="Activity_01qjx7x" name="Verwerken voornemen afzien" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
       <bpmn:incoming>Flow_0v1sqfs</bpmn:incoming>
       <bpmn:outgoing>Flow_0bnacib</bpmn:outgoing>
@@ -437,6 +434,16 @@
         </bpmn:extensionElements>
       </bpmn:messageEventDefinition>
     </bpmn:endEvent>
+    <bpmn:userTask id="Activity_1mvz8v7" name="Opstellen concept voornemen afzien" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:incoming>Flow_0dlpo3p</bpmn:incoming>
+      <bpmn:incoming>Flow_1pi2zrr</bpmn:incoming>
+      <bpmn:outgoing>Flow_015tlu4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1pi2zrr" sourceRef="start_renounce_intention" targetRef="Activity_1mvz8v7" />
+    <bpmn:startEvent id="start_renounce_intention" name="wonen summon: opstellen concept voornemen afzien">
+      <bpmn:outgoing>Flow_1pi2zrr</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_03cu438" messageRef="Message_1bioi1o" />
+    </bpmn:startEvent>
     <bpmn:textAnnotation id="TextAnnotation_1gb87eu">
       <bpmn:text>Opstellen concept aanschrijving</bpmn:text>
     </bpmn:textAnnotation>
@@ -476,6 +483,7 @@ EN FORM</bpmn:text>
   <bpmn:message id="Message_14wp5u8" name="model_create_summon" />
   <bpmn:message id="Message_1k1jpww" name="start_decision_process" />
   <bpmn:message id="Message_1j5idk9" name="start_sluitings_process" />
+  <bpmn:message id="Message_1bioi1o" name="start_renounce_intention" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1t5ylmo">
       <bpmndi:BPMNShape id="Participant_1ciseh2_di" bpmnElement="Participant_1ciseh2" isHorizontal="true">
@@ -705,6 +713,10 @@ EN FORM</bpmn:text>
         <di:waypoint x="3330" y="680" />
         <di:waypoint x="3380" y="680" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pi2zrr_di" bpmnElement="Flow_1pi2zrr">
+        <di:waypoint x="3010" y="598" />
+        <di:waypoint x="3010" y="640" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_0g6kz7m_di" bpmnElement="Activity_1k03k9a">
         <dc:Bounds x="1130" y="710" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -890,6 +902,12 @@ EN FORM</bpmn:text>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1mmc07e_di" bpmnElement="TextAnnotation_1mmc07e">
         <dc:Bounds x="3990" y="660" width="100" height="40" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1s35lfc_di" bpmnElement="start_renounce_intention">
+        <dc:Bounds x="2992" y="562" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2966" y="526" width="88" height="40" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_0jjhu5i_di" bpmnElement="Association_0jjhu5i">
         <di:waypoint x="1540" y="710" />
