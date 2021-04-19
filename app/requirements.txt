@@ -32,7 +32,7 @@ Faker==8.1.0
 freezegun==1.1.0
 gemma-zds-client==1.0.0
 idna==2.10
-importlib-metadata==3.10.1
+importlib-metadata==4.0.0
 inflection==0.5.1
 josepy==1.8.0
 jsonschema==3.2.0
