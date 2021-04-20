@@ -441,6 +441,15 @@
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_1pi2zrr" sourceRef="start_renounce_intention" targetRef="Activity_1mvz8v7" />
     <bpmn:startEvent id="start_renounce_intention" name="wonen summon: opstellen concept voornemen afzien">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="names" label="Wie worden aangeschreven?" type="string" />
+          <camunda:formField id="type_aanschrijving" label="Welk type aanschrijving heb je opgesteld?" type="string" />
+          <camunda:formField id="sluitingsbesluit" label="Zit er ook een sluitingsbesluit bij?" type="boolean" defaultValue="false" />
+          <camunda:formField id="case_identification" label="Wat is de ID van de zaak?" type="string" />
+          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:outgoing>Flow_1pi2zrr</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_03cu438" messageRef="Message_1bioi1o" />
     </bpmn:startEvent>
