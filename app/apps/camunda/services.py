@@ -100,8 +100,8 @@ class CamundaService:
 
     def start_instance(
         self,
-        case_identification,
-        request_body,
+        case_identification=False,
+        request_body={},
         process=settings.CAMUNDA_PROCESS_VISIT,
     ):
         """
@@ -249,6 +249,10 @@ class CamundaService:
     def send_message(
         self, message_name, business_key=False, message_process_variables={}
     ):
+        message_process_variables["endpoint"] = {"value": settings.ZAKEN_CONTAINER_HOST}
+        message_process_variables["zaken_access_token"] = {
+            "value": settings.CAMUNDA_SECRET_KEY
+        }
         request_body = {
             "messageName": message_name,
             "processVariables": message_process_variables,
@@ -256,7 +260,7 @@ class CamundaService:
         }
 
         if business_key:
-            request_body["businessKey"] = business_key
+            request_body["businessKey"] = {"value": business_key}
 
         request_json_body = json.dumps(request_body)
         response = self._process_request("/message", request_json_body, post=True)

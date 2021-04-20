@@ -1,3 +1,4 @@
+from apps.camunda.models import CamundaProcess
 from apps.cases.models import Case, CaseState
 from rest_framework import serializers
 
@@ -79,3 +80,9 @@ class CamundaTaskCompleteSerializer(serializers.Serializer):
 class CamundaDateUpdateSerializer(serializers.Serializer):
     camunda_task_id = serializers.CharField()
     date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S.000+0200")
+
+
+class CamundaProcessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CamundaProcess
+        fields = "__all__"

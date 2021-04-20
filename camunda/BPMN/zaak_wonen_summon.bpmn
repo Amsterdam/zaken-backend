@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0k0da6k" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.5.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0k0da6k" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
   <bpmn:collaboration id="Collaboration_1t5ylmo">
     <bpmn:participant id="Participant_1ciseh2" name="Process" processRef="zaak_wonen_summon" />
   </bpmn:collaboration>
@@ -40,11 +40,13 @@
         <bpmn:flowNodeRef>Gateway_0tlf1tq</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>start_decision_process</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0zw90ih</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>start_event_create_summon</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1t6r1v4</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0ma57of</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_13bywna</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0ysomyy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>start_event_create_summon</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_19vhu21</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_create_summon</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1o6yxo7" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_1e9dx60</bpmn:flowNodeRef>
@@ -64,7 +66,7 @@
     <bpmn:sequenceFlow id="Flow_18sph1h" name="Gelegaliseerd wacht op andere aanschrijving" sourceRef="Gateway_0puuu8q" targetRef="Event_1pgrt7r">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${next_step=="legalisatietraject"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1eszwat" name="X" sourceRef="Gateway_0puuu8q" targetRef="Activity_1j9qmld">
+    <bpmn:sequenceFlow id="Flow_1eszwat" sourceRef="Gateway_0puuu8q" targetRef="Activity_1j9qmld">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${next_step=="afsluiten_zaak"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_10zlmsl" name="" sourceRef="Gateway_0puuu8q" targetRef="Activity_1o8bq7o">
@@ -351,20 +353,9 @@
       <bpmn:incoming>Flow_015tlu4</bpmn:incoming>
       <bpmn:outgoing>Flow_0v1sqfs</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:startEvent id="start_event_create_summon" camunda:formKey="start_aanschrijving_form">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="names" label="Wie worden aangeschreven?" type="string" />
-          <camunda:formField id="type_aanschrijving" label="Welk type aanschrijving heb je opgesteld?" type="string" />
-          <camunda:formField id="sluitingsbesluit" label="Zit er ook een sluitingsbesluit bij?" type="boolean" defaultValue="false" />
-          <camunda:formField id="case_identification" label="Wat is de ID van de zaak?" type="string" />
-          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:outgoing>Flow_06je06y</bpmn:outgoing>
-    </bpmn:startEvent>
     <bpmn:exclusiveGateway id="Gateway_1t6r1v4" name="Wat voor aanschrijving is het?">
-      <bpmn:incoming>Flow_06je06y</bpmn:incoming>
+      <bpmn:incoming>Flow_0glc1e3</bpmn:incoming>
+      <bpmn:incoming>Flow_0jeu33i</bpmn:incoming>
       <bpmn:outgoing>Flow_0p4fa1b</bpmn:outgoing>
       <bpmn:outgoing>Flow_0ca7pn4</bpmn:outgoing>
       <bpmn:outgoing>Flow_025eea2</bpmn:outgoing>
@@ -401,7 +392,7 @@
       <bpmn:incoming>Flow_0p4fa1b</bpmn:incoming>
       <bpmn:outgoing>Flow_1kedpc9</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_06je06y" sourceRef="start_event_create_summon" targetRef="Gateway_1t6r1v4" />
+    <bpmn:sequenceFlow id="Flow_06je06y" sourceRef="start_event_create_summon" targetRef="task_create_summon" />
     <bpmn:sequenceFlow id="Flow_0p4fa1b" name="type_aanschrijving = legalisatie brief" sourceRef="Gateway_1t6r1v4" targetRef="Activity_0ma57of">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${type_aanschrijving=="legalisatie-brief"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -437,6 +428,41 @@
         </bpmn:extensionElements>
       </bpmn:messageEventDefinition>
     </bpmn:endEvent>
+    <bpmn:startEvent id="start_event_create_summon" name="Message start aanschrijving" camunda:formKey="start_aanschrijving_form">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="zaken_access_token" type="string" />
+          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_06je06y</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0s2tw0n" messageRef="Message_00lt54x" />
+    </bpmn:startEvent>
+    <bpmn:startEvent id="Event_19vhu21">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="names" label="Wie worden aangeschreven?" type="string" />
+          <camunda:formField id="type_aanschrijving" label="Welk type aanschrijving heb je opgesteld?" type="string" />
+          <camunda:formField id="sluitingsbesluit" label="Zit er ook een sluitingsbesluit bij?" type="boolean" defaultValue="false" />
+          <camunda:formField id="case_identification" label="Wat is de ID van de zaak?" type="string" />
+          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_0glc1e3</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0glc1e3" sourceRef="Event_19vhu21" targetRef="Gateway_1t6r1v4" />
+    <bpmn:sequenceFlow id="Flow_0jeu33i" sourceRef="task_create_summon" targetRef="Gateway_1t6r1v4" />
+    <bpmn:userTask id="task_create_summon" name="Verwerken aanschrijving" camunda:formKey="create_summon_form" camunda:candidateGroups="Projecthandhaver">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="names" label="Wie worden aangeschreven?" type="string" />
+          <camunda:formField id="type_aanschrijving" label="Welk type aanschrijving heb je opgesteld?" type="string" />
+          <camunda:formField id="sluitingsbesluit" label="Zit er ook een sluitingsbesluit bij?" type="boolean" defaultValue="false" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_06je06y</bpmn:incoming>
+      <bpmn:outgoing>Flow_0jeu33i</bpmn:outgoing>
+    </bpmn:userTask>
     <bpmn:textAnnotation id="TextAnnotation_1gb87eu">
       <bpmn:text>Opstellen concept aanschrijving</bpmn:text>
     </bpmn:textAnnotation>
@@ -476,6 +502,7 @@ EN FORM</bpmn:text>
   <bpmn:message id="Message_14wp5u8" name="model_create_summon" />
   <bpmn:message id="Message_1k1jpww" name="start_decision_process" />
   <bpmn:message id="Message_1j5idk9" name="start_sluitings_process" />
+  <bpmn:message id="Message_00lt54x" name="TEST" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1t5ylmo">
       <bpmndi:BPMNShape id="Participant_1ciseh2_di" bpmnElement="Participant_1ciseh2" isHorizontal="true">
@@ -493,6 +520,15 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="Lane_0ku7kbe_di" bpmnElement="Lane_0ku7kbe" isHorizontal="true">
         <dc:Bounds x="191" y="80" width="4339" height="170" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0jeu33i_di" bpmnElement="Flow_0jeu33i">
+        <di:waypoint x="340" y="780" />
+        <di:waypoint x="340" y="630" />
+        <di:waypoint x="415" y="630" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0glc1e3_di" bpmnElement="Flow_0glc1e3">
+        <di:waypoint x="268" y="630" />
+        <di:waypoint x="415" y="630" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0p4fa1b_di" bpmnElement="Flow_0p4fa1b">
         <di:waypoint x="465" y="630" />
         <di:waypoint x="650" y="630" />
@@ -501,8 +537,8 @@ EN FORM</bpmn:text>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_06je06y_di" bpmnElement="Flow_06je06y">
-        <di:waypoint x="268" y="630" />
-        <di:waypoint x="415" y="630" />
+        <di:waypoint x="258" y="820" />
+        <di:waypoint x="290" y="820" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0jcg14m_di" bpmnElement="Flow_0jcg14m">
         <di:waypoint x="440" y="655" />
@@ -846,9 +882,6 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="Activity_1l6bszs_di" bpmnElement="Activity_1e9dx60">
         <dc:Bounds x="3170" y="1010" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0k3oqeu_di" bpmnElement="start_event_create_summon">
-        <dc:Bounds x="232" y="612" width="36" height="36" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1t6r1v4_di" bpmnElement="Gateway_1t6r1v4" isMarkerVisible="true">
         <dc:Bounds x="415" y="605" width="50" height="50" />
         <bpmndi:BPMNLabel>
@@ -866,6 +899,18 @@ EN FORM</bpmn:text>
         <bpmndi:BPMNLabel>
           <dc:Bounds x="664" y="915" width="73" height="27" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0vw66iw_di" bpmnElement="start_event_create_summon">
+        <dc:Bounds x="222" y="802" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="205" y="845" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_19vhu21_di" bpmnElement="Event_19vhu21">
+        <dc:Bounds x="232" y="612" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0w3grnf_di" bpmnElement="task_create_summon">
+        <dc:Bounds x="290" y="780" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1gb87eu_di" bpmnElement="TextAnnotation_1gb87eu">
         <dc:Bounds x="1220" y="842" width="100" height="55" />
