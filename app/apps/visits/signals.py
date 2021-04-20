@@ -9,7 +9,7 @@ def complete_camunda_task_create_visit(sender, instance, created, **kwargs):
     task = False
     for camunda_id in instance.case.camunda_ids:
         task = CamundaService().get_task_by_task_name_id_and_camunda_id(
-            "task_create_visit", instance.case.camunda_id
+            "task_create_visit", camunda_id
         )
         if task:
             break
