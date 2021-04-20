@@ -50,10 +50,10 @@
         <bpmn:flowNodeRef>Event_1vjsmtf</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0e7c9ew</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0zhcipe</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Gateway_1xlpyzt</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_1yep068</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:userTask id="task_create_visit" name="Doorgeven huisbezoek TOP" camunda:formKey="doorgeven_huisbezoek_resultaat" camunda:candidateGroups="Toezichthouder, Projecthandhaver" camunda:dueDate="${dateTime().plusDays(60).toDate()}">
+    <bpmn:userTask id="task_create_visit" name="Doorgeven huisbezoek TOP" camunda:formKey="doorgeven_huisbezoek_resultaat" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(60).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="situation" label="Wat is de situatie?" type="string" />
@@ -111,7 +111,7 @@
       <bpmn:incoming>Flow_09fde08</bpmn:incoming>
       <bpmn:outgoing>Flow_1c3b8q1</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:serviceTask id="Activity_0cah3n3" name="Status Beëindigen" camunda:asyncBefore="true" camunda:exclusive="false">
+    <bpmn:serviceTask id="Activity_0cah3n3" name="Status Beëindigen">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -133,7 +133,7 @@
       <bpmn:incoming>Flow_0kzynfb</bpmn:incoming>
       <bpmn:outgoing>Flow_0f5ufmf</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="Activity_0hjc13h" name="Status Bijwerken: &#39;Aanschrijvingen&#39;" camunda:asyncBefore="true" camunda:exclusive="false">
+    <bpmn:serviceTask id="Activity_0hjc13h" name="Status Bijwerken: &#39;Aanschrijvingen&#39;">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -184,7 +184,7 @@
       <bpmn:incoming>Flow_19wypde</bpmn:incoming>
       <bpmn:outgoing>Flow_1k51zjk</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:serviceTask id="Activity_1s4ejxs" name="Status Bijwerken: &#39;Debrief&#39;" camunda:asyncBefore="true" camunda:exclusive="false">
+    <bpmn:serviceTask id="Activity_1s4ejxs" name="Status Bijwerken: &#39;Debrief&#39;">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -234,7 +234,7 @@
       <bpmn:outgoing>Flow_1vf6p6a</bpmn:outgoing>
     </bpmn:inclusiveGateway>
     <bpmn:userTask id="Activity_0bc2n3t" name="Informeer melder over status melding">
-      <bpmn:incoming>Flow_0c4ii4y</bpmn:incoming>
+      <bpmn:incoming>Flow_1r5u9k4</bpmn:incoming>
       <bpmn:outgoing>Flow_1d2hx1m</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:startEvent id="StartEvent_1">
@@ -292,7 +292,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1gfx0v0" sourceRef="Activity_1xpwi2u" targetRef="Gateway_0h60qot" />
     <bpmn:sequenceFlow id="Flow_07yq2lt" sourceRef="Gateway_0h60qot" targetRef="task_create_schedule" />
-    <bpmn:serviceTask id="Activity_1xpwi2u" name="Status Bijwerken: &#39;Hercontrole&#39;" camunda:asyncBefore="true" camunda:exclusive="false">
+    <bpmn:serviceTask id="Activity_1xpwi2u" name="Status Bijwerken: &#39;Hercontrole&#39;">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -317,7 +317,7 @@
       <bpmn:outgoing>Flow_1gfx0v0</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0x95ke6" sourceRef="Activity_1u23sd7" targetRef="Gateway_0h60qot" />
-    <bpmn:serviceTask id="Activity_1u23sd7" name="Status Bijwerken: &#39;Huisbezoek&#39;" camunda:asyncBefore="true" camunda:exclusive="false">
+    <bpmn:serviceTask id="Activity_1u23sd7" name="Status Bijwerken: &#39;Huisbezoek&#39;">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -346,7 +346,7 @@
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1d2hx1m" sourceRef="Activity_0bc2n3t" targetRef="Event_1wo36z3" />
     <bpmn:sequenceFlow id="Flow_1pdbmx6" sourceRef="Activity_08um7qq" targetRef="task_close_case" />
-    <bpmn:serviceTask id="Activity_08um7qq" name="Status Beëindigen" camunda:asyncBefore="true" camunda:exclusive="false">
+    <bpmn:serviceTask id="Activity_08um7qq" name="Status Beëindigen">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -368,7 +368,7 @@
       <bpmn:incoming>Flow_1c3b8q1</bpmn:incoming>
       <bpmn:outgoing>Flow_1pdbmx6</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="Activity_1pvwx7l" name="Status Beëindigen" camunda:asyncBefore="true" camunda:exclusive="false">
+    <bpmn:serviceTask id="Activity_1pvwx7l" name="Status Beëindigen">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -392,7 +392,7 @@
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0kpygpb" sourceRef="Activity_1pvwx7l" targetRef="Activity_1xpwi2u" />
     <bpmn:sequenceFlow id="Flow_1vj8j71" sourceRef="Activity_0smew2x" targetRef="Activity_1s4ejxs" />
-    <bpmn:serviceTask id="Activity_0smew2x" name="Status Beëindigen" camunda:asyncBefore="true" camunda:exclusive="false">
+    <bpmn:serviceTask id="Activity_0smew2x" name="Status Beëindigen">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -419,7 +419,7 @@
       <bpmn:incoming>Flow_1j3v702</bpmn:incoming>
       <bpmn:terminateEventDefinition id="TerminateEventDefinition_1qr1iz5" />
     </bpmn:endEvent>
-    <bpmn:serviceTask id="Activity_1hqxpcj" name="Status Beëindigen" camunda:asyncBefore="true" camunda:exclusive="false">
+    <bpmn:serviceTask id="Activity_1hqxpcj" name="Status Beëindigen">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -452,7 +452,6 @@
         <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">P21D</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="Flow_1l9n8yi" sourceRef="Event_1vjsmtf" targetRef="Gateway_1xlpyzt" />
     <bpmn:sequenceFlow id="Flow_1vf6p6a" sourceRef="Gateway_17rmiyo" targetRef="Gateway_0e7c9ew" />
     <bpmn:eventBasedGateway id="Gateway_0e7c9ew">
       <bpmn:incoming>Flow_1vf6p6a</bpmn:incoming>
@@ -462,17 +461,18 @@
     <bpmn:sequenceFlow id="Flow_0eedlzm" sourceRef="Gateway_0e7c9ew" targetRef="Event_1vjsmtf" />
     <bpmn:intermediateCatchEvent id="Event_0zhcipe" name="Forceer informeer">
       <bpmn:incoming>Flow_00j41kr</bpmn:incoming>
-      <bpmn:outgoing>Flow_1eth85l</bpmn:outgoing>
+      <bpmn:outgoing>Flow_16jkavy</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1120sde" messageRef="Message_1x25hwu" />
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_00j41kr" sourceRef="Gateway_0e7c9ew" targetRef="Event_0zhcipe" />
-    <bpmn:exclusiveGateway id="Gateway_1xlpyzt">
+    <bpmn:exclusiveGateway id="Gateway_1yep068" default="Flow_1r5u9k4">
+      <bpmn:incoming>Flow_16jkavy</bpmn:incoming>
       <bpmn:incoming>Flow_1l9n8yi</bpmn:incoming>
-      <bpmn:incoming>Flow_1eth85l</bpmn:incoming>
-      <bpmn:outgoing>Flow_0c4ii4y</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1r5u9k4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0c4ii4y" sourceRef="Gateway_1xlpyzt" targetRef="Activity_0bc2n3t" />
-    <bpmn:sequenceFlow id="Flow_1eth85l" sourceRef="Event_0zhcipe" targetRef="Gateway_1xlpyzt" />
+    <bpmn:sequenceFlow id="Flow_16jkavy" sourceRef="Event_0zhcipe" targetRef="Gateway_1yep068" />
+    <bpmn:sequenceFlow id="Flow_1l9n8yi" sourceRef="Event_1vjsmtf" targetRef="Gateway_1yep068" />
+    <bpmn:sequenceFlow id="Flow_1r5u9k4" sourceRef="Gateway_1yep068" targetRef="Activity_0bc2n3t" />
     <bpmn:textAnnotation id="TextAnnotation_00h0tuq">
       <bpmn:text>TODO: Dynamische datum na additional research is +2 dagen</bpmn:text>
     </bpmn:textAnnotation>
@@ -497,14 +497,18 @@
       <bpmndi:BPMNShape id="Lane_1hxgg1r_di" bpmnElement="Lane_1hxgg1r" isHorizontal="true">
         <dc:Bounds x="190" y="1180" width="2730" height="140" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1eth85l_di" bpmnElement="Flow_1eth85l">
-        <di:waypoint x="718" y="150" />
-        <di:waypoint x="840" y="150" />
-        <di:waypoint x="840" y="215" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0c4ii4y_di" bpmnElement="Flow_0c4ii4y">
-        <di:waypoint x="865" y="240" />
+      <bpmndi:BPMNEdge id="Flow_1r5u9k4_di" bpmnElement="Flow_1r5u9k4">
+        <di:waypoint x="895" y="240" />
         <di:waypoint x="940" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1l9n8yi_di" bpmnElement="Flow_1l9n8yi">
+        <di:waypoint x="718" y="240" />
+        <di:waypoint x="845" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16jkavy_di" bpmnElement="Flow_16jkavy">
+        <di:waypoint x="718" y="150" />
+        <di:waypoint x="870" y="150" />
+        <di:waypoint x="870" y="215" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_00j41kr_di" bpmnElement="Flow_00j41kr">
         <di:waypoint x="620" y="215" />
@@ -519,10 +523,6 @@
         <di:waypoint x="550" y="475" />
         <di:waypoint x="550" y="240" />
         <di:waypoint x="595" y="240" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1l9n8yi_di" bpmnElement="Flow_1l9n8yi">
-        <di:waypoint x="718" y="240" />
-        <di:waypoint x="815" y="240" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1j3v702_di" bpmnElement="Flow_1j3v702">
         <di:waypoint x="2770" y="1070" />
@@ -880,8 +880,8 @@
           <dc:Bounds x="656" y="175" width="88" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1xlpyzt_di" bpmnElement="Gateway_1xlpyzt" isMarkerVisible="true">
-        <dc:Bounds x="815" y="215" width="50" height="50" />
+      <bpmndi:BPMNShape id="Gateway_1yep068_di" bpmnElement="Gateway_1yep068" isMarkerVisible="true">
+        <dc:Bounds x="845" y="215" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_00h0tuq_di" bpmnElement="TextAnnotation_00h0tuq">
         <dc:Bounds x="1600" y="1120" width="180" height="40" />

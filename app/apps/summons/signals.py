@@ -78,7 +78,7 @@ def create_summon_instance_in_camunda(sender, instance, created, **kwargs):
             ),
         )
         case = instance.case
-        case.camunda_id = camunda_id
+        case = case.add_camunda_id(camunda_id)
         case.save()
 
 

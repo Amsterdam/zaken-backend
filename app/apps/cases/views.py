@@ -231,7 +231,12 @@ class CaseViewSet(
     @action(detail=True, methods=["get"], url_path="tasks")
     def get_tasks(self, request, pk):
         case = self.get_object()
-        camunda_tasks = CamundaService().get_all_tasks_by_instance_id(case.camunda_id)
+        camunda_tasks = []
+
+        for camunda_id in case.camunda_ids:
+            camunda_tasks.extend(
+                CamundaService().get_all_tasks_by_instance_id(camunda_id)
+            )
         # Camunda tasks can be an empty list or boolean. TODO: This should just be one datatype
         if camunda_tasks is False:
             return Response(

@@ -11,7 +11,7 @@ def start_camunda_instance(self, identification, request_body):
     )
     if camunda_id:
         case = Case.objects.get(identification=identification)
-        case.camunda_id = camunda_id
+        case = case.add_camunda_id(camunda_id)
         case.save()
 
 
