@@ -3,6 +3,7 @@ import uuid
 from apps.addresses.models import Address
 from apps.events.models import CaseEvent, ModelEventEmitter
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
@@ -47,7 +48,9 @@ class Case(ModelEventEmitter):
         to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )
     is_legacy_bwv = models.BooleanField(default=False)
-    camunda_id = models.CharField(max_length=255, null=True, blank=True)
+    camunda_ids = ArrayField(
+        models.CharField(max_length=255), default=list, null=True, blank=True
+    )
     team = models.ForeignKey(to=CaseTeam, on_delete=models.PROTECT)
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT
