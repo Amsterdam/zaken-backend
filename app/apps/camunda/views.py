@@ -111,7 +111,7 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
                 camunda_id = response["processInstance"]["id"]
 
                 case = Case.objects.get(identification=case_identification)
-                case.camunda_id = camunda_id
+                case.add_camunda_id(camunda_id)
                 case.save()
 
                 logger.info(f"Message send {message_name} ended succesfully")
