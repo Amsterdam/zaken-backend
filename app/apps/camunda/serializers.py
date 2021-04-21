@@ -86,3 +86,4 @@ class CamundaProcessSerializer(serializers.ModelSerializer):
     class Meta:
         model = CamundaProcess
         fields = "__all__"
+        ordering = ["name"]
