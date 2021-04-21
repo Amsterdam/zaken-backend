@@ -293,10 +293,6 @@ class CaseViewSet(
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
-            import pdb
-
-            pdb.set_trace()
-
             response = CamundaService().send_message(
                 message_name=instance.camunda_message_name
             )
