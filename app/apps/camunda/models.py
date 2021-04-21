@@ -31,4 +31,4 @@ class CamundaProcess(models.Model):
         return f"{self.name} - {self.camunda_message_name}"
 
     class Meta:
-        ordering = ["-name"]
+        ordering = ["name"]
