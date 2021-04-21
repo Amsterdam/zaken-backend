@@ -294,7 +294,7 @@ class CaseViewSet(
                 )
 
             response = CamundaService().send_message(
-                message_name=instance.camunda_message_name
+                message_name=instance.camunda_message_name, case_identification=case.id
             )
 
             try:

@@ -245,7 +245,7 @@ class CamundaService:
         return response
 
     def send_message(
-        self, message_name, business_key=False, message_process_variables={}
+        self, message_name, case_identification=False, message_process_variables={}
     ):
         message_process_variables["endpoint"] = {"value": settings.ZAKEN_CONTAINER_HOST}
         message_process_variables["zaken_access_token"] = {
@@ -257,8 +257,10 @@ class CamundaService:
             "resultEnabled": True,
         }
 
-        if business_key:
-            request_body["businessKey"] = {"value": business_key}
+        if case_identification:
+            request_body["processVariables"]["case_identification"] = {
+                "value": case_identification
+            }
 
         request_json_body = json.dumps(request_body)
         response = self._process_request("/message", request_json_body, post=True)

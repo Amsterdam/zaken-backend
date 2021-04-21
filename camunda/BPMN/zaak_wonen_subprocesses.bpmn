@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1g1rvb9" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" camunda:diagramRelationId="efab761f-3315-414e-a9d6-d8cf7d1ab0a9">
   <bpmn:collaboration id="Collaboration_1nd8xuu">
-    <bpmn:participant id="Participant_03i0kl2" name="Optionele taken" processRef="Process_0878r1i" />
+    <bpmn:participant id="Participant_03i0kl2" name="Optionele taken" processRef="zaak_wonen_subprocesses" />
   </bpmn:collaboration>
-  <bpmn:process id="Process_0878r1i" isExecutable="false">
+  <bpmn:process id="zaak_wonen_subprocesses" name="Zaak Wonen Subprocesses" isExecutable="true" camunda:versionTag="0.0.2">
     <bpmn:laneSet id="LaneSet_1gzayrm">
       <bpmn:lane id="Lane_13qot1b" name="Projecthandhaver">
         <bpmn:flowNodeRef>Activity_0opov83</bpmn:flowNodeRef>
@@ -12,11 +12,11 @@
         <bpmn:flowNodeRef>task_callback_request</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_14lleip</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0wej508</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>start_correspondence_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>event_start_correspondence_process</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1nv61es</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0v6xxqc</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>start_callbackrequest_process</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>start_objectionfile_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>event_start_callbackrequest_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>event_start_objectionfile_process</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1xkmac5</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0ptelfe</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1tux6wv</bpmn:flowNodeRef>
@@ -27,7 +27,7 @@
         <bpmn:flowNodeRef>task_create_signal</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_19a40xb</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0q70hru</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>start_signal_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>event_start_signal_process</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_01bznx8</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
@@ -35,7 +35,7 @@
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
-            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/state</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map />
@@ -78,7 +78,7 @@
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
-            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/state</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map />
@@ -99,7 +99,7 @@
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
-            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/state</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map />
@@ -122,24 +122,23 @@
     <bpmn:sequenceFlow id="Flow_1ugt3k2" sourceRef="task_submit_objectionfile" targetRef="Activity_16j1l2y" />
     <bpmn:sequenceFlow id="Flow_1kz95i3" sourceRef="Activity_0opov83" targetRef="task_correspondence" />
     <bpmn:sequenceFlow id="Flow_14ot4wv" sourceRef="task_correspondence" targetRef="Activity_0v6xxqc" />
-    <bpmn:startEvent id="start_correspondence_process" name="Start correspondentie proces" camunda:formKey="start_correspondentie">
+    <bpmn:startEvent id="event_start_correspondence_process" name="Start correspondentie proces" camunda:formKey="start_correspondentie">
       <bpmn:extensionElements>
-        <camunda:formData businessKey="FormField_276df5o">
+        <camunda:formData>
           <camunda:formField id="zaken_access_token" type="string" />
           <camunda:formField id="case_identification" type="string" />
           <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
-          <camunda:formField id="zaken_state_endpoint" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0v6xuji</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1dyc0eg" messageRef="Message_1wpao9m" />
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_0v6xuji" sourceRef="start_correspondence_process" targetRef="Activity_0opov83" />
+    <bpmn:sequenceFlow id="Flow_0v6xuji" sourceRef="event_start_correspondence_process" targetRef="Activity_0opov83" />
     <bpmn:sequenceFlow id="Flow_0tnqj4o" sourceRef="Activity_0v6xxqc" targetRef="Event_1nv61es" />
     <bpmn:endEvent id="Event_1nv61es">
       <bpmn:incoming>Flow_0tnqj4o</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:serviceTask id="Activity_0v6xxqc" name="Bij werken status: Correspondentie">
+    <bpmn:serviceTask id="Activity_0v6xxqc" name="Status Beëindigen">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -151,7 +150,7 @@
               </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${zaken_end_state_endpoint}</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/end-state/</camunda:inputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
@@ -159,32 +158,30 @@
       <bpmn:incoming>Flow_14ot4wv</bpmn:incoming>
       <bpmn:outgoing>Flow_0tnqj4o</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:startEvent id="start_callbackrequest_process" name="Start terugbelverzoek proces" camunda:formKey="start_terugbel_verzoek">
+    <bpmn:startEvent id="event_start_callbackrequest_process" name="Start terugbelverzoek proces" camunda:formKey="start_terugbel_verzoek">
       <bpmn:extensionElements>
-        <camunda:formData businessKey="FormField_276df5o">
+        <camunda:formData>
           <camunda:formField id="zaken_access_token" type="string" />
           <camunda:formField id="case_identification" type="string" />
           <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
-          <camunda:formField id="zaken_state_endpoint" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_09pyhbj</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1ilhql5" messageRef="Message_0apv0c8" />
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_09pyhbj" sourceRef="start_callbackrequest_process" targetRef="Activity_0wej508" />
-    <bpmn:startEvent id="start_objectionfile_process" name="Start bezwaardossier proces" camunda:formKey="start_bezwaardossier">
+    <bpmn:sequenceFlow id="Flow_09pyhbj" sourceRef="event_start_callbackrequest_process" targetRef="Activity_0wej508" />
+    <bpmn:startEvent id="event_start_objectionfile_process" name="Start bezwaardossier proces" camunda:formKey="start_bezwaardossier">
       <bpmn:extensionElements>
-        <camunda:formData businessKey="FormField_276df5o">
+        <camunda:formData>
           <camunda:formField id="zaken_access_token" type="string" />
           <camunda:formField id="case_identification" type="string" />
           <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
-          <camunda:formField id="zaken_state_endpoint" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_00kh5me</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0jnoe6k" messageRef="Message_14yjprg" />
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_00kh5me" sourceRef="start_objectionfile_process" targetRef="Activity_14lleip" />
+    <bpmn:sequenceFlow id="Flow_00kh5me" sourceRef="event_start_objectionfile_process" targetRef="Activity_14lleip" />
     <bpmn:serviceTask id="Activity_1byzj3r" name="Bijwerken status: Melding">
       <bpmn:extensionElements>
         <camunda:connector>
@@ -200,7 +197,7 @@
               </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
             <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
@@ -220,26 +217,25 @@
     <bpmn:endEvent id="Event_0q70hru">
       <bpmn:incoming>Flow_0d4dov1</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:startEvent id="start_signal_process" name="Start melding proces" camunda:formKey="start_melding">
+    <bpmn:startEvent id="event_start_signal_process" name="Start melding proces" camunda:formKey="start_melding">
       <bpmn:extensionElements>
-        <camunda:formData businessKey="FormField_276df5o">
+        <camunda:formData>
           <camunda:formField id="zaken_access_token" type="string" />
           <camunda:formField id="case_identification" type="string" />
           <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
-          <camunda:formField id="zaken_state_endpoint" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0o6jc5g</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0nu5r8p" messageRef="Message_0f7jpp5" />
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_0o6jc5g" sourceRef="start_signal_process" targetRef="Activity_1byzj3r" />
+    <bpmn:sequenceFlow id="Flow_0o6jc5g" sourceRef="event_start_signal_process" targetRef="Activity_1byzj3r" />
     <bpmn:sequenceFlow id="Flow_0xjebak" sourceRef="Activity_1byzj3r" targetRef="task_create_signal" />
     <bpmn:sequenceFlow id="Flow_0zw0zxy" sourceRef="Activity_19a40xb" targetRef="Activity_01bznx8" />
     <bpmn:sequenceFlow id="Flow_1dpqiy9" sourceRef="task_create_signal" targetRef="Activity_19a40xb" />
     <bpmn:endEvent id="Event_1xkmac5">
       <bpmn:incoming>Flow_1uyezt6</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:serviceTask id="Activity_0ptelfe" name="Bij werken status: Terugbelverzoek">
+    <bpmn:serviceTask id="Activity_0ptelfe" name="Status Beëindigen">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -251,7 +247,7 @@
               </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${zaken_end_state_endpoint}</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/end-state/</camunda:inputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
@@ -263,7 +259,7 @@
     <bpmn:endEvent id="Event_1tux6wv">
       <bpmn:incoming>Flow_0dnuuqe</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:serviceTask id="Activity_16j1l2y" name="Bij werken status: Bezwaardossier&#10;&#10;">
+    <bpmn:serviceTask id="Activity_16j1l2y" name="Status Beëindigen">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -275,7 +271,7 @@
               </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${zaken_end_state_endpoint}</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/end-state/</camunda:inputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
@@ -284,7 +280,7 @@
       <bpmn:outgoing>Flow_0dnuuqe</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0dnuuqe" sourceRef="Activity_16j1l2y" targetRef="Event_1tux6wv" />
-    <bpmn:serviceTask id="Activity_01bznx8" name="Bij werken status: Melding">
+    <bpmn:serviceTask id="Activity_01bznx8" name="Status Beëindigen">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -296,7 +292,7 @@
               </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${zaken_end_state_endpoint}</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/end-state/</camunda:inputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
@@ -407,7 +403,7 @@
       <bpmndi:BPMNShape id="Activity_03tw644_di" bpmnElement="Activity_0wej508">
         <dc:Bounds x="411" y="420" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1mhl1tw_di" bpmnElement="start_correspondence_process">
+      <bpmndi:BPMNShape id="Event_1mhl1tw_di" bpmnElement="event_start_correspondence_process">
         <dc:Bounds x="302" y="312" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="281" y="355" width="79" height="40" />
@@ -419,13 +415,13 @@
       <bpmndi:BPMNShape id="Activity_0v6xxqc_di" bpmnElement="Activity_0v6xxqc">
         <dc:Bounds x="750" y="290" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_02if269_di" bpmnElement="start_callbackrequest_process">
+      <bpmndi:BPMNShape id="Event_02if269_di" bpmnElement="event_start_callbackrequest_process">
         <dc:Bounds x="302" y="442" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="281" y="485" width="79" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1gru2jj_di" bpmnElement="start_objectionfile_process">
+      <bpmndi:BPMNShape id="Event_1gru2jj_di" bpmnElement="event_start_objectionfile_process">
         <dc:Bounds x="302" y="572" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="282" y="615" width="78" height="40" />
@@ -443,7 +439,7 @@
       <bpmndi:BPMNShape id="Event_0q70hru_di" bpmnElement="Event_0q70hru">
         <dc:Bounds x="1092" y="162" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_14a1lk8_di" bpmnElement="start_signal_process">
+      <bpmndi:BPMNShape id="Event_14a1lk8_di" bpmnElement="event_start_signal_process">
         <dc:Bounds x="302" y="162" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="289" y="205" width="65" height="27" />

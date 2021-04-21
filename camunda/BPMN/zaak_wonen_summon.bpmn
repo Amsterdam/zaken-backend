@@ -433,7 +433,7 @@
       <bpmn:messageEventDefinition id="MessageEventDefinition_03cu438" messageRef="Message_1bioi1o" />
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_1detbpm" sourceRef="task_create_summon" targetRef="Gateway_1t6r1v4" />
-    <bpmn:userTask id="task_create_summon" name="Verwerk aanschrijving" camunda:formKey="create_summon_form" camunda:candidateGroups="Projecthandhaver">
+    <bpmn:userTask id="task_create_summon" name="Verwerk aanschrijving" camunda:formKey="create_summon_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="type_aanschrijving" label="Welk type aanschrijving heb je opgesteld?" type="enum">
