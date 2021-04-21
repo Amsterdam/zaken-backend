@@ -39,7 +39,7 @@ class CamundaEndStateWorkerSerializer(serializers.Serializer):
 class CamundaMessagerSerializer(serializers.Serializer):
     message_name = serializers.CharField()
     process_variables = serializers.JSONField(default={})
-    case_id = serializers.CharField()
+    case_identification = serializers.CharField()
 
 
 class CamundaTaskSerializer(serializers.Serializer):

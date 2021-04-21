@@ -137,8 +137,6 @@ class CamundaService:
                 if task_roles:
                     for role in task_roles:
                         roles.append(role["groupId"])
-                else:
-                    return False
 
                 extra_info_dict = {
                     "roles": roles,
