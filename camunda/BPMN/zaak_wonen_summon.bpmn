@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0k0da6k" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.5.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0k0da6k" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
   <bpmn:collaboration id="Collaboration_1t5ylmo">
     <bpmn:participant id="Participant_1ciseh2" name="Process" processRef="zaak_wonen_summon" />
   </bpmn:collaboration>
@@ -440,14 +440,11 @@
       <bpmn:outgoing>Flow_015tlu4</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_1pi2zrr" sourceRef="start_renounce_intention" targetRef="Activity_1mvz8v7" />
-    <bpmn:startEvent id="start_renounce_intention" name="wonen summon: opstellen concept voornemen afzien">
+    <bpmn:startEvent id="start_renounce_intention" name="wonen summon: opstellen concept voornemen afzien" camunda:formKey="start_concept_voornemen_afzien">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="names" label="Wie worden aangeschreven?" type="string" />
-          <camunda:formField id="type_aanschrijving" label="Welk type aanschrijving heb je opgesteld?" type="string" />
-          <camunda:formField id="sluitingsbesluit" label="Zit er ook een sluitingsbesluit bij?" type="boolean" defaultValue="false" />
           <camunda:formField id="case_identification" label="Wat is de ID van de zaak?" type="string" />
-          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_1pi2zrr</bpmn:outgoing>
@@ -510,6 +507,10 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="Lane_0ku7kbe_di" bpmnElement="Lane_0ku7kbe" isHorizontal="true">
         <dc:Bounds x="191" y="80" width="4339" height="170" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1pi2zrr_di" bpmnElement="Flow_1pi2zrr">
+        <di:waypoint x="3010" y="598" />
+        <di:waypoint x="3010" y="640" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0p4fa1b_di" bpmnElement="Flow_0p4fa1b">
         <di:waypoint x="465" y="630" />
         <di:waypoint x="650" y="630" />
@@ -722,10 +723,6 @@ EN FORM</bpmn:text>
         <di:waypoint x="3330" y="680" />
         <di:waypoint x="3380" y="680" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1pi2zrr_di" bpmnElement="Flow_1pi2zrr">
-        <di:waypoint x="3010" y="598" />
-        <di:waypoint x="3010" y="640" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_0g6kz7m_di" bpmnElement="Activity_1k03k9a">
         <dc:Bounds x="1130" y="710" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -800,9 +797,6 @@ EN FORM</bpmn:text>
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2768" y="625" width="89" height="27" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0htpjp6_di" bpmnElement="Activity_1mvz8v7">
-        <dc:Bounds x="2960" y="640" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_12t4rx7_di" bpmnElement="Activity_01qjx7x">
         <dc:Bounds x="3380" y="640" width="100" height="80" />
@@ -888,6 +882,15 @@ EN FORM</bpmn:text>
           <dc:Bounds x="664" y="915" width="73" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0htpjp6_di" bpmnElement="Activity_1mvz8v7">
+        <dc:Bounds x="2960" y="640" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1s35lfc_di" bpmnElement="start_renounce_intention">
+        <dc:Bounds x="2992" y="562" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2966" y="526" width="88" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1gb87eu_di" bpmnElement="TextAnnotation_1gb87eu">
         <dc:Bounds x="1220" y="842" width="100" height="55" />
       </bpmndi:BPMNShape>
@@ -911,12 +914,6 @@ EN FORM</bpmn:text>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1mmc07e_di" bpmnElement="TextAnnotation_1mmc07e">
         <dc:Bounds x="3990" y="660" width="100" height="40" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1s35lfc_di" bpmnElement="start_renounce_intention">
-        <dc:Bounds x="2992" y="562" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2966" y="526" width="88" height="40" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_0jjhu5i_di" bpmnElement="Association_0jjhu5i">
         <di:waypoint x="1540" y="710" />

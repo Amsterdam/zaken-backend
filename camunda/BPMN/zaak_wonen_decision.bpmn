@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_114td5r" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.5.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_114td5r" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
   <bpmn:collaboration id="Collaboration_19t4o88">
     <bpmn:participant id="Participant_0mil4ed" name="Besluitproces" processRef="zaak_wonen_decision" />
   </bpmn:collaboration>
@@ -20,6 +20,7 @@
         <bpmn:flowNodeRef>Gateway_02ewdul</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_00pad6z</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1g3isfl</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1kplqnu</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1kmroz4</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_0pet0u3" name="Handhavingsjurist">
@@ -206,11 +207,34 @@
       <bpmn:outgoing>Flow_0r0zj9i</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0u2vqfw" name="Wel besluit" sourceRef="Gateway_1g3isfl" targetRef="Gateway_12p2b5t" />
-    <bpmn:sequenceFlow id="Flow_0r0zj9i" name="Geen besluit" sourceRef="Gateway_1g3isfl" targetRef="Event_1kmroz4">
+    <bpmn:sequenceFlow id="Flow_0r0zj9i" name="Geen besluit" sourceRef="Gateway_1g3isfl" targetRef="Activity_1kplqnu">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${type_besluit=="geen_besluit"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:endEvent id="Event_1kmroz4" name="Wonen summon: opstellen concept voornemen afzien">
+    <bpmn:sequenceFlow id="Flow_1xi47tc" sourceRef="Activity_1kplqnu" targetRef="Event_1kmroz4" />
+    <bpmn:serviceTask id="Activity_1kplqnu" name="Status Beëindigen" camunda:asyncBefore="true" camunda:exclusive="false">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state_identification": "${state_identification}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_0r0zj9i</bpmn:incoming>
+      <bpmn:outgoing>Flow_1xi47tc</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_1kmroz4" name="Wonen summon: opstellen concept voornemen afzien">
+      <bpmn:incoming>Flow_1xi47tc</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_06bpjdf" messageRef="Message_1jvr4vy">
         <bpmn:extensionElements>
           <camunda:connector>
@@ -220,9 +244,7 @@
               <camunda:inputParameter name="payload">{
     "message_name": "start_renounce_intention,
     "process_variables": {
-        "case_identification": {"value": "${case_identification}"},
-        "zaken_access_token": {"value": "${zaken_access_token}"},
-"zaken_state_endpoint": {"value": "${zaken_state_endpoint}"}
+        "case_identification": {"value": "${case_identification}"}
     },
     "case_id": "${case_identification}"
 }</camunda:inputParameter>
@@ -264,11 +286,15 @@
       <bpmndi:BPMNShape id="Lane_138dlau_di" bpmnElement="Lane_138dlau" isHorizontal="true">
         <dc:Bounds x="190" y="80" width="2070" height="540" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1xi47tc_di" bpmnElement="Flow_1xi47tc">
+        <di:waypoint x="930" y="220" />
+        <di:waypoint x="930" y="178" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0r0zj9i_di" bpmnElement="Flow_0r0zj9i">
         <di:waypoint x="930" y="405" />
-        <di:waypoint x="930" y="278" />
+        <di:waypoint x="930" y="300" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="939" y="363" width="62" height="14" />
+          <dc:Bounds x="933" y="363" width="62" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0u2vqfw_di" bpmnElement="Flow_0u2vqfw">
@@ -433,10 +459,13 @@
       <bpmndi:BPMNShape id="Gateway_1g3isfl_di" bpmnElement="Gateway_1g3isfl" isMarkerVisible="true">
         <dc:Bounds x="905" y="405" width="50" height="50" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1kplqnu_di" bpmnElement="Activity_1kplqnu">
+        <dc:Bounds x="880" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1kmroz4_di" bpmnElement="Event_1kmroz4">
-        <dc:Bounds x="912" y="242" width="36" height="36" />
+        <dc:Bounds x="912" y="142" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="886" y="192" width="88" height="40" />
+          <dc:Bounds x="886" y="92" width="88" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1wsq8ok_di" bpmnElement="TextAnnotation_1wsq8ok">
