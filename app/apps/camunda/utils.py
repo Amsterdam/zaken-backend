@@ -13,7 +13,10 @@ def get_form_details(form):
     form_inputs = []
 
     for form_group in form.find_all(class_="form-group"):
-        label = form_group.label.string.strip()
+        if form_group.label:
+            label = form_group.label.string.strip()
+        else:
+            label = ""
 
         if len(form_group.find_all("input")) == 1:
             form_input = form_group.find("input")

@@ -109,7 +109,7 @@ class Case(ModelEventEmitter):
 
     def add_camunda_id(self, camunda_id, *args, **kwargs):
         if self.camunda_ids:
-            self.camunda_ids = self.camunda_id.append(camunda_id)
+            self.camunda_ids.append(camunda_id)
         else:
             self.camunda_ids = [camunda_id]
 
