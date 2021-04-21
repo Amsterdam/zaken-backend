@@ -299,7 +299,7 @@ class CaseViewSet(
         )
 
 
-class CaseTeamViewSet(mixins.ListModelMixin, viewsets.ViewSet):
+class CaseTeamViewSet(ListAPIView, viewsets.ViewSet):
     permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = CaseTeamSerializer
     queryset = CaseTeam.objects.all()
