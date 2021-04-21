@@ -289,7 +289,7 @@ class CaseViewSet(
                 case = Case.objects.get(id=pk)
             except Case.DoesNotExist:
                 return Response(
-                    data="Camunda process has not started.",
+                    data="Camunda process has not started. Case does not exist",
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
@@ -302,7 +302,7 @@ class CaseViewSet(
                 camunda_process_id = json_response["processInstance"]["id"]
             except Exception:
                 return Response(
-                    data="Camunda process has not started.",
+                    data=f"Camunda process has not started. Json response not valid {str(response.content)}",
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
@@ -316,7 +316,7 @@ class CaseViewSet(
                 )
 
         return Response(
-            data="Camunda process has not started.",
+            data="Camunda process has not started. serializer not valid",
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
