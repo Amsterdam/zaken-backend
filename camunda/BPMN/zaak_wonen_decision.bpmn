@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_114td5r" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.5.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_114td5r" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
   <bpmn:collaboration id="Collaboration_19t4o88">
     <bpmn:participant id="Participant_0mil4ed" name="Besluitproces" processRef="zaak_wonen_decision" />
   </bpmn:collaboration>
@@ -21,6 +21,7 @@
         <bpmn:flowNodeRef>Event_00pad6z</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1g3isfl</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1kmroz4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0asc0u8</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_0pet0u3" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_1j6vc31</bpmn:flowNodeRef>
@@ -206,11 +207,12 @@
       <bpmn:outgoing>Flow_0r0zj9i</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0u2vqfw" name="Wel besluit" sourceRef="Gateway_1g3isfl" targetRef="Gateway_12p2b5t" />
-    <bpmn:sequenceFlow id="Flow_0r0zj9i" name="Geen besluit" sourceRef="Gateway_1g3isfl" targetRef="Event_1kmroz4">
+    <bpmn:sequenceFlow id="Flow_0r0zj9i" name="Geen besluit" sourceRef="Gateway_1g3isfl" targetRef="Activity_0asc0u8">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${type_besluit=="geen_besluit"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1mcw8da" sourceRef="Activity_0asc0u8" targetRef="Event_1kmroz4" />
     <bpmn:endEvent id="Event_1kmroz4" name="Wonen summon: opstellen concept voornemen afzien">
-      <bpmn:incoming>Flow_0r0zj9i</bpmn:incoming>
+      <bpmn:incoming>Flow_1mcw8da</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_06bpjdf" messageRef="Message_1jvr4vy">
         <bpmn:extensionElements>
           <camunda:connector>
@@ -238,6 +240,28 @@
         </bpmn:extensionElements>
       </bpmn:messageEventDefinition>
     </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_0asc0u8" name="Status Beëindigen">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state_identification": "${state_identification}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/end-state/</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0r0zj9i</bpmn:incoming>
+      <bpmn:outgoing>Flow_1mcw8da</bpmn:outgoing>
+    </bpmn:serviceTask>
     <bpmn:textAnnotation id="TextAnnotation_1wsq8ok">
       <bpmn:text>Deze taak staat ook al in aanschrijvingsproces</bpmn:text>
     </bpmn:textAnnotation>
@@ -264,11 +288,15 @@
       <bpmndi:BPMNShape id="Lane_138dlau_di" bpmnElement="Lane_138dlau" isHorizontal="true">
         <dc:Bounds x="190" y="80" width="2070" height="540" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1mcw8da_di" bpmnElement="Flow_1mcw8da">
+        <di:waypoint x="930" y="260" />
+        <di:waypoint x="930" y="228" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0r0zj9i_di" bpmnElement="Flow_0r0zj9i">
         <di:waypoint x="930" y="405" />
-        <di:waypoint x="930" y="278" />
+        <di:waypoint x="930" y="340" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="939" y="363" width="62" height="14" />
+          <dc:Bounds x="939" y="364" width="63" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0u2vqfw_di" bpmnElement="Flow_0u2vqfw">
@@ -434,10 +462,13 @@
         <dc:Bounds x="905" y="405" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1kmroz4_di" bpmnElement="Event_1kmroz4">
-        <dc:Bounds x="912" y="242" width="36" height="36" />
+        <dc:Bounds x="912" y="192" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="886" y="192" width="88" height="40" />
+          <dc:Bounds x="896" y="142" width="87" height="40" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0gx0e4i_di" bpmnElement="Activity_0asc0u8">
+        <dc:Bounds x="880" y="260" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1wsq8ok_di" bpmnElement="TextAnnotation_1wsq8ok">
         <dc:Bounds x="590" y="290" width="100" height="67" />
