@@ -234,9 +234,11 @@ class CaseViewSet(
         camunda_tasks = []
 
         for camunda_id in case.camunda_ids:
-            camunda_tasks.extend(
-                CamundaService().get_all_tasks_by_instance_id(camunda_id)
-            )
+            tasks = CamundaService().get_all_tasks_by_instance_id(camunda_id)
+
+            if tasks:
+                camunda_tasks.extend(tasks)
+
         # Camunda tasks can be an empty list or boolean. TODO: This should just be one datatype
         if camunda_tasks is False:
             return Response(
@@ -283,9 +285,33 @@ class CaseViewSet(
             data = serializer.validated_data
             instance = data["camunda_process_id"]
 
+            try:
+                case = Case.objects.get(id=pk)
+            except Case.DoesNotExist:
+                return Response(
+                    data="Camunda process has not started.",
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+            import pdb
+
+            pdb.set_trace()
+
             response = CamundaService().send_message(
                 message_name=instance.camunda_message_name
             )
+
+            try:
+                json_response = response.json()[0]
+                camunda_process_id = json_response["processInstance"]["id"]
+            except Exception:
+                return Response(
+                    data="Camunda process has not started.",
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+            case.add_camunda_id(camunda_process_id)
+            case.save()
 
             if response:
                 return Response(

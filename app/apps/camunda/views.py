@@ -95,8 +95,13 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
 
         if serializer.is_valid():
             message_name = serializer.validated_data["message_name"]
-            case_identification = serializer.validated_data["case_id"]
-            process_variables = serializer.validated_data["process_variables"]
+            case_identification = serializer.validated_data["case_identification"]
+
+            if serializer.validated_data["process_variables"]:
+                process_variables = serializer.validated_data["process_variables"]
+            else:
+                process_variables = {}
+
             process_variables["endpoint"] = {"value": settings.ZAKEN_CONTAINER_HOST}
             process_variables["zaken_access_token"] = {
                 "value": settings.CAMUNDA_SECRET_KEY
