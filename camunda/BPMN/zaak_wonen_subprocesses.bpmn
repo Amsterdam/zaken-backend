@@ -52,7 +52,7 @@
       <bpmn:incoming>Flow_0v6xuji</bpmn:incoming>
       <bpmn:outgoing>Flow_1kz95i3</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="task_correspondence" name="Opppakken correspondentie" camunda:formKey="correspondentie_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_correspondence" name="Oppakken correspondentie" camunda:formKey="correspondentie_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="correspondence_description" label="Correspondentie notitie" type="string" />
@@ -65,7 +65,7 @@
       <bpmn:incoming>Flow_016cuwo</bpmn:incoming>
       <bpmn:outgoing>Flow_1ugt3k2</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_callback_request" name="Oppakken terugbel verzoek" camunda:formKey="terugbelverzoek_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_callback_request" name="Oppakken terugbelverzoek" camunda:formKey="terugbelverzoek_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="callbackrequest_form" label="Terugbelverzoek notitie" type="string" />
@@ -95,7 +95,7 @@
       <bpmn:incoming>Flow_00kh5me</bpmn:incoming>
       <bpmn:outgoing>Flow_016cuwo</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="Activity_0wej508" name="Bijwerken status: Terugbel verzoek">
+    <bpmn:serviceTask id="Activity_0wej508" name="Bijwerken status: Terugbelverzoek">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -206,7 +206,7 @@
       <bpmn:incoming>Flow_0o6jc5g</bpmn:incoming>
       <bpmn:outgoing>Flow_0xjebak</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="task_create_signal" name="Opvoeren nieuwe melding" camunda:formKey="task_create_signal" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_create_signal" name="Nieuwe melding verwerken" camunda:formKey="task_create_signal" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_0xjebak</bpmn:incoming>
       <bpmn:outgoing>Flow_1dpqiy9</bpmn:outgoing>
     </bpmn:userTask>
