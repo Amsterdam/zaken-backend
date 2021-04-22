@@ -16,9 +16,14 @@ def update_decision_with_summon(sender, instance, created, **kwargs):
             instance.summon = instance.case.summons.all()[0]
             instance.save()
 
-    task = CamundaService().get_task_by_task_name_id_and_camunda_id(
-        "task_create_decision", instance.case.camunda_id
-    )
+    task = False
+    for camunda_id in instance.case.camunda_ids:
+        task = CamundaService().get_task_by_task_name_id_and_camunda_id(
+            "task_create_decision", camunda_id
+        )
+        if task:
+            break
+
     if task:
         CamundaService().complete_task(
             task["id"],

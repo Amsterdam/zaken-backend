@@ -257,7 +257,7 @@
               </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
             <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
@@ -271,7 +271,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${beoordelen_bezwaar=="no_objection"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_08n34dt" sourceRef="Activity_0zw90ih" targetRef="start_decision_process" />
-    <bpmn:userTask id="Activity_1mkl5rk" name="Monitoren binnenkomen vergunningaanvraag" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(32).toDate()}">
+    <bpmn:userTask id="Activity_1mkl5rk" name="Monitoren binnenkomen vergunningaanvraag ${names}" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(32).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="action_civilian_permit_requested" label="Is vergunning aangevraagd?" type="enum">
@@ -306,7 +306,7 @@
     "process_variables": {
         "case_identification": {"value": "${case_identification}"},
         "zaken_access_token": {"value": "${zaken_access_token}"},
-"zaken_state_endpoint": {"value": "${zaken_state_endpoint}"}
+"zaken_state_endpoint": {"value": "${endpoint}/api/v1/camunda/worker/state/"}
     },
     "case_id": "${case_identification}"
 }</camunda:inputParameter>
@@ -334,7 +334,7 @@
               </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${zaken_end_state_endpoint}</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/end-state/</camunda:inputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
@@ -378,7 +378,7 @@
               </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${zaken_state_endpoint}</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
             <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
@@ -405,10 +405,10 @@
               <camunda:inputParameter name="payload">{
     "message_name": "start_sluitings_proces",
     "process_variables": {
-        "case_identification": {"value": "${case_identification}"},
         "zaken_access_token": {"value": "${zaken_access_token}"},
-        "zaken_state_endpoint": {"value": "${zaken_state_endpoint}"}
+        "zaken_state_endpoint": {"value": "${endpoint}/api/v1/camunda/worker/state/"}
     },
+"case_identification": "${case_identification}
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
@@ -441,8 +441,8 @@
             <camunda:value id="waarschuwingsbrief_shortstay" name="Waarschuwingsbrief shortstay-vergunning" />
             <camunda:value id="waarschuwingsbrief_bnb" name="Waarschuwingsbrief Bed-and-Breakfast-vergunning" />
             <camunda:value id="aanschrijvingen" name="Overige aanschrijvingen" />
+            <camunda:value id="sluiting" name="Sluitingsbesluit" />
           </camunda:formField>
-          <camunda:formField id="sluitingsbesluit" label="Zit er ook een sluitingsbesluit bij?" type="boolean" defaultValue="false" />
           <camunda:formField id="names" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>

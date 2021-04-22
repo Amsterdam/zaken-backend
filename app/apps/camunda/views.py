@@ -115,7 +115,7 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
                 response = raw_response.json()[0]
                 camunda_id = response["processInstance"]["id"]
 
-                case = Case.objects.get(identification=case_identification)
+                case = Case.objects.get(id=case_identification)
                 case.add_camunda_id(camunda_id)
                 case.save()
 
