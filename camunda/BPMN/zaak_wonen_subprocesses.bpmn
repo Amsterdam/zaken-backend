@@ -52,7 +52,7 @@
       <bpmn:incoming>Flow_0v6xuji</bpmn:incoming>
       <bpmn:outgoing>Flow_1kz95i3</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="task_correspondence" name="Opppakken correspondentie" camunda:formKey="correspondentie_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_correspondence" name="Oppakken correspondentie" camunda:formKey="correspondentie_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="correspondence_description" label="Correspondentie notitie" type="string" />
