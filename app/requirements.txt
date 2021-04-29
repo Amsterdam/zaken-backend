@@ -42,7 +42,7 @@ mozilla-django-oidc==1.2.4
 prompt-toolkit==3.0.18
 psycopg2==2.8.6
 pycparser==2.20
-PyJWT==2.0.1
+PyJWT==2.1.0
 pyOpenSSL==20.0.1
 pyrsistent==0.17.3
 python-crontab==2.5.1
