@@ -37,7 +37,9 @@ class CamundaService:
                     headers={"content-type": "application/json"},
                 )
 
-            logger.info(f"Request to Camunda succesful. Response: {response.content}")
+            logger.info(
+                f"Request to Camunda succesful. Response: {response.content} from url: {request_path}"
+            )
             return response
         except requests.exceptions.Timeout:
             logger.info("Request to Camunda timed out")
@@ -100,8 +102,8 @@ class CamundaService:
 
     def start_instance(
         self,
-        case_identification,
-        request_body,
+        case_identification=False,
+        request_body={},
         process=settings.CAMUNDA_PROCESS_VISIT,
     ):
         """
@@ -137,8 +139,6 @@ class CamundaService:
                 if task_roles:
                     for role in task_roles:
                         roles.append(role["groupId"])
-                else:
-                    return False
 
                 extra_info_dict = {
                     "roles": roles,
@@ -247,16 +247,22 @@ class CamundaService:
         return response
 
     def send_message(
-        self, message_name, business_key=False, message_process_variables={}
+        self, message_name, case_identification=False, message_process_variables={}
     ):
+        message_process_variables["endpoint"] = {"value": settings.ZAKEN_CONTAINER_HOST}
+        message_process_variables["zaken_access_token"] = {
+            "value": settings.CAMUNDA_SECRET_KEY
+        }
         request_body = {
             "messageName": message_name,
             "processVariables": message_process_variables,
             "resultEnabled": True,
         }
 
-        if business_key:
-            request_body["businessKey"] = business_key
+        if case_identification:
+            request_body["processVariables"]["case_identification"] = {
+                "value": case_identification
+            }
 
         request_json_body = json.dumps(request_body)
         response = self._process_request("/message", request_json_body, post=True)

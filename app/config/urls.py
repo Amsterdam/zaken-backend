@@ -36,7 +36,6 @@ router.register(r"schedules", ScheduleViewSet, basename="schedules")
 
 router.register(r"camunda/task", CamundaTaskViewSet, basename="camunda-tasks")
 router.register(r"camunda/worker", CamundaWorkerViewSet, basename="camunda-workers")
-
 router.register(r"test-permits", PermitViewSet, basename="test-permits")
 
 urlpatterns = [

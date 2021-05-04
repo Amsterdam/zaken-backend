@@ -8,9 +8,14 @@ from django.dispatch import receiver
     post_save, sender=Debriefing, dispatch_uid="debrief_create_complete_camunda_task"
 )
 def complete_camunda_task_create_debrief(sender, instance, created, **kwargs):
-    task = CamundaService().get_task_by_task_name_id_and_camunda_id(
-        "task_create_debrief", instance.case.camunda_id
-    )
+    task = False
+
+    for camunda_id in instance.case.camunda_ids:
+        task = CamundaService().get_task_by_task_name_id_and_camunda_id(
+            "task_create_debrief", camunda_id
+        )
+        if task:
+            break
     if task:
         CamundaService().complete_task(
             task["id"], {"violation": {"value": instance.violation}}

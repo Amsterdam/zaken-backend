@@ -21,3 +21,14 @@ class GenericCompletedTask(ModelEventEmitter):
             "description": self.description,
             "variables": self.variables,
         }
+
+
+class CamundaProcess(models.Model):
+    name = models.CharField(max_length=255)
+    camunda_message_name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.name} - {self.camunda_message_name}"
+
+    class Meta:
+        ordering = ["name"]

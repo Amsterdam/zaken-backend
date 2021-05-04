@@ -1,5 +1,6 @@
 from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer
+from apps.camunda.models import CamundaProcess
 from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTeam
 from apps.schedules.serializers import ScheduleSerializer
 from rest_framework import serializers
@@ -107,3 +108,9 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
 
 class PushCaseStateSerializer(serializers.Serializer):
     user_emails = serializers.ListField(child=serializers.EmailField(), required=True)
+
+
+class CamundaStartProcessSerializer(serializers.Serializer):
+    camunda_process_id = serializers.PrimaryKeyRelatedField(
+        queryset=CamundaProcess.objects.all()
+    )

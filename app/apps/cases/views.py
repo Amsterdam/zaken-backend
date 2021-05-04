@@ -1,11 +1,13 @@
 import logging
 
 from apps.addresses.utils import search
-from apps.camunda.serializers import CamundaTaskSerializer
+from apps.camunda.models import CamundaProcess
+from apps.camunda.serializers import CamundaProcessSerializer, CamundaTaskSerializer
 from apps.camunda.services import CamundaService
 from apps.cases.mock import mock
 from apps.cases.models import Case, CaseState, CaseTeam
 from apps.cases.serializers import (
+    CamundaStartProcessSerializer,
     CaseCreateUpdateSerializer,
     CaseReasonSerializer,
     CaseSerializer,
@@ -35,7 +37,7 @@ from django.contrib.auth import get_user_model
 from django.http import HttpResponseBadRequest
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
-from rest_framework import status
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
 from rest_framework.generics import (
@@ -43,15 +45,13 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet, ViewSet
 
 logger = logging.getLogger(__name__)
 
 
-class CaseStateViewSet(ViewSet):
+class CaseStateViewSet(viewsets.ViewSet):
     """
     Pushes the case state
     """
@@ -94,11 +94,11 @@ class CaseStateViewSet(ViewSet):
 
 
 class CaseViewSet(
-    GenericViewSet,
-    CreateModelMixin,
-    ListModelMixin,
-    RetrieveModelMixin,
     CaseEventsMixin,
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
 ):
     permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = CaseSerializer
@@ -231,7 +231,14 @@ class CaseViewSet(
     @action(detail=True, methods=["get"], url_path="tasks")
     def get_tasks(self, request, pk):
         case = self.get_object()
-        camunda_tasks = CamundaService().get_all_tasks_by_instance_id(case.camunda_id)
+        camunda_tasks = []
+
+        for camunda_id in case.camunda_ids:
+            tasks = CamundaService().get_all_tasks_by_instance_id(camunda_id)
+
+            if tasks:
+                camunda_tasks.extend(tasks)
+
         # Camunda tasks can be an empty list or boolean. TODO: This should just be one datatype
         if camunda_tasks is False:
             return Response(
@@ -242,8 +249,79 @@ class CaseViewSet(
         serializer = CamundaTaskSerializer(camunda_tasks, many=True)
         return Response(serializer.data)
 
+    @extend_schema(
+        description="Get Camunda processes for this Case",
+        responses={status.HTTP_200_OK: CamundaProcessSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="processes",
+        methods=["get"],
+        serializer_class=CamundaProcessSerializer,
+    )
+    def get_camunda_processes(self, request, pk):
+        """
+        Get camunda processes for this case. Currently this case detail linking
+        does not do anything. This is future proofing this rest call so that we can
+        show and not show processes based on the current state of the case
+        (for example not show the summon/aanschrijving process when we are in visit state)
+        """
+        serializer = CamundaProcessSerializer(CamundaProcess.objects.all(), many=True)
+        return Response(serializer.data)
 
-class CaseTeamViewSet(ViewSet, ListAPIView):
+    @extend_schema(
+        description="Start a process in Camunda",
+    )
+    @action(
+        detail=True,
+        url_path="processes/start",
+        methods=["post"],
+        serializer_class=CamundaStartProcessSerializer,
+    )
+    def start_process(self, request, pk):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            data = serializer.validated_data
+            instance = data["camunda_process_id"]
+
+            try:
+                case = Case.objects.get(id=pk)
+            except Case.DoesNotExist:
+                return Response(
+                    data="Camunda process has not started. Case does not exist",
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+            response = CamundaService().send_message(
+                message_name=instance.camunda_message_name, case_identification=case.id
+            )
+
+            try:
+                json_response = response.json()[0]
+                camunda_process_id = json_response["processInstance"]["id"]
+            except Exception:
+                return Response(
+                    data=f"Camunda process has not started. Json response not valid {str(response.content)}",
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+            case.add_camunda_id(camunda_process_id)
+            case.save()
+
+            if response:
+                return Response(
+                    data=f"Process has started {str(response.content)}",
+                    status=status.HTTP_200_OK,
+                )
+
+        return Response(
+            data="Camunda process has not started. serializer not valid",
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+class CaseTeamViewSet(ListAPIView, viewsets.ViewSet):
     permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = CaseTeamSerializer
     queryset = CaseTeam.objects.all()

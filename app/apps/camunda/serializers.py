@@ -1,3 +1,4 @@
+from apps.camunda.models import CamundaProcess
 from apps.cases.models import Case, CaseState
 from rest_framework import serializers
 
@@ -12,7 +13,7 @@ class CamundaStateWorkerSerializer(serializers.Serializer):
 
     def validate(self, data):
         try:
-            Case.objects.get(identification=data["case_identification"])
+            Case.objects.get(id=data["case_identification"])
         except Case.DoesNotExist:
             raise serializers.ValidationError(
                 "Case with the given case_identification doesn't exist"
@@ -23,7 +24,7 @@ class CamundaStateWorkerSerializer(serializers.Serializer):
         state_name = validated_data["state"]
         case_identification = validated_data["case_identification"]
 
-        case = Case.objects.get(identification=case_identification)
+        case = Case.objects.get(id=case_identification)
         state = case.set_state(state_name)
 
         return state
@@ -38,7 +39,7 @@ class CamundaEndStateWorkerSerializer(serializers.Serializer):
 class CamundaMessagerSerializer(serializers.Serializer):
     message_name = serializers.CharField()
     process_variables = serializers.JSONField(default={})
-    case_id = serializers.CharField()
+    case_identification = serializers.CharField()
 
 
 class CamundaTaskSerializer(serializers.Serializer):
@@ -79,3 +80,9 @@ class CamundaTaskCompleteSerializer(serializers.Serializer):
 class CamundaDateUpdateSerializer(serializers.Serializer):
     camunda_task_id = serializers.CharField()
     date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S.000+0200")
+
+
+class CamundaProcessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CamundaProcess
+        fields = "__all__"

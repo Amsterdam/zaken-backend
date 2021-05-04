@@ -35,7 +35,7 @@ class CamundaWorkerSetState(APITestCase):
 
         response = client.post(
             url,
-            data={"case_identification": case.identification, "state": "FOO"},
+            data={"case_identification": case.id, "state": "FOO"},
             format="json",
         )
 
@@ -55,7 +55,7 @@ class CamundaWorkerSetState(APITestCase):
 
         client.post(
             url,
-            data={"case_identification": case.identification, "state": STATE_NAME},
+            data={"case_identification": case.id, "state": STATE_NAME},
             format="json",
         )
 
