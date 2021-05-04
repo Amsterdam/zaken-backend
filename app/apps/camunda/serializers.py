@@ -13,7 +13,7 @@ class CamundaStateWorkerSerializer(serializers.Serializer):
 
     def validate(self, data):
         try:
-            Case.objects.get(identification=data["case_identification"])
+            Case.objects.get(id=data["case_identification"])
         except Case.DoesNotExist:
             raise serializers.ValidationError(
                 "Case with the given case_identification doesn't exist"
@@ -24,7 +24,7 @@ class CamundaStateWorkerSerializer(serializers.Serializer):
         state_name = validated_data["state"]
         case_identification = validated_data["case_identification"]
 
-        case = Case.objects.get(identification=case_identification)
+        case = Case.objects.get(id=case_identification)
         state = case.set_state(state_name)
 
         return state

@@ -9,7 +9,6 @@ from django.conf import settings
 from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -24,16 +23,8 @@ def create_case_instance_in_camunda(sender, instance, created, **kwargs):
                         "value": settings.CAMUNDA_SECRET_KEY,
                         "type": "String",
                     },
-                    "zaken_state_endpoint": {
-                        "value": f'{settings.ZAKEN_CONTAINER_HOST}{reverse("camunda-workers-state")}',
-                        "type": "String",
-                    },
-                    "zaken_end_state_endpoint": {
-                        "value": f'{settings.ZAKEN_CONTAINER_HOST}{reverse("camunda-workers-end-state")}',
-                        "type": "String",
-                    },
                     "case_identification": {
-                        "value": instance.identification,
+                        "value": instance.id,
                         "type": "String",
                     },
                     "endpoint": {
@@ -44,7 +35,7 @@ def create_case_instance_in_camunda(sender, instance, created, **kwargs):
             }
         )
         task = start_camunda_instance.s(
-            identification=instance.identification, request_body=request_body
+            identification=instance.id, request_body=request_body
         ).delay
         transaction.on_commit(task)
 
@@ -54,7 +45,7 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
     if created and "test" not in sys.argv:
         try:
             create_open_zaak_case(
-                identification=instance.identification, description=instance.description
+                identification=instance.id, description=instance.description
             )
         except Exception as e:
             logger.error(e)

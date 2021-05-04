@@ -306,9 +306,9 @@
     "process_variables": {
         "case_identification": {"value": "${case_identification}"},
         "zaken_access_token": {"value": "${zaken_access_token}"},
-"zaken_state_endpoint": {"value": "${endpoint}/api/v1/camunda/worker/state/"}
+				"endpoint": {"value": "${endpoint}"}
     },
-    "case_id": "${case_identification}"
+    "case_identification": "${case_identification}"
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
@@ -406,7 +406,7 @@
     "message_name": "start_sluitings_proces",
     "process_variables": {
         "zaken_access_token": {"value": "${zaken_access_token}"},
-        "zaken_state_endpoint": {"value": "${endpoint}/api/v1/camunda/worker/state/"}
+        "endpoint": {"value": "${endpoint}"}
     },
 "case_identification": "${case_identification}
 }</camunda:inputParameter>
@@ -437,11 +437,10 @@
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="type_aanschrijving" label="Welk type aanschrijving heb je opgesteld?" type="enum">
-            <camunda:value id="waarschuwingsbrief_vakantieverhuur" name="Waarschuwingsbrief vakantieverhuur-vergunning" />
-            <camunda:value id="waarschuwingsbrief_shortstay" name="Waarschuwingsbrief shortstay-vergunning" />
-            <camunda:value id="waarschuwingsbrief_bnb" name="Waarschuwingsbrief Bed-and-Breakfast-vergunning" />
+            <camunda:value id="waarschuwingsbrief" name="Waarschuwingsbrief" />
             <camunda:value id="aanschrijvingen" name="Overige aanschrijvingen" />
             <camunda:value id="sluiting" name="Sluitingsbesluit" />
+            <camunda:value id="legalisatie-brief" name="Legalisatie Brief" />
           </camunda:formField>
           <camunda:formField id="names" type="string" />
         </camunda:formData>

@@ -37,7 +37,9 @@ class CamundaService:
                     headers={"content-type": "application/json"},
                 )
 
-            logger.info(f"Request to Camunda succesful. Response: {response.content}")
+            logger.info(
+                f"Request to Camunda succesful. Response: {response.content} from url: {request_path}"
+            )
             return response
         except requests.exceptions.Timeout:
             logger.info("Request to Camunda timed out")
