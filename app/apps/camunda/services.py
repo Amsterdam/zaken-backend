@@ -22,19 +22,28 @@ class CamundaService:
                 response = requests.post(
                     request_path,
                     data=request_body,
-                    headers={"content-type": "application/json"},
+                    headers={
+                        "content-type": "application/json",
+                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                    },
                 )
             elif put:
                 response = requests.put(
                     request_path,
                     data=request_body,
-                    headers={"content-type": "application/json"},
+                    headers={
+                        "content-type": "application/json",
+                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                    },
                 )
             else:
                 response = requests.get(
                     request_path,
                     data=request_body,
-                    headers={"content-type": "application/json"},
+                    headers={
+                        "content-type": "application/json",
+                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                    },
                 )
 
             logger.info(
@@ -261,7 +270,7 @@ class CamundaService:
 
         if case_identification:
             request_body["processVariables"]["case_identification"] = {
-                "value": case_identification
+                "value": str(case_identification)
             }
 
         request_json_body = json.dumps(request_body)

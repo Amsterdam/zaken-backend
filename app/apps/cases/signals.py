@@ -24,7 +24,7 @@ def create_case_instance_in_camunda(sender, instance, created, **kwargs):
                         "type": "String",
                     },
                     "case_identification": {
-                        "value": instance.id,
+                        "value": str(instance.id),
                         "type": "String",
                     },
                     "endpoint": {
