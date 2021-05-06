@@ -257,6 +257,8 @@ BELASTING_API_ACCESS_TOKEN = os.getenv("BELASTING_API_ACCESS_TOKEN", None)
 # Secret keys which can be used to access certain parts of the API
 SECRET_KEY_TOP_ZAKEN = os.getenv("SECRET_KEY_TOP_ZAKEN", None)
 CAMUNDA_SECRET_KEY = os.getenv("CAMUNDA_SECRET_KEY")
+# Authentication for the rest calls to camunda
+CAMUNDA_REST_AUTH = os.getenv("CAMUNDA_REST_AUTH")
 
 
 # Settings to improve security

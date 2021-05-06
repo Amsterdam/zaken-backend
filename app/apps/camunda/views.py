@@ -106,7 +106,9 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
             process_variables["zaken_access_token"] = {
                 "value": settings.CAMUNDA_SECRET_KEY
             }
-            process_variables["case_identification"] = {"value": case_identification}
+            process_variables["case_identification"] = {
+                "value": str(case_identification)
+            }
 
             raw_response = CamundaService().send_message(
                 message_name=message_name, message_process_variables=process_variables

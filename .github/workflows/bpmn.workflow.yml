@@ -3,7 +3,7 @@ on:
   push:
     branches: [ master ]
     paths:
-    - 'camunda/BPMN/**.bpmn'
+    - 'camunda/src/main/resources/bpmn/**.bpmn'
   pull_request:
     branches: [ master ]
 

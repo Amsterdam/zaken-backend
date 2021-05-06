@@ -1,0 +1,68 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+	id 'org.springframework.boot' version '2.3.4.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+	id 'java'
+}
+
+group = 'com.ritense.amsterdam.wonen'
+version = '0.0.1'
+sourceCompatibility = '13'
+
+repositories {
+	mavenCentral()
+}
+
+task deleteDeploymentDir(type: Delete) {
+	delete 'deployment'
+}
+
+task prepareDeploymentDir(type: Exec, dependsOn: [deleteDeploymentDir]) {
+	commandLine 'mkdir', 'deployment'
+}
+
+task copyJarToDeploymentContext(type: Copy, dependsOn: [prepareDeploymentDir, bootJar]) {
+	from 'build/libs/'
+	into 'deployment'
+	include '*.jar'
+}
+
+task copyDockerfileToDeploymentContext(type: Copy, dependsOn: [prepareDeploymentDir]) {
+	from 'src/main/docker'
+	into 'deployment'
+	include 'Dockerfile'
+}
+
+task buildDockerImage(type: Exec, dependsOn: [copyJarToDeploymentContext, copyDockerfileToDeploymentContext]) {
+	commandLine 'docker', 'build', '-t', "gemeente-amsterdam-wonen-camunda:${version}", "deployment"
+}
+
+dependencies {
+	implementation 'com.h2database:h2:1.4.200'
+
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:7.14.0'
+	implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-rest:7.14.0'
+	implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp:7.14.0'
+	implementation 'org.camunda.bpm:camunda-engine-plugin-connect:7.14.0'
+	implementation 'org.camunda.connect:camunda-connect-core:1.5.2'
+	implementation 'org.camunda.connect:camunda-connect-connectors-all:1.5.2'
+
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	implementation "io.jsonwebtoken:jjwt:0.9.1"
+
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+}
+
+test {
+	useJUnitPlatform()
+}

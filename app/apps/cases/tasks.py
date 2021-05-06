@@ -7,8 +7,9 @@ from django.conf import settings
 @celery_app.task(bind=True)
 def start_camunda_instance(self, identification, request_body):
     (camunda_id, response) = CamundaService().start_instance(
-        case_identification=identification, request_body=request_body
+        case_identification=str(identification), request_body=request_body
     )
+
     if camunda_id:
         case = Case.objects.get(id=identification)
         case = case.add_camunda_id(camunda_id)
