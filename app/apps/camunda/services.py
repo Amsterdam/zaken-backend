@@ -58,8 +58,8 @@ class CamundaService:
             )
             response.ok = False
             return response
-        except requests.exceptions.RequestException:
-            logger.info("Request to Camunda threw an exception")
+        except requests.exceptions.RequestException as exception:
+            logger.info(f"Request to Camunda threw an exception: {exception}")
             response = Response(status=status.HTTP_400_BAD_REQUEST)
             response.ok = False
             return response

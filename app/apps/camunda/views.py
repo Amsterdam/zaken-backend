@@ -184,6 +184,7 @@ class CamundaTaskViewSet(viewsets.ViewSet):
 
                 return Response(f"Task {data['camunda_task_id']} has been completed")
             else:
+                logger.error(f"Camunda task completed failed {task_completed}")
                 return Response(
                     "Camunda service is offline",
                     status=status.HTTP_503_SERVICE_UNAVAILABLE,
