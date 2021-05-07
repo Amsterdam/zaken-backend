@@ -6,7 +6,6 @@ from apps.cases.models import Case
 from apps.cases.tasks import start_camunda_instance
 from apps.openzaak.helpers import create_open_zaak_case
 from django.conf import settings
-from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -34,10 +33,7 @@ def create_case_instance_in_camunda(sender, instance, created, **kwargs):
                 },
             }
         )
-        task = start_camunda_instance.s(
-            identification=instance.id, request_body=request_body
-        ).delay
-        transaction.on_commit(task)
+        start_camunda_instance(identification=instance.id, request_body=request_body)
 
 
 @receiver(post_save, sender=Case)

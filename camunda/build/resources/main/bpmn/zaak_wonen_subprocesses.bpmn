@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1g1rvb9" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" camunda:diagramRelationId="efab761f-3315-414e-a9d6-d8cf7d1ab0a9">
+  <bpmn:collaboration id="Collaboration_1nd8xuu">
+    <bpmn:participant id="Participant_03i0kl2" name="Optionele taken" processRef="zaak_wonen_subprocesses" />
+  </bpmn:collaboration>
+  <bpmn:process id="zaak_wonen_subprocesses" name="Zaak Wonen Subprocesses" isExecutable="true" camunda:versionTag="0.0.2">
+    <bpmn:laneSet id="LaneSet_1gzayrm">
+      <bpmn:lane id="Lane_13qot1b" name="Projecthandhaver">
+        <bpmn:flowNodeRef>Activity_0opov83</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_correspondence</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_submit_objectionfile</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_callback_request</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_14lleip</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0wej508</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>event_start_correspondence_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1nv61es</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0v6xxqc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>event_start_callbackrequest_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>event_start_objectionfile_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1xkmac5</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0ptelfe</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1tux6wv</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_16j1l2y</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1bcs10e" name="Projectmedewerker">
+        <bpmn:flowNodeRef>Activity_1byzj3r</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_create_signal</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_19a40xb</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_0q70hru</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>event_start_signal_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_01bznx8</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:serviceTask id="Activity_0opov83" name="Bij werken status: Correspondentie">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map />
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">{
+"state": "Correspondentie",
+"case_identification": "${case_identification}"
+}</camunda:inputParameter>
+            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0v6xuji</bpmn:incoming>
+      <bpmn:outgoing>Flow_1kz95i3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="task_correspondence" name="Oppakken correspondentie" camunda:formKey="correspondentie_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="correspondence_description" label="Correspondentie notitie" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1kz95i3</bpmn:incoming>
+      <bpmn:outgoing>Flow_14ot4wv</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_submit_objectionfile" name="Aanleveren bezwaardossier" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(7).toDate()}">
+      <bpmn:incoming>Flow_016cuwo</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ugt3k2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_callback_request" name="Oppakken terugbelverzoek" camunda:formKey="terugbelverzoek_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="callbackrequest_form" label="Terugbelverzoek notitie" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1hqevbd</bpmn:incoming>
+      <bpmn:outgoing>Flow_01drnzg</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Activity_14lleip" name="Bijwerken status: Bezwaardossier">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map />
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">{
+"state": "Bezwaardossier",
+"case_identification": "${case_identification}"
+}</camunda:inputParameter>
+            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_00kh5me</bpmn:incoming>
+      <bpmn:outgoing>Flow_016cuwo</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_0wej508" name="Bijwerken status: Terugbelverzoek">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map />
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">{
+"state": "Terugbelverzoek",
+"case_identification": "${case_identification}"
+}</camunda:inputParameter>
+            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_09pyhbj</bpmn:incoming>
+      <bpmn:outgoing>Flow_1hqevbd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1hqevbd" sourceRef="Activity_0wej508" targetRef="task_callback_request" />
+    <bpmn:sequenceFlow id="Flow_016cuwo" sourceRef="Activity_14lleip" targetRef="task_submit_objectionfile" />
+    <bpmn:sequenceFlow id="Flow_01drnzg" sourceRef="task_callback_request" targetRef="Activity_0ptelfe" />
+    <bpmn:sequenceFlow id="Flow_1ugt3k2" sourceRef="task_submit_objectionfile" targetRef="Activity_16j1l2y" />
+    <bpmn:sequenceFlow id="Flow_1kz95i3" sourceRef="Activity_0opov83" targetRef="task_correspondence" />
+    <bpmn:sequenceFlow id="Flow_14ot4wv" sourceRef="task_correspondence" targetRef="Activity_0v6xxqc" />
+    <bpmn:startEvent id="event_start_correspondence_process" name="Start correspondentie proces" camunda:formKey="start_correspondentie">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="zaken_access_token" type="string" />
+          <camunda:formField id="case_identification" type="string" />
+          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_0v6xuji</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1dyc0eg" messageRef="Message_1wpao9m" />
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0v6xuji" sourceRef="event_start_correspondence_process" targetRef="Activity_0opov83" />
+    <bpmn:sequenceFlow id="Flow_0tnqj4o" sourceRef="Activity_0v6xxqc" targetRef="Event_1nv61es" />
+    <bpmn:endEvent id="Event_1nv61es">
+      <bpmn:incoming>Flow_0tnqj4o</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_0v6xxqc" name="Status Beëindigen">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{"state_identification": "${state_identification}"}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/end-state/</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_14ot4wv</bpmn:incoming>
+      <bpmn:outgoing>Flow_0tnqj4o</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:startEvent id="event_start_callbackrequest_process" name="Start terugbelverzoek proces" camunda:formKey="start_terugbel_verzoek">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="zaken_access_token" type="string" />
+          <camunda:formField id="case_identification" type="string" />
+          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_09pyhbj</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1ilhql5" messageRef="Message_0apv0c8" />
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_09pyhbj" sourceRef="event_start_callbackrequest_process" targetRef="Activity_0wej508" />
+    <bpmn:startEvent id="event_start_objectionfile_process" name="Start bezwaardossier proces" camunda:formKey="start_bezwaardossier">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="zaken_access_token" type="string" />
+          <camunda:formField id="case_identification" type="string" />
+          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_00kh5me</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0jnoe6k" messageRef="Message_14yjprg" />
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_00kh5me" sourceRef="event_start_objectionfile_process" targetRef="Activity_14lleip" />
+    <bpmn:serviceTask id="Activity_1byzj3r" name="Bijwerken status: Melding">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state": "Melding",
+"case_identification": "${case_identification}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
+            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0o6jc5g</bpmn:incoming>
+      <bpmn:outgoing>Flow_0xjebak</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="task_create_signal" name="Nieuwe melding verwerken" camunda:formKey="task_create_signal" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:incoming>Flow_0xjebak</bpmn:incoming>
+      <bpmn:outgoing>Flow_1dpqiy9</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_19a40xb" name="SIA terugkoppeling melder(s)" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(28).toDate()}">
+      <bpmn:incoming>Flow_1dpqiy9</bpmn:incoming>
+      <bpmn:outgoing>Flow_0zw0zxy</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_0q70hru">
+      <bpmn:incoming>Flow_0d4dov1</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:startEvent id="event_start_signal_process" name="Start melding proces" camunda:formKey="start_melding">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="zaken_access_token" type="string" />
+          <camunda:formField id="case_identification" type="string" />
+          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_0o6jc5g</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0nu5r8p" messageRef="Message_0f7jpp5" />
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0o6jc5g" sourceRef="event_start_signal_process" targetRef="Activity_1byzj3r" />
+    <bpmn:sequenceFlow id="Flow_0xjebak" sourceRef="Activity_1byzj3r" targetRef="task_create_signal" />
+    <bpmn:sequenceFlow id="Flow_0zw0zxy" sourceRef="Activity_19a40xb" targetRef="Activity_01bznx8" />
+    <bpmn:sequenceFlow id="Flow_1dpqiy9" sourceRef="task_create_signal" targetRef="Activity_19a40xb" />
+    <bpmn:endEvent id="Event_1xkmac5">
+      <bpmn:incoming>Flow_1uyezt6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_0ptelfe" name="Status Beëindigen">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{"state_identification": "${state_identification}"}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/end-state/</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_01drnzg</bpmn:incoming>
+      <bpmn:outgoing>Flow_1uyezt6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1uyezt6" sourceRef="Activity_0ptelfe" targetRef="Event_1xkmac5" />
+    <bpmn:endEvent id="Event_1tux6wv">
+      <bpmn:incoming>Flow_0dnuuqe</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_16j1l2y" name="Status Beëindigen">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{"state_identification": "${state_identification}"}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/end-state/</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ugt3k2</bpmn:incoming>
+      <bpmn:outgoing>Flow_0dnuuqe</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0dnuuqe" sourceRef="Activity_16j1l2y" targetRef="Event_1tux6wv" />
+    <bpmn:serviceTask id="Activity_01bznx8" name="Status Beëindigen">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{"state_identification": "${state_identification}"}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/end-state/</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0zw0zxy</bpmn:incoming>
+      <bpmn:outgoing>Flow_0d4dov1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0d4dov1" sourceRef="Activity_01bznx8" targetRef="Event_0q70hru" />
+  </bpmn:process>
+  <bpmn:message id="Message_0f7jpp5" name="start_signal_process" />
+  <bpmn:message id="Message_1wpao9m" name="start_correspondence_process" />
+  <bpmn:message id="Message_0apv0c8" name="start_callbackrequest_process" />
+  <bpmn:message id="Message_14yjprg" name="start_objectionfile_process" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1nd8xuu">
+      <bpmndi:BPMNShape id="Participant_03i0kl2_di" bpmnElement="Participant_03i0kl2" isHorizontal="true">
+        <dc:Bounds x="160" y="120" width="1068" height="680" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1bcs10e_di" bpmnElement="Lane_1bcs10e" isHorizontal="true">
+        <dc:Bounds x="190" y="120" width="1038" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_13qot1b_di" bpmnElement="Lane_13qot1b" isHorizontal="true">
+        <dc:Bounds x="190" y="240" width="1038" height="560" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0d4dov1_di" bpmnElement="Flow_0d4dov1">
+        <di:waypoint x="1030" y="180" />
+        <di:waypoint x="1092" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0dnuuqe_di" bpmnElement="Flow_0dnuuqe">
+        <di:waypoint x="850" y="590" />
+        <di:waypoint x="902" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1uyezt6_di" bpmnElement="Flow_1uyezt6">
+        <di:waypoint x="850" y="460" />
+        <di:waypoint x="902" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1dpqiy9_di" bpmnElement="Flow_1dpqiy9">
+        <di:waypoint x="680" y="180" />
+        <di:waypoint x="750" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zw0zxy_di" bpmnElement="Flow_0zw0zxy">
+        <di:waypoint x="850" y="180" />
+        <di:waypoint x="930" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0xjebak_di" bpmnElement="Flow_0xjebak">
+        <di:waypoint x="511" y="180" />
+        <di:waypoint x="580" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0o6jc5g_di" bpmnElement="Flow_0o6jc5g">
+        <di:waypoint x="338" y="180" />
+        <di:waypoint x="411" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00kh5me_di" bpmnElement="Flow_00kh5me">
+        <di:waypoint x="338" y="590" />
+        <di:waypoint x="411" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09pyhbj_di" bpmnElement="Flow_09pyhbj">
+        <di:waypoint x="338" y="460" />
+        <di:waypoint x="411" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tnqj4o_di" bpmnElement="Flow_0tnqj4o">
+        <di:waypoint x="850" y="330" />
+        <di:waypoint x="902" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0v6xuji_di" bpmnElement="Flow_0v6xuji">
+        <di:waypoint x="338" y="330" />
+        <di:waypoint x="411" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14ot4wv_di" bpmnElement="Flow_14ot4wv">
+        <di:waypoint x="680" y="330" />
+        <di:waypoint x="750" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1kz95i3_di" bpmnElement="Flow_1kz95i3">
+        <di:waypoint x="511" y="330" />
+        <di:waypoint x="580" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ugt3k2_di" bpmnElement="Flow_1ugt3k2">
+        <di:waypoint x="680" y="590" />
+        <di:waypoint x="750" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_01drnzg_di" bpmnElement="Flow_01drnzg">
+        <di:waypoint x="680" y="460" />
+        <di:waypoint x="750" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_016cuwo_di" bpmnElement="Flow_016cuwo">
+        <di:waypoint x="511" y="590" />
+        <di:waypoint x="580" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1hqevbd_di" bpmnElement="Flow_1hqevbd">
+        <di:waypoint x="511" y="460" />
+        <di:waypoint x="580" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_0i2lb4j_di" bpmnElement="Activity_0opov83">
+        <dc:Bounds x="411" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0gt9gl2_di" bpmnElement="task_correspondence">
+        <dc:Bounds x="580" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0b8fz0k_di" bpmnElement="task_submit_objectionfile">
+        <dc:Bounds x="580" y="550" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1dym5qo_di" bpmnElement="task_callback_request">
+        <dc:Bounds x="580" y="420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_17w76v0_di" bpmnElement="Activity_14lleip">
+        <dc:Bounds x="411" y="550" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_03tw644_di" bpmnElement="Activity_0wej508">
+        <dc:Bounds x="411" y="420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1mhl1tw_di" bpmnElement="event_start_correspondence_process">
+        <dc:Bounds x="302" y="312" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="281" y="355" width="79" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1nv61es_di" bpmnElement="Event_1nv61es">
+        <dc:Bounds x="902" y="312" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0v6xxqc_di" bpmnElement="Activity_0v6xxqc">
+        <dc:Bounds x="750" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_02if269_di" bpmnElement="event_start_callbackrequest_process">
+        <dc:Bounds x="302" y="442" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="281" y="485" width="79" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1gru2jj_di" bpmnElement="event_start_objectionfile_process">
+        <dc:Bounds x="302" y="572" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="282" y="615" width="78" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1byzj3r_di" bpmnElement="Activity_1byzj3r">
+        <dc:Bounds x="411" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_052uv3s_di" bpmnElement="task_create_signal">
+        <dc:Bounds x="580" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_19a40xb_di" bpmnElement="Activity_19a40xb">
+        <dc:Bounds x="750" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0q70hru_di" bpmnElement="Event_0q70hru">
+        <dc:Bounds x="1092" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_14a1lk8_di" bpmnElement="event_start_signal_process">
+        <dc:Bounds x="302" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="289" y="205" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1xkmac5_di" bpmnElement="Event_1xkmac5">
+        <dc:Bounds x="902" y="442" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ptelfe_di" bpmnElement="Activity_0ptelfe">
+        <dc:Bounds x="750" y="420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1tux6wv_di" bpmnElement="Event_1tux6wv">
+        <dc:Bounds x="902" y="572" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_16j1l2y_di" bpmnElement="Activity_16j1l2y">
+        <dc:Bounds x="750" y="550" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_01bznx8_di" bpmnElement="Activity_01bznx8">
+        <dc:Bounds x="930" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
