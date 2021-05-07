@@ -1,5 +1,7 @@
 FROM openjdk:13.0.2
 
+ENV REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
+
 ADD *.jar /app.jar
 
 #you need the crazy-looking filename, e.g., the extra /./, to trick Java into accepting your filename. If you just use /dev/urandom, Java decides you didn't really mean it and replaces what you wrote with /dev/random. Craziness!
