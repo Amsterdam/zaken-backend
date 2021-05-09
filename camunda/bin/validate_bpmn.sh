@@ -1,5 +1,5 @@
 cd camunda
 
-for filename in build/resources/main/bpmn/*.bpmn; do
+for filename in src/main/resources/bpmn/*.bpmn; do
         bpmnlint "$filename"
 done
