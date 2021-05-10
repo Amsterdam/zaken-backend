@@ -240,12 +240,6 @@ class TaskViewSet(viewsets.ViewSet):
         description="Task filter query parameters",
         responses={200: CamundaTaskListSerializer(many=True)},
     )
-    # @action(
-    #     detail=False,
-    #     url_path="task",
-    #     methods=["get"],
-    #     serializer_class=CamundaTaskListSerializer,
-    # )
     def list(self, request):
         role = request.GET.get(role_parameter.name)
         tasks = CamundaService().get_tasks_by_role(role)
