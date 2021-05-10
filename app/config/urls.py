@@ -1,5 +1,5 @@
 from apps.addresses.views import AddressViewSet
-from apps.camunda.views import CamundaTaskViewSet, CamundaWorkerViewSet
+from apps.camunda.views import CamundaTaskViewSet, CamundaWorkerViewSet, TaskViewSet
 from apps.cases.views import CaseStateViewSet, CaseTeamViewSet, CaseViewSet
 from apps.debriefings.views import DebriefingViewSet
 from apps.decisions.views import DecisionViewSet
@@ -22,6 +22,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register(r"addresses", AddressViewSet, basename="addresses")
 router.register(r"cases", CaseViewSet, basename="cases")
+router.register(r"tasks", TaskViewSet, basename="tasks")
 router.register(r"case-states", CaseStateViewSet, basename="case-states")
 router.register(r"teams", CaseTeamViewSet, basename="teams")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")

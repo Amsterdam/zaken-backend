@@ -168,6 +168,16 @@ class CamundaService:
         else:
             return False
 
+    def get_tasks_by_role(self, role=None):
+        roleParam = f"candidateGroup={role}" if role else ""
+        response = self._process_request(
+            f"/task?sortBy=dueDate&sortOrder=asc&{roleParam}"
+        )
+        if response.ok:
+            return response.json()
+        else:
+            return False
+
     def get_task_variables(self, task_id):
         response = self._process_request(f"/task/{task_id}/variables")
         if response.ok:
