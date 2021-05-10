@@ -1,3 +1,4 @@
+from apps.addresses.serializers import AddressSerializer
 from apps.camunda.models import CamundaProcess
 from apps.cases.models import Case, CaseState
 from rest_framework import serializers
@@ -42,9 +43,9 @@ class CamundaMessagerSerializer(serializers.Serializer):
     case_identification = serializers.CharField()
 
 
-class CamundaTaskSerializer(serializers.Serializer):
+class CamundaBaseTaskSerializer(serializers.Serializer):
     """
-    Serializer for Camunda tasks
+    Base serializer for Camunda tasks
     """
 
     camunda_task_id = serializers.CharField(source="id")
@@ -54,9 +55,40 @@ class CamundaTaskSerializer(serializers.Serializer):
     name = serializers.CharField()
     due_date = serializers.DateField(source="due")
     roles = serializers.ListField(serializers.CharField(max_length=255))
+
+
+class CamundaTaskSerializer(CamundaBaseTaskSerializer):
+    """
+    Serializer for Camunda tasks
+    """
+
     form = serializers.JSONField()
     render_form = serializers.CharField()
     form_variables = serializers.JSONField()
+
+
+class CamundaCaseAddressSerializer(serializers.ModelSerializer):
+    """
+    Case-address serializer for camunda tasks
+    """
+
+    address = AddressSerializer()
+
+    class Meta:
+        model = Case
+        fields = (
+            "id",
+            "address",
+        )
+
+
+class CamundaTaskListSerializer(CamundaBaseTaskSerializer):
+    """
+    Camunda task serializer for the list-endpoint
+    """
+
+    case = CamundaCaseAddressSerializer()
+    process_instance_id = serializers.CharField(source="processInstanceId")
 
 
 class CamundaTaskCompleteSerializer(serializers.Serializer):
