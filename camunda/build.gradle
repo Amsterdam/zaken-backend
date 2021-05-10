@@ -32,6 +32,7 @@ task copyDockerfileToDeploymentContext(type: Copy, dependsOn: [prepareDeployment
 	from 'src/main/docker'
 	into 'deployment'
 	include 'Dockerfile'
+	include 'adp_rootca.crt'
 }
 
 task buildDockerImage(type: Exec, dependsOn: [copyJarToDeploymentContext, copyDockerfileToDeploymentContext]) {
