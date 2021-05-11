@@ -4,6 +4,7 @@ import logging
 import requests
 from apps.camunda.utils import get_form_details, get_forms
 from django.conf import settings
+from django.core.cache import cache
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -11,6 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class CamundaService:
+    CAMUNDA_TASK_FORM_CACHE_KEY = "camunda_task_form_cache_key"
+    CAMUNDA_TASK_FORM_CACHE_VALID = 60 * 60 * 24 * 7
+
     def __init__(self, rest_url=settings.CAMUNDA_REST_URL):
         self.rest_url = rest_url
 
@@ -63,6 +67,20 @@ class CamundaService:
             response = Response(status=status.HTTP_400_BAD_REQUEST)
             response.ok = False
             return response
+
+    @staticmethod
+    def _get_task_form_cache_key(camunda_task_id):
+        return f"{CamundaService.CAMUNDA_TASK_FORM_CACHE_KEY}_id{camunda_task_id}"
+
+    @staticmethod
+    def _set_task_form_cache(cache_key, form_data):
+        return cache.set(
+            cache_key, form_data, CamundaService.CAMUNDA_TASK_FORM_CACHE_VALID
+        )
+
+    @staticmethod
+    def _get_task_form_cache(cache_key):
+        return cache.get(cache_key, [])
 
     def _get_form_with_task(self, camunda_task_id):
         task_list = []
@@ -213,6 +231,11 @@ class CamundaService:
             response_form = get_forms(response.content)
             if len(response_form) == 1:
                 response_json_form = get_form_details(response_form[0])
+
+                self._set_task_form_cache(
+                    self._get_task_form_cache_key(camunda_task_id),
+                    response_json_form,
+                )
 
                 return response_json_form
             else:

@@ -98,7 +98,8 @@ class CamundaTaskCompleteSerializer(serializers.Serializer):
     variables example
     {
         "a_field": {
-            "value": true
+            "value": true,
+            "label": "Label for a field"
         }
     }
     """
