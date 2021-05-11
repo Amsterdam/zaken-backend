@@ -173,10 +173,11 @@ class CamundaTaskViewSet(viewsets.ViewSet):
             # Boolean values should be converted to string values #ThanksCamunda
             variables = data.get("variables", {})
 
-
             camunda_task_form = dict(
-                (t.get("name"), t.get("label")) 
-                for t in CamundaService._get_task_form_cache(CamundaService._get_task_form_cache_key(task_id))
+                (t.get("name"), t.get("label"))
+                for t in CamundaService._get_task_form_cache(
+                    CamundaService._get_task_form_cache_key(task_id)
+                )
             )
             for key in variables.keys():
                 if "value" in variables[key]:

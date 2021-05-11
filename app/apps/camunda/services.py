@@ -74,7 +74,9 @@ class CamundaService:
 
     @staticmethod
     def _set_task_form_cache(cache_key, form_data):
-        return cache.set(cache_key, form_data, CamundaService.CAMUNDA_TASK_FORM_CACHE_VALID)
+        return cache.set(
+            cache_key, form_data, CamundaService.CAMUNDA_TASK_FORM_CACHE_VALID
+        )
 
     @staticmethod
     def _get_task_form_cache(cache_key):
@@ -232,7 +234,7 @@ class CamundaService:
 
                 self._set_task_form_cache(
                     self._get_task_form_cache_key(camunda_task_id),
-                    response_json_form, 
+                    response_json_form,
                 )
 
                 return response_json_form
