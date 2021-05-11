@@ -1,8 +1,0 @@
-com/ritense/amsterdam/wonen/camunda/security/SecurityConfiguration.java
- com.ritense.amsterdam.wonen.camunda.security.SecurityConfiguration
-com/ritense/amsterdam/wonen/camunda/security/ApiKeyAuthenticationToken.java
- com.ritense.amsterdam.wonen.camunda.security.ApiKeyAuthenticationToken
-com/ritense/amsterdam/wonen/camunda/CamundaApplication.java
- com.ritense.amsterdam.wonen.camunda.CamundaApplication
-com/ritense/amsterdam/wonen/camunda/security/ApiKeyAuthenticationFilter.java
- com.ritense.amsterdam.wonen.camunda.security.ApiKeyAuthenticationFilter

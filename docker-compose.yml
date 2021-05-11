@@ -73,18 +73,6 @@ services:
       - zaken_network
     restart: on-failure
 
-  camunda_db:
-    image: amsterdam/postgres11
-    networks:
-      - zaken_network
-    shm_size: "512m"
-    ports:
-      - "54322:5432"
-    env_file:
-      - camunda/.env
-    volumes:
-      - camunda-data:/var/lib/postgresql/data
-
   camunda:
     build: camunda/deployment
     hostname: camunda
@@ -95,8 +83,6 @@ services:
       - camunda/.env
     networks:
       - zaken_network
-    depends_on:
-      - camunda_db
 
   openzaak.local:
     image: openzaak/open-zaak
@@ -126,6 +112,27 @@ services:
     networks:
       - zaken_network
 
+  openzaak_notificaties:
+    image: openzaak/open-notificaties
+    ports:
+      - 5000:8000
+    env_file:
+      - open-zaak/notificaties.env
+    networks:
+      - zaken_network
+    depends_on:
+      - openzaak_database
+      - openzaak_redis
+
+  openzaak_notificaties_database:
+    image: amsterdam/postgres11
+    env_file:
+      - open-zaak/notificaties.env
+    networks:
+      - zaken_network
+    volumes:
+      - openzaak-notificaties-data:/var/lib/postgresql/data
+
 networks:
   zaken_network:
     external: true
@@ -134,5 +141,5 @@ networks:
 
 volumes:
   postgresql-data:
-  camunda-data:
   openzaak-data:
+  openzaak-notificaties-data:

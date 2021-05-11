@@ -3,3 +3,8 @@
 __pycache__/
 .vscode/
 .DS_Store
+camunda/build/
+camunda/.gradle/
+!camunda/gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
