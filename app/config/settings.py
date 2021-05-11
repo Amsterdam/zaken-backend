@@ -19,7 +19,8 @@ WSGI_APPLICATION = "config.wsgi.application"
 USE_TZ = True
 TIME_ZONE = "Europe/Amsterdam"
 
-ZAKEN_CONTAINER_HOST = os.getenv("ZAKEN_CONTAINER_HOST")
+# ZAKEN_CONTAINER_HOST = os.getenv("ZAKEN_CONTAINER_HOST")
+ZAKEN_CONTAINER_HOST = "http://zaak-gateway:8000"
 
 ALLOWED_HOSTS = "*"
 
