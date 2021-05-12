@@ -117,7 +117,7 @@ services:
     ports:
       - 5000:8000
     env_file:
-      - open-zaak/notificaties.env
+      - open-zaak-notificaties/.env
     networks:
       - zaken_network
     depends_on:
@@ -127,7 +127,7 @@ services:
   openzaak_notificaties_database:
     image: amsterdam/postgres11
     env_file:
-      - open-zaak/notificaties.env
+      - open-zaak-notificaties/.env
     networks:
       - zaken_network
     volumes:
