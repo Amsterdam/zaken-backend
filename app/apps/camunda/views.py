@@ -170,22 +170,26 @@ class CamundaTaskViewSet(viewsets.ViewSet):
             task_id = data["camunda_task_id"]
             task = CamundaService().get_task(task_id)
 
-            # Boolean values should be converted to string values #ThanksCamunda
             variables = data.get("variables", {})
 
-            camunda_task_form = dict(
-                (t.get("name"), t.get("label"))
-                for t in CamundaService._get_task_form_cache(
-                    CamundaService._get_task_form_cache_key(task_id)
-                )
+            # Get original structured task form from cache
+            original_camunda_task_form = CamundaService._get_task_form_cache(
+                CamundaService._get_task_form_cache_key(task_id)
             )
-            for key in variables.keys():
-                if "value" in variables[key]:
-                    if variables[key]["value"] is True:
-                        variables[key]["value"] = "true"
-                    elif variables[key]["value"] is False:
-                        variables[key]["value"] = "false"
-                variables[key]["label"] = camunda_task_form.get(key)
+            form_dict = dict((t.get("name"), t) for t in original_camunda_task_form)
+
+            for key, value in variables.items():
+                # Only for selects, include original readable value from options
+                value["value_verbose"] = (
+                    dict(
+                        (o.get("value"), o.get("label"))
+                        for o in form_dict.get(key).get("options", [])
+                    ).get(value["value"])
+                    if form_dict.get(key).get("options", [])
+                    else value["value"]
+                )
+                # Include original label
+                value["label"] = form_dict.get(key, {}).get("label")
 
             task_completed = CamundaService().complete_task(
                 data["camunda_task_id"], variables
