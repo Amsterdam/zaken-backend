@@ -20,13 +20,10 @@ class PermitViewSetTest(APITestCase):
     """
 
     MOCK_BAG_ID = "0363010000809805"
-    PERMIT_URL_NAME = "permits-details"
+    PERMIT_URL_NAME = "addresses-permit details"
 
     def _get_url(self):
-        return "%s?bag_id=%s" % (
-            reverse(self.PERMIT_URL_NAME),
-            self.MOCK_BAG_ID,
-        )
+        return "%s" % (reverse(self.PERMIT_URL_NAME, args=[self.MOCK_BAG_ID]),)
 
     def test_unauthenticated_request(self):
         """
@@ -37,18 +34,6 @@ class PermitViewSetTest(APITestCase):
         client = get_unauthenticated_client()
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_authenticated_requests_no_bag_id(self):
-        """
-        An authenticated request fails if the requested id's doesn't have a bag_id
-        """
-
-        url = reverse(self.PERMIT_URL_NAME)
-        client = get_authenticated_client()
-        response = client.get(url)
-
-        # The response returns a 404
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     @patch(
         "apps.permits.api_queries_decos_join.DecosJoinRequest.get_decos_object_with_bag_id"

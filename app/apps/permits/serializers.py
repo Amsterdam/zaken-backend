@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-PERMIT_DEFAULT_CHOICES = ("True", "False", "UNKNOWN")
+PERMIT_DEFAULT_CHOICES = ("GRANTED", "NOT_GRANTED", "UNKNOWN")
 
 
 # TODO: This is currently not used. Should it be removed?

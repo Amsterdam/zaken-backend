@@ -380,11 +380,14 @@ class DecosJoinRequest:
                     if parent_key in decos_join_conf_object.get_book_keys():
                         data = {}
                         conf = decos_join_conf_object.get_conf_by_book_key(parent_key)
+                        permit_granted = decos_join_conf_object.expression_is_valid(
+                            folder["fields"], conf, dt
+                        )
                         data.update(
                             {
-                                "permit_granted": decos_join_conf_object.expression_is_valid(
-                                    folder["fields"], conf, dt
-                                ),
+                                "permit_granted": "GRANTED"
+                                if permit_granted
+                                else "NOT_GRANTED",
                                 "permit_type": conf.get(DecosJoinConf.PERMIT_TYPE),
                                 "raw_data": folder["fields"],
                                 "details": decos_join_conf_object.map_data_on_conf_keys(
