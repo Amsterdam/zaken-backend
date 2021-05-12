@@ -71,7 +71,7 @@ pipeline {
 
     OPEN_NOTIFICATIES_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-open-notificaties"
     OPEN_NOTIFICATIES_SOURCE = "./open-zaak-notificaties"
-    OPEN_NOTIFICATIES_NAME = "zaken-open-zaak-notificaties"
+    OPEN_NOTIFICATIES_NAME = "zaken-open-notificaties"
 
   }
 
