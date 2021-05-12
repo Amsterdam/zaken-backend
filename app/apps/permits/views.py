@@ -1,5 +1,8 @@
+from datetime import datetime
+
 from apps.permits.api_queries_decos_join import DecosJoinRequest
-from apps.permits.serializers import DecosPermitSerializer, PermitCheckmarkSerializer
+from apps.permits.serializers import DecosSerializer
+from django.http import Http404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.decorators import action
@@ -15,36 +18,27 @@ bag_id = OpenApiParameter(
 )
 
 
-class PermitViewSet(ViewSet):
+class DecosViewSet(ViewSet):
     @extend_schema(
         parameters=[bag_id],
-        description="Get permit checkmarks based on bag id",
-        responses={200: PermitCheckmarkSerializer()},
+        description="Get decos data based on bag id",
+        responses={200: DecosSerializer()},
     )
-    @action(detail=False, url_name="permit checkmarks", url_path="checkmarks")
-    def get_permit_checkmarks(self, request):
+    @action(detail=False, url_name="details", url_path="details")
+    def get_decos_entry_by_bag_id(self, request):
         bag_id = request.GET.get("bag_id")
-        response = DecosJoinRequest().get_checkmarks_by_bag_id(bag_id)
+        dt = datetime.strptime(
+            request.GET.get("date", datetime.today().strftime("%Y-%m-%d")), "%Y-%m-%d"
+        )
 
-        serializer = PermitCheckmarkSerializer(data=response)
+        if not bag_id:
+            raise Http404
 
-        if serializer.is_valid():
-            return Response(serializer.data)
-        return Response(serializer.initial_data)
+        response = DecosJoinRequest().get_decos_entry_by_bag_id(bag_id, dt)
 
-    @extend_schema(
-        parameters=[bag_id],
-        description="Get permit details based on bag id",
-        responses={200: DecosPermitSerializer(many=True)},
-    )
-    @action(detail=False, url_name="permit details", url_path="details")
-    def get_permit_details(self, request):
-        bag_id = request.GET.get("bag_id")
-        response = DecosJoinRequest().get_permits_by_bag_id(bag_id)
+        serializer = DecosSerializer(data=response)
 
-        serializer = DecosPermitSerializer(data=response, many=True)
-
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             return Response(serializer.data)
         return Response(serializer.initial_data)
 
