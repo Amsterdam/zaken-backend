@@ -32,11 +32,18 @@ task copyDockerfileToDeploymentContext(type: Copy, dependsOn: [prepareDeployment
 	from 'src/main/docker'
 	into 'deployment'
 	include 'Dockerfile'
-	include 'adp_rootca.crt'
-	include 'quo_vadis_overheid.crt'
 }
 
-task buildDockerImage(type: Exec, dependsOn: [copyJarToDeploymentContext, copyDockerfileToDeploymentContext]) {
+task copyCertificatesToDeploymentContext(type: Copy, dependsOn: [prepareDeploymentDir]) {
+	from 'src/main/docker'
+	into 'deployment'
+	include 'adp_rootca.crt'
+	include 'quo_vadis_overheid.crt'
+	include 'staat_root.crt'
+	include 'staat_services.crt'
+}
+
+task buildDockerImage(type: Exec, dependsOn: [copyJarToDeploymentContext, copyDockerfileToDeploymentContext, copyCertificatesToDeploymentContext]) {
 	commandLine 'docker', 'build', '-t', "gemeente-amsterdam-wonen-camunda:${version}", "deployment"
 }
 
