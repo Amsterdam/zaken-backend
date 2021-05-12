@@ -33,6 +33,7 @@ task copyDockerfileToDeploymentContext(type: Copy, dependsOn: [prepareDeployment
 	into 'deployment'
 	include 'Dockerfile'
 	include 'adp_rootca.crt'
+	include 'quo_vadis_overheid.crt'
 }
 
 task buildDockerImage(type: Exec, dependsOn: [copyJarToDeploymentContext, copyDockerfileToDeploymentContext]) {
