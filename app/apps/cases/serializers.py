@@ -1,9 +1,22 @@
 from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer
 from apps.camunda.models import CamundaProcess
-from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTeam
+from apps.cases.models import (
+    Case,
+    CaseReason,
+    CaseState,
+    CaseStateType,
+    CaseTeam,
+    CitizenReport,
+)
 from apps.schedules.serializers import ScheduleSerializer
 from rest_framework import serializers
+
+
+class CitizenReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CitizenReport
+        fields = "__all__"
 
 
 class CaseStateTypeSerializer(serializers.ModelSerializer):

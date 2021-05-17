@@ -171,3 +171,26 @@ class CaseState(models.Model):
 
 #     def __str__(self):
 #         return self.name
+
+
+class CitizenReport(models.Model):
+    case = models.ForeignKey(
+        Case, related_name="case_citizen_reports", on_delete=models.CASCADE
+    )
+    camunda_task_id = models.CharField(max_length=50, null=True, blank=True)
+    reporter_name = models.CharField(max_length=50, null=True, blank=True)
+    reporter_phone = models.CharField(max_length=50, null=True, blank=True)
+    identification = models.PositiveIntegerField()
+    advertisement_linklist = ArrayField(
+        base_field=models.CharField(max_length=255),
+        default=list,
+        null=True,
+        blank=True,
+    )
+    description = models.TextField(
+        null=True,
+        blank=True,
+    )
+
+    def __str__(self):
+        return self.case
