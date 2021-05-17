@@ -38,9 +38,7 @@ task copyCertificatesToDeploymentContext(type: Copy, dependsOn: [prepareDeployme
 	from 'src/main/docker'
 	into 'deployment'
 	include 'adp_rootca.crt'
-	include 'quo_vadis_overheid.crt'
-	include 'staat_root.crt'
-	include 'staat_services.crt'
+	include 'nl_root.crt'
 }
 
 task buildDockerImage(type: Exec, dependsOn: [copyJarToDeploymentContext, copyDockerfileToDeploymentContext, copyCertificatesToDeploymentContext]) {
