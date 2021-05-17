@@ -5,7 +5,7 @@ from apps.camunda.models import CamundaProcess
 from apps.camunda.serializers import CamundaProcessSerializer, CamundaTaskSerializer
 from apps.camunda.services import CamundaService
 from apps.cases.mock import mock
-from apps.cases.models import Case, CaseState, CaseTeam
+from apps.cases.models import Case, CaseState, CaseTeam, CitizenReport
 from apps.cases.serializers import (
     CamundaStartProcessSerializer,
     CaseCreateUpdateSerializer,
@@ -14,6 +14,7 @@ from apps.cases.serializers import (
     CaseStateSerializer,
     CaseStateTypeSerializer,
     CaseTeamSerializer,
+    CitizenReportSerializer,
     PushCaseStateSerializer,
 )
 from apps.cases.swagger_parameters import date as date_parameter
@@ -317,6 +318,32 @@ class CaseViewSet(
 
         return Response(
             data="Camunda process has not started. serializer not valid",
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    @extend_schema(
+        description="Create citizen report instance associated with this case",
+        responses={status.HTTP_200_OK: CitizenReportSerializer()},
+    )
+    @action(
+        detail=True,
+        url_path="citizen-reports",
+        methods=["post"],
+        serializer_class=CitizenReportSerializer,
+    )
+    def citizen_reports(self, request, pk):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            data = serializer.validated_data
+            citizen_report = CitizenReport(**data)
+            citizen_report.save()
+            return Response(
+                data="CitizenReport added",
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            data="CitizenReport error. serializer not valid",
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 

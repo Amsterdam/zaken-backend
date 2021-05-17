@@ -1,4 +1,11 @@
-from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTeam
+from apps.cases.models import (
+    Case,
+    CaseReason,
+    CaseState,
+    CaseStateType,
+    CaseTeam,
+    CitizenReport,
+)
 from django.contrib import admin
 
 
@@ -14,6 +21,16 @@ class CaseStateAdmin(admin.ModelAdmin):
         "status",
         "start_date",
         "end_date",
+    )
+
+
+@admin.register(CitizenReport)
+class CitizenReportAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "identification",
+        "reporter_name",
+        "reporter_phone",
     )
 
 
