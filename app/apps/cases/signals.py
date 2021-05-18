@@ -2,7 +2,8 @@ import json
 import logging
 import sys
 
-from apps.cases.models import Case
+from apps.camunda.services import CamundaService
+from apps.cases.models import Case, CitizenReport
 from apps.cases.tasks import start_camunda_instance
 from apps.openzaak.helpers import create_open_zaak_case
 from django.conf import settings
@@ -45,3 +46,11 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
             )
         except Exception as e:
             logger.error(e)
+
+
+@receiver(post_save, sender=CitizenReport, dispatch_uid="complete_citizen_report_task")
+def complete_citizen_report_task(sender, instance, created, **kwargs):
+    if instance.camunda_task_id and created:
+        CamundaService().complete_task(
+            instance.camunda_task_id,
+        )
