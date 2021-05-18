@@ -173,7 +173,9 @@ class CaseState(models.Model):
 #         return self.name
 
 
-class CitizenReport(models.Model):
+class CitizenReport(ModelEventEmitter):
+    EVENT_TYPE = CaseEvent.TYPE_CITIZEN_REPORT
+
     case = models.ForeignKey(
         Case, related_name="case_citizen_reports", on_delete=models.CASCADE
     )
@@ -191,6 +193,24 @@ class CitizenReport(models.Model):
         null=True,
         blank=True,
     )
+    date_added = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
     def __str__(self):
-        return self.case
+        return f"{self.date_added} - {self.case.identification} - {self.identification}"
+
+    def __get_event_values__(self):
+        if self.author:
+            author = self.author.full_name
+        else:
+            author = "Medewerker onbekend"
+
+        return {
+            "date_added": self.date_added,
+            "identification": self.identification,
+            "reporter_name": self.reporter_name,
+            "reporter_phone": self.reporter_phone,
+            "advertisement_linklist": self.advertisement_linklist,
+            "description": self.description,
+            "author": author,
+        }

@@ -13,10 +13,19 @@ from apps.schedules.serializers import ScheduleSerializer
 from rest_framework import serializers
 
 
+class AdvertisementLinklist(serializers.Field):
+    def to_internal_value(self, data):
+        return [
+            li.get("advertisement_link") for li in data if li.get("advertisement_link")
+        ]
+
+
 class CitizenReportSerializer(serializers.ModelSerializer):
+    advertisement_linklist = AdvertisementLinklist()
+
     class Meta:
         model = CitizenReport
-        fields = "__all__"
+        exclude = ["author"]
 
 
 class CaseStateTypeSerializer(serializers.ModelSerializer):

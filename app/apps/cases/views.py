@@ -335,13 +335,17 @@ class CaseViewSet(
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             data = serializer.validated_data
+            data.update(
+                {
+                    "author": request.user,
+                }
+            )
             citizen_report = CitizenReport(**data)
             citizen_report.save()
             return Response(
                 data="CitizenReport added",
                 status=status.HTTP_200_OK,
             )
-
         return Response(
             data="CitizenReport error. serializer not valid",
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
