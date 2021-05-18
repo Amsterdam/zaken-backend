@@ -4,9 +4,9 @@ from unittest.mock import patch
 from apps.permits.api_queries_decos_join import (
     DecosJoinConf,
     DecosJoinRequest,
-    VakantieverhuurMeldingen,
+    VakantieverhuurReports,
 )
-from apps.permits.serializers import VakantieverhuurRentalInformationSerializer
+from apps.permits.serializers import VakantieverhuurReportInformationSerializer
 from django.conf import settings
 from django.test import TestCase, override_settings
 
@@ -388,7 +388,7 @@ class DecosJoinConfTest(TestCase):
         self.assertEqual(conf_instance.expression_is_valid(MOCK_DATA, conf, dt), False)
 
 
-class VakantieverhuurMeldingenTest(TestCase):
+class VakantieverhuurReportsTest(TestCase):
     def test_add_valid_data_1(self):
         """
         Test succeeds when trying to validate data
@@ -400,39 +400,39 @@ class VakantieverhuurMeldingenTest(TestCase):
                 "date6": "2020-07-26T00:00:00",
                 "date7": "2020-07-29T00:00:00",
                 "sequence": 2.0,
-                "is_afmelding": True,
+                "is_cancellation": True,
             },
             {
                 "date1": "2020-07-26T00:00:00",
                 "date6": "2020-07-26T00:00:00",
                 "date7": "2020-07-29T00:00:00",
                 "sequence": 1.0,
-                "is_afmelding": False,
+                "is_cancellation": False,
             },
         ]
-        vakantieverhuur_meldingen = VakantieverhuurMeldingen()
+        vakantieverhuur_reports = VakantieverhuurReports()
 
-        succeeded = vakantieverhuur_meldingen.add_data(MOCK_DATA)
+        succeeded = vakantieverhuur_reports.add_data(MOCK_DATA)
 
-        data = vakantieverhuur_meldingen.get_set_by_year(
+        data = vakantieverhuur_reports.get_set_by_year(
             2020, datetime.datetime.strptime("2020-07-28", "%Y-%m-%d")
         )
-        serializer = VakantieverhuurRentalInformationSerializer(data=data)
+        serializer = VakantieverhuurReportInformationSerializer(data=data)
 
         expected_result = {
             "rented_days_count": 0,
             "planned_days_count": 0,
             "is_rented_today": False,
-            "meldingen": [
+            "reports": [
                 {
-                    "is_afmelding": True,
-                    "melding_date": datetime.datetime(2020, 7, 26, 0, 0),
+                    "is_cancellation": True,
+                    "report_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_in_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_out_date": datetime.datetime(2020, 7, 29, 0, 0),
                 },
                 {
-                    "is_afmelding": False,
-                    "melding_date": datetime.datetime(2020, 7, 26, 0, 0),
+                    "is_cancellation": False,
+                    "report_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_in_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_out_date": datetime.datetime(2020, 7, 29, 0, 0),
                 },
@@ -454,64 +454,64 @@ class VakantieverhuurMeldingenTest(TestCase):
                 "date6": "2020-07-26T00:00:00",
                 "date7": "2020-07-29T00:00:00",
                 "sequence": 2.0,
-                "is_afmelding": True,
+                "is_cancellation": True,
             },
             {
                 "date1": "2020-07-26T00:00:00",
                 "date6": "2020-07-26T00:00:00",
                 "date7": "2020-07-29T00:00:00",
                 "sequence": 1.0,
-                "is_afmelding": False,
+                "is_cancellation": False,
             },
             {
                 "date1": "2020-07-27T00:00:00",
                 "date6": "2020-07-27T00:00:00",
                 "date7": "2020-07-30T00:00:00",
                 "sequence": 3.0,
-                "is_afmelding": False,
+                "is_cancellation": False,
             },
             {
                 "date1": "2019-12-29T00:00:00",
                 "date6": "2019-12-29T00:00:00",
                 "date7": "2020-01-02T00:00:00",
                 "sequence": 4.0,
-                "is_afmelding": False,
+                "is_cancellation": False,
             },
         ]
-        vakantieverhuur_meldingen = VakantieverhuurMeldingen()
+        vakantieverhuur_reports = VakantieverhuurReports()
 
-        succeeded = vakantieverhuur_meldingen.add_data(MOCK_DATA)
+        succeeded = vakantieverhuur_reports.add_data(MOCK_DATA)
 
-        data = vakantieverhuur_meldingen.get_set_by_year(
+        data = vakantieverhuur_reports.get_set_by_year(
             2020, datetime.datetime.strptime("2020-07-28", "%Y-%m-%d")
         )
-        serializer = VakantieverhuurRentalInformationSerializer(data=data)
+        serializer = VakantieverhuurReportInformationSerializer(data=data)
         expected_result = {
             "rented_days_count": 2,
             "planned_days_count": 2,
             "is_rented_today": True,
-            "meldingen": [
+            "reports": [
                 {
-                    "is_afmelding": False,
-                    "melding_date": datetime.datetime(2019, 12, 29, 0, 0),
+                    "is_cancellation": False,
+                    "report_date": datetime.datetime(2019, 12, 29, 0, 0),
                     "check_in_date": datetime.datetime(2019, 12, 29, 0, 0),
                     "check_out_date": datetime.datetime(2020, 1, 2, 0, 0),
                 },
                 {
-                    "is_afmelding": False,
-                    "melding_date": datetime.datetime(2020, 7, 27, 0, 0),
+                    "is_cancellation": False,
+                    "report_date": datetime.datetime(2020, 7, 27, 0, 0),
                     "check_in_date": datetime.datetime(2020, 7, 27, 0, 0),
                     "check_out_date": datetime.datetime(2020, 7, 30, 0, 0),
                 },
                 {
-                    "is_afmelding": True,
-                    "melding_date": datetime.datetime(2020, 7, 26, 0, 0),
+                    "is_cancellation": True,
+                    "report_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_in_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_out_date": datetime.datetime(2020, 7, 29, 0, 0),
                 },
                 {
-                    "is_afmelding": False,
-                    "melding_date": datetime.datetime(2020, 7, 26, 0, 0),
+                    "is_cancellation": False,
+                    "report_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_in_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_out_date": datetime.datetime(2020, 7, 29, 0, 0),
                 },

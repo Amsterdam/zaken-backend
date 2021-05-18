@@ -9,41 +9,41 @@ from apps.permits.mocks import (
 )
 from apps.permits.serializers import (
     DecosJoinFolderFieldsResponseSerializer,
-    DecosPermitSerializer,
-    DecosVakantieverhuurMeldingSerializer,
+    DecosVakantieverhuurReportSerializer,
+    PermitSerializer,
 )
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
 
-class VakantieverhuurMeldingen:
+class VakantieverhuurReports:
     def __init__(self, *args, **kwargs):
-        self.melding_id = kwargs.get("melding_id")
-        self.afmelding_id = kwargs.get("afmelding_id")
+        self.report_id = kwargs.get("report_id")
+        self.cancellation_id = kwargs.get("cancellation_id")
         self.days = []
         self.days_removed = []
 
     def add_raw_data(self, data):
-        if not self.melding_id or not self.afmelding_id:
+        if not self.report_id or not self.cancellation_id:
             return
         data = [
             dd.data
             for dd in [
-                DecosVakantieverhuurMeldingSerializer(
+                DecosVakantieverhuurReportSerializer(
                     data=dict(
                         **f["fields"],
                         **{
-                            "is_afmelding": f.get("fields", {}).get("parentKey")
-                            == self.afmelding_id
+                            "is_cancellation": f.get("fields", {}).get("parentKey")
+                            == self.cancellation_id
                         },
                     )
                 )
                 for f in data
                 if f.get("fields", {}).get("parentKey")
                 in [
-                    self.melding_id,
-                    self.afmelding_id,
+                    self.report_id,
+                    self.cancellation_id,
                 ]
             ]
             if dd.is_valid()
@@ -51,12 +51,12 @@ class VakantieverhuurMeldingen:
         self.add_data(data)
 
     def add_data(self, data):
-        serializer = DecosVakantieverhuurMeldingSerializer(data=data, many=True)
+        serializer = DecosVakantieverhuurReportSerializer(data=data, many=True)
         if serializer.is_valid():
             data = sorted(serializer.data, key=lambda k: k["sequence"])
             for d_set in data:
                 d = {
-                    "melding_date": datetime.strptime(
+                    "report_date": datetime.strptime(
                         d_set["date1"].split("T")[0], "%Y-%m-%d"
                     ),
                     "check_in_date": datetime.strptime(
@@ -65,38 +65,38 @@ class VakantieverhuurMeldingen:
                     "check_out_date": datetime.strptime(
                         d_set["date7"].split("T")[0], "%Y-%m-%d"
                     ),
-                    "is_afmelding": d_set["is_afmelding"],
+                    "is_cancellation": d_set["is_cancellation"],
                 }
-                self.add_melding(**d)
+                self.add_report(**d)
             return True
         return False
 
-    def add_melding(self, melding_date, check_in_date, check_out_date, is_afmelding):
+    def add_report(self, report_date, check_in_date, check_out_date, is_cancellation):
         day = timedelta(days=1)
-        melding_set = [[], melding_date, is_afmelding]
+        report_set = [[], report_date, is_cancellation]
         while check_in_date < check_out_date:
-            melding_set[0].append(check_in_date)
+            report_set[0].append(check_in_date)
             check_in_date = check_in_date + day
-        if melding_set[0]:
-            self.days.append(melding_set)
+        if report_set[0]:
+            self.days.append(report_set)
 
     def get_set_by_year(self, year, today):
         o = {}
         day = timedelta(days=1)
         today = datetime.strptime(today.strftime("%Y-%m-%d"), "%Y-%m-%d")
-        meldingen = [
+        reports = [
             {
-                "is_afmelding": d_set[2],
-                "melding_date": d_set[1],
+                "is_cancellation": d_set[2],
+                "report_date": d_set[1],
                 "check_in_date": d_set[0][0],
                 "check_out_date": d_set[0][-1] + day,
             }
             for d_set in self.days
             if d_set[0][0].year == year or (d_set[0][-1] + day).year == year
         ]
-        meldingen.reverse()
+        reports.reverse()
         o.update(self._rented(year, today))
-        o.update({"meldingen": meldingen})
+        o.update({"reports": reports})
         return o
 
     def _days_flat(self, days):
@@ -357,10 +357,10 @@ class DecosJoinRequest:
             for v in decos_join_conf_object
         ]
 
-        vakantieverhuur_meldigen = VakantieverhuurMeldingen(
+        vakantieverhuur_reports = VakantieverhuurReports(
             **{
-                "melding_id": settings.DECOS_JOIN_VAKANTIEVERHUUR_MELDINGEN_ID,
-                "afmelding_id": settings.DECOS_JOIN_VAKANTIEVERHUUR_AFMELDINGEN_ID,
+                "report_id": settings.DECOS_JOIN_VAKANTIEVERHUUR_MELDINGEN_ID,
+                "cancellation_id": settings.DECOS_JOIN_VAKANTIEVERHUUR_AFMELDINGEN_ID,
             }
         )
 
@@ -370,8 +370,8 @@ class DecosJoinRequest:
             response_decos_folder = self._get_decos_folder(response_decos_obj)
             if response_decos_folder:
 
-                # vakantieverhuur meldingen
-                vakantieverhuur_meldigen.add_raw_data(response_decos_folder["content"])
+                # vakantieverhuur reports
+                vakantieverhuur_reports.add_raw_data(response_decos_folder["content"])
 
                 # permits
                 for folder in response_decos_folder["content"]:
@@ -395,7 +395,7 @@ class DecosJoinRequest:
                                 ),
                             }
                         )
-                        permit_serializer = DecosPermitSerializer(data=data)
+                        permit_serializer = PermitSerializer(data=data)
                         if permit_serializer.is_valid():
                             for d in permits:
                                 if d.get("permit_type") == conf.get(
@@ -419,7 +419,7 @@ class DecosJoinRequest:
         response.update(
             {
                 "permits": permits,
-                "vakantieverhuur_meldingen": vakantieverhuur_meldigen.get_set_by_year(
+                "vakantieverhuur_reports": vakantieverhuur_reports.get_set_by_year(
                     datetime.today().year, datetime.today()
                 ),
             }
