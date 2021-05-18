@@ -3,6 +3,7 @@
 __pycache__/
 .vscode/
 .DS_Store
+.env.local
 camunda/build/
 camunda/.gradle/
 !camunda/gradle/wrapper/gradle-wrapper.jar
