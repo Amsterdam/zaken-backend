@@ -121,38 +121,37 @@ class DecosJoinFolderFieldsResponseSerializer(serializers.Serializer):
     )
 
 
-class DecosPermitSerializer(serializers.Serializer):
+class PermitSerializer(serializers.Serializer):
     permit_granted = serializers.ChoiceField(choices=PERMIT_DEFAULT_CHOICES)
     permit_type = serializers.CharField()
-    decos_join_web_url = serializers.URLField(default="https://decosdvl.amsterdam.nl")
-    raw_data = serializers.DictField(allow_null=True, required=False)
-    details = serializers.DictField(allow_null=True, required=False)
+    raw_data = serializers.DictField(allow_null=True)
+    details = serializers.DictField(allow_null=True)
 
 
-class DecosVakantieverhuurMeldingSerializer(serializers.Serializer):
+class DecosVakantieverhuurReportSerializer(serializers.Serializer):
     date1 = serializers.DateTimeField(format="iso-8601")
     date6 = serializers.DateTimeField(format="iso-8601")
     date7 = serializers.DateTimeField(format="iso-8601")
     sequence = serializers.FloatField()
-    is_afmelding = serializers.BooleanField()
+    is_cancellation = serializers.BooleanField()
 
 
-class VakantieverhuurMeldingSerializer(serializers.Serializer):
-    is_afmelding = serializers.BooleanField()
-    melding_date = serializers.DateTimeField()
+class VakantieverhuurReportSerializer(serializers.Serializer):
+    is_cancellation = serializers.BooleanField()
+    report_date = serializers.DateTimeField()
     check_in_date = serializers.DateTimeField()
     check_out_date = serializers.DateTimeField()
 
 
-class VakantieverhuurRentalInformationSerializer(serializers.Serializer):
+class VakantieverhuurReportInformationSerializer(serializers.Serializer):
     rented_days_count = serializers.IntegerField(allow_null=True)
     planned_days_count = serializers.IntegerField(allow_null=True)
     is_rented_today = serializers.BooleanField()
-    meldingen = VakantieverhuurMeldingSerializer(many=True)
+    reports = VakantieverhuurReportSerializer(many=True)
 
 
 class DecosSerializer(serializers.Serializer):
-    permits = DecosPermitSerializer(many=True)
-    vakantieverhuur_meldingen = VakantieverhuurRentalInformationSerializer(
+    permits = PermitSerializer(many=True)
+    vakantieverhuur_reports = VakantieverhuurReportInformationSerializer(
         allow_null=True
     )
