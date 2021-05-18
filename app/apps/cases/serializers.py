@@ -21,7 +21,7 @@ class AdvertisementLinklist(serializers.Field):
 
 
 class CitizenReportSerializer(serializers.ModelSerializer):
-    advertisement_linklist = AdvertisementLinklist()
+    advertisement_linklist = AdvertisementLinklist(required=False)
 
     class Meta:
         model = CitizenReport
