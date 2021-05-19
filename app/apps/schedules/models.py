@@ -62,6 +62,7 @@ class Priority(models.Model):
 
 class Schedule(ModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_SCHEDULE
+    camunda_task_id = models.CharField(max_length=50, default="-1")
 
     action = models.ForeignKey(to=Action, on_delete=models.CASCADE)
     week_segment = models.ForeignKey(to=WeekSegment, on_delete=models.CASCADE)

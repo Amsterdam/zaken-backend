@@ -20,6 +20,7 @@ class SummonType(models.Model):
 
 class Summon(ModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_SUMMON
+    camunda_task_id = models.CharField(max_length=50, default="-1")
 
     case = models.ForeignKey(
         to=Case, null=False, on_delete=models.CASCADE, related_name="summons"
