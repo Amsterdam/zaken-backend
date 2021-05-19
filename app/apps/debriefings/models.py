@@ -1,10 +1,10 @@
 from apps.cases.models import Case
-from apps.events.models import CaseEvent, ModelEventEmitter
+from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.db import models
 
 
-class Debriefing(ModelEventEmitter):
+class Debriefing(TaskModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_DEBRIEFING
 
     VIOLATION_NO = "NO"

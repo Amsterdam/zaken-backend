@@ -191,25 +191,12 @@ class CamundaTaskViewSet(viewsets.ViewSet):
                 # Include original label
                 value["label"] = form_dict.get(key, {}).get("label")
 
-            task_completed = CamundaService().complete_task(
-                data["camunda_task_id"], variables
-            )
+            data["variables"] = variables
+            data["description"] = task["name"]
 
-            if task_completed:
-                GenericCompletedTask.objects.create(
-                    author=data["author"],
-                    case=data["case"],
-                    description=task["name"],
-                    variables=variables,
-                )
+            GenericCompletedTask.objects.create(**data)
 
-                return Response(f"Task {data['camunda_task_id']} has been completed")
-            else:
-                logger.error(f"Camunda task completed failed {task_completed}")
-                return Response(
-                    "Camunda service is offline",
-                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
-                )
+            return Response(f"Task {data['camunda_task_id']} has been completed")
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 

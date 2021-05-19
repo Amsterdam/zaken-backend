@@ -1,7 +1,7 @@
 import uuid
 
 from apps.addresses.models import Address
-from apps.events.models import CaseEvent, ModelEventEmitter
+from apps.events.models import CaseEvent, ModelEventEmitter, TaskModelEventEmitter
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -173,13 +173,12 @@ class CaseState(models.Model):
 #         return self.name
 
 
-class CitizenReport(ModelEventEmitter):
+class CitizenReport(TaskModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CITIZEN_REPORT
 
     case = models.ForeignKey(
         Case, related_name="case_citizen_reports", on_delete=models.CASCADE
     )
-    camunda_task_id = models.CharField(max_length=50, null=True, blank=True)
     reporter_name = models.CharField(max_length=50, null=True, blank=True)
     reporter_phone = models.CharField(max_length=50, null=True, blank=True)
     identification = models.PositiveIntegerField()
