@@ -46,7 +46,7 @@ task buildDockerImage(type: Exec, dependsOn: [copyJarToDeploymentContext, copyDo
 }
 
 dependencies {
-	implementation 'com.h2database:h2:1.4.200'
+	implementation 'org.postgresql:postgresql'
 
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'

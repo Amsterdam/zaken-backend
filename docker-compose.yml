@@ -84,6 +84,18 @@ services:
     networks:
       - zaken_network
 
+  camunda_db:
+    image: amsterdam/postgres11
+    networks:
+      - zaken_network
+    shm_size: "512m"
+    ports:
+      - "54321:5432"
+    env_file:
+      - camunda/.env
+    volumes:
+      - camunda-data:/var/lib/postgresql/data
+
   openzaak.local:
     image: openzaak/open-zaak
     networks:
@@ -140,6 +152,7 @@ networks:
     external: true
 
 volumes:
+  camunda-data:
   postgresql-data:
   openzaak-data:
   openzaak-notificaties-data:
