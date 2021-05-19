@@ -1,9 +1,31 @@
 from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer
 from apps.camunda.models import CamundaProcess
-from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTeam
+from apps.cases.models import (
+    Case,
+    CaseReason,
+    CaseState,
+    CaseStateType,
+    CaseTeam,
+    CitizenReport,
+)
 from apps.schedules.serializers import ScheduleSerializer
 from rest_framework import serializers
+
+
+class AdvertisementLinklist(serializers.Field):
+    def to_internal_value(self, data):
+        return [
+            li.get("advertisement_link") for li in data if li.get("advertisement_link")
+        ]
+
+
+class CitizenReportSerializer(serializers.ModelSerializer):
+    advertisement_linklist = AdvertisementLinklist(required=False)
+
+    class Meta:
+        model = CitizenReport
+        exclude = ["author"]
 
 
 class CaseStateTypeSerializer(serializers.ModelSerializer):

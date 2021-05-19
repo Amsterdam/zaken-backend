@@ -4,6 +4,7 @@ import logging
 import requests
 from apps.camunda.utils import get_form_details, get_forms
 from django.conf import settings
+from django.core.cache import cache
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -11,6 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class CamundaService:
+    CAMUNDA_TASK_FORM_CACHE_KEY = "camunda_task_form_cache_key"
+    CAMUNDA_TASK_FORM_CACHE_VALID = 60 * 60 * 24 * 7
+
     def __init__(self, rest_url=settings.CAMUNDA_REST_URL):
         self.rest_url = rest_url
 
@@ -22,19 +26,28 @@ class CamundaService:
                 response = requests.post(
                     request_path,
                     data=request_body,
-                    headers={"content-type": "application/json"},
+                    headers={
+                        "content-type": "application/json",
+                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                    },
                 )
             elif put:
                 response = requests.put(
                     request_path,
                     data=request_body,
-                    headers={"content-type": "application/json"},
+                    headers={
+                        "content-type": "application/json",
+                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                    },
                 )
             else:
                 response = requests.get(
                     request_path,
                     data=request_body,
-                    headers={"content-type": "application/json"},
+                    headers={
+                        "content-type": "application/json",
+                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                    },
                 )
 
             logger.info(
@@ -49,11 +62,25 @@ class CamundaService:
             )
             response.ok = False
             return response
-        except requests.exceptions.RequestException:
-            logger.info("Request to Camunda threw an exception")
+        except requests.exceptions.RequestException as exception:
+            logger.info(f"Request to Camunda threw an exception: {exception}")
             response = Response(status=status.HTTP_400_BAD_REQUEST)
             response.ok = False
             return response
+
+    @staticmethod
+    def _get_task_form_cache_key(camunda_task_id):
+        return f"{CamundaService.CAMUNDA_TASK_FORM_CACHE_KEY}_id{camunda_task_id}"
+
+    @staticmethod
+    def _set_task_form_cache(cache_key, form_data):
+        return cache.set(
+            cache_key, form_data, CamundaService.CAMUNDA_TASK_FORM_CACHE_VALID
+        )
+
+    @staticmethod
+    def _get_task_form_cache(cache_key):
+        return cache.get(cache_key, [])
 
     def _get_form_with_task(self, camunda_task_id):
         task_list = []
@@ -159,6 +186,16 @@ class CamundaService:
         else:
             return False
 
+    def get_tasks_by_role(self, role=None):
+        roleParam = f"candidateGroup={role}" if role else ""
+        response = self._process_request(
+            f"/task?sortBy=dueDate&sortOrder=asc&{roleParam}"
+        )
+        if response.ok:
+            return response.json()
+        else:
+            return False
+
     def get_task_variables(self, task_id):
         response = self._process_request(f"/task/{task_id}/variables")
         if response.ok:
@@ -194,6 +231,11 @@ class CamundaService:
             response_form = get_forms(response.content)
             if len(response_form) == 1:
                 response_json_form = get_form_details(response_form[0])
+
+                self._set_task_form_cache(
+                    self._get_task_form_cache_key(camunda_task_id),
+                    response_json_form,
+                )
 
                 return response_json_form
             else:
@@ -261,7 +303,7 @@ class CamundaService:
 
         if case_identification:
             request_body["processVariables"]["case_identification"] = {
-                "value": case_identification
+                "value": str(case_identification)
             }
 
         request_json_body = json.dumps(request_body)

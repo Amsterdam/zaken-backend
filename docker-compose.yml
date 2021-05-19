@@ -21,7 +21,6 @@ services:
       - ./app:/app
     stdin_open: true
     tty: true
-    # tty: true
 
   database:
     networks:
@@ -74,6 +73,17 @@ services:
       - zaken_network
     restart: on-failure
 
+  camunda:
+    build: camunda/deployment
+    hostname: camunda
+    image: camunda-ritense
+    ports:
+      - 7000:8080
+    env_file:
+      - camunda/.env
+    networks:
+      - zaken_network
+
   camunda_db:
     image: amsterdam/postgres11
     networks:
@@ -85,17 +95,6 @@ services:
       - camunda/.env
     volumes:
       - camunda-data:/var/lib/postgresql/data
-
-  camunda:
-    image: camunda/camunda-bpm-platform:7.14.0
-    ports:
-      - 7000:8080
-    env_file:
-      - camunda/.env
-    networks:
-      - zaken_network
-    depends_on:
-      - camunda_db
 
   openzaak.local:
     image: openzaak/open-zaak
@@ -125,6 +124,27 @@ services:
     networks:
       - zaken_network
 
+  openzaak_notificaties:
+    image: openzaak/open-notificaties
+    ports:
+      - 5000:8000
+    env_file:
+      - zaken-open-notificaties/.env
+    networks:
+      - zaken_network
+    depends_on:
+      - openzaak_database
+      - openzaak_redis
+
+  openzaak_notificaties_database:
+    image: amsterdam/postgres11
+    env_file:
+      - zaken-open-notificaties/.env
+    networks:
+      - zaken_network
+    volumes:
+      - openzaak-notificaties-data:/var/lib/postgresql/data
+
 networks:
   zaken_network:
     external: true
@@ -132,6 +152,7 @@ networks:
     external: true
 
 volumes:
-  postgresql-data:
   camunda-data:
+  postgresql-data:
   openzaak-data:
+  openzaak-notificaties-data:

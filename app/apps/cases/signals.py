@@ -2,11 +2,11 @@ import json
 import logging
 import sys
 
-from apps.cases.models import Case
+from apps.camunda.services import CamundaService
+from apps.cases.models import Case, CitizenReport
 from apps.cases.tasks import start_camunda_instance
 from apps.openzaak.helpers import create_open_zaak_case
 from django.conf import settings
-from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -24,7 +24,7 @@ def create_case_instance_in_camunda(sender, instance, created, **kwargs):
                         "type": "String",
                     },
                     "case_identification": {
-                        "value": instance.id,
+                        "value": str(instance.id),
                         "type": "String",
                     },
                     "endpoint": {
@@ -34,10 +34,7 @@ def create_case_instance_in_camunda(sender, instance, created, **kwargs):
                 },
             }
         )
-        task = start_camunda_instance.s(
-            identification=instance.id, request_body=request_body
-        ).delay
-        transaction.on_commit(task)
+        start_camunda_instance(identification=instance.id, request_body=request_body)
 
 
 @receiver(post_save, sender=Case)
@@ -49,3 +46,11 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
             )
         except Exception as e:
             logger.error(e)
+
+
+@receiver(post_save, sender=CitizenReport, dispatch_uid="complete_citizen_report_task")
+def complete_citizen_report_task(sender, instance, created, **kwargs):
+    if instance.camunda_task_id and created:
+        CamundaService().complete_task(
+            instance.camunda_task_id,
+        )

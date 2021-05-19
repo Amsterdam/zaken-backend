@@ -3,7 +3,7 @@ import logging
 from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer, ResidentsSerializer
 from apps.cases.serializers import CaseSerializer
-from apps.permits.mixins import PermitCheckmarkMixin, PermitDetailsMixin
+from apps.permits.mixins import PermitDetailsMixin
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
@@ -26,7 +26,7 @@ open_cases = OpenApiParameter(
 )
 
 
-class AddressViewSet(ViewSet, GenericAPIView, PermitCheckmarkMixin, PermitDetailsMixin):
+class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
     serializer_class = AddressSerializer
     queryset = Address.objects.all()
     lookup_field = "bag_id"

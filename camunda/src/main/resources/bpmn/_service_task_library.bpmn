@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0c2217g" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
+  <bpmn:collaboration id="Collaboration_1kyvsgi">
+    <bpmn:participant id="Participant_1vq8p2w" name="Service Task Library" processRef="Process_0p53v4f" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_0p53v4f" name="" isExecutable="true">
+    <bpmn:startEvent id="Event_0rh6czj">
+      <bpmn:outgoing>Flow_1sbx5x4</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1sbx5x4" sourceRef="Event_0rh6czj" targetRef="Gateway_1ks58n5" />
+    <bpmn:parallelGateway id="Gateway_1ks58n5">
+      <bpmn:incoming>Flow_1sbx5x4</bpmn:incoming>
+      <bpmn:outgoing>Flow_0bnnx06</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0k4j62j</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_0bnnx06" sourceRef="Gateway_1ks58n5" targetRef="Activity_11neujl" />
+    <bpmn:sequenceFlow id="Flow_0k4j62j" sourceRef="Gateway_1ks58n5" targetRef="Activity_1xnwdpd" />
+    <bpmn:serviceTask id="Activity_1xnwdpd" name="Status Bijwerken: &#39;STATE&#39;" camunda:asyncBefore="true" camunda:exclusive="false">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state": "NAME",
+"case_identification": "${case_identification}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}​/api​/v1​/camunda​/worker​/state​/</camunda:inputParameter>
+            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0k4j62j</bpmn:incoming>
+      <bpmn:outgoing>Flow_07ibihe</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_07ibihe" sourceRef="Activity_1xnwdpd" targetRef="Gateway_0pwq4i9" />
+    <bpmn:sequenceFlow id="Flow_0829xak" sourceRef="Gateway_0pwq4i9" targetRef="Event_1hpibpk" />
+    <bpmn:sequenceFlow id="Flow_0gf2lxe" sourceRef="Activity_11neujl" targetRef="Gateway_0pwq4i9" />
+    <bpmn:serviceTask id="Activity_11neujl" name="Status Beëindigen" camunda:asyncBefore="true" camunda:exclusive="false">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state_identification": "${state_identification}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}​/api​/v1​/camunda​/worker​/end-state​/</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0bnnx06</bpmn:incoming>
+      <bpmn:outgoing>Flow_0gf2lxe</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:parallelGateway id="Gateway_0pwq4i9">
+      <bpmn:incoming>Flow_07ibihe</bpmn:incoming>
+      <bpmn:incoming>Flow_0gf2lxe</bpmn:incoming>
+      <bpmn:outgoing>Flow_0829xak</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:endEvent id="Event_1hpibpk">
+      <bpmn:incoming>Flow_0829xak</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:textAnnotation id="TextAnnotation_0ldraq5">
+      <bpmn:text>Service task for setting a state.
+This task calls the backend using the endpoint variable which is stored in the processvariables + path of the rest endpoint. The response is stored as state_identication in the process variables, and can be used by other service tasks. Set the state string in the payload to the correct state.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_1wcd453" sourceRef="Activity_1xnwdpd" targetRef="TextAnnotation_0ldraq5" />
+    <bpmn:textAnnotation id="TextAnnotation_07hhzb9">
+      <bpmn:text>Service task for ending the current state. The service taks uses the state_identification id and the endpoint from the process variables + path of the rest endpoint.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_1v7x087" sourceRef="Activity_11neujl" targetRef="TextAnnotation_07hhzb9" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1kyvsgi">
+      <bpmndi:BPMNShape id="Participant_1vq8p2w_di" bpmnElement="Participant_1vq8p2w" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="860" height="400" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_0ldraq5_di" bpmnElement="TextAnnotation_0ldraq5">
+        <dc:Bounds x="640" y="110" width="350" height="96" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_07hhzb9_di" bpmnElement="TextAnnotation_07hhzb9">
+        <dc:Bounds x="640" y="385" width="310" height="54" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1sbx5x4_di" bpmnElement="Flow_1sbx5x4">
+        <di:waypoint x="238" y="280" />
+        <di:waypoint x="265" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bnnx06_di" bpmnElement="Flow_0bnnx06">
+        <di:waypoint x="290" y="305" />
+        <di:waypoint x="290" y="400" />
+        <di:waypoint x="370" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0k4j62j_di" bpmnElement="Flow_0k4j62j">
+        <di:waypoint x="290" y="255" />
+        <di:waypoint x="290" y="140" />
+        <di:waypoint x="370" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07ibihe_di" bpmnElement="Flow_07ibihe">
+        <di:waypoint x="470" y="140" />
+        <di:waypoint x="550" y="140" />
+        <di:waypoint x="550" y="255" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0829xak_di" bpmnElement="Flow_0829xak">
+        <di:waypoint x="575" y="280" />
+        <di:waypoint x="612" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0gf2lxe_di" bpmnElement="Flow_0gf2lxe">
+        <di:waypoint x="470" y="400" />
+        <di:waypoint x="550" y="400" />
+        <di:waypoint x="550" y="305" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0rh6czj_di" bpmnElement="Event_0rh6czj">
+        <dc:Bounds x="202" y="262" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_10y4949_di" bpmnElement="Gateway_1ks58n5">
+        <dc:Bounds x="265" y="255" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xnwdpd_di" bpmnElement="Activity_1xnwdpd">
+        <dc:Bounds x="370" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_11neujl_di" bpmnElement="Activity_11neujl">
+        <dc:Bounds x="370" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1elt7ji_di" bpmnElement="Gateway_0pwq4i9">
+        <dc:Bounds x="525" y="255" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1hpibpk_di" bpmnElement="Event_1hpibpk">
+        <dc:Bounds x="612" y="262" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_1wcd453_di" bpmnElement="Association_1wcd453">
+        <di:waypoint x="470" y="140" />
+        <di:waypoint x="640" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_1v7x087_di" bpmnElement="Association_1v7x087">
+        <di:waypoint x="470" y="400" />
+        <di:waypoint x="640" y="400" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

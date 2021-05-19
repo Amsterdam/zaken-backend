@@ -1,11 +1,10 @@
 from apps.addresses.views import AddressViewSet
-from apps.camunda.views import CamundaTaskViewSet, CamundaWorkerViewSet
+from apps.camunda.views import CamundaTaskViewSet, CamundaWorkerViewSet, TaskViewSet
 from apps.cases.views import CaseStateViewSet, CaseTeamViewSet, CaseViewSet
 from apps.debriefings.views import DebriefingViewSet
 from apps.decisions.views import DecisionViewSet
 from apps.fines.views import FinesViewSet
 from apps.gateway.push.views import PushViewSet
-from apps.permits.views import PermitViewSet
 from apps.schedules.views import ScheduleViewSet
 from apps.summons.views import SummonViewSet
 from apps.support.views import SupportContactView
@@ -22,6 +21,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register(r"addresses", AddressViewSet, basename="addresses")
 router.register(r"cases", CaseViewSet, basename="cases")
+router.register(r"tasks", TaskViewSet, basename="tasks")
 router.register(r"case-states", CaseStateViewSet, basename="case-states")
 router.register(r"teams", CaseTeamViewSet, basename="teams")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")
@@ -36,7 +36,6 @@ router.register(r"schedules", ScheduleViewSet, basename="schedules")
 
 router.register(r"camunda/task", CamundaTaskViewSet, basename="camunda-tasks")
 router.register(r"camunda/worker", CamundaWorkerViewSet, basename="camunda-workers")
-router.register(r"test-permits", PermitViewSet, basename="test-permits")
 
 urlpatterns = [
     # Admin environment
