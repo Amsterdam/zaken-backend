@@ -40,6 +40,10 @@ class CaseEvent(models.Model):
         Returns a dictionary with event values retrieved from Emitter object
         """
         event_values = self.emitter.__get_event_values__()
+
+        # Remove empty entries
+        event_values = dict((k, v) for k, v in event_values.items() if v)
+
         return event_values
 
     def __str__(self):
