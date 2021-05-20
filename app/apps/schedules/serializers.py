@@ -47,6 +47,7 @@ class ScheduleCreateSerializer(serializers.ModelSerializer):
             "day_segment",
             "priority",
             "case",
+            "camunda_task_id",
         )
         read_only_fields = ("id",)
 
