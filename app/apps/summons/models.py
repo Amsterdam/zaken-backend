@@ -1,5 +1,5 @@
 from apps.cases.models import Case, CaseTeam
-from apps.events.models import CaseEvent, ModelEventEmitter
+from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.db import models
 
@@ -18,7 +18,7 @@ class SummonType(models.Model):
         return self.name
 
 
-class Summon(ModelEventEmitter):
+class Summon(TaskModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_SUMMON
 
     case = models.ForeignKey(

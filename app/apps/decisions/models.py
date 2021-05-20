@@ -1,5 +1,5 @@
 from apps.cases.models import Case, CaseTeam
-from apps.events.models import CaseEvent, ModelEventEmitter
+from apps.events.models import CaseEvent, TaskModelEventEmitter
 from apps.summons.models import Summon
 from django.conf import settings
 from django.db import models
@@ -20,7 +20,7 @@ class DecisionType(models.Model):
         ordering = ["name"]
 
 
-class Decision(ModelEventEmitter):
+class Decision(TaskModelEventEmitter):
     """
     Model is used to repesent the decision after a summon
     """

@@ -1,10 +1,10 @@
 from apps.cases.models import Case
-from apps.events.models import CaseEvent, ModelEventEmitter
+from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.db import models
 
 
-class GenericCompletedTask(ModelEventEmitter):
+class GenericCompletedTask(TaskModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_GENERIC_TASK
 
     case = models.ForeignKey(to=Case, on_delete=models.CASCADE)

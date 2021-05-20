@@ -17,17 +17,8 @@ def create_summon_instance_in_camunda(sender, instance, created, **kwargs):
             instance.summon = instance.case.summons.all()[0]
             instance.save()
 
-    task = False
-    for camunda_id in instance.case.camunda_ids:
-        task = CamundaService().get_task_by_task_name_id_and_camunda_id(
-            "task_create_summon", camunda_id
-        )
-        if task:
-            break
-
-    if task:
         CamundaService().complete_task(
-            task["id"],
+            instance.camunda_task_id,
             {
                 "type_aanschrijving": {"value": instance.type.camunda_option},
                 "names": {
