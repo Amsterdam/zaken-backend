@@ -72,7 +72,6 @@ class Schedule(TaskModelEventEmitter):
     )
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
-    camunda_task_id = models.CharField(default="-1", max_length=255)
 
     def __get_event_values__(self):
         return {
