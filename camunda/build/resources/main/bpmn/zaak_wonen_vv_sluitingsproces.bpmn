@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0kmmw5l" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0" camunda:diagramRelationId="e88c9773-9689-4d05-a16c-37b8418d1d11">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0kmmw5l" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" camunda:diagramRelationId="e88c9773-9689-4d05-a16c-37b8418d1d11">
   <bpmn:collaboration id="Collaboration_0vydiok">
     <bpmn:participant id="Participant_0kmebvt" name="Sluitingsproces fase 1 (MVP)" processRef="start_sluitings_proces" />
   </bpmn:collaboration>
@@ -52,11 +52,11 @@
       <bpmn:incoming>Flow_0ojxyru</bpmn:incoming>
       <bpmn:outgoing>Flow_0d03o2o</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:userTask id="Activity_19r9rzm" name="Opslaan brandweeradvies" camunda:candidateGroups="Projecthandhaver">
+    <bpmn:userTask id="Activity_19r9rzm" name="Opslaan brandweeradvies" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(5).toDate()}">
       <bpmn:incoming>Flow_0zkclz8</bpmn:incoming>
       <bpmn:outgoing>Flow_1hbki6x</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_0wienly" name="Monitoren heropeningsverzoek" camunda:candidateGroups="Projectmedewerker">
+    <bpmn:userTask id="Activity_0wienly" name="Monitoren heropeningsverzoek" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(92).toDate()}">
       <bpmn:incoming>Flow_06qtx3g</bpmn:incoming>
       <bpmn:outgoing>Flow_0ojxyru</bpmn:outgoing>
     </bpmn:userTask>
