@@ -11,6 +11,7 @@ class CamundaStateWorkerSerializer(serializers.Serializer):
 
     state = serializers.CharField()
     case_identification = serializers.CharField()
+    information = serializers.CharField(required=False, default="")
 
     def validate(self, data):
         try:

@@ -9,3 +9,4 @@ camunda/.gradle/
 !camunda/gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+camunda/.gradle/
