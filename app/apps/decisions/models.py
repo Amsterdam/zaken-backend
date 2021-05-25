@@ -14,7 +14,7 @@ class DecisionType(models.Model):
     )
 
     def __str__(self):
-        return f"{self.team.name} - {self.name}"
+        return f"{self.theme.name} - {self.name}"
 
     class Meta:
         ordering = ["name"]

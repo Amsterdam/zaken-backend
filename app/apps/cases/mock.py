@@ -16,7 +16,7 @@ def mock():
 
 def mock_cases():
     print("Mocking cases")
-    team = CaseTheme.objects.get(name=settings.DEFAULT_TEAM)
+    theme = CaseTheme.objects.get(name=settings.DEFAULT_THEME)
     reason = CaseReason.objects.get(name=settings.DEFAULT_REASON)
 
     user_model = get_user_model()
@@ -62,7 +62,7 @@ def mock_cases():
             Case,
             author=user,
             reason=reason,
-            team=team,
+            theme=theme,
             start_date=datetime.date.today(),
             address=address,
             description="Melding gedaan door de buren",

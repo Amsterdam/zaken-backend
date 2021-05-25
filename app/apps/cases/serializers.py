@@ -70,7 +70,7 @@ class CaseSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
     )
-    team = CaseThemeSerializer(required=True)
+    theme = CaseThemeSerializer(required=True)
     reason = CaseReasonSerializer(required=True)
     schedules = ScheduleSerializer(many=True, read_only=True)
 
@@ -82,7 +82,7 @@ class CaseSerializer(serializers.ModelSerializer):
 class CaseCreateUpdateSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     address = AddressSerializer(required=True)
-    team = serializers.PrimaryKeyRelatedField(
+    theme = serializers.PrimaryKeyRelatedField(
         many=False, required=True, queryset=CaseTheme.objects.all()
     )
     reason = serializers.PrimaryKeyRelatedField(
@@ -91,18 +91,18 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Case
-        fields = ("id", "address", "team", "reason", "description", "author")
+        fields = ("id", "address", "theme", "reason", "description", "author")
 
     def validate(self, data):
         """
         Check CaseReason and CaseTheme relation
         """
-        team = data["team"]
+        theme = data["theme"]
         reason = data["reason"]
 
-        if reason.team != team:
+        if reason.theme != theme:
             raise serializers.ValidationError(
-                "reason must be one of the team CaseReasons"
+                "reason must be one of the theme CaseReasons"
             )
 
         return data

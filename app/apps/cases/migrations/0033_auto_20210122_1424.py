@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
         CaseTeam = apps.get_model("cases", "CaseTeam")
         CaseReason = apps.get_model("cases", "CaseReason")
 
-        team, _ = CaseTeam.objects.get_or_create(name=settings.DEFAULT_TEAM)
+        team, _ = CaseTeam.objects.get_or_create(name=settings.DEFAULT_THEME)
         reason, _ = CaseReason.objects.get_or_create(
             name=settings.DEFAULT_REASON, team=team
         )

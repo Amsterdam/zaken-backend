@@ -71,7 +71,7 @@ class CaseThemeModelTest(TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
 
-    def test_can_create_team(self):
+    def test_can_create_theme(self):
         """ Tests ThemeModel object creation """
         self.assertEquals(CaseTheme.objects.count(), 0)
 
@@ -92,12 +92,12 @@ class CaseReasonModelTest(TestCase):
 
         self.assertEquals(CaseReason.objects.count(), 1)
 
-    def test_teams_has_multiple_reasons(self):
-        """ Tests reverse access of case reasons through the team object """
-        team = baker.make(CaseTheme)
-        baker.make(CaseReason, team=team, _quantity=2)
+    def test_themes_has_multiple_reasons(self):
+        """ Tests reverse access of case reasons through the theme object """
+        theme = baker.make(CaseTheme)
+        baker.make(CaseReason, theme=theme, _quantity=2)
 
-        self.assertEquals(team.reasons.count(), 2)
+        self.assertEquals(theme.reasons.count(), 2)
 
 
 class CaseModelTest(TestCase):

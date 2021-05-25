@@ -54,8 +54,8 @@ open_cases = OpenApiParameter(
     description="Open Cases",
 )
 
-team = OpenApiParameter(
-    name="team",
+theme = OpenApiParameter(
+    name="theme",
     type=OpenApiTypes.INT,
     location=OpenApiParameter.QUERY,
     required=False,

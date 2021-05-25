@@ -92,7 +92,7 @@ class Case(ModelEventEmitter):
 
     def set_state(self, state_name):
         state_type, _ = CaseStateType.objects.get_or_create(
-            name=state_name, team=self.team
+            name=state_name, theme=self.theme
         )
         state = CaseState.objects.create(case=self, status=state_type)
 
@@ -121,16 +121,16 @@ class Case(ModelEventEmitter):
 
 
 class CaseStateType(models.Model):
-    def default_team():
-        team, _ = CaseTheme.objects.get_or_create(name=settings.DEFAULT_TEAM)
-        return team.id
+    def default_theme():
+        theme, _ = CaseTheme.objects.get_or_create(name=settings.DEFAULT_THEME)
+        return theme.id
 
     name = models.CharField(max_length=255, unique=True)
     theme = models.ForeignKey(
         to=CaseTheme,
         related_name="state_types",
         on_delete=models.CASCADE,
-        default=default_team,
+        default=default_theme,
     )
 
     def __str__(self):
