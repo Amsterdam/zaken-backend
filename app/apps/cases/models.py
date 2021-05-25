@@ -8,7 +8,7 @@ from django.db import models
 from django.utils import timezone
 
 
-class CaseTeam(models.Model):
+class CaseTheme(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
@@ -20,8 +20,8 @@ class CaseTeam(models.Model):
 
 class CaseReason(models.Model):
     name = models.CharField(max_length=255)
-    team = models.ForeignKey(
-        to=CaseTeam, related_name="reasons", on_delete=models.CASCADE
+    theme = models.ForeignKey(
+        to=CaseTheme, related_name="reasons", on_delete=models.CASCADE
     )
 
     def __str__(self):
@@ -51,7 +51,7 @@ class Case(ModelEventEmitter):
     camunda_ids = ArrayField(
         models.CharField(max_length=255), default=list, null=True, blank=True
     )
-    team = models.ForeignKey(to=CaseTeam, on_delete=models.PROTECT)
+    theme = models.ForeignKey(to=CaseTheme, on_delete=models.PROTECT)
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT
     )
@@ -122,12 +122,12 @@ class Case(ModelEventEmitter):
 
 class CaseStateType(models.Model):
     def default_team():
-        team, _ = CaseTeam.objects.get_or_create(name=settings.DEFAULT_TEAM)
+        team, _ = CaseTheme.objects.get_or_create(name=settings.DEFAULT_TEAM)
         return team.id
 
     name = models.CharField(max_length=255, unique=True)
-    team = models.ForeignKey(
-        to=CaseTeam,
+    theme = models.ForeignKey(
+        to=CaseTheme,
         related_name="state_types",
         on_delete=models.CASCADE,
         default=default_team,

@@ -5,7 +5,7 @@ from apps.camunda.models import CamundaProcess
 from apps.camunda.serializers import CamundaProcessSerializer, CamundaTaskSerializer
 from apps.camunda.services import CamundaService
 from apps.cases.mock import mock
-from apps.cases.models import Case, CaseState, CaseTeam, CitizenReport
+from apps.cases.models import Case, CaseState, CaseTheme, CitizenReport
 from apps.cases.serializers import (
     CamundaStartProcessSerializer,
     CaseCreateUpdateSerializer,
@@ -13,7 +13,7 @@ from apps.cases.serializers import (
     CaseSerializer,
     CaseStateSerializer,
     CaseStateTypeSerializer,
-    CaseTeamSerializer,
+    CaseThemeSerializer,
     CitizenReportSerializer,
     PushCaseStateSerializer,
 )
@@ -30,7 +30,7 @@ from apps.cases.swagger_parameters import suffix as suffix_parameter
 from apps.cases.swagger_parameters import team as team_parameter
 from apps.decisions.serializers import DecisionTypeSerializer
 from apps.events.mixins import CaseEventsMixin
-from apps.schedules.serializers import TeamScheduleTypesSerializer
+from apps.schedules.serializers import ThemeScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
 from django.conf import settings
@@ -352,10 +352,10 @@ class CaseViewSet(
         )
 
 
-class CaseTeamViewSet(ListAPIView, viewsets.ViewSet):
+class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
     permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
-    serializer_class = CaseTeamSerializer
-    queryset = CaseTeam.objects.all()
+    serializer_class = CaseThemeSerializer
+    queryset = CaseTheme.objects.all()
 
     @extend_schema(
         description="Gets the reasons associated with the requested team",
@@ -416,7 +416,7 @@ class CaseTeamViewSet(ListAPIView, viewsets.ViewSet):
 
     @extend_schema(
         description="Gets the Scheduling Types associated with the given team",
-        responses={status.HTTP_200_OK: TeamScheduleTypesSerializer(many=True)},
+        responses={status.HTTP_200_OK: ThemeScheduleTypesSerializer(many=True)},
     )
     @action(
         detail=True,
@@ -425,7 +425,7 @@ class CaseTeamViewSet(ListAPIView, viewsets.ViewSet):
     )
     def schedule_types(self, request, pk):
         team = self.get_object()
-        serializer = TeamScheduleTypesSerializer(team)
+        serializer = ThemeScheduleTypesSerializer(team)
         return Response(serializer.data)
 
     @extend_schema(

@@ -1,7 +1,7 @@
 import datetime
 
 from apps.addresses.models import Address
-from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTeam
+from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTheme
 from apps.summons.models import SummonType
 from django.core import management
 from django.urls import reverse
@@ -16,7 +16,7 @@ from app.utils.unittest_helpers import (
 )
 
 
-class CaseTeamApiTest(APITestCase):
+class CaseThemeApiTest(APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
 
@@ -42,7 +42,7 @@ class CaseTeamApiTest(APITestCase):
         self.assertEquals(data["results"], [])
 
     def test_authenticated_get_filled(self):
-        baker.make(CaseTeam, _quantity=2)
+        baker.make(CaseTheme, _quantity=2)
 
         url = reverse("teams-list")
         client = get_authenticated_client()
@@ -53,7 +53,7 @@ class CaseTeamApiTest(APITestCase):
         self.assertEquals(len(data["results"]), 2)
 
 
-class CaseTeamReasonApiTest(APITestCase):
+class CaseThemeReasonApiTest(APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
 
@@ -72,7 +72,7 @@ class CaseTeamReasonApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_authenticated_get(self):
-        team = baker.make(CaseTeam)
+        team = baker.make(CaseTheme)
         url = reverse("teams-reasons", kwargs={"pk": team.pk})
 
         client = get_authenticated_client()
@@ -80,7 +80,7 @@ class CaseTeamReasonApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_authenticated_get_empty(self):
-        team = baker.make(CaseTeam)
+        team = baker.make(CaseTheme)
         url = reverse("teams-reasons", kwargs={"pk": team.pk})
 
         client = get_authenticated_client()
@@ -90,7 +90,7 @@ class CaseTeamReasonApiTest(APITestCase):
         self.assertEqual(data["results"], [])
 
     def test_authenticated_get_list(self):
-        team = baker.make(CaseTeam)
+        team = baker.make(CaseTheme)
         baker.make(CaseReason, team=team, _quantity=2)
 
         url = reverse("teams-reasons", kwargs={"pk": team.pk})
@@ -211,8 +211,8 @@ class CaseListApiTest(APITestCase):
         TEAM_A = "TEAM A"
         TEAM_B = "TEAM B"
 
-        team_a = baker.make(CaseTeam, name=TEAM_A)
-        baker.make(CaseTeam, name=TEAM_B)
+        team_a = baker.make(CaseTheme, name=TEAM_A)
+        baker.make(CaseTheme, name=TEAM_B)
 
         baker.make(Case, team=team_a)
         url = reverse("cases-list")
@@ -294,7 +294,7 @@ class CaseCreatApiTest(APITestCase):
     def test_authenticated_post_create(self):
         self.assertEquals(Case.objects.count(), 0)
 
-        team = baker.make(CaseTeam)
+        team = baker.make(CaseTheme)
         reason = baker.make(CaseReason, team=team)
 
         url = reverse("cases-list")
@@ -315,7 +315,7 @@ class CaseCreatApiTest(APITestCase):
 
     def test_authenticated_post_create_fail_wrong_team(self):
         """ Should not be able to create a case if a wrong team ID is given """
-        team = baker.make(CaseTeam)
+        team = baker.make(CaseTheme)
         reason = baker.make(CaseReason, team=team)
 
         url = reverse("cases-list")
@@ -336,7 +336,7 @@ class CaseCreatApiTest(APITestCase):
 
     def test_authenticated_post_create_fail_wrong_reason(self):
         """ Should not be able to create a case if a wrong team ID is given """
-        team = baker.make(CaseTeam)
+        team = baker.make(CaseTheme)
 
         url = reverse("cases-list")
         client = get_authenticated_client()
@@ -358,8 +358,8 @@ class CaseCreatApiTest(APITestCase):
         """ Request should fail if the CaseReason is not one of the given teams CaseReasons """
         self.assertEquals(Case.objects.count(), 0)
 
-        team_a = baker.make(CaseTeam)
-        team_b = baker.make(CaseTeam)
+        team_a = baker.make(CaseTheme)
+        team_b = baker.make(CaseTheme)
         reason = baker.make(CaseReason, team=team_a)
 
         url = reverse("cases-list")
@@ -384,7 +384,7 @@ class CaseCreatApiTest(APITestCase):
         """
         self.assertEquals(Case.objects.count(), 0)
 
-        team = baker.make(CaseTeam)
+        team = baker.make(CaseTheme)
         reason = baker.make(CaseReason, team=team)
 
         url = reverse("cases-list")
@@ -406,7 +406,7 @@ class CaseCreatApiTest(APITestCase):
         self.assertEquals(case.author, test_user)
 
 
-class CaseTeamSummonTypeApiTest(APITestCase):
+class CaseThemeSummonTypeApiTest(APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
 
@@ -433,7 +433,7 @@ class CaseTeamSummonTypeApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_authenticated_get_empty(self):
-        team = baker.make(CaseTeam)
+        team = baker.make(CaseTheme)
         url = reverse("teams-summon-types", kwargs={"pk": team.pk})
 
         client = get_authenticated_client()
@@ -443,7 +443,7 @@ class CaseTeamSummonTypeApiTest(APITestCase):
         self.assertEqual(data["results"], [])
 
     def test_authenticated_get_list(self):
-        team = baker.make(CaseTeam)
+        team = baker.make(CaseTheme)
         baker.make(SummonType, team=team, _quantity=2)
 
         url = reverse("teams-summon-types", kwargs={"pk": team.pk})
@@ -619,13 +619,13 @@ class CaseSearchApiTest(APITestCase):
 
         MOCK_STREET_NAME = "FOO STREET NAME"
         MOCK_STREET_NUMBER = 5
-        MOCK_TEAM = "The A-Team"
+        MOCK_TEAM = "The A-Theme"
 
         address = baker.make(
             Address, street_name=MOCK_STREET_NAME, number=MOCK_STREET_NUMBER
         )
-        team_a = baker.make(CaseTeam, name=MOCK_TEAM)
-        team_b = baker.make(CaseTeam)
+        team_a = baker.make(CaseTheme, name=MOCK_TEAM)
+        team_b = baker.make(CaseTheme)
 
         baker.make(Case, team=team_a, address=address)
         baker.make(Case, team=team_b, address=address)

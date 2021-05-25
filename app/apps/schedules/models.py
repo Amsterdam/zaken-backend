@@ -1,12 +1,12 @@
-from apps.cases.models import Case, CaseTeam
+from apps.cases.models import Case, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.db import models
 
 
 class Action(models.Model):
     name = models.CharField(max_length=255)
-    team = models.ForeignKey(
-        to=CaseTeam, on_delete=models.CASCADE, related_name="actions"
+    theme = models.ForeignKey(
+        to=CaseTheme, on_delete=models.CASCADE, related_name="actions"
     )
 
     def __str__(self):
@@ -14,13 +14,13 @@ class Action(models.Model):
 
     class Meta:
         ordering = ["name"]
-        unique_together = ["name", "team"]
+        unique_together = ["name", "theme"]
 
 
 class WeekSegment(models.Model):
     name = models.CharField(max_length=255)
-    team = models.ForeignKey(
-        to=CaseTeam, on_delete=models.CASCADE, related_name="week_segments"
+    theme = models.ForeignKey(
+        to=CaseTheme, on_delete=models.CASCADE, related_name="week_segments"
     )
 
     def __str__(self):
@@ -28,13 +28,13 @@ class WeekSegment(models.Model):
 
     class Meta:
         ordering = ["name"]
-        unique_together = ["name", "team"]
+        unique_together = ["name", "theme"]
 
 
 class DaySegment(models.Model):
     name = models.CharField(max_length=255)
-    team = models.ForeignKey(
-        to=CaseTeam, on_delete=models.CASCADE, related_name="day_segments"
+    theme = models.ForeignKey(
+        to=CaseTheme, on_delete=models.CASCADE, related_name="day_segments"
     )
 
     def __str__(self):
@@ -42,13 +42,13 @@ class DaySegment(models.Model):
 
     class Meta:
         ordering = ["name"]
-        unique_together = ["name", "team"]
+        unique_together = ["name", "theme"]
 
 
 class Priority(models.Model):
     name = models.CharField(max_length=255)
-    team = models.ForeignKey(
-        to=CaseTeam, on_delete=models.CASCADE, related_name="priorities"
+    theme = models.ForeignKey(
+        to=CaseTheme, on_delete=models.CASCADE, related_name="priorities"
     )
     weight = models.FloatField()
 
@@ -57,7 +57,7 @@ class Priority(models.Model):
 
     class Meta:
         ordering = ["weight"]
-        unique_together = ["name", "team"]
+        unique_together = ["name", "theme"]
 
 
 class Schedule(TaskModelEventEmitter):

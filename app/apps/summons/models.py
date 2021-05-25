@@ -1,4 +1,4 @@
-from apps.cases.models import Case, CaseTeam
+from apps.cases.models import Case, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.db import models
@@ -10,8 +10,8 @@ class SummonType(models.Model):
 
     camunda_option = models.CharField(max_length=255, default="aanschrijvingen")
     name = models.CharField(max_length=255)
-    team = models.ForeignKey(
-        to=CaseTeam, related_name="summon_types", on_delete=models.CASCADE
+    theme = models.ForeignKey(
+        to=CaseTheme, related_name="summon_types", on_delete=models.CASCADE
     )
 
     def __str__(self):
