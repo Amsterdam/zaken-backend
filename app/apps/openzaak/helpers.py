@@ -9,7 +9,7 @@ from zgw_consumers.models import Service
 
 def get_default_zaaktype():
     ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
-    results = ztc_client.list("zaaktype", {"identificatie": settings.DEFAULT_TEAM})
+    results = ztc_client.list("zaaktype", {"identificatie": settings.DEFAULT_THEME})
     default_zaaktype = results["results"][0]
     return default_zaaktype
 

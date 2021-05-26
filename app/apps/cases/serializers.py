@@ -6,7 +6,7 @@ from apps.cases.models import (
     CaseReason,
     CaseState,
     CaseStateType,
-    CaseTeam,
+    CaseTheme,
     CitizenReport,
 )
 from apps.schedules.serializers import ScheduleSerializer
@@ -34,9 +34,9 @@ class CaseStateTypeSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class CaseTeamSerializer(serializers.ModelSerializer):
+class CaseThemeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CaseTeam
+        model = CaseTheme
         fields = "__all__"
 
 
@@ -70,7 +70,7 @@ class CaseSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
     )
-    team = CaseTeamSerializer(required=True)
+    theme = CaseThemeSerializer(required=True)
     reason = CaseReasonSerializer(required=True)
     schedules = ScheduleSerializer(many=True, read_only=True)
 
@@ -82,8 +82,8 @@ class CaseSerializer(serializers.ModelSerializer):
 class CaseCreateUpdateSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     address = AddressSerializer(required=True)
-    team = serializers.PrimaryKeyRelatedField(
-        many=False, required=True, queryset=CaseTeam.objects.all()
+    theme = serializers.PrimaryKeyRelatedField(
+        many=False, required=True, queryset=CaseTheme.objects.all()
     )
     reason = serializers.PrimaryKeyRelatedField(
         many=False, required=True, queryset=CaseReason.objects.all()
@@ -91,18 +91,18 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Case
-        fields = ("id", "address", "team", "reason", "description", "author")
+        fields = ("id", "address", "theme", "reason", "description", "author")
 
     def validate(self, data):
         """
-        Check CaseReason and CaseTeam relation
+        Check CaseReason and CaseTheme relation
         """
-        team = data["team"]
+        theme = data["theme"]
         reason = data["reason"]
 
-        if reason.team != team:
+        if reason.theme != theme:
             raise serializers.ValidationError(
-                "reason must be one of the team CaseReasons"
+                "reason must be one of the theme CaseReasons"
             )
 
         return data

@@ -21,7 +21,7 @@ class ActionModelTest(TestCase):
         model_object = baker.make(self.MODEL)
 
         with self.assertRaises(Exception):
-            baker.make(self.MODEL, name=model_object.name, team=model_object.team)
+            baker.make(self.MODEL, name=model_object.name, theme=model_object.theme)
 
 
 class WeekSegmentModelTest(TestCase):
@@ -41,7 +41,7 @@ class WeekSegmentModelTest(TestCase):
         model_object = baker.make(self.MODEL)
 
         with self.assertRaises(Exception):
-            baker.make(self.MODEL, name=model_object.name, team=model_object.team)
+            baker.make(self.MODEL, name=model_object.name, theme=model_object.theme)
 
 
 class DaySegmentModelTest(TestCase):
@@ -61,7 +61,7 @@ class DaySegmentModelTest(TestCase):
         model_object = baker.make(self.MODEL)
 
         with self.assertRaises(Exception):
-            baker.make(self.MODEL, name=model_object.name, team=model_object.team)
+            baker.make(self.MODEL, name=model_object.name, theme=model_object.theme)
 
 
 class PriorityModelTest(TestCase):
@@ -81,7 +81,7 @@ class PriorityModelTest(TestCase):
         model_object = baker.make(self.MODEL)
 
         with self.assertRaises(Exception):
-            baker.make(self.MODEL, name=model_object.name, team=model_object.team)
+            baker.make(self.MODEL, name=model_object.name, theme=model_object.theme)
 
 
 class ScheduleModelTest(TestCase):
@@ -101,4 +101,4 @@ class ScheduleModelTest(TestCase):
         model_object = baker.make(self.MODEL)
 
         with self.assertRaises(Exception):
-            baker.make(self.MODEL, name=model_object.case, team=model_object.action)
+            baker.make(self.MODEL, name=model_object.case, theme=model_object.action)

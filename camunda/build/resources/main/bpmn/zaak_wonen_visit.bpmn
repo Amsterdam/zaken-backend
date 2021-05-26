@@ -241,8 +241,8 @@
     <bpmn:sequenceFlow id="Flow_100ib64" name="situation = nobody_present &#38;&#38; can_next_visit_go_ahead=true" sourceRef="Gateway_1odl5bp" targetRef="Gateway_136vx0p">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${situation=="nobody_present" &amp;&amp; can_next_visit_go_ahead=="true"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_09fde08" name="violation = no OR To other team" sourceRef="is_debrief_violation" targetRef="Activity_02t4qsu">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='NO' || violation=="SEND_TO_OTHER_TEAM"}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_09fde08" name="violation = no OR To other theme" sourceRef="is_debrief_violation" targetRef="Activity_02t4qsu">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='NO' || violation=="SEND_TO_OTHER_THEME"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_090pn4r" name="violation = yes" sourceRef="is_debrief_violation" targetRef="Gateway_0289ucr">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='YES'}</bpmn:conditionExpression>

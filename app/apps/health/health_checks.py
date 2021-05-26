@@ -172,7 +172,7 @@ class OpenZaakClientCheck(BaseHealthCheckBackend):
             assert results["count"] != 0, "The default catalogus doesn't exist"
 
             results = ztc_client.list(
-                "zaaktype", {"identificatie": settings.DEFAULT_TEAM}
+                "zaaktype", {"identificatie": settings.DEFAULT_THEME}
             )
             assert results["count"] != 0, "The default casetype doesn't exist"
 

@@ -54,12 +54,12 @@ open_cases = OpenApiParameter(
     description="Open Cases",
 )
 
-team = OpenApiParameter(
-    name="team",
+theme = OpenApiParameter(
+    name="theme",
     type=OpenApiTypes.INT,
     location=OpenApiParameter.QUERY,
     required=False,
-    description="Team to which the cases should belong",
+    description="Theme to which the cases should belong",
 )
 
 reason = OpenApiParameter(

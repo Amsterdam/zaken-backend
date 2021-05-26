@@ -8,7 +8,7 @@ from django.db import migrations
 def add_summon_types(apps, schema_editor):
     SummonType = apps.get_model("summons", "SummonType")
     CaseTeam = apps.get_model("cases", "CaseTeam")
-    default_case_team, _ = CaseTeam.objects.get_or_create(name=settings.DEFAULT_TEAM)
+    default_case_team, _ = CaseTeam.objects.get_or_create(name=settings.DEFAULT_THEME)
 
     for summon_type in SUMMON_TYPES:
         SummonType.objects.get_or_create(name=summon_type, team=default_case_team)

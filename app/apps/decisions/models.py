@@ -1,4 +1,4 @@
-from apps.cases.models import Case, CaseTeam
+from apps.cases.models import Case, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from apps.summons.models import Summon
 from django.conf import settings
@@ -9,12 +9,12 @@ class DecisionType(models.Model):
     camunda_option = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     is_sanction = models.BooleanField(default=False)
-    team = models.ForeignKey(
-        to=CaseTeam, related_name="decision_types", on_delete=models.CASCADE
+    theme = models.ForeignKey(
+        to=CaseTheme, related_name="decision_types", on_delete=models.CASCADE
     )
 
     def __str__(self):
-        return f"{self.team.name} - {self.name}"
+        return f"{self.theme.name} - {self.name}"
 
     class Meta:
         ordering = ["name"]

@@ -1,7 +1,7 @@
 import datetime
 
 from apps.addresses.models import Address
-from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTeam
+from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTheme
 from apps.summons.models import SummonType
 from django.core import management
 from django.urls import reverse
@@ -16,24 +16,24 @@ from app.utils.unittest_helpers import (
 )
 
 
-class CaseTeamApiTest(APITestCase):
+class CaseThemeApiTest(APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
 
     def test_unauthenticated_get(self):
-        url = reverse("teams-list")
+        url = reverse("themes-list")
         client = get_unauthenticated_client()
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_authenticated_get(self):
-        url = reverse("teams-list")
+        url = reverse("themes-list")
         client = get_authenticated_client()
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_authenticated_get_empty(self):
-        url = reverse("teams-list")
+        url = reverse("themes-list")
         client = get_authenticated_client()
 
         response = client.get(url)
@@ -42,9 +42,9 @@ class CaseTeamApiTest(APITestCase):
         self.assertEquals(data["results"], [])
 
     def test_authenticated_get_filled(self):
-        baker.make(CaseTeam, _quantity=2)
+        baker.make(CaseTheme, _quantity=2)
 
-        url = reverse("teams-list")
+        url = reverse("themes-list")
         client = get_authenticated_client()
 
         response = client.get(url)
@@ -53,35 +53,35 @@ class CaseTeamApiTest(APITestCase):
         self.assertEquals(len(data["results"]), 2)
 
 
-class CaseTeamReasonApiTest(APITestCase):
+class CaseThemeReasonApiTest(APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
 
     def test_unauthenticated_get(self):
-        url = reverse("teams-reasons", kwargs={"pk": 1})
+        url = reverse("themes-reasons", kwargs={"pk": 1})
 
         client = get_unauthenticated_client()
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_authenticated_get_not_found(self):
-        url = reverse("teams-reasons", kwargs={"pk": 99})
+        url = reverse("themes-reasons", kwargs={"pk": 99})
 
         client = get_authenticated_client()
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_authenticated_get(self):
-        team = baker.make(CaseTeam)
-        url = reverse("teams-reasons", kwargs={"pk": team.pk})
+        theme = baker.make(CaseTheme)
+        url = reverse("themes-reasons", kwargs={"pk": theme.pk})
 
         client = get_authenticated_client()
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_authenticated_get_empty(self):
-        team = baker.make(CaseTeam)
-        url = reverse("teams-reasons", kwargs={"pk": team.pk})
+        theme = baker.make(CaseTheme)
+        url = reverse("themes-reasons", kwargs={"pk": theme.pk})
 
         client = get_authenticated_client()
         response = client.get(url)
@@ -90,10 +90,10 @@ class CaseTeamReasonApiTest(APITestCase):
         self.assertEqual(data["results"], [])
 
     def test_authenticated_get_list(self):
-        team = baker.make(CaseTeam)
-        baker.make(CaseReason, team=team, _quantity=2)
+        theme = baker.make(CaseTheme)
+        baker.make(CaseReason, theme=theme, _quantity=2)
 
-        url = reverse("teams-reasons", kwargs={"pk": team.pk})
+        url = reverse("themes-reasons", kwargs={"pk": theme.pk})
 
         client = get_authenticated_client()
         response = client.get(url)
@@ -207,18 +207,18 @@ class CaseListApiTest(APITestCase):
         results = response.data["results"]
         self.assertEqual(len(results), CLOSED_CASES_QUANTITY)
 
-    def test_filter_team(self):
-        TEAM_A = "TEAM A"
-        TEAM_B = "TEAM B"
+    def test_filter_theme(self):
+        THEME_A = "THEME A"
+        THEME_B = "THEME B"
 
-        team_a = baker.make(CaseTeam, name=TEAM_A)
-        baker.make(CaseTeam, name=TEAM_B)
+        theme_a = baker.make(CaseTheme, name=THEME_A)
+        baker.make(CaseTheme, name=THEME_B)
 
-        baker.make(Case, team=team_a)
+        baker.make(Case, theme=theme_a)
         url = reverse("cases-list")
         client = get_authenticated_client()
 
-        FILTER_PARAMETERS = {"team": team_a.id}
+        FILTER_PARAMETERS = {"theme": theme_a.id}
         response = client.get(url, FILTER_PARAMETERS)
 
         results = response.data["results"]
@@ -294,8 +294,8 @@ class CaseCreatApiTest(APITestCase):
     def test_authenticated_post_create(self):
         self.assertEquals(Case.objects.count(), 0)
 
-        team = baker.make(CaseTeam)
-        reason = baker.make(CaseReason, team=team)
+        theme = baker.make(CaseTheme)
+        reason = baker.make(CaseReason, theme=theme)
 
         url = reverse("cases-list")
         client = get_authenticated_client()
@@ -303,7 +303,7 @@ class CaseCreatApiTest(APITestCase):
             url,
             {
                 "description": "Foo",
-                "team": team.pk,
+                "theme": theme.pk,
                 "reason": reason.pk,
                 "address": {"bag_id": "foo bag ID"},
             },
@@ -313,10 +313,10 @@ class CaseCreatApiTest(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Case.objects.count(), 1)
 
-    def test_authenticated_post_create_fail_wrong_team(self):
-        """ Should not be able to create a case if a wrong team ID is given """
-        team = baker.make(CaseTeam)
-        reason = baker.make(CaseReason, team=team)
+    def test_authenticated_post_create_fail_wrong_theme(self):
+        """ Should not be able to create a case if a wrong theme ID is given """
+        theme = baker.make(CaseTheme)
+        reason = baker.make(CaseReason, theme=theme)
 
         url = reverse("cases-list")
         client = get_authenticated_client()
@@ -324,7 +324,7 @@ class CaseCreatApiTest(APITestCase):
             url,
             {
                 "description": "Foo",
-                "team": 10,
+                "theme": 10,
                 "reason": reason.pk,
                 "address": {"bag_id": "foo bag ID"},
             },
@@ -335,8 +335,8 @@ class CaseCreatApiTest(APITestCase):
         self.assertEquals(Case.objects.count(), 0)
 
     def test_authenticated_post_create_fail_wrong_reason(self):
-        """ Should not be able to create a case if a wrong team ID is given """
-        team = baker.make(CaseTeam)
+        """ Should not be able to create a case if a wrong theme ID is given """
+        theme = baker.make(CaseTheme)
 
         url = reverse("cases-list")
         client = get_authenticated_client()
@@ -344,7 +344,7 @@ class CaseCreatApiTest(APITestCase):
             url,
             {
                 "description": "Foo",
-                "team": team.pk,
+                "theme": theme.pk,
                 "reason": 10,
                 "address": {"bag_id": "foo bag ID"},
             },
@@ -354,13 +354,13 @@ class CaseCreatApiTest(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEquals(Case.objects.count(), 0)
 
-    def test_authenticated_post_create_wrong_team_reason_relation(self):
-        """ Request should fail if the CaseReason is not one of the given teams CaseReasons """
+    def test_authenticated_post_create_wrong_theme_reason_relation(self):
+        """ Request should fail if the CaseReason is not one of the given themes CaseReasons """
         self.assertEquals(Case.objects.count(), 0)
 
-        team_a = baker.make(CaseTeam)
-        team_b = baker.make(CaseTeam)
-        reason = baker.make(CaseReason, team=team_a)
+        theme_a = baker.make(CaseTheme)
+        theme_b = baker.make(CaseTheme)
+        reason = baker.make(CaseReason, theme=theme_a)
 
         url = reverse("cases-list")
         client = get_authenticated_client()
@@ -368,7 +368,7 @@ class CaseCreatApiTest(APITestCase):
             url,
             {
                 "description": "Foo",
-                "team": team_b.pk,
+                "theme": theme_b.pk,
                 "reason": reason.pk,
                 "address": {"bag_id": "foo bag ID"},
             },
@@ -384,8 +384,8 @@ class CaseCreatApiTest(APITestCase):
         """
         self.assertEquals(Case.objects.count(), 0)
 
-        team = baker.make(CaseTeam)
-        reason = baker.make(CaseReason, team=team)
+        theme = baker.make(CaseTheme)
+        reason = baker.make(CaseReason, theme=theme)
 
         url = reverse("cases-list")
         client = get_authenticated_client()
@@ -393,7 +393,7 @@ class CaseCreatApiTest(APITestCase):
             url,
             {
                 "description": "Foo",
-                "team": team.pk,
+                "theme": theme.pk,
                 "reason": reason.pk,
                 "address": {"bag_id": "foo bag ID"},
             },
@@ -406,19 +406,19 @@ class CaseCreatApiTest(APITestCase):
         self.assertEquals(case.author, test_user)
 
 
-class CaseTeamSummonTypeApiTest(APITestCase):
+class CaseThemeSummonTypeApiTest(APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
 
     def test_unauthenticated_get(self):
-        url = reverse("teams-summon-types", kwargs={"pk": 1})
+        url = reverse("themes-summon-types", kwargs={"pk": 1})
 
         client = get_unauthenticated_client()
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_authenticated_get_not_found(self):
-        url = reverse("teams-summon-types", kwargs={"pk": 1})
+        url = reverse("themes-summon-types", kwargs={"pk": 1})
 
         client = get_authenticated_client()
         response = client.get(url)
@@ -426,15 +426,15 @@ class CaseTeamSummonTypeApiTest(APITestCase):
 
     def test_authenticated_get(self):
         summon_type = baker.make(SummonType)
-        url = reverse("teams-summon-types", kwargs={"pk": summon_type.team.pk})
+        url = reverse("themes-summon-types", kwargs={"pk": summon_type.theme.pk})
 
         client = get_authenticated_client()
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_authenticated_get_empty(self):
-        team = baker.make(CaseTeam)
-        url = reverse("teams-summon-types", kwargs={"pk": team.pk})
+        theme = baker.make(CaseTheme)
+        url = reverse("themes-summon-types", kwargs={"pk": theme.pk})
 
         client = get_authenticated_client()
         response = client.get(url)
@@ -443,10 +443,10 @@ class CaseTeamSummonTypeApiTest(APITestCase):
         self.assertEqual(data["results"], [])
 
     def test_authenticated_get_list(self):
-        team = baker.make(CaseTeam)
-        baker.make(SummonType, team=team, _quantity=2)
+        theme = baker.make(CaseTheme)
+        baker.make(SummonType, theme=theme, _quantity=2)
 
-        url = reverse("teams-summon-types", kwargs={"pk": team.pk})
+        url = reverse("themes-summon-types", kwargs={"pk": theme.pk})
 
         client = get_authenticated_client()
         response = client.get(url)
@@ -610,30 +610,30 @@ class CaseSearchApiTest(APITestCase):
 
         self.assertEquals(len(data["results"]), 1)
 
-    def test_results_team_filter(self):
+    def test_results_theme_filter(self):
         """
-        Should only returns cases for the given team
+        Should only returns cases for the given theme
         """
         url = reverse("cases-search")
         client = get_authenticated_client()
 
         MOCK_STREET_NAME = "FOO STREET NAME"
         MOCK_STREET_NUMBER = 5
-        MOCK_TEAM = "The A-Team"
+        MOCK_THEME = "The A-Theme"
 
         address = baker.make(
             Address, street_name=MOCK_STREET_NAME, number=MOCK_STREET_NUMBER
         )
-        team_a = baker.make(CaseTeam, name=MOCK_TEAM)
-        team_b = baker.make(CaseTeam)
+        theme_a = baker.make(CaseTheme, name=MOCK_THEME)
+        theme_b = baker.make(CaseTheme)
 
-        baker.make(Case, team=team_a, address=address)
-        baker.make(Case, team=team_b, address=address)
+        baker.make(Case, theme=theme_a, address=address)
+        baker.make(Case, theme=theme_b, address=address)
 
         SEARCH_QUERY_PARAMETERS = {
             "streetName": MOCK_STREET_NAME,
             "streetNumber": MOCK_STREET_NUMBER,
-            "team": team_a.id,
+            "theme": theme_a.id,
         }
         response = client.get(url, SEARCH_QUERY_PARAMETERS)
         data = response.json()

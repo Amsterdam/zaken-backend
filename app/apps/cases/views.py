@@ -5,7 +5,7 @@ from apps.camunda.models import CamundaProcess
 from apps.camunda.serializers import CamundaProcessSerializer, CamundaTaskSerializer
 from apps.camunda.services import CamundaService
 from apps.cases.mock import mock
-from apps.cases.models import Case, CaseState, CaseTeam, CitizenReport
+from apps.cases.models import Case, CaseState, CaseTheme, CitizenReport
 from apps.cases.serializers import (
     CamundaStartProcessSerializer,
     CaseCreateUpdateSerializer,
@@ -13,7 +13,7 @@ from apps.cases.serializers import (
     CaseSerializer,
     CaseStateSerializer,
     CaseStateTypeSerializer,
-    CaseTeamSerializer,
+    CaseThemeSerializer,
     CitizenReportSerializer,
     PushCaseStateSerializer,
 )
@@ -27,10 +27,10 @@ from apps.cases.swagger_parameters import start_date as start_date_parameter
 from apps.cases.swagger_parameters import street_name as street_name_parameter
 from apps.cases.swagger_parameters import street_number as street_number_parameter
 from apps.cases.swagger_parameters import suffix as suffix_parameter
-from apps.cases.swagger_parameters import team as team_parameter
+from apps.cases.swagger_parameters import theme as theme_parameter
 from apps.decisions.serializers import DecisionTypeSerializer
 from apps.events.mixins import CaseEventsMixin
-from apps.schedules.serializers import TeamScheduleTypesSerializer
+from apps.schedules.serializers import ThemeScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
 from django.conf import settings
@@ -116,7 +116,7 @@ class CaseViewSet(
             date_parameter,
             start_date_parameter,
             open_cases_parameter,
-            team_parameter,
+            theme_parameter,
             reason_parameter,
             open_status_parameter,
             no_pagination_parameter,
@@ -128,7 +128,7 @@ class CaseViewSet(
         date = request.GET.get(date_parameter.name, None)
         start_date = request.GET.get(start_date_parameter.name, None)
         open_cases = request.GET.get(open_cases_parameter.name, None)
-        team = request.GET.get(team_parameter.name, None)
+        theme = request.GET.get(theme_parameter.name, None)
         reason = request.GET.get(reason_parameter.name, None)
         open_status = request.GET.get(open_status_parameter.name, None)
         no_pagination = request.GET.get(no_pagination_parameter.name, None)
@@ -142,8 +142,8 @@ class CaseViewSet(
         if open_cases:
             open_cases = open_cases == "true"
             queryset = queryset.filter(end_date__isnull=open_cases)
-        if team:
-            queryset = queryset.filter(team=team)
+        if theme:
+            queryset = queryset.filter(theme=theme)
         if reason:
             queryset = queryset.filter(reason=reason)
         if open_status:
@@ -168,7 +168,7 @@ class CaseViewSet(
             street_number_parameter,
             street_name_parameter,
             suffix_parameter,
-            team_parameter,
+            theme_parameter,
         ],
         description="Search query parameters",
         responses={200: CaseSerializer(many=True)},
@@ -180,7 +180,7 @@ class CaseViewSet(
         street_name = request.GET.get(street_name_parameter.name, None)
         number = request.GET.get(street_number_parameter.name, None)
         suffix = request.GET.get(suffix_parameter.name, None)
-        team = request.GET.get(team_parameter.name, None)
+        theme = request.GET.get(theme_parameter.name, None)
 
         if postal_code is None and street_name is None:
             return HttpResponseBadRequest(
@@ -204,8 +204,8 @@ class CaseViewSet(
 
         cases = cases.filter(end_date=None)
 
-        if team:
-            cases = cases.filter(team=team)
+        if theme:
+            cases = cases.filter(theme=theme)
 
         paginator = PageNumberPagination()
         context = paginator.paginate_queryset(cases, request)
@@ -352,13 +352,13 @@ class CaseViewSet(
         )
 
 
-class CaseTeamViewSet(ListAPIView, viewsets.ViewSet):
+class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
     permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
-    serializer_class = CaseTeamSerializer
-    queryset = CaseTeam.objects.all()
+    serializer_class = CaseThemeSerializer
+    queryset = CaseTheme.objects.all()
 
     @extend_schema(
-        description="Gets the reasons associated with the requested team",
+        description="Gets the reasons associated with the requested theme",
         responses={status.HTTP_200_OK: CaseReasonSerializer(many=True)},
     )
     @action(
@@ -368,8 +368,8 @@ class CaseTeamViewSet(ListAPIView, viewsets.ViewSet):
     )
     def reasons(self, request, pk):
         paginator = PageNumberPagination()
-        team = self.get_object()
-        query_set = team.reasons.all()
+        theme = self.get_object()
+        query_set = theme.reasons.all()
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = CaseReasonSerializer(context, many=True)
@@ -377,7 +377,7 @@ class CaseTeamViewSet(ListAPIView, viewsets.ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
     @extend_schema(
-        description="Gets the SummonTypes associated with the given team",
+        description="Gets the SummonTypes associated with the given theme",
         responses={status.HTTP_200_OK: SummonTypeSerializer(many=True)},
     )
     @action(
@@ -387,8 +387,8 @@ class CaseTeamViewSet(ListAPIView, viewsets.ViewSet):
     )
     def summon_types(self, request, pk):
         paginator = PageNumberPagination()
-        team = self.get_object()
-        query_set = team.summon_types.all()
+        theme = self.get_object()
+        query_set = theme.summon_types.all()
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = SummonTypeSerializer(context, many=True)
@@ -396,7 +396,7 @@ class CaseTeamViewSet(ListAPIView, viewsets.ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
     @extend_schema(
-        description="Gets the DecisionTypes associated with the given team",
+        description="Gets the DecisionTypes associated with the given theme",
         responses={status.HTTP_200_OK: DecisionTypeSerializer(many=True)},
     )
     @action(
@@ -406,8 +406,8 @@ class CaseTeamViewSet(ListAPIView, viewsets.ViewSet):
     )
     def decision_types(self, request, pk):
         paginator = PageNumberPagination()
-        team = self.get_object()
-        query_set = team.decision_types.all()
+        theme = self.get_object()
+        query_set = theme.decision_types.all()
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = DecisionTypeSerializer(context, many=True)
@@ -415,8 +415,8 @@ class CaseTeamViewSet(ListAPIView, viewsets.ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
     @extend_schema(
-        description="Gets the Scheduling Types associated with the given team",
-        responses={status.HTTP_200_OK: TeamScheduleTypesSerializer(many=True)},
+        description="Gets the Scheduling Types associated with the given theme",
+        responses={status.HTTP_200_OK: ThemeScheduleTypesSerializer(many=True)},
     )
     @action(
         detail=True,
@@ -424,12 +424,12 @@ class CaseTeamViewSet(ListAPIView, viewsets.ViewSet):
         methods=["get"],
     )
     def schedule_types(self, request, pk):
-        team = self.get_object()
-        serializer = TeamScheduleTypesSerializer(team)
+        theme = self.get_object()
+        serializer = ThemeScheduleTypesSerializer(theme)
         return Response(serializer.data)
 
     @extend_schema(
-        description="Gets the CaseStateTypes associated with the given team",
+        description="Gets the CaseStateTypes associated with the given theme",
         responses={status.HTTP_200_OK: CaseStateTypeSerializer(many=True)},
     )
     @action(
@@ -439,8 +439,8 @@ class CaseTeamViewSet(ListAPIView, viewsets.ViewSet):
     )
     def state_types(self, request, pk):
         paginator = PageNumberPagination()
-        team = self.get_object()
-        query_set = team.state_types.all()
+        theme = self.get_object()
+        query_set = theme.state_types.all()
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = CaseStateTypeSerializer(context, many=True)
