@@ -7,11 +7,8 @@ class DebriefingCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Debriefing
-        fields = (
-            "id",
-            "author",
-            "violation",
-            "feedback",
-            "case",
-        )
+        exclude = [
+            "date_added",
+            "date_modified",
+        ]
         read_only_fields = ("id",)

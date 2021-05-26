@@ -1,6 +1,5 @@
-from apps.cases.signals import (
+from apps.cases.signals import (  # create_case_instance_in_openzaak,
     create_case_instance_in_camunda,
-    create_case_instance_in_openzaak,
 )
 from django.db.models import signals
 from django.test import TestCase
@@ -16,7 +15,7 @@ class CaseSignalsTest(TestCase):
         registered_functions = self.__get_registered_functions__()
         self.assertIn(create_case_instance_in_camunda, registered_functions)
 
-    def test_open_zaak_signal_connected(self):
-        """ Tests if the openzaak signal is registered """
-        registered_functions = self.__get_registered_functions__()
-        self.assertIn(create_case_instance_in_openzaak, registered_functions)
+    # def test_open_zaak_signal_connected(self):
+    #     """ Tests if the openzaak signal is registered """
+    #     registered_functions = self.__get_registered_functions__()
+    #     self.assertIn(create_case_instance_in_openzaak, registered_functions)
