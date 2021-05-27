@@ -1,4 +1,4 @@
-from apps.cases.models import CaseTeam
+from apps.cases.models import CaseTheme
 from apps.schedules.models import Action, DaySegment, Priority, Schedule, WeekSegment
 from rest_framework import serializers
 
@@ -47,6 +47,7 @@ class ScheduleCreateSerializer(serializers.ModelSerializer):
             "day_segment",
             "priority",
             "case",
+            "camunda_task_id",
         )
         read_only_fields = ("id",)
 
@@ -59,12 +60,12 @@ class ScheduleCreateSerializer(serializers.ModelSerializer):
         return schedule
 
 
-class TeamScheduleTypesSerializer(serializers.ModelSerializer):
+class ThemeScheduleTypesSerializer(serializers.ModelSerializer):
     actions = ActionSerializer(many=True)
     week_segments = WeekSegmentSerializer(many=True)
     day_segments = DaySegmentSerializer(many=True)
     priorities = PrioritySerializer(many=True)
 
     class Meta:
-        model = CaseTeam
+        model = CaseTheme
         fields = ["actions", "week_segments", "day_segments", "priorities"]

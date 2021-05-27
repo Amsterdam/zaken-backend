@@ -380,7 +380,7 @@ CACHES = {
 
 LOGOUT_REDIRECT_URL = "/admin"
 
-DEFAULT_TEAM = os.getenv("DEFAULT_TEAM", "Vakantieverhuur")
+DEFAULT_THEME = os.getenv("DEFAULT_THEME", "Vakantieverhuur")
 DEFAULT_REASON = os.getenv("DEFAULT_REASON", "Melding")
 
 DEFAULT_SCHEDULE_ACTIONS = os.getenv("DEFAULT_SCHEDULE_ACTIONS").split(",")

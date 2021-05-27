@@ -1,14 +1,14 @@
 import uuid
 
 from apps.addresses.models import Address
-from apps.events.models import CaseEvent, ModelEventEmitter
+from apps.events.models import CaseEvent, ModelEventEmitter, TaskModelEventEmitter
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
 
-class CaseTeam(models.Model):
+class CaseTheme(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
@@ -20,8 +20,8 @@ class CaseTeam(models.Model):
 
 class CaseReason(models.Model):
     name = models.CharField(max_length=255)
-    team = models.ForeignKey(
-        to=CaseTeam, related_name="reasons", on_delete=models.CASCADE
+    theme = models.ForeignKey(
+        to=CaseTheme, related_name="reasons", on_delete=models.CASCADE
     )
 
     def __str__(self):
@@ -51,7 +51,7 @@ class Case(ModelEventEmitter):
     camunda_ids = ArrayField(
         models.CharField(max_length=255), default=list, null=True, blank=True
     )
-    team = models.ForeignKey(to=CaseTeam, on_delete=models.PROTECT)
+    theme = models.ForeignKey(to=CaseTheme, on_delete=models.PROTECT)
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT
     )
@@ -92,7 +92,7 @@ class Case(ModelEventEmitter):
 
     def set_state(self, state_name):
         state_type, _ = CaseStateType.objects.get_or_create(
-            name=state_name, team=self.team
+            name=state_name, theme=self.theme
         )
         state = CaseState.objects.create(case=self, status=state_type)
 
@@ -121,16 +121,16 @@ class Case(ModelEventEmitter):
 
 
 class CaseStateType(models.Model):
-    def default_team():
-        team, _ = CaseTeam.objects.get_or_create(name=settings.DEFAULT_TEAM)
-        return team.id
+    def default_theme():
+        theme, _ = CaseTheme.objects.get_or_create(name=settings.DEFAULT_THEME)
+        return theme.id
 
     name = models.CharField(max_length=255, unique=True)
-    team = models.ForeignKey(
-        to=CaseTeam,
+    theme = models.ForeignKey(
+        to=CaseTheme,
         related_name="state_types",
         on_delete=models.CASCADE,
-        default=default_team,
+        default=default_theme,
     )
 
     def __str__(self):
@@ -173,13 +173,12 @@ class CaseState(models.Model):
 #         return self.name
 
 
-class CitizenReport(ModelEventEmitter):
+class CitizenReport(TaskModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CITIZEN_REPORT
 
     case = models.ForeignKey(
         Case, related_name="case_citizen_reports", on_delete=models.CASCADE
     )
-    camunda_task_id = models.CharField(max_length=50, null=True, blank=True)
     reporter_name = models.CharField(max_length=50, null=True, blank=True)
     reporter_phone = models.CharField(max_length=50, null=True, blank=True)
     identification = models.PositiveIntegerField()

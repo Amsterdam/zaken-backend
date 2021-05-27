@@ -1,6 +1,6 @@
 from apps.addresses.views import AddressViewSet
 from apps.camunda.views import CamundaTaskViewSet, CamundaWorkerViewSet, TaskViewSet
-from apps.cases.views import CaseStateViewSet, CaseTeamViewSet, CaseViewSet
+from apps.cases.views import CaseStateViewSet, CaseThemeViewSet, CaseViewSet
 from apps.debriefings.views import DebriefingViewSet
 from apps.decisions.views import DecisionViewSet
 from apps.fines.views import FinesViewSet
@@ -23,7 +23,7 @@ router.register(r"addresses", AddressViewSet, basename="addresses")
 router.register(r"cases", CaseViewSet, basename="cases")
 router.register(r"tasks", TaskViewSet, basename="tasks")
 router.register(r"case-states", CaseStateViewSet, basename="case-states")
-router.register(r"teams", CaseTeamViewSet, basename="teams")
+router.register(r"themes", CaseThemeViewSet, basename="themes")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")
 router.register(r"decisions", DecisionViewSet, basename="decisions")
 router.register(r"push", PushViewSet, basename="push")

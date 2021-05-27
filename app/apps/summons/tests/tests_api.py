@@ -33,7 +33,7 @@ class SummonCreateAPITest(APITestCase):
         self.assertEquals(Summon.objects.count(), 0)
 
         case = baker.make(Case)
-        summon_type = baker.make(SummonType, team=case.team)
+        summon_type = baker.make(SummonType, theme=case.theme)
 
         data = {
             "description": "foo_description",
@@ -59,7 +59,7 @@ class SummonCreateAPITest(APITestCase):
         self.assertEquals(SummonedPerson.objects.count(), 0)
 
         case = baker.make(Case)
-        summon_type = baker.make(SummonType, team=case.team)
+        summon_type = baker.make(SummonType, theme=case.theme)
 
         data = {
             "description": "foo_description",
@@ -88,7 +88,7 @@ class SummonCreateAPITest(APITestCase):
         self.assertEquals(SummonedPerson.objects.count(), 0)
 
         case = baker.make(Case)
-        summon_type = baker.make(SummonType, team=case.team)
+        summon_type = baker.make(SummonType, theme=case.theme)
 
         PREPOSITION = "foo_preposition"
         data = {
@@ -121,7 +121,7 @@ class SummonCreateAPITest(APITestCase):
         self.assertEquals(SummonedPerson.objects.count(), 0)
 
         case = baker.make(Case)
-        summon_type = baker.make(SummonType, team=case.team)
+        summon_type = baker.make(SummonType, theme=case.theme)
 
         data = {
             "description": "foo_description",
@@ -152,7 +152,7 @@ class SummonCreateAPITest(APITestCase):
         self.assertEquals(SummonedPerson.objects.count(), 0)
 
         case = baker.make(Case)
-        summon_type = baker.make(SummonType, team=case.team)
+        summon_type = baker.make(SummonType, theme=case.theme)
 
         data = {
             "description": "foo_description",
@@ -182,7 +182,7 @@ class SummonCreateAPITest(APITestCase):
         self.assertEquals(Summon.objects.count(), 0)
 
         case = baker.make(Case)
-        summon_type = baker.make(SummonType, team=case.team)
+        summon_type = baker.make(SummonType, theme=case.theme)
 
         data = {
             "description": "foo_description",

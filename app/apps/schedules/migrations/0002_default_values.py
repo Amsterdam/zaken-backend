@@ -6,27 +6,27 @@ from django.db import migrations
 
 def add_default_values(apps, schema_editor):
     CaseTeam = apps.get_model("cases", "CaseTeam")
-    default_team, _ = CaseTeam.objects.get_or_create(name=settings.DEFAULT_TEAM)
+    default_theme, _ = CaseTeam.objects.get_or_create(name=settings.DEFAULT_THEME)
 
     ScheduleType = apps.get_model("schedules", "ScheduleType")
 
     for schedule_type in settings.DEFAULT_SCHEDULE_ACTIONS:
-        ScheduleType.objects.get_or_create(name=schedule_type, team=default_team)
+        ScheduleType.objects.get_or_create(name=schedule_type, team=default_theme)
 
     WeekSegment = apps.get_model("schedules", "WeekSegment")
     for week_segment in settings.DEFAULT_SCHEDULE_WEEK_SEGMENTS:
-        WeekSegment.objects.get_or_create(name=week_segment, team=default_team)
+        WeekSegment.objects.get_or_create(name=week_segment, team=default_theme)
 
     DaySegment = apps.get_model("schedules", "DaySegment")
     for day_segment in settings.DEFAULT_SCHEDULE_DAY_SEGMENTS:
-        DaySegment.objects.get_or_create(name=day_segment, team=default_team)
+        DaySegment.objects.get_or_create(name=day_segment, team=default_theme)
 
     Priority = apps.get_model("schedules", "Priority")
     Priority.objects.get_or_create(
-        name=settings.DEFAULT_SCHEDULE_HIGH_PRIORITY, team=default_team, weight=1
+        name=settings.DEFAULT_SCHEDULE_HIGH_PRIORITY, team=default_theme, weight=1
     )
     Priority.objects.get_or_create(
-        name=settings.DEFAULT_SCHEDULE_NORMAL_PRIORITY, team=default_team, weight=0
+        name=settings.DEFAULT_SCHEDULE_NORMAL_PRIORITY, team=default_theme, weight=0
     )
 
 

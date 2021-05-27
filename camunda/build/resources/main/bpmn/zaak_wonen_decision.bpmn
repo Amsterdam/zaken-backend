@@ -123,7 +123,7 @@
           <camunda:formField id="type_besluit" label="Wat voor een besluit neem je" type="enum">
             <camunda:value id="boete" name="Boete" />
             <camunda:value id="invordering_dwangsom" name="Invordering dwangsom" />
-            <camunda:value id="meldplicht_beschikking_boete" name="Meldplicht beschikking dwangsom" />
+            <camunda:value id="meldplicht_beschikking_boete" name="Meldplicht beschikking boete" />
             <camunda:value id="preventieve_last" name="Preventieve last" />
             <camunda:value id="last_onder_dwangsom" name="Last onder dwangsom" />
             <camunda:value id="intrekken_vv_vergunning" name="Intrekken VV vergunning" />

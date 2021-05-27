@@ -3,7 +3,7 @@ from apps.cases.models import (
     CaseReason,
     CaseState,
     CaseStateType,
-    CaseTeam,
+    CaseTheme,
     CitizenReport,
 )
 from django.contrib import admin
@@ -35,5 +35,5 @@ class CitizenReportAdmin(admin.ModelAdmin):
 
 
 admin.site.register(CaseStateType, admin.ModelAdmin)
-admin.site.register(CaseTeam, admin.ModelAdmin)
+admin.site.register(CaseTheme, admin.ModelAdmin)
 admin.site.register(CaseReason, admin.ModelAdmin)

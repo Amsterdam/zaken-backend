@@ -91,3 +91,10 @@ class ModelEventEmitter(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.__emit_event__()
+
+
+class TaskModelEventEmitter(ModelEventEmitter):
+    camunda_task_id = models.CharField(max_length=255, default="-1")
+
+    class Meta:
+        abstract = True

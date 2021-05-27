@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
     def delete_case_type(self):
         ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
-        results = ztc_client.list("zaaktype", {"identificatie": settings.DEFAULT_TEAM})
+        results = ztc_client.list("zaaktype", {"identificatie": settings.DEFAULT_THEME})
 
         for result in results["results"]:
             url = result["url"]

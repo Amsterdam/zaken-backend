@@ -1,7 +1,7 @@
 from datetime import date, datetime, timezone
 from uuid import UUID
 
-from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTeam
+from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTheme
 from django.core import management
 from django.test import TestCase
 from freezegun import freeze_time
@@ -67,17 +67,17 @@ class CaseStateModelTest(TestCase):
         self.assertEquals(case_state.end_date, date(2019, 12, 25))
 
 
-class CaseTeamModelTest(TestCase):
+class CaseThemeModelTest(TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
 
-    def test_can_create_team(self):
-        """ Tests TeamModel object creation """
-        self.assertEquals(CaseTeam.objects.count(), 0)
+    def test_can_create_theme(self):
+        """ Tests ThemeModel object creation """
+        self.assertEquals(CaseTheme.objects.count(), 0)
 
-        baker.make(CaseTeam)
+        baker.make(CaseTheme)
 
-        self.assertEquals(CaseTeam.objects.count(), 1)
+        self.assertEquals(CaseTheme.objects.count(), 1)
 
 
 class CaseReasonModelTest(TestCase):
@@ -86,18 +86,18 @@ class CaseReasonModelTest(TestCase):
 
     def test_can_create_reason(self):
         """ Tests CaseReason object creation """
-        self.assertEquals(CaseTeam.objects.count(), 0)
+        self.assertEquals(CaseTheme.objects.count(), 0)
 
         baker.make(CaseReason)
 
         self.assertEquals(CaseReason.objects.count(), 1)
 
-    def test_teams_has_multiple_reasons(self):
-        """ Tests reverse access of case reasons through the team object """
-        team = baker.make(CaseTeam)
-        baker.make(CaseReason, team=team, _quantity=2)
+    def test_themes_has_multiple_reasons(self):
+        """ Tests reverse access of case reasons through the theme object """
+        theme = baker.make(CaseTheme)
+        baker.make(CaseReason, theme=theme, _quantity=2)
 
-        self.assertEquals(team.reasons.count(), 2)
+        self.assertEquals(theme.reasons.count(), 2)
 
 
 class CaseModelTest(TestCase):

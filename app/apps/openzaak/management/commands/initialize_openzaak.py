@@ -77,7 +77,7 @@ class Command(BaseCommand):
     def create_case_type(self):
         logger.info("Attempting to create case type...")
         ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
-        results = ztc_client.list("zaaktype", {"identificatie": settings.DEFAULT_TEAM})
+        results = ztc_client.list("zaaktype", {"identificatie": settings.DEFAULT_THEME})
 
         logger.info(results)
 
@@ -88,15 +88,15 @@ class Command(BaseCommand):
             today = date.today().strftime("%Y-%m-%d")
 
             body = {
-                "identificatie": settings.DEFAULT_TEAM,
-                "omschrijving": settings.DEFAULT_TEAM,
+                "identificatie": settings.DEFAULT_THEME,
+                "omschrijving": settings.DEFAULT_THEME,
                 "vertrouwelijkheidaanduiding": "vertrouwelijk",
-                "doel": settings.DEFAULT_TEAM,
-                "aanleiding": settings.DEFAULT_TEAM,
+                "doel": settings.DEFAULT_THEME,
+                "aanleiding": settings.DEFAULT_THEME,
                 "indicatieInternOfExtern": "intern",
-                "handelingInitiator": settings.DEFAULT_TEAM,
-                "onderwerp": settings.DEFAULT_TEAM,
-                "handelingBehandelaar": settings.DEFAULT_TEAM,
+                "handelingInitiator": settings.DEFAULT_THEME,
+                "onderwerp": settings.DEFAULT_THEME,
+                "handelingBehandelaar": settings.DEFAULT_THEME,
                 "doorlooptijd": "P1Y0M0D",
                 "opschortingEnAanhoudingMogelijk": True,
                 "verlengingMogelijk": False,
@@ -104,7 +104,7 @@ class Command(BaseCommand):
                 "productenOfDiensten": [
                     "http://www.amsterdam.nl",
                 ],
-                "referentieproces": {"naam": settings.DEFAULT_TEAM},
+                "referentieproces": {"naam": settings.DEFAULT_THEME},
                 "catalogus": catalogus["url"],
                 "besluittypen": [],
                 "gerelateerdeZaaktypen": [],
