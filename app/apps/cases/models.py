@@ -90,11 +90,16 @@ class Case(ModelEventEmitter):
     def get_current_states(self):
         return self.case_states.filter(end_date__isnull=True)
 
-    def set_state(self, state_name):
+    def set_state(self, state_name, case_process_id, information="", *args, **kwargs):
         state_type, _ = CaseStateType.objects.get_or_create(
             name=state_name, theme=self.theme
         )
-        state = CaseState.objects.create(case=self, status=state_type)
+        state = CaseState.objects.create(
+            case=self,
+            status=state_type,
+            information=information,
+            case_process_id=case_process_id,
+        )
 
         return state
 
@@ -145,6 +150,8 @@ class CaseState(models.Model):
     users = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="case_states", related_query_name="users"
     )
+    information = models.CharField(max_length=255, null=True, blank=True)
+    case_process_id = models.CharField(max_length=255, null=True, default="")
 
     def __str__(self):
         return f"{self.start_date} - {self.end_date} - {self.case.identification} - {self.status.name}"
@@ -164,6 +171,17 @@ class CaseState(models.Model):
 
     class Meta:
         ordering = ["start_date"]
+
+
+class CaseProcessInstance(models.Model):
+    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    process_id = models.CharField(max_length=255, default=uuid.uuid4, unique=True)
+    camunda_process_id = models.CharField(
+        max_length=255, unique=True, blank=True, null=True
+    )
+
+    def __str__(self):
+        return f"Case {self.case.id} - {self.process_id}"
 
 
 # class CaseCloseReason(models.Model):

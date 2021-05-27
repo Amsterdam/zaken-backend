@@ -1,6 +1,7 @@
 from apps.addresses.serializers import AddressSerializer
 from apps.camunda.models import CamundaProcess
 from apps.cases.models import Case, CaseState
+from apps.cases.serializers import CaseStateSerializer
 from rest_framework import serializers
 
 
@@ -12,8 +13,12 @@ class CamundaStateWorkerSerializer(serializers.Serializer):
     state = serializers.CharField()
     case_identification = serializers.CharField()
     information = serializers.CharField(required=False, default="")
+    case_process_id = serializers.CharField(max_length=255)
 
     def validate(self, data):
+        # import pdb
+
+        # pdb.set_trace()
         try:
             Case.objects.get(id=data["case_identification"])
         except Case.DoesNotExist:
@@ -23,11 +28,17 @@ class CamundaStateWorkerSerializer(serializers.Serializer):
         return data
 
     def create(self, validated_data):
+        # import pdb
+
+        # pdb.set_trace()
+
         state_name = validated_data["state"]
         case_identification = validated_data["case_identification"]
+        information = validated_data["information"]
+        case_process_id = validated_data["case_process_id"]
 
         case = Case.objects.get(id=case_identification)
-        state = case.set_state(state_name)
+        state = case.set_state(state_name, case_process_id, information)
 
         return state
 
@@ -66,6 +77,11 @@ class CamundaTaskSerializer(CamundaBaseTaskSerializer):
     form = serializers.JSONField()
     render_form = serializers.CharField()
     form_variables = serializers.JSONField()
+
+
+class CamundaTaskWithStateSerializer(serializers.Serializer):
+    state = CaseStateSerializer()
+    tasks = CamundaTaskSerializer(many=True)
 
 
 class CamundaCaseAddressSerializer(serializers.ModelSerializer):

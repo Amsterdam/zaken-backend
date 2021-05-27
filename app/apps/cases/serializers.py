@@ -59,6 +59,7 @@ class CaseStateSerializer(serializers.ModelSerializer):
             "start_date",
             "end_date",
             "users",
+            "case_process_id",
         ]
 
 

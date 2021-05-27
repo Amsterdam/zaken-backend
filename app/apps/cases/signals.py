@@ -1,4 +1,3 @@
-import json
 import logging
 import sys
 
@@ -15,24 +14,22 @@ logger = logging.getLogger(__name__)
 @receiver(post_save, sender=Case, dispatch_uid="case_init_in_camunda")
 def create_case_instance_in_camunda(sender, instance, created, **kwargs):
     if created and "test" not in sys.argv:
-        request_body = json.dumps(
-            {
-                "variables": {
-                    "zaken_access_token": {
-                        "value": settings.CAMUNDA_SECRET_KEY,
-                        "type": "String",
-                    },
-                    "case_identification": {
-                        "value": str(instance.id),
-                        "type": "String",
-                    },
-                    "endpoint": {
-                        "value": settings.ZAKEN_CONTAINER_HOST,
-                        "type": "String",
-                    },
+        request_body = {
+            "variables": {
+                "zaken_access_token": {
+                    "value": settings.CAMUNDA_SECRET_KEY,
+                    "type": "String",
                 },
-            }
-        )
+                "case_identification": {
+                    "value": str(instance.id),
+                    "type": "String",
+                },
+                "endpoint": {
+                    "value": settings.ZAKEN_CONTAINER_HOST,
+                    "type": "String",
+                },
+            },
+        }
         start_camunda_instance(identification=instance.id, request_body=request_body)
 
 
