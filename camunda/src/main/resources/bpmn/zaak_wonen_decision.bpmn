@@ -95,7 +95,7 @@
       <bpmn:incoming>Flow_1boz1xa</bpmn:incoming>
       <bpmn:outgoing>Flow_1r2nz2z</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_14kdv7u" name="Versturen invordering" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="Activity_14kdv7u" name="Versturen invordering belastingen" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_15jrvwj</bpmn:incoming>
       <bpmn:outgoing>Flow_10vmiho</bpmn:outgoing>
     </bpmn:userTask>
