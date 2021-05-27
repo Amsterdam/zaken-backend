@@ -18,10 +18,6 @@ def start_camunda_instance(self, identification, request_body):
         case_identification=str(identification), request_body=request_body
     )
 
-    import pdb
-
-    pdb.set_trace()
-
     if camunda_id:
         case_process_instance.camunda_process_id = camunda_id
         case = case.add_camunda_id(camunda_id)
