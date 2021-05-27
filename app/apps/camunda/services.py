@@ -140,7 +140,7 @@ class CamundaService:
         logger.info("Starting camunda process instance")
 
         response = self._process_request(
-            request_path, request_body=request_body, post=True
+            request_path, request_body=json.dumps(request_body), post=True
         )
 
         if response.ok:

@@ -2,7 +2,11 @@ import logging
 
 from apps.addresses.utils import search
 from apps.camunda.models import CamundaProcess
-from apps.camunda.serializers import CamundaProcessSerializer, CamundaTaskSerializer
+from apps.camunda.serializers import (
+    CamundaProcessSerializer,
+    CamundaTaskSerializer,
+    CamundaTaskWithStateSerializer,
+)
 from apps.camunda.services import CamundaService
 from apps.cases.mock import mock
 from apps.cases.models import Case, CaseState, CaseTheme, CitizenReport
@@ -227,18 +231,25 @@ class CaseViewSet(
 
     @extend_schema(
         description="Get Camunda tasks for this Case",
-        responses={status.HTTP_200_OK: CamundaTaskSerializer(many=True)},
+        responses={status.HTTP_200_OK: CamundaTaskWithStateSerializer(many=True)},
     )
     @action(detail=True, methods=["get"], url_path="tasks")
     def get_tasks(self, request, pk):
         case = self.get_object()
         camunda_tasks = []
 
-        for camunda_id in case.camunda_ids:
-            tasks = CamundaService().get_all_tasks_by_instance_id(camunda_id)
+        for process in case.caseprocessinstance_set.all():
+            try:
+                state = CaseState.objects.get(case_process_id=process.process_id)
 
-            if tasks:
-                camunda_tasks.extend(tasks)
+                tasks = CamundaService().get_all_tasks_by_instance_id(
+                    process.camunda_process_id
+                )
+
+                if tasks:
+                    camunda_tasks.extend([{"state": state, "tasks": tasks}])
+            except CaseState.DoesNotExist:
+                pass
 
         # Camunda tasks can be an empty list or boolean. TODO: This should just be one datatype
         if camunda_tasks is False:
@@ -247,7 +258,7 @@ class CaseViewSet(
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
-        serializer = CamundaTaskSerializer(camunda_tasks, many=True)
+        serializer = CamundaTaskWithStateSerializer(camunda_tasks, many=True)
         return Response(serializer.data)
 
     @extend_schema(
