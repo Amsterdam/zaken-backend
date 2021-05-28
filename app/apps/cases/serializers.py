@@ -51,16 +51,7 @@ class CaseStateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CaseState
-        fields = [
-            "id",
-            "case",
-            "status_name",
-            "status",
-            "start_date",
-            "end_date",
-            "users",
-            "case_process_id",
-        ]
+        fields = "__all__"
 
 
 class CaseSerializer(serializers.ModelSerializer):
