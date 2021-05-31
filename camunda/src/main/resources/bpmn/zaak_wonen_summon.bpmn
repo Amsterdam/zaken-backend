@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_1t5ylmo">
     <bpmn:participant id="Participant_1ciseh2" name="Process" processRef="zaak_wonen_summon" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_summon" name="Zaak Wonen VakantieVerhuur - Aanschrijving" isExecutable="true" camunda:versionTag="0.0.7">
+  <bpmn:process id="zaak_wonen_summon" name="Zaak Wonen VakantieVerhuur - Aanschrijving" isExecutable="true" camunda:versionTag="0.1.0">
     <bpmn:laneSet id="LaneSet_0iy1emi">
       <bpmn:lane id="Lane_0ku7kbe" name="Projectmedewerker, Projecthandhaver">
         <bpmn:flowNodeRef>Activity_0t0wwb4</bpmn:flowNodeRef>
@@ -40,13 +40,13 @@
         <bpmn:flowNodeRef>start_decision_process</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0zw90ih</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1t6r1v4</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_0ma57of</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_13bywna</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0ysomyy</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1mvz8v7</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>start_renounce_intention</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_create_summon</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>start_event_create_summon</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0ma57of</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1o6yxo7" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_1e9dx60</bpmn:flowNodeRef>
@@ -66,7 +66,7 @@
     <bpmn:sequenceFlow id="Flow_18sph1h" name="Gelegaliseerd wacht op andere aanschrijving" sourceRef="Gateway_0puuu8q" targetRef="Event_1pgrt7r">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${next_step=="legalisatietraject"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1eszwat" name="X" sourceRef="Gateway_0puuu8q" targetRef="Activity_1j9qmld">
+    <bpmn:sequenceFlow id="Flow_1eszwat" sourceRef="Gateway_0puuu8q" targetRef="Activity_1j9qmld">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${next_step=="afsluiten_zaak"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_10zlmsl" name="" sourceRef="Gateway_0puuu8q" targetRef="Activity_1o8bq7o">
@@ -247,8 +247,10 @@
         <camunda:connector>
           <camunda:inputOutput>
             <camunda:inputParameter name="payload">{
-"state": "Zienswijze ${names}",
-"case_identification": ${case_identification}
+"state": "Zienswijze",
+"case_identification": ${case_identification},
+"information": "${names}",
+"process_instance_id": "1"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -308,7 +310,8 @@
         "zaken_access_token": {"value": "${zaken_access_token}"},
 				"endpoint": {"value": "${endpoint}"}
     },
-    "case_identification": "${case_identification}"
+    "case_identification": "${case_identification}",
+"case_process_id": "${case_process_id}"
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
@@ -356,37 +359,6 @@
       <bpmn:outgoing>Flow_025eea2</bpmn:outgoing>
       <bpmn:outgoing>Flow_0jcg14m</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="Activity_0ma57of" name="Status bijwerken: &#34;Vergunnings check  {names}&#34;">
-      <bpmn:extensionElements>
-        <camunda:connector>
-          <camunda:inputOutput>
-            <camunda:inputParameter name="payload">{
-    "message_name": "start_decision_process",
-    "process_variables": {
-        "case_identification": {
-            "value": ${case_identification},
-        },
-        "zaken_access_token": {
-            "value": ${zaken_access_token},
-        }
-    }
-}</camunda:inputParameter>
-            <camunda:inputParameter name="headers">
-              <camunda:map>
-                <camunda:entry key="content-type">application/json</camunda:entry>
-                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
-              </camunda:map>
-            </camunda:inputParameter>
-            <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
-            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
-          </camunda:inputOutput>
-          <camunda:connectorId>http-connector</camunda:connectorId>
-        </camunda:connector>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0p4fa1b</bpmn:incoming>
-      <bpmn:outgoing>Flow_1kedpc9</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_06je06y" sourceRef="start_event_create_summon" targetRef="task_create_summon" />
     <bpmn:sequenceFlow id="Flow_0p4fa1b" name="type_aanschrijving = legalisatie brief" sourceRef="Gateway_1t6r1v4" targetRef="Activity_0ma57of">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${type_aanschrijving=="legalisatie-brief"}</bpmn:conditionExpression>
@@ -454,11 +426,38 @@
           <camunda:formField id="case_identification" label="Wat is de ID van de zaak?" type="string" />
           <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
           <camunda:formField id="zaken_access_token" type="string" />
+          <camunda:formField id="case_process_id" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_06je06y</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1oicc10" messageRef="Message_14wp5u8" />
     </bpmn:startEvent>
+    <bpmn:serviceTask id="Activity_0ma57of" name="Status bijwerken: &#34;Vergunningscheck&#34;">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state": "Vergunningscheck",
+"case_identification": ${case_identification},
+"information": "Aangeschreven personen: ${names}",
+"process_instance_id": "2"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
+            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0p4fa1b</bpmn:incoming>
+      <bpmn:outgoing>Flow_1kedpc9</bpmn:outgoing>
+    </bpmn:serviceTask>
     <bpmn:textAnnotation id="TextAnnotation_1gb87eu">
       <bpmn:text>Opstellen concept aanschrijving</bpmn:text>
     </bpmn:textAnnotation>
@@ -880,9 +879,6 @@ EN FORM</bpmn:text>
           <dc:Bounds x="362" y="550" width="76" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0ma57of_di" bpmnElement="Activity_0ma57of">
-        <dc:Bounds x="650" y="590" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_13bywna_di" bpmnElement="Event_13bywna">
         <dc:Bounds x="682" y="752" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -906,6 +902,9 @@ EN FORM</bpmn:text>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0z107bi_di" bpmnElement="start_event_create_summon">
         <dc:Bounds x="232" y="612" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ma57of_di" bpmnElement="Activity_0ma57of">
+        <dc:Bounds x="650" y="590" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1gb87eu_di" bpmnElement="TextAnnotation_1gb87eu">
         <dc:Bounds x="1220" y="842" width="100" height="55" />

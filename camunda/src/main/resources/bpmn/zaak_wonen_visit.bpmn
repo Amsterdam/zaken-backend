@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_1tztuvt">
     <bpmn:participant id="Participant_08m4w5n" name="Process" processRef="zaak_wonen_visit" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_visit" name="VakantieVerhuur - Huisbezoek" isExecutable="true" camunda:versionTag="0.2.3">
+  <bpmn:process id="zaak_wonen_visit" name="VakantieVerhuur - Huisbezoek" isExecutable="true" camunda:versionTag="0.2.4">
     <bpmn:laneSet id="LaneSet_07j24vc">
       <bpmn:lane id="Lane_1hxgg1r" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_0xocoed</bpmn:flowNodeRef>
@@ -49,7 +49,6 @@
         <bpmn:flowNodeRef>Gateway_1yep068</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1pmbcxw</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_0n33uzk</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:userTask id="task_create_visit" name="Doorgeven huisbezoek TOP" camunda:formKey="doorgeven_huisbezoek_resultaat" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(60).toDate()}">
@@ -138,7 +137,8 @@
           <camunda:inputOutput>
             <camunda:inputParameter name="payload">{
 "state": "Aanschrijvingen",
-"case_identification": "${case_identification}"
+"case_identification": "${case_identification}",
+"case_process_id": "${case_process_id}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -174,7 +174,8 @@
           <camunda:inputOutput>
             <camunda:inputParameter name="payload">{
 "state": "Debrief",
-"case_identification": "${case_identification}"
+"case_identification": "${case_identification}",
+"case_process_id": "${case_process_id}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -213,7 +214,7 @@
       <bpmn:outgoing>Flow_0woi9k1</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:inclusiveGateway id="Gateway_17rmiyo" name="Start termijn als aanleiding melding is">
-      <bpmn:incoming>Flow_17pynhv</bpmn:incoming>
+      <bpmn:incoming>Flow_0dfunn3</bpmn:incoming>
       <bpmn:outgoing>Flow_0ozrgdh</bpmn:outgoing>
       <bpmn:outgoing>Flow_1vf6p6a</bpmn:outgoing>
     </bpmn:inclusiveGateway>
@@ -251,7 +252,7 @@
     <bpmn:sequenceFlow id="Flow_1c3b8q1" sourceRef="Activity_02t4qsu" targetRef="Activity_08um7qq" />
     <bpmn:sequenceFlow id="Flow_0oi0xmk" sourceRef="Gateway_1odl5bp" targetRef="Activity_0smew2x" />
     <bpmn:sequenceFlow id="Flow_1hofkzc" sourceRef="task_create_schedule" targetRef="task_create_visit" />
-    <bpmn:sequenceFlow id="Flow_0dfunn3" sourceRef="StartEvent_1" targetRef="Activity_0n33uzk" />
+    <bpmn:sequenceFlow id="Flow_0dfunn3" sourceRef="StartEvent_1" targetRef="Gateway_17rmiyo" />
     <bpmn:sequenceFlow id="Flow_09q4ikx" name="violation = ADDITIONAL_VISIT_REQUIRED" sourceRef="is_debrief_violation" targetRef="is_authorisation_required">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='ADDITIONAL_VISIT_REQUIRED'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -277,7 +278,8 @@
           <camunda:inputOutput>
             <camunda:inputParameter name="payload">{
 "state": "Hercontrole",
-"case_identification": "${case_identification}"
+"case_identification": "${case_identification}",
+"case_process_id": "${case_process_id}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -302,7 +304,8 @@
           <camunda:inputOutput>
             <camunda:inputParameter name="payload">{
 "state": "Huisbezoek",
-"case_identification": "${case_identification}"
+"case_identification": "${case_identification}",
+"case_process_id": "${case_process_id}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -433,7 +436,8 @@
               <camunda:inputParameter name="payload">{
     "message_name": "model_create_summon",
     "process_variables": "",
-    "case_identification": "${case_identification}"
+    "case_identification": "${case_identification}",
+"case_process_id": "${case_process_id}"
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
@@ -457,15 +461,11 @@
           <camunda:formField id="zaken_access_token" type="string" />
           <camunda:formField id="case_identification" type="string" />
           <camunda:formField id="endpoint" type="string" />
+          <camunda:formField id="case_process_id" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0dfunn3</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_17pynhv" sourceRef="Activity_0n33uzk" targetRef="Gateway_17rmiyo" />
-    <bpmn:userTask id="Activity_0n33uzk" name="Test taak die werkt hierna doet niks het meer doordat de ssl nog niet gefixt is">
-      <bpmn:incoming>Flow_0dfunn3</bpmn:incoming>
-      <bpmn:outgoing>Flow_17pynhv</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:textAnnotation id="TextAnnotation_00h0tuq">
       <bpmn:text>TODO: Dynamische datum na additional research is +2 dagen</bpmn:text>
     </bpmn:textAnnotation>
@@ -589,7 +589,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0dfunn3_di" bpmnElement="Flow_0dfunn3">
         <di:waypoint x="328" y="500" />
-        <di:waypoint x="380" y="500" />
+        <di:waypoint x="525" y="500" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1hofkzc_di" bpmnElement="Flow_1hofkzc">
         <di:waypoint x="990" y="540" />
@@ -705,10 +705,6 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1418" y="923" width="84" height="53" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_17pynhv_di" bpmnElement="Flow_17pynhv">
-        <di:waypoint x="480" y="500" />
-        <di:waypoint x="525" y="500" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_0hb8ttg_di" bpmnElement="task_create_visit">
         <dc:Bounds x="940" y="690" width="100" height="80" />
@@ -868,9 +864,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_00h0tuq_di" bpmnElement="TextAnnotation_00h0tuq">
         <dc:Bounds x="1600" y="1120" width="180" height="40" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_16f62ol_di" bpmnElement="Activity_0n33uzk">
-        <dc:Bounds x="380" y="460" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_03jk7ur_di" bpmnElement="Association_03jk7ur">
         <di:waypoint x="1589" y="1104" />
