@@ -1,6 +1,11 @@
 from apps.addresses.views import AddressViewSet
 from apps.camunda.views import CamundaTaskViewSet, CamundaWorkerViewSet, TaskViewSet
-from apps.cases.views import CaseStateViewSet, CaseThemeViewSet, CaseViewSet
+from apps.cases.views import (
+    CaseStateViewSet,
+    CaseThemeViewSet,
+    CaseViewSet,
+    ImportBWVCaseDataView,
+)
 from apps.debriefings.views import DebriefingViewSet
 from apps.decisions.views import DecisionViewSet
 from apps.fines.views import FinesViewSet
@@ -40,6 +45,12 @@ router.register(r"camunda/worker", CamundaWorkerViewSet, basename="camunda-worke
 urlpatterns = [
     # Admin environment
     path("admin/", admin.site.urls),
+    path(
+        "bwv-zaken-importeren/vakantieverhuur/",
+        ImportBWVCaseDataView.as_view(),
+        {"theme_name": "Vakantieverhuur"},
+        name="import-cases-vakantieverhuur",
+    ),
     # API Routing
     path("api/v1/", include(router.urls)),
     path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),

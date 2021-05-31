@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from apps.addresses.utils import search
@@ -12,6 +13,7 @@ from apps.cases.mock import mock
 from apps.cases.models import (
     Case,
     CaseProcessInstance,
+    CaseReason,
     CaseState,
     CaseTheme,
     CitizenReport,
@@ -25,6 +27,8 @@ from apps.cases.serializers import (
     CaseStateTypeSerializer,
     CaseThemeSerializer,
     CitizenReportSerializer,
+    LegacyCaseCreateSerializer,
+    LegacyCaseUpdateSerializer,
     PushCaseStateSerializer,
 )
 from apps.cases.swagger_parameters import date as date_parameter
@@ -45,7 +49,11 @@ from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpResponseBadRequest
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+from django.views.generic.edit import FormView
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import mixins, status, viewsets
@@ -58,6 +66,9 @@ from rest_framework.generics import (
 )
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from utils.api_queries_bag import do_bag_search_address_exact
+
+from .forms import ImportBWVCaseDataForm
 
 logger = logging.getLogger(__name__)
 
@@ -472,3 +483,175 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         serializer = CaseStateTypeSerializer(context, many=True)
 
         return paginator.get_paginated_response(serializer.data)
+
+
+class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
+    form_class = ImportBWVCaseDataForm
+    template_name = "import/body.html"
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial.update({"commit": "invalid"})
+        return initial
+
+    def _map_bag_result_to_address(self, address):
+        map = {
+            "adresseerbaar_object_id": "bag_id",
+        }
+        return dict((map.get(k, k), v) for k, v in address.items())
+
+    def _add_address(self, data):
+        address_mismatches = []
+        results = []
+        for d in data:
+            bag_result = do_bag_search_address_exact(d)
+            d_clone = dict(d)
+            if bag_result and bag_result["count"] == 1:
+                d_clone["address"] = {
+                    "bag_id": bag_result["results"][0]["adresseerbaar_object_id"]
+                }
+                results.append(d_clone)
+            else:
+                address_mismatches.append({"data": d_clone, "address": bag_result})
+
+        return results, address_mismatches
+
+    def _add_theme(self, data, *args, **kwargs):
+        theme = get_object_or_404(CaseTheme, name=kwargs.get("theme_name"))
+        for d in data:
+            d["theme"] = theme.id
+        return data
+
+    def _add_reason(self, data):
+        reason, _ = CaseReason.objects.get_or_create(name=settings.DEFAULT_REASON)
+        for d in data:
+            d["reason"] = reason.id
+        return data
+
+    def _get_object(self, case_id):
+        return Case.objects.filter(
+            legacy_bwv_case_id=case_id, is_legacy_bwv=True
+        ).first()
+
+    def _create_or_update(self, data, request, commit):
+        errors = []
+        results = []
+        context = {"request": request}
+        for d in data:
+            d_clone = dict(d)
+            instance = self._get_object(d.get("legacy_bwv_case_id"))
+            if instance:
+                serializer = LegacyCaseUpdateSerializer(
+                    instance, data=d, context=context
+                )
+            else:
+                serializer = LegacyCaseCreateSerializer(data=d, context=context)
+
+            if serializer.is_valid(raise_exception=True):
+                d_clone.update(
+                    {
+                        "case": d.get("legacy_bwv_case_id"),
+                        "created": False if instance else True,
+                    }
+                )
+                if commit:
+                    serializer.save()
+
+                results.append(d_clone)
+            else:
+                errors.append(
+                    {
+                        "legacy_bwv_case_id": d.get("legacy_bwv_case_id"),
+                        "errors": serializer.errors,
+                    }
+                )
+        return errors, results
+
+    def _parse_case_data_to_case_serializer(self, data):
+        map = {
+            "date_created_zaak": "start_date",
+            "situatie_schets": "description",
+        }
+
+        def clean(value):
+            value = value.strip() if isinstance(value, str) else value
+            try:
+                value = datetime.datetime.strptime(value, "%d-%m-%Y").strftime(
+                    "%Y-%m-%d"
+                )
+            except Exception:
+                pass
+            return value
+
+        return [dict((map.get(k, k), clean(v)) for k, v in d.items()) for d in data]
+
+    def get_success_url(self):
+        return reverse("migrate-cases")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {"theme": get_object_or_404(CaseTheme, name=kwargs.get("theme_name"))}
+        )
+        return context
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        create_update_results = []
+        if request.GET.get("commit"):
+            data = self.request.session.get("validated_cases_data")
+            if data:
+                create_update_errors, create_update_results = self._create_or_update(
+                    data,
+                    request,
+                    True,
+                )
+                del self.request.session["validated_cases_data"]
+            else:
+                return redirect(request.path)
+            context.update(
+                {
+                    "commited": True,
+                    "create_update_results": create_update_results,
+                }
+            )
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        context = self.get_context_data(**kwargs)
+        data = (
+            original_data
+        ) = address_mismatches = create_update_errors = create_update_results = []
+        form_valid = False
+
+        if form.is_valid():
+            original_data = form.cleaned_data["json_data"]
+
+            data = self._parse_case_data_to_case_serializer(original_data)
+            data, address_mismatches = self._add_address(data)
+            data = self._add_theme(data, *args, **kwargs)
+            data = self._add_reason(data)
+            create_update_errors, create_update_results = self._create_or_update(
+                data,
+                request,
+                False,
+            )
+            form_valid = True
+            self.request.session["validated_cases_data"] = create_update_results
+
+        context.update(
+            {
+                "validation_form_valid": form_valid,
+                "data": data,
+                "original_data": original_data,
+                "address_mismatches": address_mismatches,
+                "create_update_errors": create_update_errors,
+                "create_update_results": create_update_results,
+            }
+        )
+        return self.render_to_response(context)
