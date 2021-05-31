@@ -42,7 +42,8 @@
             </camunda:inputParameter>
             <camunda:inputParameter name="payload">{
 "state": "Correspondentie",
-"case_identification": "${case_identification}"
+"case_identification": "${case_identification}",
+"case_process_id": "${case_process_id}"
 }</camunda:inputParameter>
             <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
@@ -85,7 +86,8 @@
             </camunda:inputParameter>
             <camunda:inputParameter name="payload">{
 "state": "Bezwaardossier",
-"case_identification": "${case_identification}"
+"case_identification": "${case_identification}",
+"case_process_id": "${case_process_id}"
 }</camunda:inputParameter>
             <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
@@ -106,7 +108,8 @@
             </camunda:inputParameter>
             <camunda:inputParameter name="payload">{
 "state": "Terugbelverzoek",
-"case_identification": "${case_identification}"
+"case_identification": "${case_identification}",
+"case_process_id": "${case_process_id}"
 }</camunda:inputParameter>
             <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
@@ -128,6 +131,7 @@
           <camunda:formField id="zaken_access_token" type="string" />
           <camunda:formField id="case_identification" type="string" />
           <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+          <camunda:formField id="case_process_id" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0v6xuji</bpmn:outgoing>
@@ -164,6 +168,7 @@
           <camunda:formField id="zaken_access_token" type="string" />
           <camunda:formField id="case_identification" type="string" />
           <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+          <camunda:formField id="case_process_id" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_09pyhbj</bpmn:outgoing>
@@ -176,6 +181,7 @@
           <camunda:formField id="zaken_access_token" type="string" />
           <camunda:formField id="case_identification" type="string" />
           <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+          <camunda:formField id="case_process_id" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_00kh5me</bpmn:outgoing>
@@ -188,7 +194,8 @@
           <camunda:inputOutput>
             <camunda:inputParameter name="payload">{
 "state": "Melding",
-"case_identification": "${case_identification}"
+"case_identification": "${case_identification}",
+"case_process_id": "${case_process_id}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -223,6 +230,7 @@
           <camunda:formField id="zaken_access_token" type="string" />
           <camunda:formField id="case_identification" type="string" />
           <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+          <camunda:formField id="case_process_id" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0o6jc5g</bpmn:outgoing>

@@ -240,7 +240,9 @@ class CaseViewSet(
 
         for process in case.caseprocessinstance_set.all():
             try:
-                state = CaseState.objects.get(case_process_id=process.process_id)
+                state = CaseState.objects.filter(
+                    case_process_id=process.process_id
+                ).order_by("-pk")[0]
 
                 tasks = CamundaService().get_all_tasks_by_instance_id(
                     process.camunda_process_id
@@ -248,8 +250,8 @@ class CaseViewSet(
 
                 if tasks:
                     camunda_tasks.extend([{"state": state, "tasks": tasks}])
-            except CaseState.DoesNotExist:
-                pass
+            except IndexError:
+                pass  # TODO improve fail flow
 
         # Camunda tasks can be an empty list or boolean. TODO: This should just be one datatype
         if camunda_tasks is False:
