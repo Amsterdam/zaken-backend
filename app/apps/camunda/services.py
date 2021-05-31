@@ -3,6 +3,7 @@ import logging
 
 import requests
 from apps.camunda.utils import get_form_details, get_forms
+from apps.cases.models import Case, CaseProcessInstance
 from django.conf import settings
 from django.core.cache import cache
 from rest_framework import status
@@ -289,22 +290,31 @@ class CamundaService:
         return response
 
     def send_message(
-        self, message_name, case_identification=False, message_process_variables={}
+        self,
+        message_name,
+        case_identification,
+        case_process_id=False,
+        message_process_variables={},
     ):
+        if not case_process_id:
+            case = Case.objects.get(id=case_identification)
+            case_process_instance = CaseProcessInstance.objects.create(case=case)
+            case_process_id = case_process_instance.process_id.__str__()
+
         message_process_variables["endpoint"] = {"value": settings.ZAKEN_CONTAINER_HOST}
         message_process_variables["zaken_access_token"] = {
             "value": settings.CAMUNDA_SECRET_KEY
         }
+        message_process_variables["case_identification"] = {
+            "value": str(case_identification)
+        }
+        message_process_variables["case_process_id"] = {"value": case_process_id}
+
         request_body = {
             "messageName": message_name,
             "processVariables": message_process_variables,
             "resultEnabled": True,
         }
-
-        if case_identification:
-            request_body["processVariables"]["case_identification"] = {
-                "value": str(case_identification)
-            }
 
         request_json_body = json.dumps(request_body)
         response = self._process_request("/message", request_json_body, post=True)

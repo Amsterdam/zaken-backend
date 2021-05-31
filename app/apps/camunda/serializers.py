@@ -16,9 +16,6 @@ class CamundaStateWorkerSerializer(serializers.Serializer):
     case_process_id = serializers.CharField(max_length=255)
 
     def validate(self, data):
-        # import pdb
-
-        # pdb.set_trace()
         try:
             Case.objects.get(id=data["case_identification"])
         except Case.DoesNotExist:
@@ -28,10 +25,6 @@ class CamundaStateWorkerSerializer(serializers.Serializer):
         return data
 
     def create(self, validated_data):
-        # import pdb
-
-        # pdb.set_trace()
-
         state_name = validated_data["state"]
         case_identification = validated_data["case_identification"]
         information = validated_data["information"]

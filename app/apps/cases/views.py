@@ -9,7 +9,13 @@ from apps.camunda.serializers import (
 )
 from apps.camunda.services import CamundaService
 from apps.cases.mock import mock
-from apps.cases.models import Case, CaseState, CaseTheme, CitizenReport
+from apps.cases.models import (
+    Case,
+    CaseProcessInstance,
+    CaseState,
+    CaseTheme,
+    CitizenReport,
+)
 from apps.cases.serializers import (
     CamundaStartProcessSerializer,
     CaseCreateUpdateSerializer,
@@ -307,8 +313,13 @@ class CaseViewSet(
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
+            case_process_instance = CaseProcessInstance.objects.create(case=case)
+            case_process_id = case_process_instance.process_id.__str__()
+
             response = CamundaService().send_message(
-                message_name=instance.camunda_message_name, case_identification=case.id
+                message_name=instance.camunda_message_name,
+                case_identification=case.id,
+                case_process_id=case_process_id,
             )
 
             try:
@@ -321,7 +332,9 @@ class CaseViewSet(
                 )
 
             case.add_camunda_id(camunda_process_id)
+            case_process_instance.camunda_process_id = camunda_process_id
             case.save()
+            case_process_instance.save()
 
             if response:
                 return Response(
