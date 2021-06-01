@@ -48,6 +48,9 @@ class Case(ModelEventEmitter):
         to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )
     is_legacy_bwv = models.BooleanField(default=False)
+    legacy_bwv_case_id = models.CharField(
+        max_length=255, null=True, blank=True, unique=True
+    )
     camunda_ids = ArrayField(
         models.CharField(max_length=255), default=list, null=True, blank=True
     )
@@ -109,6 +112,8 @@ class Case(ModelEventEmitter):
 
         if self.identification in (None, ""):
             self.identification = self.__generate_identification__()
+        if self.legacy_bwv_case_id in (None, ""):
+            self.legacy_bwv_case_id = self.__generate_identification__()
 
         super().save(*args, **kwargs)
 

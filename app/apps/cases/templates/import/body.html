@@ -1,0 +1,40 @@
+{% include './head.html' %}
+
+<body class="">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h1>Importeer BWV zaken voor thema: {{ theme.name }}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                {% if not commited %}
+                <h2>Invoer</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input type="submit" value="Test data">
+                </form>
+                    {% if validation_form_valid %}
+                    <form method="get">
+                        <button type="submit" name="commit" value="true">Verstuur</button>
+                    </form>
+                    {% endif %}
+                {% else %}
+                    {% if create_update_results %}
+                    De import is geslaagd.
+                    {% else %}
+                    Data ontbreekt
+                    {% endif %}
+                    <br><a href="./">Terug naar import formulier</a>
+                {% endif %}
+            </div>
+            <div class="col-9">
+                {% include './result.html' %}
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
