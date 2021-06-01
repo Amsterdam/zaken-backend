@@ -46,7 +46,7 @@ def create_case_instance_in_camunda(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=CitizenReport, dispatch_uid="complete_citizen_report_task")
 def complete_citizen_report_task(sender, instance, created, **kwargs):
-    if instance.camunda_task_id and created:
+    if instance.camunda_task_id != "-1" and created:
         CamundaService().complete_task(
             instance.camunda_task_id,
         )
