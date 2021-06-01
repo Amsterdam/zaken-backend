@@ -67,6 +67,7 @@ class Schedule(TaskModelEventEmitter):
     week_segment = models.ForeignKey(to=WeekSegment, on_delete=models.CASCADE)
     day_segment = models.ForeignKey(to=DaySegment, on_delete=models.CASCADE)
     priority = models.ForeignKey(to=Priority, on_delete=models.CASCADE)
+    description = models.TextField(blank=True, null=True)
     case = models.ForeignKey(
         to=Case, related_name="schedules", on_delete=models.CASCADE
     )
@@ -80,4 +81,5 @@ class Schedule(TaskModelEventEmitter):
             "week_segment": self.week_segment.name,
             "day_segment": self.day_segment.name,
             "priority": self.priority.name,
+            "description": self.description,
         }

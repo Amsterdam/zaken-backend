@@ -46,6 +46,7 @@ class ScheduleCreateSerializer(serializers.ModelSerializer):
             "week_segment",
             "day_segment",
             "priority",
+            "description",
             "case",
             "camunda_task_id",
         )
