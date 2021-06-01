@@ -211,7 +211,7 @@ class CitizenReport(TaskModelEventEmitter):
         null=True,
         blank=True,
     )
-    description = models.TextField(
+    description_citizenreport = models.TextField(
         null=True,
         blank=True,
     )
@@ -226,13 +226,18 @@ class CitizenReport(TaskModelEventEmitter):
             author = self.author.full_name
         else:
             author = "Medewerker onbekend"
-
-        return {
-            "date_added": self.date_added,
+        event_values = {
             "identification": self.identification,
             "reporter_name": self.reporter_name,
             "reporter_phone": self.reporter_phone,
             "advertisement_linklist": self.advertisement_linklist,
-            "description": self.description,
+            "description_citizenreport": self.description_citizenreport,
             "author": author,
         }
+        if self.camunda_task_id != "-1":
+            event_values.update(
+                {
+                    "date_added": self.date_added,
+                }
+            )
+        return event_values
