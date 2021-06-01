@@ -126,6 +126,25 @@ class CaseViewSet(
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        case = self.perform_create(serializer)
+
+        citizen_report_data = {"case": case.id}
+        citizen_report_data.update(request.data)
+        citizen_report_serializer = CitizenReportSerializer(data=citizen_report_data)
+        if citizen_report_serializer.is_valid():
+            citizen_report_serializer.save(author=self.request.user)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
+
+    def perform_create(self, serializer):
+        return serializer.save()
+
     def get_serializer_class(self, *args, **kwargs):
         if self.action in ["create", "update"]:
             return CaseCreateUpdateSerializer
