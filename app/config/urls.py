@@ -48,7 +48,10 @@ urlpatterns = [
     path(
         "bwv-zaken-importeren/vakantieverhuur/",
         ImportBWVCaseDataView.as_view(),
-        {"theme_name": "Vakantieverhuur"},
+        {
+            "theme_name": "Vakantieverhuur",
+            "url_name": "import-cases-vakantieverhuur",
+        },
         name="import-cases-vakantieverhuur",
     ),
     # API Routing

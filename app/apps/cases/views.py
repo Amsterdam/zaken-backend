@@ -489,11 +489,6 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
     form_class = ImportBWVCaseDataForm
     template_name = "import/body.html"
 
-    def get_initial(self):
-        initial = super().get_initial()
-        initial.update({"commit": "invalid"})
-        return initial
-
     def _map_bag_result_to_address(self, address):
         map = {
             "adresseerbaar_object_id": "bag_id",
@@ -585,8 +580,8 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
 
         return [dict((map.get(k, k), clean(v)) for k, v in d.items()) for d in data]
 
-    def get_success_url(self):
-        return reverse("migrate-cases")
+    def get_success_url(self, **kwargs):
+        return reverse(kwargs.get("url_name"))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -611,7 +606,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 )
                 del self.request.session["validated_cases_data"]
             else:
-                return redirect(request.path)
+                return redirect(reverse(context.get("url_name")))
             context.update(
                 {
                     "commited": True,
