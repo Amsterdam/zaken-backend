@@ -42,6 +42,8 @@ from apps.cases.swagger_parameters import street_name as street_name_parameter
 from apps.cases.swagger_parameters import street_number as street_number_parameter
 from apps.cases.swagger_parameters import suffix as suffix_parameter
 from apps.cases.swagger_parameters import theme as theme_parameter
+from apps.debriefings.models import Debriefing
+from apps.debriefings.serializers import ViolationTypeSerializer
 from apps.decisions.serializers import DecisionTypeSerializer
 from apps.events.mixins import CaseEventsMixin
 from apps.schedules.serializers import ThemeScheduleTypesSerializer
@@ -500,6 +502,27 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = CaseStateTypeSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the ViolationTypes",
+        responses={status.HTTP_200_OK: ViolationTypeSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="violation-types",
+        methods=["get"],
+    )
+    def violation_types(self, request):
+        paginator = PageNumberPagination()
+        types = [
+            {"key": t[0]}
+            for t in Debriefing.VIOLATION_CHOICES
+            if t[0] != Debriefing.VIOLATION_AUTHORIZATION_REQUEST
+        ]
+        context = paginator.paginate_queryset(types, request)
+        serializer = ViolationTypeSerializer(context, many=True)
 
         return paginator.get_paginated_response(serializer.data)
 
