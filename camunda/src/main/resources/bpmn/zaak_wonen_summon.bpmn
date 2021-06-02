@@ -183,7 +183,7 @@
       <bpmn:incoming>Flow_0esnfyv</bpmn:incoming>
       <bpmn:outgoing>Flow_1tpuwoi</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:serviceTask id="Activity_1yxvl6p" name="Status bijwerken: &#34;Zienswijze {names}&#34;">
+    <bpmn:serviceTask id="Activity_1yxvl6p" name="Status bijwerken: &#34;Zienswijze&#34;">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
@@ -209,7 +209,7 @@
       <bpmn:incoming>Flow_0ca7pn4</bpmn:incoming>
       <bpmn:outgoing>Flow_0esnfyv</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="Activity_1mkl5rk" name="Monitoren binnenkomen vergunningaanvraag ${names}" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(32).toDate()}">
+    <bpmn:userTask id="Activity_1mkl5rk" name="Monitoren binnenkomen vergunningaanvraag" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(32).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="action_civilian_permit_requested" label="Is vergunning aangevraagd?" type="enum">
@@ -338,7 +338,7 @@
             <camunda:inputParameter name="payload">{
 "state": "Vergunningscheck",
 "case_identification": ${case_identification},
-"information": "Aangeschreven personen: ${names}",
+"information": "${names}",
 "case_process_id": "${case_process_id}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
