@@ -56,7 +56,7 @@ class Summon(TaskModelEventEmitter):
         return f"{self.id} Summon - {self.type} - Case {self.case.id}"
 
     def complete_camunda_task(self):
-        CamundaService().complete_task(
+        response = CamundaService().complete_task(
             self.camunda_task_id,
             {
                 "type_aanschrijving": {"value": self.type.camunda_option},
@@ -67,6 +67,7 @@ class Summon(TaskModelEventEmitter):
                 },
             },
         )
+        return response
 
 
 class SummonedPerson(models.Model):
