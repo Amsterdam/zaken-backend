@@ -514,7 +514,7 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         url_path="violation-types",
         methods=["get"],
     )
-    def violation_types(self, request):
+    def violation_types(self, request, pk):
         paginator = PageNumberPagination()
         types = [
             {"key": t[0]}
