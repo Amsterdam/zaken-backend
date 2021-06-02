@@ -32,6 +32,7 @@ class SummonSerializer(serializers.ModelSerializer):
         for person in persons:
             SummonedPerson.objects.create(summon=summon, **person)
 
+        summon.complete_camunda_task()
         return summon
 
 

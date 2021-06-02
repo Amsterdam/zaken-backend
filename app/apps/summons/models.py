@@ -1,3 +1,4 @@
+from apps.camunda.services import CamundaService
 from apps.cases.models import Case, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
@@ -53,6 +54,19 @@ class Summon(TaskModelEventEmitter):
 
     def __str__(self):
         return f"{self.id} Summon - {self.type} - Case {self.case.id}"
+
+    def complete_camunda_task(self):
+        CamundaService().complete_task(
+            self.camunda_task_id,
+            {
+                "type_aanschrijving": {"value": self.type.camunda_option},
+                "names": {
+                    "value": ", ".join(
+                        [person.__str__() for person in self.persons.all()]
+                    )
+                },
+            },
+        )
 
 
 class SummonedPerson(models.Model):
