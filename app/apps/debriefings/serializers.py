@@ -12,3 +12,7 @@ class DebriefingCreateSerializer(serializers.ModelSerializer):
             "date_modified",
         ]
         read_only_fields = ("id",)
+
+
+class ViolationTypeSerializer(serializers.Serializer):
+    key = serializers.CharField()
