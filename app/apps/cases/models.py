@@ -70,14 +70,24 @@ class Case(ModelEventEmitter):
             author = self.author.full_name
         else:
             author = "Medewerker onbekend"
-
-        return {
+        event_values = {
             "start_date": self.start_date,
             "end_date": self.end_date,
             "reason": reason,
             "description": self.description,
             "author": author,
         }
+
+        # TODO better way for db reason with python logic
+        if reason == settings.DEFAULT_REASON:
+            citizen_report = (
+                CitizenReport.objects.filter(case=self).order_by("date_added").first()
+            )
+            if citizen_report:
+                event_values.update(
+                    {"advertisement_linklist": citizen_report.advertisement_linklist}
+                )
+        return event_values
 
     def __get_case__(self):
         return self
@@ -240,4 +250,6 @@ class CitizenReport(TaskModelEventEmitter):
                     "date_added": self.date_added,
                 }
             )
+        else:
+            del event_values["advertisement_linklist"]
         return event_values
