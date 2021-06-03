@@ -12,9 +12,8 @@ from apps.camunda.serializers import (
     CamundaTaskSerializer,
 )
 from apps.camunda.services import CamundaService
-from apps.cases.models import Case
+from apps.cases.models import Case, CaseProcessInstance
 from apps.users.auth_apps import CamundaKeyAuth, TopKeyAuth
-from django.conf import settings
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
@@ -112,16 +111,22 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
             else:
                 process_variables = {}
 
-            process_variables["endpoint"] = {"value": settings.ZAKEN_CONTAINER_HOST}
-            process_variables["zaken_access_token"] = {
-                "value": settings.CAMUNDA_SECRET_KEY
-            }
-            process_variables["case_identification"] = {
-                "value": str(case_identification)
-            }
+            try:
+                case = Case.objects.get(id=case_identification)
+            except Case.DoesNotExist:
+                return Response(
+                    data="Camunda process has not started. Case does not exist",
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+            case_process_instance = CaseProcessInstance.objects.create(case=case)
+            case_process_id = case_process_instance.process_id.__str__()
 
             raw_response = CamundaService().send_message(
-                message_name=message_name, message_process_variables=process_variables
+                message_name=message_name,
+                case_identification=case_identification,
+                case_process_id=case_process_id,
+                message_process_variables=process_variables,
             )
 
             if raw_response.ok:
@@ -130,7 +135,9 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
 
                 case = Case.objects.get(id=case_identification)
                 case.add_camunda_id(camunda_id)
+                case_process_instance.camunda_process_id = camunda_id
                 case.save()
+                case_process_instance.save()
 
                 logger.info(f"Message send {message_name} ended succesfully")
                 return Response(status=status.HTTP_200_OK)
