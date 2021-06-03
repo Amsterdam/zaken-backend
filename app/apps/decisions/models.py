@@ -42,6 +42,7 @@ class Decision(TaskModelEventEmitter):
         to=settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True
     )
     date_added = models.DateTimeField(auto_now_add=True)
+    sanction_id = models.CharField(max_length=20, blank=True, null=True)
 
     def __get_event_values__(self):
         if self.summon:
@@ -56,4 +57,5 @@ class Decision(TaskModelEventEmitter):
             "description": self.description,
             "type": self.decision_type.name,
             "sanction_amount": self.sanction_amount,
+            "sanction_id": self.sanction_id,
         }
