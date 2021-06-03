@@ -499,6 +499,10 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         paginator = PageNumberPagination()
         theme = self.get_object()
         query_set = theme.state_types.all()
+        if request.GET.get("role") == "toezichthouder":
+            query_set = query_set.filter(
+                id__in=theme.case_state_types_top.values_list("id", flat=True)
+            )
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = CaseStateTypeSerializer(context, many=True)

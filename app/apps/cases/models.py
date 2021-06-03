@@ -10,6 +10,10 @@ from django.utils import timezone
 
 class CaseTheme(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    case_state_types_top = models.ManyToManyField(
+        to="CaseStateType",
+        blank=True,
+    )
 
     def __str__(self):
         return self.name
