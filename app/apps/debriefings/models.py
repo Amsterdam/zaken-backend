@@ -40,15 +40,20 @@ class Debriefing(TaskModelEventEmitter):
         choices=VIOLATION_CHOICES,
         default=VIOLATION_NO,
     )
+    violation_result = models.JSONField(null=True)
     feedback = models.CharField(null=False, blank=False, max_length=255)
 
     def __str__(self):
         return f"{self.case.id} Case - Debriefing {self.id}"
 
     def __get_event_values__(self):
-        return {
+        event_values = {
             "author": self.author.full_name,
             "date_added": self.date_added,
             "violation": self.violation,
             "feedback": self.feedback,
         }
+        if isinstance(self.violation_result, dict):
+            event_values.update(**self.violation_result)
+
+        return event_values
