@@ -1,6 +1,8 @@
 from apps.addresses.views import AddressViewSet
 from apps.camunda.views import CamundaTaskViewSet, CamundaWorkerViewSet, TaskViewSet
 from apps.cases.views import (
+    CaseCloseReasonViewSet,
+    CaseCloseViewSet,
     CaseStateViewSet,
     CaseThemeViewSet,
     CaseViewSet,
@@ -38,6 +40,11 @@ router.register(r"fines", FinesViewSet, basename="fines")
 router.register(r"authors", UserListView, basename="authors")
 router.register(r"summons", SummonViewSet, basename="summons")
 router.register(r"schedules", ScheduleViewSet, basename="schedules")
+router.register(
+    r"case-close-reason", CaseCloseReasonViewSet, basename="case-close-reason"
+)
+router.register(r"case-close", CaseCloseViewSet, basename="case-closing")
+
 
 router.register(r"camunda/task", CamundaTaskViewSet, basename="camunda-tasks")
 router.register(r"camunda/worker", CamundaWorkerViewSet, basename="camunda-workers")
