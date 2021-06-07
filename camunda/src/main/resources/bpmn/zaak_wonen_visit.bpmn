@@ -63,7 +63,7 @@
       <bpmn:incoming>Flow_1hofkzc</bpmn:incoming>
       <bpmn:outgoing>Flow_1mmzhem</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_create_schedule" name="Inplannen huisbezoek" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_create_schedule" name="Inplannen ${status_name}" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_07yq2lt</bpmn:incoming>
       <bpmn:outgoing>Flow_1hofkzc</bpmn:outgoing>
     </bpmn:userTask>
@@ -401,6 +401,7 @@
           <camunda:formField id="case_identification" type="string" />
           <camunda:formField id="endpoint" type="string" />
           <camunda:formField id="case_process_id" type="string" />
+          <camunda:formField id="status_name" type="string" defaultValue="Huisbezoek" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0dfunn3</bpmn:outgoing>
@@ -426,7 +427,12 @@
       <bpmn:incoming>Flow_1erggxk</bpmn:incoming>
       <bpmn:outgoing>Flow_156heau</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:startEvent id="Event_02knnzy" name="Hercontrole">
+    <bpmn:startEvent id="Event_02knnzy" name="Hercontrole" camunda:formKey="hercontrole_form">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="status_name" type="string" defaultValue="Hercontrole" />
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:outgoing>Flow_03yyzjg</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_01attgm" messageRef="Message_02klwze" />
     </bpmn:startEvent>
@@ -468,12 +474,12 @@
       <bpmn:outgoing>Flow_1ud05n0</bpmn:outgoing>
       <bpmn:outgoing>Flow_0aiyxmw</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="Activity_1fle1xm" name="Status Bijwerken: &#39;Hercontrole&#39;">
+    <bpmn:serviceTask id="Activity_1fle1xm" name="Status Bijwerken: &#39;${status_name}&#39;">
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
             <camunda:inputParameter name="payload">{
-"state": "Hercontrole",
+"state": "${status_name}",
 "case_identification": "${case_identification}",
 "case_process_id": "${case_process_id}"
 }</camunda:inputParameter>
