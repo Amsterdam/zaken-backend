@@ -524,11 +524,7 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
     )
     def violation_types(self, request, pk):
         paginator = PageNumberPagination()
-        types = [
-            {"key": t[0]}
-            for t in Debriefing.VIOLATION_CHOICES
-            if t[0] != Debriefing.VIOLATION_AUTHORIZATION_REQUEST
-        ]
+        types = [{"key": t[0]} for t in Debriefing.VIOLATION_CHOICES]
         context = paginator.paginate_queryset(types, request)
         serializer = ViolationTypeSerializer(context, many=True)
 
