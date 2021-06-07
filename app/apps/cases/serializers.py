@@ -3,6 +3,8 @@ from apps.addresses.serializers import AddressSerializer
 from apps.camunda.models import CamundaProcess
 from apps.cases.models import (
     Case,
+    CaseClose,
+    CaseCloseReason,
     CaseReason,
     CaseState,
     CaseStateType,
@@ -198,3 +200,15 @@ class BWVCaseImportValidSerializer(serializers.Serializer):
         allow_null=True, allow_blank=True, required=False
     )
     toev = serializers.CharField(allow_null=True, allow_blank=True, required=False)
+
+
+class CaseCloseReasonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseCloseReason
+        fields = "__all__"
+
+
+class CaseCloseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseClose
+        fields = "__all__"

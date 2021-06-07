@@ -12,6 +12,8 @@ from apps.camunda.services import CamundaService
 from apps.cases.mock import mock
 from apps.cases.models import (
     Case,
+    CaseClose,
+    CaseCloseReason,
     CaseProcessInstance,
     CaseReason,
     CaseState,
@@ -20,6 +22,8 @@ from apps.cases.models import (
 )
 from apps.cases.serializers import (
     CamundaStartProcessSerializer,
+    CaseCloseReasonSerializer,
+    CaseCloseSerializer,
     CaseCreateUpdateSerializer,
     CaseReasonSerializer,
     CaseSerializer,
@@ -696,3 +700,22 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
             }
         )
         return self.render_to_response(context)
+
+
+class CaseCloseReasonViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = CaseCloseReasonSerializer
+    queryset = CaseCloseReason.objects.all()
+
+
+class CaseCloseViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = CaseCloseSerializer
+    queryset = CaseClose.objects.all()

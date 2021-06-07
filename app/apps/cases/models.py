@@ -203,11 +203,21 @@ class CaseProcessInstance(models.Model):
         return f"Case {self.case.id} - {self.process_id}"
 
 
-# class CaseCloseReason(models.Model):
-#     name = models.CharField(max_length=255)
+class CaseCloseReason(models.Model):
+    result = models.BooleanField()
+    name = models.CharField(max_length=255)
 
-#     def __str__(self):
-#         return self.name
+    def __str__(self):
+        return self.name
+
+
+class CaseClose(models.Model):
+    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    reason = models.ForeignKey(CaseCloseReason, on_delete=models.PROTECT)
+    explanation = models.TextField()
+
+    def __str__(self):
+        return f"CASE: {self.case.__str__()} - REASON {self.reason.__str__()}"
 
 
 class CitizenReport(TaskModelEventEmitter):
