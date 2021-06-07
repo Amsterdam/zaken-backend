@@ -10,5 +10,14 @@ from django.dispatch import receiver
 def complete_camunda_task_create_debrief(sender, instance, created, **kwargs):
     if created:
         CamundaService().complete_task(
-            instance.camunda_task_id, {"violation": {"value": instance.violation}}
+            instance.camunda_task_id,
+            {
+                "violation": {
+                    "value": instance.violation,
+                },
+                "authorisation_required": {
+                    "value": instance.violation
+                    == Debriefing.VIOLATION_AUTHORIZATION_REQUEST
+                },
+            },
         )

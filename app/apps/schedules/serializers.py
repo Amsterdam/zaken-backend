@@ -52,14 +52,6 @@ class ScheduleCreateSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id",)
 
-    def create(self, validated_data):
-        action = validated_data.pop("action")
-        case = validated_data.pop("case")
-        schedule, _ = Schedule.objects.update_or_create(
-            action=action, case=case, defaults=validated_data
-        )
-        return schedule
-
 
 class ThemeScheduleTypesSerializer(serializers.ModelSerializer):
     actions = ActionSerializer(many=True)

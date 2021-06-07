@@ -28,6 +28,9 @@ def create_case_instance_in_camunda(sender, instance, created, **kwargs):
                     "value": settings.ZAKEN_CONTAINER_HOST,
                     "type": "String",
                 },
+                "status_name": {
+                    "value": "Huisbezoek",
+                },
             },
         }
         start_camunda_instance(identification=instance.id, request_body=request_body)

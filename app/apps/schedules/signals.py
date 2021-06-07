@@ -8,4 +8,5 @@ from django.dispatch import receiver
     post_save, sender=Schedule, dispatch_uid="schedule_create_complete_camunda_task"
 )
 def complete_camunda_task_create_schedule(sender, instance, created, **kwargs):
-    CamundaService().complete_task(instance.camunda_task_id)
+    if created:
+        CamundaService().complete_task(instance.camunda_task_id)

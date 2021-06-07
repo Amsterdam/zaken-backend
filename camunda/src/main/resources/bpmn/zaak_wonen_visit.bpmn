@@ -248,8 +248,8 @@
     <bpmn:sequenceFlow id="Flow_0oi0xmk" sourceRef="Gateway_1odl5bp" targetRef="Activity_0smew2x" />
     <bpmn:sequenceFlow id="Flow_1hofkzc" sourceRef="task_create_schedule" targetRef="task_create_visit" />
     <bpmn:sequenceFlow id="Flow_0dfunn3" sourceRef="StartEvent_1" targetRef="Gateway_17rmiyo" />
-    <bpmn:sequenceFlow id="Flow_09q4ikx" name="violation = ADDITIONAL_VISIT_REQUIRED" sourceRef="is_debrief_violation" targetRef="Activity_05wa5gy">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='ADDITIONAL_VISIT_REQUIRED'}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_09q4ikx" name="violation = ADDITIONAL_VISIT_REQUIRED or violation = AUTHORIZATION_REQUEST" sourceRef="is_debrief_violation" targetRef="Activity_05wa5gy">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='ADDITIONAL_VISIT_REQUIRED'  || violation=='AUTHORIZATION_REQUEST'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1ud05n0" name="Mactiging nodig = NO" sourceRef="is_authorisation_required" targetRef="Gateway_136vx0p">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${authorisation_required==false}</bpmn:conditionExpression>
@@ -673,7 +673,7 @@
         <di:waypoint x="1660" y="410" />
         <di:waypoint x="1620" y="410" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1668" y="390" width="83" height="40" />
+          <dc:Bounds x="1665" y="390" width="90" height="80" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0dfunn3_di" bpmnElement="Flow_0dfunn3">
