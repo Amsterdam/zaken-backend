@@ -230,11 +230,9 @@
     <bpmn:sequenceFlow id="Flow_09q4ikx" name="violation = ADDITIONAL_VISIT_REQUIRED or violation = ADDITIONAL_VISIT_WITH_AUTHORIZATION" sourceRef="is_debrief_violation" targetRef="Activity_05wa5gy">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='ADDITIONAL_VISIT_REQUIRED'  || violation=='ADDITIONAL_VISIT_WITH_AUTHORIZATION'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1ud05n0" name="Mactiging nodig = NO" sourceRef="is_authorisation_required" targetRef="Gateway_136vx0p">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${authorisation_required=='False'}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1ud05n0" name="Mactiging nodig = NO" sourceRef="is_authorisation_required" targetRef="Gateway_136vx0p" />
     <bpmn:sequenceFlow id="Flow_0aiyxmw" name="Machtiging nodig = YES" sourceRef="is_authorisation_required" targetRef="Activity_03lt0e7">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${authorisation_required=='True'}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='ADDITIONAL_VISIT_WITH_AUTHORIZATION'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0co89x0" sourceRef="Activity_03lt0e7" targetRef="Gateway_136vx0p" />
     <bpmn:sequenceFlow id="Flow_0ozrgdh" sourceRef="Gateway_17rmiyo" targetRef="Activity_1u23sd7" />
@@ -423,7 +421,7 @@
       <bpmn:incoming>Flow_0aiyxmw</bpmn:incoming>
       <bpmn:outgoing>Flow_0co89x0</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:exclusiveGateway id="is_authorisation_required" name="Is er een machtiging nodig?">
+    <bpmn:exclusiveGateway id="is_authorisation_required" name="Is er een machtiging nodig?" default="Flow_1ud05n0">
       <bpmn:incoming>Flow_0i3wsr3</bpmn:incoming>
       <bpmn:outgoing>Flow_1ud05n0</bpmn:outgoing>
       <bpmn:outgoing>Flow_0aiyxmw</bpmn:outgoing>
@@ -509,7 +507,6 @@
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="violation" type="string" />
-          <camunda:formField id="authorisation_required" type="string" defaultValue="False" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0zox8jb</bpmn:incoming>
