@@ -29,7 +29,7 @@ def create_case_instance_in_camunda(sender, instance, created, **kwargs):
                     "type": "String",
                 },
                 "status_name": {
-                    "value": settings.DEFAULT_SCHEDULE_ACTIONS,
+                    "value": settings.DEFAULT_SCHEDULE_ACTIONS[0],
                     "type": "String",
                 },
             },
