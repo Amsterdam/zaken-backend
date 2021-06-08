@@ -203,12 +203,26 @@ class CaseProcessInstance(models.Model):
         return f"Case {self.case.id} - {self.process_id}"
 
 
+class CaseCloseResult(models.Model):
+    """
+    If a Case is closed and reason is a result
+    these are result types that need to be dynamic
+    """
+
+    name = models.CharField(max_length=255)
+    case_theme = models.ForeignKey(CaseTheme, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f"{self.name} - {self.case_theme}"
+
+
 class CaseCloseReason(models.Model):
     result = models.BooleanField()
     name = models.CharField(max_length=255)
+    case_theme = models.ForeignKey(CaseTheme, on_delete=models.PROTECT)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.case_theme}"
 
 
 class CaseClose(models.Model):

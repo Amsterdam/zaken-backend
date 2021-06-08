@@ -83,6 +83,10 @@ class ModelEventEmitter(models.Model):
         case = self.__get_case__()
         event_type = self.__get_event_type__()
 
+        import pdb
+
+        pdb.set_trace()
+
         try:
             CaseEvent.objects.get(emitter_id=self.id, type=event_type)
         except CaseEvent.DoesNotExist:

@@ -5,6 +5,7 @@ from apps.cases.models import (
     Case,
     CaseClose,
     CaseCloseReason,
+    CaseCloseResult,
     CaseReason,
     CaseState,
     CaseStateType,
@@ -205,6 +206,12 @@ class BWVCaseImportValidSerializer(serializers.Serializer):
 class CaseCloseReasonSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseCloseReason
+        fields = "__all__"
+
+
+class CaseCloseResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseCloseResult
         fields = "__all__"
 
 

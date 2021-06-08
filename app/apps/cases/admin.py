@@ -2,6 +2,7 @@ from apps.cases.models import (
     Case,
     CaseClose,
     CaseCloseReason,
+    CaseCloseResult,
     CaseProcessInstance,
     CaseReason,
     CaseState,
@@ -51,3 +52,4 @@ admin.site.register(CaseTheme, admin.ModelAdmin)
 admin.site.register(CaseReason, admin.ModelAdmin)
 admin.site.register(CaseCloseReason, admin.ModelAdmin)
 admin.site.register(CaseClose, admin.ModelAdmin)
+admin.site.register(CaseCloseResult, admin.ModelAdmin)
