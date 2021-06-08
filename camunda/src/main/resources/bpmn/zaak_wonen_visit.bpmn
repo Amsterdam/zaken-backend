@@ -53,7 +53,7 @@
         <bpmn:flowNodeRef>Activity_05wa5gy</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:userTask id="task_create_visit" name="Doorgeven huisbezoek TOP" camunda:formKey="doorgeven_huisbezoek_resultaat" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(60).toDate()}">
+    <bpmn:userTask id="task_create_visit" name="Doorgeven ${status_name} TOP" camunda:formKey="doorgeven_huisbezoek_resultaat" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(60).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="situation" label="Wat is de situatie?" type="string" />

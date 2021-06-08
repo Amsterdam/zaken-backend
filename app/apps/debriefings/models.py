@@ -41,7 +41,7 @@ class Debriefing(TaskModelEventEmitter):
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     violation = models.CharField(
-        max_length=28,
+        max_length=255,
         choices=VIOLATION_CHOICES,
         default=VIOLATION_NO,
     )
