@@ -107,6 +107,12 @@ class Case(ModelEventEmitter):
     def get_current_states(self):
         return self.case_states.filter(end_date__isnull=True)
 
+    def get_schedules(self):
+        qs = self.schedules.all().order_by("-date_added")
+        if qs:
+            qs = [qs.first()]
+        return qs
+
     def set_state(self, state_name, case_process_id, information="", *args, **kwargs):
         state_type, _ = CaseStateType.objects.get_or_create(
             name=state_name, theme=self.theme

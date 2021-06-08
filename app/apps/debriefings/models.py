@@ -11,16 +11,21 @@ class Debriefing(TaskModelEventEmitter):
     VIOLATION_YES = "YES"
     VIOLATION_ADDITIONAL_RESEARCH_REQUIRED = "ADDITIONAL_RESEARCH_REQUIRED"
     VIOLATION_ADDITIONAL_VISIT_REQUIRED = "ADDITIONAL_VISIT_REQUIRED"
+    VIOLATION_ADDITIONAL_VISIT_WITH_AUTHORIZATION = (
+        "ADDITIONAL_VISIT_WITH_AUTHORIZATION"
+    )
     VIOLATION_SEND_TO_OTHER_THEME = "SEND_TO_OTHER_THEME"
-    VIOLATION_AUTHORIZATION_REQUEST = "AUTHORIZATION_REQUEST"
 
     VIOLATION_CHOICES = [
         (VIOLATION_NO, "No"),
         (VIOLATION_YES, "Yes"),
         (VIOLATION_ADDITIONAL_RESEARCH_REQUIRED, "Additional research required"),
         (VIOLATION_ADDITIONAL_VISIT_REQUIRED, "Nieuw huisbezoek nodig"),
+        (
+            VIOLATION_ADDITIONAL_VISIT_WITH_AUTHORIZATION,
+            "Nieuw huisbezoek inclusief machtingaanvraag",
+        ),
         (VIOLATION_SEND_TO_OTHER_THEME, "Naar ander team"),
-        (VIOLATION_AUTHORIZATION_REQUEST, "Aanvraag machting"),
     ]
 
     case = models.ForeignKey(
@@ -36,7 +41,7 @@ class Debriefing(TaskModelEventEmitter):
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     violation = models.CharField(
-        max_length=28,
+        max_length=255,
         choices=VIOLATION_CHOICES,
         default=VIOLATION_NO,
     )

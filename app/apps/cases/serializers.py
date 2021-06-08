@@ -66,7 +66,7 @@ class CaseSerializer(serializers.ModelSerializer):
     )
     theme = CaseThemeSerializer(required=True)
     reason = CaseReasonSerializer(required=True)
-    schedules = ScheduleSerializer(many=True, read_only=True)
+    schedules = ScheduleSerializer(source="get_schedules", many=True, read_only=True)
 
     class Meta:
         model = Case

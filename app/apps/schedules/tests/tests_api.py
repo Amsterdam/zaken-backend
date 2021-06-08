@@ -58,33 +58,3 @@ class ScheduleCreateAPITest(APITestCase):
 
         self.assertEqual(Schedule.objects.count(), 1)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_authenticated_post_update(self):
-        schedule = baker.make(Schedule)
-
-        new_priority = baker.make(Priority)
-        new_week_segment = baker.make(WeekSegment)
-        new_day_segment = baker.make(DaySegment)
-        new_priority = baker.make(Priority)
-
-        client = get_authenticated_client()
-        url = reverse("schedules-list")
-
-        client.post(
-            url,
-            {
-                # existing schedule fields
-                "action": schedule.action.id,
-                "case": schedule.case.id,
-                # update with new fields:
-                "week_segment": new_week_segment.id,
-                "day_segment": new_day_segment.id,
-                "priority": new_priority.id,
-            },
-            format="json",
-        )
-
-        schedule = Schedule.objects.get(id=schedule.id)
-        self.assertEquals(schedule.week_segment.id, new_week_segment.id)
-        self.assertEquals(schedule.day_segment.id, new_day_segment.id)
-        self.assertEquals(schedule.priority.id, new_priority.id)
