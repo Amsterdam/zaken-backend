@@ -14,10 +14,6 @@ def complete_camunda_task_create_debrief(sender, instance, created, **kwargs):
             {
                 "violation": {
                     "value": instance.violation,
-                },
-                "authorisation_required": {
-                    "value": instance.violation
-                    == Debriefing.VIOLATION_AUTHORIZATION_REQUEST
-                },
+                }
             },
         )
