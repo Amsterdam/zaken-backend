@@ -48,6 +48,11 @@ class CamundaMessagerSerializer(serializers.Serializer):
     case_identification = serializers.CharField()
 
 
+class CamundaMessageForProcessInstanceSerializer(serializers.Serializer):
+    message_name = serializers.CharField()
+    business_key = serializers.CharField()
+
+
 class CamundaBaseTaskSerializer(serializers.Serializer):
     """
     Base serializer for Camunda tasks
