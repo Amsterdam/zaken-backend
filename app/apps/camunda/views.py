@@ -4,6 +4,7 @@ from apps.camunda.models import GenericCompletedTask
 from apps.camunda.serializers import (
     CamundaDateUpdateSerializer,
     CamundaEndStateWorkerSerializer,
+    CamundaMessageForProcessInstanceSerializer,
     CamundaMessagerSerializer,
     CamundaProcessSerializer,
     CamundaStateWorkerSerializer,
@@ -148,6 +149,36 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
         else:
             logger.error(f"FAIL: Message send {serializer.errors}")
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        description="A Camunda service task for trigger event inside of process instance based on message",
+        responses={200: None},
+    )
+    @action(
+        detail=False,
+        url_path="send-message-inside-process",
+        methods=["post"],
+        serializer_class=CamundaMessageForProcessInstanceSerializer,
+    )
+    def send_message_inside_of_process(self, request):
+        logger.info("Sending message based on Camunda message to process instance")
+        serializer = CamundaMessageForProcessInstanceSerializer(data=request.data)
+
+        if serializer.is_valid():
+            raw_response = CamundaService().send_message_to_process_instance(
+                message_name=serializer.validated_data["message_name"],
+                business_key=serializer.validated_data["business_key"],
+            )
+
+            if raw_response.ok:
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                )
+        else:
+            logger.error(f"FAIL: Message send {serializer.errors}")
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
 
 
 class CamundaTaskViewSet(viewsets.ViewSet):

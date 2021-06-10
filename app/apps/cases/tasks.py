@@ -10,6 +10,7 @@ def start_camunda_instance(self, identification, request_body):
     case_process_instance = CaseProcessInstance.objects.create(case=case)
     case_process_instance.save()
 
+    request_body["businessKey"] = case_process_instance.process_id.__str__()
     request_body["variables"]["case_process_id"] = {
         "value": case_process_instance.process_id.__str__()
     }
