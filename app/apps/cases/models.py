@@ -228,6 +228,9 @@ class CaseCloseReason(models.Model):
 class CaseClose(models.Model):
     case = models.ForeignKey(Case, on_delete=models.CASCADE)
     reason = models.ForeignKey(CaseCloseReason, on_delete=models.PROTECT)
+    result = models.ForeignKey(
+        CaseCloseResult, null=True, blank=True, on_delete=models.PROTECT
+    )
     explanation = models.TextField()
 
     def __str__(self):
