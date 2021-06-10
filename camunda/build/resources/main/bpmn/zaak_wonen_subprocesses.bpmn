@@ -38,7 +38,10 @@
             <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="headers">
-              <camunda:map />
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="payload">{
 "state": "Correspondentie",
@@ -82,7 +85,10 @@
             <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="headers">
-              <camunda:map />
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="payload">{
 "state": "Bezwaardossier",
@@ -104,7 +110,10 @@
             <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="headers">
-              <camunda:map />
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="payload">{
 "state": "Terugbelverzoek",
