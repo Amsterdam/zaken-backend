@@ -26,7 +26,7 @@ def get_form_details(form):
             input_name = form_input.attrs.get("name")
             input_value = form_input.attrs.get("value", "")
 
-            required = form_group.find(string=re.compile("Required field")) is not None
+            required = form_input.attrs.get("required") == ""
             is_date = form_group.find(string=re.compile(".date")) is not None
 
             form_inputs.append(
