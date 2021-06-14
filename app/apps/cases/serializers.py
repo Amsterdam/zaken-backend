@@ -228,7 +228,7 @@ class CaseCloseSerializer(serializers.ModelSerializer):
             )
 
         if data["reason"].result:
-            # Ff the reason is a result, the result should be populated
+            # If the reason is a result, the result should be populated
             if not data["result"]:
                 raise serializers.ValidationError("result not found")
 
