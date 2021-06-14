@@ -5,6 +5,7 @@ from apps.cases.models import (
     Case,
     CaseClose,
     CaseCloseReason,
+    CaseCloseResult,
     CaseReason,
     CaseState,
     CaseStateType,
@@ -208,7 +209,37 @@ class CaseCloseReasonSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class CaseCloseResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseCloseResult
+        fields = "__all__"
+
+
 class CaseCloseSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseClose
         fields = "__all__"
+
+    def validate(self, data):
+        # Validate if result's Theme equals the case's theme
+        if data["case"].theme != data["result"].case_theme:
+            raise serializers.ValidationError(
+                "Themes don't match between result and case"
+            )
+
+        if data["reason"].result:
+            # If the reason is a result, the result should be populated
+            if not data["result"]:
+                raise serializers.ValidationError("result not found")
+
+            # Validate if Reason Theme equals the Case Theme
+            if data["case"].theme != data["reason"].case_theme:
+                raise serializers.ValidationError(
+                    "Themes don't match between reason and case"
+                )
+
+        else:
+            # Make sure we ignore the result in case the Reason isn't a result
+            data["result"] = None
+
+        return data

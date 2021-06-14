@@ -14,6 +14,7 @@ from apps.cases.models import (
     Case,
     CaseClose,
     CaseCloseReason,
+    CaseCloseResult,
     CaseProcessInstance,
     CaseReason,
     CaseState,
@@ -23,6 +24,7 @@ from apps.cases.models import (
 from apps.cases.serializers import (
     CamundaStartProcessSerializer,
     CaseCloseReasonSerializer,
+    CaseCloseResultSerializer,
     CaseCloseSerializer,
     CaseCreateUpdateSerializer,
     CaseReasonSerializer,
@@ -530,6 +532,44 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
 
         return paginator.get_paginated_response(serializer.data)
 
+    @extend_schema(
+        description="Gets the CaseCloseReasons associated with the given theme",
+        responses={status.HTTP_200_OK: CaseCloseReasonSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="case-close-reasons",
+        methods=["get"],
+    )
+    def case_close_reasons(self, request, pk):
+        paginator = PageNumberPagination()
+        theme = self.get_object()
+        query_set = theme.caseclosereason_set.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = CaseCloseReasonSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the CaseCloseResult associated with the given theme",
+        responses={status.HTTP_200_OK: CaseCloseResultSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="case-close-results",
+        methods=["get"],
+    )
+    def case_close_results(self, request, pk):
+        paginator = PageNumberPagination()
+        theme = self.get_object()
+        query_set = theme.casecloseresult_set.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = CaseCloseResultSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
 
 class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
     form_class = ImportBWVCaseDataForm
@@ -696,15 +736,6 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
             }
         )
         return self.render_to_response(context)
-
-
-class CaseCloseReasonViewSet(
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet,
-):
-    serializer_class = CaseCloseReasonSerializer
-    queryset = CaseCloseReason.objects.all()
 
 
 class CaseCloseViewSet(
