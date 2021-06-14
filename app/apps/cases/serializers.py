@@ -222,10 +222,11 @@ class CaseCloseSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         # Validate if result's Theme equals the case's theme
-        if data["case"].theme != data["result"].case_theme:
-            raise serializers.ValidationError(
-                "Themes don't match between result and case"
-            )
+        if data["result"]:
+            if data["case"].theme != data["result"].case_theme:
+                raise serializers.ValidationError(
+                    "Themes don't match between result and case"
+                )
 
         if data["reason"].result:
             # If the reason is a result, the result should be populated

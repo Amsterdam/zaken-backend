@@ -237,7 +237,7 @@ class CaseClose(models.Model):
     result = models.ForeignKey(
         CaseCloseResult, null=True, blank=True, on_delete=models.PROTECT
     )
-    explanation = models.TextField()
+    description = models.TextField()
 
     def __str__(self):
         return f"CASE: {self.case.__str__()} - REASON {self.reason.__str__()}"
