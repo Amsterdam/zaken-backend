@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_1tztuvt">
     <bpmn:participant id="Participant_08m4w5n" name="Process" processRef="zaak_wonen_visit" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_visit" name="VakantieVerhuur - Huisbezoek" isExecutable="true" camunda:versionTag="0.2.4">
+  <bpmn:process id="zaak_wonen_visit" name="VakantieVerhuur - Huisbezoek" isExecutable="true" camunda:versionTag="1.0">
     <bpmn:laneSet id="LaneSet_07j24vc">
       <bpmn:lane id="Lane_1hxgg1r" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_118nnax</bpmn:flowNodeRef>
@@ -133,7 +133,7 @@
             <camunda:inputParameter name="payload">{
 "state": "Aanschrijvingen",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -162,7 +162,7 @@
             <camunda:inputParameter name="payload">{
 "state": "Debrief",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -195,7 +195,7 @@
       <bpmn:outgoing>Flow_0ozrgdh</bpmn:outgoing>
       <bpmn:outgoing>Flow_1vf6p6a</bpmn:outgoing>
     </bpmn:inclusiveGateway>
-    <bpmn:userTask id="Activity_0bc2n3t" name="Informeer melder over status melding" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+    <bpmn:userTask id="Activity_0bc2n3t" name="Terugkoppeling melder(s)" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
       <bpmn:incoming>Flow_1r5u9k4</bpmn:incoming>
       <bpmn:outgoing>Flow_1d2hx1m</bpmn:outgoing>
     </bpmn:userTask>
@@ -253,7 +253,7 @@
             <camunda:inputParameter name="payload">{
 "state": "Huisbezoek",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -380,7 +380,7 @@
             <camunda:inputParameter name="payload">{
 "state": "Hercontrole",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -416,7 +416,7 @@
             <camunda:inputParameter name="payload">{
 "state": "${status_name}",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>

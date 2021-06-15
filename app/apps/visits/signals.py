@@ -7,9 +7,9 @@ from django.dispatch import receiver
 @receiver(post_save, sender=Visit, dispatch_uid="visit_create_complete_camunda_task")
 def complete_camunda_task_create_visit(sender, instance, created, **kwargs):
     task = False
-    for camunda_id in instance.case.camunda_ids:
+    for state in instance.case.case_states.all():
         task = CamundaService().get_task_by_task_name_id_and_camunda_id(
-            "task_create_visit", camunda_id
+            "task_create_visit", state.case_process_id
         )
         if task:
             break

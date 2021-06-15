@@ -46,7 +46,7 @@
             <camunda:inputParameter name="payload">{
 "state": "Correspondentie",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
@@ -93,7 +93,7 @@
             <camunda:inputParameter name="payload">{
 "state": "Bezwaardossier",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
@@ -118,7 +118,7 @@
             <camunda:inputParameter name="payload">{
 "state": "Terugbelverzoek",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
@@ -204,7 +204,7 @@
             <camunda:inputParameter name="payload">{
 "state": "Melding",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>

@@ -86,7 +86,7 @@
             <camunda:inputParameter name="payload">{
 "state": "Afsluiten zaak",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -142,7 +142,7 @@
     "message_name": "start_hercontrole",
     "process_variables": "",
     "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
