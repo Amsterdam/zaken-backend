@@ -146,6 +146,20 @@ class Case(ModelEventEmitter):
         self.save()
         return self
 
+    def close_case(self):
+        # close all states just in case
+        for state in self.case_states.filter(end_date__isnull=True):
+            state.end_date = timezone.now().date()
+            state.save()
+
+        for camunda_id in self.camunda_ids:
+            from apps.camunda.services import CamundaService
+
+            CamundaService().delete_instance(camunda_id)
+
+        self.end_date = timezone.now().date()
+        self.save()
+
     class Meta:
         ordering = ["-start_date"]
 

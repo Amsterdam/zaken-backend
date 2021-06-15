@@ -2,7 +2,7 @@ import logging
 import sys
 
 from apps.camunda.services import CamundaService
-from apps.cases.models import Case, CitizenReport
+from apps.cases.models import Case, CaseClose, CitizenReport
 from apps.cases.tasks import start_camunda_instance
 from django.conf import settings
 from django.db.models.signals import post_save
@@ -54,3 +54,9 @@ def complete_citizen_report_task(sender, instance, created, **kwargs):
         CamundaService().complete_task(
             instance.camunda_task_id,
         )
+
+
+@receiver(post_save, sender=CaseClose)
+def close_case(sender, instance, created, **kwargs):
+    if created:
+        instance.case.close_case()

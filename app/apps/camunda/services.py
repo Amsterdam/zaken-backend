@@ -19,10 +19,13 @@ class CamundaService:
     def __init__(self, rest_url=settings.CAMUNDA_REST_URL):
         self.rest_url = rest_url
 
-    def _process_request(self, request_path, request_body=None, post=False, put=False):
+    def _process_request(
+        self, request_path, request_body=None, post=False, put=False, delete=False
+    ):
         request_path = self.rest_url + request_path
 
         try:
+            # TODO: There needs to be a better way to write this. Works but it aint pretty
             if post:
                 response = requests.post(
                     request_path,
@@ -34,6 +37,15 @@ class CamundaService:
                 )
             elif put:
                 response = requests.put(
+                    request_path,
+                    data=request_body,
+                    headers={
+                        "content-type": "application/json",
+                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                    },
+                )
+            elif delete:
+                response = requests.delete(
                     request_path,
                     data=request_body,
                     headers={
@@ -332,3 +344,10 @@ class CamundaService:
         response = self._process_request("/message", request_json_body, post=True)
 
         return response
+
+    def delete_instance(self, camunda_process_instance_id):
+        response = self._process_request(
+            f"/process-instance/{camunda_process_instance_id}"
+        )
+
+        return response.ok
