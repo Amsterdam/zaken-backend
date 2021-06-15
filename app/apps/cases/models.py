@@ -254,6 +254,7 @@ class CaseClose(ModelEventEmitter):
         CaseCloseResult, null=True, blank=True, on_delete=models.PROTECT
     )
     description = models.TextField()
+    date_added = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return f"CASE: {self.case.__str__()} - REASON {self.reason.__str__()}"
