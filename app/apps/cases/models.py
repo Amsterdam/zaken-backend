@@ -258,6 +258,15 @@ class CaseClose(ModelEventEmitter):
     def __str__(self):
         return f"CASE: {self.case.__str__()} - REASON {self.reason.__str__()}"
 
+    def __get_event_values__(self):
+        return {
+            "date_added": self.date_added,
+            # @TODO "author": self.case.author.full_name if self.author else "Medewerker onbekend",
+            "reason": self.reason.__str__(),
+            "result": self.result.__str__(),
+            "description": self.description,
+        }
+
 
 class CitizenReport(TaskModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CITIZEN_REPORT
