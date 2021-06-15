@@ -245,7 +245,9 @@ class CaseCloseReason(models.Model):
         return f"{self.name} - {self.case_theme}"
 
 
-class CaseClose(models.Model):
+class CaseClose(ModelEventEmitter):
+    EVENT_TYPE = CaseEvent.TYPE_CASE_CLOSE
+
     case = models.ForeignKey(Case, on_delete=models.CASCADE)
     reason = models.ForeignKey(CaseCloseReason, on_delete=models.PROTECT)
     result = models.ForeignKey(
