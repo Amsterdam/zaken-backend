@@ -263,8 +263,8 @@ class CaseClose(ModelEventEmitter):
         return {
             "date_added": self.date_added,
             # @TODO "author": self.case.author.full_name if self.author else "Medewerker onbekend",
-            "reason": self.reason.__str__(),
-            "result": self.result.__str__(),
+            "reason": self.reason.name,
+            "result": self.result.name,
             "description": self.description,
         }
 
