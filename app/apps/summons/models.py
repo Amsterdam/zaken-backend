@@ -65,6 +65,7 @@ class Summon(TaskModelEventEmitter):
                         [person.__str__() for person in self.persons.all()]
                     )
                 },
+                "summon_id": {"value": self.id},
             },
         )
         return response
