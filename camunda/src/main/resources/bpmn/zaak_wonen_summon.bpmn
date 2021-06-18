@@ -72,7 +72,7 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1g3luuj" name="Na 56 dagen" sourceRef="Event_1514cbt" targetRef="Activity_1gaa36w" />
     <bpmn:sequenceFlow id="Flow_0oyiegq" name="Ja, vergunning aangevraagd" sourceRef="Activity_1mkl5rk" targetRef="Activity_1k03k9a">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested=="yes_permit_requested"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_12sivk9" name="Nee, geen vergunning aangevraagd" sourceRef="Gateway_0s3wb8r" targetRef="Event_0nfpu7u">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested=="no_action"}</bpmn:conditionExpression>
@@ -82,7 +82,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${civilian_has_gotten_permit=="no_permit"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0m6yape" name="Ja, burger heeft nu een vergunning" sourceRef="Activity_1k03k9a" targetRef="Activity_18x19gf">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${civilian_has_gotten_permit=="yes_permit"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${civilian_has_gotten_permit}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1izu6zi" name="Ja, burger heeft nu een vergunning" sourceRef="Gateway_0fr0xxj" targetRef="Activity_18x19gf">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${civilian_has_gotten_permit=="yes_permit"}</bpmn:conditionExpression>
@@ -113,9 +113,9 @@
     <bpmn:userTask id="Activity_1gaa36w" name="Controleren vergunningsprocedure" camunda:formKey="form_monitoren_vergunningsprocedure" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="civilian_has_gotten_permit" label="Heeft de burger nu een vergunning?" type="enum" defaultValue="no_permit">
-            <camunda:value id="no_permit" name="Nee, geen vergunning verleend" />
-            <camunda:value id="yes_permit" name="Ja, burger heeft nu een vergunning" />
+          <camunda:formField id="civilian_has_gotten_permit" label="Is de vergunning verleend?" type="enum" defaultValue="no_permit">
+            <camunda:value id="no_permit" name="Nee, de vergunning is niet verleend" />
+            <camunda:value id="yes_permit" name="Ja, de vergunning is verleend" />
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
@@ -150,8 +150,10 @@
     <bpmn:userTask id="Activity_1k03k9a" name="Monitoren vergunningsprocedure" camunda:formKey="form_monitoren_vergunningsprocedure" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(56).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="civilian_has_gotten_permit" label="Heeft de burger nu een vergunning?" type="enum">
-            <camunda:value id="yes_permit" name="Ja, burger heeft nu een vergunning" />
+          <camunda:formField id="civilian_has_gotten_permit" label="Is de vergunning verleend?" type="boolean">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
@@ -167,9 +169,9 @@
     <bpmn:userTask id="Activity_1t8h57c" name="Controleren binnenkomst vergunningaanvraag" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="action_civilian_permit_requested" label="Is vergunning aangevraagd?" type="enum" defaultValue="no_action">
-            <camunda:value id="no_action" name="Nee, geen vergunning aangevraagd" />
-            <camunda:value id="yes_permit_requested" name="Ja, vergunning aangevraagd" />
+          <camunda:formField id="action_civilian_permit_requested" label="Is de vergunning aangevraagd?" type="enum" defaultValue="no_action">
+            <camunda:value id="no_action" name="Nee, de vergunning is niet aangevraagd" />
+            <camunda:value id="yes_permit_requested" name="Ja, de vergunning is aangevraagd" />
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
@@ -208,12 +210,10 @@
     <bpmn:userTask id="Activity_1mkl5rk" name="Monitoren binnenkomen vergunningaanvraag" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(32).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="action_civilian_permit_requested" label="Is vergunning aangevraagd?" type="enum">
-            <camunda:properties>
-              <camunda:property id="description" value="Dit is een testerino" />
-              <camunda:property id="tooltip" value="Dit is een testerino ook" />
-            </camunda:properties>
-            <camunda:value id="yes_permit_requested" name="Ja, vergunning aangevraagd" />
+          <camunda:formField id="action_civilian_permit_requested" label="Is de vergunning aangevraagd?" type="boolean">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
@@ -250,6 +250,7 @@
             <camunda:value id="legalisatie-brief" name="Legalisatie Brief" />
           </camunda:formField>
           <camunda:formField id="names" type="string" />
+          <camunda:formField id="summon_id" type="string" defaultValue="0" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1atmgnk</bpmn:incoming>
@@ -360,15 +361,17 @@
       <bpmn:incoming>Flow_1usf3sm</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0umy2og" name="Ja, burger zienswijze ontvangen" sourceRef="Activity_13ccsra" targetRef="Activity_18ear0d">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${is_civilian_objection_received=="yes_objection_received"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${is_civilian_objection_received}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_05c0mfz" sourceRef="Event_1mo05mc" targetRef="Activity_1nylgs7" />
     <bpmn:sequenceFlow id="Flow_1pop5qk" sourceRef="Activity_1yxvl6p" targetRef="Activity_13ccsra" />
     <bpmn:userTask id="Activity_13ccsra" name="Monitoren binnenkomen zienswijze" camunda:formKey="monitor_civilian_action" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(17).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="is_civilian_objection_received" label="Is de burger zienswijze ontvangen?" type="enum">
-            <camunda:value id="yes_objection_received" name="Ja, burger zienswijze ontvangen" />
+          <camunda:formField id="is_civilian_objection_received" label="Is de zienswijze binnengekomen?" type="boolean">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
@@ -392,7 +395,8 @@
               <camunda:inputParameter name="payload">{
     "message_name": "start_decision_process",
     "process_variables": {
-        "names": {"value": "${names}"}
+        "names": {"value": "${names}"},
+        "summon_id": {"value": "${summon_id}"}
     },
     "case_identification": "${case_identification}",
 "case_process_id": "${case_process_id}"
@@ -453,9 +457,9 @@
     <bpmn:userTask id="Activity_1nylgs7" name="Controleren binnenkomst zienswijze" camunda:formKey="monitor_civilian_action" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="is_civilian_objection_received" label="Is de burger zienswijze ontvangen?" type="enum" defaultValue="no_objection_not_received">
-            <camunda:value id="no_objection_not_received" name="Nee, burger zienswijze niet ontvangen" />
-            <camunda:value id="yes_objection_received" name="Ja, burger zienswijze ontvangen" />
+          <camunda:formField id="is_civilian_objection_received" label="Is de zienswijze binnengekomen?" type="enum" defaultValue="no_objection_not_received">
+            <camunda:value id="no_objection_not_received" name="Nee, de zienswijze is niet binnengekomen" />
+            <camunda:value id="yes_objection_received" name="Ja, de zienswijze is binnengekomen" />
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
