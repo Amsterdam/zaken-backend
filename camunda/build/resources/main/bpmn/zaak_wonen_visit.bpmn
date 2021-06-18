@@ -195,7 +195,7 @@
       <bpmn:outgoing>Flow_0ozrgdh</bpmn:outgoing>
       <bpmn:outgoing>Flow_1vf6p6a</bpmn:outgoing>
     </bpmn:inclusiveGateway>
-    <bpmn:userTask id="Activity_0bc2n3t" name="Informeer melder over status melding" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+    <bpmn:userTask id="Activity_0bc2n3t" name="Terugkoppeling melder(s)" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
       <bpmn:incoming>Flow_1r5u9k4</bpmn:incoming>
       <bpmn:outgoing>Flow_1d2hx1m</bpmn:outgoing>
     </bpmn:userTask>
