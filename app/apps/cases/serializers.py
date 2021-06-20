@@ -216,6 +216,8 @@ class CaseCloseResultSerializer(serializers.ModelSerializer):
 
 
 class CaseCloseSerializer(serializers.ModelSerializer):
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = CaseClose
         fields = "__all__"
