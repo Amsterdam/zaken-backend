@@ -28,7 +28,7 @@ class Summon(TaskModelEventEmitter):
     type = models.ForeignKey(
         to=SummonType, related_name="summons", on_delete=models.RESTRICT
     )
-    type_result = models.JSONField(null=True)
+    type_result = models.JSONField(null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
     description = models.TextField(null=True, blank=True)
     author = models.ForeignKey(
