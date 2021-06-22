@@ -245,16 +245,38 @@ class CaseCloseReason(models.Model):
         return f"{self.name} - {self.case_theme}"
 
 
-class CaseClose(models.Model):
+class CaseClose(ModelEventEmitter):
+    EVENT_TYPE = CaseEvent.TYPE_CASE_CLOSE
+
     case = models.ForeignKey(Case, on_delete=models.CASCADE)
     reason = models.ForeignKey(CaseCloseReason, on_delete=models.PROTECT)
     result = models.ForeignKey(
         CaseCloseResult, null=True, blank=True, on_delete=models.PROTECT
     )
     description = models.TextField()
+    date_added = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    author = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+    )
 
     def __str__(self):
         return f"CASE: {self.case.__str__()} - REASON {self.reason.__str__()}"
+
+    def __get_event_values__(self):
+        event_values = {
+            "date_added": self.date_added,
+            "author": self.case.author.full_name
+            if self.author
+            else "Medewerker onbekend",
+            "reason": self.reason.name,
+            "description": self.description,
+        }
+        if self.result:
+            event_values.update({"result": self.result.name})
+        return event_values
 
 
 class CitizenReport(TaskModelEventEmitter):
