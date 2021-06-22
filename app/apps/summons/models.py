@@ -28,6 +28,7 @@ class Summon(TaskModelEventEmitter):
     type = models.ForeignKey(
         to=SummonType, related_name="summons", on_delete=models.RESTRICT
     )
+    type_result = models.JSONField(null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
     description = models.TextField(null=True, blank=True)
     author = models.ForeignKey(
@@ -44,13 +45,17 @@ class Summon(TaskModelEventEmitter):
         return persons
 
     def __get_event_values__(self):
-        return {
+        event_values = {
             "author": self.author.__str__(),
             "date_added": self.date_added,
             "description": self.description,
             "type": self.type.name,
             "persons": self.__get_person_event_values__(),
         }
+        if isinstance(self.type_result, dict):
+            event_values.update(**self.type_result)
+
+        return event_values
 
     def __str__(self):
         return f"{self.id} Summon - {self.type} - Case {self.case.id}"
