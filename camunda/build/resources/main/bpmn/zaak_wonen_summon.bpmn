@@ -321,21 +321,22 @@
       <bpmn:incoming>Flow_0p4fa1b</bpmn:incoming>
       <bpmn:outgoing>Flow_1kedpc9</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:endEvent id="Event_0ysomyy" name="start sluitingsproces" camunda:asyncAfter="true">
+    <bpmn:endEvent id="Event_0ysomyy" name="Start sluitings proces">
       <bpmn:incoming>Flow_0jcg14m</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1tzmzdr" messageRef="Message_1j5idk9">
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1tzmzdr">
         <bpmn:extensionElements>
           <camunda:connector>
             <camunda:inputOutput>
               <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/send-message-start-process/</camunda:inputParameter>
               <camunda:inputParameter name="method">POST</camunda:inputParameter>
               <camunda:inputParameter name="payload">{
-    "message_name": "start_sluitings_proces",
+    "message_name": "start_close_down_process",
     "process_variables": {
-        "zaken_access_token": {"value": "${zaken_access_token}"},
-        "endpoint": {"value": "${endpoint}"}
+        "names": {"value": "${names}"},
+        "summon_id": {"value": "${summon_id}"}
     },
-"case_identification": "${case_identification}
+    "case_identification": "${case_identification}",
+"case_process_id": "${case_process_id}"
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
@@ -606,11 +607,13 @@ EN FORM</bpmn:text>
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
   <bpmn:message id="Message_14wp5u8" name="model_create_summon" />
   <bpmn:message id="Message_1k1jpww" name="start_decision_process" />
-  <bpmn:message id="Message_1j5idk9" name="start_sluitings_process" />
+  <bpmn:message id="Message_1j5idk9" />
   <bpmn:message id="Message_1bioi1o" name="start_renounce_intention" />
   <bpmn:message id="Message_1od7c00" name="start_uitzetten_vervolgstap" />
   <bpmn:message id="Message_164umvg" name="start_renounce_intention" />
   <bpmn:message id="Message_1xgy76b" name="connect_start_renounce_intention" />
+  <bpmn:message id="Message_0vv79wl" />
+  <bpmn:message id="Message_1dvvcxs" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1t5ylmo">
       <bpmndi:BPMNShape id="Participant_1ciseh2_di" bpmnElement="Participant_1ciseh2" isHorizontal="true">
@@ -818,9 +821,9 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNEdge id="Flow_0jcg14m_di" bpmnElement="Flow_0jcg14m">
         <di:waypoint x="740" y="655" />
         <di:waypoint x="740" y="890" />
-        <di:waypoint x="982" y="890" />
+        <di:waypoint x="980" y="890" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="773" y="856" width="85" height="27" />
+          <dc:Bounds x="771" y="856" width="85" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_06je06y_di" bpmnElement="Flow_06je06y">
@@ -895,7 +898,7 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="Event_0x8hw65_di" bpmnElement="Event_0ysomyy">
         <dc:Bounds x="982" y="872" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="964" y="915" width="73" height="27" />
+          <dc:Bounds x="967" y="915" width="67" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_13bywna_di" bpmnElement="Event_13bywna">
