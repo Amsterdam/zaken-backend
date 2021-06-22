@@ -51,6 +51,7 @@ INSTALLED_APPS = (
     "django_celery_beat",
     "django_celery_results",
     "zgw_consumers",
+    "axes",
     # Health checks. (Expand when more services become available)
     "health_check",
     "health_check.db",
@@ -115,6 +116,7 @@ MIDDLEWARE = (
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "axes.middleware.AxesMiddleware",
 )
 
 STATIC_URL = "/static/"
@@ -231,6 +233,7 @@ LOCAL_DEVELOPMENT_AUTHENTICATION = (
 AUTH_USER_MODEL = "users.User"
 
 AUTHENTICATION_BACKENDS = (
+    "axes.backends.AxesBackend",
     "django.contrib.auth.backends.ModelBackend",
     "apps.users.auth.AuthenticationBackend",
 )

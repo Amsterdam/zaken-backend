@@ -19,6 +19,9 @@ chmod -R 777 /static
 echo Apply migrations
 python manage.py migrate --noinput
 
+echo Axes check
+python manage.py check
+
 # echo Apply OpenZaak data structures
 python manage.py initialize_openzaak
 
