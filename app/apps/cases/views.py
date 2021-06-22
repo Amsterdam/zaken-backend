@@ -746,33 +746,3 @@ class CaseCloseViewSet(
 ):
     serializer_class = CaseCloseSerializer
     queryset = CaseClose.objects.all()
-
-    # @extend_schema(
-    #     description="Close case",
-    #     responses={status.HTTP_200_OK: CaseCloseSerializer()},
-    # )
-    # @action(
-    #     detail=True,
-    #     url_path="case-close",
-    #     methods=["post"],
-    #     serializer_class=CaseCloseSerializer,
-    # )
-    # def case_close(self, request):
-    #     serializer = self.serializer_class(data=request.data)
-    #     if serializer.is_valid():
-    #         data = serializer.validated_data
-    #         data.update(
-    #             {
-    #                 "author": request.user,
-    #             }
-    #         )
-    #         case_close = CaseClose(**data)
-    #         case_close.save()
-    #         return Response(
-    #             data="CaseClose added",
-    #             status=status.HTTP_200_OK,
-    #         )
-    #     return Response(
-    #         data="CaseClose error. serializer not valid",
-    #         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-    #     )
