@@ -105,7 +105,7 @@ class Case(ModelEventEmitter):
         return f"{self.id} Case"
 
     def get_current_states(self):
-        return self.case_states.filter(end_date__isnull=True)
+        return self.case_states.filter(end_date__isnull=True).order_by("-id")
 
     def get_schedules(self):
         qs = self.schedules.all().order_by("-date_added")

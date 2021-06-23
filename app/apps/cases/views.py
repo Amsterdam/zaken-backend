@@ -197,8 +197,8 @@ class CaseViewSet(
         if open_status:
             queryset = queryset.filter(
                 case_states__end_date__isnull=True,
-                case_states__status__name=open_status,
-            )
+                case_states__status__id__in=open_status.split(","),
+            ).distinct()
 
         if no_pagination == "true":
             serializer = CaseSerializer(queryset, many=True)
