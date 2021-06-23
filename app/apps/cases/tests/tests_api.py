@@ -254,7 +254,7 @@ class CaseListApiTest(APITestCase):
         url = reverse("cases-list")
         client = get_authenticated_client()
 
-        FILTER_PARAMETERS = {"openStatus": state_type.name}
+        FILTER_PARAMETERS = {"openStatus": state_type.id}
         response = client.get(url, FILTER_PARAMETERS)
 
         results = response.data["results"]
@@ -268,7 +268,7 @@ class CaseListApiTest(APITestCase):
         client = get_authenticated_client()
 
         test_state = case_states[0]
-        FILTER_PARAMETERS = {"openStatus": test_state.status.name}
+        FILTER_PARAMETERS = {"openStatus": test_state.status.id}
         response = client.get(url, FILTER_PARAMETERS)
 
         results = response.data["results"]
