@@ -56,7 +56,7 @@ class CamundaService:
             )
             return response
         except requests.exceptions.Timeout:
-            logger.info("Request to Camunda timed out")
+            logger.error("Request to Camunda timed out")
             response = Response(
                 "Camunda service is offline",
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -64,7 +64,7 @@ class CamundaService:
             response.ok = False
             return response
         except requests.exceptions.RequestException as exception:
-            logger.info(f"Request to Camunda threw an exception: {exception}")
+            logger.error(f"Request to Camunda threw an exception: {exception}")
             response = Response(status=status.HTTP_400_BAD_REQUEST)
             response.ok = False
             return response
