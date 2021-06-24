@@ -347,7 +347,7 @@ class CamundaService:
 
     def delete_instance(self, camunda_process_instance_id):
         response = self._process_request(
-            f"/process-instance/{camunda_process_instance_id}"
+            f"/process-instance/{camunda_process_instance_id}", delete=True
         )
 
         return response.ok

@@ -58,5 +58,6 @@ def complete_citizen_report_task(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=CaseClose)
 def close_case(sender, instance, created, **kwargs):
+    CamundaService().complete_task(instance.camunda_task_id)
     if created:
         instance.case.close_case()
