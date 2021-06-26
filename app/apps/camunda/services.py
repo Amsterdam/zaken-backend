@@ -64,7 +64,7 @@ class CamundaService:
                 )
 
             logger.info(
-                f"Request to Camunda succesful. Response: {response.content} from url: {request_path}"
+                f"Request to Camunda succesful. Response: {response.content} from url: {request_path}({response.request.method}) with code: {response.status_code}"
             )
             return response
         except requests.exceptions.Timeout:
