@@ -64,7 +64,7 @@ class CamundaService:
                 )
 
             logger.info(
-                f"Request to Camunda succesful. Response: {response.content} from url: {request_path}"
+                f"Request to Camunda succesful. Response: {response.content} from url: {request_path}({response.request.method}) with code: {response.status_code}"
             )
             return response
         except requests.exceptions.Timeout:
@@ -347,7 +347,7 @@ class CamundaService:
 
     def delete_instance(self, camunda_process_instance_id):
         response = self._process_request(
-            f"/process-instance/{camunda_process_instance_id}"
+            f"/process-instance/{camunda_process_instance_id}", delete=True
         )
 
         return response.ok

@@ -156,6 +156,7 @@ class Case(ModelEventEmitter):
             from apps.camunda.services import CamundaService
 
             CamundaService().delete_instance(camunda_id)
+            self.camunda_ids = []
 
         self.end_date = timezone.now().date()
         self.save()
@@ -245,7 +246,7 @@ class CaseCloseReason(models.Model):
         return f"{self.name} - {self.case_theme}"
 
 
-class CaseClose(ModelEventEmitter):
+class CaseClose(TaskModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CASE_CLOSE
 
     case = models.ForeignKey(Case, on_delete=models.CASCADE)
