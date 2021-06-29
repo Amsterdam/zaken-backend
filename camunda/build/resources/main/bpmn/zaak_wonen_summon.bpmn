@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_1t5ylmo">
     <bpmn:participant id="Participant_1ciseh2" name="Process" processRef="zaak_wonen_summon" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_summon" name="Zaak Wonen VakantieVerhuur - Aanschrijving" isExecutable="true" camunda:versionTag="0.1.2">
+  <bpmn:process id="zaak_wonen_summon" name="Zaak Wonen VakantieVerhuur - Aanschrijving" isExecutable="true" camunda:versionTag="0.1.3">
     <bpmn:laneSet id="LaneSet_0iy1emi">
       <bpmn:lane id="Lane_1o6yxo7" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_1ksn3xw</bpmn:flowNodeRef>
@@ -21,6 +21,7 @@
         <bpmn:flowNodeRef>Activity_1k03k9a</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1gaa36w</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0s3wb8r</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_0frp4m5</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_18x19gf</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0fr0xxj</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1nylgs7</bpmn:flowNodeRef>
@@ -30,20 +31,20 @@
         <bpmn:flowNodeRef>Activity_16qvzbe</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0saow5j</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_10sjuss</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_0frp4m5</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1rmmm5s</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_1514cbt</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0uynagg</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0nfpu7u</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>start_decision_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1514cbt</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1va49v0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>start_decision_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0xg6qv2</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1wein50" name="Projectmedewerker">
         <bpmn:flowNodeRef>Activity_1mkl5rk</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1yxvl6p</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_13ccsra</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_1s4a0ru</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1mo05mc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1s4a0ru</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_0ku7kbe" name="Projectmedewerker, Projecthandhaver" />
     </bpmn:laneSet>
@@ -262,15 +263,12 @@
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
-        <camunda:inputOutput>
-          <camunda:outputParameter name="decision">"true"</camunda:outputParameter>
-        </camunda:inputOutput>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0o6dkue</bpmn:incoming>
       <bpmn:incoming>Flow_15k43jt</bpmn:incoming>
       <bpmn:outgoing>Flow_1erjkqi</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_1erjkqi" sourceRef="Activity_15mgnxf" targetRef="start_decision_process" />
+    <bpmn:sequenceFlow id="Flow_1erjkqi" sourceRef="Activity_15mgnxf" targetRef="Activity_0xg6qv2" />
     <bpmn:sequenceFlow id="Flow_03g4je5" sourceRef="Activity_10sjuss" targetRef="Event_1va49v0" />
     <bpmn:sequenceFlow id="Flow_141448o" name="Ja, zienswijze ontvangen" sourceRef="Gateway_1j1sd3l" targetRef="Activity_18ear0d">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${is_civilian_objection_received=="yes_objection_received"}</bpmn:conditionExpression>
@@ -472,14 +470,20 @@
       <bpmn:incoming>Flow_12sivk9</bpmn:incoming>
       <bpmn:terminateEventDefinition id="TerminateEventDefinition_1k2omv2" />
     </bpmn:endEvent>
-    <bpmn:endEvent id="start_decision_process" name="Opstellen besluit process">
-      <bpmn:incoming>Flow_1erjkqi</bpmn:incoming>
-      <bpmn:terminateEventDefinition id="TerminateEventDefinition_0au4c6r" />
-    </bpmn:endEvent>
     <bpmn:endEvent id="Event_1va49v0" name="Uitzetten vervolgstap">
       <bpmn:incoming>Flow_03g4je5</bpmn:incoming>
       <bpmn:terminateEventDefinition id="TerminateEventDefinition_1t8vje6" />
     </bpmn:endEvent>
+    <bpmn:endEvent id="start_decision_process" name="Opstellen besluit process">
+      <bpmn:incoming>Flow_186wilc</bpmn:incoming>
+      <bpmn:terminateEventDefinition id="TerminateEventDefinition_0au4c6r" />
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="Activity_0xg6qv2" name="Set Decision = True" scriptFormat="javascript">
+      <bpmn:incoming>Flow_1erjkqi</bpmn:incoming>
+      <bpmn:outgoing>Flow_186wilc</bpmn:outgoing>
+      <bpmn:script>execution.setVariable('decision', 'true');</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_186wilc" sourceRef="Activity_0xg6qv2" targetRef="start_decision_process" />
     <bpmn:textAnnotation id="TextAnnotation_07hudkr">
       <bpmn:text>Herhaling wordt nog verbeterd
 
@@ -498,19 +502,19 @@ EN FORM</bpmn:text>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1t5ylmo">
       <bpmndi:BPMNShape id="Participant_1ciseh2_di" bpmnElement="Participant_1ciseh2" isHorizontal="true">
-        <dc:Bounds x="160" y="80" width="3230" height="1170" />
+        <dc:Bounds x="160" y="80" width="3328" height="1170" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_0ku7kbe_di" bpmnElement="Lane_0ku7kbe" isHorizontal="true">
-        <dc:Bounds x="190" y="80" width="3200" height="170" />
+        <dc:Bounds x="190" y="80" width="3298" height="170" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1wein50_di" bpmnElement="Lane_1wein50" isHorizontal="true">
-        <dc:Bounds x="190" y="250" width="3200" height="270" />
+        <dc:Bounds x="190" y="250" width="3298" height="270" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1szfa18_di" bpmnElement="Lane_1szfa18" isHorizontal="true">
-        <dc:Bounds x="190" y="520" width="3200" height="470" />
+        <dc:Bounds x="190" y="520" width="3298" height="470" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1o6yxo7_di" bpmnElement="Lane_1o6yxo7" isHorizontal="true">
-        <dc:Bounds x="190" y="990" width="3200" height="260" />
+        <dc:Bounds x="190" y="990" width="3298" height="260" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1wlsww0_di" bpmnElement="Flow_1wlsww0">
         <di:waypoint x="258" y="630" />
@@ -584,7 +588,7 @@ EN FORM</bpmn:text>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1erjkqi_di" bpmnElement="Flow_1erjkqi">
         <di:waypoint x="3170" y="900" />
-        <di:waypoint x="3202" y="900" />
+        <di:waypoint x="3210" y="900" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1pop5qk_di" bpmnElement="Flow_1pop5qk">
         <di:waypoint x="1250" y="330" />
@@ -715,6 +719,10 @@ EN FORM</bpmn:text>
         <di:waypoint x="520" y="630" />
         <di:waypoint x="570" y="630" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_186wilc_di" bpmnElement="Flow_186wilc">
+        <di:waypoint x="3310" y="900" />
+        <di:waypoint x="3342" y="900" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_1t8h57c_di" bpmnElement="Activity_1t8h57c">
         <dc:Bounds x="1120" y="830" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -820,12 +828,6 @@ EN FORM</bpmn:text>
           <dc:Bounds x="2006" y="895" width="89" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1h6d37m_di" bpmnElement="start_decision_process">
-        <dc:Bounds x="3202" y="882" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="3179" y="925" width="82" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_07hudkr_di" bpmnElement="TextAnnotation_07hudkr">
         <dc:Bounds x="3190" y="526" width="100" height="68" />
       </bpmndi:BPMNShape>
@@ -834,6 +836,15 @@ EN FORM</bpmn:text>
         <bpmndi:BPMNLabel>
           <dc:Bounds x="3192" y="655" width="57" height="27" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1h6d37m_di" bpmnElement="start_decision_process">
+        <dc:Bounds x="3342" y="882" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3319" y="925" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_18im036_di" bpmnElement="Activity_0xg6qv2">
+        <dc:Bounds x="3210" y="860" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1ya7mo6_di" bpmnElement="Event_1514cbt">
         <dc:Bounds x="1412" y="612" width="36" height="36" />

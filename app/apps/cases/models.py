@@ -55,6 +55,7 @@ class Case(ModelEventEmitter):
     legacy_bwv_case_id = models.CharField(
         max_length=255, null=True, blank=True, unique=True
     )
+    directing_process = models.CharField(max_length=255, null=True, blank=True)
     camunda_ids = ArrayField(
         models.CharField(max_length=255), default=list, null=True, blank=True
     )

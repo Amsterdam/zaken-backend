@@ -478,7 +478,7 @@
       <bpmn:incoming>Flow_186wilc</bpmn:incoming>
       <bpmn:terminateEventDefinition id="TerminateEventDefinition_0au4c6r" />
     </bpmn:endEvent>
-    <bpmn:scriptTask id="Activity_0xg6qv2" name="Set Decision = True" scriptFormat="javascript">
+    <bpmn:scriptTask id="Activity_0xg6qv2" name="Set Decision = True" scriptFormat="groovy">
       <bpmn:incoming>Flow_1erjkqi</bpmn:incoming>
       <bpmn:outgoing>Flow_186wilc</bpmn:outgoing>
       <bpmn:script>execution.setVariable('decision', 'true');</bpmn:script>
@@ -516,6 +516,10 @@ EN FORM</bpmn:text>
       <bpmndi:BPMNShape id="Lane_1o6yxo7_di" bpmnElement="Lane_1o6yxo7" isHorizontal="true">
         <dc:Bounds x="190" y="990" width="3298" height="260" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_186wilc_di" bpmnElement="Flow_186wilc">
+        <di:waypoint x="3310" y="900" />
+        <di:waypoint x="3342" y="900" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1wlsww0_di" bpmnElement="Flow_1wlsww0">
         <di:waypoint x="258" y="630" />
         <di:waypoint x="280" y="630" />
@@ -719,10 +723,6 @@ EN FORM</bpmn:text>
         <di:waypoint x="520" y="630" />
         <di:waypoint x="570" y="630" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_186wilc_di" bpmnElement="Flow_186wilc">
-        <di:waypoint x="3310" y="900" />
-        <di:waypoint x="3342" y="900" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_1t8h57c_di" bpmnElement="Activity_1t8h57c">
         <dc:Bounds x="1120" y="830" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -828,9 +828,6 @@ EN FORM</bpmn:text>
           <dc:Bounds x="2006" y="895" width="89" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_07hudkr_di" bpmnElement="TextAnnotation_07hudkr">
-        <dc:Bounds x="3190" y="526" width="100" height="68" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_019w0ec_di" bpmnElement="Event_1va49v0">
         <dc:Bounds x="3202" y="612" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -845,6 +842,9 @@ EN FORM</bpmn:text>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_18im036_di" bpmnElement="Activity_0xg6qv2">
         <dc:Bounds x="3210" y="860" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_07hudkr_di" bpmnElement="TextAnnotation_07hudkr">
+        <dc:Bounds x="3190" y="526" width="100" height="68" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1ya7mo6_di" bpmnElement="Event_1514cbt">
         <dc:Bounds x="1412" y="612" width="36" height="36" />

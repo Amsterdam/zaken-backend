@@ -1,5 +1,5 @@
 from apps.camunda.services import CamundaService
-from apps.cases.models import Case, CaseProcessInstance
+from apps.cases.models import Case
 from config.celery import app as celery_app
 from django.conf import settings
 
@@ -7,23 +7,17 @@ from django.conf import settings
 @celery_app.task(bind=True)
 def start_camunda_instance(self, identification, request_body):
     case = Case.objects.get(id=identification)
-    case_process_instance = CaseProcessInstance.objects.create(case=case)
-    case_process_instance.save()
-
-    request_body["businessKey"] = case_process_instance.process_id.__str__()
-    request_body["variables"]["case_process_id"] = {
-        "value": case_process_instance.process_id.__str__()
-    }
+    request_body["businessKey"] = identification
+    request_body["variables"]["case_identification"] = {"value": identification}
+    request_body["variables"]["case_process_id"] = {"value": identification}
 
     (camunda_id, response) = CamundaService().start_instance(
         case_identification=str(identification), request_body=request_body
     )
 
     if camunda_id:
-        case_process_instance.camunda_process_id = camunda_id
-        case = case.add_camunda_id(camunda_id)
+        case.directing_process = camunda_id
         case.save()
-        case_process_instance.save()
 
 
 @celery_app.task(bind=True)

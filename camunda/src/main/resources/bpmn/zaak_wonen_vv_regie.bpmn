@@ -64,6 +64,7 @@
           <camunda:in source="status_name" target="status_name" />
           <camunda:in source="${execution.getProcessInstanceId()}" target="super_proces" />
           <camunda:out variables="all" />
+          <camunda:in source="names" target="names" />
         </bpmn:extensionElements>
         <bpmn:incoming>Flow_052spnp</bpmn:incoming>
         <bpmn:outgoing>Flow_01ziset</bpmn:outgoing>
@@ -175,6 +176,12 @@
         <bpmn:extensionElements>
           <camunda:connector>
             <camunda:inputOutput>
+              <camunda:inputParameter name="method">POST</camunda:inputParameter>
+              <camunda:inputParameter name="payload">{
+    "message_name": "no_new_summons",
+    "business_key": "${execution.getProcessInstanceId()}"
+}</camunda:inputParameter>
+              <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/send-message-inside-process/</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
                   <camunda:entry key="content-type">application/json</camunda:entry>

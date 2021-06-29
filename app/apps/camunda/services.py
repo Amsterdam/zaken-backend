@@ -321,10 +321,22 @@ class CamundaService:
 
         return response
 
-    def send_message_to_process_instance(self, message_name, business_key):
+    def send_message_to_bussines_key_instance(self, message_name, business_key):
         request_body = {
             "messageName": message_name,
             "businessKey": business_key,
+            "resultEnabled": True,
+        }
+
+        request_json_body = json.dumps(request_body)
+        response = self._process_request("/message", request_json_body, post=True)
+
+        return response
+
+    def send_message_to_process_instance(self, message_name, process_instance_id):
+        request_body = {
+            "messageName": message_name,
+            "processInstanceId": process_instance_id,
             "resultEnabled": True,
         }
 

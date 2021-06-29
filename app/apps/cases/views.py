@@ -18,6 +18,7 @@ from apps.cases.models import (
     CaseProcessInstance,
     CaseReason,
     CaseState,
+    CaseStateType,
     CaseTheme,
     CitizenReport,
 )
@@ -286,6 +287,19 @@ class CaseViewSet(
             tasks = CamundaService().get_all_tasks_by_instance_id(state.case_process_id)
             camunda_tasks.extend([{"state": state, "tasks": tasks}])
 
+        tasks = []
+        for camunda_id in case.camunda_ids:
+            tasks.extend(CamundaService().get_all_tasks_by_instance_id(camunda_id))
+
+        if len(tasks):
+            case_state, _ = CaseStateType.objects.get_or_create(
+                name="Geen Status", theme=case.theme
+            )
+            state = CaseState(
+                case=case, status=case_state, start_date=datetime.date.today()
+            )
+            camunda_tasks.extend([{"state": state, "tasks": tasks}])
+
         # Camunda tasks can be an empty list or boolean. TODO: This should just be one datatype
         if camunda_tasks is False:
             return Response(
@@ -329,6 +343,7 @@ class CaseViewSet(
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
+            response = False
             data = serializer.validated_data
             instance = data["camunda_process_id"]
 
@@ -340,28 +355,32 @@ class CaseViewSet(
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
-            case_process_instance = CaseProcessInstance.objects.create(case=case)
-            case_process_id = case_process_instance.process_id.__str__()
+            if instance.to_directing_proccess:
+                response = CamundaService().send_message_to_process_instance(
+                    message_name=instance.camunda_message_name,
+                    process_instance_id=case.directing_process,
+                )
+            else:
+                case_process_instance = CaseProcessInstance.objects.create(case=case)
+                case_process_id = case_process_instance.process_id.__str__()
 
-            response = CamundaService().send_message(
-                message_name=instance.camunda_message_name,
-                case_identification=case.id,
-                case_process_id=case_process_id,
-            )
-
-            try:
-                json_response = response.json()[0]
-                camunda_process_id = json_response["processInstance"]["id"]
-            except Exception:
-                return Response(
-                    data=f"Camunda process has not started. Json response not valid {str(response.content)}",
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                response = CamundaService().send_message(
+                    message_name=instance.camunda_message_name,
+                    case_identification=case.id,
+                    case_process_id=case_process_id,
                 )
 
-            case.add_camunda_id(camunda_process_id)
-            case_process_instance.camunda_process_id = camunda_process_id
-            case.save()
-            case_process_instance.save()
+                try:
+                    json_response = response.json()[0]
+                    camunda_process_id = json_response["processInstance"]["id"]
+                except Exception:
+                    return Response(
+                        data=f"Camunda process has not started. Json response not valid {str(response.content)}",
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    )
+
+                case_process_instance.camunda_process_id = camunda_process_id
+                case_process_instance.save()
 
             if response:
                 return Response(
