@@ -356,6 +356,7 @@
           <camunda:formField id="endpoint" type="string" />
           <camunda:formField id="case_process_id" type="string" />
           <camunda:formField id="status_name" type="string" defaultValue="Huisbezoek" />
+          <camunda:formField id="super_process" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0dfunn3</bpmn:outgoing>
@@ -366,6 +367,7 @@
         <camunda:formData businessKey="case_process_id">
           <camunda:formField id="status_name" type="string" defaultValue="Hercontrole" />
           <camunda:formField id="case_process_id" type="string" />
+          <camunda:formField id="super_process" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_03yyzjg</bpmn:outgoing>
@@ -462,11 +464,11 @@
         <bpmn:extensionElements>
           <camunda:connector>
             <camunda:inputOutput>
-              <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/send-message-start-process/</camunda:inputParameter>
+              <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/send-message-inside-process/</camunda:inputParameter>
               <camunda:inputParameter name="method">POST</camunda:inputParameter>
               <camunda:inputParameter name="payload">{
     "message_name": "zaak_afronden",
-    "case_identification": "${case_identification}",
+    "camunda_process_id": "${super_process}",
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
@@ -533,7 +535,7 @@
               <camunda:inputParameter name="method">POST</camunda:inputParameter>
               <camunda:inputParameter name="payload">{
     "message_name": "inform_civilian",
-    "business_key": "${case_process_id}"
+    "camunda_process_id": "${case_process_id}"
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
@@ -558,7 +560,7 @@
               <camunda:inputParameter name="method">POST</camunda:inputParameter>
               <camunda:inputParameter name="payload">{
     "message_name": "inform_civilian",
-    "business_key": "${case_process_id}"
+    "camunda_process_id": "${case_process_id}"
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
@@ -1004,14 +1006,14 @@
           <dc:Bounds x="1695" y="626" width="70" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_00h0tuq_di" bpmnElement="TextAnnotation_00h0tuq">
-        <dc:Bounds x="1600" y="1120" width="180" height="40" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0plic9h_di" bpmnElement="Event_1kkhxmk">
         <dc:Bounds x="2712" y="1232" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2688" y="1275" width="85" height="40" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_00h0tuq_di" bpmnElement="TextAnnotation_00h0tuq">
+        <dc:Bounds x="1600" y="1120" width="180" height="40" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_03jk7ur_di" bpmnElement="Association_03jk7ur">
         <di:waypoint x="1589" y="1104" />
