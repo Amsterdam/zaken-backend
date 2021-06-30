@@ -1,7 +1,6 @@
 from apps.addresses.serializers import AddressSerializer
 from apps.cases.serializers import CaseThemeSerializer
 from apps.decisions.models import Decision, DecisionType
-from apps.summons.serializers import SummonSerializer
 from rest_framework import serializers
 
 
@@ -48,7 +47,6 @@ class DecisionSerializer(serializers.ModelSerializer):
 class DecisionSanctionSerializer(serializers.ModelSerializer):
     address = AddressSerializer(source="case.address", read_only=True)
     theme = CaseThemeSerializer(source="case.theme", read_only=True)
-    summon = SummonSerializer(read_only=True)
     decision_type = DecisionTypeNameSerializer(read_only=True)
 
     class Meta:
@@ -56,6 +54,7 @@ class DecisionSanctionSerializer(serializers.ModelSerializer):
         exclude = [
             "case",
             "author",
+            "summon",
             "description",
             "camunda_task_id",
         ]

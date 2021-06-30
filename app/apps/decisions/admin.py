@@ -5,9 +5,17 @@ from django.http import JsonResponse
 
 
 class DecisionAdmin(admin.ModelAdmin):
-    actions = ["export_as_json"]
+    list_display = (
+        "decision_type",
+        "date_added",
+        "sanction_id",
+        "sanction_amount",
+    )
+    list_filter = ("date_added",)
+    date_hierarchy = "date_added"
+    actions = ["export_decisions_with_sanction"]
 
-    def export_as_json(self, request, queryset):
+    def export_decisions_with_sanction(self, request, queryset):
         serializer = DecisionSanctionSerializer(
             queryset.filter(
                 sanction_id__isnull=False,
