@@ -4,6 +4,7 @@ from apps.cases.models import (
     CaseCloseReason,
     CaseCloseResult,
     CaseProcessInstance,
+    CaseProject,
     CaseReason,
     CaseState,
     CaseStateType,
@@ -49,6 +50,7 @@ class CitizenReportAdmin(admin.ModelAdmin):
 admin.site.register(CaseProcessInstance, admin.ModelAdmin)
 admin.site.register(CaseStateType, admin.ModelAdmin)
 admin.site.register(CaseTheme, admin.ModelAdmin)
+admin.site.register(CaseProject, admin.ModelAdmin)
 admin.site.register(CaseReason, admin.ModelAdmin)
 admin.site.register(CaseCloseReason, admin.ModelAdmin)
 admin.site.register(CaseClose, admin.ModelAdmin)
