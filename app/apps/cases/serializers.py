@@ -113,7 +113,7 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         """
         theme = data["theme"]
         reason = data["reason"]
-        project = data["project"]
+        project = data.get("project")
 
         if reason.theme != theme:
             raise serializers.ValidationError(
@@ -123,7 +123,7 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         if reason.name == "Project" and not project:
             raise serializers.ValidationError("missing project for reason Project")
 
-        if project.theme != theme:
+        if project and project.theme != theme:
             raise serializers.ValidationError(
                 "project must be one of the theme CaseReasons"
             )
