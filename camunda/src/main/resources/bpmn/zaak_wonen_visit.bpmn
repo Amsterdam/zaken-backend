@@ -3,12 +3,12 @@
   <bpmn:collaboration id="Collaboration_1tztuvt">
     <bpmn:participant id="Participant_08m4w5n" name="Process" processRef="zaak_wonen_visit" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_visit" name="AZA - VakantieVerhuur - Huisbezoek" isExecutable="true" camunda:versionTag="0.2.5">
+  <bpmn:process id="zaak_wonen_visit" name="VakantieVerhuur - Huisbezoek" isExecutable="true" camunda:versionTag="1.0">
     <bpmn:laneSet id="LaneSet_07j24vc">
       <bpmn:lane id="Lane_1hxgg1r" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_118nnax</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_1kkhxmk</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0xocoed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1kkhxmk</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1j0x4ei" name="Projecthandhaver">
         <bpmn:flowNodeRef>Activity_0cah3n3</bpmn:flowNodeRef>
@@ -133,7 +133,7 @@
             <camunda:inputParameter name="payload">{
 "state": "Aanschrijvingen",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -162,7 +162,7 @@
             <camunda:inputParameter name="payload">{
 "state": "Debrief",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -253,7 +253,7 @@
             <camunda:inputParameter name="payload">{
 "state": "Huisbezoek",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -356,6 +356,7 @@
           <camunda:formField id="endpoint" type="string" />
           <camunda:formField id="case_process_id" type="string" />
           <camunda:formField id="status_name" type="string" defaultValue="Huisbezoek" />
+          <camunda:formField id="super_process" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0dfunn3</bpmn:outgoing>
@@ -365,6 +366,7 @@
       <bpmn:extensionElements>
         <camunda:formData businessKey="case_process_id">
           <camunda:formField id="case_process_id" type="string" />
+          <camunda:formField id="super_process" type="string" />
         </camunda:formData>
         <camunda:properties>
           <camunda:property />
@@ -375,6 +377,31 @@
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_03yyzjg" sourceRef="Event_02knnzy" targetRef="Activity_1l4twxp" />
     <bpmn:sequenceFlow id="Flow_1dynydn" sourceRef="Activity_1l4twxp" targetRef="Gateway_0h60qot" />
+    <bpmn:serviceTask id="Activity_1l4twxp" name="Status Bijwerken: &#39;Hercontrole&#39;" camunda:asyncBefore="true">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"state": "Hercontrole",
+"case_identification": "${case_identification}",
+"case_process_id": "${execution.getProcessInstanceId()}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
+            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_03yyzjg</bpmn:incoming>
+      <bpmn:outgoing>Flow_1dynydn</bpmn:outgoing>
+    </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_1auft2s" sourceRef="Activity_05wa5gy" targetRef="Activity_1fle1xm" />
     <bpmn:sequenceFlow id="Flow_0i3wsr3" sourceRef="Activity_1fle1xm" targetRef="is_authorisation_required" />
     <bpmn:userTask id="Activity_03lt0e7" name="Aanvragen machtiging" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
@@ -393,7 +420,7 @@
             <camunda:inputParameter name="payload">{
 "state": "${status_name}",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -439,11 +466,11 @@
         <bpmn:extensionElements>
           <camunda:connector>
             <camunda:inputOutput>
-              <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/send-message-start-process/</camunda:inputParameter>
+              <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/send-message-inside-process/</camunda:inputParameter>
               <camunda:inputParameter name="method">POST</camunda:inputParameter>
               <camunda:inputParameter name="payload">{
     "message_name": "zaak_afronden",
-    "case_identification": "${case_identification}"
+    "camunda_process_id": "${super_process}",
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
@@ -473,30 +500,6 @@
       <bpmn:outgoing>Flow_0lji06z</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_1erggxk" sourceRef="Activity_0xocoed" targetRef="Activity_118nnax" />
-    <bpmn:endEvent id="Event_1kkhxmk" name="send model_create_summon message">
-      <bpmn:incoming>Flow_156heau</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1bkz403" messageRef="Message_1mybk4g">
-        <bpmn:extensionElements>
-          <camunda:connector>
-            <camunda:inputOutput>
-              <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/send-message-start-process/</camunda:inputParameter>
-              <camunda:inputParameter name="method">POST</camunda:inputParameter>
-              <camunda:inputParameter name="payload">{
-    "message_name": "model_create_summon",
-    "case_identification": "${case_identification}"
-}</camunda:inputParameter>
-              <camunda:inputParameter name="headers">
-                <camunda:map>
-                  <camunda:entry key="content-type">application/json</camunda:entry>
-                  <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
-                </camunda:map>
-              </camunda:inputParameter>
-            </camunda:inputOutput>
-            <camunda:connectorId>http-connector</camunda:connectorId>
-          </camunda:connector>
-        </bpmn:extensionElements>
-      </bpmn:messageEventDefinition>
-    </bpmn:endEvent>
     <bpmn:serviceTask id="Activity_118nnax" name="Status Beëndingen">
       <bpmn:extensionElements>
         <camunda:connector>
@@ -534,7 +537,7 @@
               <camunda:inputParameter name="method">POST</camunda:inputParameter>
               <camunda:inputParameter name="payload">{
     "message_name": "inform_civilian",
-    "business_key": "${case_process_id}"
+    "camunda_process_id": "${case_process_id}"
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
@@ -559,7 +562,7 @@
               <camunda:inputParameter name="method">POST</camunda:inputParameter>
               <camunda:inputParameter name="payload">{
     "message_name": "inform_civilian",
-    "business_key": "${case_process_id}"
+    "camunda_process_id": "${case_process_id}"
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
@@ -573,34 +576,9 @@
         </bpmn:extensionElements>
       </bpmn:messageEventDefinition>
     </bpmn:intermediateThrowEvent>
-    <bpmn:serviceTask id="Activity_1l4twxp" name="Status Bijwerken: &#39;Hercontrole&#39;" camunda:asyncBefore="true">
-      <bpmn:extensionElements>
-        <camunda:connector>
-          <camunda:inputOutput>
-            <camunda:inputParameter name="payload">{
-"state": "Hercontrole",
-"case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
-}</camunda:inputParameter>
-            <camunda:inputParameter name="headers">
-              <camunda:map>
-                <camunda:entry key="content-type">application/json</camunda:entry>
-                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
-              </camunda:map>
-            </camunda:inputParameter>
-            <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
-            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
-          </camunda:inputOutput>
-          <camunda:connectorId>http-connector</camunda:connectorId>
-        </camunda:connector>
-        <camunda:inputOutput>
-          <camunda:outputParameter name="status_name">Hercontrole</camunda:outputParameter>
-        </camunda:inputOutput>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_03yyzjg</bpmn:incoming>
-      <bpmn:outgoing>Flow_1dynydn</bpmn:outgoing>
-    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_1kkhxmk">
+      <bpmn:incoming>Flow_156heau</bpmn:incoming>
+    </bpmn:endEvent>
     <bpmn:textAnnotation id="TextAnnotation_00h0tuq">
       <bpmn:text>TODO: Dynamische datum na additional research is +2 dagen</bpmn:text>
     </bpmn:textAnnotation>
@@ -1009,12 +987,6 @@
       <bpmndi:BPMNShape id="Activity_0aawy2h_di" bpmnElement="task_create_debrief">
         <dc:Bounds x="1490" y="1030" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0cn314a_di" bpmnElement="Event_1kkhxmk">
-        <dc:Bounds x="2712" y="1232" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2688" y="1275" width="85" height="40" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1nq6gk7_di" bpmnElement="Activity_118nnax">
         <dc:Bounds x="2560" y="1210" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -1031,6 +1003,12 @@
         <dc:Bounds x="1642" y="622" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1695" y="626" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0plic9h_di" bpmnElement="Event_1kkhxmk">
+        <dc:Bounds x="2712" y="1232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2688" y="1275" width="85" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_00h0tuq_di" bpmnElement="TextAnnotation_00h0tuq">
