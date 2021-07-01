@@ -44,6 +44,7 @@
         <bpmn:flowNodeRef>Activity_15mgnxf</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0xg6qv2</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>start_decision_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0vx9ad7</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1wein50" name="Projectmedewerker">
         <bpmn:flowNodeRef>Activity_1mkl5rk</bpmn:flowNodeRef>
@@ -58,7 +59,7 @@
     <bpmn:sequenceFlow id="Flow_0p4fa1b" name="type_aanschrijving = legalisatie brief" sourceRef="Gateway_1t6r1v4" targetRef="Activity_0ma57of">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${type_aanschrijving=="legalisatie-brief"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0jcg14m" name="type_aanschrijving = sluiting" sourceRef="Gateway_1t6r1v4" targetRef="Event_0ysomyy">
+    <bpmn:sequenceFlow id="Flow_0jcg14m" name="type_aanschrijving = sluiting" sourceRef="Gateway_1t6r1v4" targetRef="Activity_0vx9ad7">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${type_aanschrijving == "sluiting"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1kedpc9" sourceRef="Activity_0ma57of" targetRef="Activity_1mkl5rk" />
@@ -207,7 +208,7 @@
       <bpmn:outgoing>Flow_1kedpc9</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:endEvent id="Event_0ysomyy" name="start sluitingsproces">
-      <bpmn:incoming>Flow_0jcg14m</bpmn:incoming>
+      <bpmn:incoming>Flow_167bomv</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1tzmzdr" messageRef="Message_1j5idk9">
         <bpmn:extensionElements>
           <camunda:connector>
@@ -385,9 +386,7 @@
     <bpmn:userTask id="Activity_13ccsra" name="Monitoren binnenkomen zienswijze" camunda:formKey="monitor_civilian_action" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(17).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="is_civilian_objection_received" label="Is de burger zienswijze ontvangen?" type="enum">
-            <camunda:value id="yes_objection_received" name="Ja, burger zienswijze ontvangen" />
-          </camunda:formField>
+          <camunda:formField id="is_civilian_objection_received" label="ja, er is een zienswijze binnengekomen" type="boolean" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1pop5qk</bpmn:incoming>
@@ -610,6 +609,12 @@
       <bpmn:outgoing>Flow_0on1cg1</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_0vyok6s" sourceRef="Activity_16qvzbe" targetRef="Activity_1ksn3xw" />
+    <bpmn:scriptTask id="Activity_0vx9ad7" name="Set next_step = close_case" scriptFormat="groovy">
+      <bpmn:incoming>Flow_0jcg14m</bpmn:incoming>
+      <bpmn:outgoing>Flow_167bomv</bpmn:outgoing>
+      <bpmn:script>execution.setVariable('next_step', 'close_case');</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_167bomv" sourceRef="Activity_0vx9ad7" targetRef="Event_0ysomyy" />
   </bpmn:process>
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
   <bpmn:message id="Message_14wp5u8" name="model_create_summon" />
@@ -850,9 +855,9 @@
       <bpmndi:BPMNEdge id="Flow_0jcg14m_di" bpmnElement="Flow_0jcg14m">
         <di:waypoint x="740" y="655" />
         <di:waypoint x="740" y="890" />
-        <di:waypoint x="982" y="890" />
+        <di:waypoint x="840" y="890" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="773" y="856" width="85" height="27" />
+          <dc:Bounds x="748" y="856" width="85" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0p4fa1b_di" bpmnElement="Flow_0p4fa1b">
@@ -865,6 +870,10 @@
       <bpmndi:BPMNEdge id="Flow_1detbpm_di" bpmnElement="Flow_1detbpm">
         <di:waypoint x="520" y="630" />
         <di:waypoint x="570" y="630" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_167bomv_di" bpmnElement="Flow_167bomv">
+        <di:waypoint x="940" y="890" />
+        <di:waypoint x="982" y="890" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_1t8h57c_di" bpmnElement="Activity_1t8h57c">
         <dc:Bounds x="1120" y="830" width="100" height="80" />
@@ -1003,6 +1012,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1ksn3xw_di" bpmnElement="Activity_1ksn3xw">
         <dc:Bounds x="2890" y="1050" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0vx9ad7_di" bpmnElement="Activity_0vx9ad7">
+        <dc:Bounds x="840" y="850" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1mo05mc_di" bpmnElement="Event_1mo05mc">
         <dc:Bounds x="2272" y="352" width="36" height="36" />
