@@ -400,7 +400,7 @@ CELERY_BEAT_SCHEDULE = {
 
 CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
 CAMUNDA_REST_URL = os.getenv("CAMUNDA_REST_URL", "http://camunda:8080/engine-rest/")
-CAMUNDA_PROCESS_VISIT = "zaak_wonen_visit"
+CAMUNDA_PROCESS_VISIT = "zaak_wonen_vv_regie"  # "zaak_wonen_visit"
 CAMUNDA_PROCESS_SUMMON = "zaak_wonen_summon"
 CAMUNDA_PROCESS_DECISION = "zaak_wonen_decision"
 

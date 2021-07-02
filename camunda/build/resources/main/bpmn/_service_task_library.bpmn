@@ -22,7 +22,7 @@
             <camunda:inputParameter name="payload">{
 "state": "NAME",
 "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>

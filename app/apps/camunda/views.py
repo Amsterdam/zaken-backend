@@ -167,7 +167,7 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             raw_response = CamundaService().send_message_to_process_instance(
                 message_name=serializer.validated_data["message_name"],
-                business_key=serializer.validated_data["business_key"],
+                process_instance_id=serializer.validated_data["business_key"],
             )
 
             if raw_response.ok:

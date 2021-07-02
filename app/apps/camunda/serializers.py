@@ -50,7 +50,7 @@ class CamundaMessagerSerializer(serializers.Serializer):
 
 class CamundaMessageForProcessInstanceSerializer(serializers.Serializer):
     message_name = serializers.CharField()
-    business_key = serializers.CharField()
+    camunda_process_id = serializers.CharField()
 
 
 class CamundaBaseTaskSerializer(serializers.Serializer):
