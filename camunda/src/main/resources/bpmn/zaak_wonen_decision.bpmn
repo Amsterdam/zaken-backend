@@ -30,10 +30,23 @@
       <bpmn:incoming>Flow_0pifsrz</bpmn:incoming>
       <bpmn:outgoing>Flow_0q95btx</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:userTask id="Activity_08cj18o" name="Opstellen concept besluit" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:incoming>Flow_1iai8dg</bpmn:incoming>
+      <bpmn:outgoing>Flow_0pifsrz</bpmn:outgoing>
+    </bpmn:userTask>
     <bpmn:userTask id="task_create_decision" name="Verwerken definitieve besluit" camunda:formKey="verwerken_def_besluit" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="type_besluit" label="Wat voor een besluit neem je?" type="string" />
+          <camunda:formField id="type_besluit" label="Wat voor een besluit neem je" type="enum">
+            <camunda:value id="boete" name="Boete" />
+            <camunda:value id="invordering_dwangsom" name="Invordering dwangsom" />
+            <camunda:value id="meldplicht_beschikking_boete" name="Meldplicht beschikking boete" />
+            <camunda:value id="preventieve_last" name="Preventieve last" />
+            <camunda:value id="last_onder_dwangsom" name="Last onder dwangsom" />
+            <camunda:value id="intrekken_vv_vergunning" name="Intrekken VV vergunning" />
+            <camunda:value id="intrekken_bb_vergunning" name="Intrekken BB vergunning" />
+            <camunda:value id="intrekken_shortstay_vergunning" name="Intrekken Shortstay vergunning" />
+          </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0q95btx</bpmn:incoming>
@@ -97,12 +110,7 @@
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
-            <camunda:inputParameter name="payload">{
-"state": "Besluit",
-"case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}",
-"information": "${names}"
-}</camunda:inputParameter>
+            <camunda:inputParameter name="payload">{"state_identification": "${state_identification}"}</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
                 <camunda:entry key="content-type">application/json</camunda:entry>
@@ -110,8 +118,7 @@
               </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
-            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/end-state/</camunda:inputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>

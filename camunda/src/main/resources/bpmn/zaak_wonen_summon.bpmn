@@ -32,12 +32,6 @@
         <bpmn:flowNodeRef>Activity_18ear0d</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1j1sd3l</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_11453r6</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>connect_start_renounce_intention</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>start_decision_process</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_15mgnxf</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>start_renounce_intention</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_0tn80hb</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_1514cbt</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_16qvzbe</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0saow5j</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0frp4m5</bpmn:flowNodeRef>
@@ -58,7 +52,6 @@
         <bpmn:flowNodeRef>Event_1s4a0ru</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_13ccsra</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1mo05mc</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_1s4a0ru</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_0ku7kbe" name="Projectmedewerker, Projecthandhaver" />
     </bpmn:laneSet>
@@ -85,7 +78,7 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1g3luuj" name="Na 56 dagen" sourceRef="Event_1514cbt" targetRef="Activity_1gaa36w" />
     <bpmn:sequenceFlow id="Flow_0oyiegq" name="Ja, vergunning aangevraagd" sourceRef="Activity_1mkl5rk" targetRef="Activity_1k03k9a">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested=="yes_permit_requested"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_12sivk9" name="Nee, geen vergunning aangevraagd" sourceRef="Gateway_0s3wb8r" targetRef="Activity_1xkc3o0">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action_civilian_permit_requested=="no_action"}</bpmn:conditionExpression>
@@ -95,7 +88,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${civilian_has_gotten_permit=="no_permit"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0m6yape" name="Ja, burger heeft nu een vergunning" sourceRef="Activity_1k03k9a" targetRef="Activity_18x19gf">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${civilian_has_gotten_permit}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${civilian_has_gotten_permit=="yes_permit"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0ddf58d" sourceRef="Activity_18x19gf" targetRef="Activity_143hyua" />
     <bpmn:userTask id="Activity_1t8h57c" name="Controleren binnenkomst vergunningaanvraag" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
@@ -153,7 +146,6 @@
             <camunda:value id="legalisatie-brief" name="Legalisatie Brief" />
           </camunda:formField>
           <camunda:formField id="names" type="string" />
-          <camunda:formField id="summon_id" type="string" defaultValue="0" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1atmgnk</bpmn:incoming>
@@ -625,7 +617,7 @@
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
   <bpmn:message id="Message_14wp5u8" name="model_create_summon" />
   <bpmn:message id="Message_1k1jpww" name="start_decision_process" />
-  <bpmn:message id="Message_1j5idk9" />
+  <bpmn:message id="Message_1j5idk9" name="zaak_wonen_vv_sluitingsprocess" />
   <bpmn:message id="Message_1bioi1o" name="start_renounce_intention" />
   <bpmn:message id="Message_1od7c00" name="start_uitzetten_vervolgstap" />
   <bpmn:message id="Message_164umvg" name="start_renounce_intention" />
@@ -902,7 +894,7 @@
       <bpmndi:BPMNShape id="Event_0x8hw65_di" bpmnElement="Event_0ysomyy">
         <dc:Bounds x="982" y="872" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="967" y="915" width="67" height="27" />
+          <dc:Bounds x="964" y="915" width="73" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_13bywna_di" bpmnElement="Event_13bywna">
@@ -964,27 +956,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_11453r6_di" bpmnElement="Gateway_11453r6" isMarkerVisible="true">
         <dc:Bounds x="2625" y="605" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0kzzr08_di" bpmnElement="connect_start_renounce_intention">
-        <dc:Bounds x="2662" y="712" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1okb3dh_di" bpmnElement="start_decision_process">
-        <dc:Bounds x="2842" y="892" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2819" y="935" width="82" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_15mgnxf_di" bpmnElement="Activity_15mgnxf">
-        <dc:Bounds x="2710" y="870" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0saow5j_di" bpmnElement="start_renounce_intention">
-        <dc:Bounds x="2732" y="712" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2706" y="670" width="88" height="40" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0tn80hb_di" bpmnElement="Activity_0tn80hb">
-        <dc:Bounds x="2810" y="690" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_16qvzbe_di" bpmnElement="Activity_16qvzbe">
         <dc:Bounds x="2780" y="590" width="100" height="80" />
