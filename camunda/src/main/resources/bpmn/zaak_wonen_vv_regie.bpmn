@@ -326,7 +326,7 @@
     <bpmn:sequenceFlow id="Flow_0rhk7o2" sourceRef="Activity_1y8zuuq" targetRef="Event_0e3mzcd" />
   </bpmn:process>
   <bpmn:message id="Message_053q3rk" name="add_summon" />
-  <bpmn:message id="Message_1jr43p4" name="go_to_close_case" />
+  <bpmn:message id="Message_1jr43p4" name="instant_close_case" />
   <bpmn:message id="Message_1ndmfb9" name="no_new_summons" />
   <bpmn:message id="Message_1ddgqpg" name="all_summons_and_decisions_done" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
