@@ -32,7 +32,7 @@ class CamundaService:
                     data=request_body,
                     headers={
                         "content-type": "application/json",
-                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                        "Authorization": settings.CAMUNDA_REST_AUTH,
                     },
                 )
             elif put:
@@ -41,7 +41,7 @@ class CamundaService:
                     data=request_body,
                     headers={
                         "content-type": "application/json",
-                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                        "Authorization": settings.CAMUNDA_REST_AUTH,
                     },
                 )
             elif delete:
@@ -50,7 +50,7 @@ class CamundaService:
                     data=request_body,
                     headers={
                         "content-type": "application/json",
-                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                        "Authorization": settings.CAMUNDA_REST_AUTH,
                     },
                 )
             else:
@@ -59,7 +59,7 @@ class CamundaService:
                     data=request_body,
                     headers={
                         "content-type": "application/json",
-                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                        "Authorization": settings.CAMUNDA_REST_AUTH,
                     },
                 )
 
