@@ -40,7 +40,12 @@ class Summon(TaskModelEventEmitter):
         persons = []
 
         for person in self.persons.all():
-            persons.append(person.__str__())
+            persons.append(
+                {
+                    "person_full_name": person.__str__(),
+                    "person_role": person.person_role,
+                }
+            )
 
         return persons
 
