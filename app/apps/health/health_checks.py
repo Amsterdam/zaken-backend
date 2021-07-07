@@ -122,64 +122,6 @@ class KeycloakCheck(APIServiceCheckBackend):
     verbose_name = "Keycloak"
 
 
-class OpenZaakRedisHealthCheck(BaseHealthCheckBackend):
-    """
-    Redis used by Open Zaak check
-    """
-
-    redis_url = settings.REDIS_URL
-
-    def check_status(self):
-        """Check Redis service by pinging the redis instance with a redis connection."""
-        logger.info("Got %s as the redis_url. Connecting to redis...", self.redis_url)
-        logger.info("Attempting to connect to redis...")
-
-        try:
-            from django_redis import get_redis_connection
-
-            connection = get_redis_connection("default")
-            logger.debug("Redis Connection")
-            logger.debug(connection)
-
-            result = connection.ping()
-            logger.debug("Redis Ping")
-            logger.debug(result)
-
-        except Exception as e:
-            logger.error(e)
-            self.add_error(ServiceUnavailable("Unknown error"), e)
-        else:
-            logger.info("Connection established. Redis is healthy.")
-
-
-class OpenZaakClientCheck(BaseHealthCheckBackend):
-    """
-    Tests the Open Zaak client
-    """
-
-    def check_status(self):
-        try:
-            from zgw_consumers.constants import APITypes
-            from zgw_consumers.models import Service
-
-            ztc_client = (
-                Service.objects.filter(api_type=APITypes.ztc).get().build_client()
-            )
-
-            results = ztc_client.list(
-                "catalogus", {"rsin": settings.DEFAULT_CATALOGUS_RSIN}
-            )
-            assert results["count"] != 0, "The default catalogus doesn't exist"
-
-            results = ztc_client.list(
-                "zaaktype", {"identificatie": settings.DEFAULT_THEME}
-            )
-            assert results["count"] != 0, "The default casetype doesn't exist"
-
-        except Exception as e:
-            self.add_error(ServiceUnavailable("Failed"), e)
-
-
 class VakantieVerhuurRegistratieCheck(BaseHealthCheckBackend):
     """
     Check if a connection can be made with the Vakantieverhuur Registratie API
