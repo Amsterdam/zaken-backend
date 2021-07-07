@@ -44,6 +44,7 @@
           <camunda:out source="next_step" target="next_step" />
           <camunda:in businessKey="#{execution.processBusinessKey}" />
           <camunda:out source="names" target="names" />
+          <camunda:out source="summon_id" target="summon_id" />
         </bpmn:extensionElements>
         <bpmn:incoming>Flow_1o6wf83</bpmn:incoming>
         <bpmn:outgoing>Flow_01h5qiu</bpmn:outgoing>
@@ -67,6 +68,7 @@
           <camunda:out source="next_step" target="next_step" />
           <camunda:in source="names" target="names" />
           <camunda:in businessKey="#{execution.processBusinessKey}" />
+          <camunda:in source="summon_id" target="summon_id" />
         </bpmn:extensionElements>
         <bpmn:incoming>Flow_052spnp</bpmn:incoming>
         <bpmn:outgoing>Flow_01ziset</bpmn:outgoing>
@@ -224,6 +226,7 @@
           <camunda:out source="next_step" target="next_step" />
           <camunda:in businessKey="#{execution.processBusinessKey}" />
           <camunda:out source="names" target="names" />
+          <camunda:out source="summon_id" target="summon_id" />
         </bpmn:extensionElements>
         <bpmn:incoming>Flow_12rx0x2</bpmn:incoming>
         <bpmn:outgoing>Flow_1hbdy3s</bpmn:outgoing>
@@ -245,6 +248,7 @@
           <camunda:out source="next_step" target="next_step" />
           <camunda:in source="names" target="names" />
           <camunda:in businessKey="#{execution.processBusinessKey}" />
+          <camunda:in source="summon_id" target="summon_id" />
         </bpmn:extensionElements>
         <bpmn:incoming>Flow_02ymmf5</bpmn:incoming>
         <bpmn:outgoing>Flow_06ydzdq</bpmn:outgoing>

@@ -146,6 +146,7 @@
             <camunda:value id="legalisatie-brief" name="Legalisatie Brief" />
           </camunda:formField>
           <camunda:formField id="names" type="string" />
+          <camunda:formField id="summon_id" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1atmgnk</bpmn:incoming>
