@@ -47,6 +47,7 @@ task buildDockerImage(type: Exec, dependsOn: [copyJarToDeploymentContext, copyDo
 
 dependencies {
 	implementation 'org.postgresql:postgresql'
+	implementation 'org.codehaus.groovy:groovy-all:3.0.7'
 
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'

@@ -303,8 +303,14 @@ PERMISSIONS_POLICY = {
 }
 
 # Settings for Content-Security-Policy header
-CSP_DEFAULT_SRC = ("'self'",)
+CSP_DEFAULT = ("'self'", "unpkg.com")
+CSP_DEFAULT_UNSAFE_INLINE = ("'unsafe-inline'", "'self'", "unpkg.com")
+CSP_DEFAULT_SRC = CSP_DEFAULT
 CSP_FRAME_ANCESTORS = ("'self'",)
+CSP_SCRIPT_SRC = CSP_DEFAULT_UNSAFE_INLINE
+CSP_IMG_SRC = CSP_DEFAULT
+CSP_STYLE_SRC = CSP_DEFAULT_UNSAFE_INLINE
+CSP_CONNECT_SRC = CSP_DEFAULT
 
 # DECOS_ENABLED = False
 DECOS_JOIN_AUTH_BASE64 = os.getenv("DECOS_JOIN_AUTH_BASE64", None)
@@ -393,7 +399,7 @@ CELERY_BEAT_SCHEDULE = {
 
 CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
 CAMUNDA_REST_URL = os.getenv("CAMUNDA_REST_URL", "http://camunda:8080/engine-rest/")
-CAMUNDA_PROCESS_VISIT = "zaak_wonen_visit"
+CAMUNDA_PROCESS_VISIT = "zaak_wonen_vv_regie"  # "zaak_wonen_visit"
 CAMUNDA_PROCESS_SUMMON = "zaak_wonen_summon"
 CAMUNDA_PROCESS_DECISION = "zaak_wonen_decision"
 
