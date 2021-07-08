@@ -42,7 +42,16 @@ class CaseEvent(models.Model):
         Returns a dictionary with event values retrieved from Emitter object
         """
         event_values = self.emitter.__get_event_values__()
+        event_values.pop("variables", None)
         return event_values
+
+    @property
+    def event_variables(self):
+        """
+        Returns a dictionary with event values retrieved from Emitter object
+        """
+        event_values = self.emitter.__get_event_values__()
+        return event_values.get("variables", {})
 
     def __str__(self):
         return f"{self.case.id} Case - Event {self.id} - {self.date_created}"
