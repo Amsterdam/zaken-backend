@@ -270,9 +270,7 @@ class CaseClose(TaskModelEventEmitter):
     def __get_event_values__(self):
         event_values = {
             "date_added": self.date_added,
-            "author": self.case.author.full_name
-            if self.author
-            else "Medewerker onbekend",
+            "author": self.author.full_name if self.author else "Medewerker onbekend",
             "reason": self.reason.name,
             "description": self.description,
         }
