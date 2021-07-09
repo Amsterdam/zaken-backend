@@ -221,8 +221,7 @@ class CamundaService:
             f"/task/?taskDefinitionKey={task_name_id}&processInstanceId={camunda_id}"
         )
         task_list = json.loads(response.content)
-        print("get_task_by_task_name_id_and_camunda_id")
-        print(task_list)
+
         if len(task_list) > 0:
             return task_list[0]
         else:

@@ -624,7 +624,6 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
 
     def _fetch_visit(self, legacy_bwv_case_id):
         url = f"{settings.TOP_API_URL}/cases/{legacy_bwv_case_id}/visits/"
-        print(url)
         try:
             response = requests.get(
                 url=url,
@@ -635,12 +634,17 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         except Exception:
             return []
         else:
-            print(response.json())
             return response.json()
 
     def _add_visits(self, data, *args, **kwargs):
-        for d in data:
-            d["visits"] = self._fetch_visit(d["legacy_bwv_case_id"])
+        if settings.TOP_API_URL and settings.SECRET_KEY_AZA_TOP:
+            for d in data:
+                visits = self._fetch_visit(d["legacy_bwv_case_id"])
+                for visit in visits:
+                    visit["authors"] = [
+                        tm.get("user", {}) for tm in visit.get("team_members", [])
+                    ]
+                d["visits"] = visits
         return data
 
     def _add_reason(self, data):
@@ -677,23 +681,15 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 )
                 if commit:
                     case = serializer.save()
+
+                    # create visits, no update
                     for visit in d.get("visits", []):
                         visit["case"] = case.id
                         visit_instance = Visit.objects.filter(case=case).first()
-                        if visit_instance:
-                            visit["authors"] = visit.get("team_members", [])
-                            visit_serializer = VisitSerializer(
-                                visit_instance, data=visit
-                            )
-                        else:
+                        if not visit_instance:
                             visit_serializer = VisitSerializer(data=visit)
-
-                        print(visit)
-                        if visit_serializer.is_valid():
-                            visit_instance = visit_serializer.save()
-                            # visit_instance, created = Visit.objects.update_or_create(case=case, defaults=visit)
-                            print(visit_instance)
-                        print(visit_serializer.errors)
+                            if visit_serializer.is_valid():
+                                visit_serializer.save()
 
                 results.append(d_clone)
             else:
