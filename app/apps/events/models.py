@@ -57,7 +57,7 @@ class CaseEvent(models.Model):
         return f"{self.case.id} Case - Event {self.id} - {self.date_created}"
 
     class Meta:
-        ordering = ["-date_created"]
+        ordering = ["date_created"]
 
 
 class ModelEventEmitter(models.Model):
