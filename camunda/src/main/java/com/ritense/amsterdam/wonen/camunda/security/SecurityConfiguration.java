@@ -1,3 +1,4 @@
+
 package com.ritense.amsterdam.wonen.camunda.security;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +25,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .disable()
                 .addFilterBefore(new ApiKeyAuthenticationFilter(apiKey), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
-                .anyRequest()
+                .antMatchers("/engine-rest/**")
                 .fullyAuthenticated();
     }
 }

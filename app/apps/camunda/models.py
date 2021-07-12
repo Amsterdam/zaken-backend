@@ -26,6 +26,7 @@ class GenericCompletedTask(TaskModelEventEmitter):
 class CamundaProcess(models.Model):
     name = models.CharField(max_length=255)
     camunda_message_name = models.CharField(max_length=255)
+    to_directing_proccess = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} - {self.camunda_message_name}"

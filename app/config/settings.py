@@ -110,6 +110,8 @@ MIDDLEWARE = (
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "django_permissions_policy.PermissionsPolicyMiddleware",
+    "csp.middleware.CSPMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "mozilla_django_oidc.middleware.SessionRefresh",
@@ -281,6 +283,36 @@ X_FRAME_OPTIONS = "DENY"
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 
+# Settings for Permissions-Policy header
+PERMISSIONS_POLICY = {
+    "accelerometer": [],
+    "ambient-light-sensor": [],
+    "autoplay": [],
+    "camera": [],
+    "display-capture": [],
+    "document-domain": [],
+    "encrypted-media": [],
+    "fullscreen": [],
+    "geolocation": [],
+    "gyroscope": [],
+    "interest-cohort": [],
+    "magnetometer": [],
+    "microphone": [],
+    "midi": [],
+    "payment": [],
+    "usb": [],
+}
+
+# Settings for Content-Security-Policy header
+CSP_DEFAULT = ("'self'", "unpkg.com")
+CSP_DEFAULT_UNSAFE_INLINE = ("'unsafe-inline'", "'self'", "unpkg.com")
+CSP_DEFAULT_SRC = CSP_DEFAULT
+CSP_FRAME_ANCESTORS = ("'self'",)
+CSP_SCRIPT_SRC = CSP_DEFAULT_UNSAFE_INLINE
+CSP_IMG_SRC = CSP_DEFAULT
+CSP_STYLE_SRC = CSP_DEFAULT_UNSAFE_INLINE
+CSP_CONNECT_SRC = CSP_DEFAULT
+
 # DECOS_ENABLED = False
 DECOS_JOIN_AUTH_BASE64 = os.getenv("DECOS_JOIN_AUTH_BASE64", None)
 DECOS_JOIN_API = os.getenv(
@@ -368,7 +400,7 @@ CELERY_BEAT_SCHEDULE = {
 
 CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
 CAMUNDA_REST_URL = os.getenv("CAMUNDA_REST_URL", "http://camunda:8080/engine-rest/")
-CAMUNDA_PROCESS_VISIT = "zaak_wonen_visit"
+CAMUNDA_PROCESS_VISIT = "zaak_wonen_vv_regie"  # "zaak_wonen_visit"
 CAMUNDA_PROCESS_SUMMON = "zaak_wonen_summon"
 CAMUNDA_PROCESS_DECISION = "zaak_wonen_decision"
 

@@ -167,7 +167,7 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             raw_response = CamundaService().send_message_to_process_instance(
                 message_name=serializer.validated_data["message_name"],
-                business_key=serializer.validated_data["business_key"],
+                process_instance_id=serializer.validated_data["camunda_process_id"],
             )
 
             if raw_response.ok:
@@ -218,7 +218,7 @@ class CamundaTaskViewSet(viewsets.ViewSet):
 
             for key, value in variables.items():
                 # Only for selects, include original readable value from options
-                value["value_verbose"] = (
+                value["value"] = (
                     dict(
                         (o.get("value"), o.get("label"))
                         for o in form_dict.get(key).get("options", [])

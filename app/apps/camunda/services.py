@@ -32,7 +32,7 @@ class CamundaService:
                     data=request_body,
                     headers={
                         "content-type": "application/json",
-                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                        "Authorization": settings.CAMUNDA_REST_AUTH,
                     },
                 )
             elif put:
@@ -41,7 +41,7 @@ class CamundaService:
                     data=request_body,
                     headers={
                         "content-type": "application/json",
-                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                        "Authorization": settings.CAMUNDA_REST_AUTH,
                     },
                 )
             elif delete:
@@ -50,7 +50,7 @@ class CamundaService:
                     data=request_body,
                     headers={
                         "content-type": "application/json",
-                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                        "Authorization": settings.CAMUNDA_REST_AUTH,
                     },
                 )
             else:
@@ -59,7 +59,7 @@ class CamundaService:
                     data=request_body,
                     headers={
                         "content-type": "application/json",
-                        "API_KEY": settings.CAMUNDA_REST_AUTH,
+                        "Authorization": settings.CAMUNDA_REST_AUTH,
                     },
                 )
 
@@ -68,7 +68,7 @@ class CamundaService:
             )
             return response
         except requests.exceptions.Timeout:
-            logger.info("Request to Camunda timed out")
+            logger.error("Request to Camunda timed out")
             response = Response(
                 "Camunda service is offline",
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -76,7 +76,7 @@ class CamundaService:
             response.ok = False
             return response
         except requests.exceptions.RequestException as exception:
-            logger.info(f"Request to Camunda threw an exception: {exception}")
+            logger.error(f"Request to Camunda threw an exception: {exception}")
             response = Response(status=status.HTTP_400_BAD_REQUEST)
             response.ok = False
             return response
@@ -333,7 +333,7 @@ class CamundaService:
 
         return response
 
-    def send_message_to_process_instance(self, message_name, business_key):
+    def send_message_to_bussines_key_instance(self, message_name, business_key):
         request_body = {
             "messageName": message_name,
             "businessKey": business_key,
@@ -351,3 +351,15 @@ class CamundaService:
         )
 
         return response.ok
+
+    def send_message_to_process_instance(self, message_name, process_instance_id):
+        request_body = {
+            "messageName": message_name,
+            "processInstanceId": process_instance_id,
+            "resultEnabled": True,
+        }
+
+        request_json_body = json.dumps(request_body)
+        response = self._process_request("/message", request_json_body, post=True)
+
+        return response

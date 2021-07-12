@@ -4,6 +4,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -17,7 +18,6 @@ public class ApiKeyAuthenticationFilter implements Filter {
         this.apiKey = apiKey;
     }
 
-
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException
@@ -28,23 +28,16 @@ public class ApiKeyAuthenticationFilter implements Filter {
                 if(getApiKey.equals(apiKey)) {
                     ApiKeyAuthenticationToken apiToken = new ApiKeyAuthenticationToken(getApiKey, AuthorityUtils.NO_AUTHORITIES);
                     SecurityContextHolder.getContext().setAuthentication(apiToken);
-                } else {
-                    HttpServletResponse httpResponse = (HttpServletResponse) response;
-                    httpResponse.setStatus(401);
-                    httpResponse.getWriter().write("Invalid API Key");
-                    return;
                 }
             }
         }
-
         chain.doFilter(request, response);
-
     }
 
     private String getApiKey(HttpServletRequest httpRequest) {
         String getApiKey = null;
 
-        String authHeader = httpRequest.getHeader("API_KEY");
+        String authHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
         if(authHeader != null) {
             getApiKey = authHeader.trim();
         }
