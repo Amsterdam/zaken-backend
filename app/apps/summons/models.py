@@ -96,8 +96,7 @@ class SummonedPerson(models.Model):
     person_role = models.CharField(
         max_length=255,
         choices=PERSON_ROLE,
-        null=True,
-        blank=True,
+        default=PERSON_ROLE[0][0],
     )
     summon = models.ForeignKey(
         to=Summon,
