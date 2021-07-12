@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+import requests
 from apps.addresses.utils import search
 from apps.camunda.models import CamundaProcess
 from apps.camunda.serializers import (
@@ -56,6 +57,8 @@ from apps.events.mixins import CaseEventsMixin
 from apps.schedules.serializers import ThemeScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
+from apps.visits.models import Visit
+from apps.visits.serializers import VisitSerializer
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -142,9 +145,12 @@ class CaseViewSet(
 
         citizen_report_data = {"case": case.id}
         citizen_report_data.update(request.data)
-        citizen_report_serializer = CitizenReportSerializer(data=citizen_report_data)
+        citizen_report_serializer = CitizenReportSerializer(
+            data=citizen_report_data,
+            context={"request": request},
+        )
         if citizen_report_serializer.is_valid():
-            citizen_report_serializer.save(author=self.request.user)
+            citizen_report_serializer.save()
 
         headers = self.get_success_headers(serializer.data)
         return Response(
@@ -404,14 +410,13 @@ class CaseViewSet(
         serializer_class=CitizenReportSerializer,
     )
     def citizen_reports(self, request, pk):
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(
+            data=request.data,
+            context={"request": request},
+        )
         if serializer.is_valid():
             data = serializer.validated_data
-            data.update(
-                {
-                    "author": request.user,
-                }
-            )
+
             citizen_report = CitizenReport(**data)
             citizen_report.save()
             return Response(
@@ -593,11 +598,18 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         address_mismatches = []
         results = []
         for d in data:
-            bag_result = do_bag_search_address_exact(d)
+            bag_result = do_bag_search_address_exact(d).get("results", [])
+            bag_result = [
+                r
+                for r in bag_result
+                if not d.get("OBJ_NR_VRA")
+                or r["adresseerbaar_object_id"] == "0%s" % d.get("OBJ_NR_VRA")
+            ]
+
             d_clone = dict(d)
-            if bag_result and bag_result["count"] == 1:
+            if bag_result:
                 d_clone["address"] = {
-                    "bag_id": bag_result["results"][0]["adresseerbaar_object_id"]
+                    "bag_id": bag_result[0]["adresseerbaar_object_id"]
                 }
                 results.append(d_clone)
             else:
@@ -611,11 +623,51 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
             d["theme"] = theme.id
         return data
 
-    def _add_reason(self, data):
-        reason, _ = CaseReason.objects.get_or_create(name=settings.DEFAULT_REASON)
-        for d in data:
-            d["reason"] = reason.id
-        return data
+    def _get_headers(self, auth_header=None):
+        token = settings.SECRET_KEY_AZA_TOP
+        headers = {
+            "Authorization": f"{auth_header}" if auth_header else f"{token}",
+            "content-type": "application/json",
+        }
+        return headers
+
+    def _fetch_visit(self, legacy_bwv_case_id):
+        url = f"{settings.TOP_API_URL}/cases/{legacy_bwv_case_id}/visits/"
+        try:
+            response = requests.get(
+                url=url,
+                headers=self._get_headers(),
+                timeout=5,
+            )
+            response.raise_for_status()
+        except Exception:
+            return response.status_code
+        else:
+            return response.json()
+
+    def _add_visits(self, data, *args, **kwargs):
+        errors = []
+        if settings.TOP_API_URL and settings.SECRET_KEY_AZA_TOP:
+            for d in data:
+                visits = self._fetch_visit(d["legacy_bwv_case_id"])
+
+                if isinstance(visits, list):
+                    for visit in visits:
+                        visit["authors"] = [
+                            tm.get("user", {}) for tm in visit.get("team_members", [])
+                        ]
+                    d["visits"] = visits
+                else:
+                    errors.append(
+                        {
+                            "legacy_bwv_case_id": d["legacy_bwv_case_id"],
+                            "status_code": visits,
+                        }
+                    )
+        return data, errors
+
+    def add_reason(self, data, *args, **kwargs):
+        raise NotImplementedError("Case needs a reason")
 
     def _get_object(self, case_id):
         return Case.objects.filter(
@@ -630,11 +682,9 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
             d_clone = dict(d)
             instance = self._get_object(d.get("legacy_bwv_case_id"))
             if instance:
-                serializer = LegacyCaseUpdateSerializer(
-                    instance, data=d, context=context
-                )
+                serializer = self.get_serializer(instance, data=d, context=context)
             else:
-                serializer = LegacyCaseCreateSerializer(data=d, context=context)
+                serializer = self.get_serializer(data=d, context=context)
 
             if serializer.is_valid(raise_exception=True):
                 d_clone.update(
@@ -644,7 +694,33 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     }
                 )
                 if commit:
-                    serializer.save()
+                    case = serializer.save()
+                    d_clone["case"] = case.id
+
+                    # create visits, no update
+                    for visit in d.get("visits", []):
+                        visit["case"] = case.id
+                        visit_instances = Visit.objects.filter(
+                            case=case,
+                            start_time=visit.get("start_time"),
+                            situation=visit.get("situation"),
+                            observations=visit.get("observations"),
+                            can_next_visit_go_ahead=visit.get(
+                                "can_next_visit_go_ahead"
+                            ),
+                            can_next_visit_go_ahead_description=visit.get(
+                                "can_next_visit_go_ahead_description"
+                            ),
+                            suggest_next_visit=visit.get("suggest_next_visit"),
+                            suggest_next_visit_description=visit.get(
+                                "suggest_next_visit_description"
+                            ),
+                            notes=visit.get("notes"),
+                        )
+
+                        visit_serializer = VisitSerializer(data=visit)
+                        if visit_serializer.is_valid() and not visit_instances:
+                            visit_serializer.save()
 
                 results.append(d_clone)
             else:
@@ -656,10 +732,14 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 )
         return errors, results
 
+    def create_additional_types(self, result_data, *args, **kwargs):
+        errors = []
+        return errors, result_data
+
     def _parse_case_data_to_case_serializer(self, data):
         map = {
             "date_created_zaak": "start_date",
-            "situatie_schets": "description",
+            "mededelingen": "description",
         }
 
         def clean(value):
@@ -684,6 +764,16 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         )
         return context
 
+    @property
+    def get_serializer(self):
+        return LegacyCaseCreateSerializer
+
+    def add_parsed_data(self, data, *args, **kwargs):
+        data = self._add_theme(data, *args, **kwargs)
+        data, visit_errors = self._add_visits(data, *args, **kwargs)
+        data = self.add_reason(data, *args, **kwargs)
+        return data, visit_errors
+
     def test_func(self):
         return self.request.user.is_superuser
 
@@ -697,6 +787,12 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     data,
                     request,
                     True,
+                )
+                (
+                    create_additionals_errors,
+                    create_additionals_results,
+                ) = self.create_additional_types(
+                    create_update_results,
                 )
                 del self.request.session["validated_cases_data"]
             else:
@@ -723,8 +819,9 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
 
             data = self._parse_case_data_to_case_serializer(original_data)
             data, address_mismatches = self._add_address(data)
-            data = self._add_theme(data, *args, **kwargs)
-            data = self._add_reason(data)
+
+            data, visit_errors = self.add_parsed_data(data, *args, **kwargs)
+
             create_update_errors, create_update_results = self._create_or_update(
                 data,
                 request,
@@ -741,9 +838,49 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 "address_mismatches": address_mismatches,
                 "create_update_errors": create_update_errors,
                 "create_update_results": create_update_results,
+                "visit_errors": visit_errors,
             }
         )
         return self.render_to_response(context)
+
+
+class CaseThemeCitizenReportViewSet(ImportBWVCaseDataView):
+    def add_reason(self, data, *args, **kwargs):
+        reason, _ = CaseReason.objects.get_or_create(name=settings.DEFAULT_REASON)
+        for d in data:
+            d["reason"] = reason.id
+        return data
+
+    def _add_citizen_report(self, data):
+        for d in data:
+            d["citizen_report"] = {
+                "description_citizenreport": d.get("situatie_schets"),
+                "identification": 1,
+            }
+        return data
+
+    def create_additional_types(self, result_data, *args, **kwargs):
+        errors = []
+        for d in result_data:
+            citizen_report = d.get("citizen_report", {})
+            citizen_report["case"] = d["case"]
+            instances = CitizenReport.objects.filter(
+                case__id=d.get("case"),
+                description_citizenreport=citizen_report.get(
+                    "description_citizenreport"
+                ),
+            )
+            serializer = CitizenReportSerializer(
+                data=citizen_report, context={"request": self.request}
+            )
+            if serializer.is_valid() and not instances:
+                serializer.save()
+        return errors, result_data
+
+    def add_parsed_data(self, data, *args, **kwargs):
+        data, visit_errors = super().add_parsed_data(data, *args, **kwargs)
+        data = self._add_citizen_report(data)
+        return data, visit_errors
 
 
 class CaseCloseViewSet(

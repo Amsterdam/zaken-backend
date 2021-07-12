@@ -24,11 +24,12 @@ class AdvertisementLinklist(serializers.Field):
 
 
 class CitizenReportSerializer(serializers.ModelSerializer):
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     advertisement_linklist = AdvertisementLinklist(required=False)
 
     class Meta:
         model = CitizenReport
-        exclude = ["author"]
+        fields = "__all__"
 
 
 class CaseStateTypeSerializer(serializers.ModelSerializer):
@@ -166,6 +167,8 @@ class CamundaStartProcessSerializer(serializers.Serializer):
 class BWVCaseImportValidSerializer(serializers.Serializer):
     legacy_bwv_case_id = serializers.CharField()
     is_legacy_bwv = serializers.BooleanField(default=True)
+    ADS_NR_VRA = serializers.CharField()
+    OBJ_NR_VRA = serializers.CharField()
     begindatum_zaak = serializers.CharField()
     user_created_zaak = serializers.CharField()
     date_created_zaak = serializers.DateField(
