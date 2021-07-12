@@ -25,6 +25,7 @@ class ImportBWVCaseDataForm(forms.Form):
         try:
             data = data.replace("null", "None")
             data = data.replace('"huisnummer": NaN', '"huisnummer": 0')
+            data = data.replace('"situatie_schets": NaN', '"situatie_schets": ""')
             data = data.replace("NaN", '""')
 
             data = json.loads(data)

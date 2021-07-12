@@ -53,9 +53,9 @@ urlpatterns = [
         CaseThemeCitizenReportViewSet.as_view(),
         {
             "theme_name": "Vakantieverhuur",
-            "url_name": "import-cases-vakantieverhuur",
+            "url_name": "import-cases-vakantieverhuur-melding",
         },
-        name="import-cases-vakantieverhuur",
+        name="import-cases-vakantieverhuur-melding",
     ),
     # API Routing
     path("api/v1/", include(router.urls)),

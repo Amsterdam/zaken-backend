@@ -24,11 +24,12 @@ class AdvertisementLinklist(serializers.Field):
 
 
 class CitizenReportSerializer(serializers.ModelSerializer):
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     advertisement_linklist = AdvertisementLinklist(required=False)
 
     class Meta:
         model = CitizenReport
-        exclude = ["author"]
+        fields = "__all__"
 
 
 class CaseStateTypeSerializer(serializers.ModelSerializer):
