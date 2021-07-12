@@ -36,7 +36,7 @@ class CaseReason(models.Model):
 
 
 class CaseProject(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     theme = models.ForeignKey(to=CaseTheme, on_delete=models.PROTECT)
 
     def __str__(self):
