@@ -69,7 +69,7 @@ def do_bag_search_address_exact(address):
         and r.get("bag_huisletter") == address.get("huisletter")
         and r.get("bag_toevoeging") == address.get("toev")
     ]
-    result["results"] = [result["results"][0]] if result["results"] else []
+    # result["results"] = [result["results"][0]] if result["results"] else []
     result["count_hits"] = len(result["results"])
     result["count"] = len(result["results"])
     return result
