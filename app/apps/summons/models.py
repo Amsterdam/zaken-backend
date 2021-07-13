@@ -42,7 +42,9 @@ class Summon(TaskModelEventEmitter):
         for person in self.persons.all():
             persons.append(
                 {
-                    "person_full_name": person.__str__(),
+                    "first_name": person.first_name,
+                    "preposition": person.preposition,
+                    "last_name": person.last_name,
                     "person_role": person.person_role,
                 }
             )
