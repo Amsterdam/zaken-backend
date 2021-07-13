@@ -287,6 +287,7 @@ class CitizenReport(TaskModelEventEmitter):
     )
     reporter_name = models.CharField(max_length=50, null=True, blank=True)
     reporter_phone = models.CharField(max_length=50, null=True, blank=True)
+    reporter_email = models.CharField(max_length=50, null=True, blank=True)
     identification = models.PositiveIntegerField()
     advertisement_linklist = ArrayField(
         base_field=models.CharField(max_length=255),
