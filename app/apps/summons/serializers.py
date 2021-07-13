@@ -6,7 +6,14 @@ from rest_framework import serializers
 class SummonedPersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummonedPerson
-        fields = ("id", "first_name", "preposition", "last_name", "summon")
+        fields = (
+            "id",
+            "first_name",
+            "preposition",
+            "last_name",
+            "person_role",
+            "summon",
+        )
         read_only_fields = ("summon",)
 
 
