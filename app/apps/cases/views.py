@@ -855,6 +855,9 @@ class CaseThemeCitizenReportViewSet(ImportBWVCaseDataView):
         for d in data:
             d["citizen_report"] = {
                 "description_citizenreport": d.get("situatie_schets"),
+                "reporter_name": d.get("melder_naam"),
+                "reporter_phone": d.get("melder_telnr"),
+                "reporter_email": d.get("melder_emailadres"),
                 "identification": 1,
             }
         return data
@@ -865,10 +868,7 @@ class CaseThemeCitizenReportViewSet(ImportBWVCaseDataView):
             citizen_report = d.get("citizen_report", {})
             citizen_report["case"] = d["case"]
             instances = CitizenReport.objects.filter(
-                case__id=d.get("case"),
-                description_citizenreport=citizen_report.get(
-                    "description_citizenreport"
-                ),
+                case__id=d.get("case"), **citizen_report
             )
             serializer = CitizenReportSerializer(
                 data=citizen_report, context={"request": self.request}

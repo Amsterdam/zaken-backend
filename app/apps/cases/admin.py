@@ -43,6 +43,7 @@ class CitizenReportAdmin(admin.ModelAdmin):
         "identification",
         "reporter_name",
         "reporter_phone",
+        "reporter_email",
         "description_citizenreport",
     )
 
