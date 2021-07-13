@@ -11,11 +11,35 @@ from apps.cases.models import (
     CaseTheme,
     CitizenReport,
 )
+from django import forms
 from django.contrib import admin
+
+
+def get_project_choises():
+    return [
+        (item, f"{item.theme.name}: {item.name}") for item in CaseProject.objects.all()
+    ]
+
+
+def get_reason_choises():
+    return [
+        (reason, f"{reason.case_theme.name}: {reason.name}")
+        for reason in CaseCloseReason.objects.all()
+    ]
+
+
+class CaseAdminForm(forms.ModelForm):
+    class Meta:
+        model = Case
+        exclude = ()
+
+    reason = forms.ChoiceField(choices=get_reason_choises)
+    project = forms.ChoiceField(choices=get_project_choises)
 
 
 @admin.register(Case)
 class CaseAdmin(admin.ModelAdmin):
+    form = CaseAdminForm
     list_display = (
         "id",
         "identification",

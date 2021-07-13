@@ -39,6 +39,9 @@ class CaseProject(models.Model):
     name = models.CharField(max_length=255)
     theme = models.ForeignKey(to=CaseTheme, on_delete=models.PROTECT)
 
+    class Meta:
+        ordering = ["theme", "name"]
+
     def __str__(self):
         return self.name
 
@@ -260,6 +263,9 @@ class CaseCloseReason(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.case_theme}"
+
+    class Meta:
+        ordering = ["case_theme", "name"]
 
 
 class CaseClose(TaskModelEventEmitter):
