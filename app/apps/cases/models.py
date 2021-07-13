@@ -314,6 +314,7 @@ class CitizenReport(TaskModelEventEmitter):
             "identification": self.identification,
             "reporter_name": self.reporter_name,
             "reporter_phone": self.reporter_phone,
+            "reporter_email": self.reporter_email,
             "advertisement_linklist": self.advertisement_linklist,
             "description_citizenreport": self.description_citizenreport,
             "author": author,
