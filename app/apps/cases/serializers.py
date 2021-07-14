@@ -6,6 +6,7 @@ from apps.cases.models import (
     CaseClose,
     CaseCloseReason,
     CaseCloseResult,
+    CaseProject,
     CaseReason,
     CaseState,
     CaseStateType,
@@ -58,6 +59,12 @@ class CaseStateSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class CaseProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseProject
+        fields = "__all__"
+
+
 class CaseSerializer(serializers.ModelSerializer):
     address = AddressSerializer(required=True)
     case_states = CaseStateSerializer(many=True)
@@ -69,6 +76,7 @@ class CaseSerializer(serializers.ModelSerializer):
     theme = CaseThemeSerializer(required=True)
     reason = CaseReasonSerializer(required=True)
     schedules = ScheduleSerializer(source="get_schedules", many=True, read_only=True)
+    project = CaseProjectSerializer()
 
     class Meta:
         model = Case
@@ -84,10 +92,21 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
     reason = serializers.PrimaryKeyRelatedField(
         many=False, required=True, queryset=CaseReason.objects.all()
     )
+    project = serializers.PrimaryKeyRelatedField(
+        many=False, required=False, queryset=CaseProject.objects.all()
+    )
 
     class Meta:
         model = Case
-        fields = ("id", "address", "theme", "reason", "description", "author")
+        fields = (
+            "id",
+            "address",
+            "theme",
+            "reason",
+            "description",
+            "author",
+            "project",
+        )
 
     def validate(self, data):
         """
@@ -95,10 +114,19 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         """
         theme = data["theme"]
         reason = data["reason"]
+        project = data.get("project")
 
         if reason.theme != theme:
             raise serializers.ValidationError(
                 "reason must be one of the theme CaseReasons"
+            )
+
+        if reason.name == "Project" and not project:
+            raise serializers.ValidationError("missing project for reason Project")
+
+        if project and project.theme != theme:
+            raise serializers.ValidationError(
+                "project must be one of the theme CaseReasons"
             )
 
         return data

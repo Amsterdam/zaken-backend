@@ -35,6 +35,17 @@ class CaseReason(models.Model):
         ordering = ["name"]
 
 
+class CaseProject(models.Model):
+    name = models.CharField(max_length=255)
+    theme = models.ForeignKey(to=CaseTheme, on_delete=models.PROTECT)
+
+    class Meta:
+        ordering = ["theme", "name"]
+
+    def __str__(self):
+        return self.name
+
+
 class Case(ModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CASE
 
@@ -65,6 +76,9 @@ class Case(ModelEventEmitter):
     )
     reason = models.ForeignKey(to=CaseReason, on_delete=models.PROTECT)
     description = models.TextField(blank=True, null=True)
+    project = models.ForeignKey(
+        to=CaseProject, null=True, blank=True, on_delete=models.PROTECT
+    )
 
     def __get_event_values__(self):
         reason = self.reason.name
@@ -92,6 +106,10 @@ class Case(ModelEventEmitter):
                 event_values.update(
                     {"advertisement_linklist": citizen_report.advertisement_linklist}
                 )
+
+        if reason == "Project":
+            event_values.update({"project": self.project.name})
+
         return event_values
 
     def __get_case__(self):
@@ -245,6 +263,9 @@ class CaseCloseReason(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.case_theme}"
+
+    class Meta:
+        ordering = ["case_theme", "name"]
 
 
 class CaseClose(TaskModelEventEmitter):

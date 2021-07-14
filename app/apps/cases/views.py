@@ -17,6 +17,7 @@ from apps.cases.models import (
     CaseCloseReason,
     CaseCloseResult,
     CaseProcessInstance,
+    CaseProject,
     CaseReason,
     CaseState,
     CaseStateType,
@@ -29,6 +30,7 @@ from apps.cases.serializers import (
     CaseCloseResultSerializer,
     CaseCloseSerializer,
     CaseCreateUpdateSerializer,
+    CaseProjectSerializer,
     CaseReasonSerializer,
     CaseSerializer,
     CaseStateSerializer,
@@ -561,6 +563,25 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = CaseCloseReasonSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the CaseProjects associated with the given theme",
+        responses={status.HTTP_200_OK: CaseProjectSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="case-projects",
+        methods=["get"],
+    )
+    def case_projects(self, request, pk):
+        paginator = PageNumberPagination()
+        theme = self.get_object()
+        query_set = theme.caseproject_set.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = CaseProjectSerializer(context, many=True)
 
         return paginator.get_paginated_response(serializer.data)
 
