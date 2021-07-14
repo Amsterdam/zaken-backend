@@ -218,7 +218,7 @@ class CamundaTaskViewSet(viewsets.ViewSet):
 
             for key, value in variables.items():
                 # Only for selects, include original readable value from options
-                value["value"] = (
+                value["value_verbose"] = (
                     dict(
                         (o.get("value"), o.get("label"))
                         for o in form_dict.get(key).get("options", [])
