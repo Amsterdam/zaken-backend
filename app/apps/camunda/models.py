@@ -15,11 +15,22 @@ class GenericCompletedTask(TaskModelEventEmitter):
 
     def __get_event_values__(self):
 
+        # replace in variables value for key 'value', with the value of entry with key 'value_verbose'
+        # remove variables with key 'value_verbose'
+        variables = dict(
+            (k, {**v, **{"value": v.get("value_verbose")}})
+            for k, v in self.variables.items()
+        )
+        variables = dict(
+            (k, dict((kk, vv) for kk, vv in v.items() if kk != "value_verbose"))
+            for k, v in variables.items()
+        )
+
         return {
             "author": self.author.__str__(),
             "date_added": self.date_added,
             "description": self.description,
-            "variables": self.variables,
+            "variables": variables,
         }
 
 
