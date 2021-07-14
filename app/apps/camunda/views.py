@@ -293,10 +293,12 @@ class TaskViewSet(viewsets.ViewSet):
             result = []
             for task in tasks:
                 try:
-                    task["case"] = Case.objects.get(
-                        camunda_ids__contains=[task["processInstanceId"]]
-                    )
-                    result.append(task)
+                    case = Case.objects.filter(
+                        case_states__case_process_id=task["processInstanceId"]
+                    ).first()
+                    if case:
+                        task["case"] = case
+                        result.append(task)
                 except Case.DoesNotExist:
                     print(
                         f'Dropping task {task["processInstanceId"]} as the case cannot be found.'
