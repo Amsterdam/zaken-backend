@@ -48,6 +48,7 @@ class CaseAdmin(admin.ModelAdmin):
         "address",
         "legacy_bwv_case_id",
         "is_legacy_bwv",
+        "author",
     )
 
 
@@ -70,6 +71,7 @@ class CitizenReportAdmin(admin.ModelAdmin):
         "reporter_phone",
         "reporter_email",
         "description_citizenreport",
+        "author",
     )
 
 
