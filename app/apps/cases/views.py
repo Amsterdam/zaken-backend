@@ -822,6 +822,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     create_additionals_results,
                 ) = self.create_additional_types(
                     create_update_results,
+                    user,
                 )
                 del self.request.session["validated_cases_data"]
                 del self.request.session["validated_cases_data_user"]
@@ -897,7 +898,7 @@ class CaseThemeCitizenReportViewSet(ImportBWVCaseDataView):
             }
         return data
 
-    def create_additional_types(self, result_data, *args, **kwargs):
+    def create_additional_types(self, result_data, user=None, *args, **kwargs):
         errors = []
         for d in result_data:
             citizen_report = d.get("citizen_report", {})
@@ -909,7 +910,10 @@ class CaseThemeCitizenReportViewSet(ImportBWVCaseDataView):
                 data=citizen_report, context={"request": self.request}
             )
             if serializer.is_valid() and not instances:
-                serializer.save()
+                citizen_report_instance = serializer.save()
+                if user:
+                    citizen_report_instance.author = user
+                    citizen_report_instance.save()
         return errors, result_data
 
     def add_parsed_data(self, data, *args, **kwargs):
