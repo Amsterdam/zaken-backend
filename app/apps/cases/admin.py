@@ -48,6 +48,7 @@ class CaseAdmin(admin.ModelAdmin):
         "address",
         "legacy_bwv_case_id",
         "is_legacy_bwv",
+        "author",
     )
 
 

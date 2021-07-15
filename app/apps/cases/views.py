@@ -59,6 +59,7 @@ from apps.events.mixins import CaseEventsMixin
 from apps.schedules.serializers import ThemeScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
+from apps.users.models import User
 from apps.visits.models import Visit
 from apps.visits.serializers import VisitSerializer
 from django.conf import settings
@@ -695,7 +696,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
             legacy_bwv_case_id=case_id, is_legacy_bwv=True
         ).first()
 
-    def _create_or_update(self, data, request, commit):
+    def _create_or_update(self, data, request, commit, user=None):
         errors = []
         results = []
         context = {"request": request}
@@ -716,6 +717,9 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 )
                 if commit:
                     case = serializer.save()
+                    if user:
+                        case.author = user
+                        case.save()
                     d_clone["case"] = case.id
 
                     # create visits, no update
@@ -803,11 +807,15 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         create_update_results = []
         if request.GET.get("commit"):
             data = self.request.session.get("validated_cases_data")
+            user = self.request.session.get("validated_cases_data_user")
+            if user:
+                user = User.objects.get(id=user)
             if data:
                 create_update_errors, create_update_results = self._create_or_update(
                     data,
                     request,
                     True,
+                    user,
                 )
                 (
                     create_additionals_errors,
@@ -816,6 +824,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     create_update_results,
                 )
                 del self.request.session["validated_cases_data"]
+                del self.request.session["validated_cases_data_user"]
             else:
                 return redirect(reverse(context.get("url_name")))
             context.update(
@@ -832,11 +841,14 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         context = self.get_context_data(**kwargs)
         data = (
             original_data
-        ) = address_mismatches = create_update_errors = create_update_results = []
+        ) = (
+            address_mismatches
+        ) = create_update_errors = create_update_results = visit_errors = []
         form_valid = False
 
         if form.is_valid():
             original_data = form.cleaned_data["json_data"]
+            user = form.cleaned_data["user"]
 
             data = self._parse_case_data_to_case_serializer(original_data)
             data, address_mismatches = self._add_address(data)
@@ -847,9 +859,11 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 data,
                 request,
                 False,
+                user,
             )
             form_valid = True
             self.request.session["validated_cases_data"] = create_update_results
+            self.request.session["validated_cases_data_user"] = str(user.id)
 
         context.update(
             {

@@ -199,8 +199,8 @@ class BWVCaseImportValidSerializer(serializers.Serializer):
     OBJ_NR_VRA = serializers.CharField()
     begindatum_zaak = serializers.CharField()
     user_created_zaak = serializers.CharField()
-    date_created_zaak = serializers.DateField(
-        format="%d-%m-%Y", input_formats=["%d-%m-%Y"]
+    date_created_zaak = serializers.DateTimeField(
+        format="%d-%m-%Y", input_formats=["%d-%m-%Y %H:%M:%S"]
     )
     user_modified_zaak = serializers.CharField(allow_null=True, allow_blank=True)
     date_modified_zaak = serializers.CharField(allow_null=True, allow_blank=True)

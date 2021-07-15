@@ -2,6 +2,7 @@ import json
 import logging
 from json.decoder import JSONDecodeError
 
+from apps.users.models import User
 from django import forms
 
 from .serializers import BWVCaseImportValidSerializer
@@ -18,6 +19,11 @@ class ImportBWVCaseDataForm(forms.Form):
                 "style": "width: 100%",
             }
         ),
+    )
+    user = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        label="Kies een gebruiker",
+        to_field_name="pk",
     )
 
     def clean_json_data(self):
