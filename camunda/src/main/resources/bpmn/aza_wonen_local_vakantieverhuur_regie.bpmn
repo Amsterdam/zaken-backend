@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" camunda:diagramRelationId="0ec718a6-75ca-4329-b343-a9b91744966d">
-  <bpmn:process id="zaak_wonen_vv_regie" name="AZA VakantieVerhuur Directing Process" isExecutable="true" camunda:versionTag="0.0.3">
+  <bpmn:process id="aza_wonen_local_vakantieverhuur_regie" name="AZA VakantieVerhuur Directing Process" isExecutable="true" camunda:versionTag="0.0.3">
     <bpmn:exclusiveGateway id="Gateway_1dtewmn">
       <bpmn:incoming>Flow_1sswvpm</bpmn:incoming>
       <bpmn:incoming>Flow_019jpwo</bpmn:incoming>
       <bpmn:outgoing>Flow_0gjq5ew</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0gjq5ew" sourceRef="Gateway_1dtewmn" targetRef="Activity_07fbe1o" />
-    <bpmn:callActivity id="Activity_07fbe1o" name="Visit" calledElement="zaak_wonen_visit">
+    <bpmn:callActivity id="Activity_07fbe1o" name="Visit" calledElement="aza_wonen_global_visit">
       <bpmn:extensionElements>
         <camunda:in businessKey="#{execution.processBusinessKey}" />
         <camunda:out variables="all" />
@@ -33,7 +33,7 @@
       <bpmn:startEvent id="Event_0laa2gb">
         <bpmn:outgoing>Flow_1o6wf83</bpmn:outgoing>
       </bpmn:startEvent>
-      <bpmn:callActivity id="Activity_15rbv74" name="Aanschrijving" calledElement="zaak_wonen_summon">
+      <bpmn:callActivity id="Activity_15rbv74" name="Aanschrijving" calledElement="aza_wonen_global_summon">
         <bpmn:extensionElements>
           <camunda:in source="case_process_id" target="case_process_id" />
           <camunda:in source="case_identification" target="case_identification" />
@@ -57,7 +57,7 @@
         <bpmn:outgoing>Flow_09jvupk</bpmn:outgoing>
       </bpmn:exclusiveGateway>
       <bpmn:sequenceFlow id="Flow_01h5qiu" sourceRef="Activity_15rbv74" targetRef="Gateway_19nlltm" />
-      <bpmn:callActivity id="Activity_0at96dl" name="Beslissing" calledElement="zaak_wonen_decision">
+      <bpmn:callActivity id="Activity_0at96dl" name="Beslissing" calledElement="aza_wonen_global_decision">
         <bpmn:extensionElements>
           <camunda:in source="case_process_id" target="case_process_id" />
           <camunda:in source="case_identification" target="case_identification" />
@@ -86,7 +86,7 @@
         <bpmn:incoming>Flow_0mxsjvl</bpmn:incoming>
       </bpmn:endEvent>
       <bpmn:sequenceFlow id="Flow_01ziset" sourceRef="Activity_0at96dl" targetRef="Gateway_0bo5rik" />
-      <bpmn:callActivity id="Activity_1dpvems" name="Voornemen afzien" calledElement="zaak_wonen_voornemen_afzien">
+      <bpmn:callActivity id="Activity_1dpvems" name="Voornemen afzien" calledElement="aza_wonen_global_voornemen_afzien">
         <bpmn:extensionElements>
           <camunda:in businessKey="#{execution.processBusinessKey}" />
           <camunda:in source="case_process_id" target="case_process_id" />
@@ -150,7 +150,7 @@
         </bpmn:extensionElements>
       </bpmn:messageEventDefinition>
     </bpmn:intermediateThrowEvent>
-    <bpmn:callActivity id="Activity_14lfm73" name="Afronden zaak" calledElement="zaak_wonen_afronden_zaak">
+    <bpmn:callActivity id="Activity_14lfm73" name="Afronden zaak" calledElement="aza_wonen_global_afronden_zaak">
       <bpmn:extensionElements>
         <camunda:in source="case_process_id" target="case_process_id" />
         <camunda:in source="case_identification" target="case_identification" />
@@ -215,7 +215,7 @@
       <bpmn:startEvent id="Event_1qgr1a6">
         <bpmn:outgoing>Flow_0h13k55</bpmn:outgoing>
       </bpmn:startEvent>
-      <bpmn:callActivity id="Activity_1fmgozr" name="Aanschrijving" calledElement="zaak_wonen_summon">
+      <bpmn:callActivity id="Activity_1fmgozr" name="Aanschrijving" calledElement="aza_wonen_global_summon">
         <bpmn:extensionElements>
           <camunda:in source="case_process_id" target="case_process_id" />
           <camunda:in source="case_identification" target="case_identification" />
@@ -237,7 +237,7 @@
         <bpmn:outgoing>Flow_0bq1d3y</bpmn:outgoing>
         <bpmn:outgoing>Flow_02ymmf5</bpmn:outgoing>
       </bpmn:exclusiveGateway>
-      <bpmn:callActivity id="Activity_0n6ahzn" name="Beslissing" calledElement="zaak_wonen_decision">
+      <bpmn:callActivity id="Activity_0n6ahzn" name="Beslissing" calledElement="aza_wonen_global_decision">
         <bpmn:extensionElements>
           <camunda:in source="case_process_id" target="case_process_id" />
           <camunda:in source="case_identification" target="case_identification" />
@@ -259,7 +259,7 @@
       <bpmn:endEvent id="Event_0171dw0">
         <bpmn:incoming>Flow_1pn2qqx</bpmn:incoming>
       </bpmn:endEvent>
-      <bpmn:callActivity id="Activity_0l1z1qy" name="Voornemen afzien" calledElement="zaak_wonen_voornemen_afzien">
+      <bpmn:callActivity id="Activity_0l1z1qy" name="Voornemen afzien" calledElement="aza_wonen_global_voornemen_afzien">
         <bpmn:extensionElements>
           <camunda:in businessKey="#{execution.processBusinessKey}" />
           <camunda:in source="case_process_id" target="case_process_id" />
@@ -334,7 +334,7 @@
   <bpmn:message id="Message_1ndmfb9" name="no_new_summons" />
   <bpmn:message id="Message_1ddgqpg" name="all_summons_and_decisions_done" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="zaak_wonen_vv_regie">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="aza_wonen_local_vakantieverhuur_regie">
       <bpmndi:BPMNEdge id="Flow_0rhk7o2_di" bpmnElement="Flow_0rhk7o2">
         <di:waypoint x="1550" y="280" />
         <di:waypoint x="1602" y="280" />

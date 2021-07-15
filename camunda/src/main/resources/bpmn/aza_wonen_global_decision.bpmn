@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_114td5r" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
   <bpmn:collaboration id="Collaboration_19t4o88">
-    <bpmn:participant id="Participant_0mil4ed" name="Besluitproces" processRef="zaak_wonen_decision" />
+    <bpmn:participant id="Participant_0mil4ed" name="Besluitproces" processRef="aza_wonen_global_decision" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_decision" name="Zaak Wonen VakantieVerhuur - Besluit" isExecutable="true" camunda:versionTag="0.0.3">
+  <bpmn:process id="aza_wonen_global_decision" name="Zaak Wonen VakantieVerhuur - Besluit" isExecutable="true" camunda:versionTag="0.0.3">
     <bpmn:laneSet id="LaneSet_0togpvw">
       <bpmn:lane id="Lane_138dlau" name="Projecthandhaver">
         <bpmn:flowNodeRef>Activity_08cj18o</bpmn:flowNodeRef>

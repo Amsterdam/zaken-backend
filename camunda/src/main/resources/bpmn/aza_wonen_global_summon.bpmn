@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0k0da6k" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
   <bpmn:collaboration id="Collaboration_1t5ylmo">
-    <bpmn:participant id="Participant_1ciseh2" name="Process" processRef="zaak_wonen_summon" />
+    <bpmn:participant id="Participant_1ciseh2" name="Process" processRef="aza_wonen_global_summon" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_summon" name="Zaak Wonen VakantieVerhuur - Aanschrijving" isExecutable="true" camunda:versionTag="0.1.3">
+  <bpmn:process id="aza_wonen_global_summon" name="Zaak Wonen VakantieVerhuur - Aanschrijving" isExecutable="true" camunda:versionTag="0.1.3">
     <bpmn:laneSet id="LaneSet_0iy1emi">
       <bpmn:lane id="Lane_1o6yxo7" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_1ksn3xw</bpmn:flowNodeRef>
@@ -620,7 +620,7 @@
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
   <bpmn:message id="Message_14wp5u8" name="model_create_summon" />
   <bpmn:message id="Message_1k1jpww" name="start_decision_process" />
-  <bpmn:message id="Message_1j5idk9" name="zaak_wonen_vv_sluitingsprocess" />
+  <bpmn:message id="Message_1j5idk9" name="aza_wonen_local_vakantieverhuur_sluitingsprocess" />
   <bpmn:message id="Message_1bioi1o" name="start_renounce_intention" />
   <bpmn:message id="Message_1od7c00" name="start_uitzetten_vervolgstap" />
   <bpmn:message id="Message_164umvg" name="start_renounce_intention" />

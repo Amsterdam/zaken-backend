@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1lcjjzz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" camunda:diagramRelationId="a8cc3f51-5a58-4e06-aca4-2a2b3ed71b3a">
   <bpmn:collaboration id="Collaboration_1tztuvt">
-    <bpmn:participant id="Participant_08m4w5n" name="Process" processRef="zaak_wonen_visit" />
+    <bpmn:participant id="Participant_08m4w5n" name="Process" processRef="aza_wonen_global_visit" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_visit" name="VakantieVerhuur - Huisbezoek" isExecutable="true" camunda:versionTag="1.0">
+  <bpmn:process id="aza_wonen_global_visit" name="VakantieVerhuur - Huisbezoek" isExecutable="true" camunda:versionTag="1.0">
     <bpmn:laneSet id="LaneSet_07j24vc">
       <bpmn:lane id="Lane_1hxgg1r" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_118nnax</bpmn:flowNodeRef>

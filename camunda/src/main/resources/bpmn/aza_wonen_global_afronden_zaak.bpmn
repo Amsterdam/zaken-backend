@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" camunda:diagramRelationId="6d07ce36-1890-416e-80d5-ef7d3d02a12b">
   <bpmn:collaboration id="Collaboration_1ke9ri3">
-    <bpmn:participant id="Participant_0ga994p" name="Afronden Zaak" processRef="zaak_wonen_afronden_zaak" />
+    <bpmn:participant id="Participant_0ga994p" name="Afronden Zaak" processRef="aza_wonen_global_afronden_zaak" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_afronden_zaak" name="Afronden Zaak - Zaak Wonen" isExecutable="true" camunda:versionTag="0.0.2">
+  <bpmn:process id="aza_wonen_global_afronden_zaak" name="Afronden Zaak - Zaak Wonen" isExecutable="true" camunda:versionTag="0.0.2">
     <bpmn:laneSet id="LaneSet_0a529i3">
       <bpmn:lane id="Lane_0xuwjmr" name="Projecthandhaver">
         <bpmn:flowNodeRef>Activity_0id7dcf</bpmn:flowNodeRef>
