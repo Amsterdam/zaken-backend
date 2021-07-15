@@ -344,7 +344,7 @@
     <bpmn:sequenceFlow id="Flow_186wilc" sourceRef="Activity_0xg6qv2" targetRef="start_decision_process" />
     <bpmn:sequenceFlow id="Flow_1smx7q3" sourceRef="Activity_1u8ay13" targetRef="Event_0uynagg" />
     <bpmn:sequenceFlow id="Flow_1oesxow" sourceRef="Activity_0p04gzy" targetRef="Event_1va49v0" />
-    <bpmn:userTask id="Activity_10sjuss" name="Verwerken defintief voornemen afzien" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
+    <bpmn:userTask id="Activity_10sjuss" name="Verwerken definitief voornemen afzien" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
       <bpmn:extensionElements>
         <camunda:inputOutput>
           <camunda:outputParameter name="decision">"false"</camunda:outputParameter>
@@ -387,7 +387,7 @@
     <bpmn:userTask id="Activity_13ccsra" name="Monitoren binnenkomen zienswijze" camunda:formKey="monitor_civilian_action" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(17).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="is_civilian_objection_received" label="ja, er is een zienswijze binnengekomen" type="boolean" />
+          <camunda:formField id="is_civilian_objection_received" label="Ja, er is een zienswijze binnengekomen" type="boolean" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1pop5qk</bpmn:incoming>
