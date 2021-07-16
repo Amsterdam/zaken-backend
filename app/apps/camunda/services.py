@@ -144,7 +144,7 @@ class CamundaService:
         self,
         case_identification=False,
         request_body={},
-        process=settings.CAMUNDA_PROCESS_VISIT,
+        process=settings.CAMUNDA_DIRECTING_PROCESS,
     ):
         """
         TODO: Use business key instead of process key

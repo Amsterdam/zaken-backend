@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     # Third party apps
     "keycloak_oidc",
     "rest_framework",
+    "rest_framework.authtoken",
     "drf_spectacular",
     "django_extensions",
     "django_filters",
@@ -403,9 +404,7 @@ CELERY_BEAT_SCHEDULE = {
 
 CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
 CAMUNDA_REST_URL = os.getenv("CAMUNDA_REST_URL", "http://camunda:8080/engine-rest/")
-CAMUNDA_PROCESS_VISIT = "zaak_wonen_vv_regie"  # "zaak_wonen_visit"
-CAMUNDA_PROCESS_SUMMON = "zaak_wonen_summon"
-CAMUNDA_PROCESS_DECISION = "zaak_wonen_decision"
+CAMUNDA_DIRECTING_PROCESS = "aza_wonen_local_vakantieverhuur_regie"
 
 REDIS = os.getenv("REDIS")
 REDIS_URL = f"redis://{REDIS}"
@@ -463,3 +462,5 @@ VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_BAG_ID = os.getenv(
 VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER = os.getenv(
     "VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER"
 )
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
