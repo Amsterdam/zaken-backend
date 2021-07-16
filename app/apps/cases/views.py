@@ -336,7 +336,10 @@ class CaseViewSet(
         show and not show processes based on the current state of the case
         (for example not show the summon/aanschrijving process when we are in visit state)
         """
-        serializer = CamundaProcessSerializer(CamundaProcess.objects.all(), many=True)
+        case = get_object_or_404(Case, pk=pk)
+        serializer = CamundaProcessSerializer(
+            CamundaProcess.objects.filter(theme=case.theme), many=True
+        )
         return Response(serializer.data)
 
     @extend_schema(
