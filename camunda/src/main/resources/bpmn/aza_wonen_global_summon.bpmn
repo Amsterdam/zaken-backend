@@ -105,7 +105,7 @@
     <bpmn:userTask id="Activity_1mkl5rk" name="Monitoren binnenkomen vergunningaanvraag" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(32).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="action_civilian_permit_requested" label="Is de vergunning aangevraagd?" type="boolean">
+          <camunda:formField id="action_civilian_permit_requested" label="Ja, vergunningaanvraag binnengekomen " type="boolean">
             <camunda:validation>
               <camunda:constraint name="required" />
             </camunda:validation>
@@ -257,7 +257,7 @@
     <bpmn:userTask id="Activity_1k03k9a" name="Monitoren vergunningsprocedure" camunda:formKey="form_monitoren_vergunningsprocedure" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(56).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="civilian_has_gotten_permit" label="Heeft de burger nu een vergunning?" type="boolean">
+          <camunda:formField id="civilian_has_gotten_permit" label="Ja, vergunning verleend" type="boolean">
             <camunda:validation>
               <camunda:constraint name="required" />
             </camunda:validation>
