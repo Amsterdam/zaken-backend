@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_0825zie">
     <bpmn:participant id="Participant_1fgctiq" name="aza_wonen_global_voornemen_afzien" processRef="aza_wonen_global_voornemen_afzien" />
   </bpmn:collaboration>
-  <bpmn:process id="aza_wonen_global_voornemen_afzien" name="aza_wonen_global_voornemen_afzien" isExecutable="true" camunda:versionTag="0.0.1">
+  <bpmn:process id="aza_wonen_global_voornemen_afzien" name="aza_wonen_global_voornemen_afzien" isExecutable="true" camunda:versionTag="0.1.0">
     <bpmn:laneSet id="LaneSet_0akxtcz">
       <bpmn:lane id="Lane_12swn6l" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_1gxlkcj</bpmn:flowNodeRef>
@@ -28,7 +28,8 @@
             <camunda:inputParameter name="payload">{
 "state": "Voornemen afzien",
 "case_identification": ${case_identification},
-"case_process_id": "${case_process_id}"
+"case_process_id": "${execution.getProcessInstanceId()}",
+"information": "${names}"
 }</camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
@@ -38,6 +39,7 @@
             </camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/state/</camunda:inputParameter>
+            <camunda:outputParameter name="state_identification">${response}</camunda:outputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
@@ -97,9 +99,7 @@
   </bpmn:process>
   <bpmn:message id="Message_1oj3bnv" name="start_decision_process" />
   <bpmn:message id="Message_0nm4fk2" name="model_create_summon" />
-  <bpmn:message id="Message_0kjypd3" name="connect_start_renounce_intention" />
   <bpmn:message id="Message_1uca11p" name="start_decision_process" />
-  <bpmn:message id="Message_06w8ibu" name="start_renounce_intention" />
   <bpmn:message id="Message_0selkm5" name="start_uitzetten_vervolgstap" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0825zie">

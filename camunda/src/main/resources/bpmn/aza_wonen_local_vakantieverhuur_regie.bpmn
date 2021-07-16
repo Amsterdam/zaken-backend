@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" camunda:diagramRelationId="0ec718a6-75ca-4329-b343-a9b91744966d">
-  <bpmn:process id="aza_wonen_local_vakantieverhuur_regie" name="AZA VakantieVerhuur Directing Process" isExecutable="true" camunda:versionTag="0.0.3">
+  <bpmn:process id="aza_wonen_local_vakantieverhuur_regie" name="AZA VakantieVerhuur Directing Process" isExecutable="true" camunda:versionTag="0.1.0">
     <bpmn:exclusiveGateway id="Gateway_1dtewmn">
-      <bpmn:incoming>Flow_1sswvpm</bpmn:incoming>
       <bpmn:incoming>Flow_019jpwo</bpmn:incoming>
+      <bpmn:incoming>Flow_011ql1v</bpmn:incoming>
       <bpmn:outgoing>Flow_0gjq5ew</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0gjq5ew" sourceRef="Gateway_1dtewmn" targetRef="Activity_07fbe1o" />
@@ -134,7 +134,7 @@
             <camunda:inputOutput>
               <camunda:inputParameter name="method">POST</camunda:inputParameter>
               <camunda:inputParameter name="payload">{
-    "message_name": "no_new_summons",
+    "message_name": "geen_nieuwe_aanschrijvingen",
     "business_key": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
               <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/send-message-inside-process/</camunda:inputParameter>
@@ -170,7 +170,7 @@
       <bpmn:outgoing>Flow_1bizv1n</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1lalads" sourceRef="Activity_14lfm73" targetRef="Gateway_188y8fu" />
-    <bpmn:sequenceFlow id="Flow_1sswvpm" name="Ja" sourceRef="Gateway_188y8fu" targetRef="Gateway_1dtewmn">
+    <bpmn:sequenceFlow id="Flow_1sswvpm" name="Ja" sourceRef="Gateway_188y8fu" targetRef="Activity_1vaddj9">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${hercontrole=="hercontrole"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:startEvent id="Event_1ye9cb3" name="Sluit zaak">
@@ -197,6 +197,7 @@
           <camunda:formField id="case_process_id" type="string" />
           <camunda:formField id="status_name" label="Huisbezoek" type="string" />
           <camunda:formField id="aanschrijving_loop" type="string" defaultValue="1" />
+          <camunda:formField id="hercontrole" type="boolean" defaultValue="false" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_019jpwo</bpmn:outgoing>
@@ -328,13 +329,24 @@
       <bpmn:incoming>Flow_0rhk7o2</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0rhk7o2" sourceRef="Activity_1y8zuuq" targetRef="Event_0e3mzcd" />
+    <bpmn:scriptTask id="Activity_1vaddj9" name="Activeer hercontrole" scriptFormat="groovy">
+      <bpmn:incoming>Flow_1sswvpm</bpmn:incoming>
+      <bpmn:outgoing>Flow_011ql1v</bpmn:outgoing>
+      <bpmn:script>execution.setVariable('status_name', "Hercontrole");</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_011ql1v" sourceRef="Activity_1vaddj9" targetRef="Gateway_1dtewmn" />
   </bpmn:process>
-  <bpmn:message id="Message_053q3rk" name="add_summon" />
-  <bpmn:message id="Message_1jr43p4" name="instant_close_case" />
-  <bpmn:message id="Message_1ndmfb9" name="no_new_summons" />
-  <bpmn:message id="Message_1ddgqpg" name="all_summons_and_decisions_done" />
+  <bpmn:message id="Message_053q3rk" name="aanschrijving_toevoegen" />
+  <bpmn:message id="Message_1jr43p4" name="zaak_compleet_afsluiten" />
+  <bpmn:message id="Message_1ndmfb9" name="geen_nieuwe_aanschrijvingen" />
+  <bpmn:message id="Message_1ddgqpg" name="alle_aanschrijvingen_en_beslissingen_afgerond" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="aza_wonen_local_vakantieverhuur_regie">
+      <bpmndi:BPMNEdge id="Flow_011ql1v_di" bpmnElement="Flow_011ql1v">
+        <di:waypoint x="1040" y="1020" />
+        <di:waypoint x="290" y="1020" />
+        <di:waypoint x="290" y="715" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0rhk7o2_di" bpmnElement="Flow_0rhk7o2">
         <di:waypoint x="1550" y="280" />
         <di:waypoint x="1602" y="280" />
@@ -370,11 +382,10 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1sswvpm_di" bpmnElement="Flow_1sswvpm">
         <di:waypoint x="2030" y="715" />
-        <di:waypoint x="2030" y="1030" />
-        <di:waypoint x="290" y="1030" />
-        <di:waypoint x="290" y="715" />
+        <di:waypoint x="2030" y="1020" />
+        <di:waypoint x="1140" y="1020" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1189" y="1003" width="12" height="14" />
+          <dc:Bounds x="1989.9999999999827" y="993" width="12" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1lalads_di" bpmnElement="Flow_1lalads">
@@ -657,6 +668,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0e3mzcd_di" bpmnElement="Event_0e3mzcd">
         <dc:Bounds x="1602" y="262" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1vaddj9_di" bpmnElement="Activity_1vaddj9">
+        <dc:Bounds x="1040" y="980" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1uvbneu_di" bpmnElement="Event_1g1egoc">
         <dc:Bounds x="1072" y="162" width="36" height="36" />

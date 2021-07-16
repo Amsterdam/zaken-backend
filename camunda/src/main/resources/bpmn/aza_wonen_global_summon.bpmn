@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_1t5ylmo">
     <bpmn:participant id="Participant_1ciseh2" name="Process" processRef="aza_wonen_global_summon" />
   </bpmn:collaboration>
-  <bpmn:process id="aza_wonen_global_summon" name="Zaak Wonen VakantieVerhuur - Aanschrijving" isExecutable="true" camunda:versionTag="0.1.3">
+  <bpmn:process id="aza_wonen_global_summon" name="Zaak Wonen VakantieVerhuur - Aanschrijving" isExecutable="true" camunda:versionTag="0.4.0">
     <bpmn:laneSet id="LaneSet_0iy1emi">
       <bpmn:lane id="Lane_1o6yxo7" name="Handhavingsjurist">
         <bpmn:flowNodeRef>Activity_1ksn3xw</bpmn:flowNodeRef>
@@ -33,7 +33,6 @@
         <bpmn:flowNodeRef>Gateway_1j1sd3l</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_11453r6</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_16qvzbe</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_0saow5j</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0frp4m5</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0uynagg</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0v6yc85</bpmn:flowNodeRef>
@@ -208,7 +207,7 @@
     </bpmn:serviceTask>
     <bpmn:endEvent id="Event_0ysomyy" name="start sluitingsproces">
       <bpmn:incoming>Flow_167bomv</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1tzmzdr" messageRef="Message_1j5idk9">
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1tzmzdr" messageRef="Message_043fuj2">
         <bpmn:extensionElements>
           <camunda:connector>
             <camunda:inputOutput>
@@ -221,7 +220,7 @@
         "summon_id": {"value": "${summon_id}"}
     },
     "case_identification": "${case_identification}",
-"case_process_id": "${case_process_id}"
+    "case_process_id": "${execution.getProcessInstanceId()}"
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
@@ -430,13 +429,8 @@
     </bpmn:exclusiveGateway>
     <bpmn:userTask id="Activity_16qvzbe" name="Opstellen concept voornemen afzien" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_1kxv6a9</bpmn:incoming>
-      <bpmn:incoming>Flow_0zwbmp6</bpmn:incoming>
       <bpmn:outgoing>Flow_0vyok6s</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:startEvent id="Event_0saow5j" name="wonen summon: opstellen concept voornemen afzien">
-      <bpmn:outgoing>Flow_0zwbmp6</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1kh23p9" messageRef="Message_164umvg" />
-    </bpmn:startEvent>
     <bpmn:boundaryEvent id="Event_1mo05mc" attachedToRef="Activity_13ccsra">
       <bpmn:outgoing>Flow_05c0mfz</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_091gtsz">
@@ -455,7 +449,6 @@
     <bpmn:sequenceFlow id="Flow_1kxv6a9" name="Ja, afzien voornemen" sourceRef="Gateway_11453r6" targetRef="Activity_16qvzbe">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${is_citizen_objection_valid=="yes_citizen_objection_valid"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0zwbmp6" sourceRef="Event_0saow5j" targetRef="Activity_16qvzbe" />
     <bpmn:endEvent id="Event_0frp4m5" name="Opstellen concept aanschrijvingen">
       <bpmn:incoming>Flow_0q8zujg</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0vy4bcg" messageRef="Message_0io3xyw">
@@ -463,7 +456,7 @@
           <camunda:connector>
             <camunda:inputOutput>
               <camunda:inputParameter name="payload">{
-    "message_name": "add_summon",
+    "message_name": "aanschrijving_toevoegen",
     "camunda_process_id": "${super_process}",
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
@@ -491,7 +484,7 @@
           <camunda:connector>
             <camunda:inputOutput>
               <camunda:inputParameter name="payload">{
-    "message_name": "add_summon",
+    "message_name": "aanschrijving_toevoegen",
     "camunda_process_id": "${super_process}",
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
@@ -618,13 +611,10 @@
     <bpmn:sequenceFlow id="Flow_167bomv" sourceRef="Activity_0vx9ad7" targetRef="Event_0ysomyy" />
   </bpmn:process>
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
-  <bpmn:message id="Message_14wp5u8" name="model_create_summon" />
   <bpmn:message id="Message_1k1jpww" name="start_decision_process" />
-  <bpmn:message id="Message_1j5idk9" name="aza_wonen_local_vakantieverhuur_sluitingsprocess" />
-  <bpmn:message id="Message_1bioi1o" name="start_renounce_intention" />
   <bpmn:message id="Message_1od7c00" name="start_uitzetten_vervolgstap" />
-  <bpmn:message id="Message_164umvg" name="start_renounce_intention" />
-  <bpmn:message id="Message_0io3xyw" name="add_summon" />
+  <bpmn:message id="Message_0io3xyw" name="aanschrijving_toevoegen" />
+  <bpmn:message id="Message_043fuj2" name="aza_wonen_local_vakantieverhuur_sluitingsproces" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1t5ylmo">
       <bpmndi:BPMNShape id="Participant_1ciseh2_di" bpmnElement="Participant_1ciseh2" isHorizontal="true">
@@ -658,11 +648,6 @@
       <bpmndi:BPMNEdge id="Flow_1bwcebc_di" bpmnElement="Flow_1bwcebc">
         <di:waypoint x="1980" y="749" />
         <di:waypoint x="2020" y="749" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0zwbmp6_di" bpmnElement="Flow_0zwbmp6">
-        <di:waypoint x="2768" y="560" />
-        <di:waypoint x="2830" y="560" />
-        <di:waypoint x="2830" y="590" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1kxv6a9_di" bpmnElement="Flow_1kxv6a9">
         <di:waypoint x="2675" y="630" />
@@ -962,12 +947,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_16qvzbe_di" bpmnElement="Activity_16qvzbe">
         <dc:Bounds x="2780" y="590" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0saow5j_di" bpmnElement="Event_0saow5j">
-        <dc:Bounds x="2732" y="542" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2706" y="506" width="88" height="40" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_116l7sy_di" bpmnElement="Event_0frp4m5">
         <dc:Bounds x="2162" y="612" width="36" height="36" />

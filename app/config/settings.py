@@ -157,8 +157,14 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
-    "DEFAULT_PERMISSION_CLASSES": [
-        "keycloak_oidc.drf.permissions.IsInAuthorizedRealm",
+    # "DEFAULT_PERMISSION_CLASSES": [
+    #     "rest_framework.permissions.AllowAny",
+    #     # "keycloak_oidc.drf.permissions.IsInAuthorizedRealm",
+    #     # "rest_framework.permissions.DjangoModelPermissions",
+    # ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+        "apps.users.auth.AuthenticationClass",
     ],
 }
 
@@ -405,17 +411,17 @@ CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
 CAMUNDA_REST_URL = os.getenv("CAMUNDA_REST_URL", "http://camunda:8080/engine-rest/")
 CAMUNDA_DIRECTING_PROCESS = "aza_wonen_local_vakantieverhuur_regie"
 
-REDIS = os.getenv("REDIS")
-REDIS_URL = f"redis://{REDIS}"
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": REDIS_URL,
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-    }
-}
+# REDIS = os.getenv("REDIS")
+# REDIS_URL = f"redis://{REDIS}"
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": REDIS_URL,
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#         },
+#     }
+# }
 
 LOGOUT_REDIRECT_URL = "/admin"
 
