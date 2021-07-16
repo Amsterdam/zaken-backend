@@ -1,4 +1,4 @@
-from apps.cases.models import Case
+from apps.cases.models import Case, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.db import models
@@ -38,6 +38,7 @@ class CamundaProcess(models.Model):
     name = models.CharField(max_length=255)
     camunda_message_name = models.CharField(max_length=255)
     to_directing_proccess = models.BooleanField(default=False)
+    theme = models.ForeignKey(CaseTheme, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.name} - {self.camunda_message_name}"
