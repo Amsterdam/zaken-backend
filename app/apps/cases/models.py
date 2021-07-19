@@ -189,7 +189,7 @@ class CaseStateType(models.Model):
         theme, _ = CaseTheme.objects.get_or_create(name=settings.DEFAULT_THEME)
         return theme.id
 
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     theme = models.ForeignKey(
         to=CaseTheme,
         related_name="state_types",
@@ -199,6 +199,9 @@ class CaseStateType(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        unique_together = [["name", "theme"]]
 
 
 class CaseState(models.Model):
