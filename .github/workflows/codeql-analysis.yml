@@ -43,8 +43,8 @@ jobs:
         python-version: '3.x'
     - name: Install dependencies
       run: |
-        if [ -f ./app/requirements.txt ];
         python -m pip install --upgrade pip
+        if [ -f ./app/requirements.txt ];
         echo "Installing python dependencies"
         then pip install -r ./app/requirements.txt;
         fi
