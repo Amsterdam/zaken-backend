@@ -15,17 +15,9 @@ from django import forms
 from django.contrib import admin
 
 
-def get_project_choises():
-    return [
-        (item, f"{item.theme.name}: {item.name}") for item in CaseProject.objects.all()
-    ]
-
-
-def get_reason_choises():
-    return [
-        (reason, f"{reason.case_theme.name}: {reason.name}")
-        for reason in CaseCloseReason.objects.all()
-    ]
+class LabelThemeModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return f"{obj.theme.name}: {obj.name}"
 
 
 class CaseAdminForm(forms.ModelForm):
@@ -33,8 +25,14 @@ class CaseAdminForm(forms.ModelForm):
         model = Case
         exclude = ()
 
-    reason = forms.ChoiceField(choices=get_reason_choises)
-    project = forms.ChoiceField(choices=get_project_choises)
+    reason = LabelThemeModelChoiceField(
+        queryset=CaseReason.objects.all(),
+        required=False,
+    )
+    project = LabelThemeModelChoiceField(
+        queryset=CaseProject.objects.all(),
+        required=False,
+    )
 
 
 @admin.register(Case)
