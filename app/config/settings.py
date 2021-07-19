@@ -305,8 +305,13 @@ PERMISSIONS_POLICY = {
 }
 
 # Settings for Content-Security-Policy header
-CSP_DEFAULT = ("'self'", "unpkg.com")
-CSP_DEFAULT_UNSAFE_INLINE = ("'unsafe-inline'", "'self'", "unpkg.com")
+CSP_DEFAULT = ("'self'", "unpkg.com", "cdnjs.cloudflare.com/ajax/libs/vis/")
+CSP_DEFAULT_UNSAFE_INLINE = (
+    "'unsafe-inline'",
+    "'self'",
+    "unpkg.com",
+    "cdnjs.cloudflare.com/ajax/libs/vis/",
+)
 CSP_DEFAULT_SRC = CSP_DEFAULT
 CSP_FRAME_ANCESTORS = ("'self'",)
 CSP_SCRIPT_SRC = CSP_DEFAULT_UNSAFE_INLINE
