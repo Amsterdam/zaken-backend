@@ -292,17 +292,22 @@ class TaskViewSet(viewsets.ViewSet):
         else:
             result = []
             for task in tasks:
-                try:
-                    case = Case.objects.filter(
-                        case_states__case_process_id=task["processInstanceId"]
-                    ).first()
-                    if case:
-                        task["case"] = case
+                case = Case.objects.filter(
+                    case_states__case_process_id=task["processInstanceId"]
+                ).first()
+                if case:
+                    task["case"] = case
+                    result.append(task)
+                else:
+                    try:
+                        task["case"] = Case.objects.get(
+                            camunda_ids__contains=[task["processInstanceId"]]
+                        )
                         result.append(task)
-                except Case.DoesNotExist:
-                    print(
-                        f'Dropping task {task["processInstanceId"]} as the case cannot be found.'
-                    )
+                    except Case.DoesNotExist:
+                        print(
+                            f'Dropping task {task["processInstanceId"]} as the case cannot be found.'
+                        )
 
             serializer = CamundaTaskListSerializer(result, many=True)
 
