@@ -49,7 +49,7 @@ mozilla-django-oidc==1.2.4
 prompt-toolkit==3.0.19
 psycopg2==2.9.1
 pycparser==2.20
-pygraphviz==1.7
+# pygraphviz==1.7
 PyJWT==2.1.0
 pyOpenSSL==20.0.1
 pyrsistent==0.18.0
