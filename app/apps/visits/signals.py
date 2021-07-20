@@ -14,6 +14,15 @@ def complete_camunda_task_create_visit(sender, instance, created, **kwargs):
         if task:
             break
 
+    # Legacy using camunda_ids
+    if not task:
+        for camunda_id in instance.case.camunda_ids:
+            task = CamundaService().get_task_by_task_name_id_and_camunda_id(
+                "task_create_visit", camunda_id
+            )
+            if task:
+                break
+
     if task:
         CamundaService().complete_task(
             task["id"],
