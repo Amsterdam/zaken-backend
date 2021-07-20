@@ -51,7 +51,7 @@
       <bpmn:incoming>Flow_1v6ql1z</bpmn:incoming>
       <bpmn:outgoing>Flow_1lmk47t</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_0qte498" name="Verwerken defintief voornemen afzien" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
+    <bpmn:userTask id="Activity_0qte498" name="Verwerken definitief voornemen afzien" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
       <bpmn:incoming>Flow_1lmk47t</bpmn:incoming>
       <bpmn:outgoing>Flow_0nnp7hu</bpmn:outgoing>
     </bpmn:userTask>
