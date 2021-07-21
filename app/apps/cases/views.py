@@ -299,7 +299,7 @@ class CaseViewSet(
         tasks = []
         for camunda_id in case.camunda_ids:
             try:
-                state = CaseState.objects.filter(case_process_id=camunda_id)
+                state = CaseState.objects.get(case_process_id=camunda_id)
                 tasks = CamundaService().get_all_tasks_by_instance_id(camunda_id)
                 camunda_tasks.extend([{"state": state, "tasks": tasks}])
             except CaseState.DoesNotExist:
