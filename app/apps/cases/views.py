@@ -299,18 +299,21 @@ class CaseViewSet(
         tasks = []
         for camunda_id in case.camunda_ids:
             # FIXME Legacy code remove when we can
-            try:
-                process_instance = CaseProcessInstance.objects.get(
-                    camunda_process_id=camunda_id
-                )
-                state = CaseState.objects.filter(
-                    case_process_id=process_instance.process_id, end_date__isnull=True
-                ).last()
-                tasks = CamundaService().get_all_tasks_by_instance_id(camunda_id)
-                camunda_tasks.extend([{"state": state, "tasks": tasks}])
-            except (CaseProcessInstance.DoesNotExist, CaseState.DoesNotExist) as e:
-                print(f"tasks CaseProcessInstance or CaseState error {e}")
-                tasks.extend(CamundaService().get_all_tasks_by_instance_id(camunda_id))
+            tasks = CamundaService().get_all_tasks_by_instance_id(camunda_id)
+
+            if tasks:
+                try:
+                    process_instance = CaseProcessInstance.objects.get(
+                        camunda_process_id=camunda_id
+                    )
+                    state = CaseState.objects.filter(
+                        case_process_id=process_instance.process_id,
+                        end_date__isnull=True,
+                    ).last()
+                    camunda_tasks.extend([{"state": state, "tasks": tasks}])
+                except (CaseProcessInstance.DoesNotExist, CaseState.DoesNotExist) as e:
+                    print(f"tasks CaseProcessInstance or CaseState error {e}")
+                    tasks.extend(tasks)
 
         if len(tasks):
             case_state, _ = CaseStateType.objects.get_or_create(
