@@ -40,6 +40,7 @@ class CaseAdmin(admin.ModelAdmin):
     form = CaseAdminForm
     list_display = (
         "id",
+        "theme",
         "identification",
         "start_date",
         "end_date",
@@ -48,6 +49,7 @@ class CaseAdmin(admin.ModelAdmin):
         "is_legacy_bwv",
         "author",
     )
+    list_filter = ("theme",)
 
 
 @admin.register(CaseState)
