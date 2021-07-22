@@ -56,10 +56,12 @@ class CaseAdmin(admin.ModelAdmin):
 class CaseStateAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "case",
         "status",
         "start_date",
         "end_date",
     )
+    list_filter = ("status", "end_date")
 
 
 @admin.register(CitizenReport)
