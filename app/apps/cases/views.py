@@ -311,7 +311,10 @@ class CaseViewSet(
                         case_process_id=process_instance.process_id,
                         end_date__isnull=True,
                     ).last()
-                    camunda_tasks.extend([{"state": state, "tasks": state_tasks}])
+                    if state:
+                        camunda_tasks.extend([{"state": state, "tasks": state_tasks}])
+                    else:
+                        tasks.extend(state_tasks)
                 except (CaseProcessInstance.DoesNotExist, CaseState.DoesNotExist) as e:
                     print(f"tasks CaseProcessInstance or CaseState error {e}")
                     tasks.extend(state_tasks)
