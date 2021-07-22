@@ -10,9 +10,3 @@ services:
   rabbitmq:
     env_file:
       - .env.local
-  zaken_celery_worker:
-    env_file:
-      - .env.local
-  zaken_celery_beat:
-    env_file:
-      - .env.local

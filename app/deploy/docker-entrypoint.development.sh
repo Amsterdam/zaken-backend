@@ -26,5 +26,8 @@ python manage.py check
 # echo Create root user
 # python manage.py shell -c "from django.contrib.auth import get_user_model; get_user_model().objects.create_superuser('admin@admin.com', 'admin')"
 
+celery -A config worker -l INFO -D --purge
+celery -A config beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler --detach
+
 # opens up a port for attaching a remote debugging service using debugpy
 python -m debugpy --listen 0.0.0.0:5678 ./manage.py runserver 0.0.0.0:8000

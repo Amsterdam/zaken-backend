@@ -27,5 +27,8 @@ python manage.py initialize_openzaak
 
 # echo Create root user
 # python manage.py shell -c "from django.contrib.auth import get_user_model; get_user_model().objects.create_superuser('admin@admin.com', 'admin')"
-celery -A config worker -l info -D
+
+celery -A config worker -l INFO -D
+celery -A config beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler --detach
+
 exec uwsgi --ini /app/deploy/config.ini #--py-auto-reload=1

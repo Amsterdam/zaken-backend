@@ -19,6 +19,8 @@ def start_camunda_instance(self, identification, request_body):
         case.directing_process = camunda_id
         case.save()
 
+    return f"case_id: {case.id}, directing_process: {camunda_id}"
+
 
 @celery_app.task(bind=True)
 def create_mock_schedule(self, case_id):

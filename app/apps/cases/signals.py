@@ -5,6 +5,7 @@ from apps.camunda.services import CamundaService
 from apps.cases.models import Case, CaseClose, CitizenReport
 from apps.cases.tasks import start_camunda_instance
 from django.conf import settings
+from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -34,7 +35,10 @@ def create_case_instance_in_camunda(sender, instance, created, **kwargs):
                 },
             },
         }
-        start_camunda_instance(identification=instance.id, request_body=request_body)
+        task = start_camunda_instance.s(
+            identification=instance.id, request_body=request_body
+        ).delay
+        transaction.on_commit(task)
 
 
 # @receiver(post_save, sender=Case)
