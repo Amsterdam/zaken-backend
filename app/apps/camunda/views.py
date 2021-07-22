@@ -14,7 +14,7 @@ from apps.camunda.serializers import (
 )
 from apps.camunda.services import CamundaService
 from apps.cases.models import Case, CaseProcessInstance
-from apps.users.auth_apps import CamundaKeyAuth, TopKeyAuth
+from apps.users.auth_apps import CamundaKeyAuth
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
@@ -182,9 +182,9 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
 
 
 class CamundaTaskViewSet(viewsets.ViewSet):
-    permission_classes = [
-        IsInAuthorizedRealm,
-    ]
+    # permission_classes = [
+    #     IsInAuthorizedRealm,
+    # ]
     serializer_class = CamundaTaskCompleteSerializer
 
     @extend_schema(
@@ -266,8 +266,9 @@ class CamundaTaskViewSet(viewsets.ViewSet):
 
 
 class TaskViewSet(viewsets.ViewSet):
-    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
+    # permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
     serializer_class = CamundaTaskListSerializer
+    queryset = Case.objects.all()
 
     def get_serializer_class(self, *args, **kwargs):
         return self.serializer_class

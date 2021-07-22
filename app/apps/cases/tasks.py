@@ -3,7 +3,10 @@ from apps.cases.models import Case
 from config.celery import app as celery_app
 from django.conf import settings
 
+DEFAULT_RETRY_DELAY = 10
 
+
+# @shared_task(bind=True)
 @celery_app.task(bind=True)
 def start_camunda_instance(self, identification, request_body):
     case = Case.objects.get(id=identification)
@@ -14,10 +17,11 @@ def start_camunda_instance(self, identification, request_body):
     (camunda_id, response) = CamundaService().start_instance(
         case_identification=str(identification), request_body=request_body
     )
-
+    print(camunda_id)
     if camunda_id:
         case.directing_process = camunda_id
         case.save()
+    return f"Start_instance response camunda_id: {camunda_id}"
 
 
 @celery_app.task(bind=True)
