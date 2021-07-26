@@ -58,7 +58,7 @@ class Case(ModelEventEmitter):
         max_length=255, null=True, blank=True, unique=True
     )
     start_date = models.DateField(null=True)
-    end_date = models.DateField(null=True)
+    end_date = models.DateField(null=True, blank=True)
     address = models.ForeignKey(
         to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )

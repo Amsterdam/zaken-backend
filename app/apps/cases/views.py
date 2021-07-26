@@ -133,6 +133,7 @@ class CaseStateViewSet(viewsets.ViewSet):
 class CaseViewSet(
     CaseEventsMixin,
     mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
