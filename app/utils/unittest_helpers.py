@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -13,8 +13,11 @@ def add_user_to_authorized_groups(user):
     """
     realm_access_groups = settings.OIDC_AUTHORIZED_GROUPS
 
+    all_permissions = Permission.objects.all()
     for realm_access_group in realm_access_groups:
         group, _ = Group.objects.get_or_create(name=realm_access_group)
+        for permission in all_permissions:
+            group.permissions.add(permission)
         group.user_set.add(user)
 
 
