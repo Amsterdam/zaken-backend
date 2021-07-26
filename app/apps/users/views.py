@@ -1,6 +1,6 @@
 import logging
 
-from apps.cases.serializers import CaseThemeSerializer
+from django.contrib.auth.models import Permission
 from django.http import HttpResponseBadRequest
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
@@ -15,6 +15,7 @@ from .auth import AuthenticationBackend
 from .models import User
 from .serializers import (
     OIDCAuthenticateSerializer,
+    PermissionSerializer,
     UserDetailSerializer,
     UserSerializer,
 )
@@ -38,13 +39,20 @@ class UserListView(ViewSet, generics.ListAPIView):
     def me(self, request):
 
         serializer = UserDetailSerializer(request.user)
-        d = {"name": "MyTheme"}
-        context = {"request": request}
-        s = CaseThemeSerializer(data=d, context=context)
-        if s.is_valid():
-            print("valid")
-            s.save()
 
+        return Response(serializer.data)
+
+
+class PermissionViewSet(ViewSet):
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+
+    @extend_schema(
+        description="Gets all permissions",
+        responses={200: PermissionSerializer(many=True)},
+    )
+    def list(self, request):
+        serializer = self.serializer_class(self.queryset, many=True)
         return Response(serializer.data)
 
 

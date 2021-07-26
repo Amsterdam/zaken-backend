@@ -59,6 +59,7 @@ from apps.events.mixins import CaseEventsMixin
 from apps.schedules.serializers import ThemeScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.models import User
+from apps.users.permissions import rest_permission_classes_for_top
 from apps.visits.models import Visit
 from apps.visits.serializers import VisitSerializer
 from django.conf import settings
@@ -91,7 +92,7 @@ class CaseStateViewSet(viewsets.ViewSet):
     Pushes the case state
     """
 
-    # permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
+    permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseStateSerializer
     queryset = CaseState.objects.all()
 
@@ -135,7 +136,7 @@ class CaseViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
-    # permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
+    permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
 
@@ -434,7 +435,7 @@ class CaseViewSet(
 
 
 class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
-    # permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
+    permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseThemeSerializer
     queryset = CaseTheme.objects.all()
 

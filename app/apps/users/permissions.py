@@ -1,3 +1,5 @@
+from apps.users.auth_apps import CamundaKeyAuth, TopKeyAuth
+from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework.permissions import DjangoModelPermissions
 
 
@@ -11,3 +13,11 @@ class AppsDjangoModelPermissions(DjangoModelPermissions):
         "PATCH": ["%(app_label)s.change_%(model_name)s"],
         "DELETE": ["%(app_label)s.delete_%(model_name)s"],
     }
+
+
+def rest_permission_classes_for_top():
+    return [IsInAuthorizedRealm | AppsDjangoModelPermissions | TopKeyAuth]
+
+
+def rest_permission_classes_for_camunda():
+    return [IsInAuthorizedRealm | AppsDjangoModelPermissions | CamundaKeyAuth]

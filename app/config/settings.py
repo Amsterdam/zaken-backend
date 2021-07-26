@@ -157,11 +157,14 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
-    "DEFAULT_PERMISSION_CLASSES": [
+    "DEFAULT_PERMISSION_CLASSES": (
         "keycloak_oidc.drf.permissions.IsInAuthorizedRealm",
         "apps.users.permissions.AppsDjangoModelPermissions",
-    ],
-    "DEFAULT_AUTHENTICATION_CLASSES": ("apps.users.auth.AuthenticationClass",),
+    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "apps.users.auth.AuthenticationClass",
+        "rest_framework.authentication.TokenAuthentication",
+    ),
 }
 
 SPECTACULAR_SETTINGS = {

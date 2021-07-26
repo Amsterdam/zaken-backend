@@ -5,10 +5,9 @@ from apps.cases.models import Case, CaseReason
 from apps.fines.legacy_const import STADIA_WITH_FINES
 from apps.fines.models import Fine
 from apps.gateway.push.serializers import PushSerializer
-from apps.users.auth_apps import TopKeyAuth
+from apps.users.permissions import rest_permission_classes_for_top
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -22,7 +21,7 @@ class PushViewSet(viewsets.ViewSet):
     After migrating from BWV to Zaken we can remove most of this push, and Top can do a simpler (and more generic) CREATE request for adding a state.
     """
 
-    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
+    permission_classes = rest_permission_classes_for_top()
     serializer_class = PushSerializer
 
     def create(self, request):
