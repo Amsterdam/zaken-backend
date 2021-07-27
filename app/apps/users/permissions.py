@@ -16,8 +16,8 @@ class AppsDjangoModelPermissions(DjangoModelPermissions):
 
 
 def rest_permission_classes_for_top():
-    return [IsInAuthorizedRealm | AppsDjangoModelPermissions | TopKeyAuth]
+    return [(IsInAuthorizedRealm & AppsDjangoModelPermissions) | TopKeyAuth]
 
 
 def rest_permission_classes_for_camunda():
-    return [IsInAuthorizedRealm | AppsDjangoModelPermissions | CamundaKeyAuth]
+    return [(IsInAuthorizedRealm & AppsDjangoModelPermissions) | CamundaKeyAuth]
