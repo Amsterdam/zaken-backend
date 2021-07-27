@@ -157,10 +157,14 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
-    "DEFAULT_PERMISSION_CLASSES": [
+    "DEFAULT_PERMISSION_CLASSES": (
         "keycloak_oidc.drf.permissions.IsInAuthorizedRealm",
-    ],
-    "DEFAULT_AUTHENTICATION_CLASSES": ("apps.users.auth.AuthenticationClass",),
+        "apps.users.permissions.AppsDjangoModelPermissions",
+    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "apps.users.auth.AuthenticationClass",
+        "rest_framework.authentication.TokenAuthentication",
+    ),
 }
 
 SPECTACULAR_SETTINGS = {
@@ -399,13 +403,17 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_URL = f"amqp://{RABBIT_MQ_USERNAME}:{RABBIT_MQ_PASSWORD}@{RABBIT_MQ_URL}"
 
 BROKER_URL = CELERY_BROKER_URL
+CELERY_TASK_TRACK_STARTED = True
 CELERY_RESULT_BACKEND = "django-db"
+CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BEAT_SCHEDULE = {
     "queue_every_five_mins": {
         "task": "apps.health.tasks.query_every_five_mins",
         "schedule": crontab(minute=5),
     },
 }
+
+# CELERY_IMPORTS = ("apps.camunda.tasks", )
 
 CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
 CAMUNDA_REST_URL = os.getenv("CAMUNDA_REST_URL", "http://camunda:8080/engine-rest/")

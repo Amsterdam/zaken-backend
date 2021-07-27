@@ -58,8 +58,8 @@ from apps.decisions.serializers import DecisionTypeSerializer
 from apps.events.mixins import CaseEventsMixin
 from apps.schedules.serializers import ThemeScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
-from apps.users.auth_apps import TopKeyAuth
 from apps.users.models import User
+from apps.users.permissions import rest_permission_classes_for_top
 from apps.visits.models import Visit
 from apps.visits.serializers import VisitSerializer
 from django.conf import settings
@@ -70,7 +70,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.edit import FormView
 from drf_spectacular.utils import extend_schema
-from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
@@ -93,7 +92,7 @@ class CaseStateViewSet(viewsets.ViewSet):
     Pushes the case state
     """
 
-    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
+    permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseStateSerializer
     queryset = CaseState.objects.all()
 
@@ -138,7 +137,7 @@ class CaseViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
-    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
+    permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
 
@@ -456,7 +455,7 @@ class CaseViewSet(
 
 
 class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
-    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
+    permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseThemeSerializer
     queryset = CaseTheme.objects.all()
 

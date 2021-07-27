@@ -14,7 +14,12 @@ from apps.gateway.push.views import PushViewSet
 from apps.schedules.views import ScheduleViewSet
 from apps.summons.views import SummonViewSet
 from apps.support.views import SupportContactView
-from apps.users.views import IsAuthorizedView, ObtainAuthTokenOIDC, UserListView
+from apps.users.views import (
+    IsAuthorizedView,
+    ObtainAuthTokenOIDC,
+    PermissionViewSet,
+    UserListView,
+)
 from apps.visits.views import VisitViewSet
 from django.conf import settings
 from django.conf.urls import include, url
@@ -37,6 +42,7 @@ router.register(r"support-contacts", SupportContactView, basename="support-conta
 router.register(r"visits", VisitViewSet, basename="visits")
 router.register(r"fines", FinesViewSet, basename="fines")
 router.register(r"authors", UserListView, basename="authors")
+router.register(r"permissions", PermissionViewSet, basename="permissions")
 router.register(r"summons", SummonViewSet, basename="summons")
 router.register(r"schedules", ScheduleViewSet, basename="schedules")
 router.register(r"case-close", CaseCloseViewSet, basename="case-closing")
