@@ -1,21 +1,16 @@
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Group
 from rest_framework import serializers
 
 from .models import User
 
 
-class PermissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Permission
-        fields = "__all__"
-
+class PermissionSerializer(serializers.CharField):
     def to_representation(self, instance):
         return instance.codename
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    permissions = PermissionSerializer(required=False, many=True)
-    # permissions = serializers.ListSerializer(child=serializers.CharField(source="codename"))
+    permissions = serializers.ListSerializer(child=PermissionSerializer())
 
     class Meta:
         model = Group

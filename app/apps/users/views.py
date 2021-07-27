@@ -4,7 +4,7 @@ from django.contrib.auth.models import Permission
 from django.http import HttpResponseBadRequest
 from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
-from rest_framework import generics, status
+from rest_framework import generics, serializers, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,7 +15,6 @@ from .auth import AuthenticationBackend
 from .models import User
 from .serializers import (
     OIDCAuthenticateSerializer,
-    PermissionSerializer,
     UserDetailSerializer,
     UserSerializer,
 )
@@ -45,15 +44,14 @@ class UserListView(ViewSet, generics.ListAPIView):
 
 class PermissionViewSet(ViewSet):
     queryset = Permission.objects.all()
-    serializer_class = PermissionSerializer
+    serializer_class = serializers.ListSerializer(child=serializers.CharField())
 
     @extend_schema(
         description="Gets all permissions",
-        responses={200: PermissionSerializer(many=True)},
+        responses={200: serializers.ListSerializer(child=serializers.CharField())},
     )
     def list(self, request):
-        serializer = self.serializer_class(self.queryset, many=True)
-        return Response(serializer.data)
+        return Response(self.queryset.values_list("codename", flat=True))
 
 
 class IsAuthorizedView(APIView):
