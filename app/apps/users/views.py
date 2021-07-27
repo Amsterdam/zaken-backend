@@ -37,6 +37,10 @@ class UserListView(ViewSet, generics.ListAPIView):
         methods=["get"],
     )
     def me(self, request):
+        authentication_backend = AuthenticationBackend()
+        payload = authentication_backend.verify_token(request.session["oidc_id_token"])
+
+        print(payload)
 
         serializer = UserDetailSerializer(request.user)
 
