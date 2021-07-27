@@ -335,6 +335,17 @@ class CaseViewSet(
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
+        for index in range(len(camunda_tasks)):
+            for task_index in range(len(camunda_tasks[index]["tasks"])):
+                can_do = False
+                user_roles = [group.name for group in request.user.groups.all()]
+
+                for user_role in user_roles:
+                    if user_role in camunda_tasks[index]["tasks"][task_index]["roles"]:
+                        can_do = True
+
+                camunda_tasks[index]["tasks"][task_index]["can_do"] = can_do
+
         serializer = CamundaTaskWithStateSerializer(camunda_tasks, many=True)
         return Response(serializer.data)
 
