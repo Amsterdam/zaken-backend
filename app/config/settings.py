@@ -212,9 +212,6 @@ OIDC_USE_NONCE = False
 OIDC_AUTHORIZED_GROUPS = ("wonen_zaaksysteem", "wonen_zaak")
 OIDC_AUTHENTICATION_CALLBACK_URL = "oidc-authenticate"
 
-OIDC_STORE_ACCESS_TOKEN = True
-OIDC_STORE_ID_TOKEN = True
-
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv(
     "OIDC_OP_AUTHORIZATION_ENDPOINT",
     "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/auth",

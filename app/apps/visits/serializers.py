@@ -24,9 +24,10 @@ class VisitSerializer(serializers.ModelSerializer):
             if isinstance(author, User):
                 authors.append(author)
             else:
-                author_email = author.get("email", None)
-                author, _ = User.objects.get_or_create(email=author_email)
-                authors.append(author)
+                author_email = author.get("email", "")
+                author = User.objects.filter(email__iexact=author_email).first()
+                if author:
+                    authors.append(author)
 
         return authors
 
