@@ -88,6 +88,9 @@ class VisitApiTest(APITestCase):
         self.assertEquals(User.objects.count(), 0)
 
         case = baker.make(Case)
+        # also tests case insensitive
+        baker.make(User, email="usera@example.com")
+        baker.make(User, email="userb@example.com")
 
         url = reverse("visits-list")
         client = get_authenticated_with_token_client(settings.SECRET_KEY_TOP_ZAKEN)

@@ -43,17 +43,6 @@ class User(AbstractUser):
 
             return full_name
 
-    @property
-    def get_permissions(self):
-        permissions = {}
-        # for backend in auth.get_backends():
-        #     if hasattr(backend, "get_all_permissions"):
-        #         print(type(backend.get_all_permissions(self)))
-        #         print(backend.get_all_permissions(self))
-        #         permissions.update(backend.get_all_permissions(self))
-        sorted_list_of_permissions = sorted(list(permissions))
-        return sorted_list_of_permissions
-
     def __str__(self):
         return self.full_name
 
