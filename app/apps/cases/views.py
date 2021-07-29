@@ -297,9 +297,16 @@ class CaseViewSet(
             if tasks:
                 camunda_tasks.extend([{"state": state, "tasks": tasks}])
 
+        # FIXME Legacy code remove when we can
         tasks = []
+        already_known_camunda_ids = [
+            state.case_process_id
+            for state in case.case_states.filter(end_date__isnull=True)
+        ]
         for camunda_id in case.camunda_ids:
-            # FIXME Legacy code remove when we can
+            if camunda_id in already_known_camunda_ids:
+                continue
+
             state_tasks = CamundaService().get_all_tasks_by_instance_id(camunda_id)
 
             if state_tasks:
@@ -428,6 +435,11 @@ class CaseViewSet(
                 return Response(
                     data=f"Process has started {str(response.content)}",
                     status=status.HTTP_200_OK,
+                )
+            else:
+                return Response(
+                    data=f"Camunda process has not started. Camunda request failed: {response}",
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
         return Response(
