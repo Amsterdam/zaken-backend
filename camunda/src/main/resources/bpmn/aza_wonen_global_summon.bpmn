@@ -564,13 +564,12 @@
               <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/send-message-start-process/</camunda:inputParameter>
               <camunda:inputParameter name="method">POST</camunda:inputParameter>
               <camunda:inputParameter name="payload">{
-    "message_name": "start_close_down_process",
+    "message_name": "aza_wonen_local_vakantieverhuur_sluitingsproces",
     "process_variables": {
         "names": {"value": "${names}"},
         "summon_id": {"value": "${summon_id}"}
     },
-    "case_identification": "${case_identification}",
-    "case_process_id": "${execution.getProcessInstanceId()}"
+    "case_identification": "${case_identification}"
 }</camunda:inputParameter>
               <camunda:inputParameter name="headers">
                 <camunda:map>
@@ -615,6 +614,10 @@
       <bpmndi:BPMNShape id="Lane_1o6yxo7_di" bpmnElement="Lane_1o6yxo7" isHorizontal="true">
         <dc:Bounds x="190" y="990" width="3630" height="260" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1db08jl_di" bpmnElement="Flow_1db08jl">
+        <di:waypoint x="990" y="749" />
+        <di:waypoint x="1042" y="749" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_167bomv_di" bpmnElement="Flow_167bomv">
         <di:waypoint x="990" y="870" />
         <di:waypoint x="1042" y="870" />
@@ -828,10 +831,6 @@
       <bpmndi:BPMNEdge id="Flow_1detbpm_di" bpmnElement="Flow_1detbpm">
         <di:waypoint x="520" y="630" />
         <di:waypoint x="570" y="630" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1db08jl_di" bpmnElement="Flow_1db08jl">
-        <di:waypoint x="990" y="749" />
-        <di:waypoint x="1042" y="749" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_1h6d37m_di" bpmnElement="start_decision_process">
         <dc:Bounds x="3492" y="802" width="36" height="36" />
