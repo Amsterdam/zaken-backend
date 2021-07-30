@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1lcjjzz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" camunda:diagramRelationId="a8cc3f51-5a58-4e06-aca4-2a2b3ed71b3a">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1lcjjzz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0" camunda:diagramRelationId="a8cc3f51-5a58-4e06-aca4-2a2b3ed71b3a">
   <bpmn:collaboration id="Collaboration_1tztuvt">
     <bpmn:participant id="Participant_08m4w5n" name="Process" processRef="aza_wonen_global_visit" />
   </bpmn:collaboration>
-  <bpmn:process id="aza_wonen_global_visit" name="VakantieVerhuur - Huisbezoek" isExecutable="true" camunda:versionTag="1.1">
+  <bpmn:process id="aza_wonen_global_visit" name="VakantieVerhuur - Huisbezoek" isExecutable="true" camunda:versionTag="1.2.1">
     <bpmn:laneSet id="LaneSet_07j24vc">
       <bpmn:lane id="Lane_1hxgg1r" name="Handhavingsjurist">
-        <bpmn:flowNodeRef>Activity_118nnax</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0xocoed</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1kkhxmk</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_118nnax</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1es16cn</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1j0x4ei" name="Projecthandhaver">
         <bpmn:flowNodeRef>Activity_0cah3n3</bpmn:flowNodeRef>
@@ -33,6 +34,7 @@
         <bpmn:flowNodeRef>Activity_0euzh5g</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0uzcf33</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_08um7qq</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1ijz5ow</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_0ixqkif" name="Projectmedewerker">
         <bpmn:flowNodeRef>task_create_schedule</bpmn:flowNodeRef>
@@ -206,7 +208,7 @@
     <bpmn:sequenceFlow id="Flow_090pn4r" name="violation = yes" sourceRef="is_debrief_violation" targetRef="Event_0ykjm2m">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${violation=='YES'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1c3b8q1" sourceRef="Activity_02t4qsu" targetRef="Activity_08um7qq" />
+    <bpmn:sequenceFlow id="Flow_1c3b8q1" sourceRef="Activity_02t4qsu" targetRef="Activity_1ijz5ow" />
     <bpmn:sequenceFlow id="Flow_0oi0xmk" sourceRef="Gateway_1odl5bp" targetRef="Activity_0smew2x" />
     <bpmn:sequenceFlow id="Flow_0dfunn3" sourceRef="StartEvent_1" targetRef="Gateway_17rmiyo" />
     <bpmn:sequenceFlow id="Flow_09q4ikx" name="violation = ADDITIONAL_VISIT_REQUIRED or violation = ADDITIONAL_VISIT_WITH_AUTHORIZATION" sourceRef="is_debrief_violation" targetRef="Activity_05wa5gy">
@@ -380,27 +382,7 @@
       <bpmn:incoming>Flow_0zox8jb</bpmn:incoming>
       <bpmn:outgoing>Flow_0lji06z</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_1erggxk" sourceRef="Activity_0xocoed" targetRef="Activity_118nnax" />
-    <bpmn:serviceTask id="Activity_118nnax" name="Status Beëndingen">
-      <bpmn:extensionElements>
-        <camunda:connector>
-          <camunda:inputOutput>
-            <camunda:inputParameter name="payload">{"state_identification": "${state_identification}"}</camunda:inputParameter>
-            <camunda:inputParameter name="headers">
-              <camunda:map>
-                <camunda:entry key="content-type">application/json</camunda:entry>
-                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
-              </camunda:map>
-            </camunda:inputParameter>
-            <camunda:inputParameter name="method">POST</camunda:inputParameter>
-            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/end-state/</camunda:inputParameter>
-          </camunda:inputOutput>
-          <camunda:connectorId>http-connector</camunda:connectorId>
-        </camunda:connector>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1erggxk</bpmn:incoming>
-      <bpmn:outgoing>Flow_156heau</bpmn:outgoing>
-    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1erggxk" sourceRef="Activity_0xocoed" targetRef="Activity_1es16cn" />
     <bpmn:userTask id="Activity_0xocoed" name="Nakijken aanschrijving(en)" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
       <bpmn:incoming>Flow_1e63pco</bpmn:incoming>
       <bpmn:outgoing>Flow_1erggxk</bpmn:outgoing>
@@ -457,9 +439,6 @@
         </bpmn:extensionElements>
       </bpmn:messageEventDefinition>
     </bpmn:intermediateThrowEvent>
-    <bpmn:endEvent id="Event_1kkhxmk">
-      <bpmn:incoming>Flow_156heau</bpmn:incoming>
-    </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_04ckol7" sourceRef="task_create_schedule" targetRef="Activity_0euzh5g" />
     <bpmn:userTask id="task_create_visit" name="Doorgeven ${status_name} TOP" camunda:formKey="doorgeven_huisbezoek_resultaat" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(60).toDate()}">
       <bpmn:extensionElements>
@@ -547,30 +526,41 @@
       <bpmn:incoming>Flow_0aiyxmw</bpmn:incoming>
       <bpmn:outgoing>Flow_0co89x0</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:endEvent id="Event_0uzcf33" name="send  zaak_compleet_afsluiten message">
+    <bpmn:endEvent id="Event_0uzcf33">
       <bpmn:incoming>Flow_0izkp15</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1dlhdmz" messageRef="Message_1mybk4g">
-        <bpmn:extensionElements>
-          <camunda:connector>
-            <camunda:inputOutput>
-              <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/send-message-inside-process/</camunda:inputParameter>
-              <camunda:inputParameter name="method">POST</camunda:inputParameter>
-              <camunda:inputParameter name="payload">{
-    "message_name": "zaak_compleet_afsluiten",
-    "camunda_process_id": "${super_process}",
-}</camunda:inputParameter>
-              <camunda:inputParameter name="headers">
-                <camunda:map>
-                  <camunda:entry key="content-type">application/json</camunda:entry>
-                  <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
-                </camunda:map>
-              </camunda:inputParameter>
-            </camunda:inputOutput>
-            <camunda:connectorId>http-connector</camunda:connectorId>
-          </camunda:connector>
-        </bpmn:extensionElements>
-      </bpmn:messageEventDefinition>
+      <bpmn:terminateEventDefinition id="TerminateEventDefinition_1x7cky1" />
     </bpmn:endEvent>
+    <bpmn:endEvent id="Event_1kkhxmk">
+      <bpmn:incoming>Flow_156heau</bpmn:incoming>
+      <bpmn:terminateEventDefinition id="TerminateEventDefinition_16v5svz" />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1v0g0l8" sourceRef="Activity_1ijz5ow" targetRef="Activity_08um7qq" />
+    <bpmn:serviceTask id="Activity_118nnax" name="Status Beëndingen">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{"state_identification": "${state_identification}"}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/json</camunda:entry>
+                <camunda:entry key="Authorization">${zaken_access_token}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">${endpoint}/api/v1/camunda/worker/end-state/</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_08m5xl9</bpmn:incoming>
+      <bpmn:outgoing>Flow_156heau</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:scriptTask id="Activity_1es16cn" name="Set summon = Yes" scriptFormat="groovy">
+      <bpmn:incoming>Flow_1erggxk</bpmn:incoming>
+      <bpmn:outgoing>Flow_08m5xl9</bpmn:outgoing>
+      <bpmn:script>execution.setVariable('summon', 'Yes');</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_08m5xl9" sourceRef="Activity_1es16cn" targetRef="Activity_118nnax" />
     <bpmn:serviceTask id="Activity_08um7qq" name="Status Beëindigen">
       <bpmn:extensionElements>
         <camunda:connector>
@@ -590,9 +580,14 @@
           <camunda:connectorId>http-connector</camunda:connectorId>
         </camunda:connector>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1c3b8q1</bpmn:incoming>
+      <bpmn:incoming>Flow_1v0g0l8</bpmn:incoming>
       <bpmn:outgoing>Flow_0izkp15</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:scriptTask id="Activity_1ijz5ow" name="Set summon = No" scriptFormat="groovy">
+      <bpmn:incoming>Flow_1c3b8q1</bpmn:incoming>
+      <bpmn:outgoing>Flow_1v0g0l8</bpmn:outgoing>
+      <bpmn:script>execution.setVariable('summon', 'No');</bpmn:script>
+    </bpmn:scriptTask>
     <bpmn:textAnnotation id="TextAnnotation_00h0tuq">
       <bpmn:text>TODO: Dynamische datum na additional research is +2 dagen</bpmn:text>
     </bpmn:textAnnotation>
@@ -658,8 +653,8 @@
         <di:waypoint x="1540" y="1005" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0izkp15_di" bpmnElement="Flow_0izkp15">
-        <di:waypoint x="2660" y="640" />
-        <di:waypoint x="2712" y="640" />
+        <di:waypoint x="2810" y="640" />
+        <di:waypoint x="2842" y="640" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0i3wsr3_di" bpmnElement="Flow_0i3wsr3">
         <di:waypoint x="1380" y="410" />
@@ -670,8 +665,8 @@
         <di:waypoint x="1480" y="410" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_156heau_di" bpmnElement="Flow_156heau">
-        <di:waypoint x="2660" y="1250" />
-        <di:waypoint x="2712" y="1250" />
+        <di:waypoint x="2810" y="1250" />
+        <di:waypoint x="2842" y="1250" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1r5u9k4_di" bpmnElement="Flow_1r5u9k4">
         <di:waypoint x="815" y="240" />
@@ -852,6 +847,14 @@
           <dc:Bounds x="1418" y="923" width="84" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1v0g0l8_di" bpmnElement="Flow_1v0g0l8">
+        <di:waypoint x="2660" y="640" />
+        <di:waypoint x="2710" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08m5xl9_di" bpmnElement="Flow_08m5xl9">
+        <di:waypoint x="2660" y="1250" />
+        <di:waypoint x="2710" y="1250" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_1ee51w4_di" bpmnElement="task_create_schedule">
         <dc:Bounds x="940" y="460" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -963,9 +966,6 @@
       <bpmndi:BPMNShape id="Activity_0aawy2h_di" bpmnElement="task_create_debrief">
         <dc:Bounds x="1490" y="1030" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1nq6gk7_di" bpmnElement="Activity_118nnax">
-        <dc:Bounds x="2560" y="1210" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1nymqyy_di" bpmnElement="Activity_0xocoed">
         <dc:Bounds x="2400" y="1210" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -979,12 +979,6 @@
         <dc:Bounds x="1642" y="622" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1695" y="626" width="70" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0plic9h_di" bpmnElement="Event_1kkhxmk">
-        <dc:Bounds x="2712" y="1232" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2688" y="1275" width="85" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0hb8ttg_di" bpmnElement="task_create_visit">
@@ -1020,17 +1014,26 @@
       <bpmndi:BPMNShape id="Activity_0w7qtkz_di" bpmnElement="Activity_03lt0e7">
         <dc:Bounds x="1270" y="190" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0uzcf33_di" bpmnElement="Event_0uzcf33">
-        <dc:Bounds x="2712" y="622" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2687" y="665" width="90" height="40" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_08um7qq_di" bpmnElement="Activity_08um7qq">
-        <dc:Bounds x="2560" y="600" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_00h0tuq_di" bpmnElement="TextAnnotation_00h0tuq">
         <dc:Bounds x="1600" y="1120" width="180" height="40" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_11i1uxy_di" bpmnElement="Event_0uzcf33">
+        <dc:Bounds x="2842" y="622" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0287ibd_di" bpmnElement="Event_1kkhxmk">
+        <dc:Bounds x="2842" y="1232" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1nq6gk7_di" bpmnElement="Activity_118nnax">
+        <dc:Bounds x="2710" y="1210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1es16cn_di" bpmnElement="Activity_1es16cn">
+        <dc:Bounds x="2560" y="1210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_08um7qq_di" bpmnElement="Activity_08um7qq">
+        <dc:Bounds x="2710" y="600" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ijz5ow_di" bpmnElement="Activity_1ijz5ow">
+        <dc:Bounds x="2560" y="600" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_03jk7ur_di" bpmnElement="Association_03jk7ur">
         <di:waypoint x="1589" y="1104" />
