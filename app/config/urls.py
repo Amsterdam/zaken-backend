@@ -3,9 +3,9 @@ from apps.camunda.views import CamundaTaskViewSet, CamundaWorkerViewSet, TaskVie
 from apps.cases.views import (
     CaseCloseViewSet,
     CaseStateViewSet,
+    CaseThemeCitizenReportViewSet,
     CaseThemeViewSet,
     CaseViewSet,
-    ImportBWVCaseDataView,
 )
 from apps.debriefings.views import DebriefingViewSet
 from apps.decisions.views import DecisionViewSet
@@ -14,7 +14,12 @@ from apps.gateway.push.views import PushViewSet
 from apps.schedules.views import ScheduleViewSet
 from apps.summons.views import SummonViewSet
 from apps.support.views import SupportContactView
-from apps.users.views import IsAuthorizedView, ObtainAuthTokenOIDC, UserListView
+from apps.users.views import (
+    IsAuthorizedView,
+    ObtainAuthTokenOIDC,
+    PermissionViewSet,
+    UserListView,
+)
 from apps.visits.views import VisitViewSet
 from django.conf import settings
 from django.conf.urls import include, url
@@ -36,7 +41,8 @@ router.register(r"push", PushViewSet, basename="push")
 router.register(r"support-contacts", SupportContactView, basename="support-contact")
 router.register(r"visits", VisitViewSet, basename="visits")
 router.register(r"fines", FinesViewSet, basename="fines")
-router.register(r"authors", UserListView, basename="authors")
+router.register(r"users", UserListView, basename="users")
+router.register(r"permissions", PermissionViewSet, basename="permissions")
 router.register(r"summons", SummonViewSet, basename="summons")
 router.register(r"schedules", ScheduleViewSet, basename="schedules")
 router.register(r"case-close", CaseCloseViewSet, basename="case-closing")
@@ -49,13 +55,13 @@ urlpatterns = [
     # Admin environment
     path("admin/", admin.site.urls),
     path(
-        "bwv-zaken-importeren/vakantieverhuur/",
-        ImportBWVCaseDataView.as_view(),
+        "bwv-zaken-importeren/vakantieverhuur/melding",
+        CaseThemeCitizenReportViewSet.as_view(),
         {
             "theme_name": "Vakantieverhuur",
-            "url_name": "import-cases-vakantieverhuur",
+            "url_name": "import-cases-vakantieverhuur-melding",
         },
-        name="import-cases-vakantieverhuur",
+        name="import-cases-vakantieverhuur-melding",
     ),
     # API Routing
     path("api/v1/", include(router.urls)),

@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+import requests
 from apps.addresses.utils import search
 from apps.camunda.models import CamundaProcess
 from apps.camunda.serializers import (
@@ -16,6 +17,7 @@ from apps.cases.models import (
     CaseCloseReason,
     CaseCloseResult,
     CaseProcessInstance,
+    CaseProject,
     CaseReason,
     CaseState,
     CaseStateType,
@@ -28,6 +30,7 @@ from apps.cases.serializers import (
     CaseCloseResultSerializer,
     CaseCloseSerializer,
     CaseCreateUpdateSerializer,
+    CaseProjectSerializer,
     CaseReasonSerializer,
     CaseSerializer,
     CaseStateSerializer,
@@ -55,7 +58,10 @@ from apps.decisions.serializers import DecisionTypeSerializer
 from apps.events.mixins import CaseEventsMixin
 from apps.schedules.serializers import ThemeScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
-from apps.users.auth_apps import TopKeyAuth
+from apps.users.models import User
+from apps.users.permissions import rest_permission_classes_for_top
+from apps.visits.models import Visit
+from apps.visits.serializers import VisitSerializer
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -64,7 +70,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.edit import FormView
 from drf_spectacular.utils import extend_schema
-from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
@@ -87,7 +92,7 @@ class CaseStateViewSet(viewsets.ViewSet):
     Pushes the case state
     """
 
-    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
+    permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseStateSerializer
     queryset = CaseState.objects.all()
 
@@ -127,11 +132,12 @@ class CaseStateViewSet(viewsets.ViewSet):
 class CaseViewSet(
     CaseEventsMixin,
     mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
-    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
+    permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
 
@@ -142,9 +148,12 @@ class CaseViewSet(
 
         citizen_report_data = {"case": case.id}
         citizen_report_data.update(request.data)
-        citizen_report_serializer = CitizenReportSerializer(data=citizen_report_data)
+        citizen_report_serializer = CitizenReportSerializer(
+            data=citizen_report_data,
+            context={"request": request},
+        )
         if citizen_report_serializer.is_valid():
-            citizen_report_serializer.save(author=self.request.user)
+            citizen_report_serializer.save()
 
         headers = self.get_success_headers(serializer.data)
         return Response(
@@ -285,11 +294,37 @@ class CaseViewSet(
 
         for state in case.case_states.filter(end_date__isnull=True):
             tasks = CamundaService().get_all_tasks_by_instance_id(state.case_process_id)
-            camunda_tasks.extend([{"state": state, "tasks": tasks}])
+            if tasks:
+                camunda_tasks.extend([{"state": state, "tasks": tasks}])
 
+        # FIXME Legacy code remove when we can
         tasks = []
+        already_known_camunda_ids = [
+            state.case_process_id
+            for state in case.case_states.filter(end_date__isnull=True)
+        ]
         for camunda_id in case.camunda_ids:
-            tasks.extend(CamundaService().get_all_tasks_by_instance_id(camunda_id))
+            if camunda_id in already_known_camunda_ids:
+                continue
+
+            state_tasks = CamundaService().get_all_tasks_by_instance_id(camunda_id)
+
+            if state_tasks:
+                try:
+                    process_instance = CaseProcessInstance.objects.get(
+                        camunda_process_id=camunda_id
+                    )
+                    state = CaseState.objects.filter(
+                        case_process_id=process_instance.process_id,
+                        end_date__isnull=True,
+                    ).last()
+                    if state:
+                        camunda_tasks.extend([{"state": state, "tasks": state_tasks}])
+                    else:
+                        tasks.extend(state_tasks)
+                except (CaseProcessInstance.DoesNotExist, CaseState.DoesNotExist) as e:
+                    print(f"tasks CaseProcessInstance or CaseState error {e}")
+                    tasks.extend(state_tasks)
 
         if len(tasks):
             case_state, _ = CaseStateType.objects.get_or_create(
@@ -306,6 +341,17 @@ class CaseViewSet(
                 "Camunda service is offline",
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
+
+        for index in range(len(camunda_tasks)):
+            for task_index in range(len(camunda_tasks[index]["tasks"])):
+                can_do = False
+                user_roles = [group.name for group in request.user.groups.all()]
+
+                for user_role in user_roles:
+                    if user_role in camunda_tasks[index]["tasks"][task_index]["roles"]:
+                        can_do = True
+
+                camunda_tasks[index]["tasks"][task_index]["can_do"] = can_do
 
         serializer = CamundaTaskWithStateSerializer(camunda_tasks, many=True)
         return Response(serializer.data)
@@ -327,7 +373,10 @@ class CaseViewSet(
         show and not show processes based on the current state of the case
         (for example not show the summon/aanschrijving process when we are in visit state)
         """
-        serializer = CamundaProcessSerializer(CamundaProcess.objects.all(), many=True)
+        case = get_object_or_404(Case, pk=pk)
+        serializer = CamundaProcessSerializer(
+            CamundaProcess.objects.filter(theme=case.theme), many=True
+        )
         return Response(serializer.data)
 
     @extend_schema(
@@ -387,6 +436,11 @@ class CaseViewSet(
                     data=f"Process has started {str(response.content)}",
                     status=status.HTTP_200_OK,
                 )
+            else:
+                return Response(
+                    data=f"Camunda process has not started. Camunda request failed: {response}",
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
         return Response(
             data="Camunda process has not started. serializer not valid",
@@ -404,14 +458,13 @@ class CaseViewSet(
         serializer_class=CitizenReportSerializer,
     )
     def citizen_reports(self, request, pk):
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(
+            data=request.data,
+            context={"request": request},
+        )
         if serializer.is_valid():
             data = serializer.validated_data
-            data.update(
-                {
-                    "author": request.user,
-                }
-            )
+
             citizen_report = CitizenReport(**data)
             citizen_report.save()
             return Response(
@@ -425,7 +478,7 @@ class CaseViewSet(
 
 
 class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
-    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
+    permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseThemeSerializer
     queryset = CaseTheme.objects.all()
 
@@ -560,6 +613,25 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
     @extend_schema(
+        description="Gets the CaseProjects associated with the given theme",
+        responses={status.HTTP_200_OK: CaseProjectSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="case-projects",
+        methods=["get"],
+    )
+    def case_projects(self, request, pk):
+        paginator = PageNumberPagination()
+        theme = self.get_object()
+        query_set = theme.caseproject_set.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = CaseProjectSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
         description="Gets the CaseCloseResult associated with the given theme",
         responses={status.HTTP_200_OK: CaseCloseResultSerializer(many=True)},
     )
@@ -593,11 +665,18 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         address_mismatches = []
         results = []
         for d in data:
-            bag_result = do_bag_search_address_exact(d)
+            bag_result = do_bag_search_address_exact(d).get("results", [])
+            bag_result = [
+                r
+                for r in bag_result
+                if not d.get("OBJ_NR_VRA")
+                or r["adresseerbaar_object_id"] == "0%s" % d.get("OBJ_NR_VRA")
+            ]
+
             d_clone = dict(d)
-            if bag_result and bag_result["count"] == 1:
+            if bag_result:
                 d_clone["address"] = {
-                    "bag_id": bag_result["results"][0]["adresseerbaar_object_id"]
+                    "bag_id": bag_result[0]["adresseerbaar_object_id"]
                 }
                 results.append(d_clone)
             else:
@@ -611,18 +690,58 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
             d["theme"] = theme.id
         return data
 
-    def _add_reason(self, data):
-        reason, _ = CaseReason.objects.get_or_create(name=settings.DEFAULT_REASON)
-        for d in data:
-            d["reason"] = reason.id
-        return data
+    def _get_headers(self, auth_header=None):
+        token = settings.SECRET_KEY_AZA_TOP
+        headers = {
+            "Authorization": f"{auth_header}" if auth_header else f"{token}",
+            "content-type": "application/json",
+        }
+        return headers
+
+    def _fetch_visit(self, legacy_bwv_case_id):
+        url = f"{settings.TOP_API_URL}/cases/{legacy_bwv_case_id}/visits/"
+        try:
+            response = requests.get(
+                url=url,
+                headers=self._get_headers(),
+                timeout=5,
+            )
+            response.raise_for_status()
+        except Exception:
+            return response.status_code
+        else:
+            return response.json()
+
+    def _add_visits(self, data, *args, **kwargs):
+        errors = []
+        if settings.TOP_API_URL and settings.SECRET_KEY_AZA_TOP:
+            for d in data:
+                visits = self._fetch_visit(d["legacy_bwv_case_id"])
+
+                if isinstance(visits, list):
+                    for visit in visits:
+                        visit["authors"] = [
+                            tm.get("user", {}) for tm in visit.get("team_members", [])
+                        ]
+                    d["visits"] = visits
+                else:
+                    errors.append(
+                        {
+                            "legacy_bwv_case_id": d["legacy_bwv_case_id"],
+                            "status_code": visits,
+                        }
+                    )
+        return data, errors
+
+    def add_reason(self, data, *args, **kwargs):
+        raise NotImplementedError("Case needs a reason")
 
     def _get_object(self, case_id):
         return Case.objects.filter(
             legacy_bwv_case_id=case_id, is_legacy_bwv=True
         ).first()
 
-    def _create_or_update(self, data, request, commit):
+    def _create_or_update(self, data, request, commit, user=None):
         errors = []
         results = []
         context = {"request": request}
@@ -630,11 +749,9 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
             d_clone = dict(d)
             instance = self._get_object(d.get("legacy_bwv_case_id"))
             if instance:
-                serializer = LegacyCaseUpdateSerializer(
-                    instance, data=d, context=context
-                )
+                serializer = self.get_serializer(instance, data=d, context=context)
             else:
-                serializer = LegacyCaseCreateSerializer(data=d, context=context)
+                serializer = self.get_serializer(data=d, context=context)
 
             if serializer.is_valid(raise_exception=True):
                 d_clone.update(
@@ -644,7 +761,36 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     }
                 )
                 if commit:
-                    serializer.save()
+                    case = serializer.save()
+                    if user:
+                        case.author = user
+                        case.save()
+                    d_clone["case"] = case.id
+
+                    # create visits, no update
+                    for visit in d.get("visits", []):
+                        visit["case"] = case.id
+                        visit_instances = Visit.objects.filter(
+                            case=case,
+                            start_time=visit.get("start_time"),
+                            situation=visit.get("situation"),
+                            observations=visit.get("observations"),
+                            can_next_visit_go_ahead=visit.get(
+                                "can_next_visit_go_ahead"
+                            ),
+                            can_next_visit_go_ahead_description=visit.get(
+                                "can_next_visit_go_ahead_description"
+                            ),
+                            suggest_next_visit=visit.get("suggest_next_visit"),
+                            suggest_next_visit_description=visit.get(
+                                "suggest_next_visit_description"
+                            ),
+                            notes=visit.get("notes"),
+                        )
+
+                        visit_serializer = VisitSerializer(data=visit)
+                        if visit_serializer.is_valid() and not visit_instances:
+                            visit_serializer.save()
 
                 results.append(d_clone)
             else:
@@ -656,10 +802,14 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 )
         return errors, results
 
+    def create_additional_types(self, result_data, *args, **kwargs):
+        errors = []
+        return errors, result_data
+
     def _parse_case_data_to_case_serializer(self, data):
         map = {
             "date_created_zaak": "start_date",
-            "situatie_schets": "description",
+            "mededelingen": "description",
         }
 
         def clean(value):
@@ -684,6 +834,16 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         )
         return context
 
+    @property
+    def get_serializer(self):
+        return LegacyCaseCreateSerializer
+
+    def add_parsed_data(self, data, *args, **kwargs):
+        data = self._add_theme(data, *args, **kwargs)
+        data, visit_errors = self._add_visits(data, *args, **kwargs)
+        data = self.add_reason(data, *args, **kwargs)
+        return data, visit_errors
+
     def test_func(self):
         return self.request.user.is_superuser
 
@@ -692,13 +852,25 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         create_update_results = []
         if request.GET.get("commit"):
             data = self.request.session.get("validated_cases_data")
+            user = self.request.session.get("validated_cases_data_user")
+            if user:
+                user = User.objects.get(id=user)
             if data:
                 create_update_errors, create_update_results = self._create_or_update(
                     data,
                     request,
                     True,
+                    user,
+                )
+                (
+                    create_additionals_errors,
+                    create_additionals_results,
+                ) = self.create_additional_types(
+                    create_update_results,
+                    user,
                 )
                 del self.request.session["validated_cases_data"]
+                del self.request.session["validated_cases_data_user"]
             else:
                 return redirect(reverse(context.get("url_name")))
             context.update(
@@ -715,23 +887,29 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         context = self.get_context_data(**kwargs)
         data = (
             original_data
-        ) = address_mismatches = create_update_errors = create_update_results = []
+        ) = (
+            address_mismatches
+        ) = create_update_errors = create_update_results = visit_errors = []
         form_valid = False
 
         if form.is_valid():
             original_data = form.cleaned_data["json_data"]
+            user = form.cleaned_data["user"]
 
             data = self._parse_case_data_to_case_serializer(original_data)
             data, address_mismatches = self._add_address(data)
-            data = self._add_theme(data, *args, **kwargs)
-            data = self._add_reason(data)
+
+            data, visit_errors = self.add_parsed_data(data, *args, **kwargs)
+
             create_update_errors, create_update_results = self._create_or_update(
                 data,
                 request,
                 False,
+                user,
             )
             form_valid = True
             self.request.session["validated_cases_data"] = create_update_results
+            self.request.session["validated_cases_data_user"] = str(user.id)
 
         context.update(
             {
@@ -741,9 +919,52 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 "address_mismatches": address_mismatches,
                 "create_update_errors": create_update_errors,
                 "create_update_results": create_update_results,
+                "visit_errors": visit_errors,
             }
         )
         return self.render_to_response(context)
+
+
+class CaseThemeCitizenReportViewSet(ImportBWVCaseDataView):
+    def add_reason(self, data, *args, **kwargs):
+        reason, _ = CaseReason.objects.get_or_create(name=settings.DEFAULT_REASON)
+        for d in data:
+            d["reason"] = reason.id
+        return data
+
+    def _add_citizen_report(self, data):
+        for d in data:
+            d["citizen_report"] = {
+                "description_citizenreport": d.get("situatie_schets"),
+                "reporter_name": d.get("melder_naam"),
+                "reporter_phone": d.get("melder_telnr"),
+                "reporter_email": d.get("melder_emailadres"),
+                "identification": 1,
+            }
+        return data
+
+    def create_additional_types(self, result_data, user=None, *args, **kwargs):
+        errors = []
+        for d in result_data:
+            citizen_report = d.get("citizen_report", {})
+            citizen_report["case"] = d["case"]
+            instances = CitizenReport.objects.filter(
+                case__id=d.get("case"), **citizen_report
+            )
+            serializer = CitizenReportSerializer(
+                data=citizen_report, context={"request": self.request}
+            )
+            if serializer.is_valid() and not instances:
+                citizen_report_instance = serializer.save()
+                if user:
+                    citizen_report_instance.author = user
+                    citizen_report_instance.save()
+        return errors, result_data
+
+    def add_parsed_data(self, data, *args, **kwargs):
+        data, visit_errors = super().add_parsed_data(data, *args, **kwargs)
+        data = self._add_citizen_report(data)
+        return data, visit_errors
 
 
 class CaseCloseViewSet(

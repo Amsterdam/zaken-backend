@@ -1,8 +1,11 @@
 import logging
 
+from django.contrib.auth.models import Permission
 from django.http import HttpResponseBadRequest
+from drf_spectacular.utils import extend_schema
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
-from rest_framework import generics
+from rest_framework import generics, serializers, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
@@ -10,7 +13,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .auth import AuthenticationBackend
 from .models import User
-from .serializers import OIDCAuthenticateSerializer, UserSerializer
+from .serializers import (
+    OIDCAuthenticateSerializer,
+    UserDetailSerializer,
+    UserSerializer,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -18,6 +25,33 @@ LOGGER = logging.getLogger(__name__)
 class UserListView(ViewSet, generics.ListAPIView):
     queryset = User.objects.filter(is_staff=False, is_active=True, is_superuser=False)
     serializer_class = UserSerializer
+
+    @extend_schema(
+        description="Gets the user data of you, as logged-in user",
+        responses={status.HTTP_200_OK: UserDetailSerializer()},
+    )
+    @action(
+        detail=False,
+        url_path="me",
+        methods=["get"],
+    )
+    def me(self, request):
+
+        serializer = UserDetailSerializer(request.user)
+
+        return Response(serializer.data)
+
+
+class PermissionViewSet(ViewSet):
+    queryset = Permission.objects.all()
+    serializer_class = serializers.ListSerializer(child=serializers.CharField())
+
+    @extend_schema(
+        description="Gets all permissions",
+        responses={200: serializers.ListSerializer(child=serializers.CharField())},
+    )
+    def list(self, request):
+        return Response(self.queryset.values_list("codename", flat=True))
 
 
 class IsAuthorizedView(APIView):

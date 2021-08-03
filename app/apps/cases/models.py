@@ -35,6 +35,17 @@ class CaseReason(models.Model):
         ordering = ["name"]
 
 
+class CaseProject(models.Model):
+    name = models.CharField(max_length=255)
+    theme = models.ForeignKey(to=CaseTheme, on_delete=models.PROTECT)
+
+    class Meta:
+        ordering = ["theme", "name"]
+
+    def __str__(self):
+        return self.name
+
+
 class Case(ModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CASE
 
@@ -47,7 +58,7 @@ class Case(ModelEventEmitter):
         max_length=255, null=True, blank=True, unique=True
     )
     start_date = models.DateField(null=True)
-    end_date = models.DateField(null=True)
+    end_date = models.DateField(null=True, blank=True)
     address = models.ForeignKey(
         to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )
@@ -65,6 +76,9 @@ class Case(ModelEventEmitter):
     )
     reason = models.ForeignKey(to=CaseReason, on_delete=models.PROTECT)
     description = models.TextField(blank=True, null=True)
+    project = models.ForeignKey(
+        to=CaseProject, null=True, blank=True, on_delete=models.PROTECT
+    )
 
     def __get_event_values__(self):
         reason = self.reason.name
@@ -92,6 +106,10 @@ class Case(ModelEventEmitter):
                 event_values.update(
                     {"advertisement_linklist": citizen_report.advertisement_linklist}
                 )
+
+        if reason == "Project":
+            event_values.update({"project": self.project.name})
+
         return event_values
 
     def __get_case__(self):
@@ -171,7 +189,7 @@ class CaseStateType(models.Model):
         theme, _ = CaseTheme.objects.get_or_create(name=settings.DEFAULT_THEME)
         return theme.id
 
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     theme = models.ForeignKey(
         to=CaseTheme,
         related_name="state_types",
@@ -180,7 +198,10 @@ class CaseStateType(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.theme}"
+
+    class Meta:
+        unique_together = [["name", "theme"]]
 
 
 class CaseState(models.Model):
@@ -246,6 +267,9 @@ class CaseCloseReason(models.Model):
     def __str__(self):
         return f"{self.name} - {self.case_theme}"
 
+    class Meta:
+        ordering = ["case_theme", "name"]
+
 
 class CaseClose(TaskModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CASE_CLOSE
@@ -270,9 +294,7 @@ class CaseClose(TaskModelEventEmitter):
     def __get_event_values__(self):
         event_values = {
             "date_added": self.date_added,
-            "author": self.case.author.full_name
-            if self.author
-            else "Medewerker onbekend",
+            "author": self.author.full_name if self.author else "Medewerker onbekend",
             "reason": self.reason.name,
             "description": self.description,
         }
@@ -289,6 +311,7 @@ class CitizenReport(TaskModelEventEmitter):
     )
     reporter_name = models.CharField(max_length=50, null=True, blank=True)
     reporter_phone = models.CharField(max_length=50, null=True, blank=True)
+    reporter_email = models.CharField(max_length=50, null=True, blank=True)
     identification = models.PositiveIntegerField()
     advertisement_linklist = ArrayField(
         base_field=models.CharField(max_length=255),
@@ -315,6 +338,7 @@ class CitizenReport(TaskModelEventEmitter):
             "identification": self.identification,
             "reporter_name": self.reporter_name,
             "reporter_phone": self.reporter_phone,
+            "reporter_email": self.reporter_email,
             "advertisement_linklist": self.advertisement_linklist,
             "description_citizenreport": self.description_citizenreport,
             "author": author,

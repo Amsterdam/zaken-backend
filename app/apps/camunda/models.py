@@ -1,4 +1,4 @@
-from apps.cases.models import Case
+from apps.cases.models import Case, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.db import models
@@ -15,11 +15,22 @@ class GenericCompletedTask(TaskModelEventEmitter):
 
     def __get_event_values__(self):
 
+        # replace in variables value for key 'value', with the value of entry with key 'value_verbose'
+        # remove variables with key 'value_verbose'
+        variables = dict(
+            (k, {**v, **{"value": v.get("value_verbose")}})
+            for k, v in self.variables.items()
+        )
+        variables = dict(
+            (k, dict((kk, vv) for kk, vv in v.items() if kk != "value_verbose"))
+            for k, v in variables.items()
+        )
+
         return {
             "author": self.author.__str__(),
             "date_added": self.date_added,
             "description": self.description,
-            "variables": self.variables,
+            "variables": variables,
         }
 
 
@@ -27,6 +38,7 @@ class CamundaProcess(models.Model):
     name = models.CharField(max_length=255)
     camunda_message_name = models.CharField(max_length=255)
     to_directing_proccess = models.BooleanField(default=False)
+    theme = models.ForeignKey(CaseTheme, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.name} - {self.camunda_message_name}"

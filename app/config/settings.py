@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     # Third party apps
     "keycloak_oidc",
     "rest_framework",
+    "rest_framework.authtoken",
     "drf_spectacular",
     "django_extensions",
     "django_filters",
@@ -155,10 +156,14 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
-    "DEFAULT_PERMISSION_CLASSES": [
+    "DEFAULT_PERMISSION_CLASSES": (
         "keycloak_oidc.drf.permissions.IsInAuthorizedRealm",
-    ],
-    "DEFAULT_AUTHENTICATION_CLASSES": ("apps.users.auth.AuthenticationClass",),
+        "apps.users.permissions.AppsDjangoModelPermissions",
+    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "apps.users.auth.AuthenticationClass",
+        "rest_framework.authentication.TokenAuthentication",
+    ),
 }
 
 SPECTACULAR_SETTINGS = {
@@ -203,7 +208,11 @@ OIDC_OP_USER_ENDPOINT
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", None)
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", None)
 OIDC_USE_NONCE = False
-OIDC_AUTHORIZED_GROUPS = ("wonen_zaaksysteem", "wonen_zaak")
+OIDC_AUTHORIZED_GROUPS = (
+    "wonen_zaaksysteem",
+    "wonen_zaak",
+    "enable_persistent_token",
+)
 OIDC_AUTHENTICATION_CALLBACK_URL = "oidc-authenticate"
 
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv(
@@ -303,8 +312,13 @@ PERMISSIONS_POLICY = {
 }
 
 # Settings for Content-Security-Policy header
-CSP_DEFAULT = ("'self'", "unpkg.com")
-CSP_DEFAULT_UNSAFE_INLINE = ("'unsafe-inline'", "'self'", "unpkg.com")
+CSP_DEFAULT = ("'self'", "unpkg.com", "cdnjs.cloudflare.com/ajax/libs/vis/")
+CSP_DEFAULT_UNSAFE_INLINE = (
+    "'unsafe-inline'",
+    "'self'",
+    "unpkg.com",
+    "cdnjs.cloudflare.com/ajax/libs/vis/",
+)
 CSP_DEFAULT_SRC = CSP_DEFAULT
 CSP_FRAME_ANCESTORS = ("'self'",)
 CSP_SCRIPT_SRC = CSP_DEFAULT_UNSAFE_INLINE
@@ -379,6 +393,9 @@ DECOS_JOIN_BOOK_UNKNOWN_BOOK = "B1FF791EA9FA44698D5ABBB1963B94EC"
 DECOS_JOIN_BOOK_KNOWN_BAG_OBJECTS = "90642DCCC2DB46469657C3D0DF0B1ED7"
 USE_DECOS_MOCK_DATA = os.getenv("USE_DECOS_MOCK_DATA", False) == "True"
 
+# TOP Connection settings
+SECRET_KEY_AZA_TOP = os.getenv("SECRET_KEY_AZA_TOP")
+TOP_API_URL = os.getenv("TOP_API_URL")
 
 RABBIT_MQ_URL = os.getenv("RABBIT_MQ_URL")
 RABBIT_MQ_USERNAME = os.getenv("RABBIT_MQ_USERNAME")
@@ -389,7 +406,9 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_URL = f"amqp://{RABBIT_MQ_USERNAME}:{RABBIT_MQ_PASSWORD}@{RABBIT_MQ_URL}"
 
 BROKER_URL = CELERY_BROKER_URL
+CELERY_TASK_TRACK_STARTED = True
 CELERY_RESULT_BACKEND = "django-db"
+CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BEAT_SCHEDULE = {
     "queue_every_five_mins": {
         "task": "apps.health.tasks.query_every_five_mins",
@@ -397,11 +416,11 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
+# CELERY_IMPORTS = ("apps.camunda.tasks", )
+
 CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
 CAMUNDA_REST_URL = os.getenv("CAMUNDA_REST_URL", "http://camunda:8080/engine-rest/")
-CAMUNDA_PROCESS_VISIT = "zaak_wonen_vv_regie"  # "zaak_wonen_visit"
-CAMUNDA_PROCESS_SUMMON = "zaak_wonen_summon"
-CAMUNDA_PROCESS_DECISION = "zaak_wonen_decision"
+CAMUNDA_DIRECTING_PROCESS = "aza_wonen_local_vakantieverhuur_regie"
 
 REDIS = os.getenv("REDIS")
 REDIS_URL = f"redis://{REDIS}"
@@ -441,3 +460,5 @@ VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_BAG_ID = os.getenv(
 VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER = os.getenv(
     "VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER"
 )
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

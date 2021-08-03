@@ -2,6 +2,7 @@ import json
 import logging
 from json.decoder import JSONDecodeError
 
+from apps.users.models import User
 from django import forms
 
 from .serializers import BWVCaseImportValidSerializer
@@ -19,12 +20,21 @@ class ImportBWVCaseDataForm(forms.Form):
             }
         ),
     )
+    user = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        label="Kies een gebruiker",
+        to_field_name="pk",
+    )
 
     def clean_json_data(self):
         data = self.cleaned_data["json_data"]
         try:
             data = data.replace("null", "None")
             data = data.replace('"huisnummer": NaN', '"huisnummer": 0')
+            data = data.replace('"situatie_schets": NaN', '"situatie_schets": ""')
+            data = data.replace('"melder_naam": NaN', '"melder_naam": ""')
+            data = data.replace('"melder_emailadres": NaN', '"melder_emailadres": ""')
+            data = data.replace('"melder_telnr": NaN', '"melder_telnr": ""')
             data = data.replace("NaN", '""')
 
             data = json.loads(data)

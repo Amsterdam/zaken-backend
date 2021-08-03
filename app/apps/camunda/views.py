@@ -14,10 +14,12 @@ from apps.camunda.serializers import (
 )
 from apps.camunda.services import CamundaService
 from apps.cases.models import Case, CaseProcessInstance
-from apps.users.auth_apps import CamundaKeyAuth, TopKeyAuth
+from apps.users.permissions import (
+    rest_permission_classes_for_camunda,
+    rest_permission_classes_for_top,
+)
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -38,8 +40,9 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
     This is a view which can be be request from the Camunda workflow.
     """
 
-    permission_classes = [IsInAuthorizedRealm | CamundaKeyAuth]
+    permission_classes = rest_permission_classes_for_camunda()
     serializer_class = CamundaStateWorkerSerializer
+    queryset = GenericCompletedTask.objects.all()
 
     @extend_schema(
         description="A Camunda service task for setting state",
@@ -182,10 +185,8 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
 
 
 class CamundaTaskViewSet(viewsets.ViewSet):
-    permission_classes = [
-        IsInAuthorizedRealm,
-    ]
     serializer_class = CamundaTaskCompleteSerializer
+    queryset = GenericCompletedTask.objects.all()
 
     @extend_schema(
         description="Complete a task in Camunda",
@@ -266,8 +267,9 @@ class CamundaTaskViewSet(viewsets.ViewSet):
 
 
 class TaskViewSet(viewsets.ViewSet):
-    permission_classes = [IsInAuthorizedRealm | TopKeyAuth]
+    permission_classes = rest_permission_classes_for_top()
     serializer_class = CamundaTaskListSerializer
+    queryset = Case.objects.all()
 
     def get_serializer_class(self, *args, **kwargs):
         return self.serializer_class
@@ -292,15 +294,22 @@ class TaskViewSet(viewsets.ViewSet):
         else:
             result = []
             for task in tasks:
-                try:
-                    task["case"] = Case.objects.get(
-                        camunda_ids__contains=[task["processInstanceId"]]
-                    )
+                case = Case.objects.filter(
+                    case_states__case_process_id=task["processInstanceId"]
+                ).first()
+                if case:
+                    task["case"] = case
                     result.append(task)
-                except Case.DoesNotExist:
-                    print(
-                        f'Dropping task {task["processInstanceId"]} as the case cannot be found.'
-                    )
+                else:
+                    try:
+                        task["case"] = Case.objects.get(
+                            camunda_ids__contains=[task["processInstanceId"]]
+                        )
+                        result.append(task)
+                    except Case.DoesNotExist:
+                        print(
+                            f'Dropping task {task["processInstanceId"]} as the case cannot be found.'
+                        )
 
             serializer = CamundaTaskListSerializer(result, many=True)
 
