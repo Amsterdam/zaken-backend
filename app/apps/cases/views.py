@@ -351,6 +351,7 @@ class CaseViewSet(
                     if user_role in camunda_tasks[index]["tasks"][task_index]["roles"]:
                         user_has_permission = True
 
+                # We temporarily set the default permission to True
                 # TODO: Remove this line once all Camunda tasks have their roles configured
                 user_has_permission = True
 
