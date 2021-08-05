@@ -344,14 +344,19 @@ class CaseViewSet(
 
         for index in range(len(camunda_tasks)):
             for task_index in range(len(camunda_tasks[index]["tasks"])):
-                can_do = False
+                user_has_permission = False
                 user_roles = [group.name for group in request.user.groups.all()]
 
                 for user_role in user_roles:
                     if user_role in camunda_tasks[index]["tasks"][task_index]["roles"]:
-                        can_do = True
+                        user_has_permission = True
 
-                camunda_tasks[index]["tasks"][task_index]["can_do"] = can_do
+                # TODO: Remove this line once all Camunda tasks have their roles configured
+                user_has_permission = True
+
+                camunda_tasks[index]["tasks"][task_index][
+                    "user_has_permission"
+                ] = user_has_permission
 
         serializer = CamundaTaskWithStateSerializer(camunda_tasks, many=True)
         return Response(serializer.data)

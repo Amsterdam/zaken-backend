@@ -75,7 +75,7 @@ class CamundaTaskSerializer(CamundaBaseTaskSerializer):
     form = serializers.JSONField()
     render_form = serializers.CharField()
     form_variables = serializers.JSONField()
-    can_do = serializers.BooleanField(default=False)
+    user_has_permission = serializers.BooleanField(default=False)
 
 
 class CamundaTaskWithStateSerializer(serializers.Serializer):
