@@ -24,5 +24,7 @@ jobs:
       run: docker network create top_and_zaak_backend_bridge
     - name: Build Docker image
       run: docker-compose up -d
+    - name: Run migrations
+      run: docker-compose exec -T zaak-gateway python manage.py migrate --verbosity 3
     - name: Run Tests
       run: docker-compose exec -T zaak-gateway python manage.py test --verbosity 3
