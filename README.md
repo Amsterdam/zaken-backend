@@ -125,7 +125,7 @@ You can also deploy via the REST endpoint with the following settings.
 URL: http://localhost:7000/engine-rest/deployment/create
 Headers
 Content-Type: multipart/form-data
-API_KEY: test1234
+Authorization: test1234
 
 Body
 upload: file.bpmn
@@ -135,7 +135,13 @@ deployment-name: zaak_wonen_vakantieverhuur (for example. see settings.py for ca
 Or you could use curl like below.
 
 ```
-curl -v -F "deployment-name=process_name" -F "upload=@path-to-file.bpmn" "http://localhost:7000/engine-rest/deployment/create" -H "API_KEY: test1234"
+curl -v -F "deployment-name=process_name" -F "upload=@path-to-file.bpmn" "http://localhost:7000/engine-rest/deployment/create" -H "Authorization: test1234"
+```
+
+Or do them all at once:
+
+```
+for i in camunda/src/main/resources/bpmn/* ; do curl -v -F "deployment-name=`basename -s ".bpmn" $i`" -F "upload=@$i" "http://localhost:7000/engine-rest/deployment/create" -H "Authorization: test1234" ; done
 ```
 
 (_Don't forget to change the version tag_ Camunda will make one for you if you don't but make it nice and correct ;). if you can find the context menu where you can change the version tag: switch to XML mode and search for the `camunda:versionTag` attribute and change it there.)
