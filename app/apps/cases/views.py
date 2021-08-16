@@ -347,14 +347,18 @@ class CaseViewSet(
             for task_index in range(len(camunda_tasks[index]["tasks"])):
                 task = camunda_tasks[index]["tasks"][task_index]
 
-                # Business rule; Except for create/close case every user with change_case permissions can perform this task
+                # Business rule; Except for create/close case every user
+                # with change_case permissions can perform this task.
                 if task.id == "task_close_case":
-                    # Business rule; Users with add_case permissions can also close cases, no custom permission needed yet
-                    can_do = request.user.has_perm("cases.add_case")
+                    # Business rule; Users with add_case permissions can
+                    # also close cases, no custom permission needed yet.
+                    has_perm = request.user.has_perm("cases.add_case")
                 else:
-                    can_do = request.user.has_perm("cases.change_case")
+                    has_perm = request.user.has_perm("cases.change_case")
 
-                camunda_tasks[index]["tasks"][task_index]["can_do"] = can_do
+                camunda_tasks[index]["tasks"][task_index][
+                    "user_has_permission"
+                ] = has_perm
 
         serializer = CamundaTaskWithStateSerializer(camunda_tasks, many=True)
         return Response(serializer.data)
