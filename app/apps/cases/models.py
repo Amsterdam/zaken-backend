@@ -79,6 +79,9 @@ class Case(ModelEventEmitter):
     project = models.ForeignKey(
         to=CaseProject, null=True, blank=True, on_delete=models.PROTECT
     )
+    ton_ids = ArrayField(
+        models.CharField(max_length=255), default=list, null=True, blank=True
+    )
 
     def __get_event_values__(self):
         reason = self.reason.name
