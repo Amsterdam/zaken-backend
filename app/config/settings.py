@@ -158,7 +158,6 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "keycloak_oidc.drf.permissions.IsInAuthorizedRealm",
-        "apps.users.permissions.AppsDjangoModelPermissions",
     ),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "apps.users.auth.AuthenticationClass",
