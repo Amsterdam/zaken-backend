@@ -150,7 +150,7 @@ TEMPLATES = [
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "PAGE_SIZE": 100,
+    "PAGE_SIZE": 500,
     "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S%z",
     "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",
@@ -158,7 +158,6 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "keycloak_oidc.drf.permissions.IsInAuthorizedRealm",
-        "apps.users.permissions.AppsDjangoModelPermissions",
     ),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "apps.users.auth.AuthenticationClass",
