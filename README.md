@@ -27,14 +27,20 @@ To create all necessary credentials run the following command:
 bash bin/setup_credentials.sh
 ```
 
-This will create superuser admin accounts with the following credentials:
-
-For Zaken Admin, located at http://localhost:8080/admin/
+This will create superuser admin account with the following credentials
 
 ```
 email: admin@admin.com
 password: admin
 ```
+
+Start AZA backend:
+
+```
+docker-compose up
+```
+
+Visit the Admin at http://localhost:8080/admin/
 
 Check the health page to see if all services are up and running:
 http://localhost:8080/health
@@ -145,3 +151,12 @@ for i in camunda/src/main/resources/bpmn/* ; do curl -v -F "deployment-name=`bas
 ```
 
 (_Don't forget to change the version tag_ Camunda will make one for you if you don't but make it nice and correct ;). if you can find the context menu where you can change the version tag: switch to XML mode and search for the `camunda:versionTag` attribute and change it there.)
+
+# FAQ
+
+_Error: Account locked: too many login attempts. Contact an admin to unlock your account._
+
+Cause: somebody tried to login with too many failed attempts. Unfortunately we have not
+configured Axes properly so if one user does this, every user is locked.
+
+Resolution: SSH into the webserver and run `python manage.py axes_reset`
