@@ -21,6 +21,7 @@ services:
     stdin_open: true
     tty: true
     mem_limit: 6000m
+    mem_reservation: 5000m
 
   zaak-redis:
     image: redis
