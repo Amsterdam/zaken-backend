@@ -1,7 +1,7 @@
 name: 'Install, lint, test & build'
 on:
   push:
-    branches: [ master ]
+    branches: [ master, testing-ci-issue ]
   pull_request:
     branches: [ master ]
 
