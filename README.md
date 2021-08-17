@@ -10,7 +10,7 @@ Make sure you have Docker installed locally:
 
 ## Getting up and running (Local development only)
 
-These steps are necessary to make sure all configurations are set up correctly so that you can get the project running, and Zaak Gateway and OpenZaak can communicate correctly.
+These steps are necessary to make sure all configurations are set up correctly so that you can get the project running correctly.
 
 First, make sure you have built the project and executed the database migrations:
 
@@ -19,7 +19,6 @@ docker network create top_and_zaak_backend_bridge
 docker network create zaken_network
 docker-compose build
 docker-compose run --rm zaak-gateway python manage.py migrate
-docker-compose run --rm openzaak.local python src/manage.py migrate
 ```
 
 To create all necessary credentials run the following command:
@@ -37,31 +36,6 @@ email: admin@admin.com
 password: admin
 ```
 
-For OpenZaak, located at http://localhost:8090/admin/
-
-```
-username: admin
-password: admin
-```
-
-It will also register an application for authorising access to OpenZaak.
-The credentials for this Zaken - OpenZaak connection are the defaults set in the .env environment variables:
-
-```
-OPEN_ZAAK_CLIENT=Zaken
-OPEN_ZAAK_SECRET_KEY=Zaken
-```
-
-Now the Zaken application is fully authorised for adding and retrieving resources from the OpenZaak instance.
-This is done using ZGW Consumers, which need to be configured in the Zaken backend. To do this automatically run:
-
-```
-docker-compose run --rm zaak-gateway python manage.py initialize_openzaak
-```
-
-This management command will create the consumers, and the basic data structures needed in OpenZaak.
-
-Once this has finished running, you're done with the local configuration and setup.
 Check the health page to see if all services are up and running:
 http://localhost:8080/health
 

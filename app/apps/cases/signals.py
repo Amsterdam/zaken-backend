@@ -37,17 +37,6 @@ def create_case_instance_in_camunda(sender, instance, created, **kwargs):
         start_camunda_instance(identification=instance.id, request_body=request_body)
 
 
-# @receiver(post_save, sender=Case)
-# def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
-#     if created and "test" not in sys.argv:
-#         try:
-#             create_open_zaak_case(
-#                 identification=instance.id, description=instance.description
-#             )
-#         except Exception as e:
-#             logger.error(e)
-
-
 @receiver(post_save, sender=CitizenReport, dispatch_uid="complete_citizen_report_task")
 def complete_citizen_report_task(sender, instance, created, **kwargs):
     if instance.camunda_task_id != "-1" and created:
