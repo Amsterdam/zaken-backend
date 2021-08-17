@@ -106,6 +106,7 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
             "description",
             "author",
             "project",
+            "ton_ids",
         )
 
     def validate(self, data):
