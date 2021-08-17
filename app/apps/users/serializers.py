@@ -1,21 +1,16 @@
-from django.contrib.auth.models import Group, Permission
-from drf_spectacular.utils import extend_schema_field
+from django.contrib.auth.models import Group
 from rest_framework import serializers
 
 from .models import User
 
 
-# TODO: Maybe better to find a specific spot for reuseable enums/choices for schemas
-def get_permissions():
-    return [[p, p] for p in Permission.objects.values_list("codename", flat=True)]
+class PermissionSerializer(serializers.CharField):
+    def to_representation(self, instance):
+        return instance.codename
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    permissions = serializers.SerializerMethodField()
-
-    @extend_schema_field(serializers.MultipleChoiceField(choices=get_permissions()))
-    def get_permissions(self, object):
-        return object.permissions.values_list("codename", flat=True)
+    permissions = serializers.ListSerializer(child=PermissionSerializer())
 
     class Meta:
         model = Group
