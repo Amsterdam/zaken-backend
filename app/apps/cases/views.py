@@ -290,7 +290,7 @@ class CaseViewSet(
     @action(detail=True, methods=["get"], url_path="tasks")
     def get_tasks(self, request, pk):
         case = self.get_object()
-        request.user
+        user = request.user
         camunda_tasks = []
 
         for state in case.case_states.filter(end_date__isnull=True):
@@ -352,9 +352,9 @@ class CaseViewSet(
                 if task.id == "task_close_case":
                     # Business rule; Users with add_case permissions can
                     # also close cases, no custom permission needed yet.
-                    has_perm = request.user.has_perm("cases.add_case")
+                    has_perm = user.has_perm("cases.add_case")
                 else:
-                    has_perm = request.user.has_perm("cases.change_case")
+                    has_perm = user.has_perm("cases.change_case")
 
                 camunda_tasks[index]["tasks"][task_index][
                     "user_has_permission"
