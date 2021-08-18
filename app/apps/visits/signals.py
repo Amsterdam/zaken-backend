@@ -6,8 +6,6 @@ from django.dispatch import receiver
 
 @receiver(post_save, sender=Visit, dispatch_uid="visit_create_complete_camunda_task")
 def complete_camunda_task_create_visit(sender, instance, created, **kwargs):
-    # Remove all schedules so case needs to be scheduled again before it gets on a itinerary(looplijst)
-    instance.case.schedules.all().delete()
 
     task = False
     for state in instance.case.case_states.filter(end_date__isnull=True):
