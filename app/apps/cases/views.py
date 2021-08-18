@@ -349,7 +349,7 @@ class CaseViewSet(
 
                 # Business rule; Except for create/close case every user
                 # with change_case permissions can perform this task.
-                if task.id == "task_close_case":
+                if task["id"] == "task_close_case":
                     # Business rule; Users with add_case permissions can
                     # also close cases, no custom permission needed yet.
                     has_perm = user.has_perm("cases.add_case")
