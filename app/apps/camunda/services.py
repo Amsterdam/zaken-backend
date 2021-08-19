@@ -5,7 +5,6 @@ import requests
 from apps.camunda.utils import get_form_details, get_forms
 from apps.cases.models import Case, CaseProcessInstance
 from django.conf import settings
-from django.core.cache import cache
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -81,19 +80,19 @@ class CamundaService:
             response.ok = False
             return response
 
-    @staticmethod
-    def _get_task_form_cache_key(camunda_task_id):
-        return f"{CamundaService.CAMUNDA_TASK_FORM_CACHE_KEY}_id{camunda_task_id}"
+    # @staticmethod
+    # def _get_task_form_cache_key(camunda_task_id):
+    #     return f"{CamundaService.CAMUNDA_TASK_FORM_CACHE_KEY}_id{camunda_task_id}"
 
-    @staticmethod
-    def _set_task_form_cache(cache_key, form_data):
-        return cache.set(
-            cache_key, form_data, CamundaService.CAMUNDA_TASK_FORM_CACHE_VALID
-        )
+    # @staticmethod
+    # def _set_task_form_cache(cache_key, form_data):
+    #     return cache.set(
+    #         cache_key, form_data, CamundaService.CAMUNDA_TASK_FORM_CACHE_VALID
+    #     )
 
-    @staticmethod
-    def _get_task_form_cache(cache_key):
-        return cache.get(cache_key, [])
+    # @staticmethod
+    # def _get_task_form_cache(cache_key):
+    #     return cache.get(cache_key, [])
 
     def _get_form_with_task(self, camunda_task_id):
         task_list = []
@@ -245,10 +244,10 @@ class CamundaService:
             if len(response_form) == 1:
                 response_json_form = get_form_details(response_form[0])
 
-                self._set_task_form_cache(
-                    self._get_task_form_cache_key(camunda_task_id),
-                    response_json_form,
-                )
+                # self._set_task_form_cache(
+                #     self._get_task_form_cache_key(camunda_task_id),
+                #     response_json_form,
+                # )
 
                 return response_json_form
             else:
