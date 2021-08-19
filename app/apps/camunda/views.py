@@ -212,30 +212,37 @@ class CamundaTaskViewSet(viewsets.ViewSet):
             variables = data.get("variables", {})
 
             # Get original structured task form from cache
-            original_camunda_task_form = CamundaService._get_task_form_cache(
-                CamundaService._get_task_form_cache_key(task_id)
+            original_camunda_task_form = CamundaService().get_task_form_rendered(
+                task_id
             )
-            form_dict = dict((t.get("name"), t) for t in original_camunda_task_form)
+            if original_camunda_task_form:
+                form_dict = dict((t.get("name"), t) for t in original_camunda_task_form)
 
-            for key, value in variables.items():
-                # Only for selects, include original readable value from options
-                value["value_verbose"] = (
-                    dict(
-                        (o.get("value"), o.get("label"))
-                        for o in form_dict.get(key).get("options", [])
-                    ).get(value["value"])
-                    if form_dict.get(key).get("options", [])
-                    else value["value"]
-                )
-                # Include original label
-                value["label"] = form_dict.get(key, {}).get("label")
+                for key, value in variables.items():
+                    # Only for selects, include original readable value from options
+                    value["value_verbose"] = (
+                        dict(
+                            (o.get("value"), o.get("label"))
+                            for o in form_dict.get(key).get("options", [])
+                        ).get(value["value"])
+                        if form_dict.get(key).get("options", [])
+                        else value["value"]
+                    )
+                    # Include original label
+                    value["label"] = form_dict.get(key, {}).get("label")
 
             data["variables"] = variables
             data["description"] = task["name"]
 
-            GenericCompletedTask.objects.create(**data)
+            camunda_response = CamundaService().complete_task(task_id, variables)
 
-            return Response(f"Task {data['camunda_task_id']} has been completed")
+            if camunda_response.ok:
+                GenericCompletedTask.objects.create(**data)
+                return Response(f"Task {data['camunda_task_id']} has been completed")
+            return Response(
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                data=f"Something went wrong with cammunda error: {camunda_response.text}",
+            )
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
