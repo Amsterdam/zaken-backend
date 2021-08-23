@@ -1,10 +1,35 @@
 import uuid
 
 from apps.users.user_manager import UserManager
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
+from django.db.models.base import Model
 
+from .permissions import custom_permissions
 from .utils import generate_username
+
+if not hasattr(Group, "display_name"):
+    display_name = models.CharField(
+        max_length=40,
+        blank=False,
+    )
+    display_name.contribute_to_class(Group, "display_name")
+
+
+class Permission(Model):
+    """
+    Non-managed Permission class so we can do 'users.permission'.
+    """
+
+    class Meta:
+        managed = False
+        default_permissions = ()
+        permissions = custom_permissions
+
+
+class UserGroup(Group):
+    class Meta:
+        proxy = True
 
 
 class User(AbstractUser):

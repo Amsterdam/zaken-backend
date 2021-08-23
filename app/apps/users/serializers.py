@@ -1,16 +1,17 @@
 from django.contrib.auth.models import Group
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from .models import User
-
-
-class PermissionSerializer(serializers.CharField):
-    def to_representation(self, instance):
-        return instance.codename
+from .permissions import custom_permissions
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    permissions = serializers.ListSerializer(child=PermissionSerializer())
+    permissions = serializers.SerializerMethodField()
+
+    @extend_schema_field(serializers.MultipleChoiceField(choices=custom_permissions))
+    def get_permissions(self, object):
+        return object.permissions.values_list("codename", flat=True)
 
     class Meta:
         model = Group
