@@ -7,8 +7,7 @@ from django.urls import reverse
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.test import APITestCase
-
-from app.utils.unittest_helpers import (
+from utils.unittest_helpers import (
     get_authenticated_client,
     get_authenticated_with_token_client,
     get_test_user,
@@ -100,12 +99,13 @@ class VisitApiTest(APITestCase):
             "start_time": "2021-03-31T17:17:52.126Z",
             "case": case.id,
         }
+
         response = client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(User.objects.count(), 2)
 
         visit = Visit.objects.all()[0]
         self.assertEqual(len(visit.authors.all()), 2)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(User.objects.count(), 2)
 
     def test_authenticated_visit_create_existing_users(self):
         # Should be able to process a visit using existing Users and their ids

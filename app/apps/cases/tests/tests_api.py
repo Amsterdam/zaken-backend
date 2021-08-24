@@ -8,8 +8,7 @@ from django.urls import reverse
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.test import APITestCase
-
-from app.utils.unittest_helpers import (
+from utils.unittest_helpers import (
     get_authenticated_client,
     get_test_user,
     get_unauthenticated_client,
