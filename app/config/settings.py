@@ -13,6 +13,9 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 ENVIRONMENT = os.getenv("ENVIRONMENT")
 DEBUG = ENVIRONMENT == "development"
 
+# Settings to improve security
+is_secure_environment = not DEBUG
+
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
@@ -276,8 +279,6 @@ CAMUNDA_SECRET_KEY = os.getenv("CAMUNDA_SECRET_KEY")
 CAMUNDA_REST_AUTH = os.getenv("CAMUNDA_REST_AUTH")
 
 
-# Settings to improve security
-is_secure_environment = False if ENVIRONMENT == "development" else True
 # NOTE: this is commented out because currently the internal health check is done over HTTP
 # SECURE_SSL_REDIRECT = is_secure_environment
 SESSION_COOKIE_SECURE = is_secure_environment

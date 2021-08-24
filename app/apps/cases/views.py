@@ -59,7 +59,11 @@ from apps.events.mixins import CaseEventsMixin
 from apps.schedules.serializers import ThemeScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.models import User
-from apps.users.permissions import rest_permission_classes_for_top
+from apps.users.permissions import (
+    CanCloseCase,
+    CanCreateCase,
+    rest_permission_classes_for_top,
+)
 from apps.visits.models import Visit
 from apps.visits.serializers import VisitSerializer
 from django.conf import settings
@@ -79,6 +83,7 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
 )
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from utils.api_queries_bag import do_bag_search_address_exact
 
@@ -140,6 +145,11 @@ class CaseViewSet(
     permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
+
+    def get_permissions(self):
+        if self.action == "create" and self.request.method not in SAFE_METHODS:
+            self.permission_classes.append(CanCreateCase)
+        return super(CaseViewSet, self).get_permissions()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -350,11 +360,11 @@ class CaseViewSet(
                 # Business rule; Except for create/close case every user
                 # with change_case permissions can perform this task.
                 if task["taskDefinitionKey"] == "task_close_case":
-                    # Business rule; Users with add_case permissions can
-                    # also close cases, no custom permission needed yet.
-                    has_perm = user.has_perm("cases.add_case")
+                    # Business rule; Only users with close_case can
+                    # perform the last task.
+                    has_perm = user.has_perm("users.close_case")
                 else:
-                    has_perm = user.has_perm("cases.change_case")
+                    has_perm = user.has_perm("users.perform_task")
 
                 camunda_tasks[index]["tasks"][task_index][
                     "user_has_permission"
@@ -980,5 +990,11 @@ class CaseCloseViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
+    permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseCloseSerializer
     queryset = CaseClose.objects.all()
+
+    def get_permissions(self):
+        if self.request.method not in SAFE_METHODS:
+            self.permission_classes.append(CanCloseCase)
+        return super(CaseCloseViewSet, self).get_permissions()
