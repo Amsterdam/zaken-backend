@@ -36,7 +36,7 @@ services:
     ports:
       - "6409:5432"
     env_file:
-      - .env
+      - postgres/.env
     volumes:
       - postgresql-data:/var/lib/postgresql/data
 
@@ -47,7 +47,7 @@ services:
     ports:
       - 5672:5672
     env_file:
-      - .env
+      - rabbitmq/.env
 
   zaken_celery_worker:
     image: zaak-gateway

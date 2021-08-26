@@ -283,7 +283,6 @@ CAMUNDA_REST_AUTH = os.getenv("CAMUNDA_REST_AUTH")
 # SECURE_SSL_REDIRECT = is_secure_environment
 SESSION_COOKIE_SECURE = is_secure_environment
 CSRF_COOKIE_SECURE = is_secure_environment
-DEBUG = not is_secure_environment
 SECURE_HSTS_SECONDS = 60
 SECURE_HSTS_INCLUDE_SUBDOMAINS = is_secure_environment
 SECURE_HSTS_PRELOAD = is_secure_environment

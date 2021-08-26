@@ -2,6 +2,8 @@
 
 Zakensysteem bedoeld voor toezichthouders en handhavers van illegaal vakantieverhuur.
 
+# Install using docker
+
 ## Prerequisites
 
 Make sure you have Docker installed locally:
@@ -58,6 +60,8 @@ To run tests for a specific module, add a path:
 ```
 docker-compose run --rm zaak-gateway python manage.py test ./apps/cases/tests
 ```
+
+# Using the app
 
 ## Accessing the API documentation
 

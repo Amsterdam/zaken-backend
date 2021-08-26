@@ -3,16 +3,16 @@ version: "3.5"
 services:
   zaak-gateway:
     env_file:
-      - .env.local
-  database:
-    env_file:
-      - .env.local
-  rabbitmq:
-    env_file:
-      - .env.local
+      - app/.env.local
   zaken_celery_worker:
     env_file:
-      - .env.local
+      - app/.env.local
   zaken_celery_beat:
     env_file:
-      - .env.local
+      - app/.env.local
+  database:
+    env_file:
+      - postgres/.env.local
+  rabbitmq:
+    env_file:
+      - rabbitmq/.env.local
