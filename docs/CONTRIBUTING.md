@@ -14,7 +14,13 @@ TODO
 
 We usually release from the master-branch. Create a new tag
 with a semantic version number of format "v.x.x.x".
-To see the latest tags use `git pull; git tag -l | tail`.
+To see the latest tags use
+
+```
+git checkout master
+git pull
+git tag -l | tail
+```
 
 To push a new tag to Github, execute:
 
