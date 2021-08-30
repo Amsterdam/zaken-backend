@@ -14,6 +14,8 @@ from apps.cases.models import (
     CitizenReport,
 )
 from apps.schedules.serializers import ScheduleSerializer
+from apps.workflow.models import Workflow
+from django.conf import settings
 from rest_framework import serializers
 
 
@@ -149,6 +151,12 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         address_data = validated_data.pop("address")
         address = Address.get(address_data.get("bag_id"))
         case = Case.objects.create(**validated_data, address=address)
+        workflow_instance = Workflow.objects.create(
+            case=case,
+        )
+        workflow_instance.set_initial_data(
+            data={"status_name": settings.DEFAULT_SCHEDULE_ACTIONS[0]}
+        )
 
         return case
 

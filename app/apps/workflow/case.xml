@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process-definition name="Daixm Workflow" revision="1.6">
+    <description>
+    A test workflow that contains all possible tasks.
+    </description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <successor>house_choice</successor>
+    </start-task>
+
+    <exclusive-choice name="house_choice">
+        <!-- No House -->
+        <default-successor>role_choice</default-successor>
+
+        <conditional-successor>
+            <equals left-field="house" right-value="1" />
+            <successor>build_house</successor>
+        </conditional-successor>
+
+        <conditional-successor>
+            <equals left-field="house" right-value="2" />
+            <successor>buy_house</successor>
+        </conditional-successor>
+    </exclusive-choice>
+
+    <task name="buy_house">
+        <description></description>
+        <successor>house_location</successor>
+    </task>
+
+    <task name="house_location">
+        <successor>house_age</successor>
+    </task>
+
+    <task name="house_age">
+        <successor>role_choice</successor>
+    </task>
+
+    <task name="build_house">
+        <successor>role_choice</successor>
+    </task>
+
+
+    <exclusive-choice name="role_choice">
+        <!-- No House -->
+        <default-successor>no_jobs</default-successor>
+        <conditional-successor>
+            <equals left-field="role" right-value="1" />
+            <successor>jobs_working</successor>
+        </conditional-successor>
+    </exclusive-choice>
+
+
+    <task name="no_jobs">
+        <successor>last</successor>
+    </task>
+
+    <task name="jobs_working">
+        <successor>last</successor>
+    </task>
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

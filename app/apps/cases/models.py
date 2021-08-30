@@ -215,6 +215,9 @@ class CaseState(models.Model):
     )
     information = models.CharField(max_length=255, null=True, blank=True)
     case_process_id = models.CharField(max_length=255, null=True, default="")
+    workflow = models.ForeignKey(
+        "workflow.Workflow", on_delete=models.PROTECT, null=True, blank=True
+    )
 
     def __str__(self):
         return f"{self.start_date} - {self.end_date} - {self.case.identification} - {self.status.name}"
