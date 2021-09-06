@@ -1,5 +1,5 @@
 from apps.cases.models import Case, CaseReason, CaseTheme
-from apps.workflow.models import Task, Workflow
+from apps.workflow.models import Workflow
 from django.conf import settings
 from django.core import management
 from django.test import TestCase
@@ -110,7 +110,7 @@ class WorkflowModelTest(TestCase):
             },
         )
 
-    def test_complete_user_task(self):
+    def test_restore_workflow(self):
         """ Tests complete usertask  """
         theme = CaseTheme.objects.create(
             name=settings.DEFAULT_THEME,
@@ -126,32 +126,89 @@ class WorkflowModelTest(TestCase):
         workflow_instance = Workflow.objects.create(
             case=case,
         )
-        spec = (
-            Workflow.objects.all()
-            .first()
-            .get_workflow_spec(
-                "top_workflow.bpmn",
-                [
-                    "common_workflow.bpmn",
-                ],
-            )
-        )
-        workflow = workflow_instance.get_workflow(spec)
-        # workflow_instance.set_initial_data(data={
-        #     "init_data": "my init data",
-        # }, wf=workflow)
 
-        task_names = workflow_instance.get_ready_task_names(workflow)
+        wf = workflow_instance.get_or_restore_workflow_state()
+        wfs = workflow_instance.get_serializer().serialize_workflow(wf)
 
-        self.assertEquals(
-            workflow_instance.get_ready_task_names(workflow), ["create_case"]
+        wf_new = workflow_instance.get_serializer().deserialize_workflow(
+            wfs, workflow_spec=workflow_instance.get_workflow_spec()
         )
-        workflow_instance.complete_user_task(
-            task_names[0], workflow, {"create_case_formfield": "je moeder"}
-        )
-        task_names = workflow_instance.get_ready_task_names(workflow)
 
-        self.assertEquals(
-            workflow_instance.get_ready_task_names(workflow), ["create_case2"]
+        wf_new = workflow_instance.get_script_engine(wf=wf_new)
+        wf_new.set_data(
+            **{
+                "status_name": "Huisbzoek",
+            }
         )
-        self.assertEquals(Task.objects.all().count(), 1)
+        wf_new.do_engine_steps()
+        wfs_new = workflow_instance.get_serializer().serialize_workflow(wf_new)
+
+        self.assertEquals(wfs, wfs_new)
+
+    def test_set_initial_data_workflow(self):
+        """ Tests complete usertask  """
+        theme = CaseTheme.objects.create(
+            name=settings.DEFAULT_THEME,
+        )
+        reason = CaseReason.objects.create(
+            name=settings.DEFAULT_REASON,
+            theme=theme,
+        )
+        case = Case.objects.create(
+            reason=reason,
+            theme=theme,
+        )
+        workflow_instance = Workflow.objects.create(
+            case=case,
+        )
+
+        wf = workflow_instance.get_or_restore_workflow_state()
+
+        wf = workflow_instance.get_script_engine(wf)
+
+        wf = workflow_instance.set_initial_data(
+            {
+                "status_name": "Huisbzoek",
+            }
+        )
+
+        wfs = workflow_instance.get_serializer().serialize_workflow(wf)
+
+        self.assertEquals(wfs, True)
+
+    # def test_complete_user_task(self):
+    #     """ Tests complete usertask  """
+    #     theme = CaseTheme.objects.create(
+    #         name=settings.DEFAULT_THEME,
+    #     )
+    #     reason = CaseReason.objects.create(
+    #         name=settings.DEFAULT_REASON,
+    #         theme=theme,
+    #     )
+    #     case = Case.objects.create(
+    #         reason=reason,
+    #         theme=theme,
+    #     )
+    #     workflow_instance = Workflow.objects.create(
+    #         case=case,
+    #     )
+
+    #     workflow = workflow_instance.get_or_restore_workflow_state()
+    #     # workflow_instance.set_initial_data(data={
+    #     #     "init_data": "my init data",
+    #     # }, wf=workflow)
+
+    #     task_names = workflow_instance.get_ready_task_names(workflow)
+
+    #     self.assertEquals(
+    #         workflow_instance.get_ready_task_names(workflow), ["create_case"]
+    #     )
+    #     workflow_instance.complete_user_task(
+    #         task_names[0], workflow, {"create_case_formfield": "je moeder"}
+    #     )
+    #     task_names = workflow_instance.get_ready_task_names(workflow)
+
+    #     self.assertEquals(
+    #         workflow_instance.get_ready_task_names(workflow), ["create_case2"]
+    #     )
+    #     self.assertEquals(Task.objects.all().count(), 1)

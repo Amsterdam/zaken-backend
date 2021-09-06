@@ -125,7 +125,12 @@ class Case(ModelEventEmitter):
         return f"{self.id} Case"
 
     def get_current_states(self):
-        return self.case_states.filter(end_date__isnull=True)
+        states = []
+        for workflow in self.workflows.all():
+            case_state = workflow.case_states.all().order_by("id").last()
+            if case_state:
+                states.append(case_state)
+        return states
 
     def get_schedules(self):
         qs = self.schedules.all().order_by("-date_added")
@@ -133,7 +138,8 @@ class Case(ModelEventEmitter):
             qs = [qs.first()]
         return qs
 
-    def set_state(self, state_name, case_process_id, information="", *args, **kwargs):
+    def set_state(self, state_name, workflow, information="", *args, **kwargs):
+        print("Case set status workflow id: %s" % workflow.id)
         state_type, _ = CaseStateType.objects.get_or_create(
             name=state_name, theme=self.theme
         )
@@ -141,7 +147,7 @@ class Case(ModelEventEmitter):
             case=self,
             status=state_type,
             information=information,
-            case_process_id=case_process_id,
+            workflow=workflow,
         )
 
         return state
@@ -216,11 +222,18 @@ class CaseState(models.Model):
     information = models.CharField(max_length=255, null=True, blank=True)
     case_process_id = models.CharField(max_length=255, null=True, default="")
     workflow = models.ForeignKey(
-        "workflow.Workflow", on_delete=models.PROTECT, null=True, blank=True
+        "workflow.Workflow",
+        on_delete=models.CASCADE,
+        related_name="case_states",
+        null=True,
+        blank=True,
     )
 
     def __str__(self):
         return f"{self.start_date} - {self.end_date} - {self.case.identification} - {self.status.name}"
+
+    def get_tasks(self):
+        return self.workflow.tasks.filter(completed=False)
 
     def end_state(self):
         if not self.end_date:

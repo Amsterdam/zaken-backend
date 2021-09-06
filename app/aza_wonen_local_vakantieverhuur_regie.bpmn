@@ -9,12 +9,7 @@
     <bpmn:sequenceFlow id="Flow_0gjq5ew" sourceRef="Gateway_1dtewmn" targetRef="Activity_07fbe1o" />
     <bpmn:callActivity id="Activity_07fbe1o" name="Visit" calledElement="aza_wonen_global_visit">
       <bpmn:extensionElements>
-        <camunda:in businessKey="#{execution.processBusinessKey}" />
         <camunda:out source="summon" target="summon" />
-        <camunda:in source="case_process_id" target="case_process_id" />
-        <camunda:in source="case_identification" target="case_identification" />
-        <camunda:in source="endpoint" target="endpoint" />
-        <camunda:in source="zaken_access_token" target="zaken_access_token" />
         <camunda:in source="status_name" target="status_name" />
         <camunda:in source="super_process" target="super_process" />
       </bpmn:extensionElements>
@@ -117,7 +112,7 @@
       </bpmn:sequenceFlow>
     </bpmn:subProcess>
     <bpmn:sequenceFlow id="Flow_19vfi33" sourceRef="Gateway_1j3mzmi" targetRef="Activity_10pfv22" />
-    <bpmn:sequenceFlow id="Flow_00c85dv" sourceRef="Gateway_1j3mzmi" targetRef="Activity_1y8zuuq" />
+    <bpmn:sequenceFlow id="Flow_00c85dv" sourceRef="Gateway_1j3mzmi" targetRef="Activity_0mrrk5a" />
     <bpmn:sequenceFlow id="Flow_1tgibb4" sourceRef="Activity_10pfv22" targetRef="Event_0zh8d19" />
     <bpmn:callActivity id="Activity_14lfm73" name="Afronden zaak" calledElement="aza_wonen_global_afronden_zaak">
       <bpmn:extensionElements>
@@ -149,11 +144,7 @@
     </bpmn:endEvent>
     <bpmn:startEvent id="Event_1gy9xkf" camunda:formKey="start_directing_vv_form">
       <bpmn:extensionElements>
-        <camunda:formData businessKey="case_identification">
-          <camunda:formField id="zaken_access_token" type="string" />
-          <camunda:formField id="case_identification" type="string" />
-          <camunda:formField id="endpoint" type="string" />
-          <camunda:formField id="case_process_id" type="string" />
+        <camunda:formData>
           <camunda:formField id="status_name" label="Huisbezoek" type="string" />
           <camunda:formField id="aanschrijving_loop" type="string" defaultValue="1" />
           <camunda:formField id="hercontrole" type="boolean" defaultValue="false" />
@@ -168,7 +159,7 @@
       <bpmn:messageEventDefinition id="MessageEventDefinition_111q8ex" messageRef="Message_1ddgqpg" />
     </bpmn:intermediateCatchEvent>
     <bpmn:subProcess id="Activity_1y8zuuq">
-      <bpmn:incoming>Flow_00c85dv</bpmn:incoming>
+      <bpmn:incoming>Flow_1qjlcve</bpmn:incoming>
       <bpmn:outgoing>Flow_0rhk7o2</bpmn:outgoing>
       <bpmn:startEvent id="Event_1qgr1a6">
         <bpmn:outgoing>Flow_0h13k55</bpmn:outgoing>
@@ -182,7 +173,6 @@
           <camunda:in source="status_name" target="status_name" />
           <camunda:in source="${execution.getProcessInstanceId()}" target="super_proces" />
           <camunda:out source="next_step" target="next_step" />
-          <camunda:in businessKey="#{execution.processBusinessKey}" />
           <camunda:out source="names" target="names" />
           <camunda:out source="summon_id" target="summon_id" />
         </bpmn:extensionElements>
@@ -282,16 +272,16 @@
       <bpmn:incoming>Flow_0rhk7o2</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0rhk7o2" sourceRef="Activity_1y8zuuq" targetRef="Event_0e3mzcd" />
-    <bpmn:scriptTask id="Activity_1vaddj9" name="Activeer hercontrole" scriptFormat="groovy">
+    <bpmn:scriptTask id="Activity_1vaddj9" name="Activeer hercontrole">
       <bpmn:incoming>Flow_1sswvpm</bpmn:incoming>
       <bpmn:outgoing>Flow_011ql1v</bpmn:outgoing>
       <bpmn:script>execution.setVariable('status_name', "Hercontrole");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_011ql1v" sourceRef="Activity_1vaddj9" targetRef="Gateway_1dtewmn" />
-    <bpmn:scriptTask id="Activity_1mgizwv" name="Set super_process" scriptFormat="groovy">
+    <bpmn:scriptTask id="Activity_1mgizwv" name="Set super_process">
       <bpmn:incoming>Flow_019jpwo</bpmn:incoming>
       <bpmn:outgoing>Flow_0w2wtlv</bpmn:outgoing>
-      <bpmn:script>execution.setVariable('super_process',execution.getProcessInstanceId());</bpmn:script>
+      <bpmn:script>print("Set super_process")</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_1bdhjy8" sourceRef="Event_0zh8d19" targetRef="Event_0ucv3d9" />
     <bpmn:sequenceFlow id="Flow_162tpj4" sourceRef="Gateway_17juvrg" targetRef="Activity_14lfm73" />
@@ -307,10 +297,10 @@
       <bpmn:outgoing>Flow_19fjsci</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0ysd6yg" sourceRef="Gateway_0wumcd2" targetRef="Gateway_1j3mzmi">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${summon=="Yes"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon == "Yes"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_19fjsci" sourceRef="Gateway_0wumcd2" targetRef="Gateway_17juvrg">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${summon=="No"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon == "No"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:intermediateThrowEvent id="Event_0ucv3d9" name="Geen nieuwe aanschrijvingen">
       <bpmn:incoming>Flow_1bdhjy8</bpmn:incoming>
@@ -338,6 +328,12 @@
       </bpmn:messageEventDefinition>
     </bpmn:intermediateThrowEvent>
     <bpmn:sequenceFlow id="Flow_1edot4o" sourceRef="Event_0ucv3d9" targetRef="Gateway_17juvrg" />
+    <bpmn:sequenceFlow id="Flow_1qjlcve" sourceRef="Activity_0mrrk5a" targetRef="Activity_1y8zuuq" />
+    <bpmn:scriptTask id="Activity_0mrrk5a">
+      <bpmn:incoming>Flow_00c85dv</bpmn:incoming>
+      <bpmn:outgoing>Flow_1qjlcve</bpmn:outgoing>
+      <bpmn:script>print("summon: %s" % summon)</bpmn:script>
+    </bpmn:scriptTask>
   </bpmn:process>
   <bpmn:message id="Message_053q3rk" name="aanschrijving_toevoegen" />
   <bpmn:message id="Message_1jr43p4" name="zaak_compleet_afsluiten" />
@@ -414,8 +410,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_00c85dv_di" bpmnElement="Flow_00c85dv">
         <di:waypoint x="780" y="665" />
-        <di:waypoint x="780" y="280" />
-        <di:waypoint x="850" y="280" />
+        <di:waypoint x="780" y="330" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_19vfi33_di" bpmnElement="Flow_19vfi33">
         <di:waypoint x="805" y="690" />
@@ -429,6 +424,10 @@
         <di:waypoint x="465" y="690" />
         <di:waypoint x="520" y="690" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qjlcve_di" bpmnElement="Flow_1qjlcve">
+        <di:waypoint x="830" y="290" />
+        <di:waypoint x="850" y="290" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Gateway_1dtewmn_di" bpmnElement="Gateway_1dtewmn" isMarkerVisible="true">
         <dc:Bounds x="415" y="665" width="50" height="50" />
       </bpmndi:BPMNShape>
@@ -438,9 +437,21 @@
       <bpmndi:BPMNShape id="Gateway_015tmcc_di" bpmnElement="Gateway_1j3mzmi">
         <dc:Bounds x="755" y="665" width="50" height="50" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ikjjf6_di" bpmnElement="Activity_0mrrk5a">
+        <dc:Bounds x="730" y="250" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_10pfv22_di" bpmnElement="Activity_10pfv22" isExpanded="true">
         <dc:Bounds x="850" y="590" width="840" height="350" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1j47ix2_di" bpmnElement="Flow_1j47ix2">
+        <di:waypoint x="1140" y="715" />
+        <di:waypoint x="1140" y="900" />
+        <di:waypoint x="1640" y="900" />
+        <di:waypoint x="1640" y="708" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1157" y="883" width="69" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1tjht5s_di" bpmnElement="Flow_1tjht5s">
         <di:waypoint x="1460" y="800" />
         <di:waypoint x="1640" y="800" />
@@ -471,15 +482,6 @@
       <bpmndi:BPMNEdge id="Flow_01ziset_di" bpmnElement="Flow_01ziset">
         <di:waypoint x="1320" y="690" />
         <di:waypoint x="1385" y="690" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1j47ix2_di" bpmnElement="Flow_1j47ix2">
-        <di:waypoint x="1140" y="715" />
-        <di:waypoint x="1140" y="900" />
-        <di:waypoint x="1640" y="900" />
-        <di:waypoint x="1640" y="708" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1157" y="883" width="69" height="14" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_052spnp_di" bpmnElement="Flow_052spnp">
         <di:waypoint x="1165" y="690" />

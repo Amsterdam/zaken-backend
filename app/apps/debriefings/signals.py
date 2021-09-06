@@ -1,5 +1,5 @@
-from apps.camunda.services import CamundaService
 from apps.debriefings.models import Debriefing
+from apps.workflow.models import Workflow
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -9,7 +9,7 @@ from django.dispatch import receiver
 )
 def complete_camunda_task_create_debrief(sender, instance, created, **kwargs):
     if created:
-        CamundaService().complete_task(
+        Workflow.complete_user_task(
             instance.camunda_task_id,
             {
                 "violation": {
@@ -17,3 +17,11 @@ def complete_camunda_task_create_debrief(sender, instance, created, **kwargs):
                 }
             },
         )
+        # CamundaService().complete_task(
+        #     instance.camunda_task_id,
+        #     {
+        #         "violation": {
+        #             "value": instance.violation,
+        #         }
+        #     },
+        # )

@@ -254,6 +254,7 @@ AUTHENTICATION_BACKENDS = (
     "apps.users.auth.AuthenticationBackend",
 )
 
+AXES_RESET_ON_SUCCESS = True
 
 # Simple JWT is used for local development authentication only.
 SIMPLE_JWT = {
@@ -464,14 +465,18 @@ VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER = os.getenv(
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-VAKANTIEVERHUUR_PROCCESSES = {
-    "main_proccess": "aza_wonen_local_vakantieverhuur_regie",
-    "proccess_files": [
-        "aza_wonen_global_afronden_zaak.bpmn",
-        "aza_wonen_global_voornemen_afzien.bpmn",
-        "aza_wonen_global_decision.bpmn",
-        "aza_wonen_global_summon.bpmn",
-        "aza_wonen_global_visit.bpmn",
-        "aza_wonen_local_vakantieverhuur_regie.bpmn",
-    ],
+WORKFLOWS = {
+    "VAKANTIEVERHUUR_WORKFLOW": {
+        "main_proccess": "aza_wonen_local_vakantieverhuur_regie",
+        "proccess_files": [
+            "aza_wonen_global_afronden_zaak.bpmn",
+            "aza_wonen_global_voornemen_afzien.bpmn",
+            "aza_wonen_global_decision.bpmn",
+            "aza_wonen_global_summon.bpmn",
+            "aza_wonen_global_visit.bpmn",
+            "aza_wonen_local_vakantieverhuur_regie.bpmn",
+        ],
+    }
 }
+
+DEFAULT_WORKFLOW = "VAKANTIEVERHUUR_WORKFLOW"

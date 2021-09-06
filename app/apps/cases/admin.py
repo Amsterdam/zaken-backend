@@ -60,8 +60,18 @@ class CaseStateAdmin(admin.ModelAdmin):
         "status",
         "start_date",
         "end_date",
+        "case_process_id",
     )
     list_filter = ("status", "end_date")
+
+
+@admin.register(CaseStateType)
+class CaseStateTypeAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "theme",
+    )
 
 
 @admin.register(CitizenReport)
@@ -130,6 +140,5 @@ class CaseProcessInstanceAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(CaseStateType, admin.ModelAdmin)
 admin.site.register(CaseTheme, admin.ModelAdmin)
 admin.site.register(CaseClose, admin.ModelAdmin)

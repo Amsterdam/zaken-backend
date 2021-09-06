@@ -66,6 +66,8 @@ from apps.users.permissions import (
 )
 from apps.visits.models import Visit
 from apps.visits.serializers import VisitSerializer
+from apps.workflow.models import Workflow
+from apps.workflow.serializers import WorkflowSerializer
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -300,77 +302,10 @@ class CaseViewSet(
     @action(detail=True, methods=["get"], url_path="tasks")
     def get_tasks(self, request, pk):
         case = self.get_object()
-        user = request.user
-        camunda_tasks = []
+        request.user
 
-        for state in case.case_states.filter(end_date__isnull=True):
-            tasks = CamundaService().get_all_tasks_by_instance_id(state.case_process_id)
-            if tasks:
-                camunda_tasks.extend([{"state": state, "tasks": tasks}])
+        serializer = WorkflowSerializer(Workflow.objects.filter(case=case), many=True)
 
-        # FIXME Legacy code remove when we can
-        tasks = []
-        already_known_camunda_ids = [
-            state.case_process_id
-            for state in case.case_states.filter(end_date__isnull=True)
-        ]
-        for camunda_id in case.camunda_ids:
-            if camunda_id in already_known_camunda_ids:
-                continue
-
-            state_tasks = CamundaService().get_all_tasks_by_instance_id(camunda_id)
-
-            if state_tasks:
-                try:
-                    process_instance = CaseProcessInstance.objects.get(
-                        camunda_process_id=camunda_id
-                    )
-                    state = CaseState.objects.filter(
-                        case_process_id=process_instance.process_id,
-                        end_date__isnull=True,
-                    ).last()
-                    if state:
-                        camunda_tasks.extend([{"state": state, "tasks": state_tasks}])
-                    else:
-                        tasks.extend(state_tasks)
-                except (CaseProcessInstance.DoesNotExist, CaseState.DoesNotExist) as e:
-                    print(f"tasks CaseProcessInstance or CaseState error {e}")
-                    tasks.extend(state_tasks)
-
-        if len(tasks):
-            case_state, _ = CaseStateType.objects.get_or_create(
-                name="Geen Status", theme=case.theme
-            )
-            state = CaseState(
-                case=case, status=case_state, start_date=datetime.date.today()
-            )
-            camunda_tasks.extend([{"state": state, "tasks": tasks}])
-
-        # Camunda tasks can be an empty list or boolean. TODO: This should just be one datatype
-        if camunda_tasks is False:
-            return Response(
-                "Camunda service is offline",
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
-
-        for index in range(len(camunda_tasks)):
-            for task_index in range(len(camunda_tasks[index]["tasks"])):
-                task = camunda_tasks[index]["tasks"][task_index]
-
-                # Business rule; Except for create/close case every user
-                # with change_case permissions can perform this task.
-                if task["taskDefinitionKey"] == "task_close_case":
-                    # Business rule; Only users with close_case can
-                    # perform the last task.
-                    has_perm = user.has_perm("users.close_case")
-                else:
-                    has_perm = user.has_perm("users.perform_task")
-
-                camunda_tasks[index]["tasks"][task_index][
-                    "user_has_permission"
-                ] = has_perm
-
-        serializer = CamundaTaskWithStateSerializer(camunda_tasks, many=True)
         return Response(serializer.data)
 
     @extend_schema(
