@@ -207,19 +207,10 @@ class CamundaTaskViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             data = serializer.validated_data
 
-            # Task data can't be retrieved after it's been completed, so make sure to retrieve it first.
-            data["camunda_task_id"]
-
             variables = data.get("variables", {})
-
-            variables.update(
-                {
-                    "status_name": "Huisbezoek",
-                }
-            )
-
             data["variables"] = variables
-            data["description"] = data.get("name", "Generic Task")
+            task = Task.objects.filter(id=data["camunda_task_id"]).first()
+            data.update({"description": task.name if task else "Algemene taak"})
             GenericCompletedTask.objects.create(**data)
 
             Workflow.complete_user_task(data["camunda_task_id"], variables)

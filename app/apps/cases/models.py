@@ -178,11 +178,13 @@ class Case(ModelEventEmitter):
             state.end_date = timezone.now().date()
             state.save()
 
-        for camunda_id in self.camunda_ids:
-            from apps.camunda.services import CamundaService
+        self.workflows.all().delete()
 
-            CamundaService().delete_instance(camunda_id)
-            self.camunda_ids = []
+        # for camunda_id in self.camunda_ids:
+        #     from apps.camunda.services import CamundaService
+
+        #     CamundaService().delete_instance(camunda_id)
+        #     self.camunda_ids = []
 
         self.end_date = timezone.now().date()
         self.save()

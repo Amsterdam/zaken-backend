@@ -169,6 +169,7 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         address_data = validated_data.pop("address")
         address = Address.get(address_data.get("bag_id"))
+
         case = Case.objects.create(**validated_data, address=address)
         workflow_instance = Workflow.objects.create(
             case=case,
@@ -176,7 +177,6 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         workflow_instance.set_initial_data(
             data={"status_name": settings.DEFAULT_SCHEDULE_ACTIONS[0]}
         )
-        # workflow_instance.complete_user_task_and_create_new_user_tasks()
 
         return case
 

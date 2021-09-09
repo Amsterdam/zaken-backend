@@ -7,6 +7,7 @@ from .models import Task, Workflow
 class TaskAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "task_id",
         "name",
         "task_name_id",
         "completed",

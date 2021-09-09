@@ -1,6 +1,6 @@
-from apps.camunda.services import CamundaService
 from apps.cases.models import Case, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
+from apps.workflow.models import Workflow
 from django.conf import settings
 from django.db import models
 
@@ -68,7 +68,7 @@ class Summon(TaskModelEventEmitter):
         return f"{self.id} Summon - {self.type} - Case {self.case.id}"
 
     def complete_camunda_task(self):
-        response = CamundaService().complete_task(
+        Workflow.complete_user_task(
             self.camunda_task_id,
             {
                 "type_aanschrijving": {"value": self.type.camunda_option},
@@ -80,7 +80,19 @@ class Summon(TaskModelEventEmitter):
                 "summon_id": {"value": self.id},
             },
         )
-        return response
+        # response = CamundaService().complete_task(
+        #     self.camunda_task_id,
+        #     {
+        #         "type_aanschrijving": {"value": self.type.camunda_option},
+        #         "names": {
+        #             "value": ", ".join(
+        #                 [person.__str__() for person in self.persons.all()]
+        #             )
+        #         },
+        #         "summon_id": {"value": self.id},
+        #     },
+        # )
+        return True
 
 
 class SummonedPerson(models.Model):

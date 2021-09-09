@@ -475,6 +475,7 @@ WORKFLOWS = {
             "aza_wonen_global_summon.bpmn",
             "aza_wonen_global_visit.bpmn",
             "aza_wonen_local_vakantieverhuur_regie.bpmn",
+            "sub.bpmn",
         ],
     }
 }

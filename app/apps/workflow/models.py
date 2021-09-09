@@ -1,3 +1,5 @@
+from string import Template
+
 from apps.cases.models import Case
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -36,10 +38,27 @@ class Workflow(models.Model):
         return file_name.split(".")[0]
 
     def _task_form_to_python(self, form):
-        return {
-            "form": {"key": form.key},
-            "fields": [f.__dict__ for f in form.fields],
+        trans_types = {
+            "enum": "select",
+            "boolean": "checkbox",
         }
+        fields = [
+            {
+                **f.__dict__,
+                "options": [
+                    {
+                        **o.__dict__,
+                        "value": o.__dict__.get("id"),
+                        "label": o.__dict__.get("name"),
+                    }
+                    for o in f.__dict__.get("options", [])
+                ],
+                "name": f.__dict__.get("id"),
+                "type": trans_types.get(f.__dict__.get("type"), "text"),
+            }
+            for f in form.fields
+        ]
+        return fields  # [f.__dict__ for f in form.fields]
 
     def get_serializer(self):
         return self.serializer()
@@ -77,39 +96,63 @@ class Workflow(models.Model):
     def _print_task_data(self, wf):
         print("START: print data")
         print(wf.name)
-        if wf.outer_workflow:
-            print("outer_workflow")
-            print(wf.outer_workflow.name)
-        print(wf.script_engine)
         print(wf.dump())
         for t in wf.get_tasks():
             print("-")
+            print(t.get_state_name())
+            print(t.workflow.name)
             print(t.task_spec.name)
-            if hasattr(t.task_spec, "script"):
-                print(t.task_spec.script)
-            print(t.task_spec.data)
+            print(t.last_state_change)
+            print(t.state_history)
+            print(t.log)
             print(t.data)
+            print(t.task_info())
         print("END: print data")
 
-    def get_user_task_form(self, task_name):
-        ready_tasks = self.wf.get_ready_user_tasks()
-        tasks = [t for t in ready_tasks if t.task_spec.name == task_name]
-        if not tasks or len(tasks) > 1:
-            return {}
-        return self._task_form_to_python(tasks[0].task_spec.form)
+    def get_user_task_form(self, task_id):
+        wf = self.get_or_restore_workflow_state()
+        task = wf.get_task(task_id)
+        if task:
+            return self._task_form_to_python(task.task_spec.form)
+        return []
+
+    def set_canceled_tasks_to_completed(self, wf):
+        # some tasks are absolete after wf.do_engine_steps or wf.refresh_waiting_tasks
+        cancelled_tasks_ids = [t.id for t in wf.get_tasks(SpiffWorkflowTask.CANCELLED)]
+
+        # cleanup: sets dj tasks to completed if exists in spiff cancelled tasks
+        task_instances = Task.objects.filter(
+            task_id__in=cancelled_tasks_ids,
+            workflow=self,
+            completed=False,
+        )
+        print(task_instances.all().values_list("id", flat=True))
+        task_instances.update(completed=True)
+
+        print("cancelled_tasks_ids")
+        print(cancelled_tasks_ids)
+
+        return cancelled_tasks_ids
 
     def create_user_tasks(self, ready_tasks):
-        from string import Template
 
         task_data = [
             Task(
+                task_id=task.id,
                 task_name_id=task.task_spec.name,
                 name=Template(task.task_spec.description).safe_substitute(task.data),
                 roles=[r.strip() for r in task.task_spec.lane.split(",")],
+                form=self._task_form_to_python(task.task_spec.form),
                 case=self.case,
                 workflow=self,
             )
             for task in ready_tasks
+            if not Task.objects.filter(
+                task_id=task.id,
+                task_name_id=task.task_spec.name,
+                completed=False,
+                workflow=self,
+            )
         ]
 
         task_instances = Task.objects.bulk_create(task_data)
@@ -117,47 +160,41 @@ class Workflow(models.Model):
         return task_instances
 
     @staticmethod
-    def complete_user_task(task_id, data):
-        task = Task.objects.get(id=task_id)
-        task.workflow.complete_user_task_and_create_new_user_tasks(
-            task.task_name_id, data
-        )
+    def complete_user_task(id, data):
+        task = Task.objects.get(id=id)
+        print("complete_user_task")
+        print(task)
+        task.workflow.complete_user_task_and_create_new_user_tasks(task.task_id, data)
 
-    def complete_user_task_and_create_new_user_tasks(self, task_name=None, data=None):
+    def complete_user_task_and_create_new_user_tasks(self, task_id=None, data=None):
         wf = self.get_or_restore_workflow_state()
 
         wf.do_engine_steps()
-        ready_tasks = wf.get_ready_user_tasks()
+        task = wf.get_task(task_id)
 
-        # # complete not UserTasks
-        # for task in ready_tasks:
-        #     if not isinstance(task.task_spec, UserTask):
-        #         wf.complete_task_from_id(task.id)
+        if task and isinstance(task.task_spec, UserTask):
+            task.update_data(data)
+            wf.complete_task_from_id(task.id)
+            wf.do_engine_steps()
+            self.save_workflow_state(wf)
 
-        tasks = [t for t in ready_tasks if t.task_spec.name == task_name]
-        if not tasks or len(tasks) > 1 and not isinstance(tasks[0].task_spec, UserTask):
-            return
-
-        task = tasks[0]
         self._print_task_data(wf)
 
-        task.update_data(data)
-        wf.complete_task_from_id(task.id)
-        wf.do_engine_steps()
-        ready_tasks = wf.get_ready_user_tasks()
+        task_instance = Task.objects.filter(
+            workflow=self,
+            task_id=task_id,
+            completed=False,
+        ).first()
+        if task_instance:
+            task_instance.complete()
 
-        self.save_workflow_state(wf)
-
-        task_instance = Task.objects.get(workflow=self, task_name_id=task_name)
-        task_instance.complete()
-
-        self.create_user_tasks(
-            [task for task in ready_tasks if isinstance(task.task_spec, UserTask)]
-        )
+        self.set_canceled_tasks_to_completed(wf)
+        self.create_user_tasks(wf.get_ready_user_tasks())
 
     def save_workflow_state(self, wf):
-        state = self.get_serializer().serialize_workflow(wf)
+        state = self.get_serializer().serialize_workflow(wf, include_spec=False)
         self.serialized_workflow_state = state
+        print("SAVE WORKFLOW")
         self.save()
 
     def get_or_restore_workflow_state(self, do_engine_steps=True):
@@ -165,7 +202,7 @@ class Workflow(models.Model):
         if self.serialized_workflow_state:
             print("RESTORE WORKFLOW")
             wf = self.get_serializer().deserialize_workflow(
-                self.serialized_workflow_state, workflow_spec=None
+                self.serialized_workflow_state, workflow_spec=self.get_workflow_spec()
             )
             wf = self.get_script_engine(wf)
             return wf
@@ -185,14 +222,41 @@ class Workflow(models.Model):
         first_task.update_data(data)
         first_task.task_spec.set_data(**data)
 
+        # changes the workflow
         self._print_task_data(wf)
 
         wf.do_engine_steps()
-        ready_tasks = wf.get_ready_user_tasks()
 
+        # no changes to the workflow after this point
         self.save_workflow_state(wf)
-        self.create_user_tasks(ready_tasks)
+
+        self.set_canceled_tasks_to_completed(wf)
+        self.create_user_tasks(wf.get_ready_user_tasks())
         return wf
+
+    def update_workflow(self):
+        # call this on a regular bases to complete tasks that are time related
+
+        wf = self.get_or_restore_workflow_state()
+        print(f"START CASE ID:{self.case.id}")
+
+        print("all_waiting_tasks")
+        print(wf.get_tasks(SpiffWorkflowTask.WAITING))
+
+        # changes the workflow
+        wf.refresh_waiting_tasks()
+        wf.do_engine_steps()
+
+        print("remaining_waiting_tasks")
+        print(wf.get_tasks(SpiffWorkflowTask.WAITING))
+
+        # no changes to the workflow after this point
+        self.save_workflow_state(wf)
+
+        self.set_canceled_tasks_to_completed(wf)
+        self.create_user_tasks(wf.get_ready_user_tasks())
+
+        print(f"END CASE ID:{self.case.id}")
 
     def __str__(self):
         return f"{self.id}, case: {self.case.id}"
@@ -202,11 +266,19 @@ class Task(models.Model):
     completed = models.BooleanField(
         default=False,
     )
+    task_id = models.UUIDField(
+        unique=True,
+    )
     name = models.CharField(
         max_length=255,
     )
     task_name_id = models.CharField(
         max_length=255,
+    )
+    form = models.JSONField(
+        default=list,
+        null=True,
+        blank=True,
     )
     roles = ArrayField(
         base_field=models.CharField(max_length=255),
@@ -226,9 +298,9 @@ class Task(models.Model):
         on_delete=models.CASCADE,
     )
 
+    def get_form_variables(self):
+        return {}
+
     def complete(self):
         self.completed = True
         self.save()
-
-    class Meta:
-        unique_together = [["task_name_id", "workflow"]]

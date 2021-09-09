@@ -10,6 +10,7 @@ from .models import Task, Workflow
 class TaskSerializer(serializers.ModelSerializer):
     user_has_permission = serializers.SerializerMethodField()
     camunda_task_id = serializers.CharField(source="id")
+    form_variables = serializers.Serializer(source="get_form_variables")
 
     @extend_schema_field(serializers.BooleanField)
     def get_user_has_permission(self, obj):
