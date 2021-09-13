@@ -101,7 +101,6 @@
         <camunda:in source="endpoint" target="endpoint" />
         <camunda:in source="zaken_access_token" target="zaken_access_token" />
         <camunda:in source="status_name" target="status_name" />
-        <camunda:in source="${execution.getProcessInstanceId()}" target="super_proces" />
         <camunda:in source="names" target="names" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0nnxs73</bpmn:incoming>
@@ -115,7 +114,6 @@
         <camunda:in source="endpoint" target="endpoint" />
         <camunda:in source="zaken_access_token" target="zaken_access_token" />
         <camunda:in source="status_name" target="status_name" />
-        <camunda:in source="${execution.getProcessInstanceId()}" target="super_proces" />
         <camunda:out source="next_step" target="next_step" />
         <camunda:in source="names" target="names" />
         <camunda:in source="summon_id" target="summon_id" />
@@ -136,7 +134,6 @@
         <camunda:in source="endpoint" target="endpoint" />
         <camunda:in source="zaken_access_token" target="zaken_access_token" />
         <camunda:in source="status_name" target="status_name" />
-        <camunda:in source="${execution.getProcessInstanceId()}" target="super_proces" />
         <camunda:out source="next_step" target="next_step" />
         <camunda:out source="names" target="names" />
         <camunda:out source="summon_id" target="summon_id" />
@@ -146,17 +143,17 @@
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_06ydzdq" sourceRef="Activity_0n6ahzn" targetRef="Gateway_0cfbiek" />
     <bpmn:sequenceFlow id="Flow_0nnxs73" name="Alsnog afzien besluit" sourceRef="Gateway_0cfbiek" targetRef="Activity_0l1z1qy">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${next_step=="renounce"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "renounce"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_104a0sv" name="Afzien besluit" sourceRef="Gateway_1r31rnt" targetRef="Activity_0l1z1qy">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step == "renounce"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "renounce"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_06sjabw" sourceRef="Activity_0l1z1qy" targetRef="Gateway_17juvrg" />
     <bpmn:sequenceFlow id="Flow_0bq1d3y" name="Afsluiten zaak" sourceRef="Gateway_1r31rnt" targetRef="Gateway_17juvrg">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step == "close_case"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "close_case"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_02ymmf5" name="Besluit" sourceRef="Gateway_1r31rnt" targetRef="Activity_0n6ahzn">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step == "decision"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "decision"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1hbdy3s" sourceRef="Activity_1fmgozr" targetRef="Gateway_1r31rnt" />
     <bpmn:sequenceFlow id="Flow_0u4j5g1" sourceRef="Gateway_1j3mzmi" targetRef="Activity_1fmgozr" />

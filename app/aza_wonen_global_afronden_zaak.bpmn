@@ -49,7 +49,16 @@
       <bpmn:incoming>Flow_1s97xge</bpmn:incoming>
       <bpmn:outgoing>Flow_0kd2iyb</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_close_case" name="Afsluiten zaak" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_close_case" name="Afsluiten zaak" camunda:formKey="form" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="FormField_3eknr4k" label="Gedaan?" type="boolean">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_1vtkvzt</bpmn:incoming>
       <bpmn:outgoing>Flow_0dcdsq9</bpmn:outgoing>
     </bpmn:userTask>

@@ -175,7 +175,10 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
             case=case,
         )
         workflow_instance.set_initial_data(
-            data={"status_name": settings.DEFAULT_SCHEDULE_ACTIONS[0]}
+            data={
+                "status_name": settings.DEFAULT_SCHEDULE_ACTIONS[0],
+                "timer_boundry_duration": "test",
+            }
         )
 
         return case

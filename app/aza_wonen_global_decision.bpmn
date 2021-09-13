@@ -14,7 +14,6 @@
         <bpmn:flowNodeRef>task_create_decision</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0eecx50</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_12m82bc</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_1tl73nx</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_14kdv7u</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_14226b3</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0czeehc</bpmn:flowNodeRef>
@@ -23,13 +22,32 @@
         <bpmn:flowNodeRef>Gateway_0h8vjtw</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0f59geq</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_00tie97</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1tl73nx</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:userTask id="Activity_1j6vc31" name="Nakijken besluit" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+    <bpmn:userTask id="Activity_1j6vc31" name="Nakijken besluit" camunda:formKey="form" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="FormField_19ujdh2" label="Gedaan?" type="boolean">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_0pifsrz</bpmn:incoming>
       <bpmn:outgoing>Flow_0q95btx</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_08cj18o" name="Opstellen concept besluit" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="Activity_08cj18o" name="Opstellen concept besluit" camunda:formKey="form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="FormField_3113shb" label="Gedaan?" type="boolean">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_1iai8dg</bpmn:incoming>
       <bpmn:outgoing>Flow_0pifsrz</bpmn:outgoing>
     </bpmn:userTask>
@@ -59,21 +77,26 @@
       <bpmn:outgoing>Flow_1fjclix</bpmn:outgoing>
       <bpmn:outgoing>Flow_0azm62q</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="Activity_1tl73nx" name="Contacteren stadsdeel" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
-      <bpmn:incoming>Flow_1boz1xa</bpmn:incoming>
-      <bpmn:outgoing>Flow_1r2nz2z</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:userTask id="Activity_14kdv7u" name="Versturen invordering belastingen" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="Activity_14kdv7u" name="Versturen invordering belastingen" camunda:formKey="form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="FormField_1n7pn3g" label="Gedaan?" type="boolean">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_15jrvwj</bpmn:incoming>
       <bpmn:outgoing>Flow_10vmiho</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:endEvent id="Event_14226b3" name="Uitzetten vervolgstap">
       <bpmn:incoming>Flow_005h6w2</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:scriptTask id="Activity_0czeehc" name="next_step = &#34;renounce&#34;" scriptFormat="groovy">
+    <bpmn:scriptTask id="Activity_0czeehc" name="next_step = {&#34;value&#34;: &#34;renounce&#34;}">
       <bpmn:incoming>Flow_0azm62q</bpmn:incoming>
       <bpmn:outgoing>Flow_0p5ojnr</bpmn:outgoing>
-      <bpmn:script>next_step = "renounce"</bpmn:script>
+      <bpmn:script>next_step = {"value": "renounce"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="Event_1hipcpo">
       <bpmn:incoming>Flow_0p5ojnr</bpmn:incoming>
@@ -112,11 +135,24 @@
       <bpmn:incoming>Flow_1mn1e0n</bpmn:incoming>
       <bpmn:outgoing>Flow_0tzy074</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:scriptTask id="Activity_00tie97" name="next_step = &#34;close_case&#34;" scriptFormat="groovy">
+    <bpmn:scriptTask id="Activity_00tie97" name="next_step = {&#34;value&#34;: &#34;close_case&#34;}">
       <bpmn:incoming>Flow_0tzy074</bpmn:incoming>
       <bpmn:outgoing>Flow_005h6w2</bpmn:outgoing>
-      <bpmn:script>next_step = "close_case"</bpmn:script>
+      <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
     </bpmn:scriptTask>
+    <bpmn:userTask id="Activity_1tl73nx" name="Contacteren stadsdeel" camunda:formKey="form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="FormField_2hv9gh0" label="Gedaan?">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1boz1xa</bpmn:incoming>
+      <bpmn:outgoing>Flow_1r2nz2z</bpmn:outgoing>
+    </bpmn:userTask>
   </bpmn:process>
   <bpmn:message id="Message_1k5s52q" name="start_decision_process" />
   <bpmn:message id="Message_145ctpk" name="start_decision_process" />

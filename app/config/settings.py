@@ -475,9 +475,17 @@ WORKFLOWS = {
             "aza_wonen_global_summon.bpmn",
             "aza_wonen_global_visit.bpmn",
             "aza_wonen_local_vakantieverhuur_regie.bpmn",
-            "sub.bpmn",
         ],
-    }
+    },
+    "SIGNAL_WORKFLOW": {
+        "main_proccess": "zaak_wonen_subprocesses",
+        "proccess_files": [
+            "zaak_wonen_subprocesses.bpmn",
+        ],
+    },
 }
 
-DEFAULT_WORKFLOW = "VAKANTIEVERHUUR_WORKFLOW"
+VAKANTIEVERHUUR_WORKFLOW = WORKFLOWS["VAKANTIEVERHUUR_WORKFLOW"]
+SIGNAL_WORKFLOW = WORKFLOWS["SIGNAL_WORKFLOW"]
+
+DEFAULT_WORKFLOW = VAKANTIEVERHUUR_WORKFLOW

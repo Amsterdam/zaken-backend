@@ -253,15 +253,16 @@
       <bpmn:outgoing>Flow_1h52pjq</bpmn:outgoing>
       <bpmn:script>set_status("To timer")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="Activity_1354ujx" name="summon.value = &#34;No&#34;">
+    <bpmn:scriptTask id="Activity_1354ujx" name="summon.value = &#34;No&#34;&#10;">
       <bpmn:incoming>Flow_12y12qm</bpmn:incoming>
       <bpmn:outgoing>Flow_0g1830o</bpmn:outgoing>
-      <bpmn:script>summon = {"value": "No"}</bpmn:script>
+      <bpmn:script>summon = {"value": "No"}
+print("set summon")</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:boundaryEvent id="Event_0kmw6bf" name="Wait" attachedToRef="Activity_1j8ayf7">
       <bpmn:outgoing>Flow_12y12qm</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_1ssoyq4">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(seconds=140)</bpmn:timeDuration>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(seconds=1)</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="Flow_08m5xl9" sourceRef="Activity_1es16cn" targetRef="Event_1kkhxmk" />

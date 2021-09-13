@@ -9,7 +9,6 @@ from apps.camunda.serializers import (
     CamundaTaskSerializer,
     CamundaTaskWithStateSerializer,
 )
-from apps.camunda.services import CamundaService
 from apps.cases.mock import mock
 from apps.cases.models import (
     Case,
@@ -344,10 +343,13 @@ class CaseViewSet(
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
-            response = False
             data = serializer.validated_data
             instance = data["camunda_process_id"]
-
+            subprocesses = Workflow.get_spec_names_by_process_id().get(
+                "zaak_wonen_subprocesses", settings.SIGNAL_WORKFLOW
+            )
+            print(subprocesses)
+            print(instance.camunda_message_name)
             try:
                 case = Case.objects.get(id=pk)
             except Case.DoesNotExist:
@@ -356,43 +358,55 @@ class CaseViewSet(
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
-            if instance.to_directing_proccess:
-                response = CamundaService().send_message_to_process_instance(
-                    message_name=instance.camunda_message_name,
-                    process_instance_id=case.directing_process,
-                )
-            else:
-                case_process_instance = CaseProcessInstance.objects.create(case=case)
-                case_process_id = case_process_instance.process_id.__str__()
+            workflow_instance = Workflow.objects.create(
+                case=case,
+                workflow_spec=subprocesses,
+            )
+            workflow_instance.message(
+                instance.camunda_message_name, "payload", "resultVar"
+            )
+            return Response(
+                data=f"Process has started {str(instance)}",
+                status=status.HTTP_200_OK,
+            )
 
-                response = CamundaService().send_message(
-                    message_name=instance.camunda_message_name,
-                    case_identification=case.id,
-                    case_process_id=case_process_id,
-                )
+            # if instance.to_directing_proccess:
+            #     response = CamundaService().send_message_to_process_instance(
+            #         message_name=instance.camunda_message_name,
+            #         process_instance_id=case.directing_process,
+            #     )
+            # else:
+            #     case_process_instance = CaseProcessInstance.objects.create(case=case)
+            #     case_process_id = case_process_instance.process_id.__str__()
 
-                try:
-                    json_response = response.json()[0]
-                    camunda_process_id = json_response["processInstance"]["id"]
-                except Exception:
-                    return Response(
-                        data=f"Camunda process has not started. Json response not valid {str(response.content)}",
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    )
+            #     response = CamundaService().send_message(
+            #         message_name=instance.camunda_message_name,
+            #         case_identification=case.id,
+            #         case_process_id=case_process_id,
+            #     )
 
-                case_process_instance.camunda_process_id = camunda_process_id
-                case_process_instance.save()
+            #     try:
+            #         json_response = response.json()[0]
+            #         camunda_process_id = json_response["processInstance"]["id"]
+            #     except Exception:
+            #         return Response(
+            #             data=f"Camunda process has not started. Json response not valid {str(response.content)}",
+            #             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            #         )
 
-            if response:
-                return Response(
-                    data=f"Process has started {str(response.content)}",
-                    status=status.HTTP_200_OK,
-                )
-            else:
-                return Response(
-                    data=f"Camunda process has not started. Camunda request failed: {response}",
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
+            #     case_process_instance.camunda_process_id = camunda_process_id
+            #     case_process_instance.save()
+
+            # if response:
+            #     return Response(
+            #         data=f"Process has started {str(response.content)}",
+            #         status=status.HTTP_200_OK,
+            #     )
+            # else:
+            #     return Response(
+            #         data=f"Camunda process has not started. Camunda request failed: {response}",
+            #         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            #     )
 
         return Response(
             data="Camunda process has not started. serializer not valid",
