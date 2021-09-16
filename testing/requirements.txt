@@ -1,0 +1,5 @@
+# for making requests to the api
+requests==2.26.0
+
+# for generating fake data
+Faker==8.13.2
