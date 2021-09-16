@@ -48,8 +48,7 @@ case_mock = {
 }
 
 
-def get_suite(api):
-
+def get_flows(api):
     # Fetch some usefull data from API
     CaseCloseReasons = api.call("get", f"/themes/{Theme}/case-close-reasons/")[
         "results"
@@ -68,7 +67,7 @@ def get_suite(api):
                     day_segment=DaySegments["DAYTIME"],
                     priority=Priorities["HIGH"],
                 ),
-                VisitUserTask(  # should be TopTask ??
+                VisitUserTask(  # TODO: should be Top-Task?
                     "task_create_visit",
                     authors=[author],
                     start_time="2021-09-14T14:39:19.009Z",

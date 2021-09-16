@@ -3,7 +3,7 @@ import os
 import unittest
 
 from api import API
-from themes import vakantieverhuur  # , nogiets
+from themes import holiday_rental  # , anothertheme
 
 host = os.environ.get("API_HOST", "http://localhost:8080/api/v1")
 loglevel = os.environ.get("LOGLEVEL", "WARNING")
@@ -15,16 +15,15 @@ class TestVisitFlow(unittest.TestCase):
     def setUp(self):
         self.api = API(host)
 
-    def test_flows(self):
-        all_suites = [
-            vakantieverhuur.get_suite(self.api),
-            # nogiets.flows
+    def test_suites(self):
+        themes = [
+            holiday_rental,
+            # anotherteam,
         ]
-        for theme_suite in all_suites:
-            for flow in theme_suite:
-                case = flow.run(self.api)
-                open_tasks = self.api.get_tasks_for_case_id(case["id"])
-                self.assertEqual(len(open_tasks), 0)
+        for theme in themes:
+            flows = theme.get_flows(self.api)
+            for flow in flows:
+                flow.run(self.api)
 
 
 if __name__ == "__main__":
