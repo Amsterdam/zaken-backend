@@ -33,7 +33,7 @@ django-solo==1.1.5
 django-spaghetti-and-meatballs==0.4.2
 django-timezone-field==4.2.1
 djangorestframework==3.12.4
-djangorestframework-simplejwt==4.7.2
+djangorestframework-simplejwt==4.8.0
 drf-spectacular==0.17.2
 Faker==8.10.3
 freezegun==1.1.0
