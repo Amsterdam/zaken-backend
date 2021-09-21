@@ -1,22 +1,46 @@
+import os
 from string import Template
 
 from apps.cases.models import Case
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.shortcuts import get_object_or_404
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
-from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.serializer.BpmnSerializer import (
+    BpmnSerializer,  # as SpiffBpmnSerializer
+)
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow  # as SpiffBpmnWorkflow
 from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.task import Task as SpiffWorkflowTask
+
+from .utils import workflow_health_check
 
 
 def get_workflow_spec_choices():
     return [[k, k] for k, v in settings.WORKFLOWS.items()]
 
 
+def get_workflow_version_choices():
+    return [[v, v] for v in settings.WORKFLOW_VERSIONS]
+
+
+def get_base_path():
+    return os.path.dirname(os.path.realpath(__file__))
+
+
+get_base_path()
+
+
 class Workflow(models.Model):
+    WORKFLOW_TYPE_MAIN = "main_workflow"
+    WORKFLOW_TYPE_SUB = "sub_workflow"
+    WORKFLOW_TYPES = (
+        (WORKFLOW_TYPE_MAIN, WORKFLOW_TYPE_MAIN),
+        (WORKFLOW_TYPE_SUB, WORKFLOW_TYPE_SUB),
+    )
+
     case = models.ForeignKey(
         to=Case,
         related_name="workflows",
@@ -24,69 +48,85 @@ class Workflow(models.Model):
         null=True,
         blank=True,
     )
-    workflow_spec = models.CharField(
-        max_length=100,
-        choices=get_workflow_spec_choices(),
-        default=get_workflow_spec_choices()[0][0],
+    # workflow_spec = models.CharField(
+    #     max_length=100,
+    #     choices=get_workflow_spec_choices(),
+    #     default=get_workflow_spec_choices()[0][0],
+    # )
+    main_workflow = models.BooleanField(
+        default=False,
     )
+    workflow_type = models.CharField(
+        max_length=100,
+        choices=WORKFLOW_TYPES,
+        default=WORKFLOW_TYPES[0][0],
+    )
+    workflow_version = models.CharField(
+        max_length=100,
+        choices=get_workflow_version_choices(),
+        default=get_workflow_version_choices()[0][0],
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    # initial_message = models.CharField(
+    #     max_length=100,
+    #     null=True,
+    #     blank=True,
+    # )
     serialized_workflow_state = models.JSONField(null=True)
     data = models.JSONField(null=True)
 
     serializer = BpmnSerializer
-    proccess_conf = settings.DEFAULT_WORKFLOW
+
+    def save(self, *args, **kwargs):
+        self.data = self.data if isinstance(self.data, dict) else {}
+        return super().save(*args, **kwargs)
 
     def _get_strip_extensie(self, file_name):
         return file_name.split(".")[0]
 
-    def _task_form_to_python(self, form):
-        trans_types = {
-            "enum": "select",
-            "boolean": "checkbox",
-        }
-        fields = [
-            {
-                **f.__dict__,
-                "options": [
-                    {
-                        **o.__dict__,
-                        "value": o.__dict__.get("id"),
-                        "label": o.__dict__.get("name"),
-                    }
-                    for o in f.__dict__.get("options", [])
-                ],
-                "name": f.__dict__.get("id"),
-                "validation": [v.__dict__ for v in f.__dict__.get("validation", [])],
-                "type": trans_types.get(f.__dict__.get("type"), "text"),
-            }
-            for f in form.fields
-        ]
-        return fields
-
     def get_serializer(self):
         return self.serializer()
 
-    def get_workflow_spec(self, spec_file=None, sub_files=[]):
+    def get_workflow_path(self):
+        return os.path.join(
+            get_base_path(),
+            "bpmn_files",
+            self.case.theme.name.lower(),
+            self.workflow_version.lower(),
+            self.workflow_type.lower(),
+        )
+
+    def get_workflow_spec_files(self):
+        path = self.get_workflow_path()
+        return [
+            os.path.join(path, f)
+            for f in os.listdir(path)
+            if os.path.isfile(os.path.join(path, f))
+        ]
+
+    def get_workflow_spec(self):
+        print(self.get_workflow_spec_files())
+        spec = self._get_workflow_spec()
+        # print("Duplicate task spec ids: %s" % check_for_duplicate_task_spec_ids(spec))
+        return spec
+
+    def _get_workflow_spec(self):
         x = CamundaParser()
-        if spec_file and sub_files:
-            for f in sub_files:
-                x.add_bpmn_file(f)
-            x.add_bpmn_file(spec_file)
-            return x.get_spec(self._get_strip_extensie(spec_file))
-        else:
-            workflow_spec = settings.WORKFLOWS.get(
-                self.workflow_spec, settings.DEFAULT_WORKFLOW
-            )
-            for f in workflow_spec.get("proccess_files"):
-                x.add_bpmn_file(f)
-            return x.get_spec(workflow_spec.get("main_proccess"))
+        # workflow_spec = settings.WORKFLOWS.get(
+        #     workflow_spec_name, settings.DEFAULT_WORKFLOW
+        # )
+        for f in self.get_workflow_spec_files():
+            x.add_bpmn_file(f)
+        spec = x.get_spec(self.workflow_type)
+        return spec
 
     def first_task(self):
         wf = self.get_or_restore_workflow_state()
         tasks = wf.get_tasks()
-
         return tasks[0]
 
     def get_script_engine(self, wf):
+        # injects functions in workflow
         case = self.case
         workflow_instance = self
 
@@ -94,9 +134,55 @@ class Workflow(models.Model):
             print("set_status: %s" % input)
             case.set_state(input, workflow_instance)
 
+        def wait_for_workflows_and_send_message(message):
+            print("wait_for_workflows_and_send_message: %s" % message)
+            print("workflow id: %s" % workflow_instance.id)
+
+            workflow_instance.data.update(
+                {
+                    message: "done",
+                }
+            )
+            workflow_instance.save(update_fields=["data"])
+            all_workflows = Workflow.objects.filter(case=workflow_instance.case)
+
+            workflows_completed = [
+                a
+                for a in all_workflows.values_list("data", flat=True)
+                if a.get(message, "done")
+            ]
+            main_workflow = all_workflows.filter(main_workflow=True).first()
+
+            # tests if all workflows reached thit point
+            if len(workflows_completed) == all_workflows.count() and main_workflow:
+
+                # pick up all summons and pass them on to the main workflow
+                all_summons = [
+                    d.get("summon_id")
+                    for d in all_workflows.values_list("data", flat=True)
+                    if d.get("summon_id")
+                ]
+                messages = main_workflow.data.get("messages", [])
+
+                # add message to main workflow, this will tell only the main workflow to go on
+                messages.append(message)
+                main_workflow.data.update(
+                    {
+                        "messages": messages,
+                        "all_summons": all_summons,
+                    }
+                )
+                main_workflow.save(update_fields=["data"])
+                main_workflow.update_workflow()
+
+                # delete others
+                other_workflows = all_workflows.exclude(id=main_workflow.id)
+                other_workflows.delete()
+
         wf.script_engine = BpmnScriptEngine(
             scriptingAdditions={
                 "set_status": set_status,
+                "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
             }
         )
         return wf
@@ -104,7 +190,7 @@ class Workflow(models.Model):
     def _print_task_data(self, wf):
         print("START: print data")
         print(wf.name)
-        print(wf.dump())
+        wf.dump()
         for t in wf.get_tasks():
             print("-")
             print(t.get_state_name())
@@ -121,29 +207,52 @@ class Workflow(models.Model):
         wf = self.get_or_restore_workflow_state()
         task = wf.get_task(task_id)
         if task:
-            return self._task_form_to_python(task.task_spec.form)
+            return Task.parse_task_spec_form(task.task_spec.form)
         return []
 
-    def message(self, message_name, payload, resultVar):
+    def message(self, message_name, payload, resultVar, extra_data={}):
         wf = self.get_or_restore_workflow_state()
-        wf.do_engine_steps()
-        wf.message(message_name, payload, resultVar)
+
+        wf = self._update_workflow(wf)
+        wf = self._message(wf, message_name, payload, resultVar, extra_data)
+
         wf = self._update_workflow(wf)
         self.save_workflow_state(wf)
+        self._update_db(wf)
 
-    def set_canceled_tasks_to_completed(self, wf):
+    def accept_message(self, message_name):
+        wf = self.get_or_restore_workflow_state()
+
+        wf.accept_message(message_name)
+
+        wf = self._update_workflow(wf)
+        self.save_workflow_state(wf)
+        self._update_db(wf)
+
+    @staticmethod
+    def _message(wf, message_name, payload, resultVar, extra_data={}):
+
+        wf.message(message_name, payload, resultVar)
+        first_task = wf.get_tasks(SpiffWorkflowTask.READY)
+        if first_task and extra_data and isinstance(extra_data, dict):
+            first_task[0].update_data(extra_data)
+        return wf
+
+    def get_data(self):
+        wf = self.get_or_restore_workflow_state()
+        return wf.last_task.data
+
+    def set_absolete_tasks_to_completed(self, wf):
         # some tasks are absolete after wf.do_engine_steps or wf.refresh_waiting_tasks
-        cancelled_tasks_ids = [t.id for t in wf.get_tasks(SpiffWorkflowTask.CANCELLED)]
+        ready_tasks_ids = [t.id for t in wf.get_tasks(SpiffWorkflowTask.READY)]
 
-        # cleanup: sets dj tasks to completed if exists in spiff cancelled tasks
-        task_instances = Task.objects.filter(
-            task_id__in=cancelled_tasks_ids,
-            workflow=self,
-            completed=False,
+        # cleanup: sets dj tasks to completed
+        task_instances = self.tasks.all().exclude(
+            task_id__in=ready_tasks_ids,
         )
-        task_instances.update(completed=True)
+        updated = task_instances.update(completed=True)
 
-        return cancelled_tasks_ids
+        return updated
 
     def create_user_tasks(self, wf):
         ready_tasks = wf.get_ready_user_tasks()
@@ -153,7 +262,7 @@ class Workflow(models.Model):
                 task_name_id=task.task_spec.name,
                 name=Template(task.task_spec.description).safe_substitute(task.data),
                 roles=[r.strip() for r in task.task_spec.lane.split(",")],
-                form=self._task_form_to_python(task.task_spec.form),
+                form=Task.parse_task_spec_form(task.task_spec.form),
                 case=self.case,
                 workflow=self,
             )
@@ -161,7 +270,6 @@ class Workflow(models.Model):
             if not Task.objects.filter(
                 task_id=task.id,
                 task_name_id=task.task_spec.name,
-                completed=False,
                 workflow=self,
             )
         ]
@@ -174,6 +282,11 @@ class Workflow(models.Model):
         return dict((v.get("main_proccess"), k) for k, v in settings.WORKFLOWS.items())
 
     @staticmethod
+    def get_task_by_task_id(id):
+        task = get_object_or_404(Task, id=id)
+        return task
+
+    @staticmethod
     def complete_user_task(id, data):
         task = Task.objects.get(id=id)
         task.workflow.complete_user_task_and_create_new_user_tasks(task.task_id, data)
@@ -181,49 +294,46 @@ class Workflow(models.Model):
     def complete_user_task_and_create_new_user_tasks(self, task_id=None, data=None):
         wf = self.get_or_restore_workflow_state()
 
-        # wf.do_engine_steps()
         task = wf.get_task(task_id)
 
         if task and isinstance(task.task_spec, UserTask):
             task.update_data(data)
             wf.complete_task_from_id(task.id)
+            print("COMPLETE TASK: %s" % task.task_spec.name)
+        else:
+            print("COMPLETE TASK NOT FOUND: %s" % task_id)
 
-        self._print_task_data(wf)
         # changes the workflow
         wf = self._update_workflow(wf)
 
-        task_instance = Task.objects.filter(
-            workflow=self,
-            task_id=task_id,
-            completed=False,
-        ).first()
-        if task_instance:
-            task_instance.complete()
-
         # no changes to the workflow after this point
         self.save_workflow_state(wf)
+        self._update_db(wf)
+
+    def fast_forward(self, wf):
+        test_result = workflow_health_check(
+            wf.last_task.data, [t.task_spec.name for t in wf.get_ready_user_tasks()]
+        )
+        print(test_result)
 
     def save_workflow_state(self, wf):
-        # print(wf.last_task.data)
-        completed_tasks = wf.get_tasks(SpiffWorkflowTask.COMPLETED)
-        if completed_tasks:
-            self.data = completed_tasks[-1].data
+        if wf.last_task:
+            # update this workflow with the latest task data
+            self.data.update(wf.last_task.data)
+
         state = self.get_serializer().serialize_workflow(wf, include_spec=False)
         self.serialized_workflow_state = state
-        print("SAVE WORKFLOW")
+
         self.save()
 
-    def get_or_restore_workflow_state(self, do_engine_steps=True):
-
+    def get_or_restore_workflow_state(self):
         if self.serialized_workflow_state:
-            print("RESTORE WORKFLOW")
             wf = self.get_serializer().deserialize_workflow(
                 self.serialized_workflow_state, workflow_spec=self.get_workflow_spec()
             )
             wf = self.get_script_engine(wf)
             return wf
         else:
-            print("INIT WORKFLOW")
             wf = BpmnWorkflow(self.get_workflow_spec())
             self.save_workflow_state(wf)
             return self.get_or_restore_workflow_state()
@@ -241,39 +351,34 @@ class Workflow(models.Model):
         self._print_task_data(wf)
 
         # changes the workflow
-        # wf.do_engine_steps()
         wf = self._update_workflow(wf)
 
         # no changes to the workflow after this point
         self.save_workflow_state(wf)
+        self._update_db(wf)
         return wf
 
     def update_workflow(self):
         # call this on a regular bases to complete tasks that are time related
-
         wf = self.get_or_restore_workflow_state()
-        # print(f"START CASE ID:{self.case.id}")
-
-        # print("all_waiting_tasks")
-        # print(wf.get_tasks(SpiffWorkflowTask.WAITING))
 
         # changes the workflow
         wf = self._update_workflow(wf)
 
-        # print("remaining_waiting_tasks")
-        # print(wf.get_tasks(SpiffWorkflowTask.WAITING))
-
         # no changes to the workflow after this point
         self.save_workflow_state(wf)
-
-        # print(f"END CASE ID:{self.case.id}")
+        self._update_db(wf)
 
     def _update_workflow(self, wf):
+        for message in self.data.get("messages", []):
+            wf.accept_message(message)
         wf.refresh_waiting_tasks()
         wf.do_engine_steps()
-        self.set_canceled_tasks_to_completed(wf)
-        self.create_user_tasks(wf)
         return wf
+
+    def _update_db(self, wf):
+        self.set_absolete_tasks_to_completed(wf)
+        self.create_user_tasks(wf)
 
     def __str__(self):
         return f"{self.id}, case: {self.case.id}"
@@ -314,6 +419,56 @@ class Task(models.Model):
         related_name="tasks",
         on_delete=models.CASCADE,
     )
+
+    @staticmethod
+    def parse_task_spec_form(form):
+        trans_types = {
+            "enum": "select",
+            "boolean": "checkbox",
+        }
+        fields = [
+            {
+                **f.__dict__,
+                "options": [
+                    {
+                        **o.__dict__,
+                        "value": o.__dict__.get("id"),
+                        "label": o.__dict__.get("name"),
+                    }
+                    for o in f.__dict__.get("options", [])
+                ],
+                "name": f.__dict__.get("id"),
+                "validation": [v.__dict__ for v in f.__dict__.get("validation", [])],
+                "type": trans_types.get(f.__dict__.get("type"), "text"),
+                "required": bool(
+                    [
+                        v.__dict__
+                        for v in f.__dict__.get("validation", [])
+                        if v.__dict__.get("name") == "required"
+                    ]
+                ),
+            }
+            for f in form.fields
+        ]
+        return fields
+
+    def map_variables_on_form(self, variables):
+        form = dict((f.get("id"), f) for f in self.form)
+        return dict(
+            (
+                k,
+                {
+                    "label": form.get(k, {}).get("label", v.get("value")),
+                    "value": v.get("value")
+                    if not form.get(k, {}).get("options")
+                    else dict((o.get("id"), o) for o in form.get(k, {}).get("options"))
+                    .get(v.get("value"), {})
+                    .get("label", v.get("value")),
+                },
+            )
+            for k, v in variables.items()
+            if isinstance(v, dict)
+        )
 
     def get_form_variables(self):
         return {}

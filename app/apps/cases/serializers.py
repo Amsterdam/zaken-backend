@@ -173,12 +173,12 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         case = Case.objects.create(**validated_data, address=address)
         workflow_instance = Workflow.objects.create(
             case=case,
+            main_workflow=True,
         )
-        workflow_instance.set_initial_data(
-            data={
-                "status_name": settings.DEFAULT_SCHEDULE_ACTIONS[0],
-                "timer_boundry_duration": "test",
-            }
+        workflow_instance.message(
+            "main_process",
+            settings.DEFAULT_SCHEDULE_ACTIONS[0],
+            "status_name",
         )
 
         return case

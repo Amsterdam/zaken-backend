@@ -303,7 +303,12 @@ class CaseViewSet(
         case = self.get_object()
         request.user
 
-        serializer = WorkflowSerializer(Workflow.objects.filter(case=case), many=True)
+        serializer = WorkflowSerializer(
+            Workflow.objects.filter(
+                case=case, tasks__isnull=False, tasks__completed=False
+            ).distinct(),
+            many=True,
+        )
 
         return Response(serializer.data)
 
@@ -344,26 +349,19 @@ class CaseViewSet(
 
         if serializer.is_valid():
             data = serializer.validated_data
+            case = self.get_object()
             instance = data["camunda_process_id"]
-            subprocesses = Workflow.get_spec_names_by_process_id().get(
-                "zaak_wonen_subprocesses", settings.SIGNAL_WORKFLOW
-            )
-            print(subprocesses)
-            print(instance.camunda_message_name)
-            try:
-                case = Case.objects.get(id=pk)
-            except Case.DoesNotExist:
-                return Response(
-                    data="Camunda process has not started. Case does not exist",
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
+
+            workflow_type = Workflow.WORKFLOW_TYPE_SUB
+            if instance.to_directing_proccess:
+                workflow_type = Workflow.WORKFLOW_TYPE_MAIN
 
             workflow_instance = Workflow.objects.create(
                 case=case,
-                workflow_spec=subprocesses,
+                workflow_type=workflow_type,
             )
             workflow_instance.message(
-                instance.camunda_message_name, "payload", "resultVar"
+                instance.camunda_message_name, {"value": "test"}, "next_step"
             )
             return Response(
                 data=f"Process has started {str(instance)}",

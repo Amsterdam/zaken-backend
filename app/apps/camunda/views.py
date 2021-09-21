@@ -18,8 +18,9 @@ from apps.users.permissions import (
     rest_permission_classes_for_camunda,
     rest_permission_classes_for_top,
 )
-from apps.workflow.models import Task, Workflow
+from apps.workflow.models import Task
 from apps.workflow.serializers import TaskListSerializer
+from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status, viewsets
@@ -208,16 +209,25 @@ class CamundaTaskViewSet(viewsets.ViewSet):
             data = serializer.validated_data
 
             variables = data.get("variables", {})
-            data["variables"] = variables
-            task = Task.objects.filter(id=data["camunda_task_id"]).first()
-            data.update({"description": task.name if task else "Algemene taak"})
-            GenericCompletedTask.objects.create(**data)
+            task = get_object_or_404(Task, id=data["camunda_task_id"])
+            data.update(
+                {
+                    "description": task.name if task else "Algemene taak",
+                    "variables": task.map_variables_on_form(variables),
+                }
+            )
 
-            Workflow.complete_user_task(data["camunda_task_id"], variables)
-
-            # camunda_response = CamundaService().complete_task(task_id, variables)
-
-            return Response(f"Task {data['camunda_task_id']} has been completed")
+            try:
+                # camunda_response = CamundaService().complete_task(task_id, variables)
+                GenericCompletedTask.objects.create(**data)
+                task.workflow.complete_user_task_and_create_new_user_tasks(
+                    task.task_id, variables
+                )
+                return Response(f"Task {data['camunda_task_id']} has been completed")
+            except Exception:
+                return Response(
+                    f"Task {data['camunda_task_id']} has NOT been completed"
+                )
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 

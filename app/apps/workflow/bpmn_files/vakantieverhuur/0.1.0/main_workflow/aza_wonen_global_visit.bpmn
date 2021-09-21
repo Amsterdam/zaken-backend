@@ -16,10 +16,6 @@
         <bpmn:flowNodeRef>Activity_03lt0e7</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1u23sd7</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1fle1xm</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_1j8ayf7</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_0isbg14</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_1354ujx</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_0kmw6bf</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1gi7m84" name="Toezichthouder">
         <bpmn:flowNodeRef>Gateway_0289ucr</bpmn:flowNodeRef>
@@ -63,21 +59,11 @@
       <bpmn:outgoing>Flow_0inubyk</bpmn:outgoing>
       <bpmn:outgoing>Flow_0kzynfb</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:userTask id="task_beeldverslag_opstellen" name="Opstellen beeldverslag" camunda:formKey="beeldverslag_form" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="done" label="Opstellen beeldverslag gedaan?" type="string" defaultValue="Gedaan?" />
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="task_beeldverslag_opstellen" name="Opstellen beeldverslag" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
       <bpmn:incoming>Flow_1w9hb8b</bpmn:incoming>
       <bpmn:outgoing>Flow_1xhnyyp</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_rapport_van_bevindingen_opstellen" name="Opstellen rapport van bevindingen" camunda:formKey="opstellen_raport" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="opstellen_done" label="Gedaan?" type="string" />
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="task_rapport_van_bevindingen_opstellen" name="Opstellen rapport van bevindingen" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
       <bpmn:incoming>Flow_0inubyk</bpmn:incoming>
       <bpmn:outgoing>Flow_128bhfd</bpmn:outgoing>
     </bpmn:userTask>
@@ -87,12 +73,7 @@
       <bpmn:incoming>Flow_0m1sb6f</bpmn:incoming>
       <bpmn:outgoing>Flow_1e63pco</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:userTask id="Activity_02t4qsu" name="Opstellen  verkorte rapportage huisbezoek" camunda:formKey="verkorte_rapportage" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="verkorte_rapportage_done" label="Gedaan?" type="string" />
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="Activity_02t4qsu" name="Opstellen  verkorte rapportage huisbezoek" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
       <bpmn:incoming>Flow_09fde08</bpmn:incoming>
       <bpmn:outgoing>Flow_1c3b8q1</bpmn:outgoing>
     </bpmn:userTask>
@@ -139,12 +120,7 @@
       <bpmn:incoming>Flow_0zox8jb</bpmn:incoming>
       <bpmn:outgoing>Flow_0lji06z</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_0xocoed" name="Nakijken aanschrijving(en)" camunda:formKey="summon_form" camunda:candidateGroups="Handhavingsjurist">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="summon" label="Summon" type="string" />
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="Activity_0xocoed" name="Nakijken aanschrijving(en)" camunda:candidateGroups="Handhavingsjurist">
       <bpmn:incoming>Flow_1e63pco</bpmn:incoming>
       <bpmn:outgoing>Flow_1erggxk</bpmn:outgoing>
     </bpmn:userTask>
@@ -192,7 +168,7 @@
       <bpmn:script>summon = {"value": "No"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Activity_1u23sd7" name="Status Bijwerken: &#39;Inplannen ${status_name}&#39;" default="Flow_0x95ke6">
-      <bpmn:incoming>Flow_0m8tmpc</bpmn:incoming>
+      <bpmn:incoming>Flow_0inuwm0</bpmn:incoming>
       <bpmn:outgoing>Flow_0x95ke6</bpmn:outgoing>
       <bpmn:script>set_status("Inplannen %s" % status_name)</bpmn:script>
     </bpmn:scriptTask>
@@ -211,19 +187,13 @@
       <bpmn:outgoing>Flow_1bb4c8d</bpmn:outgoing>
       <bpmn:script>print("Status Bijwerken: 'Aanschrijvingen'")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:userTask id="Activity_15hr2wx" name="Opstellen concept aanschrijvingen" camunda:formKey="form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="opstellen_concept_aanschrijvingen_done" label="Gedaan?" type="boolean" defaultValue="False" />
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="Activity_15hr2wx" name="Opstellen concept aanschrijvingen" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
       <bpmn:incoming>Flow_1bb4c8d</bpmn:incoming>
       <bpmn:outgoing>Flow_0m1sb6f</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:endEvent id="Event_1kkhxmk">
       <bpmn:incoming>Flow_08m5xl9</bpmn:incoming>
       <bpmn:incoming>Flow_1v0g0l8</bpmn:incoming>
-      <bpmn:incoming>Flow_0g1830o</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:scriptTask id="Activity_1fle1xm" name="Status Bijwerken: &#39;Inplannen ${status_name}&#39;">
       <bpmn:incoming>Flow_09q4ikx</bpmn:incoming>
@@ -235,36 +205,6 @@
       <bpmn:outgoing>Flow_1uubcnv</bpmn:outgoing>
       <bpmn:script>set_status("Inplannen %s" % status_name)</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:userTask id="Activity_1j8ayf7" name="Direct naar inplannen " camunda:formKey="default_usertask_form">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="default_usertask_formfield" label="default_usertask_formfield" type="enum">
-            <camunda:value id="yes" name="yes" />
-            <camunda:value id="no" name="no" />
-          </camunda:formField>
-        </camunda:formData>
-        <camunda:executionListener class="" event="start" />
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1h52pjq</bpmn:incoming>
-      <bpmn:outgoing>Flow_0m8tmpc</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:scriptTask id="Activity_0isbg14" name="set_status(&#34;To timer&#34;)">
-      <bpmn:incoming>Flow_0inuwm0</bpmn:incoming>
-      <bpmn:outgoing>Flow_1h52pjq</bpmn:outgoing>
-      <bpmn:script>set_status("To timer")</bpmn:script>
-    </bpmn:scriptTask>
-    <bpmn:scriptTask id="Activity_1354ujx" name="summon.value = &#34;No&#34;&#10;">
-      <bpmn:incoming>Flow_12y12qm</bpmn:incoming>
-      <bpmn:outgoing>Flow_0g1830o</bpmn:outgoing>
-      <bpmn:script>summon = {"value": "No"}
-print("set summon")</bpmn:script>
-    </bpmn:scriptTask>
-    <bpmn:boundaryEvent id="Event_0kmw6bf" name="Wait" attachedToRef="Activity_1j8ayf7">
-      <bpmn:outgoing>Flow_12y12qm</bpmn:outgoing>
-      <bpmn:timerEventDefinition id="TimerEventDefinition_1ssoyq4">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(seconds=1)</bpmn:timeDuration>
-      </bpmn:timerEventDefinition>
-    </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="Flow_08m5xl9" sourceRef="Activity_1es16cn" targetRef="Event_1kkhxmk" />
     <bpmn:sequenceFlow id="Flow_1v0g0l8" sourceRef="Activity_1ijz5ow" targetRef="Event_1kkhxmk" />
     <bpmn:sequenceFlow id="Flow_0rotjot" sourceRef="Activity_1lv323s" targetRef="Gateway_136vx0p" />
@@ -309,13 +249,7 @@ print("set summon")</bpmn:script>
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADDITIONAL_RESEARCH_REQUIRED"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1uubcnv" sourceRef="Activity_1tij9d7" targetRef="Gateway_136vx0p" />
-    <bpmn:sequenceFlow id="Flow_0inuwm0" sourceRef="StartEvent_1" targetRef="Activity_0isbg14" />
-    <bpmn:sequenceFlow id="Flow_12y12qm" sourceRef="Event_0kmw6bf" targetRef="Activity_1354ujx" />
-    <bpmn:sequenceFlow id="Flow_0m8tmpc" name="default_usertask_formfield.value == &#34;yes&#34;" sourceRef="Activity_1j8ayf7" targetRef="Activity_1u23sd7">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">default_usertask_formfield.value == "yes"</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1h52pjq" sourceRef="Activity_0isbg14" targetRef="Activity_1j8ayf7" />
-    <bpmn:sequenceFlow id="Flow_0g1830o" sourceRef="Activity_1354ujx" targetRef="Event_1kkhxmk" />
+    <bpmn:sequenceFlow id="Flow_0inuwm0" sourceRef="StartEvent_1" targetRef="Activity_1u23sd7" />
     <bpmn:textAnnotation id="TextAnnotation_00h0tuq">
       <bpmn:text>TODO: Dynamische datum na additional research is +2 dagen</bpmn:text>
     </bpmn:textAnnotation>
@@ -520,30 +454,8 @@ print("set summon")</bpmn:script>
         <di:waypoint x="1140" y="555" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0inuwm0_di" bpmnElement="Flow_0inuwm0">
-        <di:waypoint x="310" y="602" />
-        <di:waypoint x="310" y="510" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_12y12qm_di" bpmnElement="Flow_12y12qm">
-        <di:waypoint x="378" y="260" />
-        <di:waypoint x="2560" y="260" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0m8tmpc_di" bpmnElement="Flow_0m8tmpc">
-        <di:waypoint x="360" y="300" />
-        <di:waypoint x="700" y="300" />
-        <di:waypoint x="700" y="580" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="606" y="434" width="88" height="40" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1h52pjq_di" bpmnElement="Flow_1h52pjq">
-        <di:waypoint x="310" y="430" />
-        <di:waypoint x="310" y="340" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0g1830o_di" bpmnElement="Flow_0g1830o">
-        <di:waypoint x="2660" y="260" />
-        <di:waypoint x="2900" y="260" />
-        <di:waypoint x="2900" y="1370" />
-        <di:waypoint x="2880" y="1370" />
+        <di:waypoint x="328" y="620" />
+        <di:waypoint x="650" y="620" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_1ee51w4_di" bpmnElement="task_create_schedule">
         <dc:Bounds x="940" y="580" width="100" height="80" />
@@ -659,25 +571,10 @@ print("set summon")</bpmn:script>
       <bpmndi:BPMNShape id="Activity_1gnc2wc_di" bpmnElement="Activity_1tij9d7">
         <dc:Bounds x="1090" y="770" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1uek34w_di" bpmnElement="Activity_1j8ayf7">
-        <dc:Bounds x="260" y="260" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1hk1nnt_di" bpmnElement="Activity_0isbg14">
-        <dc:Bounds x="260" y="430" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0smeqxx_di" bpmnElement="Activity_1354ujx">
-        <dc:Bounds x="2560" y="220" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_03jk7ur_di" bpmnElement="Association_03jk7ur">
         <di:waypoint x="1589" y="1224" />
         <di:waypoint x="1614" y="1240" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_0ga9q3n_di" bpmnElement="Event_0kmw6bf">
-        <dc:Bounds x="342" y="242" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="349" y="218" width="22" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

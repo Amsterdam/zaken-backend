@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1g1rvb9" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" camunda:diagramRelationId="efab761f-3315-414e-a9d6-d8cf7d1ab0a9">
   <bpmn:collaboration id="Collaboration_1nd8xuu">
-    <bpmn:participant id="Participant_03i0kl2" name="Optionele taken" processRef="zaak_wonen_subprocesses" />
+    <bpmn:participant id="Participant_03i0kl2" name="Optionele taken" processRef="sub_workflow" />
   </bpmn:collaboration>
-  <bpmn:process id="zaak_wonen_subprocesses" name="Zaak Wonen Subprocesses" isExecutable="true" camunda:versionTag="0.0.2">
+  <bpmn:process id="sub_workflow" name="Zaak Wonen Subprocesses" isExecutable="true" camunda:versionTag="0.0.2">
     <bpmn:laneSet id="LaneSet_1gzayrm">
       <bpmn:lane id="Lane_13qot1b" name="Projecthandhaver">
         <bpmn:flowNodeRef>task_correspondence</bpmn:flowNodeRef>

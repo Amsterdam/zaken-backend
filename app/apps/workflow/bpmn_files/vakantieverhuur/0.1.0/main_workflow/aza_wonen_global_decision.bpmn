@@ -25,29 +25,11 @@
         <bpmn:flowNodeRef>Activity_1tl73nx</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:userTask id="Activity_1j6vc31" name="Nakijken besluit" camunda:formKey="form" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="FormField_19ujdh2" label="Gedaan?" type="boolean">
-            <camunda:validation>
-              <camunda:constraint name="required" />
-            </camunda:validation>
-          </camunda:formField>
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="Activity_1j6vc31" name="Nakijken besluit" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
       <bpmn:incoming>Flow_0pifsrz</bpmn:incoming>
       <bpmn:outgoing>Flow_0q95btx</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_08cj18o" name="Opstellen concept besluit" camunda:formKey="form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="FormField_3113shb" label="Gedaan?" type="boolean">
-            <camunda:validation>
-              <camunda:constraint name="required" />
-            </camunda:validation>
-          </camunda:formField>
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="Activity_08cj18o" name="Opstellen concept besluit" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_1iai8dg</bpmn:incoming>
       <bpmn:outgoing>Flow_0pifsrz</bpmn:outgoing>
     </bpmn:userTask>
@@ -77,16 +59,7 @@
       <bpmn:outgoing>Flow_1fjclix</bpmn:outgoing>
       <bpmn:outgoing>Flow_0azm62q</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="Activity_14kdv7u" name="Versturen invordering belastingen" camunda:formKey="form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="FormField_1n7pn3g" label="Gedaan?" type="boolean">
-            <camunda:validation>
-              <camunda:constraint name="required" />
-            </camunda:validation>
-          </camunda:formField>
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="Activity_14kdv7u" name="Versturen invordering belastingen" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_15jrvwj</bpmn:incoming>
       <bpmn:outgoing>Flow_10vmiho</bpmn:outgoing>
     </bpmn:userTask>
@@ -140,16 +113,7 @@
       <bpmn:outgoing>Flow_005h6w2</bpmn:outgoing>
       <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:userTask id="Activity_1tl73nx" name="Contacteren stadsdeel" camunda:formKey="form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="FormField_2hv9gh0" label="Gedaan?">
-            <camunda:validation>
-              <camunda:constraint name="required" />
-            </camunda:validation>
-          </camunda:formField>
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="Activity_1tl73nx" name="Contacteren stadsdeel" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_1boz1xa</bpmn:incoming>
       <bpmn:outgoing>Flow_1r2nz2z</bpmn:outgoing>
     </bpmn:userTask>

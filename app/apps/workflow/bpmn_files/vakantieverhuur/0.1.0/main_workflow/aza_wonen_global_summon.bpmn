@@ -35,6 +35,7 @@
         <bpmn:flowNodeRef>Activity_1u8ay13</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0p04gzy</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1514cbt</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0c3s2q7</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1wein50" name="Projectmedewerker">
         <bpmn:flowNodeRef>Activity_1mkl5rk</bpmn:flowNodeRef>
@@ -69,7 +70,7 @@
     <bpmn:sequenceFlow id="Flow_0oyiegq" name="Ja, vergunning aangevraagd" sourceRef="Activity_1mkl5rk" targetRef="Activity_1k03k9a">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">action_civilian_permit_requested.value == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_12sivk9" name="Nee, geen vergunning aangevraagd" sourceRef="Gateway_0s3wb8r" targetRef="Event_0v6yc85">
+    <bpmn:sequenceFlow id="Flow_12sivk9" name="Nee, geen vergunning aangevraagd" sourceRef="Gateway_0s3wb8r" targetRef="Activity_0c3s2q7">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">action_civilian_permit_requested.value == "no_action"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1f8btyg" sourceRef="Activity_1gaa36w" targetRef="Gateway_0fr0xxj" />
@@ -93,9 +94,7 @@
     <bpmn:sequenceFlow id="Flow_1wlsww0" sourceRef="Event_1rmmm5s" targetRef="Activity_0mwdcc1" />
     <bpmn:sequenceFlow id="Flow_186wilc" sourceRef="Activity_0xg6qv2" targetRef="start_decision_process" />
     <bpmn:sequenceFlow id="Flow_1smx7q3" sourceRef="Activity_1u8ay13" targetRef="Event_0uynagg" />
-    <bpmn:sequenceFlow id="Flow_0umy2og" name="Ja, burger zienswijze ontvangen" sourceRef="Activity_13ccsra" targetRef="Activity_18ear0d">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">is_civilian_objection_received.value == True</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0umy2og" name="Ja, burger zienswijze ontvangen" sourceRef="Activity_13ccsra" targetRef="Activity_18ear0d" />
     <bpmn:sequenceFlow id="Flow_05c0mfz" sourceRef="Event_1mo05mc" targetRef="Activity_1nylgs7" />
     <bpmn:sequenceFlow id="Flow_1luefv1" sourceRef="Activity_1nylgs7" targetRef="Gateway_1j1sd3l" />
     <bpmn:sequenceFlow id="Flow_141448o" name="Ja, zienswijze ontvangen" sourceRef="Gateway_1j1sd3l" targetRef="Activity_18ear0d">
@@ -129,8 +128,14 @@
       <bpmn:script>next_step = {"value": "decision"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="Event_0v6yc85" name="Opstellen concept aanschrijvingen">
-      <bpmn:incoming>Flow_12sivk9</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_03u0kk6" messageRef="Message_0io3xyw" />
+      <bpmn:incoming>Flow_1bea976</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_03u0kk6" messageRef="Message_0io3xyw">
+        <bpmn:extensionElements>
+          <camunda:field name="next_step">
+            <camunda:expression>{"value": "decision"}</camunda:expression>
+          </camunda:field>
+        </bpmn:extensionElements>
+      </bpmn:messageEventDefinition>
     </bpmn:endEvent>
     <bpmn:endEvent id="Event_0uynagg" name="Uitzetten vervolgstap">
       <bpmn:incoming>Flow_1smx7q3</bpmn:incoming>
@@ -175,7 +180,7 @@
       <bpmn:incoming>Flow_05c0mfz</bpmn:incoming>
       <bpmn:outgoing>Flow_1luefv1</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_13ccsra" name="Monitoren binnenkomen zienswijze" camunda:formKey="monitor_civilian_action" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(17).toDate()}">
+    <bpmn:userTask id="Activity_13ccsra" name="Monitoren binnenkomen zienswijze" default="Flow_0umy2og" camunda:formKey="monitor_civilian_action" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(17).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="is_civilian_objection_received" label="Ja, er is een zienswijze binnengekomen" type="boolean" />
@@ -340,6 +345,16 @@
         <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(seconds=.40)</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_1bea976" sourceRef="Activity_0c3s2q7" targetRef="Event_0v6yc85" />
+    <bpmn:userTask id="Activity_0c3s2q7" name="Geen vergunning" camunda:formKey="form">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="next_step" label="Geen vergunning?" type="string" defaultValue="decision" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_12sivk9</bpmn:incoming>
+      <bpmn:outgoing>Flow_1bea976</bpmn:outgoing>
+    </bpmn:userTask>
   </bpmn:process>
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
   <bpmn:message id="Message_1k1jpww" name="start_decision_process" />
@@ -473,9 +488,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_12sivk9_di" bpmnElement="Flow_12sivk9">
         <di:waypoint x="1305" y="870" />
-        <di:waypoint x="2162" y="870" />
+        <di:waypoint x="1700" y="870" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1358" y="820" width="65" height="40" />
+          <dc:Bounds x="1348" y="820" width="65" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0oyiegq_di" bpmnElement="Flow_0oyiegq">
@@ -556,6 +571,10 @@
       <bpmndi:BPMNEdge id="Flow_1detbpm_di" bpmnElement="Flow_1detbpm">
         <di:waypoint x="590" y="630" />
         <di:waypoint x="715" y="630" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bea976_di" bpmnElement="Flow_1bea976">
+        <di:waypoint x="1800" y="870" />
+        <di:waypoint x="2162" y="870" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_1h6d37m_di" bpmnElement="start_decision_process">
         <dc:Bounds x="3492" y="802" width="36" height="36" />
@@ -667,6 +686,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1u8ay13_di" bpmnElement="Activity_1u8ay13">
         <dc:Bounds x="1920" y="709" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xtboo1_di" bpmnElement="Activity_0c3s2q7">
+        <dc:Bounds x="1700" y="830" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1mo05mc_di" bpmnElement="Event_1mo05mc">
         <dc:Bounds x="2272" y="352" width="36" height="36" />

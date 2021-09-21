@@ -8,7 +8,9 @@ class WorkflowAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "case",
-        "workflow_spec",
+        "main_workflow",
+        "workflow_type",
+        "workflow_version",
     )
 
     def chart_data(self):

@@ -60,7 +60,7 @@ class WorkflowSerializer(serializers.ModelSerializer):
             Task.objects.filter(
                 workflow=obj,
                 completed=False,
-            ),
+            ).order_by("id"),
             many=True,
         ).data
 
@@ -73,6 +73,10 @@ class WorkflowSerializer(serializers.ModelSerializer):
         exclude = [
             "id",
             "case",
+            "created",
             "serialized_workflow_state",
-            "workflow_spec",
+            "main_workflow",
+            "workflow_type",
+            "workflow_version",
+            "data",
         ]
