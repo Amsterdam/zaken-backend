@@ -119,7 +119,6 @@ class Task:
 
 class AbstractUserTask:
     data = None
-    # endpoint = "camunda/task/complete"
 
     def __init__(self, **data):
         self.data = data
