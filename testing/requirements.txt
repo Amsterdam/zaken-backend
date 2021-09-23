@@ -3,3 +3,6 @@ requests==2.26.0
 
 # for generating fake data
 Faker==8.13.2
+
+# For parallel testing
+nose2==0.10.0
