@@ -1,4 +1,4 @@
-import os
+import copy
 from string import Template
 
 from apps.cases.models import Case
@@ -11,11 +11,18 @@ from SpiffWorkflow.bpmn.serializer.BpmnSerializer import (
     BpmnSerializer,  # as SpiffBpmnSerializer
 )
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow  # as SpiffBpmnWorkflow
-from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.task import Task as SpiffWorkflowTask
 
-from .utils import workflow_health_check
+from .utils import (
+    check_task_id_changes,
+    compare_path_until_task,
+    compare_workflow_specs_by_task_specs,
+    get_workflow_path,
+    get_workflow_spec,
+    parse_task_spec_form,
+    workflow_health_check,
+)
 
 
 def get_workflow_spec_choices():
@@ -24,13 +31,6 @@ def get_workflow_spec_choices():
 
 def get_workflow_version_choices():
     return [[v, v] for v in settings.WORKFLOW_VERSIONS]
-
-
-def get_base_path():
-    return os.path.dirname(os.path.realpath(__file__))
-
-
-get_base_path()
 
 
 class Workflow(models.Model):
@@ -87,37 +87,14 @@ class Workflow(models.Model):
     def get_serializer(self):
         return self.serializer()
 
-    def get_workflow_path(self):
-        return os.path.join(
-            get_base_path(),
-            "bpmn_files",
-            self.case.theme.name.lower(),
-            self.workflow_version.lower(),
-            self.workflow_type.lower(),
-        )
-
-    def get_workflow_spec_files(self):
-        path = self.get_workflow_path()
-        return [
-            os.path.join(path, f)
-            for f in os.listdir(path)
-            if os.path.isfile(os.path.join(path, f))
-        ]
-
     def get_workflow_spec(self):
-        print(self.get_workflow_spec_files())
-        spec = self._get_workflow_spec()
+        path = get_workflow_path(
+            self.case.theme.name,
+            self.workflow_version,
+            self.workflow_type,
+        )
+        spec = get_workflow_spec(path, self.workflow_type)
         # print("Duplicate task spec ids: %s" % check_for_duplicate_task_spec_ids(spec))
-        return spec
-
-    def _get_workflow_spec(self):
-        x = CamundaParser()
-        # workflow_spec = settings.WORKFLOWS.get(
-        #     workflow_spec_name, settings.DEFAULT_WORKFLOW
-        # )
-        for f in self.get_workflow_spec_files():
-            x.add_bpmn_file(f)
-        spec = x.get_spec(self.workflow_type)
         return spec
 
     def first_task(self):
@@ -262,7 +239,7 @@ class Workflow(models.Model):
                 task_name_id=task.task_spec.name,
                 name=Template(task.task_spec.description).safe_substitute(task.data),
                 roles=[r.strip() for r in task.task_spec.lane.split(",")],
-                form=Task.parse_task_spec_form(task.task_spec.form),
+                form=parse_task_spec_form(task.task_spec.form),
                 case=self.case,
                 workflow=self,
             )
@@ -380,6 +357,50 @@ class Workflow(models.Model):
         self.set_absolete_tasks_to_completed(wf)
         self.create_user_tasks(wf)
 
+    def migrate_to(self, workflow_version, test=True):
+        valid = True
+        path = get_workflow_path(
+            self.case.theme.name,
+            workflow_version,
+            self.workflow_type,
+        )
+        try:
+            workflow_spec_b = get_workflow_spec(path, self.workflow_type)
+        except Exception:
+            return f"Version '{workflow_version}' not found"
+
+        workflow_spec_a = self.get_workflow_spec()
+
+        uncompleted_users_tasks = self.tasks.filter(completed=False)
+        last_completed_users_task = (
+            self.tasks.filter(completed=True).order_by("updated").first()
+        )
+        if last_completed_users_task:
+            last_completed_users_task = last_completed_users_task.task_name_id
+
+        valid, new_task_name_ids = compare_workflow_specs_by_task_specs(
+            workflow_spec_a,
+            workflow_spec_b,
+            uncompleted_users_tasks.values_list("task_name_id", flat=True),
+        )
+
+        # translate task_name_id's
+        expected_user_task_names = [
+            new_task_name_ids.get(t.task_name_id, t.task_name_id)
+            for t in uncompleted_users_tasks
+        ]
+
+        # fast forward workflow to uncompleted user task names with existing data
+        result = workflow_health_check(
+            workflow_spec_b, copy.deepcopy(self.data), expected_user_task_names
+        )
+        print(result)
+        if not test and valid:
+            # existing uncompleted tasks can be deleted. They should be created with the new workflow with new task id's
+            uncompleted_users_tasks.delete()
+
+            self.serialized_workflow_state = ""
+
     def __str__(self):
         return f"{self.id}, case: {self.case.id}"
 
@@ -409,6 +430,7 @@ class Task(models.Model):
         blank=True,
     )
     created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     case = models.ForeignKey(
         to=Case,
         related_name="tasks",
