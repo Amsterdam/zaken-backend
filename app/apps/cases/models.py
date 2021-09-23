@@ -235,7 +235,13 @@ class CaseState(models.Model):
         return f"{self.start_date} - {self.end_date} - {self.case.identification} - {self.status.name}"
 
     def get_tasks(self):
-        return self.workflow.tasks.filter(completed=False)
+        from apps.workflow.models import Task
+
+        return (
+            self.workflow.tasks.filter(completed=False)
+            if self.workflow
+            else Task.objects.none()
+        )
 
     def end_state(self):
         if not self.end_date:
