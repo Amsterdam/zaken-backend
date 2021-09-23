@@ -32,6 +32,7 @@ class VisitSerializer(serializers.ModelSerializer):
         return authors
 
     def create(self, validated_data):
+        print(validated_data)
         authors = self.get_authors(validated_data)
         visit = Visit.objects.create(**validated_data)
         visit.authors.set(authors)

@@ -12,4 +12,5 @@ class VisitViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
     queryset = Visit.objects.all()
 
     def create(self, request):
+        print(request.data)
         return super().create(request)

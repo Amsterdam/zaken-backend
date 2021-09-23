@@ -18,6 +18,9 @@ from apps.users.permissions import (
     rest_permission_classes_for_camunda,
     rest_permission_classes_for_top,
 )
+from apps.workflow.models import Task
+from apps.workflow.serializers import TaskListSerializer
+from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status, viewsets
@@ -205,44 +208,26 @@ class CamundaTaskViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             data = serializer.validated_data
 
-            # Task data can't be retrieved after it's been completed, so make sure to retrieve it first.
-            task_id = data["camunda_task_id"]
-            task = CamundaService().get_task(task_id)
-
             variables = data.get("variables", {})
-
-            # Get original structured task form from cache
-            original_camunda_task_form = CamundaService().get_task_form_rendered(
-                task_id
+            task = get_object_or_404(Task, id=data["camunda_task_id"])
+            data.update(
+                {
+                    "description": task.name if task else "Algemene taak",
+                    "variables": task.map_variables_on_form(variables),
+                }
             )
-            if original_camunda_task_form:
-                form_dict = dict((t.get("name"), t) for t in original_camunda_task_form)
 
-                for key, value in variables.items():
-                    # Only for selects, include original readable value from options
-                    value["value_verbose"] = (
-                        dict(
-                            (o.get("value"), o.get("label"))
-                            for o in form_dict.get(key).get("options", [])
-                        ).get(value["value"])
-                        if form_dict.get(key).get("options", [])
-                        else value["value"]
-                    )
-                    # Include original label
-                    value["label"] = form_dict.get(key, {}).get("label")
-
-            data["variables"] = variables
-            data["description"] = task["name"]
-
-            camunda_response = CamundaService().complete_task(task_id, variables)
-
-            if camunda_response.ok:
+            try:
+                # camunda_response = CamundaService().complete_task(task_id, variables)
                 GenericCompletedTask.objects.create(**data)
+                task.workflow.complete_user_task_and_create_new_user_tasks(
+                    task.task_id, variables
+                )
                 return Response(f"Task {data['camunda_task_id']} has been completed")
-            return Response(
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                data=f"Something went wrong with cammunda error: {camunda_response.text}",
-            )
+            except Exception:
+                return Response(
+                    f"Task {data['camunda_task_id']} has NOT been completed"
+                )
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -275,7 +260,7 @@ class CamundaTaskViewSet(viewsets.ViewSet):
 
 class TaskViewSet(viewsets.ViewSet):
     permission_classes = rest_permission_classes_for_top()
-    serializer_class = CamundaTaskListSerializer
+    serializer_class = TaskListSerializer
     queryset = Case.objects.all()
 
     def get_serializer_class(self, *args, **kwargs):
@@ -286,38 +271,12 @@ class TaskViewSet(viewsets.ViewSet):
             role_parameter,
         ],
         description="Task filter query parameters",
-        responses={200: CamundaTaskListSerializer(many=True)},
+        responses={200: TaskListSerializer(many=True)},
     )
     def list(self, request):
-        role = request.GET.get(role_parameter.name)
-        tasks = CamundaService().get_tasks_by_role(role)
+        request.GET.get(role_parameter.name)
 
-        # Camunda tasks can be an empty list or boolean. TODO: This should just be one datatype
-        if tasks is False:
-            return Response(
-                "Camunda service is offline",
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
-        else:
-            result = []
-            for task in tasks:
-                case = Case.objects.filter(
-                    case_states__case_process_id=task["processInstanceId"]
-                ).first()
-                if case:
-                    task["case"] = case
-                    result.append(task)
-                else:
-                    try:
-                        task["case"] = Case.objects.get(
-                            camunda_ids__contains=[task["processInstanceId"]]
-                        )
-                        result.append(task)
-                    except Case.DoesNotExist:
-                        print(
-                            f'Dropping task {task["processInstanceId"]} as the case cannot be found.'
-                        )
+        tasks = Task.objects.filter(completed=False)
+        serializer = TaskListSerializer(tasks, many=True)
 
-            serializer = CamundaTaskListSerializer(result, many=True)
-
-            return Response(serializer.data)
+        return Response(serializer.data)

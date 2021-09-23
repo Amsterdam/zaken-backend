@@ -77,6 +77,7 @@ INSTALLED_APPS = (
     "apps.camunda",
     "apps.summons",
     "apps.schedules",
+    "apps.workflow",
 )
 
 # Add apps here to make them appear in the graphing visualisation
@@ -242,7 +243,7 @@ LOCAL_DEVELOPMENT_AUTHENTICATION = (
     os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
 )
 
-SESSION_COOKIE_AGE = 60 * 5
+SESSION_COOKIE_AGE = int(os.getenv("SESSION_COOKIE_AGE", "300"))
 SESSION_SAVE_EVERY_REQUEST = True
 
 AUTH_USER_MODEL = "users.User"
@@ -253,6 +254,8 @@ AUTHENTICATION_BACKENDS = (
     "apps.users.auth.AuthenticationBackend",
 )
 
+AXES_RESET_ON_SUCCESS = True
+AXES_ENABLED = os.getenv("AXES_ENABLED", "True") == "True"
 
 # Simple JWT is used for local development authentication only.
 SIMPLE_JWT = {
@@ -462,3 +465,34 @@ VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER = os.getenv(
 )
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+# START legacy
+WORKFLOWS = {
+    "VAKANTIEVERHUUR_WORKFLOW": {
+        "main_proccess": "aza_wonen_local_vakantieverhuur_regie",
+        "proccess_files": [
+            "aza_wonen_global_afronden_zaak.bpmn",
+            "aza_wonen_global_voornemen_afzien.bpmn",
+            "aza_wonen_global_decision.bpmn",
+            "aza_wonen_global_summon.bpmn",
+            "aza_wonen_global_visit.bpmn",
+            "aza_wonen_local_vakantieverhuur_regie.bpmn",
+        ],
+    },
+    "SIGNAL_WORKFLOW": {
+        "main_proccess": "zaak_wonen_subprocesses",
+        "proccess_files": [
+            "zaak_wonen_subprocesses.bpmn",
+        ],
+    },
+}
+
+VAKANTIEVERHUUR_WORKFLOW = WORKFLOWS["VAKANTIEVERHUUR_WORKFLOW"]
+SIGNAL_WORKFLOW = WORKFLOWS["SIGNAL_WORKFLOW"]
+DEFAULT_WORKFLOW = VAKANTIEVERHUUR_WORKFLOW
+# END legacy
+
+
+WORKFLOW_VERSIONS = [
+    "0.1.0",
+]

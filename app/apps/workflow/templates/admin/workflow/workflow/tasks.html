@@ -1,0 +1,18 @@
+{% comment %} {% for sub_task in task.children %}
+    {% include "./tasks.html" with task=sub_task only %}
+{% endfor %} {% endcomment %}
+
+
+<li style="line-height: 15px;"><span{% if task.get_state_name == "READY" %} style="color: red;"{% endif %}>{{ task.task_spec.name }}, state: {{sub_task.get_state_name}}</span>
+    {%if task.children %}
+        <ul style="padding-inline-start: 20px;">
+         {%for sub_task in task.children %}
+            {% if sub_task.get_state_name in task_states %}
+              {% with task=sub_task task_states=task_states template_name="admin/workflow/workflow/tasks.html" %}
+                   {% include template_name %}
+              {%endwith%}
+            {%endif%}
+         {%endfor%}
+         </ul>
+    {%endif%}
+</li>

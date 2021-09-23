@@ -32,6 +32,12 @@ class Visit(ModelEventEmitter):
     )
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     notes = models.TextField(null=True, blank=True)
+    task = models.ForeignKey(
+        to="workflow.Task",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         ordering = ["-start_time"]

@@ -14,6 +14,9 @@ from apps.cases.models import (
     CitizenReport,
 )
 from apps.schedules.serializers import ScheduleSerializer
+from apps.workflow.models import Task, Workflow
+from django.conf import settings
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 
@@ -51,8 +54,26 @@ class CaseReasonSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class TaskSerializer(serializers.ModelSerializer):
+    user_has_permission = serializers.SerializerMethodField()
+    camunda_task_id = serializers.CharField(source="id")
+
+    @extend_schema_field(serializers.BooleanField)
+    def get_user_has_permission(self, obj):
+        return True  # self.request.user.has_perm("users.perform_task")
+
+    class Meta:
+        model = Task
+        fields = "__all__"
+
+
 class CaseStateSerializer(serializers.ModelSerializer):
     status_name = serializers.CharField(source="status.name", read_only=True)
+    tasks = TaskSerializer(
+        source="get_tasks",
+        many=True,
+        read_only=True,
+    )
 
     class Meta:
         model = CaseState
@@ -148,7 +169,17 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         address_data = validated_data.pop("address")
         address = Address.get(address_data.get("bag_id"))
+
         case = Case.objects.create(**validated_data, address=address)
+        workflow_instance = Workflow.objects.create(
+            case=case,
+            main_workflow=True,
+        )
+        workflow_instance.message(
+            "main_process",
+            settings.DEFAULT_SCHEDULE_ACTIONS[0],
+            "status_name",
+        )
 
         return case
 
