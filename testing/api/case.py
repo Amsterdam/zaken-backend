@@ -12,6 +12,7 @@ class Case:
         self.api = api
 
     def run_steps(self, steps):
+        steps = filter(lambda step: step is not None, steps)
         for step in steps:
             if self.api.legacy_mode:
                 time.sleep(0.15)
