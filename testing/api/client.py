@@ -51,7 +51,12 @@ class Client:
         return self.call("get", f"/themes/{theme}/case-close-reasons/")["results"]
 
     def get_task_name(self, task):
-        (name, legacy_name) = task
+        try:
+            (name, legacy_name) = task
+        except (TypeError):
+            logging.error(f"failed to unpack task-name for {task}")
+            raise
+
         return legacy_name if self.legacy_mode else name
 
     def create_case(self, data):

@@ -129,7 +129,7 @@ class AbstractUserTask:
         tasks = list(task for task in open_tasks if task["task_name_id"] == task_name)
 
         if len(tasks) == 0:
-            raise Exception(f"No task found for task_name_id = {task_name}")
+            raise Exception(f"No open task found. Cant find task_name_id = {task_name}")
         elif len(tasks) > 1:
             raise Exception("More then one task found")
 
@@ -162,6 +162,7 @@ class Visit(AbstractUserTask):
     def get_post_data(self, case, task):
         return {
             "case": case["id"],
+            "task": task["camunda_task_id"],
         }
 
 
@@ -223,7 +224,7 @@ class Close(AbstractUserTask):
 
 class AssertNextOpenTasks:
     def __init__(self, tasks: list[str]):
-        self.tasks = tasks
+        self.tasks = filter(lambda task: task is not None, tasks)
 
     def run(self, api, case):
         # Get the task names we want to check
