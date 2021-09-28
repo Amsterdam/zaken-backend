@@ -24,7 +24,7 @@ class TestNoCivilianObjection(unittest.TestCase):
 
     def test(self):
         case = self.api.create_case(get_case_mock(Themes.HOLIDAY_RENTAL))
-        steps = (
+        steps = [
             ScheduleVisit(),
             Visit(),
             Debrief(violation="YES"),
@@ -38,6 +38,6 @@ class TestNoCivilianObjection(unittest.TestCase):
             # MonitorIncomingView(objection=False), # Test fails here, not sure why. Frontend always sends value 'true'
             # CheckIncomingView(objection=Objection.NO), # Cannot test because of timer?
             # AssertNumberOfOpenTasks(0),
-        )
+        ]
 
         case.run_steps(steps)

@@ -21,7 +21,7 @@ class TestNoViolation(unittest.TestCase):
 
     def test(self):
         case = self.api.create_case(get_case_mock(Themes.HOLIDAY_RENTAL))
-        steps = (
+        steps = [
             ScheduleVisit(),
             Visit(),
             AssertNumberOfOpenTasks(1),
@@ -29,9 +29,16 @@ class TestNoViolation(unittest.TestCase):
             AssertNumberOfOpenTasks(2 if self.api.legacy_mode else 1),  # BUG in Spiff
             FeedbackReporters() if self.api.legacy_mode else None,  # BUG in Spiff
             HomeVisitReport(),
-            PlanNextStep(),
-            Close(),
-            AssertNumberOfOpenTasks(0),
-        )
+        ]
+
+        if self.api.legacy_mode:  # BUG in Spiff
+            steps.extend(
+                [
+                    PlanNextStep(),
+                    Close(),
+                ]
+            )
+
+        steps.append(AssertNumberOfOpenTasks(0))
 
         case.run_steps(steps)

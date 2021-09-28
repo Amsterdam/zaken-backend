@@ -12,7 +12,7 @@ class TestReschedule(unittest.TestCase):
 
     def test(self):
         case = self.api.create_case(get_case_mock(Themes.HOLIDAY_RENTAL))
-        steps = (
+        steps = [
             ScheduleVisit(),
             Visit(
                 situation=Situations.NOBODY_PRESENT,
@@ -21,5 +21,5 @@ class TestReschedule(unittest.TestCase):
             ScheduleVisit(),
             Visit(),
             AssertNextOpenTasks([Task.debrief]),
-        )
+        ]
         case.run_steps(steps)

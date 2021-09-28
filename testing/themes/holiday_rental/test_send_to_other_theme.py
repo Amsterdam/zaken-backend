@@ -12,7 +12,7 @@ class TestSendToOtherTeam(unittest.TestCase):
 
     def test(self):
         case = self.api.create_case(get_case_mock(Themes.HOLIDAY_RENTAL))
-        steps = (
+        steps = [
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.SEND_TO_OTHER_THEME),
@@ -24,6 +24,6 @@ class TestSendToOtherTeam(unittest.TestCase):
                     Task.create_home_visit_report,
                 ]
             ),
-        )
+        ]
 
         case.run_steps(steps)
