@@ -18,7 +18,7 @@ jobs:
 
       - run: docker network create zaken_network
       - run: docker network create top_and_zaak_backend_bridge
-      - run: docker-compose -f docker-compose.test.yml up --detach
+      # - run: docker-compose -f docker-compose.test.yml up --detach
 
       ###################################################
       # TEST
