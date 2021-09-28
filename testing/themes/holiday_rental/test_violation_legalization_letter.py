@@ -19,7 +19,7 @@ from api.tasks import (
 )
 
 
-class TestViolationWarningLetter(unittest.TestCase):
+class TestViolationLegalizationLetter(unittest.TestCase):
     def setUp(self):
         self.api = Client(api_config)
 
@@ -29,15 +29,31 @@ class TestViolationWarningLetter(unittest.TestCase):
             ScheduleVisit(),
             Visit(),
             Debrief(violation="YES"),
-            AssertNumberOfOpenTasks(4),
-            FeedbackReporters(),
+            AssertNextOpenTasks(
+                [
+                    Task.create_findings_report,
+                    Task.create_picture_report,
+                    Task.create_concept_notices,
+                    Task.feedback_reporters
+                    if self.api.legacy_mode  # Is this a known bug with Camunda?
+                    else None,
+                ]
+            ),
             CreatePictureReport(),
             CreateFindingsReport(),
             CreateConceptNotices(),
-            AssertNumberOfOpenTasks(1),
+            AssertNextOpenTasks(
+                [
+                    Task.check_notices,
+                    Task.feedback_reporters
+                    if self.api.legacy_mode  # Is this a known bug with Camunda?
+                    else None,
+                ]
+            ),
             CheckNotices(),
             Summon(type=SummonTypes.HolidayRental.LEGALIZATION_LETTER),
             AssertNextOpenTasks([Task.monitor_incoming_permit_request]),
+            # TODO test the rest of the process
         )
 
         case.run_steps(steps)

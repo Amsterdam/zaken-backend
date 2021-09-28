@@ -13,6 +13,8 @@ class Client:
     def __init__(self, config):
         self.legacy_mode = config["legacy_mode"]  # using Spiff vs Camunda
         self.host = config["host"]
+        if "://api.wonen.zaken.amsterdam.nl/" in self.host:
+            raise Exception(f"Host ({self.host}) not allowed")
 
     def request(self, verb, url, headers=None, json=None):
         url = f"{self.host}{url}"
