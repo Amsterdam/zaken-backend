@@ -13,5 +13,6 @@ class Case:
 
     def run_steps(self, steps):
         for step in steps:
-            time.sleep(0.1)
+            if self.api.legacy_mode:
+                time.sleep(0.15)
             step.run(self.api, self.data)
