@@ -25,7 +25,7 @@ class TestViolationLegalizationLetter(unittest.TestCase):
 
     def test(self):
         case = self.api.create_case(get_case_mock(Themes.HOLIDAY_RENTAL))
-        steps = (
+        steps = [
             ScheduleVisit(),
             Visit(),
             Debrief(violation="YES"),
@@ -54,6 +54,6 @@ class TestViolationLegalizationLetter(unittest.TestCase):
             Summon(type=SummonTypes.HolidayRental.LEGALIZATION_LETTER),
             AssertNextOpenTasks([Task.monitor_incoming_permit_request]),
             # TODO test the rest of the process
-        )
+        ]
 
         case.run_steps(steps)
