@@ -28,7 +28,7 @@ jobs:
 
       - run: pip install -r testing/requirements.txt
 
-      - run: LOGLEVEL=INFO python -m unittest
+      - run: LOGLEVEL=INFO python3.9 -m unittest
         working-directory: testing
 
 
