@@ -12,12 +12,13 @@ from SpiffWorkflow.bpmn.serializer.BpmnSerializer import (
 )
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow  # as SpiffBpmnWorkflow
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
-from SpiffWorkflow.task import Task as SpiffWorkflowTask
+from SpiffWorkflow.task import Task
 
 from .utils import (
     check_task_id_changes,
     compare_path_until_task,
     compare_workflow_specs_by_task_specs,
+    get_latest_version,
     get_workflow_path,
     get_workflow_spec,
     parse_task_spec_form,
@@ -33,12 +34,24 @@ def get_workflow_version_choices():
     return [[v, v] for v in settings.WORKFLOW_VERSIONS]
 
 
-class Workflow(models.Model):
+class CaseWorkflow(models.Model):
     WORKFLOW_TYPE_MAIN = "main_workflow"
     WORKFLOW_TYPE_SUB = "sub_workflow"
+    WORKFLOW_TYPE_DIRECTOR = "director"
+    WORKFLOW_TYPE_VISIT = "visit"
+    WORKFLOW_TYPE_SUMMON = "summon"
+    WORKFLOW_TYPE_DECISION = "decision"
+    WORKFLOW_TYPE_RENOUNCE_DECISION = "renounce_decision"
+    WORKFLOW_TYPE_CLOSE_CASE = "close_case"
     WORKFLOW_TYPES = (
         (WORKFLOW_TYPE_MAIN, WORKFLOW_TYPE_MAIN),
         (WORKFLOW_TYPE_SUB, WORKFLOW_TYPE_SUB),
+        (WORKFLOW_TYPE_DIRECTOR, WORKFLOW_TYPE_DIRECTOR),
+        (WORKFLOW_TYPE_VISIT, WORKFLOW_TYPE_VISIT),
+        (WORKFLOW_TYPE_SUMMON, WORKFLOW_TYPE_SUMMON),
+        (WORKFLOW_TYPE_DECISION, WORKFLOW_TYPE_DECISION),
+        (WORKFLOW_TYPE_RENOUNCE_DECISION, WORKFLOW_TYPE_RENOUNCE_DECISION),
+        (WORKFLOW_TYPE_CLOSE_CASE, WORKFLOW_TYPE_CLOSE_CASE),
     )
 
     case = models.ForeignKey(
@@ -48,11 +61,6 @@ class Workflow(models.Model):
         null=True,
         blank=True,
     )
-    # workflow_spec = models.CharField(
-    #     max_length=100,
-    #     choices=get_workflow_spec_choices(),
-    #     default=get_workflow_spec_choices()[0][0],
-    # )
     main_workflow = models.BooleanField(
         default=False,
     )
@@ -63,8 +71,11 @@ class Workflow(models.Model):
     )
     workflow_version = models.CharField(
         max_length=100,
-        choices=get_workflow_version_choices(),
-        default=get_workflow_version_choices()[0][0],
+    )
+    workflow_theme_name = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
     )
     created = models.DateTimeField(auto_now_add=True)
     # initial_message = models.CharField(
@@ -79,28 +90,24 @@ class Workflow(models.Model):
 
     def save(self, *args, **kwargs):
         self.data = self.data if isinstance(self.data, dict) else {}
+        if not self.workflow_version:
+            self.workflow_theme_name, self.workflow_version = get_latest_version(
+                self.workflow_type,
+                self.case.theme.name,
+            )
         return super().save(*args, **kwargs)
-
-    def _get_strip_extensie(self, file_name):
-        return file_name.split(".")[0]
 
     def get_serializer(self):
         return self.serializer()
 
     def get_workflow_spec(self):
         path = get_workflow_path(
-            self.case.theme.name,
-            self.workflow_version,
             self.workflow_type,
+            self.workflow_theme_name,
+            self.workflow_version,
         )
         spec = get_workflow_spec(path, self.workflow_type)
-        # print("Duplicate task spec ids: %s" % check_for_duplicate_task_spec_ids(spec))
         return spec
-
-    def first_task(self):
-        wf = self.get_or_restore_workflow_state()
-        tasks = wf.get_tasks()
-        return tasks[0]
 
     def get_script_engine(self, wf):
         # injects functions in workflow
@@ -108,7 +115,6 @@ class Workflow(models.Model):
         workflow_instance = self
 
         def set_status(input):
-            print("set_status: %s" % input)
             case.set_state(input, workflow_instance)
 
         def wait_for_workflows_and_send_message(message):
@@ -121,7 +127,7 @@ class Workflow(models.Model):
                 }
             )
             workflow_instance.save(update_fields=["data"])
-            all_workflows = Workflow.objects.filter(case=workflow_instance.case)
+            all_workflows = CaseWorkflow.objects.filter(case=workflow_instance.case)
 
             workflows_completed = [
                 a
@@ -132,6 +138,7 @@ class Workflow(models.Model):
 
             # tests if all workflows reached thit point
             if len(workflows_completed) == all_workflows.count() and main_workflow:
+                from .tasks import accept_message_for_workflow
 
                 # pick up all summons and pass them on to the main workflow
                 all_summons = [
@@ -139,69 +146,75 @@ class Workflow(models.Model):
                     for d in all_workflows.values_list("data", flat=True)
                     if d.get("summon_id")
                 ]
-                messages = main_workflow.data.get("messages", [])
+                extra_data = {
+                    "all_summons": all_summons,
+                }
 
-                # add message to main workflow, this will tell only the main workflow to go on
-                messages.append(message)
-                main_workflow.data.update(
-                    {
-                        "messages": messages,
-                        "all_summons": all_summons,
-                    }
-                )
-                main_workflow.save(update_fields=["data"])
-                main_workflow.update_workflow()
+                accept_message_for_workflow.delay(main_workflow.id, message, extra_data)
 
                 # delete others
-                other_workflows = all_workflows.exclude(id=main_workflow.id)
-                other_workflows.delete()
+                # other_workflows = all_workflows.exclude(id=main_workflow.id)
+                # other_workflows.delete()
+
+        def start_subworkflow(subworkflow_name):
+            print(f"subworkflow name: {subworkflow_name}")
+            subworkflow = CaseWorkflow.objects.create(
+                case=case,
+                workflow_type=subworkflow_name,
+            )
+            subworkflow.set_initial_data(workflow_instance.get_data())
 
         wf.script_engine = BpmnScriptEngine(
             scriptingAdditions={
                 "set_status": set_status,
                 "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
+                "start_subworkflow": start_subworkflow,
             }
         )
         return wf
-
-    def _print_task_data(self, wf):
-        print("START: print data")
-        print(wf.name)
-        wf.dump()
-        for t in wf.get_tasks():
-            print("-")
-            print(t.get_state_name())
-            print(t.workflow.name)
-            print(t.task_spec.name)
-            print(t.last_state_change)
-            print(t.state_history)
-            print(t.log)
-            print(t.data)
-            print(t.task_info())
-        print("END: print data")
 
     def get_user_task_form(self, task_id):
         wf = self.get_or_restore_workflow_state()
         task = wf.get_task(task_id)
         if task:
-            return Task.parse_task_spec_form(task.task_spec.form)
+            return CaseUserTask.parse_task_spec_form(task.task_spec.form)
         return []
 
     def message(self, message_name, payload, resultVar, extra_data={}):
         wf = self.get_or_restore_workflow_state()
-
+        data = {}
+        data.update(extra_data)
+        self.set_initial_data(extra_data)
         wf = self._update_workflow(wf)
         wf = self._message(wf, message_name, payload, resultVar, extra_data)
-
         wf = self._update_workflow(wf)
         self.save_workflow_state(wf)
         self._update_db(wf)
 
-    def accept_message(self, message_name):
+    def accept_message(self, message_name, extra_data):
+        print("ACCEPT_MESSAGE")
+        print(message_name)
+        print(extra_data)
         wf = self.get_or_restore_workflow_state()
 
+        print("update")
+        print(wf.get_waiting_tasks())
+        wf = self._update_workflow(wf)
+
+        print("add data")
+        print(wf.get_waiting_tasks())
+        if wf.last_task:
+            print(wf.last_task)
+            wf.last_task.update_data(extra_data)
+
+        print("update")
+        print(wf.get_waiting_tasks())
+        wf = self._update_workflow(wf)
+        print(wf.get_waiting_tasks())
+        print("accept message")
         wf.accept_message(message_name)
 
+        print("update")
         wf = self._update_workflow(wf)
         self.save_workflow_state(wf)
         self._update_db(wf)
@@ -210,18 +223,25 @@ class Workflow(models.Model):
     def _message(wf, message_name, payload, resultVar, extra_data={}):
 
         wf.message(message_name, payload, resultVar)
-        first_task = wf.get_tasks(SpiffWorkflowTask.READY)
+        first_task = wf.get_tasks(Task.READY)
         if first_task and extra_data and isinstance(extra_data, dict):
             first_task[0].update_data(extra_data)
         return wf
 
     def get_data(self):
         wf = self.get_or_restore_workflow_state()
-        return wf.last_task.data
+        if wf.last_task:
+            return wf.last_task.data
+
+        # try to get all data by iterating through all tasks
+        data = {}
+        for t in wf.get_tasks():
+            data.update(t.data)
+        return data
 
     def set_absolete_tasks_to_completed(self, wf):
         # some tasks are absolete after wf.do_engine_steps or wf.refresh_waiting_tasks
-        ready_tasks_ids = [t.id for t in wf.get_tasks(SpiffWorkflowTask.READY)]
+        ready_tasks_ids = [t.id for t in wf.get_tasks(Task.READY)]
 
         # cleanup: sets dj tasks to completed
         task_instances = self.tasks.all().exclude(
@@ -234,9 +254,9 @@ class Workflow(models.Model):
     def create_user_tasks(self, wf):
         ready_tasks = wf.get_ready_user_tasks()
         task_data = [
-            Task(
+            CaseUserTask(
                 task_id=task.id,
-                task_name_id=task.task_spec.name,
+                task_name=task.task_spec.name,
                 name=Template(task.task_spec.description).safe_substitute(task.data),
                 roles=[r.strip() for r in task.task_spec.lane.split(",")],
                 form=parse_task_spec_form(task.task_spec.form),
@@ -244,28 +264,24 @@ class Workflow(models.Model):
                 workflow=self,
             )
             for task in ready_tasks
-            if not Task.objects.filter(
+            if not CaseUserTask.objects.filter(
                 task_id=task.id,
-                task_name_id=task.task_spec.name,
+                task_name=task.task_spec.name,
                 workflow=self,
             )
         ]
-        task_instances = Task.objects.bulk_create(task_data)
+        task_instances = CaseUserTask.objects.bulk_create(task_data)
 
         return task_instances
 
     @staticmethod
-    def get_spec_names_by_process_id():
-        return dict((v.get("main_proccess"), k) for k, v in settings.WORKFLOWS.items())
-
-    @staticmethod
     def get_task_by_task_id(id):
-        task = get_object_or_404(Task, id=id)
+        task = get_object_or_404(CaseUserTask, id=id)
         return task
 
     @staticmethod
     def complete_user_task(id, data):
-        task = Task.objects.get(id=id)
+        task = CaseUserTask.objects.get(id=id)
         task.workflow.complete_user_task_and_create_new_user_tasks(task.task_id, data)
 
     def complete_user_task_and_create_new_user_tasks(self, task_id=None, data=None):
@@ -286,12 +302,7 @@ class Workflow(models.Model):
         # no changes to the workflow after this point
         self.save_workflow_state(wf)
         self._update_db(wf)
-
-    def fast_forward(self, wf):
-        test_result = workflow_health_check(
-            wf.last_task.data, [t.task_spec.name for t in wf.get_ready_user_tasks()]
-        )
-        print(test_result)
+        self._check_completed_workflows(wf)
 
     def save_workflow_state(self, wf):
         if wf.last_task:
@@ -318,14 +329,17 @@ class Workflow(models.Model):
     def set_initial_data(self, data):
         wf = self.get_or_restore_workflow_state()
 
-        first_task = wf.get_tasks(SpiffWorkflowTask.READY)[0]
+        first_task = wf.get_tasks(Task.READY)
+        last_task = wf.last_task
+        if first_task:
+            first_task = first_task[0]
+        elif last_task:
+            first_task = last_task
 
         # TODO: how to set initial data
         wf.set_data(**data)
         first_task.update_data(data)
         first_task.task_spec.set_data(**data)
-
-        self._print_task_data(wf)
 
         # changes the workflow
         wf = self._update_workflow(wf)
@@ -346,9 +360,23 @@ class Workflow(models.Model):
         self.save_workflow_state(wf)
         self._update_db(wf)
 
+        self._check_completed_workflows(wf)
+
+    def _check_completed_workflows(self, wf):
+        # if end of subworkflow, try to get back to main workflow
+        if not self.main_workflow and wf.is_completed():
+            workflow = CaseWorkflow.objects.filter(
+                case=self.case,
+                main_workflow=True,
+            ).first()
+            if workflow:
+                workflow.accept_message(
+                    f"resume_after_{self.workflow_type}",
+                    self.get_data(),
+                )
+                self.delete()
+
     def _update_workflow(self, wf):
-        for message in self.data.get("messages", []):
-            wf.accept_message(message)
         wf.refresh_waiting_tasks()
         wf.do_engine_steps()
         return wf
@@ -360,9 +388,9 @@ class Workflow(models.Model):
     def migrate_to(self, workflow_version, test=True):
         valid = True
         path = get_workflow_path(
-            self.case.theme.name,
-            workflow_version,
             self.workflow_type,
+            self.workflow_theme_name,
+            workflow_version,
         )
         try:
             workflow_spec_b = get_workflow_spec(path, self.workflow_type)
@@ -376,17 +404,17 @@ class Workflow(models.Model):
             self.tasks.filter(completed=True).order_by("updated").first()
         )
         if last_completed_users_task:
-            last_completed_users_task = last_completed_users_task.task_name_id
+            last_completed_users_task = last_completed_users_task.task_name
 
         valid, new_task_name_ids = compare_workflow_specs_by_task_specs(
             workflow_spec_a,
             workflow_spec_b,
-            uncompleted_users_tasks.values_list("task_name_id", flat=True),
+            uncompleted_users_tasks.values_list("task_name", flat=True),
         )
 
-        # translate task_name_id's
+        # translate task_name's
         expected_user_task_names = [
-            new_task_name_ids.get(t.task_name_id, t.task_name_id)
+            new_task_name_ids.get(t.task_name, t.task_name)
             for t in uncompleted_users_tasks
         ]
 
@@ -405,7 +433,7 @@ class Workflow(models.Model):
         return f"{self.id}, case: {self.case.id}"
 
 
-class Task(models.Model):
+class CaseUserTask(models.Model):
     completed = models.BooleanField(
         default=False,
     )
@@ -415,7 +443,7 @@ class Task(models.Model):
     name = models.CharField(
         max_length=255,
     )
-    task_name_id = models.CharField(
+    task_name = models.CharField(
         max_length=255,
     )
     form = models.JSONField(
@@ -437,7 +465,7 @@ class Task(models.Model):
         on_delete=models.CASCADE,
     )
     workflow = models.ForeignKey(
-        to=Workflow,
+        to=CaseWorkflow,
         related_name="tasks",
         on_delete=models.CASCADE,
     )

@@ -1,6 +1,6 @@
 from apps.cases.models import Case, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
-from apps.workflow.models import Workflow
+from apps.workflow.models import CaseWorkflow
 from django.conf import settings
 from django.db import models
 
@@ -68,7 +68,7 @@ class Summon(TaskModelEventEmitter):
         return f"{self.id} Summon - {self.type} - Case {self.case.id}"
 
     def complete_camunda_task(self):
-        Workflow.complete_user_task(
+        CaseWorkflow.complete_user_task(
             self.camunda_task_id,
             {
                 "type_aanschrijving": {"value": self.type.camunda_option},

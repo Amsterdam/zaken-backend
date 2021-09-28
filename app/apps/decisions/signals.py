@@ -1,6 +1,6 @@
 from apps.decisions.models import Decision
 from apps.summons.models import Summon
-from apps.workflow.models import Workflow
+from apps.workflow.models import CaseWorkflow
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -12,7 +12,7 @@ def update_decision_with_summon(sender, instance, created, **kwargs):
     This will be resolved when we support multiple summons.
     """
     if created:
-        task = Workflow.get_task_by_task_id(instance.camunda_task_id)
+        task = CaseWorkflow.get_task_by_task_id(instance.camunda_task_id)
         task.workflow.complete_user_task_and_create_new_user_tasks(
             task.task_id,
             {

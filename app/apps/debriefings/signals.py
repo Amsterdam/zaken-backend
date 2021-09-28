@@ -1,5 +1,5 @@
 from apps.debriefings.models import Debriefing
-from apps.workflow.models import Workflow
+from apps.workflow.models import CaseWorkflow
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -9,7 +9,7 @@ from django.dispatch import receiver
 )
 def complete_camunda_task_create_debrief(sender, instance, created, **kwargs):
     if created:
-        Workflow.complete_user_task(
+        CaseWorkflow.complete_user_task(
             instance.camunda_task_id,
             {
                 "violation": {

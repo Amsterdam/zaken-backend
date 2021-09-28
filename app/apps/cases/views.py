@@ -65,8 +65,8 @@ from apps.users.permissions import (
 )
 from apps.visits.models import Visit
 from apps.visits.serializers import VisitSerializer
-from apps.workflow.models import Workflow
-from apps.workflow.serializers import WorkflowSerializer
+from apps.workflow.models import CaseWorkflow
+from apps.workflow.serializers import CaseWorkflowSerializer
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -303,8 +303,8 @@ class CaseViewSet(
         case = self.get_object()
         request.user
 
-        serializer = WorkflowSerializer(
-            Workflow.objects.filter(
+        serializer = CaseWorkflowSerializer(
+            CaseWorkflow.objects.filter(
                 case=case, tasks__isnull=False, tasks__completed=False
             ).distinct(),
             many=True,
@@ -352,11 +352,11 @@ class CaseViewSet(
             case = self.get_object()
             instance = data["camunda_process_id"]
 
-            workflow_type = Workflow.WORKFLOW_TYPE_SUB
+            workflow_type = CaseWorkflow.WORKFLOW_TYPE_SUB
             if instance.to_directing_proccess:
-                workflow_type = Workflow.WORKFLOW_TYPE_MAIN
+                workflow_type = CaseWorkflow.WORKFLOW_TYPE_MAIN
 
-            workflow_instance = Workflow.objects.create(
+            workflow_instance = CaseWorkflow.objects.create(
                 case=case,
                 workflow_type=workflow_type,
             )

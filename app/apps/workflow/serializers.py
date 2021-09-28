@@ -4,20 +4,22 @@ from apps.cases.serializers import CaseStateSerializer
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from .models import Task, Workflow
+from .models import CaseUserTask, CaseWorkflow
 
 
-class TaskSerializer(serializers.ModelSerializer):
+class CaseUserTaskSerializer(serializers.ModelSerializer):
     user_has_permission = serializers.SerializerMethodField()
     camunda_task_id = serializers.CharField(source="id")
     form_variables = serializers.Serializer(source="get_form_variables")
+    # frontend dep: rename to 'task_name'
+    task_name_id = serializers.CharField(source="task_name")
 
     @extend_schema_field(serializers.BooleanField)
     def get_user_has_permission(self, obj):
         return True  # self.request.user.has_perm("users.perform_task")
 
     class Meta:
-        model = Task
+        model = CaseUserTask
         fields = "__all__"
 
 
@@ -36,28 +38,18 @@ class CaseAddressSerializer(serializers.ModelSerializer):
         )
 
 
-class TaskListSerializer(serializers.ModelSerializer):
+class CaseUserTaskListSerializer(CaseUserTaskSerializer):
     case = CaseAddressSerializer()
-    user_has_permission = serializers.SerializerMethodField()
-    camunda_task_id = serializers.CharField(source="id")
-
-    @extend_schema_field(serializers.BooleanField)
-    def get_user_has_permission(self, obj):
-        return True  # self.request.user.has_perm("users.perform_task")
-
-    class Meta:
-        model = Task
-        fields = "__all__"
 
 
-class WorkflowSerializer(serializers.ModelSerializer):
+class CaseWorkflowSerializer(serializers.ModelSerializer):
     state = serializers.SerializerMethodField()
     tasks = serializers.SerializerMethodField()
 
-    @extend_schema_field(TaskSerializer)
+    @extend_schema_field(CaseUserTaskSerializer)
     def get_tasks(self, obj):
-        return TaskSerializer(
-            Task.objects.filter(
+        return CaseUserTaskSerializer(
+            CaseUserTask.objects.filter(
                 workflow=obj,
                 completed=False,
             ).order_by("id"),
@@ -69,7 +61,7 @@ class WorkflowSerializer(serializers.ModelSerializer):
         return CaseStateSerializer(obj.case_states.all().order_by("id").last()).data
 
     class Meta:
-        model = Workflow
+        model = CaseWorkflow
         exclude = [
             "id",
             "case",
@@ -78,5 +70,6 @@ class WorkflowSerializer(serializers.ModelSerializer):
             "main_workflow",
             "workflow_type",
             "workflow_version",
+            "workflow_theme_name",
             "data",
         ]
