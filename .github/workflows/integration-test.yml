@@ -24,19 +24,7 @@ jobs:
       # TEST
       ###################################################
 
-      - run: pip install virtualenv
-
-      - run: virtualenv env
-        working-directory: testing
-
-      - run: . env/bin/activate
-        working-directory: testing
-
       - run: pip install -r requirements.txt
-        working-directory: testing
-
-      - run: ls -lart
-        working-directory: testing
 
       - run: LOGLEVEL=INFO nose2
         working-directory: testing
