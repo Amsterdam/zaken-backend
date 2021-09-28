@@ -1,0 +1,53 @@
+# action.yml
+name: 'Run Integration test'
+on: pull_request
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      ###################################################
+      # CHECKOUT
+      ###################################################
+
+      - name: Checkout backend
+        uses: actions/checkout@v2
+
+      ###################################################
+      # BACKEND
+      ###################################################
+      - run: docker network create zaken_network
+      - run: docker network create top_and_zaak_backend_bridge
+      - run: docker-compose up --build --detach
+      - run: docker-compose -f docker-compose.test.yml --build --detach
+
+      ###################################################
+      # TEST
+      ###################################################
+      - run: virtualenv env
+        working-directory: testing
+
+      - run: . env/bin/activate
+        working-directory: testing
+
+      - run: pip install -r requirements.txt
+        working-directory: testing
+
+      - run: nose2
+        working-directory: testing
+
+
+      ###################################################
+      # On failure
+      ###################################################
+
+      - if: ${{ failure() }}
+        name: "ON FAILURE: Which containers were running while failing?"
+        run: docker ps -a
+
+      - if: ${{ failure() }}
+        name: "ON FAILURE: Backend logs"
+        run: docker logs backend_zaak-gateway_1
+
+      - if: ${{ failure() }}
+        name: "ON FAILURE: Database logs"
+        run: docker logs backend_database_1
