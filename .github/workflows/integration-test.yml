@@ -25,6 +25,7 @@ jobs:
       ###################################################
 
       - run: pip install -r requirements.txt
+        working-directory: testing
 
       - run: LOGLEVEL=INFO nose2
         working-directory: testing
