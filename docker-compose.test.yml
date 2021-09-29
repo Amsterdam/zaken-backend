@@ -10,6 +10,7 @@ services:
     image: zaak-gateway
     ports:
       - 8080:8000
+      - 5678:5678
     depends_on:
       - database
     env_file:
