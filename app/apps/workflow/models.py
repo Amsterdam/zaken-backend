@@ -156,11 +156,20 @@ class CaseWorkflow(models.Model):
             )
             subworkflow.set_initial_data(workflow_instance.get_data())
 
+        def throw_message(message):
+            from .tasks import accept_message_for_workflow
+
+            logger.info(f"throw_message name: {message}")
+            accept_message_for_workflow.delay(
+                workflow_instance.id, message, workflow_instance.get_data()
+            )
+
         wf.script_engine = BpmnScriptEngine(
             scriptingAdditions={
                 "set_status": set_status,
                 "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
                 "start_subworkflow": start_subworkflow,
+                "throw_message": throw_message,
             }
         )
         return wf
