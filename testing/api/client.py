@@ -18,10 +18,12 @@ class Client:
 
     def request(self, verb, url, headers=None, json=None):
         url = f"{self.host}{url}"
-        logger.info(f"Request ({verb}) api on '{url}' with json:\n{json}\n\n")
+        logger.info(
+            f"{verb.upper()} on '{url}' with headers:\n{headers}\nand json:\n{json}\n"
+        )
 
         res = requests.request(verb, url=url, headers=headers, json=json)
-        logger.info(f"Response api status:{res.status_code} with text:\n{res.text}\n\n")
+        logger.info(f"Response api status:{res.status_code} with text:\n{res.text}\n")
 
         if not res.ok:
             logger.info(res.text)
@@ -34,9 +36,9 @@ class Client:
             response = self.request(
                 "post", "/oidc-authenticate/", json={"code": "string"}
             )
-            self.headers = {"Authorization": f"Bearer {response['access']}"}
+            headers = {"Authorization": f"Bearer {response['access']}"}
             self.authenticated = True
-        return self.request(verb, url, headers=self.headers, json=json)
+        return self.request(verb, url, headers=headers, json=json)
 
     def get_case_tasks(self, case_id):
         response = self.call("get", f"/cases/{case_id}/tasks/")
