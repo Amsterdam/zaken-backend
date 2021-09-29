@@ -2,9 +2,7 @@
 
 ## Todo
 
-- Taak opvoeren?
 - Visit: should be Top-Task?
-- Do we need CitizenReport?
 
 ## Installing
 
