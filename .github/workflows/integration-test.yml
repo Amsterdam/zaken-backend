@@ -26,14 +26,13 @@ jobs:
       - run: docker-compose run --rm zaak-gateway python manage.py shell -c "from apps.summons.models import SummonType; type = SummonType.objects.get(pk=4); type.camunda_option='legalisatie-brief'; type.save(); SummonType.objects.get_or_create(camunda_option='sluiting', name='sluiting', theme_id=1)"
       # - run: 'docker-compose run --rm zaak-gateway python manage.py shell -c "from apps.summons.models import SummonType; print(list(map(lambda o: f\"{o.camunda_option} {o.name} {o.id}\", SummonType.objects.all())));"'
       - run: bash bin/setup_credentials.sh
-      - run: sleep 10
-      - run: 'curl http://localhost:8080/api/v1/oidc-authenticate/ || :'
-      - run: 'curl http://zaken-backend_zaak-gateway_1:8080/api/v1/oidc-authenticate/ || :'
-      - run: 'curl http://zaak-gateway_1:8080/api/v1/oidc-authenticate/ || :'
       - run: sleep 60
-      - run: 'curl http://localhost:8080/api/v1/oidc-authenticate/ || :'
-      - run: 'curl http://zaken-backend_zaak-gateway_1:8080/api/v1/oidc-authenticate/ || :'
-      - run: 'curl http://zaak-gateway_1:8080/api/v1/oidc-authenticate/ || :'
+      - run: 'curl http://0.0.0.0:8080/ || :'
+      - run: 'curl http://127.0.0.1:8080/ || :'
+      - run: 'curl http://localhost:8080/ || :'
+      - run: 'curl http://zaak-gateway:8080/ || :'
+      - run: 'curl http://zaak-gateway_1:8080/ || :'
+      - run: 'curl http://zaken-backend_zaak-gateway_1:8080/ || :'
 
 
       ###################################################
