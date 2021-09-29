@@ -7,10 +7,8 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.shortcuts import get_object_or_404
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
-from SpiffWorkflow.bpmn.serializer.BpmnSerializer import (
-    BpmnSerializer,  # as SpiffBpmnSerializer
-)
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow  # as SpiffBpmnWorkflow
+from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.task import Task
 
@@ -78,11 +76,6 @@ class CaseWorkflow(models.Model):
         blank=True,
     )
     created = models.DateTimeField(auto_now_add=True)
-    # initial_message = models.CharField(
-    #     max_length=100,
-    #     null=True,
-    #     blank=True,
-    # )
     serialized_workflow_state = models.JSONField(null=True)
     data = models.JSONField(null=True)
 
@@ -121,6 +114,7 @@ class CaseWorkflow(models.Model):
             print("wait_for_workflows_and_send_message: %s" % message)
             print("workflow id: %s" % workflow_instance.id)
 
+            # tell the other workfows that this one is waiting
             workflow_instance.data.update(
                 {
                     message: "done",
@@ -136,7 +130,10 @@ class CaseWorkflow(models.Model):
             ]
             main_workflow = all_workflows.filter(main_workflow=True).first()
 
-            # tests if all workflows reached thit point
+            """
+            Tests if all workflows reached thit point,
+            so the last waiting worklfow kan tell the main workflow to accept the message after all, so only the main workflow can resume
+            """
             if len(workflows_completed) == all_workflows.count() and main_workflow:
                 from .tasks import accept_message_for_workflow
 
@@ -150,9 +147,10 @@ class CaseWorkflow(models.Model):
                     "all_summons": all_summons,
                 }
 
+                # sends the accept message to a task, because we have to wait until this current tasks, we are in, is completed
                 accept_message_for_workflow.delay(main_workflow.id, message, extra_data)
 
-                # delete others
+                # TODO: cleanup(delete others), but the message is not send yes, so below should wait
                 # other_workflows = all_workflows.exclude(id=main_workflow.id)
                 # other_workflows.delete()
 
@@ -173,14 +171,8 @@ class CaseWorkflow(models.Model):
         )
         return wf
 
-    def get_user_task_form(self, task_id):
-        wf = self.get_or_restore_workflow_state()
-        task = wf.get_task(task_id)
-        if task:
-            return CaseUserTask.parse_task_spec_form(task.task_spec.form)
-        return []
-
     def message(self, message_name, payload, resultVar, extra_data={}):
+        # use this to start a workflow at a certain point
         wf = self.get_or_restore_workflow_state()
         data = {}
         data.update(extra_data)
@@ -192,29 +184,23 @@ class CaseWorkflow(models.Model):
         self._update_db(wf)
 
     def accept_message(self, message_name, extra_data):
-        print("ACCEPT_MESSAGE")
-        print(message_name)
-        print(extra_data)
+        """
+        Sends a message to a running workflow.
+        If the state of task (ItermediateCatchEvent) that holds this message is 'message_name',
+        than this task will be completed, and the workflow can resume.
+        """
+
         wf = self.get_or_restore_workflow_state()
 
-        print("update")
-        print(wf.get_waiting_tasks())
         wf = self._update_workflow(wf)
 
-        print("add data")
-        print(wf.get_waiting_tasks())
         if wf.last_task:
-            print(wf.last_task)
             wf.last_task.update_data(extra_data)
 
-        print("update")
-        print(wf.get_waiting_tasks())
         wf = self._update_workflow(wf)
-        print(wf.get_waiting_tasks())
-        print("accept message")
+
         wf.accept_message(message_name)
 
-        print("update")
         wf = self._update_workflow(wf)
         self.save_workflow_state(wf)
         self._update_db(wf)
@@ -229,6 +215,10 @@ class CaseWorkflow(models.Model):
         return wf
 
     def get_data(self):
+        """
+        TODO: data is also saved on this instance after a UserTask completed, but in between UserTasks data could diver.
+        Find one solution to get current data from workflow and from the saved 'data' from this instance
+        """
         wf = self.get_or_restore_workflow_state()
         if wf.last_task:
             return wf.last_task.data
@@ -315,6 +305,7 @@ class CaseWorkflow(models.Model):
         self.save()
 
     def get_or_restore_workflow_state(self):
+        # gets the unserialized workflow from this workflow instance, it has to use an workflow_spec, witch in this case will be load from filesystem.
         if self.serialized_workflow_state:
             wf = self.get_serializer().deserialize_workflow(
                 self.serialized_workflow_state, workflow_spec=self.get_workflow_spec()
@@ -323,6 +314,8 @@ class CaseWorkflow(models.Model):
             return wf
         else:
             wf = BpmnWorkflow(self.get_workflow_spec())
+
+            # always work with an already saved version
             self.save_workflow_state(wf)
             return self.get_or_restore_workflow_state()
 
@@ -386,6 +379,26 @@ class CaseWorkflow(models.Model):
         self.create_user_tasks(wf)
 
     def migrate_to(self, workflow_version, test=True):
+        # tests and tries to migrate to an other version
+        """
+        Tests and tries to migrate to an other version
+        Below the steps to perform
+
+        *   This performs checks on the current uncompleted db tasks based on the new workflow_spec
+            Check if task.task_name exists in the new workflow_spec, if not, could it be renamed.
+            If it exists, is the path for the new workflow_spec to this task the same as the old one.
+            At the end of the task name checks, a new task name set(maybe the same as the old one), can be used to do the next check.
+
+        *   Perform checks on all the data gathered until this state of the workflow.
+            Assemble the form fields of the spiff UserTasks on the path to current uncompleted db tasks for current and new workflow_spec.
+            Compare the keys of the two results, and provide defaults for the missing data, for new fields in the new workflow_spec.
+
+        *   Perform a fast-forward on a new workflow, based on the new workflow_spec, by completing all the UserTasks until the current uncompleted db tasks.
+            This fast-forward on a workflow, could generate a exception, if a ScriptTasks uses variables that are not generated by forms.
+            The result of the fast-forward, should be a new workflow based on the new workflow_spec, that can be serialized and saved in this workflow instances field 'serialized_workflow_state'
+            The current uncompleted db tasks field 'task_id', should be changed to the task.id's from new workflow's Task.READY tasks.
+        """
+
         valid = True
         path = get_workflow_path(
             self.workflow_type,
@@ -437,13 +450,16 @@ class CaseUserTask(models.Model):
     completed = models.BooleanField(
         default=False,
     )
+    # connects spiff task with this db task
     task_id = models.UUIDField(
         unique=True,
     )
-    name = models.CharField(
+    # name of the task_spec in spiff, in bpmn modeler is this the id field
+    task_name = models.CharField(
         max_length=255,
     )
-    task_name = models.CharField(
+    # description of the task_spec in spiff, in bpmn modeler is this the name field
+    name = models.CharField(
         max_length=255,
     )
     form = models.JSONField(
@@ -472,6 +488,8 @@ class CaseUserTask(models.Model):
 
     @staticmethod
     def parse_task_spec_form(form):
+        # transforms and serializes the spiff task_spec.form for the current react frontend
+        # TODO: only serialize task_spec.formm, and refactor react frontend
         trans_types = {
             "enum": "select",
             "boolean": "checkbox",
@@ -503,6 +521,7 @@ class CaseUserTask(models.Model):
         return fields
 
     def map_variables_on_form(self, variables):
+        # transforms form result data and adds labels for the frontend
         form = dict((f.get("id"), f) for f in self.form)
         return dict(
             (
@@ -521,6 +540,7 @@ class CaseUserTask(models.Model):
         )
 
     def get_form_variables(self):
+        # TODO: Return corresponding spiff task data, currently used only to provide frontend with the current summon_id
         return {}
 
     def complete(self):
