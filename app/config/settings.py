@@ -466,33 +466,5 @@ VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER = os.getenv(
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-# START legacy
-WORKFLOWS = {
-    "VAKANTIEVERHUUR_WORKFLOW": {
-        "main_proccess": "aza_wonen_local_vakantieverhuur_regie",
-        "proccess_files": [
-            "aza_wonen_global_afronden_zaak.bpmn",
-            "aza_wonen_global_voornemen_afzien.bpmn",
-            "aza_wonen_global_decision.bpmn",
-            "aza_wonen_global_summon.bpmn",
-            "aza_wonen_global_visit.bpmn",
-            "aza_wonen_local_vakantieverhuur_regie.bpmn",
-        ],
-    },
-    "SIGNAL_WORKFLOW": {
-        "main_proccess": "zaak_wonen_subprocesses",
-        "proccess_files": [
-            "zaak_wonen_subprocesses.bpmn",
-        ],
-    },
-}
 
-VAKANTIEVERHUUR_WORKFLOW = WORKFLOWS["VAKANTIEVERHUUR_WORKFLOW"]
-SIGNAL_WORKFLOW = WORKFLOWS["SIGNAL_WORKFLOW"]
-DEFAULT_WORKFLOW = VAKANTIEVERHUUR_WORKFLOW
-# END legacy
-
-
-WORKFLOW_VERSIONS = [
-    "0.1.0",
-]
+DEFAULT_WORKFLOW_TYPE = os.getenv("DEFAULT_WORKFLOW_TYPE", "main_workflow")

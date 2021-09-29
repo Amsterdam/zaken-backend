@@ -3,7 +3,6 @@ import logging
 from string import Template
 
 from apps.cases.models import Case
-from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.shortcuts import get_object_or_404
@@ -25,14 +24,6 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
-
-
-def get_workflow_spec_choices():
-    return [[k, k] for k, v in settings.WORKFLOWS.items()]
-
-
-def get_workflow_version_choices():
-    return [[v, v] for v in settings.WORKFLOW_VERSIONS]
 
 
 class CaseWorkflow(models.Model):

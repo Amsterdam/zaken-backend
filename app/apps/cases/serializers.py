@@ -177,7 +177,7 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
                 case = Case.objects.create(**validated_data, address=address)
                 workflow_instance = CaseWorkflow.objects.create(
                     case=case,
-                    workflow_type="main_workflow",
+                    workflow_type=settings.DEFAULT_WORKFLOW_TYPE,
                     main_workflow=True,
                 )
                 workflow_instance.message(
