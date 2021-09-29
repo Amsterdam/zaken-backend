@@ -1,5 +1,6 @@
 import copy
 import json
+import logging
 import os
 
 from deepdiff import DeepDiff
@@ -10,6 +11,8 @@ from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.specs.StartTask import StartTask
 from SpiffWorkflow.task import Task
+
+logger = logging.getLogger(__name__)
 
 
 def parse_task_spec_form(form):
@@ -58,12 +61,12 @@ def check_for_duplicate_task_spec_ids(workflow_spec):
     for name, value in workflow_spec.task_specs.items():
         all_task_ids.append(name)
         sub_workflow_task_specs(value, all_task_ids)
-    print(all_task_ids)
+    logger.info(all_task_ids)
     all_task_ids = [n for n in all_task_ids if n not in spiff_task_names]
 
     for i in set(all_task_ids):
         all_task_ids.remove(i)
-    print(all_task_ids)
+    logger.info(all_task_ids)
     return all_task_ids
 
 
@@ -98,15 +101,15 @@ def get_latest_version(workflow_type, theme_name="default"):
         )
 
     versions = get_dirs(get_path(theme_name))
-    print("first versions")
-    print(theme_name)
-    print(versions)
+    logger.info("first versions")
+    logger.info(theme_name)
+    logger.info(versions)
     if not versions:
         theme_name = "default"
         versions = get_dirs(get_path(theme_name))
-        print("first versions")
-        print(theme_name)
-        print(versions)
+        logger.info("first versions")
+        logger.info(theme_name)
+        logger.info(versions)
     if versions:
         return theme_name, versions[-1]
     return False, False
@@ -174,7 +177,7 @@ def compare_path_until_task(workflow_spec_a, workflow_spec_b, task_name):
     if not found_path or len(found_path) > 1:
         return False
     found_path = json.dumps(found_path[0].get("path"))
-    print(found_path)
+    logger.info(found_path)
     if found_path == path:
         # happy flow, task_name can be renamed to found_path[0]
         return found_path[0]
@@ -240,10 +243,10 @@ def compare_workflow_specs_by_task_specs(
             if not task_id_changes:
                 valid = False
             elif task_id_changes != task_name:
-                print("START: Probably just a task id change")
-                print(task_name)
-                print(task_id_changes)
-                print("END: Probably just a task id change")
+                logger.info("START: Probably just a task id change")
+                logger.info(task_name)
+                logger.info(task_id_changes)
+                logger.info("END: Probably just a task id change")
                 new_task_name_ids[task_name] = task_id_changes
             elif task_id_changes == task_name:
                 new_task_name_ids[task_name] = task_id_changes
@@ -382,8 +385,7 @@ def compare_workflow_specs(version_a, version_b, theme_name, worflow_type):
     )
     user_tasks_formfields_changed = DeepDiff(form_fields_a, form_fields_b)
 
-    print("COMPARE DUMPS")
-    # print(get_workflow_sepc_dump(spec_a, False, False))
+    logger.info("COMPARE DUMPS")
     get_workflow_spec_dump(spec_a, False, False, "task_beeldverslag_opstellen")
 
     if get_workflow_spec_dump(spec_a, True, True).get("dump") == get_workflow_spec_dump(
@@ -397,13 +399,12 @@ def compare_workflow_specs(version_a, version_b, theme_name, worflow_type):
     if not bool(user_tasks_formfields_changed):
         deep_inspect_workflow_spec(spec_a)
 
-    print("FORM FIELDS DIFF")
+    logger.info("FORM FIELDS DIFF")
     pprint(bool(user_tasks_formfields_changed))
 
-    print("TASK NAMES DIFF")
+    logger.info("TASK NAMES DIFF")
     pprint(user_tasks_changed)
-    # print([t.name for t in task_specs_a])
-    print(form_fields_a)
+    logger.info(form_fields_a)
     return {
         "stucture_changed": stucture_changed,
         "task_ids_and_stucture_changed": task_ids_and_stucture_changed,
@@ -421,10 +422,10 @@ def get_formfield_ids(task):
 
 def workflow_health_check(workflow_spec, data, expected_user_task_names):
     def set_status(status):
-        print("set_status: %s" % status)
+        logger.info(f"set_status: {status}")
 
     def wait_for_workflows_and_send_message(message):
-        print("wait_for_workflows_and_send_message: %s" % message)
+        logger.info(f"wait_for_workflows_and_send_message: {message}")
 
     script_engine = BpmnScriptEngine(
         scriptingAdditions={
@@ -442,36 +443,35 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
     workflow.message("start_signal_process", {"value": "test"}, "next_step")
     workflow.do_engine_steps()
 
-    print("expected_user_task_names")
-    print(expected_user_task_names)
-    print("data")
-    print(data)
+    logger.info("expected_user_task_names")
+    logger.info(expected_user_task_names)
+    logger.info("data")
+    logger.info(data)
 
     found_user_task_name = []
     missing_form_data = []
 
     ready_tasks = workflow.get_ready_user_tasks()
     success = False
-    print(ready_tasks)
+    logger.info(ready_tasks)
     while len(ready_tasks) > 0:
 
         for task in ready_tasks:
             found_user_task_name = [t.task_spec.name for t in ready_tasks]
-            print(task.task_spec.name)
+            logger.info(task.task_spec.name)
 
             if sorted(found_user_task_name) == sorted(expected_user_task_names):
-                # if isinstance(task.task_spec, UserTask):
-                print("STOP")
-                # task.update_data(data)
-                # workflow.complete_task_from_id(task.id)
+
+                logger.info("STOP")
+
                 workflow.refresh_waiting_tasks()
                 workflow.do_engine_steps()
 
                 waiting_tasks = workflow.get_tasks(Task.WAITING)
 
                 if waiting_tasks:
-                    print(waiting_tasks[-1].__dict__)
-                    print(waiting_tasks[-1].parent.__dict__)
+                    logger.info(waiting_tasks[-1].__dict__)
+                    logger.info(waiting_tasks[-1].parent.__dict__)
 
                 ready_tasks = []
                 success = True
@@ -481,9 +481,9 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
                 formfield_ids = sorted(get_formfield_ids(task))
                 data_keys = list(data.keys())
                 missing_keys = sorted([i for i in formfield_ids if i not in data_keys])
-                print("CHECK IF FIELD NAMES EXIST IN THE DATA KEYS")
-                print("missing_keys")
-                print(missing_keys)
+                logger.info("CHECK IF FIELD NAMES EXIST IN THE DATA KEYS")
+                logger.info("missing_keys")
+                logger.info(missing_keys)
                 if missing_keys:
                     missing_form_data.append(
                         {
@@ -504,15 +504,15 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
                 ready_tasks = workflow.get_ready_user_tasks()
 
         if not ready_tasks and not success:
-            print(
+            logger.info(
                 "Nothing found, have to check for waiting tasks to complete. Try to run further when waiting tasks are completed"
             )
             waiting_tasks = workflow.get_tasks(Task.WAITING)
             if waiting_tasks:
-                print(waiting_tasks[-1].task_spec.name)
-                print(type(waiting_tasks[-1].task_spec))
-                print(waiting_tasks[-1].parent.task_spec.name)
-                print(type(waiting_tasks[-1].parent.task_spec))
+                logger.info(waiting_tasks[-1].task_spec.name)
+                logger.info(type(waiting_tasks[-1].task_spec))
+                logger.info(waiting_tasks[-1].parent.task_spec.name)
+                logger.info(type(waiting_tasks[-1].parent.task_spec))
             for wt in waiting_tasks:
                 if isinstance(wt.parent.task_spec, StartTask):
                     pass
@@ -533,7 +533,7 @@ def main():
     compare_results = compare_workflow_specs(
         "0.1.0", "0.2.0", "vakantieverhuur", "main_workflow"
     )
-    print(compare_results)
+    logger.info(compare_results)
 
 
 if __name__ == "__main__":

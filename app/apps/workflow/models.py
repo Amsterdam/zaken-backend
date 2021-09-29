@@ -1,4 +1,5 @@
 import copy
+import logging
 from string import Template
 
 from apps.cases.models import Case
@@ -22,6 +23,8 @@ from .utils import (
     parse_task_spec_form,
     workflow_health_check,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def get_workflow_spec_choices():
@@ -111,8 +114,8 @@ class CaseWorkflow(models.Model):
             case.set_state(input, workflow_instance)
 
         def wait_for_workflows_and_send_message(message):
-            print("wait_for_workflows_and_send_message: %s" % message)
-            print("workflow id: %s" % workflow_instance.id)
+            logger.info(f"wait_for_workflows_and_send_message: {message}")
+            logger.info(f"workflow id: {workflow_instance.id}")
 
             # tell the other workfows that this one is waiting
             workflow_instance.data.update(
@@ -155,7 +158,7 @@ class CaseWorkflow(models.Model):
                 # other_workflows.delete()
 
         def start_subworkflow(subworkflow_name):
-            print(f"subworkflow name: {subworkflow_name}")
+            logger.info(f"subworkflow name: {subworkflow_name}")
             subworkflow = CaseWorkflow.objects.create(
                 case=case,
                 workflow_type=subworkflow_name,
@@ -282,9 +285,9 @@ class CaseWorkflow(models.Model):
         if task and isinstance(task.task_spec, UserTask):
             task.update_data(data)
             wf.complete_task_from_id(task.id)
-            print("COMPLETE TASK: %s" % task.task_spec.name)
+            logger.info(f"COMPLETE TASK: {task.task_spec.name}")
         else:
-            print("COMPLETE TASK NOT FOUND: %s" % task_id)
+            logger.info(f"COMPLETE TASK NOT FOUND: {task_id}")
 
         # changes the workflow
         wf = self._update_workflow(wf)
@@ -435,7 +438,7 @@ class CaseWorkflow(models.Model):
         result = workflow_health_check(
             workflow_spec_b, copy.deepcopy(self.data), expected_user_task_names
         )
-        print(result)
+        logger.info(result)
         if not test and valid:
             # existing uncompleted tasks can be deleted. They should be created with the new workflow with new task id's
             uncompleted_users_tasks.delete()
