@@ -77,27 +77,6 @@ services:
       - zaken_network
     restart: on-failure
 
-  camunda:
-    build: camunda/deployment
-    hostname: camunda
-    image: camunda-ritense
-    ports:
-      - 7000:8080
-    env_file:
-      - camunda/.env
-    networks:
-      - zaken_network
-
-  camunda_db:
-    image: amsterdam/postgres11
-    networks:
-      - zaken_network
-    shm_size: "512m"
-    ports:
-      - "54321:5432"
-    env_file:
-      - camunda/.env
-
 networks:
   zaken_network:
     external: true
