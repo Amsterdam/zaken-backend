@@ -12,6 +12,7 @@ jobs:
       - name: Checkout backend
         uses: actions/checkout@v2
 
+
       ###################################################
       # BACKEND
       ###################################################
@@ -21,6 +22,7 @@ jobs:
       - run: docker-compose -f docker-compose.test.yml up --detach
       - run: sleep 30
       - run: docker-compose run --rm zaak-gateway python manage.py shell -c "from apps.summons.models import SummonType; type = SummonType.objects.get(pk=4); type.camunda_option='legalisatie-brief'; type.save(); SummonType.objects.get_or_create(camunda_option='sluiting', name='sluiting', theme_id=1)"
+      - run: docker-compose run --rm zaak-gateway python manage.py shell -c "from django.contrib.auth.models import Permission; from django.contrib.auth import get_user_model; user = get_user_model().objects.get(email='local.user@dev.com'); user.user_permissions.add(Permission.objects.get(name='Create a new Case')); user.user_permissions.add(Permission.objects.get(name='Can perform a tasks')); user.user_permissions.add(Permission.objects.get(name='Close a Case (by performing the last task)'))"
       - run: bash bin/setup_credentials.sh
 
 

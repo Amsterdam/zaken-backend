@@ -9,6 +9,7 @@ logger = logging.getLogger("api")
 
 class Client:
     authenticated = False
+    headers = None
 
     def __init__(self, config):
         self.legacy_mode = config["legacy_mode"]  # using Spiff vs Camunda
@@ -36,9 +37,9 @@ class Client:
             response = self.request(
                 "post", "/oidc-authenticate/", json={"code": "string"}
             )
-            headers = {"Authorization": f"Bearer {response['access']}"}
+            self.headers = {"Authorization": f"Bearer {response['access']}"}
             self.authenticated = True
-        return self.request(verb, url, headers=headers, json=json)
+        return self.request(verb, url, headers=self.headers, json=json)
 
     def get_case_tasks(self, case_id):
         response = self.call("get", f"/cases/{case_id}/tasks/")
