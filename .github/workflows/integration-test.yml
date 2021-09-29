@@ -1,0 +1,55 @@
+# action.yml
+name: 'Run Integration test'
+on: pull_request
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      ###################################################
+      # CHECKOUT
+      ###################################################
+
+      - name: Checkout backend
+        uses: actions/checkout@v2
+
+
+      ###################################################
+      # BACKEND
+      ###################################################
+
+      - run: docker network create zaken_network
+      - run: docker network create top_and_zaak_backend_bridge
+      - run: docker-compose -f docker-compose.test.yml up --detach
+      - run: sleep 30
+      - run: bash bin/setup_credentials.sh
+      - run: docker-compose run --rm zaak-gateway python manage.py shell -c "from apps.summons.models import SummonType; type = SummonType.objects.get(pk=4); type.camunda_option='legalisatie-brief'; type.save(); SummonType.objects.get_or_create(camunda_option='sluiting', name='sluiting', theme_id=1)"
+      - run: docker-compose run --rm zaak-gateway python manage.py shell -c "from django.contrib.auth.models import Permission; from django.contrib.auth import get_user_model; (user,_) = get_user_model().objects.get_or_create(email='local.user@dev.com'); user.user_permissions.add(Permission.objects.get(name='Create a new Case')); user.user_permissions.add(Permission.objects.get(name='Can perform a tasks')); user.user_permissions.add(Permission.objects.get(name='Close a Case (by performing the last task)'))"
+
+
+      ###################################################
+      # TEST
+      ###################################################
+
+      - run: sudo apt-get install python3.9
+
+      - run: python3.9 -m pip install -r testing/requirements.txt
+
+      - run: API_HOST=http://127.0.0.1:8080/api/v1 LOGLEVEL=INFO python3.9 -m unittest
+        working-directory: testing
+
+
+      ###################################################
+      # On failure
+      ###################################################
+
+      - if: ${{ failure() }}
+        name: "ON FAILURE: Which containers were running while failing?"
+        run: docker ps -a
+
+      - if: ${{ failure() }}
+        name: "ON FAILURE: Backend logs"
+        run: docker logs zaken-backend_zaak-gateway_1
+
+      - if: ${{ failure() }}
+        name: "ON FAILURE: Database logs"
+        run: docker logs zaken-backend_database_1

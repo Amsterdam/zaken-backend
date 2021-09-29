@@ -20,20 +20,15 @@ pip install -r requirements.txt
 
 Follow install instructions from the main README.md file.
 
-Start Docker with the test config file.
+Start Docker with the test config file and make sure we have the right SummonTypes.
 
-```
+```shell
 docker-compose -f ../docker-compose.test.yml up -d
+docker-compose run zaak-gateway python manage.py shell -c "from apps.summons.models import SummonType; type = SummonType.objects.get(pk=13); type.camunda_option='sluiting'; type.save(); SummonType.objects.get_or_create(camunda_option='legalisatie-brief', name='Legalisatie-brief', theme_id=1)"
 ```
-
-Make sure we have the correct SummonTypes in our db.
-Create a new summon-type for CLOSING
-
-    (camunda_option=sluiting, name=sluiting, theme=1, id=13)
-    (camunda_option=legalisatie-brief, name=legalisatie-brief, theme=1)
 
 Now run the test suite
 
 ```
-LEGACY=1 nose2
+nose2
 ```

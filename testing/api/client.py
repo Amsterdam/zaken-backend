@@ -9,6 +9,7 @@ logger = logging.getLogger("api")
 
 class Client:
     authenticated = False
+    headers = None
 
     def __init__(self, config):
         self.legacy_mode = config["legacy_mode"]  # using Spiff vs Camunda
@@ -18,10 +19,12 @@ class Client:
 
     def request(self, verb, url, headers=None, json=None):
         url = f"{self.host}{url}"
-        logger.info(f"Request ({verb}) api on '{url}' with json:\n{json}\n\n")
+        logger.info(
+            f"{verb.upper()} on '{url}' with headers:\n{headers}\nand json:\n{json}\n"
+        )
 
         res = requests.request(verb, url=url, headers=headers, json=json)
-        logger.info(f"Response api status:{res.status_code} with text:\n{res.text}\n\n")
+        logger.info(f"Response api status:{res.status_code} with text:\n{res.text}\n")
 
         if not res.ok:
             logger.info(res.text)
