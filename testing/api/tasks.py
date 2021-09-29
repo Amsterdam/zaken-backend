@@ -25,85 +25,97 @@ class Task:
     Map Spiff task_name to legacy-Camunda task_name
     """
 
-    check_decision = ("Activity_1j6vc31", "Activity_1j6vc31")  # Nakijken besluit
+    check_decision = (
+        "Activity_1j6vc31",
+        "task_check_concept_decision",
+    )  # Nakijken besluit
     check_incoming_view = (
         "Activity_1nylgs7",
-        "Activity_1nylgs7",
+        "task_check_incoming_point_of_view",
     )  # Controleren binnenkomst zienswijze
     check_notices = (
         "Activity_0xocoed",
-        "Activity_0xocoed",
+        "task_check_summons",
     )  # Nakijken aanschrijving(en)
     close_case = ("task_close_case", "task_close_case")
-    contact_district = ("Activity_1tl73nx", "Activity_1tl73nx")  # Contacteren stadsdeel
-    contact_owner = ("Activity_0gjczg7", "Activity_0gjczg7")  # Contacteren eigenaar
+    contact_district = (
+        "Activity_1tl73nx",
+        "task_contact_city_district",
+    )  # Contacteren stadsdeel
+    contact_owner = ("Activity_0gjczg7", "task_contact_owner")  # Contacteren eigenaar
     create_concept_notices = (
         "Activity_15hr2wx",
-        "Activity_15hr2wx",
+        "task_create_concept_summons",
     )  # Opstellen concept aanschrijvingen
     create_concept_decision = (
         "Activity_08cj18o",
-        "Activity_08cj18o",
+        "task_make_concept_decision",
     )  # Opstellen concept besluit
 
     create_findings_report = (
         "task_rapport_van_bevindingen_opstellen",
-        "task_rapport_van_bevindingen_opstellen",
+        "task_create_report_of_findings",
     )  # Opstellen rapport van bevindingen
     create_home_visit_report = (
         "Activity_02t4qsu",
-        "Activity_02t4qsu",
+        "task_prepare_abbreviated_visit_rapport",
     )  # Opstellen verkorte rapportage huisbezoek
     create_picture_report = (
         "task_beeldverslag_opstellen",
-        "task_beeldverslag_opstellen",
+        "task_create_picture_rapport",
     )  # Opstellen beeldverslag
     feedback_reporters = (
         "Activity_0bc2n3t",
-        "Activity_0bc2n3t",
+        "task_feedback_reporter",
     )  # Terugkoppelen melder(s)
     judge_reopening_request = (
         "Activity_0fp5tdz",
-        "Activity_0fp5tdz",
+        "task_judge_reopening_request",
     )  # Beoordelen heropeningsverzoek
-    judge_view = ("Activity_18ear0d", "Activity_18ear0d")  # Beoordelen zienswijze
+    judge_view = (
+        "Activity_18ear0d",
+        "task_judge_point_of_view",
+    )  # Beoordelen zienswijze
     monitor_incoming_permit_request = (
         "Activity_1mkl5rk",
-        "Activity_1mkl5rk",
+        "task_monitor_incoming_permit_application",
     )  # Monitoren binnenkomen vergunningaanvraag
     monitor_incoming_view = (
         "Activity_13ccsra",
-        "Activity_13ccsra",
+        "task_monitor_incoming_point_of_view",
     )  # Monitoren binnenkomen zienswijze
     monitor_incoming_warrant = (
         "Activity_1lv323s",
-        "Activity_1lv323s",
+        "task_monitor_incoming_authorization",
     )  # Monitoren binnenkomen machtiging
     monitor_reopening_request = (
         "Activity_0wienly",
-        "Activity_0wienly",
+        "task_monitor_reopening_request",
     )  # Monitoren heropeningsverzoek
     monitor_reopening_request_to_be_delivered = (
         "Activity_0zh0d0s",
-        "Activity_0zh0d0s",
+        "task_monitor_new_reopening_request",
     )  # Monitoren nieuw aan te leveren heropeningsverzoek
     plan_next_step = (
         "Activity_0id7dcf",
-        "Activity_0id7dcf",
+        "task_set_next_step",
     )  # Uitzetten vervolgstap
-    reopen = ("Activity_1fovs3d", "Activity_1fovs3d")  # Heropenen
+    reopen = ("Activity_1fovs3d", "task_reopening")  # Heropenen
     request_warrant = (
         "Activity_03lt0e7",
-        "Activity_03lt0e7",
+        "task_request_authorization",
     )  # Aanvragen machtiging
     save_fire_brigade_advice = (
         "Activity_19r9rzm",
-        "Activity_19r9rzm",
+        "task_save_fireman_advice",
     )  # Opslaan brandweeradvies
-    schedule_recheck = ("Activity_1tmqvpn", "Activity_1tmqvpn")  # Uitzetten hercontrole
+    schedule_recheck = (
+        "Activity_1tmqvpn",
+        "task_schedule_recheck",
+    )  # Uitzetten hercontrole
     send_tax_collection = (
         "Activity_14kdv7u",
-        "Activity_14kdv7u",
+        "task_send_tax_collection",
     )  # Versturen invordering belastingen
 
     # non-generic-tasks
