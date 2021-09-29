@@ -139,7 +139,6 @@ class Case(ModelEventEmitter):
         return qs
 
     def set_state(self, state_name, workflow, information="", *args, **kwargs):
-        print("Case set status workflow id: %s" % workflow.id)
         state_type, _ = CaseStateType.objects.get_or_create(
             name=state_name, theme=self.theme
         )
