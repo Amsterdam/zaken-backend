@@ -19,7 +19,7 @@ def accept_message_for_workflow(self, workflow_id, message, extra_data):
     workflow = CaseWorkflow.objects.filter(id=workflow_id).first()
     if not workflow:
         return "workflow not found: %s" % workflow_id
-    # time.sleep(100)
+
     workflow.accept_message(message, extra_data)
 
     return "workflow: %s, message: %s" % (

@@ -25,7 +25,7 @@ class CaseUserTaskSerializer(serializers.ModelSerializer):
 
 class CaseAddressSerializer(serializers.ModelSerializer):
     """
-    Case-address serializer for camunda tasks
+    Case-address serializer for CaseUserTasks
     """
 
     address = AddressSerializer()
