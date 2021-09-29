@@ -33,7 +33,7 @@ class Visit(ModelEventEmitter):
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     notes = models.TextField(null=True, blank=True)
     task = models.ForeignKey(
-        to="workflow.Task",
+        to="workflow.CaseUserTask",
         on_delete=models.CASCADE,
         null=True,
         blank=True,

@@ -1,5 +1,5 @@
 from apps.visits.models import Visit
-from apps.workflow.models import Workflow
+from apps.workflow.models import CaseWorkflow
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -8,7 +8,7 @@ from django.dispatch import receiver
 def complete_camunda_task_create_visit(sender, instance, created, **kwargs):
     print(instance)
     if created and instance.task:
-        Workflow.complete_user_task(
+        CaseWorkflow.complete_user_task(
             instance.task.id,
             {
                 "situation": {"value": instance.situation},

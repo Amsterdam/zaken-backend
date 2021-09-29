@@ -81,14 +81,50 @@ def get_base_path():
     return os.path.dirname(os.path.realpath(__file__))
 
 
-def get_workflow_path(theme_name, workflow_version, workflow_type):
-    return os.path.join(
+def get_latest_version(workflow_type, theme_name="default"):
+    def get_path(_theme_name):
+        return os.path.join(
+            get_base_path(),
+            "bpmn_files",
+            _theme_name.lower(),
+            workflow_type.lower(),
+        )
+
+    def get_dirs(path):
+        return (
+            sorted([o for o in os.listdir(path) if not os.path.isfile(o)])
+            if os.path.exists(path)
+            else []
+        )
+
+    versions = get_dirs(get_path(theme_name))
+    print("first versions")
+    print(theme_name)
+    print(versions)
+    if not versions:
+        theme_name = "default"
+        versions = get_dirs(get_path(theme_name))
+        print("first versions")
+        print(theme_name)
+        print(versions)
+    if versions:
+        return theme_name, versions[-1]
+    return False, False
+
+
+def get_workflow_path(workflow_type, theme_name="default", workflow_version="latest"):
+    path = os.path.join(
         get_base_path(),
         "bpmn_files",
         theme_name.lower(),
-        workflow_version.lower(),
         workflow_type.lower(),
+        workflow_version.lower(),
     )
+    return path
+
+
+def is_bpmn_file(file_name):
+    return file_name.split(".")[-1] == "bpmn"
 
 
 def get_workflow_spec(path, workflow_type):
@@ -103,11 +139,11 @@ def get_workflow_spec_files(path):
     return [
         os.path.join(path, f)
         for f in os.listdir(path)
-        if os.path.isfile(os.path.join(path, f))
+        if os.path.isfile(os.path.join(path, f)) and is_bpmn_file(f)
     ]
 
 
-def compare_path_until_task(workflow_spec_a, workflow_spec_b, task_name_id):
+def compare_path_until_task(workflow_spec_a, workflow_spec_b, task_name):
     """
     Compares two workflow_specs until a specific task_spec is found
     It compares the paths of the two results
@@ -119,62 +155,60 @@ def compare_path_until_task(workflow_spec_a, workflow_spec_b, task_name_id):
         workflow_spec_a,
         hide_names=False,
         show_input_output=False,
-        find_task_name=task_name_id,
+        find_task_name=task_name,
     )
     result_b = get_workflow_spec_dump(
         workflow_spec_b,
         hide_names=False,
         show_input_output=False,
-        find_task_name=task_name_id,
+        find_task_name=task_name,
     )
 
-    # get path by task_name_id
-    path = [p for p in result_a.get("paths") if p.get("task_name_id") == task_name_id]
+    # get path by task_name
+    path = [p for p in result_a.get("paths") if p.get("task_name") == task_name]
     if not path or len(path) > 1:
         return False
     path = json.dumps(path[0].get("path"))
 
-    found_path = [
-        p for p in result_b.get("paths") if p.get("task_name_id") == task_name_id
-    ]
+    found_path = [p for p in result_b.get("paths") if p.get("task_name") == task_name]
     if not found_path or len(found_path) > 1:
         return False
     found_path = json.dumps(found_path[0].get("path"))
     print(found_path)
     if found_path == path:
-        # happy flow, task_name_id can be renamed to found_path[0]
+        # happy flow, task_name can be renamed to found_path[0]
         return found_path[0]
     return False
 
 
-def check_task_id_changes(workflow_spec_a, workflow_spec_b, task_name_id):
+def check_task_id_changes(workflow_spec_a, workflow_spec_b, task_name):
     result_a = get_workflow_spec_dump(
         workflow_spec_a,
         hide_names=True,
         show_input_output=False,
-        find_task_name=task_name_id,
+        find_task_name=task_name,
     )
     result_b = get_workflow_spec_dump(
         workflow_spec_b,
         hide_names=True,
         show_input_output=False,
-        find_task_name=task_name_id,
+        find_task_name=task_name,
     )
 
-    # get path by task_name_id
-    path = [p for p in result_a.get("paths") if p.get("task_name_id") == task_name_id]
+    # get path by task_name
+    path = [p for p in result_a.get("paths") if p.get("task_name") == task_name]
     if not path or len(path) > 1:
         return False
     path = json.dumps(path[0].get("path"))
 
     # find path in workflow_spec_b paths
     found_path = [
-        p.get("task_name_id")
+        p.get("task_name")
         for p in result_b.get("paths")
         if json.dumps(p.get("path")) == path
     ]
     if len(found_path) == 1:
-        # happy flow, task_name_id can be renamed to found_path[0]
+        # happy flow, task_name can be renamed to found_path[0]
         return found_path[0]
     return False
 
@@ -185,34 +219,34 @@ def compare_workflow_specs_by_task_specs(
     """
     CHECK
     If uncompleted user tasks exist in the new workflow_spec, if so,
-    check if the path to thit task_spec is the same in the new workflow_spec.
+    check if the path to this task_spec is the same in the new workflow_spec.
 
     """
 
     valid = True
     new_task_name_ids = {}
-    for task_name_id in task_name_ids:
+    for task_name in task_name_ids:
 
         no_changes_for_this_task = compare_path_until_task(
-            workflow_spec_a, workflow_spec_b, task_name_id
+            workflow_spec_a, workflow_spec_b, task_name
         )
         if no_changes_for_this_task:
             pass
         else:
 
             task_id_changes = check_task_id_changes(
-                workflow_spec_a, workflow_spec_b, task_name_id
+                workflow_spec_a, workflow_spec_b, task_name
             )
             if not task_id_changes:
                 valid = False
-            elif task_id_changes != task_name_id:
+            elif task_id_changes != task_name:
                 print("START: Probably just a task id change")
-                print(task_name_id)
+                print(task_name)
                 print(task_id_changes)
                 print("END: Probably just a task id change")
-                new_task_name_ids[task_name_id] = task_id_changes
-            elif task_id_changes == task_name_id:
-                new_task_name_ids[task_name_id] = task_id_changes
+                new_task_name_ids[task_name] = task_id_changes
+            elif task_id_changes == task_name:
+                new_task_name_ids[task_name] = task_id_changes
 
     return valid, new_task_name_ids
 
@@ -253,7 +287,7 @@ def get_workflow_spec_dump(
 
         paths.append(
             {
-                "task_name_id": task_spec.name,
+                "task_name": task_spec.name,
                 "path": path_clone,
             }
         )
@@ -322,14 +356,14 @@ def compare_workflow_specs(version_a, version_b, theme_name, worflow_type):
     task_ids_and_stucture_changed = True
     stucture_changed = True
     path_a = get_workflow_path(
+        worflow_type,
         theme_name,
         version_a,
-        worflow_type,
     )
     path_b = get_workflow_path(
+        worflow_type,
         theme_name,
         version_b,
-        worflow_type,
     )
     spec_a = get_workflow_spec(path_a, worflow_type)
     spec_b = get_workflow_spec(path_b, worflow_type)
@@ -453,7 +487,7 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
                 if missing_keys:
                     missing_form_data.append(
                         {
-                            "task_name_id": task.task_spec.name,
+                            "task_name": task.task_spec.name,
                             "keys": [k for k in missing_keys],
                         }
                     )

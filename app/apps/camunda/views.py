@@ -18,8 +18,8 @@ from apps.users.permissions import (
     rest_permission_classes_for_camunda,
     rest_permission_classes_for_top,
 )
-from apps.workflow.models import Task
-from apps.workflow.serializers import TaskListSerializer
+from apps.workflow.models import CaseUserTask
+from apps.workflow.serializers import CaseUserTaskListSerializer
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -209,7 +209,7 @@ class CamundaTaskViewSet(viewsets.ViewSet):
             data = serializer.validated_data
 
             variables = data.get("variables", {})
-            task = get_object_or_404(Task, id=data["camunda_task_id"])
+            task = get_object_or_404(CaseUserTask, id=data["camunda_task_id"])
             data.update(
                 {
                     "description": task.name if task else "Algemene taak",
@@ -223,10 +223,12 @@ class CamundaTaskViewSet(viewsets.ViewSet):
                 task.workflow.complete_user_task_and_create_new_user_tasks(
                     task.task_id, variables
                 )
-                return Response(f"Task {data['camunda_task_id']} has been completed")
+                return Response(
+                    f"CaseUserTask {data['camunda_task_id']} has been completed"
+                )
             except Exception:
                 return Response(
-                    f"Task {data['camunda_task_id']} has NOT been completed"
+                    f"CaseUserTask {data['camunda_task_id']} has NOT been completed"
                 )
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -260,7 +262,7 @@ class CamundaTaskViewSet(viewsets.ViewSet):
 
 class TaskViewSet(viewsets.ViewSet):
     permission_classes = rest_permission_classes_for_top()
-    serializer_class = TaskListSerializer
+    serializer_class = CaseUserTaskListSerializer
     queryset = Case.objects.all()
 
     def get_serializer_class(self, *args, **kwargs):
@@ -270,13 +272,13 @@ class TaskViewSet(viewsets.ViewSet):
         parameters=[
             role_parameter,
         ],
-        description="Task filter query parameters",
-        responses={200: TaskListSerializer(many=True)},
+        description="CaseUserTask filter query parameters",
+        responses={200: CaseUserTaskListSerializer(many=True)},
     )
     def list(self, request):
         request.GET.get(role_parameter.name)
 
-        tasks = Task.objects.filter(completed=False)
-        serializer = TaskListSerializer(tasks, many=True)
+        tasks = CaseUserTask.objects.filter(completed=False)
+        serializer = CaseUserTaskListSerializer(tasks, many=True)
 
         return Response(serializer.data)

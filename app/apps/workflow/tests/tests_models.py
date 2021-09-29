@@ -1,5 +1,5 @@
 from apps.cases.models import Case, CaseReason, CaseTheme
-from apps.workflow.models import Workflow
+from apps.workflow.models import CaseWorkflow
 from django.conf import settings
 from django.core import management
 from django.test import TestCase
@@ -13,16 +13,16 @@ class WorkflowModelTest(TestCase):
         management.call_command("flush", verbosity=0, interactive=False)
 
     def test_can_create_workflow(self):
-        """ Tests Workflow object creation """
-        self.assertEquals(Workflow.objects.count(), 0)
-        baker.make(Workflow)
-        self.assertEquals(Workflow.objects.count(), 1)
+        """ Tests CaseWorkflow object creation """
+        self.assertEquals(CaseWorkflow.objects.count(), 0)
+        baker.make(CaseWorkflow)
+        self.assertEquals(CaseWorkflow.objects.count(), 1)
 
     def test_can_get_workflow_spec(self):
         """ Tests can get workflow spec """
-        baker.make(Workflow)
+        baker.make(CaseWorkflow)
         spec = (
-            Workflow.objects.all()
+            CaseWorkflow.objects.all()
             .first()
             .get_workflow_spec(
                 "top_workflow.bpmn",
@@ -35,16 +35,16 @@ class WorkflowModelTest(TestCase):
 
     def test_initial_serialized_workflow_state(self):
         """ Tests initial serialized_workflow_state  """
-        baker.make(Workflow)
-        workflow_instance = Workflow.objects.all().first()
+        baker.make(CaseWorkflow)
+        workflow_instance = CaseWorkflow.objects.all().first()
         self.assertEquals(workflow_instance._get_serialized_workflow_state(), None)
 
     def test_get_workflow(self):
         """ Tests get_workflow  """
-        baker.make(Workflow)
-        workflow_instance = Workflow.objects.all().first()
+        baker.make(CaseWorkflow)
+        workflow_instance = CaseWorkflow.objects.all().first()
         spec = (
-            Workflow.objects.all()
+            CaseWorkflow.objects.all()
             .first()
             .get_workflow_spec(
                 "top_workflow.bpmn",
@@ -58,10 +58,10 @@ class WorkflowModelTest(TestCase):
 
     def test_get_workflow_current_task_names(self):
         """ Tests get workflow current task names  """
-        baker.make(Workflow)
-        workflow_instance = Workflow.objects.all().first()
+        baker.make(CaseWorkflow)
+        workflow_instance = CaseWorkflow.objects.all().first()
         spec = (
-            Workflow.objects.all()
+            CaseWorkflow.objects.all()
             .first()
             .get_workflow_spec(
                 "top_workflow.bpmn",
@@ -78,10 +78,10 @@ class WorkflowModelTest(TestCase):
 
     def test_get_user_task_form(self):
         """ Tests get user task form """
-        baker.make(Workflow)
-        workflow_instance = Workflow.objects.all().first()
+        baker.make(CaseWorkflow)
+        workflow_instance = CaseWorkflow.objects.all().first()
         spec = (
-            Workflow.objects.all()
+            CaseWorkflow.objects.all()
             .first()
             .get_workflow_spec(
                 "top_workflow.bpmn",
@@ -123,7 +123,7 @@ class WorkflowModelTest(TestCase):
             reason=reason,
             theme=theme,
         )
-        workflow_instance = Workflow.objects.create(
+        workflow_instance = CaseWorkflow.objects.create(
             case=case,
         )
 
@@ -158,7 +158,7 @@ class WorkflowModelTest(TestCase):
             reason=reason,
             theme=theme,
         )
-        workflow_instance = Workflow.objects.create(
+        workflow_instance = CaseWorkflow.objects.create(
             case=case,
         )
 
@@ -189,7 +189,7 @@ class WorkflowModelTest(TestCase):
     #         reason=reason,
     #         theme=theme,
     #     )
-    #     workflow_instance = Workflow.objects.create(
+    #     workflow_instance = CaseWorkflow.objects.create(
     #         case=case,
     #     )
 
@@ -211,4 +211,4 @@ class WorkflowModelTest(TestCase):
     #     self.assertEquals(
     #         workflow_instance.get_ready_task_names(workflow), ["create_case2"]
     #     )
-    #     self.assertEquals(Task.objects.all().count(), 1)
+    #     self.assertEquals(CaseUserTask.objects.all().count(), 1)
