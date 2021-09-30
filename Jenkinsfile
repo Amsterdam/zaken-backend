@@ -84,15 +84,16 @@ pipeline {
       }
     }
 
-    stage("Push and deploy acceptance images") {
-      when {
-        not { buildingTag() }
-        branch 'master'
-      }
-      steps {
-        tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.ACCEPTANCE)
-        tag_and_deploy(env.CAMUNDA_IMAGE_URL, env.CAMUNDA_NAME, env.ACCEPTANCE)
-        // tag_and_deploy(env.REDIS_IMAGE_URL, env.REDIS_NAME, env.ACCEPTANCE)
+    if(env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'develop'){
+      stage("Push and deploy acceptance images") {
+        when {
+          not { buildingTag() }
+        }
+        steps {
+          tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.ACCEPTANCE)
+          tag_and_deploy(env.CAMUNDA_IMAGE_URL, env.CAMUNDA_NAME, env.ACCEPTANCE)
+          // tag_and_deploy(env.REDIS_IMAGE_URL, env.REDIS_NAME, env.ACCEPTANCE)
+        }
       }
     }
 
