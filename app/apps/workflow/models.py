@@ -274,8 +274,11 @@ class CaseWorkflow(models.Model):
 
     @staticmethod
     def complete_user_task(id, data):
-        task = CaseUserTask.objects.get(id=id)
-        task.workflow.complete_user_task_and_create_new_user_tasks(task.task_id, data)
+        task = CaseUserTask.objects.filter(id=id).first()
+        if task:
+            task.workflow.complete_user_task_and_create_new_user_tasks(
+                task.task_id, data
+            )
 
     def complete_user_task_and_create_new_user_tasks(self, task_id=None, data=None):
         wf = self.get_or_restore_workflow_state()
@@ -309,14 +312,17 @@ class CaseWorkflow(models.Model):
 
     def get_or_restore_workflow_state(self):
         # gets the unserialized workflow from this workflow instance, it has to use an workflow_spec, witch in this case will be load from filesystem.
+
+        workflow_spec = self.get_workflow_spec()
+
         if self.serialized_workflow_state:
             wf = self.get_serializer().deserialize_workflow(
-                self.serialized_workflow_state, workflow_spec=self.get_workflow_spec()
+                self.serialized_workflow_state, workflow_spec=workflow_spec
             )
             wf = self.get_script_engine(wf)
             return wf
         else:
-            wf = BpmnWorkflow(self.get_workflow_spec())
+            wf = BpmnWorkflow(workflow_spec)
 
             # always work with an already saved version
             self.save_workflow_state(wf)
