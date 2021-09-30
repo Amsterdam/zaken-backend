@@ -127,6 +127,7 @@ class SummonCreateAPITest(APITestCase):
             "description": "foo_description",
             "case": case.id,
             "type": summon_type.id,
+            "camunda_task_id": 42,
             "persons": [
                 {
                     "first_name": "foo_first_name",

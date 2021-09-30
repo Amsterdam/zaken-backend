@@ -101,15 +101,9 @@ def get_latest_version(workflow_type, theme_name="default"):
         )
 
     versions = get_dirs(get_path(theme_name))
-    logger.info("first versions")
-    logger.info(theme_name)
-    logger.info(versions)
     if not versions:
         theme_name = "default"
         versions = get_dirs(get_path(theme_name))
-        logger.info("first versions")
-        logger.info(theme_name)
-        logger.info(versions)
     if versions:
         return theme_name, versions[-1]
     return False, False
