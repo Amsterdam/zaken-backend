@@ -14,9 +14,8 @@ from apps.cases.models import (
     CitizenReport,
 )
 from apps.schedules.serializers import ScheduleSerializer
-from apps.workflow.models import CaseUserTask, CaseWorkflow
-from django.conf import settings
-from django.db import DatabaseError, transaction
+from apps.workflow.models import CaseUserTask
+from apps.workflow.tasks import start_case_with_workflow
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -171,25 +170,7 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         address_data = validated_data.pop("address")
         address = Address.get(address_data.get("bag_id"))
 
-        # make sure case and workflow are created or not together
-        try:
-            with transaction.atomic():
-                case = Case.objects.create(**validated_data, address=address)
-                workflow_instance = CaseWorkflow.objects.create(
-                    case=case,
-                    workflow_type=settings.DEFAULT_WORKFLOW_TYPE,
-                    main_workflow=True,
-                )
-                workflow_instance.message(
-                    "main_process",
-                    settings.DEFAULT_SCHEDULE_ACTIONS[0],
-                    "status_name",
-                    {
-                        "status_name": settings.DEFAULT_SCHEDULE_ACTIONS[0],
-                    },
-                )
-        except DatabaseError:
-            raise serializers.ServiceUnavailable()
+        case = start_case_with_workflow(validated_data, address)
 
         return case
 

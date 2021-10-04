@@ -68,8 +68,5 @@ class CaseWorkflowSerializer(serializers.ModelSerializer):
             "created",
             "serialized_workflow_state",
             "main_workflow",
-            "workflow_type",
-            "workflow_version",
-            "workflow_theme_name",
             "data",
         ]
