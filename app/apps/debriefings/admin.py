@@ -11,4 +11,5 @@ admin.site.register(
         "author",
         "violation",
     ),
+    search_fields=("case__id",),
 )

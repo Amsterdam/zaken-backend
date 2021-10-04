@@ -76,6 +76,15 @@ class CaseWorkflow(models.Model):
     serializer = BpmnSerializer
 
     def save(self, *args, **kwargs):
+
+        if not self.id and self.main_workflow:
+            existing_main_workflows = CaseWorkflow.objects.filter(
+                case=self.case,
+                main_workflow=True,
+            )
+            if existing_main_workflows:
+                raise Exception("A main workflow for this case already exists")
+
         self.data = self.data if isinstance(self.data, dict) else {}
         if not self.workflow_version:
             self.workflow_theme_name, self.workflow_version = get_latest_version(
