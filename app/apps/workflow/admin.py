@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import mark_safe
 
 from .models import CaseUserTask, CaseWorkflow
 
@@ -12,6 +13,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         "workflow_type",
         "workflow_version",
         "workflow_theme_name",
+        "issues",
     )
 
     list_filter = (
@@ -21,14 +23,16 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         "workflow_theme_name",
     )
 
-    def chart_data(self):
-        return "test data"
+    def issues(self, obj):
+        issues = obj.check_for_issues()
+        if issues == "no issues":
+            return f"{issues}"
+        return mark_safe(f"<span style='color: red;'>{issues}</span>")
 
     def render_change_form(
         self, request, context, add=False, change=False, form_url="", obj=None
     ):
         if obj:
-            obj.migrate_to("0.2.0")
             context.update(
                 {
                     "workflow": obj.get_or_restore_workflow_state(),
