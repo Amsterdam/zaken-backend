@@ -280,6 +280,17 @@ class CaseWorkflow(models.Model):
                 task.task_id, data
             )
 
+    def check_for_issues(self):
+        try:
+            wf = self.get_or_restore_workflow_state()
+        except Exception:
+            return "restore error"
+        try:
+            wf = self._update_workflow(wf)
+        except Exception:
+            return "update error"
+        return "no issues"
+
     def complete_user_task_and_create_new_user_tasks(self, task_id=None, data=None):
         wf = self.get_or_restore_workflow_state()
 
