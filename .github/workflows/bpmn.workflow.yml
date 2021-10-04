@@ -3,9 +3,9 @@ on:
   push:
     branches: [ master ]
     paths:
-    - 'camunda/build/resources/main/bpmn/**.bpmn'
+    - 'app/apps/workflow/bpmn_files/**/**/**/*.bpmn'
   pull_request:
-    branches: [ master ]
+    branches: [ master, develop ]
 
 jobs:
   test:
@@ -19,4 +19,4 @@ jobs:
     - name: Install dependencies for BPMN Linting
       run: npm install -g bpmnlint
     - name: Linting BPMN models
-      run: bash camunda/bin/validate_bpmn.sh
+      run: bash bin/validate_bpmn.sh
