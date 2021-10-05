@@ -80,6 +80,10 @@ class CaseWorkflow(models.Model):
     serialized_workflow_state = models.JSONField(null=True)
     data = models.JSONField(null=True)
 
+    completed = models.BooleanField(
+        default=False,
+    )
+
     serializer = BpmnSerializer
 
     def save(self, *args, **kwargs):
@@ -385,17 +389,16 @@ class CaseWorkflow(models.Model):
 
     def _check_completed_workflows(self, wf):
         # if end of subworkflow, try to get back to main workflow
-        if not self.main_workflow and wf.is_completed():
-            workflow = CaseWorkflow.objects.filter(
-                case=self.case,
-                main_workflow=True,
-            ).first()
-            if workflow:
-                workflow.accept_message(
-                    f"resume_after_{self.workflow_type}",
-                    self.get_data(),
-                )
-                self.delete()
+        if self.parent_workflow and wf.is_completed():
+
+            self.parent_workflow.accept_message(
+                f"resume_after_{self.workflow_type}",
+                self.get_data(),
+            )
+            self.completed = True
+            self.save()
+            # maybe delete workflow object when completed
+            # self.delete()
 
     def _update_workflow(self, wf):
         wf.refresh_waiting_tasks()
