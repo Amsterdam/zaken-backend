@@ -47,6 +47,7 @@ class CaseAdmin(admin.ModelAdmin):
         "address",
         "legacy_bwv_case_id",
         "is_legacy_bwv",
+        "is_legacy_camunda",
         "author",
     )
     list_filter = ("theme",)

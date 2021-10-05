@@ -170,6 +170,12 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         address_data = validated_data.pop("address")
         address = Address.get(address_data.get("bag_id"))
 
+        validated_data.update(
+            {
+                "is_legacy_camunda": False,
+            }
+        )
+
         case = start_case_with_workflow(validated_data, address)
 
         return case
