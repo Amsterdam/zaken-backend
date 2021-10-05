@@ -251,7 +251,7 @@ class AssertNextOpenTasks:
 
         # Get the names of all open tasks
         open_tasks = api.get_case_tasks(case["id"])
-        open_task_names = list(map(lambda task: task["task_name_id"], open_tasks))
+        open_task_names = api.get_names_from_tasks(open_tasks)
         open_task_names.sort()
 
         logger.info(f"Expecting {assert_names} == {open_task_names}")
@@ -266,10 +266,11 @@ class AssertNumberOfOpenTasks:
         self.count = count
 
     def run(self, api, case):
-        num_open_tasks = len(api.get_case_tasks(case["id"]))
+        tasks = api.get_case_tasks(case["id"])
+        num_open_tasks = len(tasks)
         if num_open_tasks != self.count:
             raise Exception(
-                f"{self.count} open tasks expected, found {num_open_tasks}. Case id:{case['id']}"
+                f"{self.count} open tasks expected, found {api.get_names_from_tasks(tasks)}. Case id:{case['id']}"
             )
 
 
