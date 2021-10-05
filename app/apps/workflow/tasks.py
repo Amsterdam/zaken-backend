@@ -89,3 +89,17 @@ def task_start_workflow_for_existing_case(self, case_id):
     create_workflow_for_case(case)
 
     return f"case with id '{case.id}' created"
+
+
+@celery_app.task(bind=True, base=BaseTaskWithRetry)
+def task_start_subworkflow(subworkflow_name, parent_workflow_id):
+    from apps.workflow.models import CaseWorkflow
+
+    parent_workflow = CaseWorkflow.objects.get(id=parent_workflow_id)
+    with transaction.atomic():
+        subworkflow = CaseWorkflow.objects.create(
+            case=parent_workflow.case,
+            parent_workflow=parent_workflow,
+            workflow_type=subworkflow_name,
+        )
+        subworkflow.set_initial_data(parent_workflow.get_data())
