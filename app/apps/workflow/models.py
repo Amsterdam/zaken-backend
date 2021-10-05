@@ -164,7 +164,7 @@ class CaseWorkflow(models.Model):
                 # sends the accept message to a task, because we have to wait until this current tasks, we are in, is completed
                 accept_message_for_workflow.delay(main_workflow.id, message, extra_data)
 
-                # TODO: cleanup(delete others), but the message is not send yes, so below should wait
+                # TODO: cleanup(delete others), but the message is not send yet, so below should wait
                 # other_workflows = all_workflows.exclude(id=main_workflow.id)
                 # other_workflows.delete()
 
@@ -189,11 +189,12 @@ class CaseWorkflow(models.Model):
     def message(self, message_name, payload, resultVar, extra_data={}):
         # use this to start a workflow at a certain point
         wf = self.get_or_restore_workflow_state()
-        data = {}
-        data.update(extra_data)
+
         self.set_initial_data(extra_data)
         wf = self._update_workflow(wf)
-        wf = self._message(wf, message_name, payload, resultVar, extra_data)
+
+        wf.message(message_name, payload, resultVar)
+
         wf = self._update_workflow(wf)
         self.save_workflow_state(wf)
         self._update_db(wf)
@@ -220,15 +221,6 @@ class CaseWorkflow(models.Model):
         self.save_workflow_state(wf)
         self._update_db(wf)
 
-    @staticmethod
-    def _message(wf, message_name, payload, resultVar, extra_data={}):
-
-        wf.message(message_name, payload, resultVar)
-        first_task = wf.get_tasks(Task.READY)
-        if first_task and extra_data and isinstance(extra_data, dict):
-            first_task[0].update_data(extra_data)
-        return wf
-
     def get_data(self):
         """
         TODO: data is also saved on this instance after a UserTask completed, but in between UserTasks data could diver.
@@ -237,12 +229,7 @@ class CaseWorkflow(models.Model):
         wf = self.get_or_restore_workflow_state()
         if wf.last_task:
             return wf.last_task.data
-
-        # try to get all data by iterating through all tasks
-        data = {}
-        for t in wf.get_tasks():
-            data.update(t.data)
-        return data
+        return {}
 
     def set_absolete_tasks_to_completed(self, wf):
         # some tasks are absolete after wf.do_engine_steps or wf.refresh_waiting_tasks
@@ -362,9 +349,7 @@ class CaseWorkflow(models.Model):
             first_task = last_task
 
         # TODO: how to set initial data
-        wf.set_data(**data)
         first_task.update_data(data)
-        first_task.task_spec.set_data(**data)
 
         # changes the workflow
         wf = self._update_workflow(wf)
