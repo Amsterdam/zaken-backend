@@ -380,7 +380,7 @@ def compare_workflow_specs(version_a, version_b, theme_name, worflow_type):
     user_tasks_formfields_changed = DeepDiff(form_fields_a, form_fields_b)
 
     logger.info("COMPARE DUMPS")
-    get_workflow_spec_dump(spec_a, False, False, "task_beeldverslag_opstellen")
+    get_workflow_spec_dump(spec_a, False, False, "task_create_picture_rapport")
 
     if get_workflow_spec_dump(spec_a, True, True).get("dump") == get_workflow_spec_dump(
         spec_b, True, True
