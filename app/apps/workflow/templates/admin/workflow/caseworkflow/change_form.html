@@ -33,6 +33,10 @@
   </ul>
 {% endif %}{% endif %}
 {% endblock %}
+<dl>
+  <dt>Last task data</dt>
+  <dd>{{ workflow.last_task.data }}</dd>
+</dl>
 {% include "./tasks.html" with task=workflow.task_tree task_states=task_states only %}
 <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}{% block form_top %}{% endblock %}
 <div>
