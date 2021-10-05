@@ -4,7 +4,7 @@ from string import Template
 
 from apps.cases.models import Case
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
+from django.db import models, transaction
 from django.shortcuts import get_object_or_404
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
@@ -49,6 +49,13 @@ class CaseWorkflow(models.Model):
     case = models.ForeignKey(
         to=Case,
         related_name="workflows",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    parent_workflow = models.ForeignKey(
+        to="workflow.CaseWorkflow",
+        related_name="child_workflows",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -158,27 +165,19 @@ class CaseWorkflow(models.Model):
                 # other_workflows.delete()
 
         def start_subworkflow(subworkflow_name):
-            logger.info(f"subworkflow name: {subworkflow_name}")
-            subworkflow = CaseWorkflow.objects.create(
-                case=case,
-                workflow_type=subworkflow_name,
-            )
-            subworkflow.set_initial_data(workflow_instance.get_data())
-
-        def throw_message(message):
-            from .tasks import accept_message_for_workflow
-
-            logger.info(f"throw_message name: {message}")
-            accept_message_for_workflow.delay(
-                workflow_instance.id, message, workflow_instance.get_data()
-            )
+            with transaction.atomic():
+                subworkflow = CaseWorkflow.objects.create(
+                    case=case,
+                    parent_workflow=workflow_instance,
+                    workflow_type=subworkflow_name,
+                )
+                subworkflow.set_initial_data(workflow_instance.get_data())
 
         wf.script_engine = BpmnScriptEngine(
             scriptingAdditions={
                 "set_status": set_status,
                 "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
                 "start_subworkflow": start_subworkflow,
-                "throw_message": throw_message,
             }
         )
         return wf

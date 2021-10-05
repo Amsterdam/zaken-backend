@@ -13,6 +13,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         "workflow_type",
         "workflow_version",
         "workflow_theme_name",
+        "parent_workflow",
         "issues",
     )
 
