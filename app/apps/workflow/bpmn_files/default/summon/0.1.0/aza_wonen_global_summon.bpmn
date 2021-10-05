@@ -15,7 +15,6 @@
         <bpmn:flowNodeRef>Activity_18x19gf</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0fr0xxj</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1rmmm5s</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_1va49v0</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1nylgs7</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_18ear0d</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1j1sd3l</bpmn:flowNodeRef>
@@ -24,7 +23,6 @@
         <bpmn:flowNodeRef>Event_0uynagg</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0v6yc85</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0xg6qv2</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>start_decision_process</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0vx9ad7</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0ysomyy</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1neab16</bpmn:flowNodeRef>
@@ -36,6 +34,8 @@
         <bpmn:flowNodeRef>Activity_0p04gzy</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1514cbt</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0c3s2q7</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>start_decision_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1va49v0</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1wein50" name="Projectmedewerker">
         <bpmn:flowNodeRef>Activity_1mkl5rk</bpmn:flowNodeRef>
@@ -117,10 +117,6 @@
         <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(seconds=.40)</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
-    <bpmn:endEvent id="start_decision_process" name="Opstellen besluit process">
-      <bpmn:incoming>Flow_186wilc</bpmn:incoming>
-      <bpmn:terminateEventDefinition id="TerminateEventDefinition_0au4c6r" />
-    </bpmn:endEvent>
     <bpmn:scriptTask id="Activity_0xg6qv2" name="next_step = {&#34;value&#34;: &#34;decision&#34;}">
       <bpmn:incoming>Flow_0o6dkue</bpmn:incoming>
       <bpmn:incoming>Flow_15k43jt</bpmn:incoming>
@@ -189,10 +185,6 @@
       <bpmn:incoming>Flow_1pop5qk</bpmn:incoming>
       <bpmn:outgoing>Flow_0umy2og</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:endEvent id="Event_1va49v0" name="Voornemen afzien">
-      <bpmn:incoming>Flow_1oesxow</bpmn:incoming>
-      <bpmn:terminateEventDefinition id="TerminateEventDefinition_1t8vje6" />
-    </bpmn:endEvent>
     <bpmn:startEvent id="Event_1rmmm5s">
       <bpmn:outgoing>Flow_1wlsww0</bpmn:outgoing>
     </bpmn:startEvent>
@@ -355,6 +347,12 @@
       <bpmn:incoming>Flow_12sivk9</bpmn:incoming>
       <bpmn:outgoing>Flow_1bea976</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:endEvent id="start_decision_process" name="Opstellen besluit process">
+      <bpmn:incoming>Flow_186wilc</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="Event_1va49v0" name="Voornemen afzien">
+      <bpmn:incoming>Flow_1oesxow</bpmn:incoming>
+    </bpmn:endEvent>
   </bpmn:process>
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
   <bpmn:message id="Message_1k1jpww" name="start_decision_process" />
@@ -576,12 +574,6 @@
         <di:waypoint x="590" y="630" />
         <di:waypoint x="715" y="630" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_1h6d37m_di" bpmnElement="start_decision_process">
-        <dc:Bounds x="3492" y="802" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="3469" y="845" width="83" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_18im036_di" bpmnElement="Activity_0xg6qv2">
         <dc:Bounds x="3350" y="780" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -617,12 +609,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_13ccsra_di" bpmnElement="Activity_13ccsra">
         <dc:Bounds x="2190" y="290" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_019w0ec_di" bpmnElement="Event_1va49v0">
-        <dc:Bounds x="3492" y="612" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="3467" y="655" width="88" height="14" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1rmmm5s_di" bpmnElement="Event_1rmmm5s">
         <dc:Bounds x="222" y="612" width="36" height="36" />
@@ -689,6 +675,18 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1xtboo1_di" bpmnElement="Activity_0c3s2q7">
         <dc:Bounds x="1700" y="830" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0d9us9e_di" bpmnElement="start_decision_process">
+        <dc:Bounds x="3492" y="802" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3470" y="845" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1rby5sz_di" bpmnElement="Event_1va49v0">
+        <dc:Bounds x="3492" y="612" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3467" y="655" width="89" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1ya7mo6_di" bpmnElement="Event_1514cbt">
         <dc:Bounds x="1412" y="612" width="36" height="36" />

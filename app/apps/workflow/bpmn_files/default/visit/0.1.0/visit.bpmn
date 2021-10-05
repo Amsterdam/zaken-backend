@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_1tztuvt">
     <bpmn:participant id="Participant_08m4w5n" name="Process" processRef="visit" />
   </bpmn:collaboration>
-  <bpmn:process id="visit" name="VakantieVerhuur - Huisbezoek" isExecutable="true" camunda:versionTag="1.2.1">
+  <bpmn:process id="visit" name="visit" isExecutable="true" camunda:versionTag="1.2.1">
     <bpmn:laneSet id="LaneSet_07j24vc">
       <bpmn:lane id="Lane_0ixqkif" name="Projectmedewerker">
         <bpmn:flowNodeRef>task_create_schedule</bpmn:flowNodeRef>
@@ -43,7 +43,7 @@
         <bpmn:flowNodeRef>Event_1kkhxmk</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:userTask id="task_create_schedule" name="Inplannen $status_name visit 0.1.0" default="Flow_04ckol7" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_create_schedule" name="Inplannen $status_name" default="Flow_04ckol7" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_07yq2lt</bpmn:incoming>
       <bpmn:outgoing>Flow_04ckol7</bpmn:outgoing>
     </bpmn:userTask>
@@ -93,12 +93,6 @@
       <bpmn:outgoing>Flow_07yq2lt</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:startEvent id="StartEvent_1" camunda:formKey="start_case_form">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="status_name" type="string" defaultValue="Huisbezoek" />
-          <camunda:formField id="super_process" type="string" />
-        </camunda:formData>
-      </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0inuwm0</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:exclusiveGateway id="is_authorisation_required" name="Is er een machtiging nodig?" default="Flow_1ud05n0">
