@@ -62,5 +62,8 @@ class Client:
 
         return legacy_name if self.legacy_mode else name
 
+    def get_names_from_tasks(self, tasks):
+        return list(map(lambda task: task["task_name_id"], tasks))
+
     def create_case(self, data):
         return Case(self.call("post", "/cases/", data), self)
