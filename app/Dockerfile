@@ -1,4 +1,4 @@
-FROM amsterdam/python
+FROM amsterdam/python:3.9-buster
 LABEL maintainer="datapunt@amsterdam.nl"
 
 ENV REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt

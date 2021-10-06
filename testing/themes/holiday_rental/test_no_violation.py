@@ -29,15 +29,9 @@ class TestNoViolation(unittest.TestCase):
             AssertNumberOfOpenTasks(2 if self.api.legacy_mode else 1),  # BUG in Spiff
             FeedbackReporters() if self.api.legacy_mode else None,  # BUG in Spiff
             HomeVisitReport(),
+            PlanNextStep(),
+            Close(),
         ]
-
-        if self.api.legacy_mode:  # BUG in Spiff
-            steps.extend(
-                [
-                    PlanNextStep(),
-                    Close(),
-                ]
-            )
 
         steps.append(AssertNumberOfOpenTasks(0))
 
