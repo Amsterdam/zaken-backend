@@ -18,6 +18,6 @@ class Case:
             if self.api.legacy_mode:
                 time.sleep(0.15)
             elif hasattr(step, "asynchronous") and step.asynchronous:
-                time.sleep(0.5)
+                time.sleep(1)
 
             step.run(self.api, self.data)
