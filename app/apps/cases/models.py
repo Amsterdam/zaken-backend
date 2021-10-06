@@ -63,7 +63,7 @@ class Case(ModelEventEmitter):
         to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )
     is_legacy_bwv = models.BooleanField(default=False)
-    is_legacy_camunda = models.BooleanField(default=True)
+    is_legacy_camunda = models.BooleanField(default=False)
     legacy_bwv_case_id = models.CharField(
         max_length=255, null=True, blank=True, unique=True
     )
