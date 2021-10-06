@@ -44,7 +44,9 @@ class CaseUserTaskViewSet(
                 ]
             )
 
-        serializer = CaseUserTaskListSerializer(tasks, many=True)
+        serializer = CaseUserTaskListSerializer(
+            tasks, many=True, context={"request": request}
+        )
 
         return Response(serializer.data)
 
@@ -59,7 +61,9 @@ class CaseUserTaskViewSet(
     )
     def set_owner(self, request, pk=None):
         task = self.get_object()
-        serializer = CaseUserTaskUpdateOwnerSerializer(data=request.data)
+        serializer = CaseUserTaskUpdateOwnerSerializer(
+            data=request.data, context={"request": request}
+        )
         if serializer.is_valid():
             task.owner = serializer.validated_data["owner"]
             task.save(updated_fields=["owner"])
