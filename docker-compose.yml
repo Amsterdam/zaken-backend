@@ -41,7 +41,7 @@ services:
       - postgresql-data:/var/lib/postgresql/data
 
   rabbitmq:
-    image: rabbitmq:3
+    image: rabbitmq:3.9
     networks:
       - zaken_network
     ports:

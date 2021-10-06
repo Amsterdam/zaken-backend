@@ -145,7 +145,7 @@ class CaseViewSet(
 ):
     permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseSerializer
-    queryset = Case.objects.all()
+    queryset = Case.objects.filter(is_legacy_camunda=False)
 
     def get_permissions(self):
         if self.action == "create" and self.request.method not in SAFE_METHODS:
