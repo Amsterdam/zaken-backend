@@ -90,7 +90,7 @@ pipeline {
       }
       steps {
         script {
-          if(env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'develop'){
+          if(env.CHANGE_TARGET == 'master' || env.CHANGE_TARGET == 'develop'){
             tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.ACCEPTANCE)
             tag_and_deploy(env.CAMUNDA_IMAGE_URL, env.CAMUNDA_NAME, env.ACCEPTANCE)
             // tag_and_deploy(env.REDIS_IMAGE_URL, env.REDIS_NAME, env.ACCEPTANCE)
