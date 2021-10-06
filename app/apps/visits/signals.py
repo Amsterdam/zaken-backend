@@ -6,7 +6,7 @@ from django.dispatch import receiver
 
 @receiver(post_save, sender=Visit, dispatch_uid="visit_create_complete_camunda_task")
 def complete_camunda_task_create_visit(sender, instance, created, **kwargs):
-    if created and instance.task:
+    if instance.task and not instance.task.completed:
         CaseWorkflow.complete_user_task(
             instance.task.id,
             {
