@@ -15,6 +15,6 @@ class Case:
         steps = filter(lambda step: step is not None, steps)
         for step in steps:
             # Give Camunda and Spiff some time to do async processing
-            time.sleep(0.05)
+            time.sleep(0.15)
 
             step.run(self.api, self.data)
