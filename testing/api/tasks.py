@@ -290,6 +290,7 @@ class GenericUserTask(AbstractUserTask):
 
 
 class PlanNextStep(GenericUserTask):
+    asynchronous = True
     task = Task.plan_next_step
 
     def __init__(self, next_step=NextStep.CLOSE):
