@@ -160,3 +160,6 @@ Cause: somebody tried to login with too many failed attempts. Unfortunately we h
 configured Axes properly so if one user does this, every user is locked.
 
 Resolution: SSH into the webserver and run `python manage.py axes_reset`
+
+
+.
