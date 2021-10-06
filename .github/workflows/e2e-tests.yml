@@ -1,5 +1,5 @@
 # action.yml
-name: 'Run Integration test'
+name: 'Run API tests (e2e)'
 on: pull_request
 jobs:
   main:
