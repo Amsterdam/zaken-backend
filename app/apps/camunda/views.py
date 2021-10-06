@@ -19,7 +19,6 @@ from apps.users.permissions import (
     rest_permission_classes_for_top,
 )
 from apps.workflow.models import CaseUserTask
-from apps.workflow.serializers import CaseUserTaskListSerializer
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -258,27 +257,3 @@ class CamundaTaskViewSet(viewsets.ViewSet):
             )
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-class TaskViewSet(viewsets.ViewSet):
-    permission_classes = rest_permission_classes_for_top()
-    serializer_class = CaseUserTaskListSerializer
-    queryset = Case.objects.all()
-
-    def get_serializer_class(self, *args, **kwargs):
-        return self.serializer_class
-
-    @extend_schema(
-        parameters=[
-            role_parameter,
-        ],
-        description="CaseUserTask filter query parameters",
-        responses={200: CaseUserTaskListSerializer(many=True)},
-    )
-    def list(self, request):
-        request.GET.get(role_parameter.name)
-
-        tasks = CaseUserTask.objects.filter(completed=False)
-        serializer = CaseUserTaskListSerializer(tasks, many=True)
-
-        return Response(serializer.data)

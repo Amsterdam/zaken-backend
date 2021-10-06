@@ -1,5 +1,5 @@
 from apps.addresses.views import AddressViewSet
-from apps.camunda.views import CamundaTaskViewSet, CamundaWorkerViewSet, TaskViewSet
+from apps.camunda.views import CamundaTaskViewSet, CamundaWorkerViewSet
 from apps.cases.views import (
     CaseCloseViewSet,
     CaseStateViewSet,
@@ -21,6 +21,7 @@ from apps.users.views import (
     UserListView,
 )
 from apps.visits.views import VisitViewSet
+from apps.workflow.views import CaseUserTaskViewSet
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
@@ -32,7 +33,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register(r"addresses", AddressViewSet, basename="addresses")
 router.register(r"cases", CaseViewSet, basename="cases")
-router.register(r"tasks", TaskViewSet, basename="tasks")
+router.register(r"tasks", CaseUserTaskViewSet, basename="tasks")
 router.register(r"case-states", CaseStateViewSet, basename="case-states")
 router.register(r"themes", CaseThemeViewSet, basename="themes")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")

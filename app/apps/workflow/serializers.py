@@ -9,6 +9,12 @@ from rest_framework.settings import api_settings
 from .models import CaseUserTask, CaseWorkflow
 
 
+class CaseUserTaskUpdateOwnerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseUserTask
+        fields = ["owner"]
+
+
 class CaseUserTaskSerializer(serializers.ModelSerializer):
     user_has_permission = serializers.SerializerMethodField()
     camunda_task_id = serializers.CharField(source="id")
