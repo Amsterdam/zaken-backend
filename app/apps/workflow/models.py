@@ -1,10 +1,12 @@
 import copy
+import datetime
 import logging
 from string import Template
 
 from apps.cases.models import Case
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
+from django.db.models.signals import post_save, pre_save
 from django.shortcuts import get_object_or_404
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
@@ -24,6 +26,16 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+class CustomManager(models.Manager):
+    def bulk_create(self, objs, **kwargs):
+        for i in objs:
+            pre_save.send(i.__class__, instance=i)
+        a = super(CustomManager, self).bulk_create(objs, **kwargs)
+        for i in objs:
+            post_save.send(i.__class__, instance=i)
+        return a
 
 
 class CaseWorkflow(models.Model):
@@ -462,7 +474,12 @@ class CaseWorkflow(models.Model):
         return f"{self.id}, case: {self.case.id}"
 
 
+USER_TASKS = {"task_create_debrief": {"due_date": datetime.timedelta(days=0)}}
+DEFAULT_USER_TASK_DUE_DATE = datetime.timedelta(days=2)
+
+
 class CaseUserTask(models.Model):
+
     completed = models.BooleanField(
         default=False,
     )
@@ -489,6 +506,10 @@ class CaseUserTask(models.Model):
         null=True,
         blank=True,
     )
+    due_date = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     case = models.ForeignKey(
@@ -501,6 +522,8 @@ class CaseUserTask(models.Model):
         related_name="tasks",
         on_delete=models.CASCADE,
     )
+
+    objects = CustomManager()
 
     @staticmethod
     def parse_task_spec_form(form):
