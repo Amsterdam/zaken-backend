@@ -79,23 +79,22 @@ pipeline {
     stage("Build docker images") {
       steps {
         build_image(env.ZAKEN_IMAGE_URL, env.ZAKEN_SOURCE)
-        build_image(env.CAMUNDA_IMAGE_URL, env.CAMUNDA_SOURCE)
-        // build_image(env.REDIS_IMAGE_URL, env.REDIS_SOURCE)
+
+        script {
+          if (env.BRANCH_NAME == 'master'){
+            build_image(env.CAMUNDA_IMAGE_URL, env.CAMUNDA_SOURCE)
+          }
+        }
       }
     }
 
     stage("Push and deploy acceptance images") {
       when {
         not { buildingTag() }
+        branch 'develop'
       }
       steps {
-        script {
-          if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'develop') {
-            tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.ACCEPTANCE)
-            tag_and_deploy(env.CAMUNDA_IMAGE_URL, env.CAMUNDA_NAME, env.ACCEPTANCE)
-            // tag_and_deploy(env.REDIS_IMAGE_URL, env.REDIS_NAME, env.ACCEPTANCE)
-          }
-        }
+        tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.ACCEPTANCE)
       }
     }
 
@@ -105,7 +104,6 @@ pipeline {
       steps {
         tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.PRODUCTION)
         tag_and_deploy(env.CAMUNDA_IMAGE_URL, env.CAMUNDA_NAME, env.PRODUCTION)
-        // tag_and_deploy(env.REDIS_IMAGE_URL, env.REDIS_NAME, env.PRODUCTION)
       }
     }
   }
