@@ -1,5 +1,5 @@
 # action.yml
-name: 'Run E2E test'
+name: 'Start frontend'
 on: pull_request
 jobs:
   main:
