@@ -4,7 +4,7 @@ from string import Template
 
 from apps.cases.models import Case
 from django.contrib.postgres.fields import ArrayField
-from django.db import models, transaction
+from django.db import models
 from django.shortcuts import get_object_or_404
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
@@ -169,13 +169,9 @@ class CaseWorkflow(models.Model):
                 # other_workflows.delete()
 
         def start_subworkflow(subworkflow_name):
-            with transaction.atomic():
-                subworkflow = CaseWorkflow.objects.create(
-                    case=case,
-                    parent_workflow=workflow_instance,
-                    workflow_type=subworkflow_name,
-                )
-                subworkflow.set_initial_data(workflow_instance.get_data())
+            from .tasks import task_start_subworkflow
+
+            task_start_subworkflow.delay(subworkflow_name, workflow_instance.id)
 
         wf.script_engine = BpmnScriptEngine(
             scriptingAdditions={
@@ -555,9 +551,10 @@ class CaseUserTask(models.Model):
             if isinstance(v, dict)
         )
 
+    @property
     def get_form_variables(self):
         # TODO: Return corresponding spiff task data, currently used only to provide frontend with the current summon_id
-        return {}
+        return self.workflow.get_data()
 
     def complete(self):
         self.completed = True
