@@ -27,11 +27,10 @@ class CamundaStateWorkerSerializer(serializers.Serializer):
     def create(self, validated_data):
         state_name = validated_data["state"]
         case_identification = validated_data["case_identification"]
-        information = validated_data["information"]
         case_process_id = validated_data["case_process_id"]
 
         case = Case.objects.get(id=case_identification)
-        state = case.set_state(state_name, case_process_id, information)
+        state = case.set_state(state_name, case_process_id)
 
         return state
 

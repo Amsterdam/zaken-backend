@@ -139,14 +139,13 @@ class Case(ModelEventEmitter):
             qs = [qs.first()]
         return qs
 
-    def set_state(self, state_name, workflow, information="", *args, **kwargs):
+    def set_state(self, state_name, workflow, *args, **kwargs):
         state_type, _ = CaseStateType.objects.get_or_create(
             name=state_name, theme=self.theme
         )
         state = CaseState.objects.create(
             case=self,
             status=state_type,
-            information=information,
             workflow=workflow,
         )
 
@@ -230,6 +229,11 @@ class CaseState(models.Model):
         null=True,
         blank=True,
     )
+
+    def get_information(self):
+        # TODO: replaces information field, so remove field
+        names = self.workflow.get_data().get("names", {}).get("value", "")
+        return names
 
     def __str__(self):
         return f"{self.start_date} - {self.end_date} - {self.case.identification} - {self.status.name}"
