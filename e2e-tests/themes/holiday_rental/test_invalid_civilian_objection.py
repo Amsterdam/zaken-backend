@@ -65,8 +65,9 @@ class TestInvalidCivilianObjection(unittest.TestCase):
             CheckDecision(),
             Decision(type=DecisionType.HolidayRental.FINE),
             SendTaxCollection(),
-            ContactDistrict() if not self.api.legacy_mode else None,  # BUG in Spiff
-            AssertNumberOfOpenTasks(0),
+            AssertNumberOfOpenTasks(0)
+            if self.api.legacy_mode
+            else ContactDistrict(),  # BUG in Spiff
         ]
 
         case.run_steps(steps)

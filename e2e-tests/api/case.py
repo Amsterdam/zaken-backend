@@ -14,6 +14,10 @@ class Case:
     def run_steps(self, steps):
         steps = filter(lambda step: step is not None, steps)
         for step in steps:
+            # Give Camunda and Spiff some time to do async processing
             if self.api.legacy_mode:
                 time.sleep(0.15)
+            elif hasattr(step, "asynchronous") and step.asynchronous:
+                time.sleep(0.5)
+
             step.run(self.api, self.data)

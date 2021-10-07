@@ -1,6 +1,10 @@
 # action.yml
-name: 'Run API tests (e2e)'
-on: pull_request
+name: 'Run Integration test'
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
 jobs:
   main:
     runs-on: ubuntu-latest

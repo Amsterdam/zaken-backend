@@ -59,9 +59,8 @@ class TestViolationClosure(unittest.TestCase):
                     JudgeReopeningRequest(),
                     Reopen(),
                     ScheduleRecheck(),
+                    AssertNumberOfOpenTasks(0),
                 ]
             )
-
-        steps.append(AssertNumberOfOpenTasks(0))
 
         case.run_steps(steps)
