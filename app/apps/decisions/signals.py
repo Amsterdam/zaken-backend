@@ -20,7 +20,7 @@ def update_decision_with_summon(sender, instance, created, **kwargs):
             },
         )
         summon = Summon.objects.filter(
-            id=task.workflow.data.get("summon_id", {}).get("value", 0)
+            id=task.workflow.get_data().get("summon_id", {}).get("value", 0)
         ).first()
         if summon:
             instance.summon = summon
