@@ -6,6 +6,7 @@ import os
 from deepdiff import DeepDiff
 from prettyprinter import pprint
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
+from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
@@ -126,6 +127,7 @@ def is_bpmn_file(file_name):
 
 def get_workflow_spec(path, workflow_type):
     x = CamundaParser()
+
     for f in get_workflow_spec_files(path):
         x.add_bpmn_file(f)
     spec = x.get_spec(workflow_type)
@@ -380,8 +382,6 @@ def compare_workflow_specs(version_a, version_b, theme_name, worflow_type):
     user_tasks_formfields_changed = DeepDiff(form_fields_a, form_fields_b)
 
     logger.info("COMPARE DUMPS")
-    get_workflow_spec_dump(spec_a, False, False, "task_create_picture_rapport")
-
     if get_workflow_spec_dump(spec_a, True, True).get("dump") == get_workflow_spec_dump(
         spec_b, True, True
     ).get("dump"):
@@ -521,6 +521,132 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
         "missing_form_data": missing_form_data,
         "result_data": data,
     }
+
+
+def workflow_test_message(message, workflow_spec):
+    def set_status(status):
+        pass
+
+    def wait_for_workflows_and_send_message(message):
+        pass
+
+    def start_subworkflow(subflow):
+        pass
+
+    script_engine = BpmnScriptEngine(
+        scriptingAdditions={
+            "set_status": set_status,
+            "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
+            "start_subworkflow": start_subworkflow,
+        }
+    )
+    try:
+
+        workflow_a = BpmnWorkflow(workflow_spec)
+        workflow_a_serialized = BpmnSerializer().serialize_workflow(
+            workflow_a, include_spec=False
+        )
+        workflow_b = BpmnSerializer().deserialize_workflow(
+            workflow_a_serialized, workflow_spec
+        )
+        workflow_a.script_engine = script_engine
+        workflow_b.script_engine = script_engine
+
+        workflow_a.refresh_waiting_tasks()
+        workflow_b.refresh_waiting_tasks()
+        workflow_a.do_engine_steps()
+        workflow_b.do_engine_steps()
+
+        workflow_a.message(message, "default", "default")
+
+        dump_a = workflow_a.get_dump()
+        dump_b = workflow_b.get_dump()
+
+        return dump_a != dump_b
+    except Exception:
+        return False
+
+
+def workflow_spec_path_inspect(workflow_spec_path, type, messages=[]):
+    try:
+        workflow_spec = get_workflow_spec(workflow_spec_path, type)
+        workflow = BpmnWorkflow(workflow_spec)
+
+        return {
+            "workflow": workflow,
+            "forms": [
+                parse_task_spec_form(user_task.form)
+                for user_task in get_workflow_spec_user_tasks(workflow_spec)
+            ],
+            "messages": [
+                {
+                    "message": m,
+                    "exists": workflow_test_message(m, workflow_spec),
+                }
+                for m in messages
+            ],
+        }
+    except Exception as e:
+        print(str(e))
+        return False
+
+
+def workflow_spec_paths_inspect(workflow_spec_conf):
+    base_path = os.path.join(get_base_path(), "bpmn_files")
+    paths = [
+        {
+            "path": os.path.join(base_path, theme, type, version),
+            "workflow_data": workflow_spec_path_inspect(
+                os.path.join(base_path, theme, type, version),
+                type,
+                version_value.get("messages", []),
+            ),
+            "theme": theme,
+            "type": type,
+            "version": version,
+            "messages": version_value.get("messages", []),
+        }
+        for theme, types in workflow_spec_conf.items()
+        for type, versions in types.items()
+        for version, version_value in versions.items()
+    ]
+    return paths
+
+
+def workflow_specs_inspect(workflow_spec_conf):
+    from .serializers import WorkflowSpecConfigSerializer
+
+    serializer = WorkflowSpecConfigSerializer(data=workflow_spec_conf)
+    if serializer.is_valid():
+        pass
+    else:
+        raise Exception(
+            {
+                "message": "settings WORKFLOW_SPEC_CONF not valid",
+                "details": serializer.errors,
+            }
+        )
+    report = {}
+    paths = workflow_spec_paths_inspect(workflow_spec_conf)
+
+    non_valid_paths = [p.get("path") for p in paths if not p.get("workflow_data")]
+    if non_valid_paths:
+        raise Exception(
+            {
+                "message": "missing paths",
+                "details": non_valid_paths,
+            }
+        )
+
+    report.update(
+        {
+            "non_valid_paths": [
+                p.get("path") for p in paths if not p.get("workflow_spec")
+            ],
+            "valid_workflow_spec_configs": [p for p in paths if p.get("workflow_spec")],
+        }
+    )
+    pprint(report)
 
 
 def main():
