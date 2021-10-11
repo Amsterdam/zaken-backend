@@ -1,12 +1,11 @@
 from apps.users.permissions import rest_permission_classes_for_top
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import mixins, status, viewsets
-from rest_framework.decorators import action
+from rest_framework import mixins, viewsets
 from rest_framework.response import Response
 
 from .models import CaseUserTask
-from .serializers import CaseUserTaskListSerializer, CaseUserTaskUpdateOwnerSerializer
+from .serializers import CaseUserTaskListSerializer
 
 role_parameter = OpenApiParameter(
     name="role",
@@ -24,7 +23,7 @@ class CaseUserTaskViewSet(
     permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseUserTaskListSerializer
     queryset = CaseUserTask.objects.filter(completed=False)
-    http_method_names = ["post", "get"]
+    http_method_names = ["patch", "get"]
 
     @extend_schema(
         parameters=[
@@ -49,24 +48,3 @@ class CaseUserTaskViewSet(
         )
 
         return Response(serializer.data)
-
-    @extend_schema(
-        description="Set owner for CaseUserTask by id",
-    )
-    @action(
-        detail=True,
-        url_path="owner",
-        methods=["post"],
-        serializer_class=CaseUserTaskUpdateOwnerSerializer,
-    )
-    def set_owner(self, request, pk=None):
-        task = self.get_object()
-        serializer = CaseUserTaskUpdateOwnerSerializer(
-            data=request.data, context={"request": request}
-        )
-        if serializer.is_valid():
-            task.owner = serializer.validated_data["owner"]
-            task.save(updated_fields=["owner"])
-            return Response({"status": "owner set"})
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
