@@ -1,4 +1,5 @@
 import copy
+import datetime
 import logging
 from string import Template
 
@@ -11,6 +12,7 @@ from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.task import Task
+from utils.managers import BulkCreateSignalsManager
 
 from .utils import (
     check_task_id_changes,
@@ -462,7 +464,22 @@ class CaseWorkflow(models.Model):
         return f"{self.id}, case: {self.case.id}"
 
 
+USER_TASKS = {
+    "task_prepare_abbreviated_visit_rapport": {
+        "due_date": datetime.timedelta(days=2),
+    },
+    "task_create_picture_rapport": {
+        "due_date": datetime.timedelta(days=2),
+    },
+    "task_create_report_of_findings": {
+        "due_date": datetime.timedelta(days=2),
+    },
+}
+DEFAULT_USER_TASK_DUE_DATE = datetime.timedelta(days=0)
+
+
 class CaseUserTask(models.Model):
+
     completed = models.BooleanField(
         default=False,
     )
@@ -489,6 +506,10 @@ class CaseUserTask(models.Model):
         null=True,
         blank=True,
     )
+    due_date = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     case = models.ForeignKey(
@@ -501,6 +522,8 @@ class CaseUserTask(models.Model):
         related_name="tasks",
         on_delete=models.CASCADE,
     )
+
+    objects = BulkCreateSignalsManager()
 
     @staticmethod
     def parse_task_spec_form(form):
