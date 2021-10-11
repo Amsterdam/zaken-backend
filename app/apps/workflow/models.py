@@ -6,13 +6,13 @@ from string import Template
 from apps.cases.models import Case
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
-from django.db.models.signals import post_save, pre_save
 from django.shortcuts import get_object_or_404
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.task import Task
+from utils.managers import BulkCreateSignalsManager
 
 from .utils import (
     check_task_id_changes,
@@ -26,16 +26,6 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
-
-
-class CustomManager(models.Manager):
-    def bulk_create(self, objs, **kwargs):
-        for i in objs:
-            pre_save.send(i.__class__, instance=i)
-        a = super(CustomManager, self).bulk_create(objs, **kwargs)
-        for i in objs:
-            post_save.send(i.__class__, instance=i)
-        return a
 
 
 class CaseWorkflow(models.Model):
@@ -523,7 +513,7 @@ class CaseUserTask(models.Model):
         on_delete=models.CASCADE,
     )
 
-    objects = CustomManager()
+    objects = BulkCreateSignalsManager()
 
     @staticmethod
     def parse_task_spec_form(form):
