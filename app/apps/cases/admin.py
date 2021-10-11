@@ -64,6 +64,7 @@ class CaseStateAdmin(admin.ModelAdmin):
         "case_process_id",
     )
     list_filter = ("status", "end_date")
+    search_fields = ("case__id",)
 
 
 @admin.register(CaseStateType)

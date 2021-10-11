@@ -457,6 +457,9 @@ class CaseWorkflow(models.Model):
     def __str__(self):
         return f"{self.id}, case: {self.case.id}"
 
+    class Meta:
+        ordering = ["-id"]
+
 
 class CaseUserTask(models.Model):
     completed = models.BooleanField(
