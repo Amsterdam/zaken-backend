@@ -74,6 +74,7 @@ class CaseStateSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
     )
+    information = serializers.CharField(source="get_information", read_only=True)
 
     class Meta:
         model = CaseState
