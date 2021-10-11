@@ -8,6 +8,8 @@ from django.dispatch import receiver
 @receiver(pre_save, sender=CaseUserTask, dispatch_uid="case_user_task_pre_save")
 def case_user_task_pre_save(sender, instance, **kwargs):
     if not instance.id:
-        instance.due_date = datetime.datetime.now() + USER_TASKS.get(
-            instance.task_name, {}
-        ).get("due_date", DEFAULT_USER_TASK_DUE_DATE)
+        now = datetime.datetime.now()
+        d = datetime.datetime(year=now.year, month=now.month, day=now.day)
+        instance.due_date = d + USER_TASKS.get(instance.task_name, {}).get(
+            "due_date", DEFAULT_USER_TASK_DUE_DATE
+        )

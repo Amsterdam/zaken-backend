@@ -464,8 +464,18 @@ class CaseWorkflow(models.Model):
         return f"{self.id}, case: {self.case.id}"
 
 
-USER_TASKS = {"task_create_debrief": {"due_date": datetime.timedelta(days=0)}}
-DEFAULT_USER_TASK_DUE_DATE = datetime.timedelta(days=2)
+USER_TASKS = {
+    "task_prepare_abbreviated_visit_rapport": {
+        "due_date": datetime.timedelta(days=2),
+    },
+    "task_create_picture_rapport": {
+        "due_date": datetime.timedelta(days=2),
+    },
+    "task_create_report_of_findings": {
+        "due_date": datetime.timedelta(days=2),
+    },
+}
+DEFAULT_USER_TASK_DUE_DATE = datetime.timedelta(days=0)
 
 
 class CaseUserTask(models.Model):
