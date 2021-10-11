@@ -232,8 +232,9 @@ class CaseState(models.Model):
 
     def get_information(self):
         # TODO: replaces information field, so remove field
-        names = self.workflow.get_data().get("names", {}).get("value", "")
-        return names
+        if self.workflow:
+            return self.workflow.get_data().get("names", {}).get("value", "")
+        return ""
 
     def __str__(self):
         return f"{self.start_date} - {self.end_date} - {self.case.identification} - {self.status.name}"
