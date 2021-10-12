@@ -26,7 +26,7 @@ class CaseUserTaskSerializer(serializers.ModelSerializer):
     def get_user_has_permission(self, obj):
         request = self.context.get("request")
         if request and hasattr(request, "user"):
-            request.user.has_perm("users.perform_task")
+            return request.user.has_perm("users.perform_task")
         return False
 
     class Meta:
