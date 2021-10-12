@@ -187,6 +187,8 @@ class CaseWorkflow(models.Model):
     def message(self, message_name, payload, resultVar, extra_data={}):
         # use this to start a workflow at a certain point
         wf = self.get_or_restore_workflow_state()
+        if not wf:
+            return
 
         self.set_initial_data(extra_data)
         wf = self._update_workflow(wf)
@@ -205,6 +207,8 @@ class CaseWorkflow(models.Model):
         """
 
         wf = self.get_or_restore_workflow_state()
+        if not wf:
+            return
 
         wf = self._update_workflow(wf)
 
@@ -225,6 +229,9 @@ class CaseWorkflow(models.Model):
         Find one solution to get current data from workflow and from the saved 'data' from this instance
         """
         wf = self.get_or_restore_workflow_state()
+        if not wf:
+            return {}
+
         if wf.last_task:
             return wf.last_task.data
         return {}
@@ -278,9 +285,8 @@ class CaseWorkflow(models.Model):
             )
 
     def check_for_issues(self):
-        try:
-            wf = self.get_or_restore_workflow_state()
-        except Exception:
+        wf = self.get_or_restore_workflow_state()
+        if not wf:
             return "restore error"
         try:
             wf = self._update_workflow(wf)
@@ -290,6 +296,8 @@ class CaseWorkflow(models.Model):
 
     def complete_user_task_and_create_new_user_tasks(self, task_id=None, data=None):
         wf = self.get_or_restore_workflow_state()
+        if not wf:
+            return
 
         task = wf.get_task(task_id)
 
@@ -321,13 +329,25 @@ class CaseWorkflow(models.Model):
     def get_or_restore_workflow_state(self):
         # gets the unserialized workflow from this workflow instance, it has to use an workflow_spec, witch in this case will be load from filesystem.
 
-        workflow_spec = self.get_workflow_spec()
+        try:
+            workflow_spec = self.get_workflow_spec()
+        except Exception as e:
+            logger.error(
+                f"get_workflow_spec: {self.id}, case id: {self.case.id}, error: {str(e)}"
+            )
+            return
 
         if self.serialized_workflow_state:
-            wf = self.get_serializer().deserialize_workflow(
-                self.serialized_workflow_state, workflow_spec=workflow_spec
-            )
-            wf = self.get_script_engine(wf)
+            try:
+                wf = self.get_serializer().deserialize_workflow(
+                    self.serialized_workflow_state, workflow_spec=workflow_spec
+                )
+                wf = self.get_script_engine(wf)
+            except Exception as e:
+                logger.error(
+                    f"get_or_restore_workflow_state: {self.id}, case id: {self.case.id}, error: {str(e)}"
+                )
+                return
             return wf
         else:
             wf = BpmnWorkflow(workflow_spec)
@@ -338,7 +358,8 @@ class CaseWorkflow(models.Model):
 
     def set_initial_data(self, data):
         wf = self.get_or_restore_workflow_state()
-
+        if not wf:
+            return
         first_task = wf.get_tasks(Task.READY)
         last_task = wf.last_task
         if first_task:
@@ -360,7 +381,8 @@ class CaseWorkflow(models.Model):
     def update_workflow(self):
         # call this on a regular bases to complete tasks that are time related
         wf = self.get_or_restore_workflow_state()
-
+        if not wf:
+            return
         # changes the workflow
         wf = self._update_workflow(wf)
 

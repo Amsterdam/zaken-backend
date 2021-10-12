@@ -1,6 +1,6 @@
 from apps.addresses.serializers import AddressSerializer
 from apps.cases.models import Case
-from apps.cases.serializers import CaseStateSerializer
+from apps.cases.serializers import CaseStateTaskSerializer
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.fields import empty
@@ -58,9 +58,9 @@ class CaseWorkflowSerializer(serializers.ModelSerializer):
             many=True,
         ).data
 
-    @extend_schema_field(CaseStateSerializer)
+    @extend_schema_field(CaseStateTaskSerializer)
     def get_state(self, obj):
-        return CaseStateSerializer(obj.case_states.all().order_by("id").last()).data
+        return CaseStateTaskSerializer(obj.case_states.all().order_by("id").last()).data
 
     class Meta:
         model = CaseWorkflow
