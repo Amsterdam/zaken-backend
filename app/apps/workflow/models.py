@@ -329,7 +329,13 @@ class CaseWorkflow(models.Model):
     def get_or_restore_workflow_state(self):
         # gets the unserialized workflow from this workflow instance, it has to use an workflow_spec, witch in this case will be load from filesystem.
 
-        workflow_spec = self.get_workflow_spec()
+        try:
+            workflow_spec = self.get_workflow_spec()
+        except Exception as e:
+            logger.error(
+                f"get_workflow_spec: {self.id}, case id: {self.case.id}, error: {str(e)}"
+            )
+            return
 
         if self.serialized_workflow_state:
             try:
@@ -337,7 +343,10 @@ class CaseWorkflow(models.Model):
                     self.serialized_workflow_state, workflow_spec=workflow_spec
                 )
                 wf = self.get_script_engine(wf)
-            except Exception:
+            except Exception as e:
+                logger.error(
+                    f"get_or_restore_workflow_state: {self.id}, case id: {self.case.id}, error: {str(e)}"
+                )
                 return
             return wf
         else:
