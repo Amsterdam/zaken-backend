@@ -60,7 +60,10 @@ class CaseUserTaskSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.BooleanField)
     def get_user_has_permission(self, obj):
-        return True  # self.request.user.has_perm("users.perform_task")
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            return request.user.has_perm("users.perform_task")
+        return False
 
     class Meta:
         model = CaseUserTask

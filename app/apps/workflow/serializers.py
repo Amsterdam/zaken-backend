@@ -65,6 +65,7 @@ class CaseWorkflowSerializer(serializers.ModelSerializer):
                 completed=False,
             ).order_by("id"),
             many=True,
+            context=self.context,
         ).data
 
     @extend_schema_field(CaseStateTaskSerializer)
