@@ -74,6 +74,13 @@ class CaseStateSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
     )
+
+    class Meta:
+        model = CaseState
+        exclude = ("information",)
+
+
+class CaseStateTaskSerializer(CaseStateSerializer):
     information = serializers.CharField(source="get_information", read_only=True)
 
     class Meta:
