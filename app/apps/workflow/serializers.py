@@ -86,40 +86,36 @@ class CaseWorkflowSerializer(serializers.ModelSerializer):
         ]
 
 
-class CharFieldStringOnly(serializers.CharField):
-    def to_internal_value(self, data):
-        if isinstance(data, bool) or not isinstance(data, (str,)):
-            self.fail("invalid")
-        value = str(data)
-        return value.strip() if self.trim_whitespace else value
-
-
 class WorkflowSpecConfigVerionSerializer(serializers.Serializer):
-    messages = serializers.ListSerializer(required=False, child=CharFieldStringOnly())
+    messages = serializers.DictField(required=False, child=serializers.DictField())
 
 
 class WorkflowSpecConfigThemeSerializer(serializers.Serializer):
-    close_case = serializers.DictField(
-        required=False, child=WorkflowSpecConfigVerionSerializer()
-    )
-    decision = serializers.DictField(
-        required=False, child=WorkflowSpecConfigVerionSerializer()
-    )
-    director = serializers.DictField(
-        required=False, child=WorkflowSpecConfigVerionSerializer()
-    )
-    renounce_decision = serializers.DictField(
-        required=False, child=WorkflowSpecConfigVerionSerializer()
-    )
-    sub_workflow = serializers.DictField(
-        required=False, child=WorkflowSpecConfigVerionSerializer()
-    )
-    summon = serializers.DictField(
-        required=False, child=WorkflowSpecConfigVerionSerializer()
-    )
-    visit = serializers.DictField(
-        required=False, child=WorkflowSpecConfigVerionSerializer()
-    )
+    initial_data = serializers.DictField()
+    versions = serializers.DictField(child=WorkflowSpecConfigVerionSerializer())
+
+    def run_validation(self, data=empty):
+        if data is not empty:
+            unknown = set(data) - set(self.fields)
+            if unknown:
+                errors = ["Unknown field: {}".format(f) for f in unknown]
+                raise serializers.ValidationError(
+                    {
+                        api_settings.NON_FIELD_ERRORS_KEY: errors,
+                    }
+                )
+
+        return super().run_validation(data)
+
+
+class WorkflowSpecConfigThemeTypeSerializer(serializers.Serializer):
+    close_case = WorkflowSpecConfigThemeSerializer(required=False)
+    decision = WorkflowSpecConfigThemeSerializer(required=False)
+    director = WorkflowSpecConfigThemeSerializer(required=False)
+    renounce_decision = WorkflowSpecConfigThemeSerializer(required=False)
+    sub_workflow = WorkflowSpecConfigThemeSerializer(required=False)
+    summon = WorkflowSpecConfigThemeSerializer(required=False)
+    visit = WorkflowSpecConfigThemeSerializer(required=False)
 
     def run_validation(self, data=empty):
         if data is not empty:
@@ -136,8 +132,8 @@ class WorkflowSpecConfigThemeSerializer(serializers.Serializer):
 
 
 class WorkflowSpecConfigSerializer(serializers.Serializer):
-    default = WorkflowSpecConfigThemeSerializer()
-    vakantieverhuur = WorkflowSpecConfigThemeSerializer(required=False)
+    default = WorkflowSpecConfigThemeTypeSerializer()
+    vakantieverhuur = WorkflowSpecConfigThemeTypeSerializer(required=False)
 
     def run_validation(self, data=empty):
         if data is not empty:
