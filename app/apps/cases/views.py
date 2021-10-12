@@ -308,6 +308,7 @@ class CaseViewSet(
                 case=case, tasks__isnull=False, tasks__completed=False
             ).distinct(),
             many=True,
+            context={"request": request},
         )
 
         return Response(serializer.data)
