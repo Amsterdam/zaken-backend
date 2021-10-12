@@ -185,6 +185,7 @@ class Visit(AbstractUserTask):
 
 
 class ScheduleVisit(AbstractUserTask):
+    asynchronous = True
     endpoint = "schedules"
     task = Task.schedule
 
@@ -385,6 +386,7 @@ class CheckIncomingView(GenericUserTask):
 
 
 class CreateConceptDecision(GenericUserTask):
+    asynchronous = True
     task = Task.create_concept_decision
 
 
@@ -416,6 +418,7 @@ class Decision(AbstractUserTask):
 
 
 class Summon(AbstractUserTask):
+    asynchronous = True
     endpoint = "summons"
     task = Task.summon
 
