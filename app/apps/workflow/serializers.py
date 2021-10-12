@@ -9,6 +9,12 @@ from rest_framework.settings import api_settings
 from .models import CaseUserTask, CaseWorkflow
 
 
+class CaseUserTaskUpdateOwnerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseUserTask
+        fields = ["owner"]
+
+
 class CaseUserTaskSerializer(serializers.ModelSerializer):
     user_has_permission = serializers.SerializerMethodField()
     camunda_task_id = serializers.CharField(source="id")
@@ -18,7 +24,10 @@ class CaseUserTaskSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.BooleanField)
     def get_user_has_permission(self, obj):
-        return True  # self.request.user.has_perm("users.perform_task")
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            return request.user.has_perm("users.perform_task")
+        return False
 
     class Meta:
         model = CaseUserTask

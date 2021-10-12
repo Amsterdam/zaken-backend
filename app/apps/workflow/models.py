@@ -4,6 +4,7 @@ import logging
 from string import Template
 
 from apps.cases.models import Case
+from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.shortcuts import get_object_or_404
@@ -528,6 +529,12 @@ class CaseUserTask(models.Model):
         blank=True,
     )
     due_date = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    owner = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
     )
