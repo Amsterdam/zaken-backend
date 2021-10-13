@@ -1,4 +1,5 @@
 from apps.addresses.views import AddressViewSet
+from apps.camunda.views import CamundaTaskViewSet
 from apps.cases.views import (
     CaseCloseViewSet,
     CaseStateViewSet,
@@ -46,6 +47,8 @@ router.register(r"permissions", PermissionViewSet, basename="permissions")
 router.register(r"summons", SummonViewSet, basename="summons")
 router.register(r"schedules", ScheduleViewSet, basename="schedules")
 router.register(r"case-close", CaseCloseViewSet, basename="case-closing")
+
+router.register(r"camunda/task", CamundaTaskViewSet, basename="camunda-tasks")
 
 urlpatterns = [
     # Admin environment
