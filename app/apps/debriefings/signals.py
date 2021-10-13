@@ -10,7 +10,7 @@ from django.dispatch import receiver
 def complete_camunda_task_create_debrief(sender, instance, created, **kwargs):
     if created:
         CaseWorkflow.complete_user_task(
-            instance.camunda_task_id,
+            instance.case_user_task_id,
             {
                 "violation": {
                     "value": instance.violation,
@@ -18,7 +18,7 @@ def complete_camunda_task_create_debrief(sender, instance, created, **kwargs):
             },
         )
         # CamundaService().complete_task(
-        #     instance.camunda_task_id,
+        #     instance.case_user_task_id,
         #     {
         #         "violation": {
         #             "value": instance.violation,

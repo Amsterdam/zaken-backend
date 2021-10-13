@@ -17,7 +17,7 @@ class CaseUserTaskUpdateOwnerSerializer(serializers.ModelSerializer):
 
 class CaseUserTaskSerializer(serializers.ModelSerializer):
     user_has_permission = serializers.SerializerMethodField()
-    camunda_task_id = serializers.CharField(source="id")
+    case_user_task_id = serializers.CharField(source="id")
     form_variables = serializers.DictField(source="get_form_variables")
     # frontend dep: rename to 'task_name'
     task_name_id = serializers.CharField(source="task_name")

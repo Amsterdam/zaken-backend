@@ -56,7 +56,7 @@ class CaseReasonSerializer(serializers.ModelSerializer):
 
 class CaseUserTaskSerializer(serializers.ModelSerializer):
     user_has_permission = serializers.SerializerMethodField()
-    camunda_task_id = serializers.CharField(source="id")
+    case_user_task_id = serializers.CharField(source="id")
 
     @extend_schema_field(serializers.BooleanField)
     def get_user_has_permission(self, obj):
