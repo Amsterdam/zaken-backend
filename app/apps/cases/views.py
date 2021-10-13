@@ -295,8 +295,8 @@ class CaseViewSet(
         return Response(status=status.HTTP_200_OK)
 
     @extend_schema(
-        description="Get Camunda tasks for this Case",
-        responses={status.HTTP_200_OK: CamundaTaskWithStateSerializer(many=True)},
+        description="Get tasks for this Case",
+        responses={status.HTTP_200_OK: CaseWorkflowSerializer(many=True)},
     )
     @action(detail=True, methods=["get"], url_path="tasks")
     def get_tasks(self, request, pk):
