@@ -123,7 +123,10 @@ class CaseWorkflow(models.Model):
                 }
             )
             workflow_instance.save(update_fields=["data"])
-            all_workflows = CaseWorkflow.objects.filter(case=workflow_instance.case)
+            all_workflows = CaseWorkflow.objects.filter(
+                case=workflow_instance.case,
+                workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
+            )
 
             workflows_completed = [
                 a
@@ -391,12 +394,16 @@ class CaseWorkflow(models.Model):
 
     def _check_completed_workflows(self, wf):
         # if end of subworkflow, try to get back to main workflow
-        if self.parent_workflow and wf.is_completed():
-
-            self.parent_workflow.accept_message(
-                f"resume_after_{self.workflow_type}",
-                self.get_data(),
-            )
+        if wf.is_completed() and not self.completed:
+            if (
+                self.parent_workflow
+                and self.parent_workflow.workflow_type
+                == CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+            ):
+                self.parent_workflow.accept_message(
+                    f"resume_after_{self.workflow_type}",
+                    self.get_data(),
+                )
             self.completed = True
             self.save()
             # maybe delete workflow object when completed
