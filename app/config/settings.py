@@ -469,7 +469,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 DEFAULT_WORKFLOW_TYPE = os.getenv("DEFAULT_WORKFLOW_TYPE", "director")
 
-WORKFLOW_SPEC_CONF = {
+WORKFLOW_SPEC_CONFIG = {
     "default": {
         "close_case": {
             "initial_data": {},
