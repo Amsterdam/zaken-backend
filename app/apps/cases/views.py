@@ -9,7 +9,6 @@ from apps.camunda.serializers import (
     CamundaTaskSerializer,
     CamundaTaskWithStateSerializer,
 )
-from apps.cases.mock import mock
 from apps.cases.models import (
     Case,
     CaseClose,
@@ -281,18 +280,6 @@ class CaseViewSet(
         serializer = CaseSerializer(context, many=True)
 
         return paginator.get_paginated_response(serializer.data)
-
-    @action(detail=False, methods=["post"], url_path="generate-mock")
-    def mock_cases(self, request):
-        try:
-            assert (
-                settings.DEBUG or settings.ENVIRONMENT == "acceptance"
-            ), "Incorrect enviroment"
-            mock()
-        except Exception as e:
-            return Response(data={"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(status=status.HTTP_200_OK)
 
     @extend_schema(
         description="Get tasks for this Case",

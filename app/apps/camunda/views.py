@@ -12,8 +12,6 @@ from apps.camunda.serializers import (
     CamundaTaskListSerializer,
     CamundaTaskSerializer,
 )
-from apps.camunda.services import CamundaService
-from apps.cases.models import Case, CaseProcessInstance
 from apps.users.permissions import (
     rest_permission_classes_for_camunda,
     rest_permission_classes_for_top,
@@ -94,97 +92,6 @@ class CamundaWorkerViewSet(viewsets.ViewSet):
             logger.error(f"State could not be ended: {serializer.errors}")
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    @extend_schema(
-        description="A Camunda service task for starting process based on message",
-        responses={200: None},
-    )
-    @action(
-        detail=False,
-        url_path="send-message-start-process",
-        methods=["post"],
-        serializer_class=CamundaMessagerSerializer,
-    )
-    def send_message(self, request):
-        logger.info("Sending message based on Camunda message end event")
-        serializer = CamundaMessagerSerializer(data=request.data)
-
-        if serializer.is_valid():
-            message_name = serializer.validated_data["message_name"]
-            case_identification = serializer.validated_data["case_identification"]
-
-            if serializer.validated_data["process_variables"]:
-                process_variables = serializer.validated_data["process_variables"]
-            else:
-                process_variables = {}
-
-            try:
-                case = Case.objects.get(id=case_identification)
-            except Case.DoesNotExist:
-                return Response(
-                    data="Camunda process has not started. Case does not exist",
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-
-            case_process_instance = CaseProcessInstance.objects.create(case=case)
-            case_process_id = case_process_instance.process_id.__str__()
-
-            raw_response = CamundaService().send_message(
-                message_name=message_name,
-                case_identification=case_identification,
-                case_process_id=case_process_id,
-                message_process_variables=process_variables,
-            )
-
-            if raw_response.ok:
-                response = raw_response.json()[0]
-                camunda_id = response["processInstance"]["id"]
-
-                case = Case.objects.get(id=case_identification)
-                case.add_camunda_id(camunda_id)
-                case_process_instance.camunda_process_id = camunda_id
-                case.save()
-                case_process_instance.save()
-
-                logger.info(f"Message send {message_name} ended succesfully")
-                return Response(status=status.HTTP_200_OK)
-
-            rendered_content = raw_response.content.decode("UTF-8")
-            logger.error(f"FAIL: Message send response:{rendered_content}")
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        else:
-            logger.error(f"FAIL: Message send {serializer.errors}")
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-    @extend_schema(
-        description="A Camunda service task for trigger event inside of process instance based on message",
-        responses={200: None},
-    )
-    @action(
-        detail=False,
-        url_path="send-message-inside-process",
-        methods=["post"],
-        serializer_class=CamundaMessageForProcessInstanceSerializer,
-    )
-    def send_message_inside_of_process(self, request):
-        logger.info("Sending message based on Camunda message to process instance")
-        serializer = CamundaMessageForProcessInstanceSerializer(data=request.data)
-
-        if serializer.is_valid():
-            raw_response = CamundaService().send_message_to_process_instance(
-                message_name=serializer.validated_data["message_name"],
-                process_instance_id=serializer.validated_data["camunda_process_id"],
-            )
-
-            if raw_response.ok:
-                return Response(status=status.HTTP_200_OK)
-            else:
-                return Response(
-                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
-                )
-        else:
-            logger.error(f"FAIL: Message send {serializer.errors}")
-            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
-
 
 class CamundaTaskViewSet(viewsets.ViewSet):
     serializer_class = CamundaTaskCompleteSerializer
@@ -229,31 +136,5 @@ class CamundaTaskViewSet(viewsets.ViewSet):
                 return Response(
                     f"CaseUserTask {data['case_user_task_id']} has NOT been completed"
                 )
-
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-
-    @action(
-        detail=False,
-        url_path="date",
-        methods=["post"],
-        serializer_class=CamundaDateUpdateSerializer,
-    )
-    def update_due_date(self, request):
-        serializer = CamundaDateUpdateSerializer(data=request.data)
-
-        if serializer.is_valid():
-            data = serializer.validated_data
-
-            response = CamundaService().update_due_date_task(
-                data["camunda_task_id"], data["date"]
-            )
-
-            if response:
-                return Response(status=status.HTTP_200_OK)
-
-            return Response(
-                "Camunda service is offline",
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
