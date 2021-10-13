@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.shortcuts import get_object_or_404
+from django.utils.dateparse import parse_duration
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -176,11 +177,15 @@ class CaseWorkflow(models.Model):
 
             task_start_subworkflow.delay(subworkflow_name, workflow_instance.id)
 
+        def parse_duration_string(str_duration):
+            return parse_duration(str_duration)
+
         wf.script_engine = BpmnScriptEngine(
             scriptingAdditions={
                 "set_status": set_status,
                 "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
                 "start_subworkflow": start_subworkflow,
+                "parse_duration": parse_duration_string,
             }
         )
         return wf
@@ -191,7 +196,7 @@ class CaseWorkflow(models.Model):
         if not wf:
             return
 
-        self.set_initial_data(extra_data)
+        wf = self._initial_data(wf, extra_data)
         wf = self._update_workflow(wf)
 
         wf.message(message_name, payload, resultVar)
@@ -357,10 +362,8 @@ class CaseWorkflow(models.Model):
             self.save_workflow_state(wf)
             return self.get_or_restore_workflow_state()
 
-    def set_initial_data(self, data):
-        wf = self.get_or_restore_workflow_state()
-        if not wf:
-            return
+    def _initial_data(self, wf, data):
+
         first_task = wf.get_tasks(Task.READY)
         last_task = wf.last_task
         if first_task:
@@ -370,6 +373,15 @@ class CaseWorkflow(models.Model):
 
         # TODO: how to set initial data
         first_task.update_data(data)
+
+        return wf
+
+    def set_initial_data(self, data):
+        wf = self.get_or_restore_workflow_state()
+        if not wf:
+            return
+
+        wf = self._initial_data(wf, data)
 
         # changes the workflow
         wf = self._update_workflow(wf)
