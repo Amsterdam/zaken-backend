@@ -472,37 +472,65 @@ DEFAULT_WORKFLOW_TYPE = os.getenv("DEFAULT_WORKFLOW_TYPE", "director")
 WORKFLOW_SPEC_CONF = {
     "default": {
         "close_case": {
-            "0.1.0": {},
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {},
+            },
         },
         "decision": {
-            "0.1.0": {},
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {},
+            },
         },
         "director": {
-            "0.1.0": {
-                "messages": [
-                    "main_process",
-                    "aanschrijving_toevoegen",
-                ]
-            }
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {
+                    "messages": {
+                        "main_process": {
+                            "initial_data": {
+                                "status_name": "Huisbezoek",
+                            },
+                        },
+                        "aanschrijving_toevoegen": {},
+                    },
+                },
+            },
         },
         "renounce_decision": {
-            "0.1.0": {},
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {},
+            },
         },
         "sub_workflow": {
-            "0.1.0": {
-                "messages": [
-                    "start_signal_process",
-                    "start_correspondence_process",
-                    "start_callbackrequest_process",
-                    "start_objectionfile_process",
-                ]
-            }
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {
+                    "messages": {
+                        "start_signal_process": {},
+                        "start_correspondence_process": {},
+                        "start_callbackrequest_process": {},
+                        "start_objectionfile_process": {},
+                    },
+                },
+            },
         },
         "summon": {
-            "0.1.0": {},
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {},
+            },
         },
         "visit": {
-            "0.1.0": {},
+            "initial_data": {
+                "status_name": "Huisbezoek",
+            },
+            "versions": {
+                "0.1.0": {},
+                "0.2.0": {},
+            },
         },
     },
 }

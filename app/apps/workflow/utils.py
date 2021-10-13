@@ -567,7 +567,7 @@ def workflow_test_message(message, workflow_spec):
         return False
 
 
-def workflow_spec_path_inspect(workflow_spec_path, type, messages=[]):
+def workflow_spec_path_inspect(workflow_spec_path, type, messages={}):
     try:
         workflow_spec = get_workflow_spec(workflow_spec_path, type)
         workflow = BpmnWorkflow(workflow_spec)
@@ -583,7 +583,7 @@ def workflow_spec_path_inspect(workflow_spec_path, type, messages=[]):
                     "message": m,
                     "exists": workflow_test_message(m, workflow_spec),
                 }
-                for m in messages
+                for m, v in messages.items()
             ],
         }
     except Exception as e:
@@ -599,16 +599,16 @@ def workflow_spec_paths_inspect(workflow_spec_conf):
             "workflow_data": workflow_spec_path_inspect(
                 os.path.join(base_path, theme, type, version),
                 type,
-                version_value.get("messages", []),
+                version_value.get("messages", {}),
             ),
             "theme": theme,
             "type": type,
             "version": version,
-            "messages": version_value.get("messages", []),
+            "messages": version_value.get("messages", {}),
         }
         for theme, types in workflow_spec_conf.items()
-        for type, versions in types.items()
-        for version, version_value in versions.items()
+        for type, theme_type in types.items()
+        for version, version_value in theme_type.get("versions", {}).items()
     ]
     return paths
 
