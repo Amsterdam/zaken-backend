@@ -80,6 +80,11 @@ class CaseWorkflow(models.Model):
         null=True,
         blank=True,
     )
+    workflow_message_name = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+    )
     created = models.DateTimeField(auto_now_add=True)
     serialized_workflow_state = models.JSONField(null=True)
     data = models.JSONField(null=True)
