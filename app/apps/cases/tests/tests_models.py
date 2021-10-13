@@ -145,7 +145,9 @@ class CaseModelTest(TestCase):
         self.assertEqual(CaseState.objects.count(), 0)
         STATE_TYPE_NAME = "MOCK_STATE_TYPE"
         case = baker.make(Case)
-        workflow = baker.make(CaseWorkflow)
+        workflow = baker.make(
+            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+        )
         case.set_state(STATE_TYPE_NAME, workflow=workflow)
         self.assertEqual(CaseState.objects.count(), 1)
 
@@ -156,7 +158,9 @@ class CaseModelTest(TestCase):
         self.assertEqual(CaseStateType.objects.count(), 0)
         STATE_TYPE_NAME = "MOCK_STATE_TYPE"
         case = baker.make(Case)
-        workflow = baker.make(CaseWorkflow)
+        workflow = baker.make(
+            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+        )
         case.set_state(STATE_TYPE_NAME, workflow=workflow)
         self.assertEqual(CaseStateType.objects.count(), 1)
 
@@ -167,7 +171,9 @@ class CaseModelTest(TestCase):
         self.assertEqual(CaseStateType.objects.count(), 0)
         STATE_TYPE_NAME = "MOCK_STATE_TYPE"
         case = baker.make(Case)
-        workflow = baker.make(CaseWorkflow)
+        workflow = baker.make(
+            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+        )
         case.set_state(STATE_TYPE_NAME, workflow=workflow)
         case.set_state(STATE_TYPE_NAME, workflow=workflow)
         self.assertEqual(CaseStateType.objects.count(), 1)
@@ -180,8 +186,12 @@ class CaseModelTest(TestCase):
         STATE_TYPE_NAME_B = "MOCK_STATE_TYPE_B"
 
         case = baker.make(Case)
-        workflow_a = baker.make(CaseWorkflow, case=case)
-        workflow_b = baker.make(CaseWorkflow, case=case)
+        workflow_a = baker.make(
+            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+        )
+        workflow_b = baker.make(
+            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+        )
 
         state_a = case.set_state(STATE_TYPE_NAME_A, workflow=workflow_a)
         state_b = case.set_state(STATE_TYPE_NAME_B, workflow=workflow_b)
@@ -202,8 +212,12 @@ class CaseModelTest(TestCase):
 
         case = baker.make(Case)
 
-        workflow_a = baker.make(CaseWorkflow, case=case)
-        workflow_b = baker.make(CaseWorkflow, case=case)
+        workflow_a = baker.make(
+            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+        )
+        workflow_b = baker.make(
+            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+        )
         state_b = case.set_state(STATE_TYPE_NAME_B, workflow=workflow_a)
         state_a = case.set_state(STATE_TYPE_NAME_A, workflow=workflow_a)
         state_c = case.set_state(STATE_TYPE_NAME_C, workflow=workflow_b)

@@ -4,6 +4,7 @@ import logging
 import os
 
 from deepdiff import DeepDiff
+from django.conf import settings
 from prettyprinter import pprint
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
@@ -85,29 +86,32 @@ def get_base_path():
     return os.path.dirname(os.path.realpath(__file__))
 
 
-def get_latest_version(workflow_type, theme_name="default"):
-    def get_path(_theme_name):
-        return os.path.join(
-            get_base_path(),
-            "bpmn_files",
-            _theme_name.lower(),
-            workflow_type.lower(),
-        )
+def get_latest_version_from_config(
+    theme_name, workflow_type, workflow_spec_config=None
+):
+    workflow_spec_config = (
+        workflow_spec_config if workflow_spec_config else settings.WORKFLOW_SPEC_CONFIG
+    )
+    validated_workflow_spec_config = validate_workflow_spec(workflow_spec_config)
 
-    def get_dirs(path):
-        return (
-            sorted([o for o in os.listdir(path) if not os.path.isfile(o)])
-            if os.path.exists(path)
-            else []
-        )
-
-    versions = get_dirs(get_path(theme_name))
-    if not versions:
+    config = validated_workflow_spec_config.get(theme_name)
+    if not config:
         theme_name = "default"
-        versions = get_dirs(get_path(theme_name))
-    if versions:
-        return theme_name, versions[-1]
-    return False, False
+        config = validated_workflow_spec_config.get(theme_name, {})
+
+    config = config.get(workflow_type, {})
+    if not config:
+        raise Exception(
+            f"Workflow type '{workflow_type}', does not exist in this workflow_spec config"
+        )
+
+    version = sorted([v for v, k in config.get("versions").items()])
+
+    if not version:
+        raise Exception(
+            f"Workflow version for theme name '{theme_name}', with type '{workflow_type}', does not exist in this workflow_spec config"
+        )
+    return theme_name, version[-1]
 
 
 def get_workflow_path(workflow_type, theme_name="default", workflow_version="latest"):
@@ -613,21 +617,27 @@ def workflow_spec_paths_inspect(workflow_spec_conf):
     return paths
 
 
-def workflow_specs_inspect(workflow_spec_conf):
+def validate_workflow_spec(workflow_spec_config):
     from .serializers import WorkflowSpecConfigSerializer
 
-    serializer = WorkflowSpecConfigSerializer(data=workflow_spec_conf)
+    serializer = WorkflowSpecConfigSerializer(data=workflow_spec_config)
     if serializer.is_valid():
         pass
     else:
         raise Exception(
             {
-                "message": "settings WORKFLOW_SPEC_CONF not valid",
+                "message": "settings WORKFLOW_SPEC_CONFIG not valid",
                 "details": serializer.errors,
             }
         )
+    return serializer.data
+
+
+def workflow_specs_inspect(workflow_spec_config):
     report = {}
-    paths = workflow_spec_paths_inspect(workflow_spec_conf)
+    validated_workflow_spec_config = validate_workflow_spec(workflow_spec_config)
+
+    paths = workflow_spec_paths_inspect(validated_workflow_spec_config)
 
     non_valid_paths = [p.get("path") for p in paths if not p.get("workflow_data")]
     if non_valid_paths:
