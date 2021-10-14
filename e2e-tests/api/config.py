@@ -6,9 +6,10 @@ loglevel = os.environ.get("LOGLEVEL", "WARNING")
 logging.basicConfig(level=loglevel)
 
 api_config = {
-    "legacy_mode": os.environ.get("LEGACY", 0) == "1",
     "host": os.environ.get("API_HOST", "http://localhost:8080/api/v1"),
 }
+
+timer_duration = 4  # in seconds
 
 
 class DaySegment:
@@ -37,7 +38,11 @@ class Reason:
 
 class Violation:
     NO = "NO"
+    YES = "YES"
     SEND_TO_OTHER_THEME = "SEND_TO_OTHER_THEME"
+    ADDITIONAL_RESEARCH_REQUIRED = "ADDITIONAL_RESEARCH_REQUIRED"
+    ADDITIONAL_VISIT_REQUIRED = "ADDITIONAL_VISIT_REQUIRED"
+    ADDITIONAL_VISIT_WITH_AUTHORIZATION = "ADDITIONAL_VISIT_WITH_AUTHORIZATION"
 
 
 class NextStep:
@@ -53,8 +58,11 @@ class ReviewRequest:
 
 class SummonTypes:
     class HolidayRental:
-        LEGALIZATION_LETTER = 4  # Legalisatiebrief
+        LEGALIZATION_LETTER = 14  # Legalisatiebrief
         OBLIGATION_TO_REPORT_INTENTION_TO_FINE = 8  # Meldplicht voornemen boete
+        CLOSURE = 13  # Sluiting
+        WARNING_LETTER = 15  # Waarschuwingsbrief
+
         ADVANCE_ANNOUNCEMENT_DURING_SUM = 5  # Vooraankondiging dwangsom
         INTENTION_TO_FINE = 6  # Voornemen boete
         INTENTION_TO_WITHDRAW_BB_LICENCE = 11  # Voornemen intrekking BB-vergunning
@@ -65,20 +73,19 @@ class SummonTypes:
         WARNING_BB_LICENSE = 3  # Waarschuwing BB-vergunning
         WARNING_SS_LICENCE = 2  # Waarschuwing SS-vergunning
         WARNING_VV_LICENSE = 1  # Waarschuwing VV-vergunning
-        CLOSURE = 13
 
 
 class DecisionType:
     class HolidayRental:
         NO_DECISION = "no_decision"
-        FINE = 1
-        COLLECTION_PENALTY = 2
-        DECISION_FINE_REPORT_DUTY = 3
-        PREVENTIVE_BURDEN = 4
-        BURDEN_UNDER_PENALTY = 5
-        REVOKE_VV_PERMIT = 6
-        REVOKE_BB_PERMIT = 7
-        REVOKE_SHORTSTAY_PERMIT = 8
+        FINE = 1  # Boete
+        COLLECTION_PENALTY = 2  # Invordering dwangsom
+        DECISION_FINE_REPORT_DUTY = 3  # Meldplicht beschikking dwangsom
+        PREVENTIVE_BURDEN = 4  # Preventieve last
+        BURDEN_UNDER_PENALTY = 5  # Last onder dwangsom
+        REVOKE_VV_PERMIT = 6  # Intrekken VV vergunning
+        REVOKE_BB_PERMIT = 7  # Intrekken BB vergunning
+        REVOKE_SHORTSTAY_PERMIT = 8  # Intrekken Shortstay vergunning
 
 
 class CloseReason:

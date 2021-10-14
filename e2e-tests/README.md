@@ -24,7 +24,7 @@ Start Docker with the test config file and make sure we have the right SummonTyp
 
 ```shell
 docker-compose -f ../docker-compose.test.yml up -d
-docker-compose run zaak-gateway python manage.py shell -c "from apps.summons.models import SummonType; type = SummonType.objects.get(pk=13); type.camunda_option='sluiting'; type.save(); SummonType.objects.get_or_create(camunda_option='legalisatie-brief', name='Legalisatie-brief', theme_id=1)"
+docker-compose run zaak-gateway python manage.py shell -c "from apps.summons.models import SummonType; SummonType.objects.get_or_create(camunda_option='sluiting', name='Sluiting', theme_id=1); SummonType.objects.get_or_create(camunda_option='legalisatie-brief', name='Legalisatie-brief', theme_id=1); SummonType.objects.get_or_create(camunda_option='waarschuwingsbrief', name='Waarschuwingsbrief', theme_id=1)"
 ```
 
 Now run the test suite

@@ -1,10 +1,9 @@
 import unittest
 
 from api.client import Client
-from api.config import Themes, api_config
+from api.config import Themes, Violation, api_config
 from api.mock import get_case_mock
 from api.tasks import (
-    AssertNumberOfOpenTasks,
     Close,
     Debrief,
     FeedbackReporters,
@@ -13,6 +12,7 @@ from api.tasks import (
     ScheduleVisit,
     Visit,
 )
+from api.validators import AssertNumberOfOpenTasks
 
 
 class TestNoViolation(unittest.TestCase):
@@ -24,12 +24,11 @@ class TestNoViolation(unittest.TestCase):
         steps = [
             ScheduleVisit(),
             Visit(),
-            AssertNumberOfOpenTasks(1),
-            Debrief(),  # no violation
-            AssertNumberOfOpenTasks(2 if self.api.legacy_mode else 1),  # BUG in Spiff
-            FeedbackReporters() if self.api.legacy_mode else None,  # BUG in Spiff
-            HomeVisitReport(),
-            PlanNextStep(),
+            Debrief(violation=Violation.NO),
+            FeedbackReporters(),  # BUG: If Violation=No (or send to other team) we also expect FeedbackReporters (actually feature request)
+            HomeVisitReport(),  # BUG: Gives Timeline issue
+            # BUG: no more steps available
+            PlanNextStep(),  # Current/old implementation gave PlanNextStep, but even better would be skipping this step all together.
             Close(),
         ]
 
