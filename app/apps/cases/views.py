@@ -308,6 +308,7 @@ class CaseViewSet(
                 case=case, tasks__isnull=False, tasks__completed=False
             ).distinct(),
             many=True,
+            context={"request": request},
         )
 
         return Response(serializer.data)
@@ -356,14 +357,8 @@ class CaseViewSet(
             if instance.to_directing_proccess:
                 workflow_type = CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
 
-            main_workflow = CaseWorkflow.objects.filter(
-                case=case,
-                main_workflow=True,
-            ).first()
-
             workflow_instance = CaseWorkflow.objects.create(
                 case=case,
-                parent_workflow=main_workflow,
                 workflow_type=workflow_type,
             )
             workflow_instance.message(

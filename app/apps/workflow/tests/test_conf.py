@@ -10,7 +10,7 @@ class WorkflowConfTest(TestCase):
         Tests if the structure of the conf is valid, based on the WorkflowSpecConfigSerializer
         """
 
-        serializer = WorkflowSpecConfigSerializer(data=settings.WORKFLOW_SPEC_CONF)
+        serializer = WorkflowSpecConfigSerializer(data=settings.WORKFLOW_SPEC_CONFIG)
 
         self.assertEquals(serializer.is_valid(), True)
 
@@ -19,11 +19,11 @@ class WorkflowConfTest(TestCase):
         Tests if paths defined in the conf exist on the filesystem and tests if the workflow can be started by the workflow type name
         """
 
-        serializer = WorkflowSpecConfigSerializer(data=settings.WORKFLOW_SPEC_CONF)
+        serializer = WorkflowSpecConfigSerializer(data=settings.WORKFLOW_SPEC_CONFIG)
 
         self.assertEquals(serializer.is_valid(), True)
 
-        paths = workflow_spec_paths_inspect(settings.WORKFLOW_SPEC_CONF)
+        paths = workflow_spec_paths_inspect(settings.WORKFLOW_SPEC_CONFIG)
 
         non_valid_paths = [p.get("path") for p in paths if not p.get("workflow_data")]
 
@@ -35,11 +35,11 @@ class WorkflowConfTest(TestCase):
         does this result in a change in the workflow, if so the message is valid
         """
 
-        serializer = WorkflowSpecConfigSerializer(data=settings.WORKFLOW_SPEC_CONF)
+        serializer = WorkflowSpecConfigSerializer(data=settings.WORKFLOW_SPEC_CONFIG)
 
         self.assertEquals(serializer.is_valid(), True)
 
-        paths = workflow_spec_paths_inspect(settings.WORKFLOW_SPEC_CONF)
+        paths = workflow_spec_paths_inspect(settings.WORKFLOW_SPEC_CONFIG)
 
         non_valid_paths = [p.get("path") for p in paths if not p.get("workflow_data")]
 

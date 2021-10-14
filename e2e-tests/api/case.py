@@ -23,6 +23,6 @@ class Case:
             # task after creating the case (which is not a step in itself).
             if step.is_async():
                 print("Sleeping ....")
-                time.sleep(2)
+                time.sleep(2.5)
 
             step.run(self.client, self)
