@@ -1,9 +1,12 @@
+import copy
+
 import celery
 from config.celery import app as celery_app
 from django.conf import settings
 from django.db import DatabaseError, transaction
 
 from . import exceptions
+from .utils import get_initial_data_from_config
 
 DEFAULT_RETRY_DELAY = 10
 
@@ -96,10 +99,17 @@ def task_start_subworkflow(self, subworkflow_name, parent_workflow_id):
     from apps.workflow.models import CaseWorkflow
 
     parent_workflow = CaseWorkflow.objects.get(id=parent_workflow_id)
+
+    data = get_initial_data_from_config(
+        parent_workflow.case.theme.name, subworkflow_name
+    )
+    parent_data = copy.deepcopy(parent_workflow.get_data())
+    data.update(parent_data)
+
     with transaction.atomic():
         subworkflow = CaseWorkflow.objects.create(
             case=parent_workflow.case,
             parent_workflow=parent_workflow,
             workflow_type=subworkflow_name,
         )
-        subworkflow.set_initial_data(parent_workflow.get_data())
+        subworkflow.set_initial_data(data)

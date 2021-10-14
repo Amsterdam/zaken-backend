@@ -15,6 +15,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         "workflow_theme_name",
         "parent_workflow",
         "issues",
+        "completed",
     )
 
     list_filter = (

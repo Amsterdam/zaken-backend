@@ -469,6 +469,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 DEFAULT_WORKFLOW_TYPE = os.getenv("DEFAULT_WORKFLOW_TYPE", "director")
 
+DEFAULT_WORKFLOW_TIMER_DURATIONS = {
+    "development": timedelta(seconds=150),
+    "acceptance": timedelta(seconds=240),
+}
+
 WORKFLOW_SPEC_CONFIG = {
     "default": {
         "close_case": {
@@ -518,9 +523,20 @@ WORKFLOW_SPEC_CONFIG = {
             },
         },
         "summon": {
-            "initial_data": {},
+            "initial_data": {
+                "task_monitor_incoming_permit_application_timer_duration": timedelta(
+                    days=32
+                ),
+                "task_monitor_permit_request_procedure_timer_duration": timedelta(
+                    days=56
+                ),
+                "task_monitor_incoming_point_of_view_timer_duration": timedelta(
+                    days=71
+                ),
+            },
             "versions": {
                 "0.1.0": {},
+                "0.2.0": {},
             },
         },
         "visit": {
