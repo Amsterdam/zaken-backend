@@ -531,10 +531,7 @@ class CaseUserTask(models.Model):
         null=True,
         blank=True,
     )
-    due_date = models.DateTimeField(
-        null=True,
-        blank=True,
-    )
+    due_date = models.DateTimeField()
     owner = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
