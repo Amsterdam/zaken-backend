@@ -18,9 +18,9 @@ class CaseUserTaskUpdateOwnerSerializer(serializers.ModelSerializer):
 class CaseUserTaskSerializer(serializers.ModelSerializer):
     user_has_permission = serializers.SerializerMethodField()
     case_user_task_id = serializers.CharField(source="id")
+    form = serializers.ListSerializer(child=serializers.DictField(), required=True)
     form_variables = serializers.DictField(source="get_form_variables")
-    # frontend dep: rename to 'task_name'
-    task_name_id = serializers.CharField(source="task_name")
+    roles = serializers.ListSerializer(child=serializers.CharField(), required=True)
 
     @extend_schema_field(serializers.BooleanField)
     def get_user_has_permission(self, obj):
@@ -51,6 +51,10 @@ class CaseAddressSerializer(serializers.ModelSerializer):
 
 class CaseUserTaskListSerializer(CaseUserTaskSerializer):
     case = CaseAddressSerializer()
+
+    class Meta:
+        model = CaseUserTask
+        fields = "__all__"
 
 
 class CaseWorkflowSerializer(serializers.ModelSerializer):
