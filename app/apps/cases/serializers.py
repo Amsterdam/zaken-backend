@@ -14,7 +14,7 @@ from apps.cases.models import (
     CitizenReport,
 )
 from apps.schedules.serializers import ScheduleSerializer
-from apps.workflow.models import CaseUserTask
+from apps.workflow.models import CaseUserTask, CaseWorkflow
 from apps.workflow.tasks import task_start_workflow_for_existing_case
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -58,6 +58,7 @@ class CaseUserTaskSerializer(serializers.ModelSerializer):
     user_has_permission = serializers.SerializerMethodField()
     case_user_task_id = serializers.CharField(source="id")
     form = serializers.ListSerializer(child=serializers.DictField(), required=True)
+    form_variables = serializers.DictField(source="get_form_variables")
     roles = serializers.ListSerializer(child=serializers.CharField(), required=True)
 
     @extend_schema_field(serializers.BooleanField)
@@ -66,6 +67,29 @@ class CaseUserTaskSerializer(serializers.ModelSerializer):
         if request and hasattr(request, "user"):
             return request.user.has_perm("users.perform_task")
         return False
+
+    class Meta:
+        model = CaseUserTask
+        fields = "__all__"
+
+
+class CaseAddressSerializer(serializers.ModelSerializer):
+    """
+    Case-address serializer for CaseUserTasks
+    """
+
+    address = AddressSerializer()
+
+    class Meta:
+        model = Case
+        fields = (
+            "id",
+            "address",
+        )
+
+
+class CaseUserTaskListSerializer(CaseUserTaskSerializer):
+    case = CaseAddressSerializer()
 
     class Meta:
         model = CaseUserTask
@@ -91,6 +115,42 @@ class CaseStateTaskSerializer(CaseStateSerializer):
     class Meta:
         model = CaseState
         fields = "__all__"
+
+
+class CaseWorkflowSerializer(serializers.ModelSerializer):
+    state = serializers.SerializerMethodField()
+    tasks = serializers.SerializerMethodField()
+
+    @extend_schema_field(CaseUserTaskSerializer(many=True))
+    def get_tasks(self, obj):
+        return CaseUserTaskSerializer(
+            CaseUserTask.objects.filter(
+                workflow=obj,
+                completed=False,
+            ).order_by("id"),
+            many=True,
+            context=self.context,
+        ).data
+
+    @extend_schema_field(CaseStateTaskSerializer)
+    def get_state(self, obj):
+        return CaseStateTaskSerializer(obj.case_states.all().order_by("id").last()).data
+
+    class Meta:
+        model = CaseWorkflow
+        exclude = [
+            "id",
+            "case",
+            "created",
+            "serialized_workflow_state",
+            "main_workflow",
+            "workflow_type",
+            "workflow_version",
+            "workflow_theme_name",
+            "completed",
+            "parent_workflow",
+            "data",
+        ]
 
 
 class CaseProjectSerializer(serializers.ModelSerializer):
