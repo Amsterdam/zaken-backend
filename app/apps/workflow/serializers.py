@@ -57,7 +57,7 @@ class CaseWorkflowSerializer(serializers.ModelSerializer):
     state = serializers.SerializerMethodField()
     tasks = serializers.SerializerMethodField()
 
-    @extend_schema_field(CaseUserTaskSerializer)
+    @extend_schema_field(CaseUserTaskSerializer(many=True))
     def get_tasks(self, obj):
         return CaseUserTaskSerializer(
             CaseUserTask.objects.filter(
@@ -83,6 +83,8 @@ class CaseWorkflowSerializer(serializers.ModelSerializer):
             "workflow_type",
             "workflow_version",
             "workflow_theme_name",
+            "completed",
+            "parent_workflow",
             "data",
         ]
 
