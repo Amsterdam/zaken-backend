@@ -8,6 +8,7 @@ from apps.workflow.models import (
 )
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 from .utils import get_latest_version_from_config
 
@@ -42,3 +43,7 @@ def case_workflow_pre_save(sender, instance, **kwargs):
             instance.case.theme.name,
             instance.workflow_type,
         )
+        workflow_spec = instance.get_workflow_spec()
+        wf = BpmnWorkflow(workflow_spec)
+        wf = instance.get_serializer().serialize_workflow(wf, include_spec=False)
+        instance.serialized_workflow_state = wf

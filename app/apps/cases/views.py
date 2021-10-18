@@ -360,10 +360,10 @@ class CaseViewSet(
             workflow_instance = CaseWorkflow.objects.create(
                 case=case,
                 workflow_type=workflow_type,
+                workflow_message_name=instance.camunda_message_name,
             )
-            workflow_instance.message(
-                instance.camunda_message_name, {"value": "test"}, "next_step"
-            )
+            workflow_instance.start()
+
             return Response(
                 data=f"Process has started {str(instance)}",
                 status=status.HTTP_200_OK,
