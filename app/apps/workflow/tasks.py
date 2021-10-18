@@ -39,7 +39,8 @@ def task_update_workflow(self, workflow_id):
 
     try:
         workflow = CaseWorkflow.objects.get(id=workflow_id)
-        workflow.update_workflow()
+        with transaction.atomic():
+            workflow.update_workflow()
     except Exception as e:
         logger.error(
             f"ERROR: task_update_workflows: for workflow with id '{workflow_id}', {str(e)}"
@@ -54,12 +55,14 @@ def task_update_workflow(self, workflow_id):
 def task_accept_message_for_workflow(self, workflow_id, message, extra_data):
     from apps.workflow.models import CaseWorkflow
 
-    workflow = CaseWorkflow.objects.filter(id=workflow_id).first()
-    if not workflow:
-        return (
-            f"task_accept_message_for_workflow: workflow id '{workflow_id}' not found"
+    try:
+        workflow = CaseWorkflow.objects.get(id=workflow_id)
+        with transaction.atomic():
+            workflow.accept_message(message, extra_data)
+    except Exception as e:
+        logger.error(
+            f"ERROR: task_accept_message_for_workflow: for workflow with id '{workflow_id}', with message '{message}', {str(e)}"
         )
-    workflow.accept_message(message, extra_data)
 
     return f"task_accept_message_for_workflow: message '{message}' for workflow with id {workflow_id}, excepted"
 
@@ -69,9 +72,8 @@ def task_start_workflow_for_existing_case(self, case_id):
     from apps.cases.models import Case
     from apps.workflow.models import CaseWorkflow
 
-    case = Case.objects.get(id=case_id)
-
     try:
+        case = Case.objects.get(id=case_id)
         with transaction.atomic():
             workflow_instance = CaseWorkflow.objects.create(
                 case=case,
@@ -95,18 +97,17 @@ def task_start_subworkflow(self, subworkflow_name, parent_workflow_id):
     from apps.workflow.models import CaseWorkflow
 
     try:
-        # with transaction.atomic():
         parent_workflow = CaseWorkflow.objects.get(id=parent_workflow_id)
+        with transaction.atomic():
+            data = copy.deepcopy(parent_workflow.get_data())
 
-        data = copy.deepcopy(parent_workflow.get_data())
+            subworkflow = CaseWorkflow.objects.create(
+                case=parent_workflow.case,
+                parent_workflow=parent_workflow,
+                workflow_type=subworkflow_name,
+            )
 
-        subworkflow = CaseWorkflow.objects.create(
-            case=parent_workflow.case,
-            parent_workflow=parent_workflow,
-            workflow_type=subworkflow_name,
-        )
-
-        subworkflow.start(data)
+            subworkflow.start(data)
 
     except Exception as e:
         logger.error(
