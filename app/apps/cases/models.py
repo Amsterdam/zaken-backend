@@ -373,7 +373,7 @@ class CitizenReport(TaskModelEventEmitter):
             "description_citizenreport": self.description_citizenreport,
             "author": author,
         }
-        if self.camunda_task_id != "-1":
+        if self.case_user_task_id != "-1":
             event_values.update(
                 {
                     "date_added": self.date_added,

@@ -35,6 +35,7 @@ from apps.cases.serializers import (
     CaseStateSerializer,
     CaseStateTypeSerializer,
     CaseThemeSerializer,
+    CaseWorkflowSerializer,
     CitizenReportSerializer,
     LegacyCaseCreateSerializer,
     LegacyCaseUpdateSerializer,
@@ -66,7 +67,6 @@ from apps.users.permissions import (
 from apps.visits.models import Visit
 from apps.visits.serializers import VisitSerializer
 from apps.workflow.models import CaseWorkflow
-from apps.workflow.serializers import CaseWorkflowSerializer
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -295,8 +295,8 @@ class CaseViewSet(
         return Response(status=status.HTTP_200_OK)
 
     @extend_schema(
-        description="Get Camunda tasks for this Case",
-        responses={status.HTTP_200_OK: CamundaTaskWithStateSerializer(many=True)},
+        description="Get tasks for this Case",
+        responses={status.HTTP_200_OK: CaseWorkflowSerializer(many=True)},
     )
     @action(detail=True, methods=["get"], url_path="tasks")
     def get_tasks(self, request, pk):
