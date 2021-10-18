@@ -4,7 +4,7 @@ from api.client import Client
 from api.config import DecisionType, Themes, api_config
 from api.mock import get_case_mock
 from api.tasks import CheckConceptDecision, Decision, PlanNextStep
-from api.validators import AssertOpenTasks
+from api.validators import ValidateOpenTasks
 
 
 class TestBurdenUnderPenalty(unittest.TestCase):
@@ -21,6 +21,6 @@ class TestBurdenUnderPenalty(unittest.TestCase):
         steps = [
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.BURDEN_UNDER_PENALTY),
-            AssertOpenTasks([PlanNextStep]),
+            ValidateOpenTasks([PlanNextStep]),
         ]
         case.run_steps(steps)

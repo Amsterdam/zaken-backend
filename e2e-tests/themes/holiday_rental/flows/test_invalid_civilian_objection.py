@@ -19,7 +19,7 @@ from api.tasks import (
     SendTaxCollection,
     Visit,
 )
-from api.validators import AssertNumberOfOpenTasks
+from api.validators import ValidateNumberOfOpenTasks
 
 
 class TestInvalidCivilianObjection(unittest.TestCase):
@@ -43,7 +43,7 @@ class TestInvalidCivilianObjection(unittest.TestCase):
             CheckConceptDecision(),
             Decision(type=DecisionType.HolidayRental.FINE),
             SendTaxCollection(),
-            AssertNumberOfOpenTasks(
+            ValidateNumberOfOpenTasks(
                 0
             ),  # BUG Current implementation in Spiff gives invalid task_contact_city_district
         ]

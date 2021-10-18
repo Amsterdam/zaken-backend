@@ -15,7 +15,7 @@ from api.tasks import (
     ScheduleVisit,
     Visit,
 )
-from api.validators import AssertOpenTasks
+from api.validators import ValidateOpenTasks
 
 
 class TestNoCivilianObjection(unittest.TestCase):
@@ -34,7 +34,7 @@ class TestNoCivilianObjection(unittest.TestCase):
             CreateConceptNotices(),
             CheckNotices(),
             ProcessNotice(type=SummonTypes.HolidayRental.INTENTION_TO_FINE),
-            AssertOpenTasks([MonitorIncomingView]),
+            ValidateOpenTasks([MonitorIncomingView]),
             # Cannot test because of timer!
             # WaitForTimer(MonitorIncomingView(objection=False)),
             # MonitorIncomingView(objection=False),

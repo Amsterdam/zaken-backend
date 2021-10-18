@@ -5,7 +5,7 @@ from api.config import Themes, api_config
 from api.events import CaseEvent, CitizenReportEvent
 from api.mock import get_case_mock
 from api.tasks import ScheduleVisit
-from api.validators import AssertEvents, AssertNumberOfOpenTasks
+from api.validators import ValidateEvents, ValidateNumberOfOpenTasks
 
 
 class TestTimeline(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestTimeline(unittest.TestCase):
         )
         steps = [
             ScheduleVisit(),
-            AssertEvents(
+            ValidateEvents(
                 [
                     CaseEvent,
                     CitizenReportEvent,
@@ -30,6 +30,6 @@ class TestTimeline(unittest.TestCase):
             ),
         ]
 
-        steps.append(AssertNumberOfOpenTasks(0))
+        steps.append(ValidateNumberOfOpenTasks(0))
 
         case.run_steps(steps)

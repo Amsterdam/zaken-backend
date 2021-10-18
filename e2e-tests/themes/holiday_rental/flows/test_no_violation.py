@@ -12,7 +12,7 @@ from api.tasks import (
     ScheduleVisit,
     Visit,
 )
-from api.validators import AssertNumberOfOpenTasks
+from api.validators import ValidateNumberOfOpenTasks
 
 
 class TestNoViolation(unittest.TestCase):
@@ -32,6 +32,6 @@ class TestNoViolation(unittest.TestCase):
             Close(),
         ]
 
-        steps.append(AssertNumberOfOpenTasks(0))
+        steps.append(ValidateNumberOfOpenTasks(0))
 
         case.run_steps(steps)

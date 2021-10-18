@@ -5,14 +5,14 @@ from .tasks import AbstractUserTask
 logger = logging.getLogger("api")
 
 
-class Assertion:
+class Validator:
     tasks = []
 
     def is_async(self):
         return bool(filter(lambda task: task.is_async(), self.tasks))
 
 
-class AssertEvents(Assertion):
+class ValidateEvents(Validator):
     def __init__(self, events: list):
         self.events = events
 
@@ -33,7 +33,7 @@ class AssertEvents(Assertion):
             )
 
 
-class AssertOpenTasks(Assertion):
+class ValidateOpenTasks(Validator):
     def __init__(self, tasks: list[AbstractUserTask]):
         self.tasks = filter(lambda task: task is not None, tasks)
 
@@ -54,7 +54,7 @@ class AssertOpenTasks(Assertion):
             )
 
 
-class AssertNumberOfOpenTasks(Assertion):
+class ValidateNumberOfOpenTasks(Validator):
     def __init__(self, count):
         self.count = count
 

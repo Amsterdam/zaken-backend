@@ -10,7 +10,7 @@ from api.tasks import (
     ScheduleVisit,
     Visit,
 )
-from api.validators import AssertOpenTasks
+from api.validators import ValidateOpenTasks
 
 
 class TestInvalidCivilianObjection(unittest.TestCase):
@@ -25,7 +25,7 @@ class TestInvalidCivilianObjection(unittest.TestCase):
             Visit(situation=Situations.NO_COOPERATION, can_next_visit_go_ahead=False),
             Debrief(violation=Violation.ADDITIONAL_VISIT_WITH_AUTHORIZATION),
             RequestAuthorization(),
-            AssertOpenTasks([MonitorIncomingAuthorization]),
+            ValidateOpenTasks([MonitorIncomingAuthorization]),
         ]
 
         case.run_steps(steps)

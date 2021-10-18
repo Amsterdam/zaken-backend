@@ -4,7 +4,7 @@ from api.client import Client
 from api.config import Themes, Violation, api_config
 from api.mock import get_case_mock
 from api.tasks import Debrief, FeedbackReporters, HomeVisitReport, Visit
-from api.validators import AssertOpenTasks
+from api.validators import ValidateOpenTasks
 
 
 class TestSendToOtherTeam(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestSendToOtherTeam(unittest.TestCase):
         steps = [
             *Visit.get_steps(),
             Debrief(violation=Violation.SEND_TO_OTHER_THEME),
-            AssertOpenTasks(
+            ValidateOpenTasks(
                 [
                     FeedbackReporters,  # BUG: We should feedback the reporters after sending to another team. (actually a new feature request)
                     HomeVisitReport,

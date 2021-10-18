@@ -19,7 +19,7 @@ from api.tasks import (
     ScheduleVisit,
     Visit,
 )
-from api.validators import AssertNumberOfOpenTasks, AssertOpenTasks
+from api.validators import ValidateNumberOfOpenTasks, ValidateOpenTasks
 
 
 class TestViolationClosure(unittest.TestCase):
@@ -35,11 +35,11 @@ class TestViolationClosure(unittest.TestCase):
             CreatePictureReport(),
             CreateFindingsReport(),
             CreateConceptNotices(),
-            AssertNumberOfOpenTasks(1),
+            ValidateNumberOfOpenTasks(1),
             CheckNotices(),
             ProcessNotice(type=SummonTypes.HolidayRental.CLOSURE),
             # BUG  Spiff gives PlanNextStep !!!
-            AssertOpenTasks(
+            ValidateOpenTasks(
                 [
                     SaveFireBrigadeAdvice,
                     MonitorReopeningRequest,

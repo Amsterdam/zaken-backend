@@ -14,7 +14,7 @@ from api.tasks import (
     ScheduleVisit,
     Visit,
 )
-from api.validators import AssertOpenTasks
+from api.validators import ValidateOpenTasks
 
 
 class TestViolationLegalizationLetter(unittest.TestCase):
@@ -27,7 +27,7 @@ class TestViolationLegalizationLetter(unittest.TestCase):
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.YES),
-            AssertOpenTasks(
+            ValidateOpenTasks(
                 [
                     CreateFindingsReport,
                     CreatePictureReport,
@@ -39,7 +39,7 @@ class TestViolationLegalizationLetter(unittest.TestCase):
             CreateConceptNotices(),
             CheckNotices(),
             ProcessNotice(type=SummonTypes.HolidayRental.LEGALIZATION_LETTER),
-            AssertOpenTasks([MonitorIncomingPermitRequest]),
+            ValidateOpenTasks([MonitorIncomingPermitRequest]),
         ]
 
         case.run_steps(steps)
