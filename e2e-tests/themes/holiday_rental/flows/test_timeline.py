@@ -14,11 +14,13 @@ class TestTimeline(unittest.TestCase):
 
     def test_citizenreport_and_sia(self):
         case = self.api.create_case(
-            get_case_mock(Themes.HOLIDAY_RENTAL)
-            + {
-                "description_citizenreport": "This is a report.",
-                # "identification": "123" # als deze ook nodig dan vermelden in CitizenReportEvent doc.
-            }
+            dict(
+                **get_case_mock(Themes.HOLIDAY_RENTAL),
+                **{
+                    "description_citizenreport": "This is a report.",
+                    # "identification": "123" # als deze ook nodig dan vermelden in CitizenReportEvent doc.
+                }
+            )
         )
         steps = [
             ScheduleVisit(),
