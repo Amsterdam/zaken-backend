@@ -292,7 +292,7 @@ class CaseWorkflow(models.Model):
 
     @staticmethod
     def complete_user_task(id, data):
-        task = CaseUserTask.objects.get(id=id)
+        task = CaseUserTask.objects.filter(id=id).first()
         if task:
             task.workflow.complete_user_task_and_create_new_user_tasks(
                 task.task_id, data
