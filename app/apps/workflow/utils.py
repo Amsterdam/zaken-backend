@@ -1,4 +1,5 @@
 import copy
+import datetime
 import json
 import logging
 import os
@@ -112,6 +113,39 @@ def get_latest_version_from_config(
             f"Workflow version for theme name '{theme_name}', with type '{workflow_type}', does not exist in this workflow_spec config"
         )
     return theme_name, version[-1]
+
+
+def get_initial_data_from_config(theme_name, workflow_type):
+    validated_workflow_spec_config = validate_workflow_spec(
+        settings.WORKFLOW_SPEC_CONFIG
+    )
+    config = validated_workflow_spec_config.get(theme_name)
+    if not config:
+        theme_name = "default"
+        config = validated_workflow_spec_config.get(theme_name, {})
+
+    config = config.get(workflow_type, {})
+    if not config:
+        raise Exception(
+            f"Workflow type '{workflow_type}', does not exist in this workflow_spec config"
+        )
+
+    def pre_serialize_timedelta(value):
+        if isinstance(value, datetime.timedelta):
+            duration = settings.DEFAULT_WORKFLOW_TIMER_DURATIONS.get(
+                settings.ENVIRONMENT
+            )
+            if duration:
+                value = duration
+            return json.loads(json.dumps(value, default=str))
+        return value
+
+    initial_data = dict(
+        (k, pre_serialize_timedelta(v))
+        for k, v in config.get("initial_data", {}).items()
+    )
+
+    return initial_data
 
 
 def get_workflow_path(workflow_type, theme_name="default", workflow_version="latest"):
