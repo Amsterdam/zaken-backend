@@ -15,7 +15,7 @@ from apps.cases.models import (
 )
 from apps.schedules.serializers import ScheduleSerializer
 from apps.workflow.models import CaseUserTask
-from apps.workflow.tasks import start_case_with_workflow
+from apps.workflow.tasks import task_start_workflow_for_existing_case
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -181,8 +181,8 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         address_data = validated_data.pop("address")
         address = Address.get(address_data.get("bag_id"))
 
-        case = start_case_with_workflow(validated_data, address)
-
+        case = Case.objects.create(**validated_data, address=address)
+        task_start_workflow_for_existing_case.delay(case.id)
         return case
 
 

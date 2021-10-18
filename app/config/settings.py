@@ -495,7 +495,7 @@ WORKFLOW_SPEC_CONFIG = {
                     "messages": {
                         "main_process": {
                             "initial_data": {
-                                "status_name": "Huisbezoek",
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
                             },
                         },
                         "aanschrijving_toevoegen": {},
@@ -541,7 +541,7 @@ WORKFLOW_SPEC_CONFIG = {
         },
         "visit": {
             "initial_data": {
-                "status_name": "Huisbezoek",
+                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
             },
             "versions": {
                 "0.1.0": {},
