@@ -111,6 +111,7 @@ class WorkflowSpecConfigThemeSerializer(serializers.Serializer):
 
 class WorkflowSpecConfigThemeTypeSerializer(serializers.Serializer):
     close_case = WorkflowSpecConfigThemeSerializer(required=False)
+    debrief = WorkflowSpecConfigThemeSerializer(required=False)
     decision = WorkflowSpecConfigThemeSerializer(required=False)
     director = WorkflowSpecConfigThemeSerializer(required=False)
     renounce_decision = WorkflowSpecConfigThemeSerializer(required=False)

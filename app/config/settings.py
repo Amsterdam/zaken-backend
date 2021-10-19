@@ -488,10 +488,16 @@ WORKFLOW_SPEC_CONFIG = {
                 "0.1.0": {},
             },
         },
+        "debrief": {
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {},
+            },
+        },
         "director": {
             "initial_data": {},
             "versions": {
-                "0.1.0": {
+                "0.2.0": {
                     "messages": {
                         "main_process": {
                             "initial_data": {
@@ -546,6 +552,7 @@ WORKFLOW_SPEC_CONFIG = {
             "versions": {
                 "0.1.0": {},
                 "0.2.0": {},
+                "0.3.0": {},
             },
         },
     },

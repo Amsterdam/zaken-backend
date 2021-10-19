@@ -222,7 +222,7 @@
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_19marm6" sourceRef="Gateway_0h2ztvl" targetRef="Gateway_00dvswq" />
     <bpmn:sequenceFlow id="Flow_10vcgre" sourceRef="Gateway_00dvswq" targetRef="Gateway_1xz2c7p">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">case_reason.value == "melding"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">case_reason.value == "Melding"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0lisv8z" sourceRef="Gateway_1xz2c7p" targetRef="Event_02okyv5" />
     <bpmn:sequenceFlow id="Flow_02qr019" sourceRef="Gateway_1xz2c7p" targetRef="Event_03m7vad" />
@@ -253,12 +253,6 @@
   <bpmn:message id="Message_06xvvgf" name="inform_civilian" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="director">
-      <bpmndi:BPMNShape id="TextAnnotation_15ivdy5_di" bpmnElement="TextAnnotation_15ivdy5">
-        <dc:Bounds x="760" y="80" width="100" height="68" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_046zima_di" bpmnElement="TextAnnotation_046zima">
-        <dc:Bounds x="790" y="290" width="100" height="96" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1i4qmzi_di" bpmnElement="Flow_1i4qmzi">
         <di:waypoint x="555" y="420" />
         <di:waypoint x="575" y="420" />
@@ -593,13 +587,19 @@
       <bpmndi:BPMNShape id="Event_00woxty_di" bpmnElement="Event_00woxty">
         <dc:Bounds x="1032" y="212" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Association_1mkorah_di" bpmnElement="Association_1mkorah">
-        <di:waypoint x="742" y="167" />
-        <di:waypoint x="760" y="148" />
-      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="TextAnnotation_046zima_di" bpmnElement="TextAnnotation_046zima">
+        <dc:Bounds x="790" y="290" width="100" height="96" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_15ivdy5_di" bpmnElement="TextAnnotation_15ivdy5">
+        <dc:Bounds x="760" y="80" width="100" height="68" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_18e9ro2_di" bpmnElement="Association_18e9ro2">
         <di:waypoint x="747" y="286" />
         <di:waypoint x="790" y="295" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_1mkorah_di" bpmnElement="Association_1mkorah">
+        <di:waypoint x="742" y="167" />
+        <di:waypoint x="760" y="148" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

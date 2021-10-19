@@ -58,6 +58,7 @@ def create_workflow_for_case(case):
             "status_name",
             {
                 "status_name": settings.DEFAULT_SCHEDULE_ACTIONS[0],
+                "case_reason": case.reason.name,
             },
         )
 
