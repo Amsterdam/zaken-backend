@@ -105,7 +105,7 @@ class ModelEventEmitter(models.Model):
 
 
 class TaskModelEventEmitter(ModelEventEmitter):
-    camunda_task_id = models.CharField(max_length=255, default="-1")
+    case_user_task_id = models.CharField(max_length=255, default="-1")
 
     class Meta:
         abstract = True

@@ -56,5 +56,5 @@ class DecisionSanctionSerializer(serializers.ModelSerializer):
             "author",
             "summon",
             "description",
-            "camunda_task_id",
+            "case_user_task_id",
         ]

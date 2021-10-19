@@ -81,8 +81,8 @@ class GenericUserTask(AbstractUserTask):
     def get_post_data(self, case, task):
         return {
             "variables": self.variables,
-            "camunda_task_id": task["camunda_task_id"],
             "case": case.data["id"],
+            "task": task["case_user_task_id"],
         }
 
 
@@ -127,7 +127,7 @@ class ScheduleVisit(AbstractUserTask):
     def get_post_data(self, case, task):
         return {
             "case": case.data["id"],
-            "camunda_task_id": task["camunda_task_id"],
+            "case_user_task_id": task["case_user_task_id"],
         }
 
 
@@ -186,7 +186,7 @@ class Debrief(AbstractUserTask):
     def get_post_data(self, case, task):
         return {
             "case": case.data["id"],
-            "camunda_task_id": task["camunda_task_id"],
+            "case_user_task_id": task["case_user_task_id"],
         }
 
 
@@ -272,7 +272,8 @@ class ProcessNotice(AbstractUserTask):
     def get_post_data(self, case, task):
         return {
             "case": case.data["id"],
-            "camunda_task_id": task["camunda_task_id"],
+            "theme": case["theme"],
+            "case_user_task_id": task["case_user_task_id"],
         }
 
 
@@ -546,7 +547,7 @@ class Close(AbstractUserTask):
         return {
             "case": case.data["id"],
             "theme": case.data["theme"],
-            "camunda_task_id": task["camunda_task_id"],
+            "case_user_task_id": task["case_user_task_id"],
         }
 
     @staticmethod

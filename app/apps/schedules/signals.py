@@ -9,5 +9,5 @@ from django.dispatch import receiver
 )
 def complete_camunda_task_create_schedule(sender, instance, created, **kwargs):
     if created:
-        CaseWorkflow.complete_user_task(instance.camunda_task_id, {})
-        # CamundaService().complete_task(instance.camunda_task_id)
+        CaseWorkflow.complete_user_task(instance.case_user_task_id, {})
+        # CamundaService().complete_task(instance.case_user_task_id)

@@ -115,7 +115,7 @@ def get_latest_version_from_config(
     return theme_name, version[-1]
 
 
-def get_initial_data_from_config(theme_name, workflow_type):
+def get_initial_data_from_config(theme_name, workflow_type, message_name=None):
     validated_workflow_spec_config = validate_workflow_spec(
         settings.WORKFLOW_SPEC_CONFIG
     )
@@ -140,9 +140,21 @@ def get_initial_data_from_config(theme_name, workflow_type):
             return json.loads(json.dumps(value, default=str))
         return value
 
+    initial_data = config.get("initial_data", {})
+
+    version = sorted([v for v, k in config.get("versions").items()])
+
+    if (
+        message_name
+        and version
+        and version[0].get("messages", {}).get(message_name, {}).get("initial_data", {})
+    ):
+        initial_data = (
+            version[0].get("messages", {}).get(message_name, {}).get("initial_data", {})
+        )
+
     initial_data = dict(
-        (k, pre_serialize_timedelta(v))
-        for k, v in config.get("initial_data", {}).items()
+        (k, pre_serialize_timedelta(v)) for k, v in initial_data.items()
     )
 
     return initial_data
@@ -625,7 +637,9 @@ def workflow_spec_path_inspect(workflow_spec_path, type, messages={}):
             ],
         }
     except Exception as e:
-        print(str(e))
+        logger.error(
+            f"ERROR: workflow_spec_path_inspect: path '{workflow_spec_path}', type '{type}', {str(e)}"
+        )
         return False
 
 
