@@ -3,7 +3,8 @@ import datetime
 import logging
 from string import Template
 
-from apps.cases.models import Case
+from apps.cases.models import Case, CaseTheme
+from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -616,3 +617,46 @@ class CaseUserTask(models.Model):
     def complete(self):
         self.completed = True
         self.save()
+
+
+class WorkflowOption(models.Model):
+    name = models.CharField(max_length=255)
+    message_name = models.CharField(max_length=255)
+    to_directing_proccess = models.BooleanField(default=False)
+    theme = models.ForeignKey(
+        to=CaseTheme,
+        related_name="workflow_options",
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self):
+        return f"{self.name} - {self.message_name}"
+
+    class Meta:
+        ordering = ["name"]
+
+
+class GenericCompletedTask(TaskModelEventEmitter):
+    EVENT_TYPE = CaseEvent.TYPE_GENERIC_TASK
+
+    case = models.ForeignKey(
+        to=Case,
+        related_name="generic_completed_tasks",
+        on_delete=models.CASCADE,
+    )
+    date_added = models.DateTimeField(auto_now_add=True)
+    description = models.TextField()
+    author = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        related_name="generic_completed_tasks",
+        on_delete=models.PROTECT,
+    )
+    variables = models.JSONField(null=True)
+
+    def __get_event_values__(self):
+        return {
+            "author": self.author.__str__(),
+            "date_added": self.date_added,
+            "description": self.description,
+            "variables": self.variables,
+        }
