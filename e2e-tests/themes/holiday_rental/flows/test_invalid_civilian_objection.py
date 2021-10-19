@@ -1,45 +1,25 @@
 import unittest
 
 from api.client import Client
-from api.config import (
-    DecisionType,
-    Objection,
-    ReviewRequest,
-    SummonTypes,
-    Themes,
-    api_config,
-)
+from api.config import DecisionType, SummonTypes, Themes, Violation, api_config
 from api.mock import get_case_mock
 from api.tasks import (
-    AssertNextOpenTasks,
-    AssertNumberOfOpenTasks,
-    CheckDecision,
-    CheckIncomingView,
+    CheckConceptDecision,
     CheckNotices,
-    Close,
-    ContactDistrict,
     CreateConceptDecision,
     CreateConceptNotices,
     CreateFindingsReport,
     CreatePictureReport,
     Debrief,
     Decision,
-    FeedbackReporters,
-    JudgeReopeningRequest,
     JudgeView,
     MonitorIncomingView,
-    MonitorReopeningRequest,
-    MonitorReopeningRequestToBeDelivered,
-    PlanNextStep,
-    Reopen,
-    SaveFireBrigadeAdvice,
-    ScheduleRecheck,
+    ProcessNotice,
     ScheduleVisit,
     SendTaxCollection,
-    Summon,
-    Task,
     Visit,
 )
+from api.validators import AssertNumberOfOpenTasks
 
 
 class TestInvalidCivilianObjection(unittest.TestCase):
@@ -51,23 +31,21 @@ class TestInvalidCivilianObjection(unittest.TestCase):
         steps = [
             ScheduleVisit(),
             Visit(),
-            Debrief(violation="YES"),
-            FeedbackReporters() if self.api.legacy_mode else None,  # BUG in Camunda?
+            Debrief(violation=Violation.YES),
             CreatePictureReport(),
             CreateFindingsReport(),
             CreateConceptNotices(),
             CheckNotices(),
-            Summon(type=SummonTypes.HolidayRental.INTENTION_TO_FINE),
-            MonitorIncomingView(objection=True),
-            # CheckIncomingView(objection=Objection.YES), # andere test voor maken? Kan dit zonder timer?
+            ProcessNotice(type=SummonTypes.HolidayRental.INTENTION_TO_FINE),
+            MonitorIncomingView(),
             JudgeView(objection_valid=False),
             CreateConceptDecision(),
-            CheckDecision(),
+            CheckConceptDecision(),
             Decision(type=DecisionType.HolidayRental.FINE),
             SendTaxCollection(),
-            AssertNumberOfOpenTasks(0)
-            if self.api.legacy_mode
-            else ContactDistrict(),  # BUG in Spiff
+            AssertNumberOfOpenTasks(
+                0
+            ),  # BUG Current implementation in Spiff gives invalid task_contact_city_district
         ]
 
         case.run_steps(steps)

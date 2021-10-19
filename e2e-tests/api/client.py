@@ -3,6 +3,7 @@ import logging
 
 import requests
 from api.case import Case
+from api.events import CaseEvent, CitizenReportEvent
 
 logger = logging.getLogger("api")
 
@@ -12,7 +13,6 @@ class Client:
     headers = None
 
     def __init__(self, config):
-        self.legacy_mode = config["legacy_mode"]  # using Spiff vs Camunda
         self.host = config["host"]
         if "://api.wonen.zaken.amsterdam.nl/" in self.host:
             raise Exception(f"Host ({self.host}) not allowed")
@@ -50,20 +50,18 @@ class Client:
 
         return tasks
 
+    def get_case_events(self, case_id):
+        return self.call("get", f"/cases/{case_id}/events/")
+
     def get_close_reasons(self, theme):
         return self.call("get", f"/themes/{theme}/case-close-reasons/")["results"]
 
-    def get_task_name(self, task):
-        try:
-            (name, legacy_name) = task
-        except (TypeError):
-            logging.error(f"failed to unpack task-name for {task}")
-            raise
-
-        return legacy_name if self.legacy_mode else name
-
     def get_names_from_tasks(self, tasks):
-        return list(map(lambda task: task["task_name_id"], tasks))
+        return list(map(lambda task: task["task_name"], tasks))
 
     def create_case(self, data):
-        return Case(self.call("post", "/cases/", data), self)
+        events = [CaseEvent]
+        if hasattr(data, "description_citizenreport"):
+            events.append(CitizenReportEvent)
+
+        return Case(self.call("post", "/cases/", data), self, events)

@@ -1,21 +1,21 @@
 import unittest
 
 from api.client import Client
-from api.config import SummonTypes, Themes, api_config
+from api.config import SummonTypes, Themes, Violation, api_config
 from api.mock import get_case_mock
 from api.tasks import (
-    AssertNextOpenTasks,
     CheckNotices,
     CreateConceptNotices,
     CreateFindingsReport,
     CreatePictureReport,
     Debrief,
     FeedbackReporters,
+    MonitorIncomingView,
+    ProcessNotice,
     ScheduleVisit,
-    Summon,
-    Task,
     Visit,
 )
+from api.validators import AssertOpenTasks
 
 
 class TestNoCivilianObjection(unittest.TestCase):
@@ -27,16 +27,18 @@ class TestNoCivilianObjection(unittest.TestCase):
         steps = [
             ScheduleVisit(),
             Visit(),
-            Debrief(violation="YES"),
-            FeedbackReporters() if self.api.legacy_mode else None,  # BUG in Camunda?
+            Debrief(violation=Violation.YES),
+            FeedbackReporters(),  # BUG in Spiff. According to Nicoline if Violation=True, we should Feedback the reporters
             CreatePictureReport(),
             CreateFindingsReport(),
             CreateConceptNotices(),
             CheckNotices(),
-            Summon(type=SummonTypes.HolidayRental.INTENTION_TO_FINE),
-            AssertNextOpenTasks([Task.monitor_incoming_view]),
-            # MonitorIncomingView(objection=False), # Test fails here, not sure why. Frontend always sends value 'true'
-            # CheckIncomingView(objection=Objection.NO), # Cannot test because of timer?
+            ProcessNotice(type=SummonTypes.HolidayRental.INTENTION_TO_FINE),
+            AssertOpenTasks([MonitorIncomingView]),
+            # Cannot test because of timer!
+            # WaitForTimer(MonitorIncomingView(objection=False)),
+            # MonitorIncomingView(objection=False),
+            # CheckIncomingView(objection=Objection.NO),
             # AssertNumberOfOpenTasks(0),
         ]
 

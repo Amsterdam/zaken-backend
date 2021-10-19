@@ -3,7 +3,8 @@ import unittest
 from api.client import Client
 from api.config import Themes, Violation, api_config
 from api.mock import get_case_mock
-from api.tasks import AssertNextOpenTasks, Debrief, ScheduleVisit, Task, Visit
+from api.tasks import Debrief, FeedbackReporters, HomeVisitReport, Visit
+from api.validators import AssertOpenTasks
 
 
 class TestSendToOtherTeam(unittest.TestCase):
@@ -13,15 +14,12 @@ class TestSendToOtherTeam(unittest.TestCase):
     def test(self):
         case = self.api.create_case(get_case_mock(Themes.HOLIDAY_RENTAL))
         steps = [
-            ScheduleVisit(),
-            Visit(),
+            *Visit.get_steps(),
             Debrief(violation=Violation.SEND_TO_OTHER_THEME),
-            AssertNextOpenTasks(
+            AssertOpenTasks(
                 [
-                    Task.feedback_reporters
-                    if self.api.legacy_mode
-                    else None,  # BUG in Spiff
-                    Task.create_home_visit_report,
+                    FeedbackReporters,  # BUG: We should feedback the reporters after sending to another team. (actually a new feature request)
+                    HomeVisitReport,
                 ]
             ),
         ]

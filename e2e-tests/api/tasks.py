@@ -1,6 +1,9 @@
+import json
 import logging
 from datetime import datetime
 
+from api import events
+from api.case import Case
 from api.config import (
     Action,
     CloseReason,
@@ -16,178 +19,90 @@ from api.config import (
     WeekSegment,
 )
 from api.mock import get_person
+from api.util import WaitForTimer
 
 logger = logging.getLogger("api")
 
 
-class Task:
-    """
-    Map Spiff task_name to legacy-Camunda task_name
-    """
-
-    check_decision = (
-        "task_check_concept_decision",
-        "Activity_1j6vc31",
-    )  # Nakijken besluit
-    check_incoming_view = (
-        "task_check_incoming_point_of_view",
-        "Activity_1nylgs7",
-    )  # Controleren binnenkomst zienswijze
-    check_notices = (
-        "task_check_summons",
-        "Activity_0xocoed",
-    )  # Nakijken aanschrijving(en)
-    close_case = ("task_close_case", "task_close_case")
-    contact_district = (
-        "task_contact_city_district",
-        "Activity_1tl73nx",
-    )  # Contacteren stadsdeel
-    contact_owner = (
-        "task_contact_owner",
-        "Activity_0gjczg7",
-    )  # Contacteren eigenaar
-    create_concept_notices = (
-        "task_create_concept_summons",
-        "Activity_15hr2wx",
-    )  # Opstellen concept aanschrijvingen
-    create_concept_decision = (
-        "task_make_concept_decision",
-        "Activity_08cj18o",
-    )  # Opstellen concept besluit
-
-    create_findings_report = (
-        "task_create_report_of_findings",
-        "task_rapport_van_bevindingen_opstellen",
-    )  # Opstellen rapport van bevindingen
-    create_home_visit_report = (
-        "task_prepare_abbreviated_visit_rapport",
-        "Activity_02t4qsu",
-    )  # Opstellen verkorte rapportage huisbezoek
-    create_picture_report = (
-        "task_create_picture_rapport",
-        "task_beeldverslag_opstellen",
-    )  # Opstellen beeldverslag
-    feedback_reporters = (
-        "task_feedback_reporter",
-        "Activity_0bc2n3t",
-    )  # Terugkoppelen melder(s)
-    judge_reopening_request = (
-        "task_judge_reopening_request",
-        "Activity_0fp5tdz",
-    )  # Beoordelen heropeningsverzoek
-    judge_view = (
-        "task_judge_point_of_view",
-        "Activity_18ear0d",
-    )  # Beoordelen zienswijze
-    monitor_incoming_permit_request = (
-        "task_monitor_incoming_permit_application",
-        "Activity_1mkl5rk",
-    )  # Monitoren binnenkomen vergunningaanvraag
-    monitor_incoming_view = (
-        "task_monitor_incoming_point_of_view",
-        "Activity_13ccsra",
-    )  # Monitoren binnenkomen zienswijze
-    monitor_incoming_warrant = (
-        "task_monitor_incoming_authorization",
-        "Activity_1lv323s",
-    )  # Monitoren binnenkomen machtiging
-    monitor_reopening_request = (
-        "task_monitor_reopening_request",
-        "Activity_0wienly",
-    )  # Monitoren heropeningsverzoek
-    monitor_reopening_request_to_be_delivered = (
-        "task_monitor_new_reopening_request",
-        "Activity_0zh0d0s",
-    )  # Monitoren nieuw aan te leveren heropeningsverzoek
-    plan_next_step = (
-        "task_set_next_step",
-        "Activity_0id7dcf",
-    )  # Uitzetten vervolgstap
-    reopen = (
-        "task_reopening",
-        "Activity_1fovs3d",
-    )  # Heropenen
-    request_warrant = (
-        "task_request_authorization",
-        "Activity_03lt0e7",
-    )  # Aanvragen machtiging
-    save_fire_brigade_advice = (
-        "task_save_fireman_advice",
-        "Activity_19r9rzm",
-    )  # Opslaan brandweeradvies
-    schedule_recheck = (
-        "task_schedule_recheck",
-        "Activity_1tmqvpn",
-    )  # Uitzetten hercontrole
-    send_tax_collection = (
-        "task_send_tax_collection",
-        "Activity_14kdv7u",
-    )  # Versturen invordering belastingen
-
-    # non-generic-tasks
-    debrief = ("task_create_debrief", "task_create_debrief")
-    decision = ("task_create_decision", "task_create_decision")
-    schedule = ("task_create_schedule", "task_create_schedule")
-    summon = (
-        "task_create_summon",
-        "task_create_summon",
-    )  # Verwerk aanschrijving
-    visited = ("task_create_visit", "task_create_visit")  # Doorgeven ${status_name} TOP
-
-
 class AbstractUserTask:
     data = None
+    event = None
 
     def __init__(self, **data):
         self.data = data
 
-    def run(self, api, case):
-        task_name = api.get_task_name(self.task)
-        open_tasks = api.get_case_tasks(case["id"])
-        tasks = list(task for task in open_tasks if task["task_name_id"] == task_name)
+    def is_async(self):
+        return hasattr(self, "asynchronous") and self.asynchronous
+
+    def run(self, client, case: Case):
+        open_tasks = client.get_case_tasks(case.data["id"])
+        tasks = list(task for task in open_tasks if task["task_name"] == self.task_name)
 
         if len(tasks) == 0:
-            raise Exception(f"No open task found. Cant find task_name_id = {task_name}")
+            raise Exception(
+                f"No open task found. Cant find task_name_id = '{self.task_name}' ({self.description}) for case {case}"
+            )
         elif len(tasks) > 1:
             raise Exception("More then one task found")
 
         extra = self.get_post_data(case, tasks[0])
         post_data = self.data | extra if self.data else extra
-        api.call("post", f"/{self.endpoint}/", post_data)
+        client.call("post", f"/{self.endpoint}/", post_data)
+
+        # Store expected events in the eventlog
+        if self.event:
+            case.timeline.append(self.event)
+
+        events = client.get_case_events(case.data["id"])
+
+        logging.info(f"Finding events for case id {case.data['id']} ...")
+        logging.info(f"Expect: {case.timeline}, found:")
+        logging.info(f"{json.dumps(events, sort_keys=True, indent=4)}\n\n")
+
+        for index, event_class in enumerate(case.timeline):
+            print(f"compare '{event_class.type}' with '{events[index]['type']}'")
+            if event_class.type != events[index]["type"]:
+                raise Exception("Timeline issue")
 
     def get_post_data(self, case, task):
         raise NotImplementedError
 
 
-class Visit(AbstractUserTask):
-    endpoint = "visits"
-    task = Task.visited
+class GenericUserTask(AbstractUserTask):
+    endpoint = "camunda/task/complete"
+    event = events.GenericTaskEvent
 
-    def __init__(
-        self,
-        authors=[],
-        start_time=None,
-        situation=Situations.ACCESS_GRANTED,
-        can_next_visit_go_ahead=False,
-    ):
-        super(Visit, self).__init__(
-            authors=authors,
-            start_time=start_time if start_time else str(datetime.now()),
-            situation=situation,
-            can_next_visit_go_ahead=can_next_visit_go_ahead,
-        )
+    def __init__(self, **variables):
+        self.variables = variables
+        super(GenericUserTask, self).__init__()
 
     def get_post_data(self, case, task):
         return {
-            "case": case["id"],
-            "task": task["case_user_task_id"],
+            "variables": self.variables,
+            "case": case.data["id"],
+            "case_user_task_id": task["case_user_task_id"],
         }
+
+
+class FeedbackReporters(GenericUserTask):
+    task_name = "task_feedback_reporter"
+    description = "Terugkoppelen melder(s)"
+
+    @staticmethod
+    def get_steps():
+        """
+        Weird one, because it's dependent on timer. Also there is no
+        preceiding step.
+        """
+        return [__class__()]
 
 
 class ScheduleVisit(AbstractUserTask):
     asynchronous = True
+    event = events.ScheduleEvent
     endpoint = "schedules"
-    task = Task.schedule
+    task_name = "task_create_schedule"
+    description = "Inplannen $status_name"
 
     def __init__(
         self,
@@ -203,30 +118,423 @@ class ScheduleVisit(AbstractUserTask):
             priority=priority,
         )
 
+    @staticmethod
+    def get_steps():
+        return [__class__()]
+
     def get_post_data(self, case, task):
         return {
-            "case": case["id"],
+            "case": case.data["id"],
             "case_user_task_id": task["case_user_task_id"],
+        }
+
+
+class Visit(AbstractUserTask):
+    event = events.VisitEvent
+    endpoint = "visits"
+    task_name = "task_create_visit"
+    description = "Doorgeven $status_name TOP"
+
+    def __init__(
+        self,
+        authors=[],
+        start_time=None,
+        situation=Situations.ACCESS_GRANTED,
+        can_next_visit_go_ahead=False,
+    ):
+        super(Visit, self).__init__(
+            authors=authors,
+            start_time=start_time if start_time else str(datetime.now()),
+            situation=situation,
+            can_next_visit_go_ahead=can_next_visit_go_ahead,
+        )
+
+    @staticmethod
+    def get_steps(
+        situation=Situations.ACCESS_GRANTED,
+        can_next_visit_go_ahead=False,
+    ):
+        return [
+            *ScheduleVisit.get_steps(),
+            __class__(
+                situation=situation, can_next_visit_go_ahead=can_next_visit_go_ahead
+            ),
+        ]
+
+    def get_post_data(self, case, task):
+        return {
+            "case": case.data["id"],
+            "task": task["case_user_task_id"],
         }
 
 
 class Debrief(AbstractUserTask):
+    event = events.DebriefingEvent
     endpoint = "debriefings"
-    task = Task.debrief
+    task_name = "task_create_debrief"
+    description = "Verwerken debrief"
 
     def __init__(self, violation=Violation.NO, feedback="Some feedback"):
         super(Debrief, self).__init__(violation=violation, feedback=feedback)
 
+    @staticmethod
+    def get_steps(violation=Violation.NO):
+        return [*Visit.get_steps(), __class__(violation=violation)]
+
     def get_post_data(self, case, task):
         return {
-            "case": case["id"],
+            "case": case.data["id"],
             "case_user_task_id": task["case_user_task_id"],
         }
 
 
+class CreatePictureReport(GenericUserTask):
+    task_name = "task_create_picture_rapport"
+    description = "Opstellen beeldverslag"
+
+    @staticmethod
+    def get_steps():
+        return [*Debrief.get_steps(violation=Violation.YES), __class__()]
+
+
+class CreateFindingsReport(GenericUserTask):
+    task_name = "task_create_report_of_findings"
+    description = "Opstellen rapport van bevindingen"
+
+    @staticmethod
+    def get_steps():
+        return [*Debrief.get_steps(violation=Violation.YES), __class__()]
+
+
+class CreateConceptNotices(GenericUserTask):
+    task_name = "task_create_concept_summons"
+    description = "Opstellen concept aanschrijvingen"
+
+    @staticmethod
+    def get_steps():
+        return [*Debrief.get_steps(violation=Violation.YES), __class__()]
+
+
+class HomeVisitReport(GenericUserTask):
+    task_name = "task_prepare_abbreviated_visit_rapport"
+    description = "Opstellen verkorte rapportage huisbezoek"
+
+    @staticmethod
+    def get_steps(to_other_team=False):
+        violation = Violation.SEND_TO_OTHER_THEME if to_other_team else Violation.NO
+        return [
+            *Debrief.get_steps(violation=violation),
+            __class__(),
+        ]
+
+
+class CheckNotices(GenericUserTask):
+    task_name = "task_check_summons"
+    description = "Nakijken aanschrijving(en)"
+
+    @staticmethod
+    def get_steps():
+        return [
+            *Debrief.get_steps(violation=Violation.YES),
+            CreatePictureReport(),
+            CreateFindingsReport(),
+            CreateConceptNotices(),
+            __class__(),
+        ]
+
+
+class ProcessNotice(AbstractUserTask):
+    asynchronous = True
+    event = events.SummonEvent
+    endpoint = "summons"
+    task_name = "task_create_summon"
+    description = "Verwerk aanschrijving"
+
+    def __init__(
+        self,
+        type=SummonTypes.HolidayRental.LEGALIZATION_LETTER,
+        persons=None,
+    ):
+        super(ProcessNotice, self).__init__(
+            type=type,
+            persons=persons if persons else [get_person()],
+        )
+
+    @staticmethod
+    def get_steps(type=SummonTypes.HolidayRental.LEGALIZATION_LETTER):
+        return [
+            *CheckNotices.get_steps(),
+            __class__(type=type),
+        ]
+
+    def get_post_data(self, case, task):
+        return {
+            "case": case.data["id"],
+            "theme": case.data["theme"],
+            "case_user_task_id": task["case_user_task_id"],
+        }
+
+
+class MonitorIncomingView(GenericUserTask):
+    task_name = "task_monitor_incoming_point_of_view"
+    description = "Monitoren binnenkomen zienswijze"
+
+    def __init__(self, civilian_objection_received=True):
+        # data = {"is_civilian_objection_received": {"value": objection}}
+
+        super(MonitorIncomingView, self).__init__()
+
+    @staticmethod
+    def get_steps():
+        return [
+            *ProcessNotice.get_steps(type=SummonTypes.HolidayRental.INTENTION_TO_FINE),
+            __class__(),
+        ]
+
+
+class CheckIncomingView(GenericUserTask):
+    task_name = "task_check_incoming_point_of_view"
+    description = "Controleren binnenkomst zienswijze"
+
+    def __init__(self, objection=Objection.NO):
+        data = {"is_civilian_objection_received": {"value": objection}}
+
+        super(CheckIncomingView, self).__init__(**data)
+
+    @staticmethod
+    def get_steps(objection=Objection.NO):
+        return [
+            *MonitorIncomingView.get_steps(),
+            __class__(objection=objection),
+        ]
+
+
+class JudgeView(GenericUserTask):
+    task_name = "task_judge_point_of_view"
+    description = "Beoordelen zienswijze"
+
+    def __init__(self, objection_valid=True):
+        data = {"is_citizen_objection_valid": {"value": objection_valid}}
+
+        super(JudgeView, self).__init__(**data)
+
+    @staticmethod
+    def get_steps(objection_valid=True):
+        return [
+            *MonitorIncomingView.get_steps(),
+            __class__(objection_valid=objection_valid),
+        ]
+
+
+class MonitorIncomingPermitRequest(GenericUserTask):
+    task_name = "task_monitor_incoming_permit_application"
+    description = "Monitoren binnenkomen vergunningaanvraag"
+
+    @staticmethod
+    def get_steps(objection_valid=True):
+        return [
+            *CheckIncomingView.get_steps(),
+            __class__(objection_valid=objection_valid),
+        ]
+
+
+class CreateConceptDecision(GenericUserTask):
+    asynchronous = True
+    task_name = "task_make_concept_decision"
+    description = "Opstellen concept besluit"
+
+    @staticmethod
+    def get_steps():
+        return [
+            *JudgeView.get_steps(),
+            __class__(),
+        ]
+
+
+class CheckConceptDecision(GenericUserTask):
+    task_name = "task_check_concept_decision"
+    description = "Nakijken besluit"
+
+    @staticmethod
+    def get_steps():
+        return [
+            *CreateConceptDecision.get_steps(),
+            __class__(),
+        ]
+
+
+class Decision(AbstractUserTask):
+    endpoint = "decisions"
+    event = events.DecisionEvent
+    task_name = "task_create_decision"
+    description = "Verwerken definitieve besluit"
+
+    def __init__(self, type=DecisionType.HolidayRental.NO_DECISION):
+        data = {"decision_type": type}
+        super(Decision, self).__init__(**data)
+
+    @staticmethod
+    def get_steps(type=DecisionType.HolidayRental.NO_DECISION):
+        return [
+            *CheckConceptDecision.get_steps(),
+            __class__(type=type),
+        ]
+
+    def get_post_data(self, case, task):
+        return {
+            "case": case.data["id"],
+            "case_user_task_id": task["case_user_task_id"],
+        }
+
+
+class SendTaxCollection(GenericUserTask):
+    task_name = "task_send_tax_collection"
+    description = "Versturen invordering belastingen"
+
+    @staticmethod
+    def get_steps():
+        return [*Decision.get_steps(type=DecisionType.HolidayRental.FINE), __class__()]
+
+
+class PlanNextStep(GenericUserTask):
+    asynchronous = True
+    task_name = "task_set_next_step"
+    description = "Uitzetten vervolgstap"
+
+    def __init__(self, next_step=NextStep.CLOSE):
+        data = {"next_step": {"value": next_step}}
+        super(PlanNextStep, self).__init__(**data)
+
+    @staticmethod
+    def get_steps():
+        return [*SendTaxCollection.get_steps(), __class__(next_step=NextStep.CLOSE)]
+
+
+class MonitorReopeningRequest(GenericUserTask):
+    # task_name = "task_monitor_reopening_request"
+    task_name = "Activity_0wienly"  # BUG in Spiff, should be renamed
+    description = "Monitoren heropeningsverzoek"
+
+    @staticmethod
+    def get_steps():
+        return [
+            *ProcessNotice.get_steps(type=SummonTypes.HolidayRental.CLOSURE),
+            __class__(),
+        ]
+
+
+class ContactOwner(GenericUserTask):
+    # task_name = "task_contact_owner"
+    task_name = "Activity_0gjczg7"  # BUG in Spiff, should be renamed
+    description = "Contacteren eigenaar"
+
+    @staticmethod
+    def get_steps():
+        return [*MonitorReopeningRequest.get_steps(), WaitForTimer(), __class__()]
+
+
+class JudgeReopeningRequest(GenericUserTask):
+    # task_name = "task_judge_reopening_request"
+    task_name = "Activity_0fp5tdz"  # BUG in Spiff, should be renamed
+    description = "Beoordelen heropeningsverzoek"
+
+    def __init__(self, review_request=ReviewRequest.ACCEPTED):
+        data = {"beoordeling_verzoek": {"value": review_request}}
+
+        super(JudgeReopeningRequest, self).__init__(**data)
+
+    @staticmethod
+    def get_steps(review_request=ReviewRequest.ACCEPTED):
+        return [
+            *SaveFireBrigadeAdvice.get_steps(),
+            __class__(review_request=review_request),
+        ]
+
+
+class SaveFireBrigadeAdvice(GenericUserTask):
+    # task_name = "task_save_fireman_advice"
+    task_name = "Activity_19r9rzm"  # BUG in Spiff, should be renamed
+    description = "Opslaan brandweeradvies"
+
+    @staticmethod
+    def get_steps():
+        return [
+            *ProcessNotice.get_steps(type=SummonTypes.HolidayRental.CLOSURE),
+            __class__(),
+        ]
+
+
+class MonitorReopeningRequestToBeDelivered(GenericUserTask):
+    # task_name = "task_monitor_new_reopening_request"
+    task_name = "Activity_0zh0d0s"  # BUG in Spiff, should be renamed
+    description = "Monitoren nieuw aan te leveren heropeningsverzoek"
+
+    @staticmethod
+    def get_steps():
+        return [
+            *JudgeReopeningRequest.get_steps(review_request=ReviewRequest.DECLINED),
+            __class__(),
+        ]
+
+
+class Reopen(GenericUserTask):
+    # task_name = "task_reopening"
+    task_name = "Activity_1fovs3d"  # BUG in Spiff, should be renamed
+    description = "Heropenen"
+
+    @staticmethod
+    def get_steps():
+        return [*JudgeReopeningRequest.get_steps(), __class__()]
+
+
+class ScheduleRecheck(GenericUserTask):
+    # task_name = "task_schedule_recheck"
+    task_name = "Activity_1tmqvpn"  # BUG in Spiff, should be renamed
+    description = "Uitzetten hercontrole"
+
+    @staticmethod
+    def get_steps():
+        return [*Reopen.get_steps(), __class__()]
+
+
+class ContactDistrict(GenericUserTask):
+    task_name = "task_contact_city_district"
+    description = "Contacteren stadsdeel"
+
+    @staticmethod
+    def get_steps():
+        return [
+            *Decision.get_steps(type=DecisionType.HolidayRental.REVOKE_VV_PERMIT),
+            __class__(),
+        ]
+
+
+class RequestAuthorization(GenericUserTask):
+    task_name = "task_request_authorization"
+    description = "Aanvragen machtiging"
+
+    @staticmethod
+    def get_steps():
+        return [
+            *Debrief.get_steps(violation=Violation.ADDITIONAL_VISIT_WITH_AUTHORIZATION),
+            __class__(),
+        ]
+
+
+class MonitorIncomingAuthorization(GenericUserTask):
+    task_name = "task_monitor_incoming_authorization"
+    description = "Monitoren binnenkomen machtiging"
+
+    @staticmethod
+    def get_steps():
+        return [*RequestAuthorization.get_steps(), __class__()]
+
+
 class Close(AbstractUserTask):
+    event = events.CloseEvent
     endpoint = "case-close"
-    task = Task.close_case
+    task_name = "task_close_case"
+    description = "Afsluiten zaak"
 
     def __init__(
         self, reason=CloseReason.HolidayRental.NO_FROUD, description="Some description"
@@ -235,205 +543,11 @@ class Close(AbstractUserTask):
 
     def get_post_data(self, case, task):
         return {
-            "case": case["id"],
-            "theme": case["theme"],
+            "case": case.data["id"],
+            "theme": case.data["theme"],
             "case_user_task_id": task["case_user_task_id"],
         }
 
-
-class AssertNextOpenTasks:
-    def __init__(self, tasks: list[str]):
-        self.tasks = filter(lambda task: task is not None, tasks)
-
-    def run(self, api, case):
-        # Get the task names we want to check
-        assert_names = list(map(api.get_task_name, self.tasks))
-        assert_names.sort()
-
-        # Get the names of all open tasks
-        open_tasks = api.get_case_tasks(case["id"])
-        open_task_names = api.get_names_from_tasks(open_tasks)
-        open_task_names.sort()
-
-        logger.info(f"Expecting {assert_names} == {open_task_names}")
-        if assert_names != open_task_names:
-            raise Exception(
-                f"Expected {assert_names}, found {open_task_names}. Case id:{case['id']}"
-            )
-
-
-class AssertNumberOfOpenTasks:
-    def __init__(self, count):
-        self.count = count
-
-    def run(self, api, case):
-        tasks = api.get_case_tasks(case["id"])
-        num_open_tasks = len(tasks)
-        if num_open_tasks != self.count:
-            raise Exception(
-                f"{self.count} open tasks expected, found {api.get_names_from_tasks(tasks)}. Case id:{case['id']}"
-            )
-
-
-class GenericUserTask(AbstractUserTask):
-    endpoint = "camunda/task/complete"
-
-    def __init__(self, **variables):
-        self.variables = variables
-        super(GenericUserTask, self).__init__()
-
-    def get_post_data(self, case, task):
-        return {
-            "variables": self.variables,
-            "case_user_task_id": task["case_user_task_id"],
-            "case": case["id"],
-        }
-
-
-class PlanNextStep(GenericUserTask):
-    asynchronous = True
-    task = Task.plan_next_step
-
-    def __init__(self, next_step=NextStep.CLOSE):
-        data = {"next_step": {"value": next_step}}
-
-        super(PlanNextStep, self).__init__(**data)
-
-
-class CheckNotices(GenericUserTask):
-    task = Task.check_notices
-
-
-class FeedbackReporters(GenericUserTask):
-    task = Task.feedback_reporters
-
-
-class HomeVisitReport(GenericUserTask):
-    task = Task.create_home_visit_report
-
-
-class CreatePictureReport(GenericUserTask):
-    task = Task.create_picture_report
-
-
-class CreateFindingsReport(GenericUserTask):
-    task = Task.create_findings_report
-
-
-class CreateConceptNotices(GenericUserTask):
-    task = Task.create_concept_notices
-
-
-class ContactOwner(GenericUserTask):
-    task = Task.contact_owner
-
-
-class JudgeReopeningRequest(GenericUserTask):
-    task = Task.judge_reopening_request
-
-    def __init__(self, review_request=ReviewRequest.ACCEPTED):
-        data = {"beoordeling_verzoek": {"value": review_request}}
-
-        super(JudgeReopeningRequest, self).__init__(**data)
-
-
-class MonitorReopeningRequest(GenericUserTask):
-    task = Task.monitor_reopening_request
-    # heropeningsverzoek_binnengekomen
-
-
-class MonitorReopeningRequestToBeDelivered(GenericUserTask):
-    task = Task.monitor_reopening_request_to_be_delivered
-
-
-class Reopen(GenericUserTask):
-    task = Task.reopen
-
-
-class ScheduleRecheck(GenericUserTask):
-    task = Task.schedule_recheck
-
-
-class SaveFireBrigadeAdvice(GenericUserTask):
-    task = Task.save_fire_brigade_advice
-
-
-class MonitorIncomingView(GenericUserTask):
-    task = Task.monitor_incoming_view
-
-    def __init__(self, objection=False):
-        data = {"is_civilian_objection_received": {"value": objection}}
-
-        super(MonitorIncomingView, self).__init__(**data)
-
-
-class JudgeView(GenericUserTask):
-    task = Task.judge_view
-
-    def __init__(self, objection_valid=True):
-        data = {"is_citizen_objection_valid": {"value": objection_valid}}
-
-        super(JudgeView, self).__init__(**data)
-
-
-class CheckIncomingView(GenericUserTask):
-    task = Task.check_incoming_view
-
-    def __init__(self, objection=Objection.NO):
-        data = {"is_civilian_objection_received": {"value": objection}}
-
-        super(CheckIncomingView, self).__init__(**data)
-
-
-class CreateConceptDecision(GenericUserTask):
-    asynchronous = True
-    task = Task.create_concept_decision
-
-
-class CheckDecision(GenericUserTask):
-    task = Task.check_decision
-
-
-class SendTaxCollection(GenericUserTask):
-    task = Task.send_tax_collection
-
-
-class ContactDistrict(GenericUserTask):
-    task = Task.contact_district
-
-
-class Decision(AbstractUserTask):
-    endpoint = "decisions"
-    task = Task.decision
-
-    def __init__(self, type=DecisionType.HolidayRental.NO_DECISION):
-        data = {"decision_type": type}
-        super(Decision, self).__init__(**data)
-
-    def get_post_data(self, case, task):
-        return {
-            "case": case["id"],
-            "case_user_task_id": task["case_user_task_id"],
-        }
-
-
-class Summon(AbstractUserTask):
-    asynchronous = True
-    endpoint = "summons"
-    task = Task.summon
-
-    def __init__(
-        self,
-        type=SummonTypes.HolidayRental.LEGALIZATION_LETTER,
-        persons=None,
-    ):
-        super(Summon, self).__init__(
-            type=type,
-            persons=persons if persons else [get_person()],
-        )
-
-    def get_post_data(self, case, task):
-        return {
-            "case": case["id"],
-            "case_user_task_id": task["case_user_task_id"],
-        }
+    @staticmethod
+    def get_steps():
+        return [*PlanNextStep.get_steps(), __class__()]

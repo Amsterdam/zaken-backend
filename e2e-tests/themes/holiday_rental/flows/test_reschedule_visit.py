@@ -3,7 +3,8 @@ import unittest
 from api.client import Client
 from api.config import Situations, Themes, api_config
 from api.mock import get_case_mock
-from api.tasks import AssertNextOpenTasks, ScheduleVisit, Task, Visit
+from api.tasks import Debrief, ScheduleVisit, Visit
+from api.validators import AssertOpenTasks
 
 
 class TestReschedule(unittest.TestCase):
@@ -20,6 +21,6 @@ class TestReschedule(unittest.TestCase):
             ),
             ScheduleVisit(),
             Visit(),
-            AssertNextOpenTasks([Task.debrief]),
+            AssertOpenTasks([Debrief]),
         ]
         case.run_steps(steps)
