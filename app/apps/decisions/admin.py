@@ -26,5 +26,14 @@ class DecisionAdmin(admin.ModelAdmin):
         return JsonResponse({"decisions": serializer.data})
 
 
+class DecisionTypeAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "camunda_option",
+        "is_sanction",
+        "theme",
+    )
+
+
 admin.site.register(Decision, DecisionAdmin)
-admin.site.register(DecisionType, admin.ModelAdmin)
+admin.site.register(DecisionType, DecisionTypeAdmin)
