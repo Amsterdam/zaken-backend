@@ -61,3 +61,32 @@ class WorkflowConfTest(TestCase):
         ]
 
         self.assertEquals(invalid_messages_paths, [])
+
+    def test_workflow_tree(self):
+        """
+        Tests if the messages used in conf can be executed and if so,
+        does this result in a change in the workflow, if so the message is valid
+        """
+
+        serializer = WorkflowSpecConfigSerializer(data=settings.WORKFLOW_SPEC_CONFIG)
+
+        self.assertEquals(serializer.is_valid(), True)
+
+        paths = workflow_spec_paths_inspect(settings.WORKFLOW_SPEC_CONFIG)
+
+        non_valid_paths = [p.get("path") for p in paths if not p.get("workflow_data")]
+
+        self.assertEquals(non_valid_paths, [])
+        workflow_tree_inspect = [
+            {
+                "path": p.get("path"),
+                "tree_valid": p.get("workflow_data", {}).get("tree_valid"),
+            }
+            for p in paths
+            if p.get("workflow_data")
+        ]
+
+        invalid_workflow_trees = [
+            p.get("path") for p in workflow_tree_inspect if not p.get("tree_valid")
+        ]
+        self.assertEquals(invalid_workflow_trees, [])

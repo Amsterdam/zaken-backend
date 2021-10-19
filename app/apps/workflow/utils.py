@@ -573,23 +573,7 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
     }
 
 
-def workflow_test_message(message, workflow_spec):
-    def set_status(status):
-        pass
-
-    def wait_for_workflows_and_send_message(message):
-        pass
-
-    def start_subworkflow(subflow):
-        pass
-
-    script_engine = BpmnScriptEngine(
-        scriptingAdditions={
-            "set_status": set_status,
-            "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
-            "start_subworkflow": start_subworkflow,
-        }
-    )
+def workflow_test_message(message, workflow_spec, script_engine):
     try:
 
         workflow_a = BpmnWorkflow(workflow_spec)
@@ -617,10 +601,96 @@ def workflow_test_message(message, workflow_spec):
         return False
 
 
-def workflow_spec_path_inspect(workflow_spec_path, type, messages={}):
+def workflow_tree_inspect(workflow_org, initial_data, script_engine, message_name=None):
+    workflow_serialized = BpmnSerializer().serialize_workflow(
+        workflow_org, include_spec=True
+    )
+    workflow = BpmnSerializer().deserialize_workflow(workflow_serialized)
+    workflow.script_engine = script_engine
+
+    def get_valid_fields(user_task):
+        form = parse_task_spec_form(user_task.task_spec.form)
+        valid_fields = [f for f in form if f.get("type") in ("select", "checkbox")]
+        return valid_fields
+
+    tasks = workflow.get_tasks(Task.READY)
+    if tasks:
+        tasks[0].update_data(initial_data)
+    workflow.refresh_waiting_tasks()
+    workflow.do_engine_steps()
+
+    if message_name:
+        print(f" - message: {message_name}")
+        workflow.message(message_name, message_name, "message_name")
+        workflow.refresh_waiting_tasks()
+        workflow.do_engine_steps()
+
+    def complete_task_and_get_workflow_clone(workflow, user_task_data, user_task):
+        data = copy.deepcopy(workflow.last_task.data)
+        data.update(user_task_data)
+        workflow_clone_serialized = BpmnSerializer().serialize_workflow(
+            workflow, include_spec=True
+        )
+        workflow_clone = BpmnSerializer().deserialize_workflow(
+            workflow_clone_serialized
+        )
+        workflow_clone.script_engine = script_engine
+        if user_task:
+            tasks = workflow_clone.get_tasks_from_spec_name(user_task.task_spec.name)
+            if tasks:
+                tasks[0].update_data(data)
+                workflow_clone.complete_task_from_id(tasks[0].id)
+                workflow_clone.refresh_waiting_tasks()
+                workflow_clone.do_engine_steps()
+        return workflow_clone
+
+    def start_workflow(workflow):
+        ready_tasks = workflow.get_ready_user_tasks()
+        while len(ready_tasks) > 0:
+            for task in ready_tasks:
+                fields = []
+                if task.task_spec.form:
+                    fields = get_valid_fields(task)
+                if fields:
+                    for f in fields:
+                        branches = []
+                        for option in f.get("options", []):
+                            branches.append(
+                                {f.get("name"): {"value": option.get("value")}}
+                            )
+                        if f.get("type") == "checkbox":
+                            branches.append({f.get("name"): {"value": True}})
+                            branches.append({f.get("name"): {"value": False}})
+                        for b in branches:
+                            start_workflow(
+                                complete_task_and_get_workflow_clone(
+                                    workflow,
+                                    b,
+                                    task,
+                                )
+                            )
+
+                workflow.complete_task_from_id(task.id)
+                workflow.refresh_waiting_tasks()
+                workflow.do_engine_steps()
+                ready_tasks = workflow.get_ready_user_tasks()
+
+    try:
+        start_workflow(workflow)
+        return True
+    except Exception as e:
+        print(str(e))
+        return False
+
+
+def workflow_spec_path_inspect(
+    workflow_spec_path, type, script_engine, messages={}, initial_data={}
+):
     try:
         workflow_spec = get_workflow_spec(workflow_spec_path, type)
         workflow = BpmnWorkflow(workflow_spec)
+        workflow.script_engine = script_engine
+        logger.info(f"workflow_type: {type}")
 
         return {
             "workflow": workflow,
@@ -631,10 +701,19 @@ def workflow_spec_path_inspect(workflow_spec_path, type, messages={}):
             "messages": [
                 {
                     "message": m,
-                    "exists": workflow_test_message(m, workflow_spec),
+                    "exists": workflow_test_message(m, workflow_spec, script_engine),
+                    "tree_valid": workflow_tree_inspect(
+                        workflow,
+                        initial_data
+                        if not v.get("initial_data")
+                        else v.get("initial_data", {}),
+                        script_engine,
+                        m,
+                    ),
                 }
                 for m, v in messages.items()
             ],
+            "tree_valid": workflow_tree_inspect(workflow, initial_data, script_engine),
         }
     except Exception as e:
         logger.error(
@@ -645,13 +724,36 @@ def workflow_spec_path_inspect(workflow_spec_path, type, messages={}):
 
 def workflow_spec_paths_inspect(workflow_spec_conf):
     base_path = os.path.join(get_base_path(), "bpmn_files")
+
+    def set_status(status):
+        pass
+
+    def wait_for_workflows_and_send_message(message):
+        pass
+
+    def start_subworkflow(subflow):
+        pass
+
+    def parse_duration_string(duration_str):
+        pass
+
+    script_engine = BpmnScriptEngine(
+        scriptingAdditions={
+            "set_status": set_status,
+            "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
+            "start_subworkflow": start_subworkflow,
+            "parse_duration": parse_duration_string,
+        }
+    )
     paths = [
         {
             "path": os.path.join(base_path, theme, type, version),
             "workflow_data": workflow_spec_path_inspect(
                 os.path.join(base_path, theme, type, version),
                 type,
+                script_engine,
                 version_value.get("messages", {}),
+                theme_type.get("initial_data", {}),
             ),
             "theme": theme,
             "type": type,
