@@ -27,6 +27,7 @@ class WorkflowSpecConfigThemeSerializer(serializers.Serializer):
 
 class WorkflowSpecConfigThemeTypeSerializer(serializers.Serializer):
     close_case = WorkflowSpecConfigThemeSerializer(required=False)
+    debrief = WorkflowSpecConfigThemeSerializer(required=False)
     decision = WorkflowSpecConfigThemeSerializer(required=False)
     director = WorkflowSpecConfigThemeSerializer(required=False)
     renounce_decision = WorkflowSpecConfigThemeSerializer(required=False)
@@ -50,7 +51,7 @@ class WorkflowSpecConfigThemeTypeSerializer(serializers.Serializer):
 
 class WorkflowSpecConfigSerializer(serializers.Serializer):
     default = WorkflowSpecConfigThemeTypeSerializer()
-    vakantieverhuur = WorkflowSpecConfigThemeTypeSerializer(required=False)
+    holiday_rental = WorkflowSpecConfigThemeTypeSerializer(required=False)
 
     def run_validation(self, data=empty):
         if data is not empty:

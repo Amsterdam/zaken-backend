@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 class CaseWorkflow(models.Model):
     WORKFLOW_TYPE_MAIN = "main_workflow"
     WORKFLOW_TYPE_SUB = "sub_workflow"
+    WORKFLOW_TYPE_DEBRIEF = "debrief"
     WORKFLOW_TYPE_DIRECTOR = "director"
     WORKFLOW_TYPE_VISIT = "visit"
     WORKFLOW_TYPE_SUMMON = "summon"
@@ -41,6 +42,7 @@ class CaseWorkflow(models.Model):
     WORKFLOW_TYPES = (
         (WORKFLOW_TYPE_MAIN, WORKFLOW_TYPE_MAIN),
         (WORKFLOW_TYPE_SUB, WORKFLOW_TYPE_SUB),
+        (WORKFLOW_TYPE_DEBRIEF, WORKFLOW_TYPE_DEBRIEF),
         (WORKFLOW_TYPE_DIRECTOR, WORKFLOW_TYPE_DIRECTOR),
         (WORKFLOW_TYPE_VISIT, WORKFLOW_TYPE_VISIT),
         (WORKFLOW_TYPE_SUMMON, WORKFLOW_TYPE_SUMMON),
@@ -69,7 +71,7 @@ class CaseWorkflow(models.Model):
     workflow_type = models.CharField(
         max_length=100,
         choices=WORKFLOW_TYPES,
-        default=WORKFLOW_TYPES[0][0],
+        default=WORKFLOW_TYPE_DIRECTOR,
     )
     workflow_version = models.CharField(
         max_length=100,
