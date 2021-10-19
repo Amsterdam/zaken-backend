@@ -127,7 +127,7 @@ class Case(ModelEventEmitter):
 
     def get_current_states(self):
         states = []
-        for workflow in self.workflows.all():
+        for workflow in self.workflows.filter(tasks__completed=False):
             case_state = workflow.case_states.all().order_by("id").last()
             if case_state:
                 states.append(case_state)
