@@ -36,9 +36,7 @@ class AbstractUserTask:
 
     def run(self, client, case: Case):
         open_tasks = client.get_case_tasks(case.data["id"])
-        tasks = list(
-            task for task in open_tasks if task["task_name_id"] == self.task_name
-        )
+        tasks = list(task for task in open_tasks if task["task_name"] == self.task_name)
 
         if len(tasks) == 0:
             raise Exception(
@@ -82,7 +80,7 @@ class GenericUserTask(AbstractUserTask):
         return {
             "variables": self.variables,
             "case": case.data["id"],
-            "task": task["case_user_task_id"],
+            "case_user_task_id": task["case_user_task_id"],
         }
 
 
@@ -166,7 +164,7 @@ class Visit(AbstractUserTask):
     def get_post_data(self, case, task):
         return {
             "case": case.data["id"],
-            "task": task["camunda_task_id"],
+            "task": task["case_user_task_id"],
         }
 
 
@@ -272,7 +270,7 @@ class ProcessNotice(AbstractUserTask):
     def get_post_data(self, case, task):
         return {
             "case": case.data["id"],
-            "theme": case["theme"],
+            "theme": case.data["theme"],
             "case_user_task_id": task["case_user_task_id"],
         }
 
@@ -385,7 +383,7 @@ class Decision(AbstractUserTask):
     def get_post_data(self, case, task):
         return {
             "case": case.data["id"],
-            "camunda_task_id": task["camunda_task_id"],
+            "case_user_task_id": task["case_user_task_id"],
         }
 
 
