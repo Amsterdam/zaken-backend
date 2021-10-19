@@ -180,7 +180,7 @@ class Visit(AbstractUserTask):
     def get_post_data(self, case, task):
         return {
             "case": case["id"],
-            "task": task["camunda_task_id"],
+            "task": task["case_user_task_id"],
         }
 
 
@@ -206,7 +206,7 @@ class ScheduleVisit(AbstractUserTask):
     def get_post_data(self, case, task):
         return {
             "case": case["id"],
-            "camunda_task_id": task["camunda_task_id"],
+            "case_user_task_id": task["case_user_task_id"],
         }
 
 
@@ -220,7 +220,7 @@ class Debrief(AbstractUserTask):
     def get_post_data(self, case, task):
         return {
             "case": case["id"],
-            "camunda_task_id": task["camunda_task_id"],
+            "case_user_task_id": task["case_user_task_id"],
         }
 
 
@@ -237,7 +237,7 @@ class Close(AbstractUserTask):
         return {
             "case": case["id"],
             "theme": case["theme"],
-            "camunda_task_id": task["camunda_task_id"],
+            "case_user_task_id": task["case_user_task_id"],
         }
 
 
@@ -285,7 +285,7 @@ class GenericUserTask(AbstractUserTask):
     def get_post_data(self, case, task):
         return {
             "variables": self.variables,
-            "camunda_task_id": task["camunda_task_id"],
+            "case_user_task_id": task["case_user_task_id"],
             "case": case["id"],
         }
 
@@ -413,7 +413,7 @@ class Decision(AbstractUserTask):
     def get_post_data(self, case, task):
         return {
             "case": case["id"],
-            "camunda_task_id": task["camunda_task_id"],
+            "case_user_task_id": task["case_user_task_id"],
         }
 
 
@@ -435,5 +435,5 @@ class Summon(AbstractUserTask):
     def get_post_data(self, case, task):
         return {
             "case": case["id"],
-            "camunda_task_id": task["camunda_task_id"],
+            "case_user_task_id": task["case_user_task_id"],
         }

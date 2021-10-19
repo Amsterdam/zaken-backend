@@ -1,3 +1,4 @@
+from apps.cases.serializers import CaseUserTaskListSerializer
 from apps.users.permissions import rest_permission_classes_for_top
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -5,7 +6,6 @@ from rest_framework import mixins, viewsets
 from rest_framework.response import Response
 
 from .models import CaseUserTask
-from .serializers import CaseUserTaskListSerializer
 
 role_parameter = OpenApiParameter(
     name="role",

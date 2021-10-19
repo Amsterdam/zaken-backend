@@ -69,7 +69,7 @@ class Summon(TaskModelEventEmitter):
 
     def complete_camunda_task(self):
         CaseWorkflow.complete_user_task(
-            self.camunda_task_id,
+            self.case_user_task_id,
             {
                 "type_aanschrijving": {"value": self.type.camunda_option},
                 "names": {
@@ -81,7 +81,7 @@ class Summon(TaskModelEventEmitter):
             },
         )
         # response = CamundaService().complete_task(
-        #     self.camunda_task_id,
+        #     self.case_user_task_id,
         #     {
         #         "type_aanschrijving": {"value": self.type.camunda_option},
         #         "names": {
