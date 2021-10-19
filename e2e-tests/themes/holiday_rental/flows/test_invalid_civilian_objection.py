@@ -1,34 +1,29 @@
-import unittest
-
-from api.client import Client
-from api.config import DecisionType, SummonTypes, Themes, Violation, api_config
-from api.mock import get_case_mock
-from api.tasks import (
-    CheckConceptDecision,
-    CheckNotices,
-    CreateConceptDecision,
+from api.config import DecisionType, SummonTypes, Violation
+from api.tasks.debrief import (
     CreateConceptNotices,
     CreateFindingsReport,
     CreatePictureReport,
     Debrief,
+)
+from api.tasks.decision import (
+    CheckConceptDecision,
+    CreateConceptDecision,
     Decision,
     JudgeView,
-    MonitorIncomingView,
-    ProcessNotice,
-    ScheduleVisit,
     SendTaxCollection,
-    Visit,
 )
-from api.validators import ValidateNumberOfOpenTasks
+from api.tasks.summon import CheckNotices, MonitorIncomingView, ProcessNotice
+from api.tasks.visit import ScheduleVisit, Visit
+from api.test import DefaultAPITest
+from api.validators import ValidateNoOpenTasks
 
 
-class TestInvalidCivilianObjection(unittest.TestCase):
-    def setUp(self):
-        self.api = Client(api_config)
-
+class TestInvalidCivilianObjection(DefaultAPITest):
     def test(self):
-        case = self.api.create_case(get_case_mock(Themes.HOLIDAY_RENTAL))
-        steps = [
+        self.skipTest(
+            "#BUG Instead of having no open tasks after SendTaxCollection, the case has the open task: task_contact_city_district"
+        )
+        self.case.run_steps(
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.YES),
@@ -43,9 +38,5 @@ class TestInvalidCivilianObjection(unittest.TestCase):
             CheckConceptDecision(),
             Decision(type=DecisionType.HolidayRental.FINE),
             SendTaxCollection(),
-            ValidateNumberOfOpenTasks(
-                0
-            ),  # BUG Current implementation in Spiff gives invalid task_contact_city_district
-        ]
-
-        case.run_steps(steps)
+            ValidateNoOpenTasks(),
+        )

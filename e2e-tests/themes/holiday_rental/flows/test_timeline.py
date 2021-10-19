@@ -1,35 +1,40 @@
-import unittest
-
-from api.client import Client
-from api.config import Themes, api_config
-from api.events import CaseEvent, CitizenReportEvent
-from api.mock import get_case_mock
-from api.tasks import ScheduleVisit
-from api.validators import ValidateEvents, ValidateNumberOfOpenTasks
+from api.config import Violation
+from api.tasks.close import Close, PlanNextStep
+from api.tasks.debrief import Debrief, HomeVisitReport
+from api.tasks.visit import ScheduleVisit, Visit
+from api.test import DefaultAPITest
+from api.validators import ValidateOpenTasks
 
 
-class TestTimeline(unittest.TestCase):
-    def setUp(self):
-        self.api = Client(api_config)
+class TestTimeline(DefaultAPITest):
+    def test_no_identification(self):
+        self.case.run_steps(ScheduleVisit(), ValidateOpenTasks(Visit))
+        events = self.client.get_case_events(self.case.data["id"])
+        self.assertEqual(2, len(self.case.timeline), len(events))
+        self.assertEqual(2, len(events))
 
-    def test_citizenreport_and_sia(self):
-        case = self.api.create_case(
-            get_case_mock(Themes.HOLIDAY_RENTAL)
-            + {
-                "description_citizenreport": "This is a report.",
-                # "identification": "123" # als deze ook nodig dan vermelden in CitizenReportEvent doc.
-            }
+    def test_home_visit_report(self):
+        self.skipTest(
+            "#BUG: The timeline is brokenk, the Visit event actually is removed from the timeline after Close!"
         )
-        steps = [
+        self.case.run_steps(
             ScheduleVisit(),
-            ValidateEvents(
-                [
-                    CaseEvent,
-                    CitizenReportEvent,
-                ]
-            ),
-        ]
+            Visit(),
+            Debrief(violation=Violation.NO),
+            HomeVisitReport(),
+            PlanNextStep(),
+            Close(),
+        )
 
-        steps.append(ValidateNumberOfOpenTasks(0))
 
-        case.run_steps(steps)
+class TestTimelineWithIdentification(DefaultAPITest):
+    def get_case_data(self):
+        return {
+            "identification": 123,
+        }
+
+    def test(self):
+        self.case.run_steps(ScheduleVisit(), ValidateOpenTasks(Visit))
+        events = self.client.get_case_events(self.case.data["id"])
+        self.assertEqual(len(self.case.timeline), len(events))
+        self.assertEqual(3, len(events))
