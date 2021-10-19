@@ -1,5 +1,4 @@
 from apps.addresses.views import AddressViewSet
-from apps.camunda.views import CamundaTaskViewSet
 from apps.cases.views import (
     CaseCloseViewSet,
     CaseStateViewSet,
@@ -21,7 +20,7 @@ from apps.users.views import (
     UserListView,
 )
 from apps.visits.views import VisitViewSet
-from apps.workflow.views import CaseUserTaskViewSet
+from apps.workflow.views import CaseUserTaskViewSet, GenericCompletedTaskViewSet
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
@@ -48,7 +47,7 @@ router.register(r"summons", SummonViewSet, basename="summons")
 router.register(r"schedules", ScheduleViewSet, basename="schedules")
 router.register(r"case-close", CaseCloseViewSet, basename="case-closing")
 
-router.register(r"camunda/task", CamundaTaskViewSet, basename="camunda-tasks")
+router.register(r"camunda/task", GenericCompletedTaskViewSet, basename="camunda-tasks")
 
 urlpatterns = [
     # Admin environment

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import mark_safe
 
-from .models import CaseUserTask, CaseWorkflow
+from .models import CaseUserTask, CaseWorkflow, GenericCompletedTask, WorkflowOption
 
 
 @admin.register(CaseWorkflow)
@@ -53,4 +53,26 @@ class CaseTaskAdmin(admin.ModelAdmin):
         "task_name",
         "completed",
         "workflow",
+    )
+
+
+@admin.register(WorkflowOption)
+class WorkflowOptionAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "message_name",
+        "to_directing_proccess",
+        "theme",
+    )
+
+
+@admin.register(GenericCompletedTask)
+class GenericCompletedTaskAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "case",
+        "date_added",
+        "description",
+        "author",
     )

@@ -3,8 +3,6 @@ import logging
 
 import requests
 from apps.addresses.utils import search
-from apps.camunda.models import CamundaProcess
-from apps.camunda.serializers import CamundaProcessSerializer
 from apps.cases.models import (
     Case,
     CaseClose,
@@ -19,7 +17,6 @@ from apps.cases.models import (
     CitizenReport,
 )
 from apps.cases.serializers import (
-    CamundaStartProcessSerializer,
     CaseCloseReasonSerializer,
     CaseCloseResultSerializer,
     CaseCloseSerializer,
@@ -35,6 +32,7 @@ from apps.cases.serializers import (
     LegacyCaseCreateSerializer,
     LegacyCaseUpdateSerializer,
     PushCaseStateSerializer,
+    StartWorkflowSerializer,
 )
 from apps.cases.swagger_parameters import date as date_parameter
 from apps.cases.swagger_parameters import no_pagination as no_pagination_parameter
@@ -61,7 +59,8 @@ from apps.users.permissions import (
 )
 from apps.visits.models import Visit
 from apps.visits.serializers import VisitSerializer
-from apps.workflow.models import CaseWorkflow
+from apps.workflow.models import CaseWorkflow, WorkflowOption
+from apps.workflow.serializers import WorkflowOptionSerializer
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -298,13 +297,13 @@ class CaseViewSet(
 
     @extend_schema(
         description="Get Camunda processes for this Case",
-        responses={status.HTTP_200_OK: CamundaProcessSerializer(many=True)},
+        responses={status.HTTP_200_OK: WorkflowOptionSerializer(many=True)},
     )
     @action(
         detail=True,
         url_path="processes",
         methods=["get"],
-        serializer_class=CamundaProcessSerializer,
+        serializer_class=WorkflowOptionSerializer,
     )
     def get_camunda_processes(self, request, pk):
         """
@@ -314,8 +313,8 @@ class CaseViewSet(
         (for example not show the summon/aanschrijving process when we are in visit state)
         """
         case = get_object_or_404(Case, pk=pk)
-        serializer = CamundaProcessSerializer(
-            CamundaProcess.objects.filter(theme=case.theme), many=True
+        serializer = WorkflowOptionSerializer(
+            WorkflowOption.objects.filter(theme=case.theme), many=True
         )
         return Response(serializer.data)
 
@@ -326,7 +325,7 @@ class CaseViewSet(
         detail=True,
         url_path="processes/start",
         methods=["post"],
-        serializer_class=CamundaStartProcessSerializer,
+        serializer_class=StartWorkflowSerializer,
     )
     def start_process(self, request, pk):
         serializer = self.serializer_class(data=request.data)
@@ -343,7 +342,7 @@ class CaseViewSet(
             workflow_instance = CaseWorkflow.objects.create(
                 case=case,
                 workflow_type=workflow_type,
-                workflow_message_name=instance.camunda_message_name,
+                workflow_message_name=instance.message_name,
             )
             workflow_instance.start()
 
@@ -351,44 +350,6 @@ class CaseViewSet(
                 data=f"Process has started {str(instance)}",
                 status=status.HTTP_200_OK,
             )
-
-            # if instance.to_directing_proccess:
-            #     response = CamundaService().send_message_to_process_instance(
-            #         message_name=instance.camunda_message_name,
-            #         process_instance_id=case.directing_process,
-            #     )
-            # else:
-            #     case_process_instance = CaseProcessInstance.objects.create(case=case)
-            #     case_process_id = case_process_instance.process_id.__str__()
-
-            #     response = CamundaService().send_message(
-            #         message_name=instance.camunda_message_name,
-            #         case_identification=case.id,
-            #         case_process_id=case_process_id,
-            #     )
-
-            #     try:
-            #         json_response = response.json()[0]
-            #         camunda_process_id = json_response["processInstance"]["id"]
-            #     except Exception:
-            #         return Response(
-            #             data=f"Camunda process has not started. Json response not valid {str(response.content)}",
-            #             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            #         )
-
-            #     case_process_instance.camunda_process_id = camunda_process_id
-            #     case_process_instance.save()
-
-            # if response:
-            #     return Response(
-            #         data=f"Process has started {str(response.content)}",
-            #         status=status.HTTP_200_OK,
-            #     )
-            # else:
-            #     return Response(
-            #         data=f"Camunda process has not started. Camunda request failed: {response}",
-            #         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            #     )
 
         return Response(
             data="Camunda process has not started. serializer not valid",
