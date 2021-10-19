@@ -504,7 +504,7 @@ WORKFLOW_SPEC_CONFIG = {
                                 "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
                             },
                         },
-                        "aanschrijving_toevoegen": {},
+                        "aanschrijving_toevoegen": {},  # TODO Remove this
                     },
                 },
             },

@@ -51,7 +51,7 @@ class WorkflowSpecConfigThemeTypeSerializer(serializers.Serializer):
 
 class WorkflowSpecConfigSerializer(serializers.Serializer):
     default = WorkflowSpecConfigThemeTypeSerializer()
-    vakantieverhuur = WorkflowSpecConfigThemeTypeSerializer(required=False)
+    holiday_rental = WorkflowSpecConfigThemeTypeSerializer(required=False)
 
     def run_validation(self, data=empty):
         if data is not empty:
