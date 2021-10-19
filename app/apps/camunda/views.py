@@ -208,7 +208,7 @@ class CamundaTaskViewSet(viewsets.ViewSet):
             data = serializer.validated_data
 
             variables = data.get("variables", {})
-            task = get_object_or_404(CaseUserTask, id=data["camunda_task_id"])
+            task = get_object_or_404(CaseUserTask, id=data["case_user_task_id"])
             data.update(
                 {
                     "description": task.name if task else "Algemene taak",
@@ -223,11 +223,11 @@ class CamundaTaskViewSet(viewsets.ViewSet):
                     task.task_id, variables
                 )
                 return Response(
-                    f"CaseUserTask {data['camunda_task_id']} has been completed"
+                    f"CaseUserTask {data['case_user_task_id']} has been completed"
                 )
             except Exception:
                 return Response(
-                    f"CaseUserTask {data['camunda_task_id']} has NOT been completed"
+                    f"CaseUserTask {data['case_user_task_id']} has NOT been completed"
                 )
 
         return Response(status=status.HTTP_400_BAD_REQUEST)

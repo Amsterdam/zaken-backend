@@ -12,7 +12,7 @@ def update_decision_with_summon(sender, instance, created, **kwargs):
     This will be resolved when we support multiple summons.
     """
     if created:
-        task = CaseWorkflow.get_task_by_task_id(instance.camunda_task_id)
+        task = CaseWorkflow.get_task_by_task_id(instance.case_user_task_id)
         task.workflow.complete_user_task_and_create_new_user_tasks(
             task.task_id,
             {
@@ -26,7 +26,7 @@ def update_decision_with_summon(sender, instance, created, **kwargs):
             instance.summon = summon
             instance.save()
 
-        # task_variables = CamundaService().get_task_variables(instance.camunda_task_id)
+        # task_variables = CamundaService().get_task_variables(instance.case_user_task_id)
         # if task_variables:
         #     summon_id = task_variables.get("summon_id", {}).get("value", 0)
         #     summon = Summon.objects.filter(id=summon_id).first()
@@ -35,6 +35,6 @@ def update_decision_with_summon(sender, instance, created, **kwargs):
         #         instance.save()
 
         # CamundaService().complete_task(
-        #     instance.camunda_task_id,
+        #     instance.case_user_task_id,
         #     {"type_besluit": {"value": instance.decision_type.camunda_option}},
         # )

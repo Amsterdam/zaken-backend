@@ -16,8 +16,10 @@ from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.task import Task
 from utils.managers import BulkCreateSignalsManager
 
+from .tasks import task_update_workflow
 from .utils import (
     compare_workflow_specs_by_task_specs,
+    get_initial_data_from_config,
     get_workflow_path,
     get_workflow_spec,
     parse_task_spec_form,
@@ -30,6 +32,7 @@ logger = logging.getLogger(__name__)
 class CaseWorkflow(models.Model):
     WORKFLOW_TYPE_MAIN = "main_workflow"
     WORKFLOW_TYPE_SUB = "sub_workflow"
+    WORKFLOW_TYPE_DEBRIEF = "debrief"
     WORKFLOW_TYPE_DIRECTOR = "director"
     WORKFLOW_TYPE_VISIT = "visit"
     WORKFLOW_TYPE_SUMMON = "summon"
@@ -39,6 +42,7 @@ class CaseWorkflow(models.Model):
     WORKFLOW_TYPES = (
         (WORKFLOW_TYPE_MAIN, WORKFLOW_TYPE_MAIN),
         (WORKFLOW_TYPE_SUB, WORKFLOW_TYPE_SUB),
+        (WORKFLOW_TYPE_DEBRIEF, WORKFLOW_TYPE_DEBRIEF),
         (WORKFLOW_TYPE_DIRECTOR, WORKFLOW_TYPE_DIRECTOR),
         (WORKFLOW_TYPE_VISIT, WORKFLOW_TYPE_VISIT),
         (WORKFLOW_TYPE_SUMMON, WORKFLOW_TYPE_SUMMON),
@@ -67,7 +71,7 @@ class CaseWorkflow(models.Model):
     workflow_type = models.CharField(
         max_length=100,
         choices=WORKFLOW_TYPES,
-        default=WORKFLOW_TYPES[0][0],
+        default=WORKFLOW_TYPE_DIRECTOR,
     )
     workflow_version = models.CharField(
         max_length=100,
@@ -96,12 +100,19 @@ class CaseWorkflow(models.Model):
         return self.serializer()
 
     def get_workflow_spec(self):
-        path = get_workflow_path(
-            self.workflow_type,
-            self.workflow_theme_name,
-            self.workflow_version,
-        )
-        spec = get_workflow_spec(path, self.workflow_type)
+        try:
+            path = get_workflow_path(
+                self.workflow_type,
+                self.workflow_theme_name,
+                self.workflow_version,
+            )
+            spec = get_workflow_spec(path, self.workflow_type)
+        except Exception as e:
+            logger.error(
+                f"get_workflow_spec: {self.id}, case id: {self.case.id}, error: {str(e)}"
+            )
+            return
+
         return spec
 
     def get_script_engine(self, wf):
@@ -140,7 +151,7 @@ class CaseWorkflow(models.Model):
             so the last waiting worklfow kan tell the main workflow to accept the message after all, so only the main workflow can resume
             """
             if len(workflows_completed) == all_workflows.count() and main_workflow:
-                from .tasks import accept_message_for_workflow
+                from .tasks import task_accept_message_for_workflow
 
                 # pick up all summons and pass them on to the main workflow
                 all_summons = [
@@ -153,7 +164,9 @@ class CaseWorkflow(models.Model):
                 }
 
                 # sends the accept message to a task, because we have to wait until this current tasks, we are in, is completed
-                accept_message_for_workflow.delay(main_workflow.id, message, extra_data)
+                task_accept_message_for_workflow.delay(
+                    main_workflow.id, message, extra_data
+                )
 
                 # TODO: cleanup(delete others), but the message is not send yet, so below should wait
                 # other_workflows = all_workflows.exclude(id=main_workflow.id)
@@ -177,20 +190,30 @@ class CaseWorkflow(models.Model):
         )
         return wf
 
-    def message(self, message_name, payload, resultVar, extra_data={}):
-        # use this to start a workflow at a certain point
+    def start(self, data={}):
         wf = self.get_or_restore_workflow_state()
         if not wf:
             return
 
-        wf = self._initial_data(wf, extra_data)
+        initial_data = get_initial_data_from_config(
+            self.case.theme.name, self.workflow_type
+        )
+        if isinstance(data, dict):
+            initial_data.update(data)
+
+        wf = self._initial_data(wf, initial_data)
+
         wf = self._update_workflow(wf)
 
-        wf.message(message_name, payload, resultVar)
+        if self.workflow_message_name:
+            wf.message(
+                self.workflow_message_name, self.workflow_message_name, "message_name"
+            )
+            wf = self._update_workflow(wf)
 
-        wf = self._update_workflow(wf)
         self.save_workflow_state(wf)
         self._update_db(wf)
+        self._check_completed_workflows(wf)
 
     def accept_message(self, message_name, extra_data):
         """
@@ -297,7 +320,9 @@ class CaseWorkflow(models.Model):
         if task and isinstance(task.task_spec, UserTask):
             task.update_data(data)
             wf.complete_task_from_id(task.id)
-            logger.info(f"COMPLETE TASK: {task.task_spec.name}")
+            logger.info(
+                f"COMPLETE TASK: {task.task_spec.name}, case: {self.case.id}-{self.workflow_type}"
+            )
         else:
             logger.info(f"COMPLETE TASK NOT FOUND: {task_id}")
 
@@ -306,8 +331,8 @@ class CaseWorkflow(models.Model):
 
         # no changes to the workflow after this point
         self.save_workflow_state(wf)
-        self._update_db(wf)
-        self._check_completed_workflows(wf)
+
+        task_update_workflow.delay(self.id)
 
     def save_workflow_state(self, wf):
         if wf.last_task:
@@ -321,13 +346,8 @@ class CaseWorkflow(models.Model):
 
     def get_or_restore_workflow_state(self):
         # gets the unserialized workflow from this workflow instance, it has to use an workflow_spec, witch in this case will be load from filesystem.
-
-        try:
-            workflow_spec = self.get_workflow_spec()
-        except Exception as e:
-            logger.error(
-                f"get_workflow_spec: {self.id}, case id: {self.case.id}, error: {str(e)}"
-            )
+        workflow_spec = self.get_workflow_spec()
+        if not workflow_spec:
             return
 
         if self.serialized_workflow_state:
@@ -344,10 +364,8 @@ class CaseWorkflow(models.Model):
             return wf
         else:
             wf = BpmnWorkflow(workflow_spec)
-
-            # always work with an already saved version
-            self.save_workflow_state(wf)
-            return self.get_or_restore_workflow_state()
+            wf = self.get_script_engine(wf)
+            return wf
 
     def _initial_data(self, wf, data):
 
@@ -363,21 +381,6 @@ class CaseWorkflow(models.Model):
 
         return wf
 
-    def set_initial_data(self, data):
-        wf = self.get_or_restore_workflow_state()
-        if not wf:
-            return
-
-        wf = self._initial_data(wf, data)
-
-        # changes the workflow
-        wf = self._update_workflow(wf)
-
-        # no changes to the workflow after this point
-        self.save_workflow_state(wf)
-        self._update_db(wf)
-        return wf
-
     def update_workflow(self):
         # call this on a regular bases to complete tasks that are time related
         wf = self.get_or_restore_workflow_state()
@@ -389,7 +392,6 @@ class CaseWorkflow(models.Model):
         # no changes to the workflow after this point
         self.save_workflow_state(wf)
         self._update_db(wf)
-
         self._check_completed_workflows(wf)
 
     def _check_completed_workflows(self, wf):
@@ -531,10 +533,7 @@ class CaseUserTask(models.Model):
         null=True,
         blank=True,
     )
-    due_date = models.DateTimeField(
-        null=True,
-        blank=True,
-    )
+    due_date = models.DateTimeField()
     owner = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
