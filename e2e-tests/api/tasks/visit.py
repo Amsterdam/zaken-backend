@@ -11,6 +11,7 @@ logger = logging.getLogger("api")
 class RequestAuthorization(GenericUserTask):
     task_name = "task_request_authorization"
     description = "Aanvragen machtiging"
+    # asynchronous = True  # TODO should be async right?
 
     @staticmethod
     def get_steps():

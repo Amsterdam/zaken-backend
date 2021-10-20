@@ -10,6 +10,7 @@ logger = logging.getLogger("api")
 class CreateConceptRenounce(GenericUserTask):
     task_name = "task_create_concept_renounce"
     description = "Opstellen concept voornemen afzien"
+    asynchronous = True
 
     @staticmethod
     def get_steps():

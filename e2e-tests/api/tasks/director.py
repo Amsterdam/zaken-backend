@@ -9,6 +9,7 @@ logger = logging.getLogger("api")
 class FeedbackReporters(GenericUserTask):
     task_name = None  # "task_feedback_reporter"
     description = "Terugkoppelen melder(s)"
+    event = None
 
     def is_ready(self, client, case):
         return True

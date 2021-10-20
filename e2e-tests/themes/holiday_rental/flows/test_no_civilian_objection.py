@@ -5,6 +5,7 @@ from api.tasks.debrief import (
     CreatePictureReport,
     Debrief,
 )
+from api.tasks.director import FeedbackReporters
 from api.tasks.summon import CheckNotices, MonitorIncomingView, ProcessNotice
 from api.tasks.visit import ScheduleVisit, Visit
 from api.test import DefaultAPITest
@@ -17,7 +18,7 @@ class TestNoCivilianObjection(DefaultAPITest):
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.YES),
-            # FeedbackReporters(),
+            FeedbackReporters(),
             CreatePictureReport(),
             CreateFindingsReport(),
             CreateConceptNotices(),
