@@ -52,5 +52,5 @@ Now start Docker with the test config file and run the test suite.
 
 ```
 docker-compose -f ../docker-compose.test.yml up
-LOGLEVEL=INFO nose2
+LOGLEVEL=INFO NO_SKIP=1 nose2
 ```

@@ -13,7 +13,6 @@ from api.validators import ValidateOpenTasks
 
 class TestCreateDecision(DefaultAPITest):
     def test_fine(self):
-        self.skipTest("#BUG We dont expect ContactDistrict here. @xavier")
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.FINE),
@@ -21,7 +20,6 @@ class TestCreateDecision(DefaultAPITest):
         )
 
     def test_collection_penalty(self):
-        self.skipTest("#BUG We dont expect ContactDistrict here. @xavier")
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.COLLECTION_PENALTY),
@@ -29,7 +27,6 @@ class TestCreateDecision(DefaultAPITest):
         )
 
     def test_decision_fine_report_duty(self):
-        self.skipTest("#BUG We dont expect ContactDistrict here. @xavier")
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.DECISION_FINE_REPORT_DUTY),
@@ -37,7 +34,6 @@ class TestCreateDecision(DefaultAPITest):
         )
 
     def test_preventive_burdon(self):
-        self.skipTest("#BUG We dont expect ContactDistrict here. @xavier")
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.PREVENTIVE_BURDEN),
@@ -49,9 +45,6 @@ class TestCreateDecision(DefaultAPITest):
         In case of BURDEN_UNDER_PENALTY we don't expect SendTaxCollection or ContactDistrict.
         But we do expect PlanNextStep.
         """
-        self.skipTest(
-            "#BUG task_set_next_step not found. Contact city and send-tax collection given instead. @xavier"
-        )
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.BURDEN_UNDER_PENALTY),

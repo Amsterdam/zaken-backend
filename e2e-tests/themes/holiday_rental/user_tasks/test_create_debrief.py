@@ -5,8 +5,8 @@ from api.tasks.debrief import (
     CreatePictureReport,
     Debrief,
     HomeVisitReport,
-    InternalResearch,
     Visit,
+    WaitInternalResearch,
 )
 from api.tasks.director import FeedbackReporters
 from api.tasks.visit import RequestAuthorization, ScheduleVisit
@@ -26,7 +26,6 @@ class TestDebrief(DefaultAPITest):
         )
 
     def test_violation_no(self):
-        self.skipTest("#BUG: We should feedback the reporters")
         self.get_case().run_steps(
             *Visit.get_steps(),
             Debrief(violation=Violation.NO),
@@ -51,7 +50,7 @@ class TestDebrief(DefaultAPITest):
         self.get_case().run_steps(
             *Visit.get_steps(),
             Debrief(violation=Violation.ADDITIONAL_RESEARCH_REQUIRED),
-            ValidateOpenTasks(InternalResearch),
+            ValidateOpenTasks(WaitInternalResearch),
         )
 
     def test_additional_visit_required(self):
