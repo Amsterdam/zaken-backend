@@ -1,6 +1,9 @@
 import logging
 import os
 
+# By default skipTest are skipped, you can override this behavior with NO_SKIP=1
+skip_tests = not os.getenv("NO_SKIP", "False").lower() in ("true", "1", "t")
+
 # Setup logging
 loglevel = os.environ.get("LOGLEVEL", "WARNING")
 logging.basicConfig(level=loglevel)
