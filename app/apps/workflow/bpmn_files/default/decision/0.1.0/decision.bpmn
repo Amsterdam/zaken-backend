@@ -26,6 +26,7 @@
         <bpmn:flowNodeRef>Gateway_0ft5d6r</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0f7x7aq</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1c80mz8</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1v9nqu8</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:userTask id="task_check_concept_decision" name="Nakijken besluit" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
@@ -121,9 +122,10 @@
     <bpmn:sequenceFlow id="Flow_0bjw3py" sourceRef="Gateway_0ft5d6r" targetRef="task_contact_city_district">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_besluit.value == "intrekken_vv_vergunning" or type_besluit.value == "intrekken_bb_vergunning" or type_besluit.value == "intrekken_shortstay_vergunning"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:exclusiveGateway id="Gateway_0ft5d6r">
+    <bpmn:exclusiveGateway id="Gateway_0ft5d6r" default="Flow_12rmxjc">
       <bpmn:incoming>Flow_1boz1xa</bpmn:incoming>
       <bpmn:outgoing>Flow_0bjw3py</bpmn:outgoing>
+      <bpmn:outgoing>Flow_12rmxjc</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_00nt5t7" name="Last onder dwangsom" sourceRef="gateway_which_type_of_decision" targetRef="Activity_0f7x7aq">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_besluit.value == "last_onder_dwangsom"</bpmn:conditionExpression>
@@ -137,6 +139,10 @@
       <bpmn:incoming>Flow_13ca7sd</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_13ca7sd" sourceRef="Activity_0f7x7aq" targetRef="Event_1c80mz8" />
+    <bpmn:sequenceFlow id="Flow_12rmxjc" sourceRef="Gateway_0ft5d6r" targetRef="Event_1v9nqu8" />
+    <bpmn:endEvent id="Event_1v9nqu8">
+      <bpmn:incoming>Flow_12rmxjc</bpmn:incoming>
+    </bpmn:endEvent>
   </bpmn:process>
   <bpmn:message id="Message_1k5s52q" name="start_decision_process" />
   <bpmn:message id="Message_145ctpk" name="start_decision_process" />
@@ -242,6 +248,11 @@
         <di:waypoint x="960" y="470" />
         <di:waypoint x="1002" y="470" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12rmxjc_di" bpmnElement="Flow_12rmxjc">
+        <di:waypoint x="1130" y="465" />
+        <di:waypoint x="1130" y="500" />
+        <di:waypoint x="1222" y="500" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_14ueput_di" bpmnElement="task_check_concept_decision">
         <dc:Bounds x="620" y="550" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -298,6 +309,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1c80mz8_di" bpmnElement="Event_1c80mz8">
         <dc:Bounds x="1002" y="452" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1v9nqu8_di" bpmnElement="Event_1v9nqu8">
+        <dc:Bounds x="1222" y="482" width="36" height="36" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
