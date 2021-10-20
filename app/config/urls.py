@@ -47,7 +47,7 @@ router.register(r"summons", SummonViewSet, basename="summons")
 router.register(r"schedules", ScheduleViewSet, basename="schedules")
 router.register(r"case-close", CaseCloseViewSet, basename="case-closing")
 
-router.register(r"camunda/task", GenericCompletedTaskViewSet, basename="camunda-tasks")
+router.register(r"generic-tasks", GenericCompletedTaskViewSet, basename="generic-tasks")
 
 urlpatterns = [
     # Admin environment

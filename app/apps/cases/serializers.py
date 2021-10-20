@@ -282,7 +282,7 @@ class PushCaseStateSerializer(serializers.Serializer):
 
 
 class StartWorkflowSerializer(serializers.Serializer):
-    camunda_process_id = serializers.PrimaryKeyRelatedField(
+    workflow_option_id = serializers.PrimaryKeyRelatedField(
         queryset=WorkflowOption.objects.all()
     )
 
