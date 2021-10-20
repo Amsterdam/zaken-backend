@@ -4,16 +4,20 @@ import os
 # By default skipTest are skipped, you can override this behavior with NO_SKIP=1
 skip_tests = not os.getenv("NO_SKIP", "False").lower() in ("true", "1", "t")
 
+# If you don't want to validate if the timeline is correct you can skip checks. Will be a bit faster
+validate_timeline = not os.getenv("NO_TIMELINE", "False").lower() in ("true", "1", "t")
+
 # Setup logging
 loglevel = os.environ.get("LOGLEVEL", "WARNING")
 logging.basicConfig(level=loglevel)
 
+# API configuration
 api_config = {
     "host": os.environ.get("API_HOST", "http://localhost:8080/api/v1"),
 }
 
-validate_timeline = False
-timer_duration = 4  # in seconds
+# Timers and async waits
+timer_duration = 150  # in seconds
 async_sleep = 1.5  # in seconds
 async_timeout = 15  # in seconds
 
