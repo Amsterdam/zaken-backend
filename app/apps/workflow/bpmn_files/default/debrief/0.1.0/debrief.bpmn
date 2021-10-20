@@ -168,7 +168,7 @@
     <bpmn:scriptTask id="Activity_0i75ycd" name="next_step = visit and authorization = None">
       <bpmn:incoming>Flow_09t0nyr</bpmn:incoming>
       <bpmn:outgoing>Flow_1874ngs</bpmn:outgoing>
-      <bpmn:script>debrief_next_step = {"value": "visit"}; authorization = {"value": "None"}</bpmn:script>
+      <bpmn:script>debrief_next_step = {"value": "visit"}; authorization = {"value": "Yes"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_09t0nyr" name="violation.value == ADDITIONAL_VISIT_WITH_AUTHORIZATION" sourceRef="gateway_is_debrief_violation" targetRef="Activity_0i75ycd">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADDITIONAL_VISIT_WITH_AUTHORIZATION" or violation.value == "ADDITIONAL_VISIT_WITH_AUTHORIZATION"</bpmn:conditionExpression>
@@ -177,7 +177,7 @@
     <bpmn:scriptTask id="Activity_04e97ob" name="next_step = visit and authorization = None">
       <bpmn:incoming>Flow_09q4ikx</bpmn:incoming>
       <bpmn:outgoing>Flow_0dimecs</bpmn:outgoing>
-      <bpmn:script>debrief_next_step = {"value": "visit"}; authorization = {"value": "None"}</bpmn:script>
+      <bpmn:script>debrief_next_step = {"value": "visit"}; authorization = {"value": "No"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="Event_0bn66w5">
       <bpmn:incoming>Flow_0dimecs</bpmn:incoming>
