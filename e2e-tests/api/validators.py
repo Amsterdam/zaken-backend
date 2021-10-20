@@ -17,7 +17,11 @@ class Validator:
 
 class ValidateOpenTasks(Validator):
     def __init__(self, *tasks):
-        self.tasks = list(map(lambda task: task.task_name, tasks))
+        self.tasks = list(
+            filter(
+                lambda task: task is not None, map(lambda task: task.task_name, tasks)
+            )
+        )
         self.tasks.sort()
 
     def __str__(self):

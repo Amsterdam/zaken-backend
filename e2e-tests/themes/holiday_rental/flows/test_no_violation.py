@@ -15,8 +15,9 @@ class TestNoViolation(DefaultAPITest):
             Debrief(violation=Violation.NO),
             # FeedbackReporters(),  # BUG: If Violation=No (or send to other team) we also expect FeedbackReporters (actually feature request)
             HomeVisitReport(),  # BUG: Gives Timeline issue, you can disable validate_timeline in config to skip timeline validation
-            # BUG: PlanNextStep (and subsequent) tasks are not always available (some kind of raise condition it seems)
-            PlanNextStep(),  # Current/old implementation gave PlanNextStep, but even better would be skipping this step all together.
+            # TODO Current/old implementation gave PlanNextStep, but even
+            #   better would be skipping this step all together.
+            PlanNextStep(),
             Close(),
             ValidateNoOpenTasks(),
         )

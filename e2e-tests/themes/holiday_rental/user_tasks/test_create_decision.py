@@ -16,28 +16,28 @@ class TestCreateDecision(DefaultAPITest):
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.FINE),
-            ValidateOpenTasks(SendTaxCollection, ContactDistrict),
+            ValidateOpenTasks(SendTaxCollection),
         )
 
     def test_collection_penalty(self):
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.COLLECTION_PENALTY),
-            ValidateOpenTasks(SendTaxCollection, ContactDistrict),
+            ValidateOpenTasks(SendTaxCollection),
         )
 
     def test_decision_fine_report_duty(self):
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.DECISION_FINE_REPORT_DUTY),
-            ValidateOpenTasks(SendTaxCollection, ContactDistrict),
+            ValidateOpenTasks(SendTaxCollection),
         )
 
     def test_preventive_burdon(self):
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.PREVENTIVE_BURDEN),
-            ValidateOpenTasks(SendTaxCollection, ContactDistrict),
+            ValidateOpenTasks(SendTaxCollection),
         )
 
     def test_burden_under_penalty(self):
@@ -45,9 +45,6 @@ class TestCreateDecision(DefaultAPITest):
         In case of BURDEN_UNDER_PENALTY we don't expect SendTaxCollection or ContactDistrict.
         But we do expect PlanNextStep.
         """
-        self.skipTest(
-            "#BUG task_set_next_step not found. Contact city and send-tax collection given instead."
-        )
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.BURDEN_UNDER_PENALTY),

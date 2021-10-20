@@ -15,7 +15,7 @@ from api.validators import ValidateOpenTasks
 class TestViolationClosure(DefaultAPITest):
     def test(self):
         self.skipTest(
-            "#BUG After ProcessNotice, case has PlanNextStep instead of SaveFireBrigadeAdvice and MonitorReopeningRequest"
+            "#BUG After ProcessNotice, case has PlanNextStep instead of SaveFireBrigadeAdvice and MonitorReopeningRequest. @xavier is going to add closing_procedure to director."
         )
         self.get_case().run_steps(
             ScheduleVisit(),

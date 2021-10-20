@@ -45,7 +45,7 @@ class Debriefing(TaskModelEventEmitter):
         choices=VIOLATION_CHOICES,
         default=VIOLATION_NO,
     )
-    violation_result = models.JSONField(null=True)
+    violation_result = models.JSONField(null=True, blank=True)
     feedback = models.TextField(null=False, blank=False)
 
     def __str__(self):

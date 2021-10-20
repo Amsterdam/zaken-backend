@@ -28,8 +28,8 @@ class Debrief(AbstractUserTask):
         }
 
 
-class InternalResearch(GenericUserTask):
-    task_name = "task_internal_reasearch"
+class WaitInternalResearch(GenericUserTask):
+    task_name = "task_wait_internal_reasearch"
     description = "Afwachten intern onderzoek"
 
     @staticmethod

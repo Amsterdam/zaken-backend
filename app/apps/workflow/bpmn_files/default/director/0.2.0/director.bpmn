@@ -4,6 +4,7 @@
     <bpmn:exclusiveGateway id="gateway_merge_1dtewmn">
       <bpmn:incoming>Flow_011ql1v</bpmn:incoming>
       <bpmn:incoming>Flow_0mmrplc</bpmn:incoming>
+      <bpmn:incoming>Flow_161irhq</bpmn:incoming>
       <bpmn:outgoing>Flow_18j0oto</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:exclusiveGateway id="gateway_do_we_need_a_hercontrole" name="Hercontrole?" default="Flow_1bizv1n">
@@ -32,7 +33,7 @@
       <bpmn:script>print("Set super_process")</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_162tpj4" sourceRef="gateway_merge_17juvrg" targetRef="Activity_02gy0bn" />
-    <bpmn:sequenceFlow id="Flow_0w2wtlv" sourceRef="service_script_set_super_process" targetRef="script_set_violation_none" />
+    <bpmn:sequenceFlow id="Flow_0w2wtlv" sourceRef="service_script_set_super_process" targetRef="script_set_authorization_no" />
     <bpmn:exclusiveGateway id="gateway_merge_17juvrg">
       <bpmn:incoming>Flow_19fjsci</bpmn:incoming>
       <bpmn:incoming>Flow_0bq1d3y</bpmn:incoming>
@@ -44,9 +45,10 @@
       <bpmn:incoming>Flow_0s3mvda</bpmn:incoming>
       <bpmn:outgoing>Flow_19fjsci</bpmn:outgoing>
       <bpmn:outgoing>Flow_0ysd6yg</bpmn:outgoing>
+      <bpmn:outgoing>Flow_161irhq</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_19fjsci" sourceRef="gateway_merge_0wumcd2" targetRef="gateway_merge_17juvrg">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon.value == "No"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "close_case"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="gateway_next_step_is_renounce_or_close" name="Wat is de volgende stap" default="Flow_1e320ch">
       <bpmn:incoming>Flow_10huie7</bpmn:incoming>
@@ -67,7 +69,7 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1e320ch" sourceRef="gateway_next_step_is_renounce_or_close" targetRef="gateway_merge_17juvrg" />
     <bpmn:sequenceFlow id="Flow_0ysd6yg" sourceRef="gateway_merge_0wumcd2" targetRef="gateway_merge_1obmbig">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon.value == "Yes"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "summon"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="gateway_merge_1obmbig">
       <bpmn:incoming>Flow_0ysd6yg</bpmn:incoming>
@@ -176,12 +178,15 @@
       <bpmn:messageEventDefinition id="MessageEventDefinition_1l3faoh" />
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_0s3mvda" sourceRef="Event_1k7mwzt" targetRef="gateway_merge_0wumcd2" />
-    <bpmn:sequenceFlow id="Flow_0mmrplc" sourceRef="script_set_violation_none" targetRef="gateway_merge_1dtewmn" />
-    <bpmn:scriptTask id="script_set_violation_none" name="script_set_violation_none">
+    <bpmn:sequenceFlow id="Flow_0mmrplc" sourceRef="script_set_authorization_no" targetRef="gateway_merge_1dtewmn" />
+    <bpmn:scriptTask id="script_set_authorization_no" name="script_set_authorization_no">
       <bpmn:incoming>Flow_0w2wtlv</bpmn:incoming>
       <bpmn:outgoing>Flow_0mmrplc</bpmn:outgoing>
-      <bpmn:script>violation = {"value": "None"}</bpmn:script>
+      <bpmn:script>authorization = {"value": "No"}</bpmn:script>
     </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_161irhq" name="debrief_next_step = Visit" sourceRef="gateway_merge_0wumcd2" targetRef="gateway_merge_1dtewmn">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "visit"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmn:message id="Message_053q3rk" name="aanschrijving_toevoegen" />
   <bpmn:message id="Message_1jr43p4" name="zaak_compleet_afsluiten" />
@@ -346,6 +351,15 @@
           <dc:Bounds x="3770" y="503" width="12" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_161irhq_di" bpmnElement="Flow_161irhq">
+        <di:waypoint x="1180" y="175" />
+        <di:waypoint x="1180" y="80" />
+        <di:waypoint x="600" y="80" />
+        <di:waypoint x="600" y="175" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="847" y="62" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Gateway_1dtewmn_di" bpmnElement="gateway_merge_1dtewmn" isMarkerVisible="true">
         <dc:Bounds x="575" y="175" width="50" height="50" />
       </bpmndi:BPMNShape>
@@ -457,7 +471,7 @@
           <dc:Bounds x="1036" y="225" width="90" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_00ky87q_di" bpmnElement="script_set_violation_none">
+      <bpmndi:BPMNShape id="Activity_00ky87q_di" bpmnElement="script_set_authorization_no">
         <dc:Bounds x="360" y="160" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>

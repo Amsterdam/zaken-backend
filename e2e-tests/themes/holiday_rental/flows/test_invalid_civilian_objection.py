@@ -20,9 +20,6 @@ from api.validators import ValidateNoOpenTasks
 
 class TestInvalidCivilianObjection(DefaultAPITest):
     def test(self):
-        self.skipTest(
-            "#BUG Instead of having no open tasks after SendTaxCollection, the case has the open task: task_contact_city_district"
-        )
         self.get_case().run_steps(
             ScheduleVisit(),
             Visit(),
