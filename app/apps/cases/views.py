@@ -333,7 +333,7 @@ class CaseViewSet(
         if serializer.is_valid():
             data = serializer.validated_data
             case = self.get_object()
-            instance = data["camunda_process_id"]
+            instance = data["workflow_option_id"]
 
             workflow_type = CaseWorkflow.WORKFLOW_TYPE_SUB
             if instance.to_directing_proccess:
