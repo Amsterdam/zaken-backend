@@ -24,6 +24,8 @@
         <bpmn:flowNodeRef>service_script_next_step_close_case</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_contact_city_district</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0ft5d6r</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0f7x7aq</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1c80mz8</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:userTask id="task_check_concept_decision" name="Nakijken besluit" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
@@ -59,6 +61,7 @@
       <bpmn:incoming>Flow_10ujifg</bpmn:incoming>
       <bpmn:outgoing>Flow_1fjclix</bpmn:outgoing>
       <bpmn:outgoing>Flow_0azm62q</bpmn:outgoing>
+      <bpmn:outgoing>Flow_00nt5t7</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:userTask id="task_send_tax_collection" name="Versturen invordering belastingen" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_15jrvwj</bpmn:incoming>
@@ -122,6 +125,18 @@
       <bpmn:incoming>Flow_1boz1xa</bpmn:incoming>
       <bpmn:outgoing>Flow_0bjw3py</bpmn:outgoing>
     </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_00nt5t7" name="Last onder dwangsom" sourceRef="gateway_which_type_of_decision" targetRef="Activity_0f7x7aq">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_besluit.value == "last_onder_dwangsom"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:scriptTask id="Activity_0f7x7aq" name="next_step = {&#34;value&#34;: &#34;close_case&#34;}">
+      <bpmn:incoming>Flow_00nt5t7</bpmn:incoming>
+      <bpmn:outgoing>Flow_13ca7sd</bpmn:outgoing>
+      <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="Event_1c80mz8">
+      <bpmn:incoming>Flow_13ca7sd</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_13ca7sd" sourceRef="Activity_0f7x7aq" targetRef="Event_1c80mz8" />
   </bpmn:process>
   <bpmn:message id="Message_1k5s52q" name="start_decision_process" />
   <bpmn:message id="Message_145ctpk" name="start_decision_process" />
@@ -216,6 +231,17 @@
           <dc:Bounds x="1133" y="422" width="89" height="159" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00nt5t7_di" bpmnElement="Flow_00nt5t7">
+        <di:waypoint x="910" y="355" />
+        <di:waypoint x="910" y="430" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="913" y="376" width="54" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13ca7sd_di" bpmnElement="Flow_13ca7sd">
+        <di:waypoint x="960" y="470" />
+        <di:waypoint x="1002" y="470" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_14ueput_di" bpmnElement="task_check_concept_decision">
         <dc:Bounds x="620" y="550" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -231,7 +257,7 @@
       <bpmndi:BPMNShape id="Gateway_12m82bc_di" bpmnElement="gateway_which_type_of_decision" isMarkerVisible="true">
         <dc:Bounds x="885" y="305" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="868" y="362" width="84" height="27" />
+          <dc:Bounds x="818" y="286" width="84" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0gqcn28_di" bpmnElement="task_send_tax_collection">
@@ -266,6 +292,12 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0ft5d6r_di" bpmnElement="Gateway_0ft5d6r" isMarkerVisible="true">
         <dc:Bounds x="1105" y="415" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0f7x7aq_di" bpmnElement="Activity_0f7x7aq">
+        <dc:Bounds x="860" y="430" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1c80mz8_di" bpmnElement="Event_1c80mz8">
+        <dc:Bounds x="1002" y="452" width="36" height="36" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
