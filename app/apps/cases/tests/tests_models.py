@@ -2,7 +2,7 @@ from datetime import date, datetime, timezone
 from uuid import UUID
 
 from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTheme
-from apps.workflow.models import CaseWorkflow
+from apps.workflow.models import CaseUserTask, CaseWorkflow
 from django.core import management
 from django.test import TestCase
 from freezegun import freeze_time
@@ -192,7 +192,8 @@ class CaseModelTest(TestCase):
         workflow_b = baker.make(
             CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
         )
-
+        baker.make(CaseUserTask, workflow=workflow_a, completed=False)
+        baker.make(CaseUserTask, workflow=workflow_b, completed=False)
         state_a = case.set_state(STATE_TYPE_NAME_A, workflow=workflow_a)
         state_b = case.set_state(STATE_TYPE_NAME_B, workflow=workflow_b)
 
@@ -218,6 +219,8 @@ class CaseModelTest(TestCase):
         workflow_b = baker.make(
             CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
         )
+        baker.make(CaseUserTask, workflow=workflow_a, completed=False)
+        baker.make(CaseUserTask, workflow=workflow_b, completed=False)
         state_b = case.set_state(STATE_TYPE_NAME_B, workflow=workflow_a)
         state_a = case.set_state(STATE_TYPE_NAME_A, workflow=workflow_a)
         state_c = case.set_state(STATE_TYPE_NAME_C, workflow=workflow_b)
