@@ -29,7 +29,7 @@ class DecisionAdmin(admin.ModelAdmin):
 class DecisionTypeAdmin(admin.ModelAdmin):
     list_display = (
         "name",
-        "camunda_option",
+        "workflow_option",
         "is_sanction",
         "theme",
     )
