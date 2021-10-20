@@ -19,6 +19,8 @@ chmod -R 777 /static
 echo Apply migrations
 python manage.py migrate --noinput
 
+python manage.py change_case_event_emitter_type_id_to_workflow
+
 echo Axes check
 python manage.py check
 
