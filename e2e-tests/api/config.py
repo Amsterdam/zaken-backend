@@ -1,15 +1,29 @@
 import logging
 import os
 
+# By default skipTest are skipped, you can override this behavior with NO_SKIP=1
+skip_tests = not os.getenv("NO_SKIP", "False").lower() in ("true", "1", "t")
+
+# If you don't want to validate if the timeline is correct you can skip checks. Will be a bit faster
+validate_timeline = not os.getenv("NO_TIMELINE", "False").lower() in ("true", "1", "t")
+
 # Setup logging
 loglevel = os.environ.get("LOGLEVEL", "WARNING")
 logging.basicConfig(level=loglevel)
 
+# API configuration
 api_config = {
     "host": os.environ.get("API_HOST", "http://localhost:8080/api/v1"),
 }
 
-timer_duration = 4  # in seconds
+# Timers and async waits
+timer_duration = 150  # in seconds
+async_sleep = 1.5  # in seconds
+async_timeout = 15  # in seconds
+
+
+class Themes:
+    HOLIDAY_RENTAL = 1
 
 
 class DaySegment:
@@ -77,7 +91,6 @@ class SummonTypes:
 
 class DecisionType:
     class HolidayRental:
-        NO_DECISION = "no_decision"
         FINE = 1  # Boete
         COLLECTION_PENALTY = 2  # Invordering dwangsom
         DECISION_FINE_REPORT_DUTY = 3  # Meldplicht beschikking dwangsom
@@ -86,6 +99,7 @@ class DecisionType:
         REVOKE_VV_PERMIT = 6  # Intrekken VV vergunning
         REVOKE_BB_PERMIT = 7  # Intrekken BB vergunning
         REVOKE_SHORTSTAY_PERMIT = 8  # Intrekken Shortstay vergunning
+        NO_DECISION = 9  # Afzien voornemen
 
 
 class CloseReason:
@@ -109,5 +123,11 @@ class Situations:
     ACCESS_GRANTED = "access_granted"
 
 
-class Themes:
-    HOLIDAY_RENTAL = 1
+class PermitRequested:
+    NO = "no_action"
+    YES = "yes_permit_requested"
+
+
+class HasPermit:
+    NO = "no_permit"
+    YES = "yes_permit"

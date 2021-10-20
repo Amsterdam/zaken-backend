@@ -1,67 +1,43 @@
 import logging
 
-from .tasks import AbstractUserTask
+from api.case import Case
 
 logger = logging.getLogger("api")
 
 
-class Assertion:
+class Validator:
     tasks = []
 
     def is_async(self):
         return bool(filter(lambda task: task.is_async(), self.tasks))
 
+    def run(self, client, case: Case):
+        pass
 
-class AssertEvents(Assertion):
-    def __init__(self, events: list):
-        self.events = events
 
-    def run(self, api, case):
-        # Get the task names we want to check
-        assert_names = list(map(lambda task: task.task_name, self.tasks))
-        assert_names.sort()
+class ValidateOpenTasks(Validator):
+    def __init__(self, *tasks):
+        self.tasks = list(map(lambda task: task.task_name, tasks))
+        self.tasks.sort()
 
+    def __str__(self):
+        return f"<{self.__module__}.{self.__class__.__name__} tasks:{self.tasks}>"
+
+    def is_ready(self, client, case: Case):
         # Get the names of all open tasks
-        open_tasks = api.get_case_tasks(case.data["id"])
-        open_task_names = api.get_names_from_tasks(open_tasks)
+        open_tasks = client.get_case_tasks(case.data["id"])
+        open_task_names = client.get_names_from_tasks(open_tasks)
         open_task_names.sort()
 
-        logger.info(f"Expecting {assert_names} == {open_task_names}")
-        if assert_names != open_task_names:
-            raise Exception(
-                f"Expected {assert_names}, found {open_task_names}. Case id:{case.data['id']}"
-            )
+        logger.info(
+            f"Expecting case:{case.data['id']} to have:\n{self.tasks}\nFound:\n{open_task_names}"
+        )
+
+        return not self.is_async() or (
+            self.is_async() and self.tasks == open_task_names
+        )
 
 
-class AssertOpenTasks(Assertion):
-    def __init__(self, tasks: list[AbstractUserTask]):
-        self.tasks = filter(lambda task: task is not None, tasks)
-
-    def run(self, api, case):
-        # Get the task names we want to check
-        assert_names = list(map(lambda task: task.task_name, self.tasks))
-        assert_names.sort()
-
-        # Get the names of all open tasks
-        open_tasks = api.get_case_tasks(case.data["id"])
-        open_task_names = api.get_names_from_tasks(open_tasks)
-        open_task_names.sort()
-
-        logger.info(f"Expecting {assert_names} == {open_task_names}")
-        if assert_names != open_task_names:
-            raise Exception(
-                f"Expected {assert_names}, found {open_task_names}. Case id:{case.data['id']}"
-            )
-
-
-class AssertNumberOfOpenTasks(Assertion):
-    def __init__(self, count):
-        self.count = count
-
-    def run(self, api, case):
-        tasks = api.get_case_tasks(case.data["id"])
-        num_open_tasks = len(tasks)
-        if num_open_tasks != self.count:
-            raise Exception(
-                f"{self.count} open tasks expected, found {api.get_names_from_tasks(tasks)}. Case id:{case.data['id']}"
-            )
+class ValidateNoOpenTasks(ValidateOpenTasks):
+    def __init__(self):
+        pass

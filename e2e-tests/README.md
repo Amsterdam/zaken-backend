@@ -20,15 +20,37 @@ pip install -r requirements.txt
 
 Follow install instructions from the main README.md file.
 
-Start Docker with the test config file and make sure we have the right SummonTypes.
+```
+docker-compose -f ../docker-compose.test.yml build
+docker-compose run --rm zaak-gateway python manage.py migrate
+bash ../bin/setup_credentials.sh
+```
+
+Make sure we have the right database configuration.
 
 ```shell
-docker-compose -f ../docker-compose.test.yml up -d
-docker-compose run zaak-gateway python manage.py shell -c "from apps.summons.models import SummonType; SummonType.objects.get_or_create(camunda_option='sluiting', name='Sluiting', theme_id=1); SummonType.objects.get_or_create(camunda_option='legalisatie-brief', name='Legalisatie-brief', theme_id=1); SummonType.objects.get_or_create(camunda_option='waarschuwingsbrief', name='Waarschuwingsbrief', theme_id=1)"
+docker-compose run --rm zaak-gateway python manage.py shell -c "from apps.summons.models import SummonType; SummonType.objects.get_or_create(camunda_option='sluiting', name='Sluiting', theme_id=1); SummonType.objects.get_or_create(camunda_option='legalisatie-brief', name='Legalisatie-brief', theme_id=1); SummonType.objects.get_or_create(camunda_option='waarschuwingsbrief', name='Waarschuwingsbrief', theme_id=1)"
+
+docker-compose run --rm zaak-gateway python manage.py shell -c "from apps.decisions.models import DecisionType; DecisionType.objects.get_or_create(camunda_option='no_decision', name='Afzien voornemen', is_sanction=False, theme_id=1)"
+
+docker-compose run --rm zaak-gateway python manage.py shell -c "
+from django.contrib.auth import get_user_model
+get_user_model().objects.get_or_create(email='local.user@dev.com', first_name='local', last_name='user')"
+
+docker-compose run --rm zaak-gateway python manage.py shell -c "
+from apps.users.models import User, UserGroup
+from django.contrib.auth.models import Permission
+(group, _) = UserGroup.objects.get_or_create(name='PROJECTHANDHAVER', display_name='Projecthandhaver')
+group.permissions.add(Permission.objects.get(name='Close a Case (by performing the last task)'))
+group.permissions.add(Permission.objects.get(name='Create a new Case'))
+group.permissions.add(Permission.objects.get(name='Can perform a tasks'))
+user = User.objects.get(email='local.user@dev.com')
+user.groups.add(group)"
 ```
 
-Now run the test suite
+Now start Docker with the test config file and run the test suite.
 
 ```
-nose2
+docker-compose -f ../docker-compose.test.yml up
+LOGLEVEL=INFO nose2
 ```
