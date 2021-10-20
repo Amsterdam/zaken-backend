@@ -3,40 +3,6 @@
 from django.db import migrations
 
 
-def change_case_event_content_type(apps, schema_editor):
-    CaseEvent = apps.get_model("events", "CaseEvent")
-    ContentType = apps.get_model(app_label="contenttypes", model_name="ContentType")
-
-    old_generic_completed_task_contenttype = ContentType.objects.get(
-        app_label="camunda", model="genericcompletedtask"
-    )
-    new_generic_completed_task_contenttype = ContentType.objects.get(
-        app_label="workflow", model="genericcompletedtask"
-    )
-
-    case_events = CaseEvent.objects.filter(
-        emitter_type_id=old_generic_completed_task_contenttype.id
-    )
-    case_events.update(emitter_type_id=new_generic_completed_task_contenttype.id)
-
-
-def reverse_change_case_event_content_type(apps, schema_editor):
-    CaseEvent = apps.get_model("events", "CaseEvent")
-    ContentType = apps.get_model(app_label="contenttypes", model_name="ContentType")
-
-    old_generic_completed_task_contenttype = ContentType.objects.get(
-        app_label="workflow", model="genericcompletedtask"
-    )
-    new_generic_completed_task_contenttype = ContentType.objects.get(
-        app_label="camunda", model="genericcompletedtask"
-    )
-
-    case_events = CaseEvent.objects.filter(
-        emitter_type_id=old_generic_completed_task_contenttype.id
-    )
-    case_events.update(emitter_type_id=new_generic_completed_task_contenttype.id)
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -87,9 +53,5 @@ class Migration(migrations.Migration):
             FROM
                 workflow_genericcompletedtask;
         """,
-        ),
-        migrations.RunPython(
-            change_case_event_content_type,
-            reverse_change_case_event_content_type,
         ),
     ]
