@@ -16,9 +16,6 @@ from api.validators import ValidateOpenTasks
 
 class TestDebrief(DefaultAPITest):
     def test_send_to_other_theme(self):
-        self.skipTest(
-            "#BUG: We should feedback the reporters after sending to another team. (actually a new feature request)"
-        )
         self.get_case().run_steps(
             *Visit.get_steps(),
             Debrief(violation=Violation.SEND_TO_OTHER_THEME),
@@ -58,7 +55,7 @@ class TestDebrief(DefaultAPITest):
         )
 
     def test_additional_visit_required(self):
-        self.skipTest("Instead of ScheduleVisit, another Debrief is given.")
+        self.skipTest("Instead of ScheduleVisit, another Debrief is given. @xavier")
         self.get_case().run_steps(
             *Visit.get_steps(),
             Debrief(violation=Violation.ADDITIONAL_VISIT_REQUIRED),
@@ -66,7 +63,9 @@ class TestDebrief(DefaultAPITest):
         )
 
     def test_additional_visit_with_authorization(self):
-        self.skipTest("Instead of RequestAuthorization, another Debrief is given.")
+        self.skipTest(
+            "Instead of RequestAuthorization, another Debrief is given. @xavier"
+        )
         self.get_case().run_steps(
             *Visit.get_steps(),
             Debrief(violation=Violation.ADDITIONAL_VISIT_WITH_AUTHORIZATION),
