@@ -3,15 +3,6 @@
 To deploy a new version of AZA-backend you need to push a ....
 tag to Github. Jenkins will create
 
-If you want to also update the Camunda models / service you
-need to build a Jar file first. Then commit and push it.
-
-To build the jar file:
-
-```
-TODO
-```
-
 We usually release from the master-branch. Create a new tag
 with a semantic version number of format "v.x.x.x".
 To see the latest tags use

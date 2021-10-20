@@ -21,7 +21,3 @@ class AppsKeyAuth(BasePermission):
 
 class TopKeyAuth(AppsKeyAuth):
     SECRET_KEY = settings.SECRET_KEY_TOP_ZAKEN
-
-
-class CamundaKeyAuth(AppsKeyAuth):
-    SECRET_KEY = settings.CAMUNDA_SECRET_KEY

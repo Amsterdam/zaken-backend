@@ -73,7 +73,7 @@ class GenericCompletedTaskViewSet(viewsets.ViewSet):
     queryset = GenericCompletedTask.objects.all()
 
     @extend_schema(
-        description="Complete a task in Camunda",
+        description="Complete GenericCompletedTask",
         responses={200: None},
     )
     @action(

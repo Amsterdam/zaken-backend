@@ -296,7 +296,7 @@ class CaseViewSet(
         return Response(serializer.data)
 
     @extend_schema(
-        description="Get Camunda processes for this Case",
+        description="Get WorkflowOption for this Case",
         responses={status.HTTP_200_OK: WorkflowOptionSerializer(many=True)},
     )
     @action(
@@ -305,9 +305,9 @@ class CaseViewSet(
         methods=["get"],
         serializer_class=WorkflowOptionSerializer,
     )
-    def get_camunda_processes(self, request, pk):
+    def get_workflow_options(self, request, pk):
         """
-        Get camunda processes for this case. Currently this case detail linking
+        Get WorkflowOption instances for this case. Currently this case detail linking
         does not do anything. This is future proofing this rest call so that we can
         show and not show processes based on the current state of the case
         (for example not show the summon/aanschrijving process when we are in visit state)
@@ -319,7 +319,7 @@ class CaseViewSet(
         return Response(serializer.data)
 
     @extend_schema(
-        description="Start a process in Camunda",
+        description="Start based on a WorkflowOption",
     )
     @action(
         detail=True,
@@ -347,12 +347,12 @@ class CaseViewSet(
             workflow_instance.start()
 
             return Response(
-                data=f"Process has started {str(instance)}",
+                data=f"Workflow has started {str(instance)}",
                 status=status.HTTP_200_OK,
             )
 
         return Response(
-            data="Camunda process has not started. serializer not valid",
+            data="Workflow has not started. serializer not valid",
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
