@@ -49,5 +49,5 @@ class SummonTypeSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name",
-            "camunda_option",
+            "workflow_option",
         )

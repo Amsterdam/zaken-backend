@@ -6,7 +6,7 @@ admin.site.register(
     admin.ModelAdmin,
     list_display=(
         "name",
-        "camunda_option",
+        "workflow_option",
     ),
 )
 admin.site.register(Summon, admin.ModelAdmin)

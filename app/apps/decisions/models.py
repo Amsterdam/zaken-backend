@@ -6,7 +6,7 @@ from django.db import models
 
 
 class DecisionType(models.Model):
-    camunda_option = models.CharField(max_length=255)
+    workflow_option = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     is_sanction = models.BooleanField(default=False)
     theme = models.ForeignKey(

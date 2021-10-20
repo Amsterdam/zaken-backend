@@ -16,7 +16,7 @@ def update_decision_with_summon(sender, instance, created, **kwargs):
         task.workflow.complete_user_task_and_create_new_user_tasks(
             task.task_id,
             {
-                "type_besluit": {"value": instance.decision_type.camunda_option},
+                "type_besluit": {"value": instance.decision_type.workflow_option},
             },
         )
         summon = Summon.objects.filter(
@@ -36,5 +36,5 @@ def update_decision_with_summon(sender, instance, created, **kwargs):
 
         # CamundaService().complete_task(
         #     instance.case_user_task_id,
-        #     {"type_besluit": {"value": instance.decision_type.camunda_option}},
+        #     {"type_besluit": {"value": instance.decision_type.workflow_option}},
         # )
