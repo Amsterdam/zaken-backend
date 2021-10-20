@@ -61,7 +61,8 @@ class Client:
 
     def create_case(self, data):
         events = [CaseEvent]
-        if hasattr(data, "description_citizenreport"):
+
+        if "identification" in data and data["identification"]:
             events.append(CitizenReportEvent)
 
         return Case(self.call("post", "/cases/", data), self, events)

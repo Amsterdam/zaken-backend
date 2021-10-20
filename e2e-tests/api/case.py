@@ -1,4 +1,9 @@
-import time
+import logging
+
+from api.config import async_sleep, async_timeout, validate_timeline
+from api.timers import wait_for
+
+logger = logging.getLogger("api")
 
 
 class Case:
@@ -14,15 +19,36 @@ class Case:
         self.client = client
         self.timeline = events
 
-    def run_steps(self, steps):
+    def __str__(self):
+        return f"<{self.__module__}.{self.__class__.__name__} id:{self.data['id']}>"
+
+    def run_steps(self, *steps):
         steps = filter(lambda step: step is not None, steps)
 
         for step in steps:
             # Give Spiff some time to do async processing.
-            # Sleep _before_ running a task because this could be the first
-            # task after creating the case (which is not a step in itself).
-            if step.is_async():
-                print("Sleeping ....")
-                time.sleep(2.5)
+            # Keep retrying untill we have a timeout
+            if not wait_for(
+                lambda: step.is_ready(self.client, self), async_timeout, async_sleep
+            ):
+                raise Exception(f"Step ({step}) is not ready for case {self}.")
 
             step.run(self.client, self)
+
+            # Append a timeline event for the step if expected
+            if hasattr(step, "event"):
+                self.timeline.append(step.event)
+
+        def check_events():
+            events = self.client.get_case_events(self.data["id"])
+            expected_events = list(map(lambda event: event.type, self.timeline))
+            found_events = list(map(lambda event: event["type"], events))
+
+            logging.info(f"Finding events for case id {self.data['id']} ...")
+            logging.info(f"Expected events:\n{expected_events}\nFound:\n{found_events}")
+
+            return expected_events == found_events
+
+        # Check the timeline
+        if validate_timeline and not wait_for(check_events, async_timeout, async_sleep):
+            raise Exception("Timeline issue.")
