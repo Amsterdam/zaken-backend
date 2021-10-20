@@ -13,7 +13,7 @@ from api.validators import ValidateOpenTasks
 
 class TestViolationLegalizationLetter(DefaultAPITest):
     def test(self):
-        self.case.run_steps(
+        self.get_case().run_steps(
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.YES),

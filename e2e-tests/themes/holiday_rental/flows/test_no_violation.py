@@ -1,5 +1,5 @@
 from api.config import Violation
-from api.tasks.close import Close, PlanNextStep
+from api.tasks.close_case import Close, PlanNextStep
 from api.tasks.debrief import Debrief, HomeVisitReport
 from api.tasks.visit import ScheduleVisit, Visit
 from api.test import DefaultAPITest
@@ -9,7 +9,7 @@ from api.validators import ValidateNoOpenTasks
 class TestNoViolation(DefaultAPITest):
     def test(self):
         self.skipTest("#BUG Multiple bugs.")
-        self.case.run_steps(
+        self.get_case().run_steps(
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.NO),

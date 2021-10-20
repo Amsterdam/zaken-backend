@@ -17,7 +17,7 @@ class TestViolationClosure(DefaultAPITest):
         self.skipTest(
             "#BUG After ProcessNotice, case has PlanNextStep instead of SaveFireBrigadeAdvice and MonitorReopeningRequest"
         )
-        self.case.run_steps(
+        self.get_case().run_steps(
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.YES),

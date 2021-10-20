@@ -13,6 +13,7 @@ class Debrief(AbstractUserTask):
     endpoint = "debriefings"
     task_name = "task_create_debrief"
     description = "Verwerken debrief"
+    asynchronous = True
 
     def __init__(self, violation=Violation.NO, feedback="Some feedback"):
         super(Debrief, self).__init__(violation=violation, feedback=feedback)
@@ -23,8 +24,20 @@ class Debrief(AbstractUserTask):
 
     def get_post_data(self, case, task):
         return super().get_post_data(case, task) | {
-            "camunda_task_id": task["camunda_task_id"],
+            "case_user_task_id": task["case_user_task_id"],
         }
+
+
+class InternalResearch(GenericUserTask):
+    task_name = "task_internal_reasearch"
+    description = "Afwachten intern onderzoek"
+
+    @staticmethod
+    def get_steps():
+        return [
+            *Debrief.get_steps(violation=Violation.ADDITIONAL_RESEARCH_REQUIRED),
+            __class__(),
+        ]
 
 
 class CreatePictureReport(GenericUserTask):
@@ -80,24 +93,3 @@ class CheckNotices(GenericUserTask):
             CreateConceptNotices(),
             __class__(),
         ]
-
-
-class RequestAuthorization(GenericUserTask):
-    task_name = "task_request_authorization"
-    description = "Aanvragen machtiging"
-
-    @staticmethod
-    def get_steps():
-        return [
-            *Debrief.get_steps(violation=Violation.ADDITIONAL_VISIT_WITH_AUTHORIZATION),
-            __class__(),
-        ]
-
-
-class MonitorIncomingAuthorization(GenericUserTask):
-    task_name = "task_monitor_incoming_authorization"
-    description = "Monitoren binnenkomen machtiging"
-
-    @staticmethod
-    def get_steps():
-        return [*RequestAuthorization.get_steps(), __class__()]

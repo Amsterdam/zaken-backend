@@ -1,5 +1,5 @@
 from api.config import Violation
-from api.tasks.close import Close, PlanNextStep
+from api.tasks.close_case import Close, PlanNextStep
 from api.tasks.debrief import Debrief, HomeVisitReport
 from api.tasks.visit import ScheduleVisit, Visit
 from api.test import DefaultAPITest
@@ -8,16 +8,17 @@ from api.validators import ValidateOpenTasks
 
 class TestTimeline(DefaultAPITest):
     def test_no_identification(self):
-        self.case.run_steps(ScheduleVisit(), ValidateOpenTasks(Visit))
-        events = self.client.get_case_events(self.case.data["id"])
-        self.assertEqual(2, len(self.case.timeline), len(events))
+        case = self.get_case()
+        case.run_steps(ScheduleVisit(), ValidateOpenTasks(Visit))
+        events = self.client.get_case_events(case.data["id"])
+        self.assertEqual(2, len(case.timeline), len(events))
         self.assertEqual(2, len(events))
 
     def test_home_visit_report(self):
         self.skipTest(
             "#BUG: The timeline is brokenk, the Visit event actually is removed from the timeline after Close!"
         )
-        self.case.run_steps(
+        self.get_case().run_steps(
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.NO),
@@ -34,7 +35,8 @@ class TestTimelineWithIdentification(DefaultAPITest):
         }
 
     def test(self):
-        self.case.run_steps(ScheduleVisit(), ValidateOpenTasks(Visit))
-        events = self.client.get_case_events(self.case.data["id"])
-        self.assertEqual(len(self.case.timeline), len(events))
+        case = self.get_case()
+        case.run_steps(ScheduleVisit(), ValidateOpenTasks(Visit))
+        events = self.client.get_case_events(case.data["id"])
+        self.assertEqual(len(case.timeline), len(events))
         self.assertEqual(3, len(events))

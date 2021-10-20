@@ -52,7 +52,7 @@ class Decision(AbstractUserTask):
 
     def get_post_data(self, case, task):
         return super().get_post_data(case, task) | {
-            "camunda_task_id": task["camunda_task_id"],
+            "case_user_task_id": task["case_user_task_id"],
         }
 
 

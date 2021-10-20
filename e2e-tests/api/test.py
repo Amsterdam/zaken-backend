@@ -12,9 +12,11 @@ class DefaultAPITest(unittest.TestCase):
         from api.client import Client
 
         self.client = Client(api_config)
+
+    def get_case(self):
         case_data = self.get_case_data()
         case_mock = get_case_mock(**case_data)
-        self.case = self.client.create_case(case_mock)
+        return self.client.create_case(case_mock)
 
     def get_case_data(self):
         return {}

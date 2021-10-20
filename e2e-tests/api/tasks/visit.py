@@ -8,17 +8,25 @@ from api.tasks import AbstractUserTask, GenericUserTask
 logger = logging.getLogger("api")
 
 
-class FeedbackReporters(GenericUserTask):
-    task_name = "task_feedback_reporter"
-    description = "Terugkoppelen melder(s)"
+class RequestAuthorization(GenericUserTask):
+    task_name = "task_request_authorization"
+    description = "Aanvragen machtiging"
 
     @staticmethod
     def get_steps():
-        """
-        Weird one, because it's dependent on timer. Also there is no
-        preceiding step.
-        """
-        return [__class__()]
+        return [
+            # No preceiding step, case was just created
+            __class__(),
+        ]
+
+
+class MonitorIncomingAuthorization(GenericUserTask):
+    task_name = "task_monitor_incoming_authorization"
+    description = "Monitoren binnenkomen machtiging"
+
+    @staticmethod
+    def get_steps():
+        return [*RequestAuthorization.get_steps(), __class__()]
 
 
 class ScheduleVisit(AbstractUserTask):
@@ -44,11 +52,14 @@ class ScheduleVisit(AbstractUserTask):
 
     @staticmethod
     def get_steps():
-        return [__class__()]
+        return [
+            # No preceiding step, case was just created
+            __class__()
+        ]
 
     def get_post_data(self, case, task):
         return super().get_post_data(case, task) | {
-            "camunda_task_id": task["camunda_task_id"],
+            "case_user_task_id": task["case_user_task_id"],
         }
 
 
@@ -86,5 +97,5 @@ class Visit(AbstractUserTask):
 
     def get_post_data(self, case, task):
         return super().get_post_data(case, task) | {
-            "task": task["camunda_task_id"],
+            "task": task["case_user_task_id"],
         }

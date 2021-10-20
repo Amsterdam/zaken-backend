@@ -5,4 +5,4 @@ from api.validators import ValidateOpenTasks
 
 class TestTaskCreateSchedule(DefaultAPITest):
     def test(self):
-        self.case.run_steps(ScheduleVisit(), ValidateOpenTasks(Visit))
+        self.get_case().run_steps(ScheduleVisit(), ValidateOpenTasks(Visit))

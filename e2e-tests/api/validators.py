@@ -30,7 +30,7 @@ class ValidateOpenTasks(Validator):
         open_task_names.sort()
 
         logger.info(
-            f"Expecting case:{case.data['id']} to have:\n{self.tasks}Found:\n{open_task_names}"
+            f"Expecting case:{case.data['id']} to have:\n{self.tasks}\nFound:\n{open_task_names}"
         )
 
         return not self.is_async() or (

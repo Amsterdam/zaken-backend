@@ -5,8 +5,9 @@ from api.tasks.debrief import (
     CreatePictureReport,
     Debrief,
 )
+from api.tasks.director import FeedbackReporters
 from api.tasks.summon import CheckNotices, MonitorIncomingView, ProcessNotice
-from api.tasks.visit import FeedbackReporters, ScheduleVisit, Visit
+from api.tasks.visit import ScheduleVisit, Visit
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
 
@@ -14,7 +15,7 @@ from api.validators import ValidateOpenTasks
 class TestNoCivilianObjection(DefaultAPITest):
     def test(self):
         self.skipTest("#BUG: Missing FeedbackReporters")
-        self.case.run_steps(
+        self.get_case().run_steps(
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.YES),

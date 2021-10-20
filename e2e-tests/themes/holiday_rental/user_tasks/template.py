@@ -5,7 +5,7 @@ from api.validators import ValidateNoOpenTasks
 class TestClassName(DefaultAPITest):
     def test_function(self):
         """This docblock will be used by unittest"""
-        self.case.run_steps(
+        self.get_case().run_steps(
             # *Start.get_steps(),
             # TestClass(),
             ValidateNoOpenTasks(),

@@ -7,7 +7,7 @@ from api.validators import ValidateOpenTasks
 
 class TestTaskCreateVisit(DefaultAPITest):
     def test_nobody_present(self):
-        self.case.run_steps(
+        self.get_case().run_steps(
             *ScheduleVisit.get_steps(),
             Visit(
                 situation=Situations.NOBODY_PRESENT,
@@ -17,7 +17,7 @@ class TestTaskCreateVisit(DefaultAPITest):
         )
 
     def test_no_cooperation(self):
-        self.case.run_steps(
+        self.get_case().run_steps(
             *ScheduleVisit.get_steps(),
             Visit(
                 situation=Situations.NO_COOPERATION,
@@ -26,7 +26,7 @@ class TestTaskCreateVisit(DefaultAPITest):
         )
 
     def test_access_granted(self):
-        self.case.run_steps(
+        self.get_case().run_steps(
             *ScheduleVisit.get_steps(),
             Visit(
                 situation=Situations.ACCESS_GRANTED,

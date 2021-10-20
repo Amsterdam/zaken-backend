@@ -23,7 +23,7 @@ class TestInvalidCivilianObjection(DefaultAPITest):
         self.skipTest(
             "#BUG Instead of having no open tasks after SendTaxCollection, the case has the open task: task_contact_city_district"
         )
-        self.case.run_steps(
+        self.get_case().run_steps(
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.YES),

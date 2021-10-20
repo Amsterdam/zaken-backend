@@ -12,7 +12,7 @@ api_config = {
 validate_timeline = False
 timer_duration = 4  # in seconds
 async_sleep = 1.5  # in seconds
-async_timeout = 10  # in seconds
+async_timeout = 15  # in seconds
 
 
 class Themes:
