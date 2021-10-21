@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1lcjjzz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" camunda:diagramRelationId="a8cc3f51-5a58-4e06-aca4-2a2b3ed71b3a">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1lcjjzz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0" camunda:diagramRelationId="a8cc3f51-5a58-4e06-aca4-2a2b3ed71b3a">
   <bpmn:collaboration id="Collaboration_1tztuvt">
     <bpmn:participant id="Participant_08m4w5n" name="Process" processRef="visit" />
     <bpmn:textAnnotation id="TextAnnotation_1xknq38">
@@ -73,21 +73,11 @@
       <bpmn:outgoing>Flow_1ud05n0</bpmn:outgoing>
       <bpmn:outgoing>Flow_0aiyxmw</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_request_authorization" name="Aanvragen machtiging" camunda:formKey="aanvragen_machtiging" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="aanvragen_machtiging_done" label="aanvragen_machtiging_done" type="string" />
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="task_request_authorization" name="Aanvragen machtiging" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_0aiyxmw</bpmn:incoming>
       <bpmn:outgoing>Flow_0co89x0</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_monitor_incoming_authorization" name="Monitoren binnenkomen machtiging" camunda:formKey="monitoren_binnenkomen_machtiging" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(3).toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="monitoren_binnenkomen_machtiging_done" label="monitoren_binnenkomen_machtiging_done" type="string" />
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="task_monitor_incoming_authorization" name="Monitoren binnenkomen machtiging" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(3).toDate()}">
       <bpmn:incoming>Flow_0co89x0</bpmn:incoming>
       <bpmn:outgoing>Flow_1o3d54n</bpmn:outgoing>
     </bpmn:userTask>
@@ -109,10 +99,10 @@
     <bpmn:sequenceFlow id="Flow_07yq2lt" sourceRef="gateway_merge_0h60qot" targetRef="task_create_schedule" />
     <bpmn:sequenceFlow id="Flow_1mmzhem" sourceRef="task_create_visit" targetRef="gateway_what_is_result_visit" />
     <bpmn:sequenceFlow id="Flow_0co89x0" sourceRef="task_request_authorization" targetRef="task_monitor_incoming_authorization" />
-    <bpmn:sequenceFlow id="Flow_0aiyxmw" name="Machtiging nodig = Yes" sourceRef="gateway_is_authorisation_required" targetRef="task_request_authorization">
+    <bpmn:sequenceFlow id="Flow_0aiyxmw" name="Machtiging nodig = YES" sourceRef="gateway_is_authorisation_required" targetRef="task_request_authorization">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">authorization.value == "Yes"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1ud05n0" name="&#10;&#10;" sourceRef="gateway_is_authorisation_required" targetRef="gateway_merge_0h60qot" />
+    <bpmn:sequenceFlow id="Flow_1ud05n0" name="Mactiging nodig = NO" sourceRef="gateway_is_authorisation_required" targetRef="gateway_merge_0h60qot" />
     <bpmn:sequenceFlow id="Flow_0oi0xmk" sourceRef="gateway_what_is_result_visit" targetRef="Event_0ii0awz" />
     <bpmn:sequenceFlow id="Flow_100ib64" name="situation == &#34;nobody_present&#34; and can_next_visit_go_ahead == True" sourceRef="gateway_what_is_result_visit" targetRef="gateway_merge_1fmcb00">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">situation.value == "nobody_present" and can_next_visit_go_ahead.value == True</bpmn:conditionExpression>
@@ -152,7 +142,7 @@
         <di:waypoint x="635" y="410" />
         <di:waypoint x="915" y="410" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="717" y="376" width="78" height="40" />
+          <dc:Bounds x="715" y="376" width="78" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0aiyxmw_di" bpmnElement="Flow_0aiyxmw">
