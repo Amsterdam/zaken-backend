@@ -65,16 +65,6 @@ class BAGServiceCheck(APIServiceCheckBackend):
     verbose_name = "BAG API Endpoint"
 
 
-class CamundaServiceCheck(APIServiceCheckBackend):
-    """
-    Endpoint for checking the BAG Service API Endpoint
-    """
-
-    critical_service = True
-    api_url = settings.CAMUNDA_HEALTH_CHECK_URL
-    verbose_name = "Camunda Service"
-
-
 class CeleryExecuteTask(BaseHealthCheckBackend):
     def check_status(self):
         result = debug_task.apply_async(ignore_result=False)
