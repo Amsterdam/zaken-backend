@@ -54,7 +54,6 @@ class TestDebrief(DefaultAPITest):
         )
 
     def test_additional_visit_required(self):
-        self.skipTest("Instead of ScheduleVisit, another Debrief is given. @xavier")
         self.get_case().run_steps(
             *Visit.get_steps(),
             Debrief(violation=Violation.ADDITIONAL_VISIT_REQUIRED),
@@ -63,7 +62,7 @@ class TestDebrief(DefaultAPITest):
 
     def test_additional_visit_with_authorization(self):
         self.skipTest(
-            "Instead of RequestAuthorization, another Debrief is given. @xavier"
+            "Instead of RequestAuthorization, another CreateSchedule is given. Not working?: `authorization.value == 'Yes'`"
         )
         self.get_case().run_steps(
             *Visit.get_steps(),

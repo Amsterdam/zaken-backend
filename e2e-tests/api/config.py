@@ -19,7 +19,7 @@ api_config = {
 # Timers and async waits
 timer_duration = 150  # in seconds
 async_sleep = 1.5  # in seconds
-async_timeout = 15  # in seconds
+async_timeout = 25  # in seconds
 
 
 class Themes:
@@ -62,7 +62,7 @@ class Violation:
 class NextStep:
     RECHECK = "hercontrole"
     CLOSE = "sluiten"
-    RENOUNCE = "renounce"
+    # RENOUNCE = "renounce"  # TODO where did this came from? It's no longer supported?
 
 
 class ReviewRequest:
@@ -115,6 +115,11 @@ class CloseReason:
 class Objection:
     NO = "no_objection_not_received"
     YES = "yes_objection_received"
+
+
+class ObjectionValid:
+    NO = "no_citizen_objection_not_valid"
+    YES = "yes_citizen_objection_valid"
 
 
 class Situations:

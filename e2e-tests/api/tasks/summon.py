@@ -1,5 +1,11 @@
 from api import events
-from api.config import HasPermit, Objection, PermitRequested, SummonTypes
+from api.config import (
+    HasPermit,
+    Objection,
+    ObjectionValid,
+    PermitRequested,
+    SummonTypes,
+)
 from api.mock import get_person
 from api.tasks import AbstractUserTask, GenericUserTask
 from api.tasks.debrief import CheckNotices
@@ -40,15 +46,17 @@ class MonitorIncomingView(GenericUserTask):
     description = "Monitoren binnenkomen zienswijze"
 
     def __init__(self, civilian_objection_received=True):
-        # data = {"is_civilian_objection_received": {"value": objection}}
+        data = {
+            "is_civilian_objection_received": {"value": civilian_objection_received}
+        }
 
-        super(MonitorIncomingView, self).__init__()
+        super(MonitorIncomingView, self).__init__(**data)
 
     @staticmethod
-    def get_steps():
+    def get_steps(civilian_objection_received=True):
         return [
             *ProcessNotice.get_steps(type=SummonTypes.HolidayRental.INTENTION_TO_FINE),
-            __class__(),
+            __class__(civilian_objection_received=civilian_objection_received),
         ]
 
 
@@ -64,7 +72,9 @@ class CheckIncomingView(GenericUserTask):
     @staticmethod
     def get_steps(objection=Objection.NO):
         return [
-            *MonitorIncomingView.get_steps(),
+            *MonitorIncomingView.get_steps(
+                civilian_objection_received=False
+            ),  # TODO: This does not work
             __class__(objection=objection),
         ]
 
@@ -73,13 +83,12 @@ class JudgeView(GenericUserTask):
     task_name = "task_judge_point_of_view"
     description = "Beoordelen zienswijze"
 
-    def __init__(self, objection_valid=True):
+    def __init__(self, objection_valid=ObjectionValid.YES):
         data = {"is_citizen_objection_valid": {"value": objection_valid}}
-
         super(JudgeView, self).__init__(**data)
 
     @staticmethod
-    def get_steps(objection_valid=True):
+    def get_steps(objection_valid=ObjectionValid.YES):
         return [
             *MonitorIncomingView.get_steps(),
             __class__(objection_valid=objection_valid),
@@ -104,7 +113,7 @@ class CheckIncomingPermitRequest(GenericUserTask):
 
     def __init__(self, permit_requested=PermitRequested.NO):
         data = {"action_civilian_permit_requested": {"value": permit_requested}}
-        super(CheckIncomingView, self).__init__(**data)
+        super(CheckIncomingPermitRequest, self).__init__(**data)
 
     @staticmethod
     def get_steps(permit_requested=PermitRequested.NO):
@@ -127,8 +136,12 @@ class NoPermitRequested(GenericUserTask):
 
 
 class MonitorPermitProcedure(GenericUserTask):
-    task_name = "Activity_1k03k9a"  # BUG in Spiff, should be renamed
+    task_name = "task_monitor_permit_request_procedure"
     description = "Monitoren vergunningsprocedure"
+
+    def __init__(self, has_permit=True):
+        data = {"civilian_has_gotten_permit": {"value": has_permit}}
+        super(MonitorPermitProcedure, self).__init__(**data)
 
     @staticmethod
     def get_steps(has_permit=True):
@@ -144,7 +157,7 @@ class CheckPermitProcedure(GenericUserTask):
 
     def __init__(self, has_permit=HasPermit.YES):
         data = {"civilian_has_gotten_permit": {"value": has_permit}}
-        super(CheckIncomingView, self).__init__(**data)
+        super(CheckPermitProcedure, self).__init__(**data)
 
     @staticmethod
     def get_steps(has_permit=HasPermit.YES):

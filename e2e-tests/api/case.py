@@ -36,7 +36,7 @@ class Case:
             step.run(self.client, self)
 
             # Append a timeline event for the step if expected
-            if hasattr(step, "event"):
+            if hasattr(step, "event") and step.event:
                 self.timeline.append(step.event)
 
         def check_events():
