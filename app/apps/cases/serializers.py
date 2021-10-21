@@ -1,6 +1,5 @@
 from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer
-from apps.camunda.models import CamundaProcess
 from apps.cases.models import (
     Case,
     CaseClose,
@@ -14,7 +13,7 @@ from apps.cases.models import (
     CitizenReport,
 )
 from apps.schedules.serializers import ScheduleSerializer
-from apps.workflow.models import CaseUserTask, CaseWorkflow
+from apps.workflow.models import CaseUserTask, CaseWorkflow, WorkflowOption
 from apps.workflow.tasks import task_start_workflow_for_existing_case
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -282,9 +281,9 @@ class PushCaseStateSerializer(serializers.Serializer):
     user_emails = serializers.ListField(child=serializers.EmailField(), required=True)
 
 
-class CamundaStartProcessSerializer(serializers.Serializer):
-    camunda_process_id = serializers.PrimaryKeyRelatedField(
-        queryset=CamundaProcess.objects.all()
+class StartWorkflowSerializer(serializers.Serializer):
+    workflow_option_id = serializers.PrimaryKeyRelatedField(
+        queryset=WorkflowOption.objects.all()
     )
 
 

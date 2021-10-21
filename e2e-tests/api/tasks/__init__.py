@@ -53,7 +53,7 @@ class AbstractUserTask:
 
 
 class GenericUserTask(AbstractUserTask):
-    endpoint = "camunda/task/complete"
+    endpoint = "generic-tasks/complete"
     event = events.GenericTaskEvent
 
     def __init__(self, **variables):

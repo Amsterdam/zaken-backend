@@ -1,11 +1,11 @@
 from apps.cases.models import Case
-from apps.events.models import CaseEvent, ModelEventEmitter
+from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 
-class Visit(ModelEventEmitter):
+class Visit(TaskModelEventEmitter):
     SITUATION_NOBODY_PRESENT = "nobody_present"
     SITUATION_NO_COOPERATION = "no_cooperation"
     SITUATION_ACCESS_GRANTED = "access_granted"
@@ -32,12 +32,6 @@ class Visit(ModelEventEmitter):
     )
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     notes = models.TextField(null=True, blank=True)
-    task = models.ForeignKey(
-        to="workflow.CaseUserTask",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-    )
 
     class Meta:
         ordering = ["-start_time"]

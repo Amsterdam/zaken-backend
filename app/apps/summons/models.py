@@ -9,7 +9,7 @@ class SummonType(models.Model):
     class Meta:
         ordering = ["name"]
 
-    camunda_option = models.CharField(max_length=255, default="aanschrijvingen")
+    workflow_option = models.CharField(max_length=255, default="aanschrijvingen")
     name = models.CharField(max_length=255)
     theme = models.ForeignKey(
         to=CaseTheme, related_name="summon_types", on_delete=models.CASCADE
@@ -67,11 +67,11 @@ class Summon(TaskModelEventEmitter):
     def __str__(self):
         return f"{self.id} Summon - {self.type} - Case {self.case.id}"
 
-    def complete_camunda_task(self):
+    def complete_task(self):
         CaseWorkflow.complete_user_task(
             self.case_user_task_id,
             {
-                "type_aanschrijving": {"value": self.type.camunda_option},
+                "type_aanschrijving": {"value": self.type.workflow_option},
                 "names": {
                     "value": ", ".join(
                         [person.__str__() for person in self.persons.all()]
@@ -80,18 +80,6 @@ class Summon(TaskModelEventEmitter):
                 "summon_id": {"value": self.id},
             },
         )
-        # response = CamundaService().complete_task(
-        #     self.case_user_task_id,
-        #     {
-        #         "type_aanschrijving": {"value": self.type.camunda_option},
-        #         "names": {
-        #             "value": ", ".join(
-        #                 [person.__str__() for person in self.persons.all()]
-        #             )
-        #         },
-        #         "summon_id": {"value": self.id},
-        #     },
-        # )
         return True
 
 

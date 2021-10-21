@@ -1,6 +1,34 @@
+from apps.cases.models import Case
 from rest_framework import serializers
 from rest_framework.fields import empty
 from rest_framework.settings import api_settings
+
+from .models import WorkflowOption
+
+
+class GenericCompletedTaskSerializer(serializers.Serializer):
+    """
+    Used to complete a GenericCompletedTask.
+
+    variables example
+    {
+        "a_field": {
+            "value": true,
+            "label": "Label for a field"
+        }
+    }
+    """
+
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    case_user_task_id = serializers.CharField()
+    case = serializers.PrimaryKeyRelatedField(queryset=Case.objects.all())
+    variables = serializers.JSONField()
+
+
+class WorkflowOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkflowOption
+        fields = "__all__"
 
 
 class WorkflowSpecConfigVerionSerializer(serializers.Serializer):

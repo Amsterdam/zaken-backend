@@ -92,7 +92,6 @@ SPAGHETTI_SAUCE = {
         "visits",
         "events",
         "summons",
-        "camunda",
         "decisions",
         "schedules",
     ],
@@ -277,10 +276,6 @@ BELASTING_API_ACCESS_TOKEN = os.getenv("BELASTING_API_ACCESS_TOKEN", None)
 
 # Secret keys which can be used to access certain parts of the API
 SECRET_KEY_TOP_ZAKEN = os.getenv("SECRET_KEY_TOP_ZAKEN", None)
-CAMUNDA_SECRET_KEY = os.getenv("CAMUNDA_SECRET_KEY")
-# Authentication for the rest calls to camunda
-CAMUNDA_REST_AUTH = os.getenv("CAMUNDA_REST_AUTH")
-
 
 # NOTE: this is commented out because currently the internal health check is done over HTTP
 # SECURE_SSL_REDIRECT = is_secure_environment
@@ -418,12 +413,6 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute=5),
     },
 }
-
-# CELERY_IMPORTS = ("apps.camunda.tasks", )
-
-CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
-CAMUNDA_REST_URL = os.getenv("CAMUNDA_REST_URL", "http://camunda:8080/engine-rest/")
-CAMUNDA_DIRECTING_PROCESS = "aza_wonen_local_vakantieverhuur_regie"
 
 REDIS = os.getenv("REDIS")
 REDIS_URL = f"redis://{REDIS}"

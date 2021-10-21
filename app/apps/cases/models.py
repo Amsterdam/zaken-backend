@@ -127,7 +127,7 @@ class Case(ModelEventEmitter):
 
     def get_current_states(self):
         states = []
-        for workflow in self.workflows.all():
+        for workflow in self.workflows.filter(tasks__completed=False):
             case_state = workflow.case_states.all().order_by("id").last()
             if case_state:
                 states.append(case_state)
@@ -162,15 +162,6 @@ class Case(ModelEventEmitter):
 
         super().save(*args, **kwargs)
 
-    def add_camunda_id(self, camunda_id, *args, **kwargs):
-        if self.camunda_ids:
-            self.camunda_ids.append(camunda_id)
-        else:
-            self.camunda_ids = [camunda_id]
-
-        self.save()
-        return self
-
     def close_case(self):
         # close all states just in case
         for state in self.case_states.filter(end_date__isnull=True):
@@ -178,12 +169,6 @@ class Case(ModelEventEmitter):
             state.save()
 
         self.workflows.all().delete()
-
-        # for camunda_id in self.camunda_ids:
-        #     from apps.camunda.services import CamundaService
-
-        #     CamundaService().delete_instance(camunda_id)
-        #     self.camunda_ids = []
 
         self.end_date = timezone.now().date()
         self.save()

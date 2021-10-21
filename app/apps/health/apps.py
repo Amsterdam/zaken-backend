@@ -6,7 +6,7 @@ class HealthConfig(AppConfig):
     name = "apps.health"
 
     def ready(self):
-        from .health_checks import (  # CamundaServiceCheck,
+        from .health_checks import (
             BAGServiceCheck,
             BelastingDienstCheck,
             CeleryExecuteTask,
@@ -21,4 +21,3 @@ class HealthConfig(AppConfig):
         plugin_dir.register(KeycloakCheck)
         # plugin_dir.register(VakantieVerhuurRegistratieCheck)
         plugin_dir.register(DecosJoinCheck)
-        # plugin_dir.register(CamundaServiceCheck)

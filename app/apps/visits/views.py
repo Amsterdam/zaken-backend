@@ -10,7 +10,3 @@ class VisitViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
     permission_classes = rest_permission_classes_for_top()
     serializer_class = VisitSerializer
     queryset = Visit.objects.all()
-
-    def create(self, request):
-        print(request.data)
-        return super().create(request)

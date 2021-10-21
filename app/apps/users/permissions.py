@@ -1,4 +1,4 @@
-from apps.users.auth_apps import CamundaKeyAuth, TopKeyAuth
+from apps.users.auth_apps import TopKeyAuth
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework.permissions import BasePermission
 
@@ -53,7 +53,3 @@ class CanCloseCase(BasePermission):
 
 def rest_permission_classes_for_top():
     return [(IsInAuthorizedRealm) | TopKeyAuth]
-
-
-def rest_permission_classes_for_camunda():
-    return [(IsInAuthorizedRealm) | CamundaKeyAuth]
