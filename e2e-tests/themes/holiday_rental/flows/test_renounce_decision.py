@@ -11,11 +11,14 @@ from api.test import DefaultAPITest
 
 class TestRenounceDecision(DefaultAPITest):
     def test(self):
+        """
+        This flow only tests one Summon/Decision.
+        """
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.NO_DECISION),
             CreateConceptRenounce(),
             CheckRenounceLetter(),
             CreateDefinitiveRenounce(),
-            PlanNextStep(),  # TODO not sure about this step, see comment WZ-1634
+            PlanNextStep(),
         )

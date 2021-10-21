@@ -15,18 +15,13 @@
         <bpmn:flowNodeRef>Activity_18x19gf</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>gateway_has_permit_been_granted</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1rmmm5s</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>end_start_renounce_1va49v0</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_check_incoming_point_of_view</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_judge_point_of_view</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>gateway_has_point_of_view_received</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>gateway_do_we_renounce_or_decision</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_0frp4m5</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_0uynagg</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0v6yc85</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_script_next_step_decision_summon</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>end_start_decision_process</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0vx9ad7</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_0ysomyy</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1neab16</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_13bywna</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_status_summon</bpmn:flowNodeRef>
@@ -36,6 +31,10 @@
         <bpmn:flowNodeRef>service_script_next_step_renounce_summon</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1514cbt</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_no_permit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_0ysomyy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_start_renounce_1va49v0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_start_decision_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_0uynagg</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="lane_projectmedewerker_1wein50" name="Projectmedewerker">
         <bpmn:flowNodeRef>task_monitor_incoming_permit_application</bpmn:flowNodeRef>
@@ -74,7 +73,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">action_civilian_permit_requested.value == "no_action"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1f8btyg" sourceRef="Activity_1gaa36w" targetRef="gateway_has_permit_been_granted" />
-    <bpmn:sequenceFlow id="Flow_1usf3sm" name="Nee, geen vergunning verleend" sourceRef="gateway_has_permit_been_granted" targetRef="Event_0frp4m5">
+    <bpmn:sequenceFlow id="Flow_1usf3sm" name="Nee, geen vergunning verleend" sourceRef="gateway_has_permit_been_granted" targetRef="Event_0v6yc85">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit.value == "no_permit"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0m6yape" name="Ja, burger heeft nu een vergunning" sourceRef="task_monitor_permit_request_procedure" targetRef="Activity_18x19gf">
@@ -117,10 +116,6 @@
         <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">parse_duration(task_monitor_incoming_point_of_view_timer_duration)</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
-    <bpmn:endEvent id="end_start_decision_process" name="Opstellen besluit process">
-      <bpmn:incoming>Flow_186wilc</bpmn:incoming>
-      <bpmn:terminateEventDefinition id="TerminateEventDefinition_0au4c6r" />
-    </bpmn:endEvent>
     <bpmn:scriptTask id="service_script_next_step_decision_summon" name="next_step = {&#34;value&#34;: &#34;decision&#34;}">
       <bpmn:incoming>Flow_0o6dkue</bpmn:incoming>
       <bpmn:incoming>Flow_15k43jt</bpmn:incoming>
@@ -129,6 +124,7 @@
     </bpmn:scriptTask>
     <bpmn:endEvent id="Event_0v6yc85" name="Opstellen concept aanschrijvingen">
       <bpmn:incoming>Flow_1bea976</bpmn:incoming>
+      <bpmn:incoming>Flow_1usf3sm</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_03u0kk6" messageRef="Message_0io3xyw">
         <bpmn:extensionElements>
           <camunda:field name="next_step">
@@ -136,14 +132,6 @@
           </camunda:field>
         </bpmn:extensionElements>
       </bpmn:messageEventDefinition>
-    </bpmn:endEvent>
-    <bpmn:endEvent id="Event_0uynagg" name="Uitzetten vervolgstap">
-      <bpmn:incoming>Flow_1smx7q3</bpmn:incoming>
-      <bpmn:terminateEventDefinition id="TerminateEventDefinition_0ywthua" />
-    </bpmn:endEvent>
-    <bpmn:endEvent id="Event_0frp4m5" name="Opstellen concept aanschrijvingen">
-      <bpmn:incoming>Flow_1usf3sm</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0vy4bcg" messageRef="Message_0io3xyw" />
     </bpmn:endEvent>
     <bpmn:exclusiveGateway id="gateway_do_we_renounce_or_decision">
       <bpmn:incoming>Flow_1bkt8kw</bpmn:incoming>
@@ -189,10 +177,6 @@
       <bpmn:incoming>Flow_1pop5qk</bpmn:incoming>
       <bpmn:outgoing>Flow_0umy2og</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:endEvent id="end_start_renounce_1va49v0" name="Voornemen afzien">
-      <bpmn:incoming>Flow_1oesxow</bpmn:incoming>
-      <bpmn:terminateEventDefinition id="TerminateEventDefinition_1t8vje6" />
-    </bpmn:endEvent>
     <bpmn:startEvent id="Event_1rmmm5s">
       <bpmn:outgoing>Flow_1wlsww0</bpmn:outgoing>
     </bpmn:startEvent>
@@ -280,10 +264,6 @@
       <bpmn:outgoing>Flow_167bomv</bpmn:outgoing>
       <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:endEvent id="Event_0ysomyy" name="start sluitingsproces">
-      <bpmn:incoming>Flow_167bomv</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1tzmzdr" messageRef="Message_043fuj2" />
-    </bpmn:endEvent>
     <bpmn:scriptTask id="Activity_1neab16" name="next_step = {&#34;value&#34;: &#34;close_case&#34;}">
       <bpmn:incoming>Flow_025eea2</bpmn:incoming>
       <bpmn:outgoing>Flow_1db08jl</bpmn:outgoing>
@@ -355,6 +335,18 @@
       <bpmn:incoming>Flow_12sivk9</bpmn:incoming>
       <bpmn:outgoing>Flow_1bea976</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:endEvent id="Event_0ysomyy" name="start sluitingsproces">
+      <bpmn:incoming>Flow_167bomv</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="end_start_renounce_1va49v0" name="Voornemen afzien">
+      <bpmn:incoming>Flow_1oesxow</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="end_start_decision_process" name="Opstellen besluit process">
+      <bpmn:incoming>Flow_186wilc</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="Event_0uynagg" name="Uitzetten vervolgstap">
+      <bpmn:incoming>Flow_1smx7q3</bpmn:incoming>
+    </bpmn:endEvent>
     <bpmn:textAnnotation id="TextAnnotation_145t3qx">
       <bpmn:text>THIS IS NOW 40 SECONDS</bpmn:text>
     </bpmn:textAnnotation>
@@ -438,7 +430,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1smx7q3_di" bpmnElement="Flow_1smx7q3">
         <di:waypoint x="2020" y="749" />
-        <di:waypoint x="2162" y="749" />
+        <di:waypoint x="2062" y="749" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_186wilc_di" bpmnElement="Flow_186wilc">
         <di:waypoint x="3450" y="820" />
@@ -489,9 +481,10 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1usf3sm_di" bpmnElement="Flow_1usf3sm">
         <di:waypoint x="1755" y="630" />
-        <di:waypoint x="2162" y="630" />
+        <di:waypoint x="2180" y="630" />
+        <di:waypoint x="2180" y="852" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1799" y="589" width="55" height="40" />
+          <dc:Bounds x="1802" y="589" width="55" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1f8btyg_di" bpmnElement="Flow_1f8btyg">
@@ -584,12 +577,6 @@
         <di:waypoint x="590" y="630" />
         <di:waypoint x="715" y="630" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_1h6d37m_di" bpmnElement="end_start_decision_process">
-        <dc:Bounds x="3492" y="802" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="3470" y="845" width="82" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_18im036_di" bpmnElement="service_script_next_step_decision_summon">
         <dc:Bounds x="3350" y="780" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -597,18 +584,6 @@
         <dc:Bounds x="2162" y="852" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2135" y="894" width="89" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_00j0d54_di" bpmnElement="Event_0uynagg">
-        <dc:Bounds x="2162" y="731" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2152" y="774" width="57" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_116l7sy_di" bpmnElement="Event_0frp4m5">
-        <dc:Bounds x="2162" y="612" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2135" y="654" width="89" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_11453r6_di" bpmnElement="gateway_do_we_renounce_or_decision" isMarkerVisible="true">
@@ -625,12 +600,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="task_monitor_incoming_point_of_view_di" bpmnElement="task_monitor_incoming_point_of_view">
         <dc:Bounds x="2190" y="290" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_019w0ec_di" bpmnElement="end_start_renounce_1va49v0">
-        <dc:Bounds x="3492" y="612" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="3467" y="655" width="89" height="14" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1rmmm5s_di" bpmnElement="Event_1rmmm5s">
         <dc:Bounds x="222" y="612" width="36" height="36" />
@@ -665,12 +634,6 @@
       <bpmndi:BPMNShape id="Activity_0vx9ad7_di" bpmnElement="Activity_0vx9ad7">
         <dc:Bounds x="890" y="830" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0x8hw65_di" bpmnElement="Event_0ysomyy">
-        <dc:Bounds x="1042" y="852" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1025" y="895" width="73" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1neab16_di" bpmnElement="Activity_1neab16">
         <dc:Bounds x="890" y="709" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -703,6 +666,30 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1j7z2dh_di" bpmnElement="TextAnnotation_1j7z2dh">
         <dc:Bounds x="1190" y="550" width="100" height="40" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1euvv6c_di" bpmnElement="Event_0ysomyy">
+        <dc:Bounds x="1042" y="852" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1025" y="895" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1d3zz5w_di" bpmnElement="end_start_renounce_1va49v0">
+        <dc:Bounds x="3492" y="612" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3467" y="655" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0yjcfff_di" bpmnElement="end_start_decision_process">
+        <dc:Bounds x="3492" y="802" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3470" y="845" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1dean41_di" bpmnElement="Event_0uynagg">
+        <dc:Bounds x="2062" y="731" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2052" y="774" width="57" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1ya7mo6_di" bpmnElement="Event_1514cbt">
         <dc:Bounds x="1412" y="612" width="36" height="36" />

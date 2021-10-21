@@ -1,4 +1,4 @@
-from api.config import DecisionType, SummonTypes, Violation
+from api.config import DecisionType, ObjectionValid, SummonTypes, Violation
 from api.tasks.debrief import (
     CreateConceptNotices,
     CreateFindingsReport,
@@ -30,7 +30,7 @@ class TestInvalidCivilianObjection(DefaultAPITest):
             CheckNotices(),
             ProcessNotice(type=SummonTypes.HolidayRental.INTENTION_TO_FINE),
             MonitorIncomingView(),
-            JudgeView(objection_valid=False),
+            JudgeView(objection_valid=ObjectionValid.NO),
             CreateConceptDecision(),
             CheckConceptDecision(),
             Decision(type=DecisionType.HolidayRental.FINE),

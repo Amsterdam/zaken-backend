@@ -1,5 +1,11 @@
 from api import events
-from api.config import HasPermit, Objection, PermitRequested, SummonTypes
+from api.config import (
+    HasPermit,
+    Objection,
+    ObjectionValid,
+    PermitRequested,
+    SummonTypes,
+)
 from api.mock import get_person
 from api.tasks import AbstractUserTask, GenericUserTask
 from api.tasks.debrief import CheckNotices
@@ -77,13 +83,12 @@ class JudgeView(GenericUserTask):
     task_name = "task_judge_point_of_view"
     description = "Beoordelen zienswijze"
 
-    def __init__(self, objection_valid=True):
+    def __init__(self, objection_valid=ObjectionValid.YES):
         data = {"is_citizen_objection_valid": {"value": objection_valid}}
-
         super(JudgeView, self).__init__(**data)
 
     @staticmethod
-    def get_steps(objection_valid=True):
+    def get_steps(objection_valid=ObjectionValid.YES):
         return [
             *MonitorIncomingView.get_steps(),
             __class__(objection_valid=objection_valid),

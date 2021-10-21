@@ -117,6 +117,11 @@ class Objection:
     YES = "yes_objection_received"
 
 
+class ObjectionValid:
+    NO = "no_citizen_objection_not_valid"
+    YES = "yes_citizen_objection_valid"
+
+
 class Situations:
     NOBODY_PRESENT = "nobody_present"
     NO_COOPERATION = "no_cooperation"
