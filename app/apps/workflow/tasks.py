@@ -3,7 +3,6 @@ import logging
 
 import celery
 from celery import shared_task
-from config.celery import app as celery_app
 from django.conf import settings
 from django.db import DatabaseError, transaction
 
@@ -20,21 +19,16 @@ class BaseTaskWithRetry(celery.Task):
     default_retry_delay = DEFAULT_RETRY_DELAY
 
 
-@celery_app.task(bind=True)
+@shared_task(bind=True, default_retry_delay=DEFAULT_RETRY_DELAY)
 def task_update_workflows(self):
     from apps.workflow.models import CaseWorkflow
 
-    for workflow in CaseWorkflow.objects.all():
-        try:
-            workflow.update_workflow()
-        except Exception as e:
-            logger.error(
-                f"ERROR: task_update_workflows: for workflow with id '{workflow.id}', {str(e)}"
-            )
+    for workflow in CaseWorkflow.objects.filter(completed=False):
+        task_update_workflow.delay(workflow.id)
     return "task_update_workflows complete"
 
 
-@celery_app.task(bind=True)
+@shared_task(bind=True, default_retry_delay=DEFAULT_RETRY_DELAY)
 def task_update_workflow(self, workflow_id):
     from apps.workflow.models import CaseWorkflow
 
@@ -42,17 +36,18 @@ def task_update_workflow(self, workflow_id):
         workflow = CaseWorkflow.objects.get(id=workflow_id)
         with transaction.atomic():
             workflow.update_workflow()
-    except Exception as e:
+    except Exception as exception:
         logger.error(
-            f"ERROR: task_update_workflows: for workflow with id '{workflow_id}', {str(e)}"
+            f"ERROR: task_update_workflows: for workflow with id '{workflow_id}', {str(exception)}"
         )
+        self.retry(exc=exception)
 
     return (
         f"task_update_workflow: update for workflow with id '{workflow_id}', complete"
     )
 
 
-@celery_app.task(bind=True)
+@shared_task(bind=True, default_retry_delay=DEFAULT_RETRY_DELAY)
 def task_accept_message_for_workflow(self, workflow_id, message, extra_data):
     from apps.workflow.models import CaseWorkflow
 
@@ -60,15 +55,16 @@ def task_accept_message_for_workflow(self, workflow_id, message, extra_data):
         workflow = CaseWorkflow.objects.get(id=workflow_id)
         with transaction.atomic():
             workflow.accept_message(message, extra_data)
-    except Exception as e:
+    except Exception as exception:
         logger.error(
-            f"ERROR: task_accept_message_for_workflow: for workflow with id '{workflow_id}', with message '{message}', {str(e)}"
+            f"ERROR: task_accept_message_for_workflow: for workflow with id '{workflow_id}', with message '{message}', {str(exception)}"
         )
+        self.retry(exc=exception)
 
     return f"task_accept_message_for_workflow: message '{message}' for workflow with id {workflow_id}, excepted"
 
 
-@celery_app.task(bind=True, base=BaseTaskWithRetry)
+@shared_task(bind=True, default_retry_delay=DEFAULT_RETRY_DELAY)
 def task_start_subworkflow(self, subworkflow_name, parent_workflow_id):
     from apps.workflow.models import CaseWorkflow
 
@@ -84,11 +80,11 @@ def task_start_subworkflow(self, subworkflow_name, parent_workflow_id):
                 data=data,
             )
 
-    except Exception as e:
+    except Exception as exception:
         logger.error(
-            f"ERROR: task_start_subworkflow: '{subworkflow_name}', parent workflow id '{parent_workflow_id}', {str(e)}"
+            f"ERROR: task_start_subworkflow: '{subworkflow_name}', parent workflow id '{parent_workflow_id}', {str(exception)}"
         )
-        raise Exception(str(e))
+        self.retry(exc=exception)
 
     return f"task_start_subworkflow:  subworkflow id '{subworkflow.id}', for parent workflow with id '{parent_workflow_id}', created"
 
