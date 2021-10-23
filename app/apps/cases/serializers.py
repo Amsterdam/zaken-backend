@@ -14,7 +14,6 @@ from apps.cases.models import (
 )
 from apps.schedules.serializers import ScheduleSerializer
 from apps.workflow.models import CaseUserTask, CaseWorkflow, WorkflowOption
-from apps.workflow.tasks import task_start_workflow_for_existing_case
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -53,11 +52,9 @@ class CaseReasonSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class CaseUserTaskSerializer(serializers.ModelSerializer):
+class CaseUserTaskCaseListSerializer(serializers.ModelSerializer):
     user_has_permission = serializers.SerializerMethodField()
     case_user_task_id = serializers.CharField(source="id")
-    form = serializers.ListSerializer(child=serializers.DictField(), required=True)
-    form_variables = serializers.DictField(source="get_form_variables")
     roles = serializers.ListSerializer(child=serializers.CharField(), required=True)
 
     @extend_schema_field(serializers.BooleanField)
@@ -66,6 +63,15 @@ class CaseUserTaskSerializer(serializers.ModelSerializer):
         if request and hasattr(request, "user"):
             return request.user.has_perm("users.perform_task")
         return False
+
+    class Meta:
+        model = CaseUserTask
+        exclude = ("form",)
+
+
+class CaseUserTaskSerializer(CaseUserTaskCaseListSerializer):
+    form = serializers.ListSerializer(child=serializers.DictField(), required=True)
+    form_variables = serializers.DictField(source="get_form_variables")
 
     class Meta:
         model = CaseUserTask
@@ -97,7 +103,7 @@ class CaseUserTaskListSerializer(CaseUserTaskSerializer):
 
 class CaseStateSerializer(serializers.ModelSerializer):
     status_name = serializers.CharField(source="status.name", read_only=True)
-    tasks = CaseUserTaskSerializer(
+    tasks = CaseUserTaskCaseListSerializer(
         source="get_tasks",
         many=True,
         read_only=True,
@@ -243,7 +249,6 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         address = Address.get(address_data.get("bag_id"))
 
         case = Case.objects.create(**validated_data, address=address)
-        task_start_workflow_for_existing_case.delay(case.id)
         return case
 
 

@@ -1,11 +1,19 @@
 import logging
 
-from apps.cases.models import CaseClose, CitizenReport
+from apps.cases.models import Case, CaseClose, CitizenReport
 from apps.workflow.models import CaseWorkflow
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 logger = logging.getLogger(__name__)
+
+
+@receiver(post_save, sender=Case, dispatch_uid="start_workflow_for_case")
+def start_workflow_for_case(sender, instance, created, **kwargs):
+    from apps.workflow.tasks import task_create_main_worflow_for_case
+
+    if created:
+        task_create_main_worflow_for_case.delay(case_id=instance.id)
 
 
 @receiver(post_save, sender=CitizenReport, dispatch_uid="complete_citizen_report_task")
