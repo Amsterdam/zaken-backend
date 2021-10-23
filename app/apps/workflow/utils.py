@@ -1,5 +1,6 @@
 import copy
 import datetime
+import itertools
 import json
 import logging
 import os
@@ -601,7 +602,9 @@ def workflow_test_message(message, workflow_spec, script_engine):
         return False
 
 
-def workflow_tree_inspect(workflow_org, initial_data, script_engine, message_name=None):
+def workflow_tree_inspect(
+    workflow_org, initial_data, script_engine, message_name=None, spec_user_tasks=[]
+):
     workflow_serialized = BpmnSerializer().serialize_workflow(
         workflow_org, include_spec=True
     )
@@ -613,6 +616,35 @@ def workflow_tree_inspect(workflow_org, initial_data, script_engine, message_nam
         valid_fields = [f for f in form if f.get("type") in ("select", "checkbox")]
         return valid_fields
 
+    def get_branchs_data(fields):
+        out = []
+        branches = []
+
+        # flatten field types
+        data = dict(
+            (
+                f.get("name"),
+                [option.get("value") for option in f.get("options", [])]
+                if f.get("options", [])
+                else [True, False],
+            )
+            for f in fields
+        )
+
+        # create unique string by json dumps
+        branches = [[json.dumps({k: {"value": o}}) for o in v] for k, v in data.items()]
+
+        # calculate all combinations
+        unique_combinations = list(itertools.product(*branches))
+
+        # unpack strings by json loads and combin dicts
+        for uc in unique_combinations:
+            o = {}
+            for u in uc:
+                o.update(json.loads(u))
+            out.append(o)
+        return out
+
     tasks = workflow.get_tasks(Task.READY)
     if tasks:
         tasks[0].update_data(initial_data)
@@ -620,7 +652,7 @@ def workflow_tree_inspect(workflow_org, initial_data, script_engine, message_nam
     workflow.do_engine_steps()
 
     if message_name:
-        print(f" - message: {message_name}")
+        logger.info(f" - message: {message_name}")
         workflow.message(message_name, message_name, "message_name")
         workflow.refresh_waiting_tasks()
         workflow.do_engine_steps()
@@ -642,44 +674,56 @@ def workflow_tree_inspect(workflow_org, initial_data, script_engine, message_nam
                 workflow_clone.complete_task_from_id(tasks[0].id)
                 workflow_clone.refresh_waiting_tasks()
                 workflow_clone.do_engine_steps()
+                completed_tasks.append(tasks[0].task_spec.name)
         return workflow_clone
 
+    completed_tasks = []
+
     def start_workflow(workflow):
-        ready_tasks = workflow.get_ready_user_tasks()
+        ready_tasks = [
+            t
+            for t in workflow.get_ready_user_tasks()
+            if t.task_spec.name not in completed_tasks
+        ]
         while len(ready_tasks) > 0:
             for task in ready_tasks:
                 fields = []
                 if task.task_spec.form:
                     fields = get_valid_fields(task)
-                if fields:
-                    for f in fields:
-                        branches = []
-                        for option in f.get("options", []):
-                            branches.append(
-                                {f.get("name"): {"value": option.get("value")}}
-                            )
-                        if f.get("type") == "checkbox":
-                            branches.append({f.get("name"): {"value": True}})
-                            branches.append({f.get("name"): {"value": False}})
-                        for b in branches:
-                            start_workflow(
-                                complete_task_and_get_workflow_clone(
-                                    workflow,
-                                    b,
-                                    task,
-                                )
-                            )
 
-                workflow.complete_task_from_id(task.id)
-                workflow.refresh_waiting_tasks()
-                workflow.do_engine_steps()
-                ready_tasks = workflow.get_ready_user_tasks()
+                if fields:
+                    branches = get_branchs_data(fields)
+                    for b in branches:
+                        start_workflow(
+                            complete_task_and_get_workflow_clone(
+                                workflow,
+                                b,
+                                task,
+                            )
+                        )
+                else:
+                    workflow.complete_task_from_id(task.id)
+                    workflow.refresh_waiting_tasks()
+                    workflow.do_engine_steps()
+                    completed_tasks.append(task.task_spec.name)
+                ready_tasks = [
+                    t
+                    for t in workflow.get_ready_user_tasks()
+                    if t.task_spec.name not in completed_tasks
+                ]
 
     try:
         start_workflow(workflow)
-        return True
+        completed_tasks = list(set(completed_tasks))
+        converage = (
+            0
+            if not len(spec_user_tasks)
+            else round((len(completed_tasks) / len(spec_user_tasks) * 100), 1)
+        )
+        logger.info(f"User task coverage: {converage}%")
+        return f"User task coverage: {converage}%"
     except Exception as e:
-        print(str(e))
+        logger.error(str(e))
         return False
 
 
@@ -691,12 +735,13 @@ def workflow_spec_path_inspect(
         workflow = BpmnWorkflow(workflow_spec)
         workflow.script_engine = script_engine
         logger.info(f"workflow_type: {type}")
-
+        spec_user_tasks = [
+            user_task for user_task in get_workflow_spec_user_tasks(workflow_spec)
+        ]
         return {
             "workflow": workflow,
             "forms": [
-                parse_task_spec_form(user_task.form)
-                for user_task in get_workflow_spec_user_tasks(workflow_spec)
+                parse_task_spec_form(user_task.form) for user_task in spec_user_tasks
             ],
             "messages": [
                 {
@@ -709,11 +754,14 @@ def workflow_spec_path_inspect(
                         else v.get("initial_data", {}),
                         script_engine,
                         m,
+                        spec_user_tasks,
                     ),
                 }
                 for m, v in messages.items()
             ],
-            "tree_valid": workflow_tree_inspect(workflow, initial_data, script_engine),
+            "tree_valid": workflow_tree_inspect(
+                workflow, initial_data, script_engine, None, spec_user_tasks
+            ),
         }
     except Exception as e:
         logger.error(
