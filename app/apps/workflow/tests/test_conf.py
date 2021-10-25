@@ -64,8 +64,7 @@ class WorkflowConfTest(TestCase):
 
     def test_workflow_tree(self):
         """
-        Tests if the messages used in conf can be executed and if so,
-        does this result in a change in the workflow, if so the message is valid
+        Tests if the bpmn trees of all the versions/types do not return errors.
         """
 
         serializer = WorkflowSpecConfigSerializer(data=settings.WORKFLOW_SPEC_CONFIG)
