@@ -17,12 +17,13 @@ from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.task import Task
 from utils.managers import BulkCreateSignalsManager
 
-from .tasks import task_update_workflow
+from .tasks import task_complete_worflow, task_update_workflow
 from .utils import (
     compare_workflow_specs_by_task_specs,
     get_initial_data_from_config,
     get_workflow_path,
     get_workflow_spec,
+    map_variables_on_task_spec_form,
     parse_task_spec_form,
     workflow_health_check,
 )
@@ -199,6 +200,8 @@ class CaseWorkflow(models.Model):
         initial_data = get_initial_data_from_config(
             self.case.theme.name, self.workflow_type
         )
+
+        initial_data.update(self.data)
         if isinstance(data, dict):
             initial_data.update(data)
 
@@ -398,19 +401,7 @@ class CaseWorkflow(models.Model):
     def _check_completed_workflows(self, wf):
         # if end of subworkflow, try to get back to main workflow
         if wf.is_completed() and not self.completed:
-            if (
-                self.parent_workflow
-                and self.parent_workflow.workflow_type
-                == CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
-            ):
-                self.parent_workflow.accept_message(
-                    f"resume_after_{self.workflow_type}",
-                    self.get_data(),
-                )
-            self.completed = True
-            self.save()
-            # maybe delete workflow object when completed
-            # self.delete()
+            task_complete_worflow.delay(self.id, copy.deepcopy(self.get_data()))
 
     def _update_workflow(self, wf):
         wf.refresh_waiting_tasks()
@@ -556,59 +547,6 @@ class CaseUserTask(models.Model):
 
     objects = BulkCreateSignalsManager()
 
-    @staticmethod
-    def parse_task_spec_form(form):
-        # transforms and serializes the spiff task_spec.form for the current react frontend
-        # TODO: only serialize task_spec.formm, and refactor react frontend
-        trans_types = {
-            "enum": "select",
-            "boolean": "checkbox",
-        }
-        fields = [
-            {
-                **f.__dict__,
-                "options": [
-                    {
-                        **o.__dict__,
-                        "value": o.__dict__.get("id"),
-                        "label": o.__dict__.get("name"),
-                    }
-                    for o in f.__dict__.get("options", [])
-                ],
-                "name": f.__dict__.get("id"),
-                "validation": [v.__dict__ for v in f.__dict__.get("validation", [])],
-                "type": trans_types.get(f.__dict__.get("type"), "text"),
-                "required": bool(
-                    [
-                        v.__dict__
-                        for v in f.__dict__.get("validation", [])
-                        if v.__dict__.get("name") == "required"
-                    ]
-                ),
-            }
-            for f in form.fields
-        ]
-        return fields
-
-    def map_variables_on_form(self, variables):
-        # transforms form result data and adds labels for the frontend
-        form = dict((f.get("id"), f) for f in self.form)
-        return dict(
-            (
-                k,
-                {
-                    "label": form.get(k, {}).get("label", v.get("value")),
-                    "value": v.get("value")
-                    if not form.get(k, {}).get("options")
-                    else dict((o.get("id"), o) for o in form.get(k, {}).get("options"))
-                    .get(v.get("value"), {})
-                    .get("label", v.get("value")),
-                },
-            )
-            for k, v in variables.items()
-            if isinstance(v, dict)
-        )
-
     @property
     def get_form_variables(self):
         # TODO: Return corresponding spiff task data, currently used only to provide frontend with the current summon_id
@@ -658,5 +596,5 @@ class GenericCompletedTask(TaskModelEventEmitter):
             "author": self.author.__str__(),
             "date_added": self.date_added,
             "description": self.description,
-            "variables": self.variables,
+            "variables": self.variables.get("mapped_form_data"),
         }

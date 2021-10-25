@@ -1,5 +1,6 @@
 import copy
 import datetime
+import itertools
 import json
 import logging
 import os
@@ -48,6 +49,26 @@ def parse_task_spec_form(form):
         for f in form.fields
     ]
     return fields
+
+
+def map_variables_on_task_spec_form(variables, task_spec_form):
+    # transforms form result data and adds labels for the frontend
+    form = dict((f.get("id"), f) for f in task_spec_form)
+    return dict(
+        (
+            k,
+            {
+                "label": form.get(k, {}).get("label", v.get("value")),
+                "value": v.get("value")
+                if not form.get(k, {}).get("options")
+                else dict((o.get("id"), o) for o in form.get(k, {}).get("options"))
+                .get(v.get("value"), {})
+                .get("label", v.get("value")),
+            },
+        )
+        for k, v in variables.items()
+        if isinstance(v, dict)
+    )
 
 
 def check_for_duplicate_task_spec_ids(workflow_spec):
@@ -573,23 +594,7 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
     }
 
 
-def workflow_test_message(message, workflow_spec):
-    def set_status(status):
-        pass
-
-    def wait_for_workflows_and_send_message(message):
-        pass
-
-    def start_subworkflow(subflow):
-        pass
-
-    script_engine = BpmnScriptEngine(
-        scriptingAdditions={
-            "set_status": set_status,
-            "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
-            "start_subworkflow": start_subworkflow,
-        }
-    )
+def workflow_test_message(message, workflow_spec, script_engine):
     try:
 
         workflow_a = BpmnWorkflow(workflow_spec)
@@ -617,24 +622,166 @@ def workflow_test_message(message, workflow_spec):
         return False
 
 
-def workflow_spec_path_inspect(workflow_spec_path, type, messages={}):
+def workflow_tree_inspect(
+    workflow_org, initial_data, script_engine, message_name=None, spec_user_tasks=[]
+):
+    workflow_serialized = BpmnSerializer().serialize_workflow(
+        workflow_org, include_spec=True
+    )
+    workflow = BpmnSerializer().deserialize_workflow(workflow_serialized)
+    workflow.script_engine = script_engine
+
+    def get_valid_fields(user_task):
+        form = parse_task_spec_form(user_task.task_spec.form)
+        valid_fields = [f for f in form if f.get("type") in ("select", "checkbox")]
+        return valid_fields
+
+    def get_branchs_data(fields):
+        out = []
+        branches = []
+
+        # flatten field types
+        data = dict(
+            (
+                f.get("name"),
+                [option.get("value") for option in f.get("options", [])]
+                if f.get("options", [])
+                else [True, False],
+            )
+            for f in fields
+        )
+
+        # create unique string by json dumps
+        branches = [[json.dumps({k: {"value": o}}) for o in v] for k, v in data.items()]
+
+        # calculate all combinations
+        unique_combinations = list(itertools.product(*branches))
+
+        # unpack strings by json loads and combin dicts
+        for uc in unique_combinations:
+            o = {}
+            for u in uc:
+                o.update(json.loads(u))
+            out.append(o)
+        return out
+
+    tasks = workflow.get_tasks(Task.READY)
+    if tasks:
+        tasks[0].update_data(initial_data)
+    workflow.refresh_waiting_tasks()
+    workflow.do_engine_steps()
+
+    if message_name:
+        logger.info(f" - message: {message_name}")
+        workflow.message(message_name, message_name, "message_name")
+        workflow.refresh_waiting_tasks()
+        workflow.do_engine_steps()
+
+    def complete_task_and_get_workflow_clone(workflow, user_task_data, user_task):
+        data = copy.deepcopy(workflow.last_task.data)
+        data.update(user_task_data)
+        workflow_clone_serialized = BpmnSerializer().serialize_workflow(
+            workflow, include_spec=True
+        )
+        workflow_clone = BpmnSerializer().deserialize_workflow(
+            workflow_clone_serialized
+        )
+        workflow_clone.script_engine = script_engine
+        if user_task:
+            tasks = workflow_clone.get_tasks_from_spec_name(user_task.task_spec.name)
+            if tasks:
+                tasks[0].update_data(data)
+                workflow_clone.complete_task_from_id(tasks[0].id)
+                workflow_clone.refresh_waiting_tasks()
+                workflow_clone.do_engine_steps()
+                completed_tasks.append(tasks[0].task_spec.name)
+        return workflow_clone
+
+    completed_tasks = []
+
+    def start_workflow(workflow):
+        ready_tasks = [
+            t
+            for t in workflow.get_ready_user_tasks()
+            if t.task_spec.name not in completed_tasks
+        ]
+        while len(ready_tasks) > 0:
+            for task in ready_tasks:
+                fields = []
+                if task.task_spec.form:
+                    fields = get_valid_fields(task)
+
+                if fields:
+                    branches = get_branchs_data(fields)
+                    for b in branches:
+                        start_workflow(
+                            complete_task_and_get_workflow_clone(
+                                workflow,
+                                b,
+                                task,
+                            )
+                        )
+                else:
+                    workflow.complete_task_from_id(task.id)
+                    workflow.refresh_waiting_tasks()
+                    workflow.do_engine_steps()
+                    completed_tasks.append(task.task_spec.name)
+                ready_tasks = [
+                    t
+                    for t in workflow.get_ready_user_tasks()
+                    if t.task_spec.name not in completed_tasks
+                ]
+
+    try:
+        start_workflow(workflow)
+        completed_tasks = list(set(completed_tasks))
+        converage = (
+            0
+            if not len(spec_user_tasks)
+            else round((len(completed_tasks) / len(spec_user_tasks) * 100), 1)
+        )
+        logger.info(f"User task coverage: {converage}%")
+        return f"User task coverage: {converage}%"
+    except Exception as e:
+        logger.error(str(e))
+        return False
+
+
+def workflow_spec_path_inspect(
+    workflow_spec_path, type, script_engine, messages={}, initial_data={}
+):
     try:
         workflow_spec = get_workflow_spec(workflow_spec_path, type)
         workflow = BpmnWorkflow(workflow_spec)
-
+        workflow.script_engine = script_engine
+        logger.info(f"workflow_type: {type}")
+        spec_user_tasks = [
+            user_task for user_task in get_workflow_spec_user_tasks(workflow_spec)
+        ]
         return {
             "workflow": workflow,
             "forms": [
-                parse_task_spec_form(user_task.form)
-                for user_task in get_workflow_spec_user_tasks(workflow_spec)
+                parse_task_spec_form(user_task.form) for user_task in spec_user_tasks
             ],
             "messages": [
                 {
                     "message": m,
-                    "exists": workflow_test_message(m, workflow_spec),
+                    "exists": workflow_test_message(m, workflow_spec, script_engine),
+                    "tree_valid": workflow_tree_inspect(
+                        workflow,
+                        initial_data
+                        if not v.get("initial_data")
+                        else v.get("initial_data", {}),
+                        script_engine,
+                        m,
+                        spec_user_tasks,
+                    ),
                 }
                 for m, v in messages.items()
             ],
+            "tree_valid": workflow_tree_inspect(
+                workflow, initial_data, script_engine, None, spec_user_tasks
+            ),
         }
     except Exception as e:
         logger.error(
@@ -645,13 +792,36 @@ def workflow_spec_path_inspect(workflow_spec_path, type, messages={}):
 
 def workflow_spec_paths_inspect(workflow_spec_conf):
     base_path = os.path.join(get_base_path(), "bpmn_files")
+
+    def set_status(status):
+        pass
+
+    def wait_for_workflows_and_send_message(message):
+        pass
+
+    def start_subworkflow(subflow):
+        pass
+
+    def parse_duration_string(duration_str):
+        pass
+
+    script_engine = BpmnScriptEngine(
+        scriptingAdditions={
+            "set_status": set_status,
+            "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
+            "start_subworkflow": start_subworkflow,
+            "parse_duration": parse_duration_string,
+        }
+    )
     paths = [
         {
             "path": os.path.join(base_path, theme, type, version),
             "workflow_data": workflow_spec_path_inspect(
                 os.path.join(base_path, theme, type, version),
                 type,
+                script_engine,
                 version_value.get("messages", {}),
+                theme_type.get("initial_data", {}),
             ),
             "theme": theme,
             "type": type,

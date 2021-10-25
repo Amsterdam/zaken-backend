@@ -114,7 +114,14 @@
     <bpmn:userTask id="task_create_debrief" name="Verwerken debrief" camunda:formKey="debrief_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="violation" label="Violation" type="string" />
+          <camunda:formField id="violation" label="Violation" type="enum">
+            <camunda:value id="NO" name="NO" />
+            <camunda:value id="YES" name="YES" />
+            <camunda:value id="ADDITIONAL_RESEARCH_REQUIRED" name="ADDITIONAL_RESEARCH_REQUIRED" />
+            <camunda:value id="ADDITIONAL_VISIT_REQUIRED" name="ADDITIONAL_VISIT_REQUIRED" />
+            <camunda:value id="ADDITIONAL_VISIT_WITH_AUTHORIZATION" name="ADDITIONAL_VISIT_WITH_AUTHORIZATION" />
+            <camunda:value id="SEND_TO_OTHER_THEME" name="SEND_TO_OTHER_THEME" />
+          </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0zox8jb</bpmn:incoming>
@@ -127,8 +134,12 @@
     <bpmn:userTask id="task_create_visit" name="Doorgeven ${status_name} TOP" camunda:formKey="doorgeven_huisbezoek_resultaat" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(60).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="situation" label="Wat is de situatie?" type="string" />
-          <camunda:formField id="can_next_visit_go_ahead" label="Kan volgende bezoek doorgaan?" type="string" />
+          <camunda:formField id="situation" label="Wat is de situatie?" type="enum">
+            <camunda:value id="nobody_present" name="nobody_present" />
+            <camunda:value id="no_cooperation" name="no_cooperation" />
+            <camunda:value id="access_granted" name="access_granted" />
+          </camunda:formField>
+          <camunda:formField id="can_next_visit_go_ahead" label="Kan volgende bezoek doorgaan?" type="boolean" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0bbwpzi</bpmn:incoming>
