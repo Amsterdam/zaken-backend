@@ -124,7 +124,7 @@ class CheckIncomingPermitRequest(GenericUserTask):
 
 
 class NoPermitRequested(GenericUserTask):
-    task_name = "Activity_0c3s2q7"  # BUG in Spiff, should be renamed
+    task_name = "task_no_permit"
     description = "Geen vergunning"
 
     @staticmethod
