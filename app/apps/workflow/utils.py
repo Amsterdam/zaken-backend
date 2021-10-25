@@ -51,6 +51,26 @@ def parse_task_spec_form(form):
     return fields
 
 
+def map_variables_on_task_spec_form(variables, task_spec_form):
+    # transforms form result data and adds labels for the frontend
+    form = dict((f.get("id"), f) for f in task_spec_form)
+    return dict(
+        (
+            k,
+            {
+                "label": form.get(k, {}).get("label", v.get("value")),
+                "value": v.get("value")
+                if not form.get(k, {}).get("options")
+                else dict((o.get("id"), o) for o in form.get(k, {}).get("options"))
+                .get(v.get("value"), {})
+                .get("label", v.get("value")),
+            },
+        )
+        for k, v in variables.items()
+        if isinstance(v, dict)
+    )
+
+
 def check_for_duplicate_task_spec_ids(workflow_spec):
     spiff_task_names = ["Start", "End"]
     all_task_ids = []
