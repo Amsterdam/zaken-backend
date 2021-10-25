@@ -81,7 +81,14 @@
     <bpmn:userTask id="task_create_debrief" name="Verwerken debrief" camunda:formKey="debrief_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="violation" label="Violation" type="string" />
+          <camunda:formField id="violation" label="Violation" type="enum">
+            <camunda:value id="NO" name="No" />
+            <camunda:value id="YES" name="Yes" />
+            <camunda:value id="ADDITIONAL_RESEARCH_REQUIRED" name="Additional research required" />
+            <camunda:value id="ADDITIONAL_VISIT_REQUIRED" name="Additional visit required" />
+            <camunda:value id="ADDITIONAL_VISIT_WITH_AUTHORIZATION" name="Additional visit with authoization required" />
+            <camunda:value id="SEND_TO_OTHER_THEME" name="Send to other theme" />
+          </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0zox8jb</bpmn:incoming>
