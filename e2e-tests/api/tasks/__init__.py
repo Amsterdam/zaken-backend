@@ -44,7 +44,7 @@ class AbstractUserTask:
     def run(self, client, case):
         extra = self.get_post_data(case, self.task)
         post_data = self.data | extra if self.data else extra
-        client.call("post", f"/{self.endpoint}/", post_data)
+        client.call("post", f"/{self.endpoint}/", post_data, task_name=self.task_name)
 
     def get_post_data(self, case, task):
         return {

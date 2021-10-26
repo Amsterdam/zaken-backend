@@ -17,29 +17,38 @@ class Client:
         if "://api.wonen.zaken.amsterdam.nl/" in self.host:
             raise Exception(f"Host ({self.host}) not allowed")
 
-    def request(self, verb, url, headers=None, json=None):
+    def request(self, verb, url, headers=None, json=None, task_name="SYSTEM"):
         url = f"{self.host}{url}"
         logger.info(
             f"{verb.upper()} on '{url}' with headers:\n{headers}\nand json:\n{json}\n"
         )
 
         res = requests.request(verb, url=url, headers=headers, json=json)
-        logger.info(f"Response api status:{res.status_code} with text:\n{res.text}\n")
+        logger.info(
+            f"Response {task_name} api status:{res.status_code} with text:\n{res.text}\n"
+        )
 
         if not res.ok:
             logger.info(res.text)
-            raise Exception(f"Error: status: {res.status_code} on url: {url}")
+            raise Exception(
+                f"Error {task_name}: status: {res.status_code} on url: {url} with data: {json}"
+            )
 
         return res.json()
 
-    def call(self, verb, url, json=None):
+    def call(self, verb, url, json=None, task_name="SYSTEM"):
         if not self.authenticated:
             response = self.request(
-                "post", "/oidc-authenticate/", json={"code": "string"}
+                "post",
+                "/oidc-authenticate/",
+                json={"code": "string"},
+                task_name=task_name,
             )
             self.headers = {"Authorization": f"Bearer {response['access']}"}
             self.authenticated = True
-        return self.request(verb, url, headers=self.headers, json=json)
+        return self.request(
+            verb, url, headers=self.headers, json=json, task_name=task_name
+        )
 
     def get_case_tasks(self, case_id):
         response = self.call("get", f"/cases/{case_id}/tasks/")
@@ -65,4 +74,6 @@ class Client:
         if "identification" in data and data["identification"]:
             events.append(CitizenReportEvent)
 
-        return Case(self.call("post", "/cases/", data), self, events)
+        return Case(
+            self.call("post", "/cases/", data, task_name="create_case"), self, events
+        )
