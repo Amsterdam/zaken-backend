@@ -349,14 +349,6 @@
       <bpmn:outgoing>Flow_186wilc</bpmn:outgoing>
       <bpmn:script>summon_next_step = {"value": "decision"}</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:textAnnotation id="TextAnnotation_145t3qx">
-      <bpmn:text>THIS IS NOW 40 SECONDS</bpmn:text>
-    </bpmn:textAnnotation>
-    <bpmn:textAnnotation id="TextAnnotation_1j7z2dh">
-      <bpmn:text>THIS IS NOW 40 SECONDS</bpmn:text>
-    </bpmn:textAnnotation>
-    <bpmn:association id="Association_0772obe" sourceRef="TextAnnotation_145t3qx" targetRef="Event_1514cbt" />
-    <bpmn:association id="Association_0qnkv7f" sourceRef="Event_1s4a0ru" targetRef="TextAnnotation_1j7z2dh" />
   </bpmn:process>
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
   <bpmn:message id="Message_1k1jpww" name="start_decision_process" />
@@ -692,12 +684,6 @@
       <bpmndi:BPMNShape id="Activity_18im036_di" bpmnElement="service_script_next_step_decision_summon">
         <dc:Bounds x="2840" y="620" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_145t3qx_di" bpmnElement="TextAnnotation_145t3qx">
-        <dc:Bounds x="1460" y="390" width="100" height="40" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_1j7z2dh_di" bpmnElement="TextAnnotation_1j7z2dh">
-        <dc:Bounds x="1190" y="400" width="100" height="40" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1qii9bf_di" bpmnElement="Event_1s4a0ru">
         <dc:Bounds x="1132" y="322" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -707,14 +693,6 @@
       <bpmndi:BPMNShape id="Event_1ya7mo6_di" bpmnElement="Event_1514cbt">
         <dc:Bounds x="1412" y="462" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Association_0772obe_di" bpmnElement="Association_0772obe">
-        <di:waypoint x="1487" y="430" />
-        <di:waypoint x="1443" y="468" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Association_0qnkv7f_di" bpmnElement="Association_0qnkv7f">
-        <di:waypoint x="1164" y="351" />
-        <di:waypoint x="1222" y="400" />
-      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
