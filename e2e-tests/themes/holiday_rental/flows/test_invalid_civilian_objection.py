@@ -36,4 +36,7 @@ class TestInvalidCivilianObjection(DefaultAPITest):
             Decision(type=DecisionType.HolidayRental.FINE),
             SendTaxCollection(),
             ValidateNoOpenTasks(),
+            # For now user has to stage another step, in the future we would like to trigger
+            # PlanNextStep automatically
+            # ValidateOpenTasks(PlanNextStep)
         )

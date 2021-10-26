@@ -1,5 +1,13 @@
-from api.config import SummonTypes, Violation
-from api.tasks.closing_procedure import MonitorReopeningRequest, SaveFireBrigadeAdvice
+from api.config import ReviewRequest, SummonTypes, Violation
+from api.tasks.closing_procedure import (
+    ContactOwner,
+    JudgeReopeningRequest,
+    MonitorReopeningRequest,
+    MonitorReopeningRequestToBeDelivered,
+    Reopen,
+    SaveFireBrigadeAdvice,
+    ScheduleRecheck,
+)
 from api.tasks.debrief import (
     CreateConceptNotices,
     CreateFindingsReport,
@@ -9,6 +17,7 @@ from api.tasks.debrief import (
 from api.tasks.summon import CheckNotices, ProcessNotice
 from api.tasks.visit import ScheduleVisit, Visit
 from api.test import DefaultAPITest
+from api.timers import WaitForTimer
 from api.validators import ValidateOpenTasks
 
 
@@ -27,19 +36,18 @@ class TestViolationClosure(DefaultAPITest):
             ValidateOpenTasks(CheckNotices),
             CheckNotices(),
             ProcessNotice(type=SummonTypes.HolidayRental.CLOSURE),
-            # BUG  Spiff gives PlanNextStep !!!
             ValidateOpenTasks(
                 SaveFireBrigadeAdvice,
                 MonitorReopeningRequest,
             ),
             SaveFireBrigadeAdvice(),
-            # We need to implement timers first to be able to test this flow
-            # MonitorReopeningRequest(),
-            # WaitForTimer(),
-            # JudgeReopeningRequest(review_request=ReviewRequest.DECLINED),
-            # MonitorReopeningRequestToBeDelivered(),
-            # JudgeReopeningRequest(),
-            # Reopen(),
-            # ScheduleRecheck(),
-            # AssertNumberOfOpenTasks(0),
+            MonitorReopeningRequest(),
+            WaitForTimer(),
+            ContactOwner(),
+            JudgeReopeningRequest(review_request=ReviewRequest.DECLINED),
+            MonitorReopeningRequestToBeDelivered(),
+            JudgeReopeningRequest(),
+            Reopen(),
+            ScheduleRecheck(),
+            ValidateOpenTasks(ScheduleVisit),
         )

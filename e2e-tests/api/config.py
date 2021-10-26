@@ -17,9 +17,9 @@ api_config = {
 }
 
 # Timers and async waits
-timer_duration = 150  # in seconds
-async_sleep = 1.5  # in seconds
-async_timeout = 25  # in seconds
+timer_duration = 20 + 2 + 3  # in seconds
+async_sleep = 0.5  # in seconds
+async_timeout = 20  # in seconds
 
 
 class Themes:
@@ -75,8 +75,6 @@ class SummonTypes:
         LEGALIZATION_LETTER = 14  # Legalisatiebrief
         OBLIGATION_TO_REPORT_INTENTION_TO_FINE = 8  # Meldplicht voornemen boete
         CLOSURE = 13  # Sluiting
-        WARNING_LETTER = 15  # Waarschuwingsbrief
-
         ADVANCE_ANNOUNCEMENT_DURING_SUM = 5  # Vooraankondiging dwangsom
         INTENTION_TO_FINE = 6  # Voornemen boete
         INTENTION_TO_WITHDRAW_BB_LICENCE = 11  # Voornemen intrekking BB-vergunning

@@ -14,10 +14,10 @@ class TestTimeline(DefaultAPITest):
         self.assertEqual(2, len(case.timeline), len(events))
         self.assertEqual(2, len(events))
 
+        #     "#BUG: The timeline is brokenk, the Visit event actually is removed from the timeline after Close!"
+
     def test_home_visit_report(self):
-        self.skipTest(
-            "#BUG: The timeline is brokenk, the Visit event actually is removed from the timeline after Close!"
-        )
+        self.skipTest("PlanNextStep is not given")
         self.get_case().run_steps(
             ScheduleVisit(),
             Visit(),

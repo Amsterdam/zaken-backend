@@ -459,7 +459,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 DEFAULT_WORKFLOW_TYPE = os.getenv("DEFAULT_WORKFLOW_TYPE", "director")
 
 DEFAULT_WORKFLOW_TIMER_DURATIONS = {
-    "development": timedelta(seconds=150),
+    "development": timedelta(seconds=20),
     "acceptance": timedelta(seconds=240),
 }
 

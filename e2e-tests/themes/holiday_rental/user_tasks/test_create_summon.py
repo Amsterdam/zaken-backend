@@ -1,14 +1,12 @@
 from api.config import SummonTypes
-from api.tasks.close_case import PlanNextStep
 from api.tasks.closing_procedure import MonitorReopeningRequest, SaveFireBrigadeAdvice
 from api.tasks.debrief import CheckNotices
 from api.tasks.summon import (
-    CheckIncomingView,
-    JudgeView,
     MonitorIncomingPermitRequest,
     MonitorIncomingView,
     ProcessNotice,
 )
+from api.tasks.visit import ScheduleVisit
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
 
@@ -19,13 +17,6 @@ class TestSummon(DefaultAPITest):
             *CheckNotices.get_steps(),
             ProcessNotice(type=SummonTypes.HolidayRental.LEGALIZATION_LETTER),
             ValidateOpenTasks(MonitorIncomingPermitRequest),
-        )
-
-    def test_warning_letter(self):
-        self.get_case().run_steps(
-            *CheckNotices.get_steps(),
-            ProcessNotice(type=SummonTypes.HolidayRental.WARNING_LETTER),
-            ValidateOpenTasks(PlanNextStep),
         )
 
     def test_closing_procedure(self):
@@ -103,22 +94,31 @@ class TestSummon(DefaultAPITest):
         )
 
     def test_warning_bb_license(self):
+        self.skipTest(
+            "MonitorIncomingView is incorrect, we expect 'Inplannen hercontrole'"
+        )
         self.get_case().run_steps(
             *CheckNotices.get_steps(),
             ProcessNotice(type=SummonTypes.HolidayRental.WARNING_BB_LICENSE),
-            ValidateOpenTasks(MonitorIncomingView),
+            ValidateOpenTasks(ScheduleVisit),
         )
 
     def test_warning_ss_licence(self):
+        self.skipTest(
+            "MonitorIncomingView is incorrect, we expect 'Inplannen hercontrole'"
+        )
         self.get_case().run_steps(
             *CheckNotices.get_steps(),
             ProcessNotice(type=SummonTypes.HolidayRental.WARNING_SS_LICENCE),
-            ValidateOpenTasks(MonitorIncomingView),
+            ValidateOpenTasks(ScheduleVisit),
         )
 
     def test_warning_vv_license(self):
+        self.skipTest(
+            "MonitorIncomingView is incorrect, we expect 'Inplannen hercontrole'"
+        )
         self.get_case().run_steps(
             *CheckNotices.get_steps(),
             ProcessNotice(type=SummonTypes.HolidayRental.WARNING_VV_LICENSE),
-            ValidateOpenTasks(MonitorIncomingView),
+            ValidateOpenTasks(ScheduleVisit),
         )

@@ -36,10 +36,12 @@ class TestDebrief(DefaultAPITest):
         )
 
     def test_violation_yes(self):
+        self.skipTest("#BUG FeedbackReporters is not given.")
         self.get_case().run_steps(
             *Visit.get_steps(),
             Debrief(violation=Violation.YES),
             ValidateOpenTasks(
+                FeedbackReporters,
                 CreatePictureReport,
                 CreateFindingsReport,
                 CreateConceptNotices,
