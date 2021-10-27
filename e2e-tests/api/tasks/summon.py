@@ -108,7 +108,7 @@ class MonitorIncomingPermitRequest(GenericUserTask):
 
 
 class CheckIncomingPermitRequest(GenericUserTask):
-    task_name = "Activity_1t8h57c"  # BUG in Spiff, should be renamed
+    task_name = "task_check_incoming_permit_application"
     description = "Controleren binnenkomst vergunningaanvraag"
 
     def __init__(self, permit_requested=PermitRequested.NO):
@@ -124,7 +124,7 @@ class CheckIncomingPermitRequest(GenericUserTask):
 
 
 class NoPermitRequested(GenericUserTask):
-    task_name = "Activity_0c3s2q7"  # BUG in Spiff, should be renamed
+    task_name = "task_no_permit"
     description = "Geen vergunning"
 
     @staticmethod

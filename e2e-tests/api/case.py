@@ -28,7 +28,7 @@ class Case:
         for step in steps:
             # Give Spiff some time to do async processing.
             # Keep retrying untill we have a timeout
-            if not wait_for(
+            if hasattr(step, "is_ready") and not wait_for(
                 lambda: step.is_ready(self.client, self), async_timeout, async_sleep
             ):
                 raise Exception(f"Step ({step}) is not ready for case {self}.")

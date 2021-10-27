@@ -17,7 +17,7 @@ class AbstractUserTask:
         return f"<{self.__module__}.{self.__class__.__name__} task_name:{self.task_name} event:{self.event.type}>"
 
     def is_async(self):
-        return hasattr(self, "asynchronous") and self.asynchronous
+        return True  # hasattr(self, "asynchronous") and self.asynchronous
 
     def is_ready(self, client, case):
         open_tasks = client.get_case_tasks(case.data["id"])

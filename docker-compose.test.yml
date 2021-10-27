@@ -37,6 +37,8 @@ services:
       - "6409:5432"
     env_file:
       - .env
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
 
   rabbitmq:
     image: rabbitmq:3.9
@@ -82,3 +84,6 @@ networks:
     external: true
   top_and_zaak_backend_bridge:
     external: true
+
+volumes:
+  postgresql-data:
