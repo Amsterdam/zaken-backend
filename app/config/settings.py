@@ -465,6 +465,12 @@ DEFAULT_WORKFLOW_TIMER_DURATIONS = {
 
 WORKFLOW_SPEC_CONFIG = {
     "default": {
+        "closing_procedure": {
+            "initial_data": {
+                "task_monitoren_heropeningsverzoek_timer_duration": timedelta(days=92),
+            },
+            "versions": {"0.1.0": {}},
+        },
         "close_case": {
             "initial_data": {},
             "versions": {
