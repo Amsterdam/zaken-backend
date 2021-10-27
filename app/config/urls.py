@@ -5,6 +5,7 @@ from apps.cases.views import (
     CaseThemeCitizenReportViewSet,
     CaseThemeViewSet,
     CaseViewSet,
+    download_data,
 )
 from apps.debriefings.views import DebriefingViewSet
 from apps.decisions.views import DecisionViewSet
@@ -51,6 +52,7 @@ router.register(r"generic-tasks", GenericCompletedTaskViewSet, basename="generic
 
 urlpatterns = [
     # Admin environment
+    path("admin/download_data/", download_data),
     path("admin/", admin.site.urls),
     path(
         "bwv-zaken-importeren/vakantieverhuur/melding",
