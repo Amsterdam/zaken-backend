@@ -1,5 +1,7 @@
 import datetime
 import logging
+import mimetypes
+import os
 
 import requests
 from apps.addresses.utils import search
@@ -68,8 +70,9 @@ from apps.visits.models import Visit
 from apps.visits.serializers import VisitSerializer
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.edit import FormView
@@ -666,6 +669,27 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         serializer = CaseCloseResultSerializer(context, many=True)
 
         return paginator.get_paginated_response(serializer.data)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def download_data(request):
+    DATABASE_USER = os.environ.get("DATABASE_USER")
+    DATABASE_PASSWORD = os.environ.get("DATABASE_PASSWORD")
+    DATABASE_HOST = os.environ.get("DATABASE_HOST")
+    DATABASE_NAME = os.environ.get("DATABASE_NAME")
+
+    filename = "zaken_db.sql"
+
+    command = f"PGPASSWORD='{DATABASE_PASSWORD}' pg_dump -U {DATABASE_USER} -d {DATABASE_NAME} -h {DATABASE_HOST} > {filename}"
+    os.system(command)
+
+    fl_path = "/app/"
+
+    fl = open(os.path.join(fl_path, filename), "r")
+    mime_type, _ = mimetypes.guess_type(fl_path)
+    response = HttpResponse(fl, content_type=mime_type)
+    response["Content-Disposition"] = "attachment; filename=%s" % filename
+    return response
 
 
 class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
