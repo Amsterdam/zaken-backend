@@ -1,7 +1,7 @@
 from api import events
 from api.config import (
     HasPermit,
-    Objection,
+    ObjectionReceived,
     ObjectionValid,
     PermitRequested,
     SummonTypes,
@@ -9,6 +9,7 @@ from api.config import (
 from api.mock import get_person
 from api.tasks import AbstractUserTask, GenericUserTask
 from api.tasks.debrief import CheckNotices
+from api.timers import WaitForTimer
 
 
 class ProcessNotice(AbstractUserTask):
@@ -64,13 +65,13 @@ class CheckIncomingView(GenericUserTask):
     task_name = "task_check_incoming_point_of_view"
     description = "Controleren binnenkomst zienswijze"
 
-    def __init__(self, objection=Objection.NO):
+    def __init__(self, objection=ObjectionReceived.NO):
         data = {"is_civilian_objection_received": {"value": objection}}
 
         super(CheckIncomingView, self).__init__(**data)
 
     @staticmethod
-    def get_steps(objection=Objection.NO):
+    def get_steps(objection=ObjectionReceived.NO):
         return [
             *MonitorIncomingView.get_steps(
                 civilian_objection_received=False
@@ -100,10 +101,12 @@ class MonitorIncomingPermitRequest(GenericUserTask):
     description = "Monitoren binnenkomen vergunningaanvraag"
 
     @staticmethod
-    def get_steps(objection_valid=True):
+    def get_steps(permit_requested=True):
         return [
-            *CheckIncomingView.get_steps(),
-            __class__(),
+            *ProcessNotice.get_steps(
+                type=SummonTypes.HolidayRental.LEGALIZATION_LETTER
+            ),
+            __class__() if permit_requested else WaitForTimer(),
         ]
 
 
@@ -123,7 +126,7 @@ class CheckIncomingPermitRequest(GenericUserTask):
         ]
 
 
-class NoPermitRequested(GenericUserTask):
+class NoPermit(GenericUserTask):
     task_name = "task_no_permit"
     description = "Geen vergunning"
 
@@ -139,36 +142,37 @@ class MonitorPermitProcedure(GenericUserTask):
     task_name = "task_monitor_permit_request_procedure"
     description = "Monitoren vergunningsprocedure"
 
-    def __init__(self, has_permit=True):
-        data = {"civilian_has_gotten_permit": {"value": has_permit}}
+    def __init__(self):
+        data = {"civilian_has_gotten_permit": {"value": True}}
         super(MonitorPermitProcedure, self).__init__(**data)
 
     @staticmethod
     def get_steps(has_permit=True):
         return [
             *MonitorIncomingPermitRequest.get_steps(),
-            __class__(has_permit=has_permit),
+            __class__() if has_permit else WaitForTimer(),
         ]
 
 
 class CheckPermitProcedure(GenericUserTask):
-    task_name = "Activity_1gaa36w"  # BUG in Spiff, should be renamed
+    task_name = "task_check_incoming_permit_application"
     description = "Controleren vergunningsprocedure"
 
-    def __init__(self, has_permit=HasPermit.YES):
-        data = {"civilian_has_gotten_permit": {"value": has_permit}}
+    def __init__(self, permit_requested=PermitRequested.YES):
+        data = {"action_civilian_permit_requested": {"value": permit_requested}}
         super(CheckPermitProcedure, self).__init__(**data)
 
     @staticmethod
-    def get_steps(has_permit=HasPermit.YES):
+    def get_steps(permit_requested=PermitRequested.YES):
         return [
-            *MonitorPermitProcedure.get_steps(),
-            __class__(has_permit=has_permit),
+            *MonitorPermitProcedure.get_steps(has_permit=False),
+            WaitForTimer(),
+            __class__(permit_requested=permit_requested),
         ]
 
 
 class FinishPermitCheck(GenericUserTask):
-    task_name = "Activity_18x19gf"  # BUG in Spiff, should be renamed
+    task_name = "task_afronden_vergunningscheck"
     description = "Afronden vergunningscheck"
 
     @staticmethod

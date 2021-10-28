@@ -14,7 +14,6 @@ class TestRenounceDecision(DefaultAPITest):
         """
         This flow only tests one Summon/Decision.
         """
-        self.skipTest("PlanNextStep not given")
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.NO_DECISION),

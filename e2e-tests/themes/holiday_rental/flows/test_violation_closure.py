@@ -1,4 +1,5 @@
 from api.config import ReviewRequest, SummonTypes, Violation
+from api.tasks.close_case import PlanNextStep
 from api.tasks.closing_procedure import (
     ContactOwner,
     JudgeReopeningRequest,
@@ -6,7 +7,6 @@ from api.tasks.closing_procedure import (
     MonitorReopeningRequestToBeDelivered,
     Reopen,
     SaveFireBrigadeAdvice,
-    ScheduleRecheck,
 )
 from api.tasks.debrief import (
     CreateConceptNotices,
@@ -23,9 +23,7 @@ from api.validators import ValidateOpenTasks
 
 class TestViolationClosure(DefaultAPITest):
     def test(self):
-        self.skipTest(
-            "#BUG After ProcessNotice, case has PlanNextStep instead of SaveFireBrigadeAdvice and MonitorReopeningRequest. @xavier is going to add closing_procedure to director."
-        )
+        self.skipTest("PlanNextStep is not given")
         self.get_case().run_steps(
             ScheduleVisit(),
             Visit(),
@@ -41,13 +39,12 @@ class TestViolationClosure(DefaultAPITest):
                 MonitorReopeningRequest,
             ),
             SaveFireBrigadeAdvice(),
-            MonitorReopeningRequest(),
             WaitForTimer(),
             ContactOwner(),
             JudgeReopeningRequest(review_request=ReviewRequest.DECLINED),
             MonitorReopeningRequestToBeDelivered(),
             JudgeReopeningRequest(),
             Reopen(),
-            ScheduleRecheck(),
+            PlanNextStep(),
             ValidateOpenTasks(ScheduleVisit),
         )

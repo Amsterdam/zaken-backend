@@ -9,9 +9,8 @@ logger = logging.getLogger("api")
 
 
 class SaveFireBrigadeAdvice(GenericUserTask):
-    # task_name = "task_save_fireman_advice"
     asynchronous = True
-    task_name = "Activity_19r9rzm"  # BUG in Spiff, should be renamed
+    task_name = "task_opslaan_brandweeradvies"
     description = "Opslaan brandweeradvies"
 
     @staticmethod
@@ -23,8 +22,7 @@ class SaveFireBrigadeAdvice(GenericUserTask):
 
 
 class MonitorReopeningRequest(GenericUserTask):
-    # task_name = "task_monitor_reopening_request"
-    task_name = "Activity_0wienly"  # BUG in Spiff, should be renamed
+    task_name = "task_monitoren_heropeningsverzoek"
     description = "Monitoren heropeningsverzoek"
 
     @staticmethod
@@ -36,8 +34,7 @@ class MonitorReopeningRequest(GenericUserTask):
 
 
 class ContactOwner(GenericUserTask):
-    # task_name = "task_contact_owner"
-    task_name = "Activity_0gjczg7"  # BUG in Spiff, should be renamed
+    task_name = "task_contacteren_eigeneer"
     description = "Contacteren eigenaar"
 
     @staticmethod
@@ -46,8 +43,7 @@ class ContactOwner(GenericUserTask):
 
 
 class JudgeReopeningRequest(GenericUserTask):
-    # task_name = "task_judge_reopening_request"
-    task_name = "Activity_0fp5tdz"  # BUG in Spiff, should be renamed
+    task_name = "task_beoordelen_heropeningsverzoek"
     description = "Beoordelen heropeningsverzoek"
 
     def __init__(self, review_request=ReviewRequest.ACCEPTED):
@@ -64,8 +60,7 @@ class JudgeReopeningRequest(GenericUserTask):
 
 
 class MonitorReopeningRequestToBeDelivered(GenericUserTask):
-    # task_name = "task_monitor_new_reopening_request"
-    task_name = "Activity_0zh0d0s"  # BUG in Spiff, should be renamed
+    task_name = "task_monitoren_nieuw_heropeningsverzoek"
     description = "Monitoren nieuw aan te leveren heropeningsverzoek"
 
     @staticmethod
@@ -77,20 +72,9 @@ class MonitorReopeningRequestToBeDelivered(GenericUserTask):
 
 
 class Reopen(GenericUserTask):
-    # task_name = "task_reopening"
-    task_name = "Activity_1fovs3d"  # BUG in Spiff, should be renamed
+    task_name = "task_heropenen"
     description = "Heropenen"
 
     @staticmethod
     def get_steps():
         return [*JudgeReopeningRequest.get_steps(), __class__()]
-
-
-class ScheduleRecheck(GenericUserTask):
-    # task_name = "task_schedule_recheck"
-    task_name = "Activity_1tmqvpn"  # BUG in Spiff, should be renamed
-    description = "Uitzetten hercontrole"
-
-    @staticmethod
-    def get_steps():
-        return [*Reopen.get_steps(), __class__()]

@@ -27,6 +27,6 @@ class TestMonitorIncomingPermitRequest(DefaultAPITest):
                 type=SummonTypes.HolidayRental.LEGALIZATION_LETTER
             ),
             ValidateOpenTasks(MonitorIncomingPermitRequest),
-            MonitorIncomingPermitRequest(objection_valid=True),
+            MonitorIncomingPermitRequest(),
             ValidateOpenTasks(MonitorPermitProcedure),
         )
