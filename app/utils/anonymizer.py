@@ -228,7 +228,6 @@ def get_default_anonymizer():
         (
             CamundaGenericCompletedTask,
             {
-                "description": get_paragraph,
                 "variables": {},
             },
         ),
@@ -305,7 +304,6 @@ def get_default_anonymizer():
         (
             GenericCompletedTask,
             {
-                "description": get_paragraph,
                 "variables": {},
             },
         ),
