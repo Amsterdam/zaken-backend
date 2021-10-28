@@ -17,5 +17,3 @@ class Command(BaseCommand):
 
         anonymizer = get_default_anonymizer()
         anonymizer.perform_update()
-
-        logger.info("Anonymization done")
