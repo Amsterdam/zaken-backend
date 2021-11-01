@@ -27,6 +27,7 @@ class Migration(migrations.Migration):
                 theme_id
             FROM
                 camunda_camundaprocess;
+            SELECT SETVAL((SELECT PG_GET_SERIAL_SEQUENCE('"workflow_workflowoption"', 'id')), (SELECT (MAX("id") + 1) FROM "workflow_workflowoption"), FALSE);
         """,
             reverse_sql="""
             INSERT INTO camunda_camundaprocess (
