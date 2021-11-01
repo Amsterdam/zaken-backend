@@ -14,19 +14,17 @@
         <bpmn:flowNodeRef>task_create_decision</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>start_0eecx50</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>gateway_which_type_of_decision</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_status_besluit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0f7x7aq</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1c80mz8</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gateway_parallel_0h8vjtw</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gateway_merge_0f59geq</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_contact_city_district</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_send_tax_collection</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_script_next_step_close_case</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>end_14226b3</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_script_next_step_renounce</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>end_1hipcpo</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>service_status_besluit</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>gateway_parallel_0h8vjtw</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>gateway_merge_0f59geq</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>service_script_next_step_close_case</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>task_contact_city_district</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Gateway_0ft5d6r</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_0f7x7aq</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_1c80mz8</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_1v9nqu8</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:userTask id="task_check_concept_decision" name="Nakijken besluit" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
@@ -64,24 +62,10 @@
       <bpmn:outgoing>Flow_0azm62q</bpmn:outgoing>
       <bpmn:outgoing>Flow_00nt5t7</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_send_tax_collection" name="Versturen invordering belastingen" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
-      <bpmn:incoming>Flow_15jrvwj</bpmn:incoming>
-      <bpmn:outgoing>Flow_10vmiho</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:endEvent id="end_14226b3" name="Uitzetten vervolgstap">
-      <bpmn:incoming>Flow_005h6w2</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:scriptTask id="service_script_next_step_renounce" name="next_step = {&#34;value&#34;: &#34;renounce&#34;}">
-      <bpmn:incoming>Flow_0azm62q</bpmn:incoming>
-      <bpmn:outgoing>Flow_0p5ojnr</bpmn:outgoing>
-      <bpmn:script>next_step = {"value": "renounce"}</bpmn:script>
-    </bpmn:scriptTask>
-    <bpmn:endEvent id="end_1hipcpo">
-      <bpmn:incoming>Flow_0p5ojnr</bpmn:incoming>
-    </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_005h6w2" sourceRef="service_script_next_step_close_case" targetRef="end_14226b3" />
-    <bpmn:sequenceFlow id="Flow_15jrvwj" name="Besluit = sanctie (boete, invordering dwangsom, meldplicht beschikking boete)" sourceRef="gateway_parallel_0h8vjtw" targetRef="task_send_tax_collection" />
-    <bpmn:sequenceFlow id="Flow_1boz1xa" name="Besluit = Intrekken vergunning *3" sourceRef="gateway_parallel_0h8vjtw" targetRef="Gateway_0ft5d6r" />
+    <bpmn:sequenceFlow id="Flow_15jrvwj" name="Besluit = sanctie (boete, invordering dwangsom, meldplicht beschikking boete)" sourceRef="gateway_parallel_0h8vjtw" targetRef="task_send_tax_collection">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_besluit.value == "boete" or type_besluit.value == "last_onder_dwangsom" or type_besluit.value == "meldplicht_beschikking_boete" or type_besluit.value == "invordering_dwangsom"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0tzy074" sourceRef="gateway_merge_0f59geq" targetRef="service_script_next_step_close_case" />
     <bpmn:sequenceFlow id="Flow_1r2nz2z" sourceRef="task_contact_city_district" targetRef="gateway_merge_0f59geq" />
     <bpmn:sequenceFlow id="Flow_10vmiho" sourceRef="task_send_tax_collection" targetRef="gateway_merge_0f59geq" />
@@ -100,33 +84,9 @@
       <bpmn:outgoing>Flow_1iai8dg</bpmn:outgoing>
       <bpmn:script>set_status("Besluit")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:parallelGateway id="gateway_parallel_0h8vjtw">
-      <bpmn:incoming>Flow_1fjclix</bpmn:incoming>
-      <bpmn:outgoing>Flow_15jrvwj</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1boz1xa</bpmn:outgoing>
-    </bpmn:parallelGateway>
-    <bpmn:parallelGateway id="gateway_merge_0f59geq">
-      <bpmn:incoming>Flow_1r2nz2z</bpmn:incoming>
-      <bpmn:incoming>Flow_10vmiho</bpmn:incoming>
-      <bpmn:outgoing>Flow_0tzy074</bpmn:outgoing>
-    </bpmn:parallelGateway>
-    <bpmn:scriptTask id="service_script_next_step_close_case" name="next_step = {&#34;value&#34;: &#34;close_case&#34;}">
-      <bpmn:incoming>Flow_0tzy074</bpmn:incoming>
-      <bpmn:outgoing>Flow_005h6w2</bpmn:outgoing>
-      <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
-    </bpmn:scriptTask>
-    <bpmn:userTask id="task_contact_city_district" name="Contacteren stadsdeel" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
-      <bpmn:incoming>Flow_0bjw3py</bpmn:incoming>
-      <bpmn:outgoing>Flow_1r2nz2z</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_0bjw3py" sourceRef="Gateway_0ft5d6r" targetRef="task_contact_city_district">
+    <bpmn:sequenceFlow id="Flow_0bjw3py" name="Besluit = Intrekken vergunning *3" sourceRef="gateway_parallel_0h8vjtw" targetRef="task_contact_city_district">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_besluit.value == "intrekken_vv_vergunning" or type_besluit.value == "intrekken_bb_vergunning" or type_besluit.value == "intrekken_shortstay_vergunning"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:exclusiveGateway id="Gateway_0ft5d6r" default="Flow_12rmxjc">
-      <bpmn:incoming>Flow_1boz1xa</bpmn:incoming>
-      <bpmn:outgoing>Flow_0bjw3py</bpmn:outgoing>
-      <bpmn:outgoing>Flow_12rmxjc</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_00nt5t7" name="Last onder dwangsom" sourceRef="gateway_which_type_of_decision" targetRef="Activity_0f7x7aq">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_besluit.value == "last_onder_dwangsom"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -139,9 +99,42 @@
       <bpmn:incoming>Flow_13ca7sd</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_13ca7sd" sourceRef="Activity_0f7x7aq" targetRef="Event_1c80mz8" />
-    <bpmn:sequenceFlow id="Flow_12rmxjc" sourceRef="Gateway_0ft5d6r" targetRef="Event_1v9nqu8" />
-    <bpmn:endEvent id="Event_1v9nqu8">
-      <bpmn:incoming>Flow_12rmxjc</bpmn:incoming>
+    <bpmn:exclusiveGateway id="gateway_parallel_0h8vjtw" default="Flow_0ppxurm">
+      <bpmn:incoming>Flow_1fjclix</bpmn:incoming>
+      <bpmn:outgoing>Flow_15jrvwj</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0bjw3py</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0ppxurm</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="gateway_merge_0f59geq">
+      <bpmn:incoming>Flow_1r2nz2z</bpmn:incoming>
+      <bpmn:incoming>Flow_10vmiho</bpmn:incoming>
+      <bpmn:incoming>Flow_0ppxurm</bpmn:incoming>
+      <bpmn:outgoing>Flow_0tzy074</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0ppxurm" sourceRef="gateway_parallel_0h8vjtw" targetRef="gateway_merge_0f59geq" />
+    <bpmn:userTask id="task_contact_city_district" name="Contacteren stadsdeel" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:incoming>Flow_0bjw3py</bpmn:incoming>
+      <bpmn:outgoing>Flow_1r2nz2z</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_send_tax_collection" name="Versturen invordering belastingen" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:incoming>Flow_15jrvwj</bpmn:incoming>
+      <bpmn:outgoing>Flow_10vmiho</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:scriptTask id="service_script_next_step_close_case" name="next_step = {&#34;value&#34;: &#34;close_case&#34;}">
+      <bpmn:incoming>Flow_0tzy074</bpmn:incoming>
+      <bpmn:outgoing>Flow_005h6w2</bpmn:outgoing>
+      <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="end_14226b3" name="Uitzetten vervolgstap">
+      <bpmn:incoming>Flow_005h6w2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="service_script_next_step_renounce" name="next_step = {&#34;value&#34;: &#34;renounce&#34;}">
+      <bpmn:incoming>Flow_0azm62q</bpmn:incoming>
+      <bpmn:outgoing>Flow_0p5ojnr</bpmn:outgoing>
+      <bpmn:script>next_step = {"value": "renounce"}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="end_1hipcpo">
+      <bpmn:incoming>Flow_0p5ojnr</bpmn:incoming>
     </bpmn:endEvent>
   </bpmn:process>
   <bpmn:message id="Message_1k5s52q" name="start_decision_process" />
@@ -150,14 +143,33 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_19t4o88">
       <bpmndi:BPMNShape id="Participant_0mil4ed_di" bpmnElement="Participant_0mil4ed" isHorizontal="true">
-        <dc:Bounds x="160" y="80" width="1800" height="580" />
+        <dc:Bounds x="160" y="80" width="1510" height="580" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_138dlau_di" bpmnElement="lane_projecthandhaver_138dlau" isHorizontal="true">
-        <dc:Bounds x="190" y="80" width="1770" height="440" />
+        <dc:Bounds x="190" y="80" width="1480" height="440" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_0pet0u3_di" bpmnElement="lane_handhavingsjurist_0pet0u3" isHorizontal="true">
-        <dc:Bounds x="190" y="520" width="1770" height="140" />
+        <dc:Bounds x="190" y="520" width="1480" height="140" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_13ca7sd_di" bpmnElement="Flow_13ca7sd">
+        <di:waypoint x="960" y="470" />
+        <di:waypoint x="1002" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00nt5t7_di" bpmnElement="Flow_00nt5t7">
+        <di:waypoint x="910" y="355" />
+        <di:waypoint x="910" y="430" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="913" y="376" width="54" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bjw3py_di" bpmnElement="Flow_0bjw3py">
+        <di:waypoint x="1060" y="355" />
+        <di:waypoint x="1060" y="440" />
+        <di:waypoint x="1150" y="440" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1041" y="395" width="68" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_18vwc84_di" bpmnElement="Flow_18vwc84">
         <di:waypoint x="298" y="330" />
         <di:waypoint x="350" y="330" />
@@ -189,69 +201,45 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0azm62q_di" bpmnElement="Flow_0azm62q">
         <di:waypoint x="910" y="305" />
-        <di:waypoint x="910" y="210" />
+        <di:waypoint x="910" y="160" />
+        <di:waypoint x="1430" y="160" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="816" y="255" width="87" height="14" />
+          <dc:Bounds x="926" y="143" width="87" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0p5ojnr_di" bpmnElement="Flow_0p5ojnr">
-        <di:waypoint x="960" y="170" />
-        <di:waypoint x="1692" y="170" />
+        <di:waypoint x="1530" y="160" />
+        <di:waypoint x="1582" y="160" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_10vmiho_di" bpmnElement="Flow_10vmiho">
-        <di:waypoint x="1300" y="330" />
-        <di:waypoint x="1345" y="330" />
+        <di:waypoint x="1250" y="260" />
+        <di:waypoint x="1370" y="260" />
+        <di:waypoint x="1370" y="305" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1r2nz2z_di" bpmnElement="Flow_1r2nz2z">
-        <di:waypoint x="1300" y="440" />
+        <di:waypoint x="1250" y="440" />
         <di:waypoint x="1370" y="440" />
         <di:waypoint x="1370" y="355" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0tzy074_di" bpmnElement="Flow_0tzy074">
         <di:waypoint x="1395" y="330" />
-        <di:waypoint x="1500" y="330" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1boz1xa_di" bpmnElement="Flow_1boz1xa">
-        <di:waypoint x="1060" y="355" />
-        <di:waypoint x="1060" y="440" />
-        <di:waypoint x="1105" y="440" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1086" y="370" width="68" height="40" />
-        </bpmndi:BPMNLabel>
+        <di:waypoint x="1430" y="330" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_15jrvwj_di" bpmnElement="Flow_15jrvwj">
-        <di:waypoint x="1085" y="330" />
-        <di:waypoint x="1200" y="330" />
+        <di:waypoint x="1060" y="305" />
+        <di:waypoint x="1060" y="260" />
+        <di:waypoint x="1150" y="260" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1079" y="223" width="81" height="93" />
+          <dc:Bounds x="1047" y="173" width="81" height="93" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_005h6w2_di" bpmnElement="Flow_005h6w2">
-        <di:waypoint x="1600" y="330" />
-        <di:waypoint x="1692" y="330" />
+        <di:waypoint x="1530" y="330" />
+        <di:waypoint x="1582" y="330" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0bjw3py_di" bpmnElement="Flow_0bjw3py">
-        <di:waypoint x="1155" y="440" />
-        <di:waypoint x="1200" y="440" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1133" y="422" width="89" height="159" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_00nt5t7_di" bpmnElement="Flow_00nt5t7">
-        <di:waypoint x="910" y="355" />
-        <di:waypoint x="910" y="430" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="913" y="376" width="54" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_13ca7sd_di" bpmnElement="Flow_13ca7sd">
-        <di:waypoint x="960" y="470" />
-        <di:waypoint x="1002" y="470" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_12rmxjc_di" bpmnElement="Flow_12rmxjc">
-        <di:waypoint x="1130" y="465" />
-        <di:waypoint x="1130" y="500" />
-        <di:waypoint x="1222" y="500" />
+      <bpmndi:BPMNEdge id="Flow_0ppxurm_di" bpmnElement="Flow_0ppxurm">
+        <di:waypoint x="1085" y="330" />
+        <di:waypoint x="1345" y="330" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_14ueput_di" bpmnElement="task_check_concept_decision">
         <dc:Bounds x="620" y="550" width="100" height="80" />
@@ -271,38 +259,8 @@
           <dc:Bounds x="818" y="286" width="84" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0gqcn28_di" bpmnElement="task_send_tax_collection">
-        <dc:Bounds x="1200" y="290" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_14z6etq_di" bpmnElement="end_14226b3">
-        <dc:Bounds x="1692" y="312" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1682" y="355" width="57" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0czeehc_di" bpmnElement="service_script_next_step_renounce">
-        <dc:Bounds x="860" y="130" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1hipcpo_di" bpmnElement="end_1hipcpo">
-        <dc:Bounds x="1692" y="152" width="36" height="36" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0wmvo1v_di" bpmnElement="service_status_besluit">
         <dc:Bounds x="350" y="290" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1pcgqei_di" bpmnElement="gateway_parallel_0h8vjtw">
-        <dc:Bounds x="1035" y="305" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0qw8y6q_di" bpmnElement="gateway_merge_0f59geq">
-        <dc:Bounds x="1345" y="305" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_00tie97_di" bpmnElement="service_script_next_step_close_case">
-        <dc:Bounds x="1500" y="290" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0fj9vcq_di" bpmnElement="task_contact_city_district">
-        <dc:Bounds x="1200" y="400" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0ft5d6r_di" bpmnElement="Gateway_0ft5d6r" isMarkerVisible="true">
-        <dc:Bounds x="1105" y="415" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0f7x7aq_di" bpmnElement="Activity_0f7x7aq">
         <dc:Bounds x="860" y="430" width="100" height="80" />
@@ -310,8 +268,32 @@
       <bpmndi:BPMNShape id="Event_1c80mz8_di" bpmnElement="Event_1c80mz8">
         <dc:Bounds x="1002" y="452" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1v9nqu8_di" bpmnElement="Event_1v9nqu8">
-        <dc:Bounds x="1222" y="482" width="36" height="36" />
+      <bpmndi:BPMNShape id="Gateway_08ne5fl_di" bpmnElement="gateway_parallel_0h8vjtw" isMarkerVisible="true">
+        <dc:Bounds x="1035" y="305" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0vfjk8f_di" bpmnElement="gateway_merge_0f59geq" isMarkerVisible="true">
+        <dc:Bounds x="1345" y="305" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0fj9vcq_di" bpmnElement="task_contact_city_district">
+        <dc:Bounds x="1150" y="400" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0gqcn28_di" bpmnElement="task_send_tax_collection">
+        <dc:Bounds x="1150" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00tie97_di" bpmnElement="service_script_next_step_close_case">
+        <dc:Bounds x="1430" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_14z6etq_di" bpmnElement="end_14226b3">
+        <dc:Bounds x="1582" y="312" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1572" y="355" width="57" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0czeehc_di" bpmnElement="service_script_next_step_renounce">
+        <dc:Bounds x="1430" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1hipcpo_di" bpmnElement="end_1hipcpo">
+        <dc:Bounds x="1582" y="142" width="36" height="36" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
