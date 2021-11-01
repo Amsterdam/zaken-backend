@@ -126,18 +126,6 @@ class CheckIncomingPermitRequest(GenericUserTask):
         ]
 
 
-class NoPermit(GenericUserTask):
-    task_name = "task_no_permit"
-    description = "Geen vergunning"
-
-    @staticmethod
-    def get_steps():
-        return [
-            *CheckIncomingPermitRequest.get_steps(permit_requested=PermitRequested.NO),
-            __class__(),
-        ]
-
-
 class MonitorPermitProcedure(GenericUserTask):
     task_name = "task_monitor_permit_request_procedure"
     description = "Monitoren vergunningsprocedure"

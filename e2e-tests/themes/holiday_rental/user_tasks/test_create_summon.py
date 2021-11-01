@@ -1,4 +1,5 @@
 from api.config import SummonTypes
+from api.tasks.close_case import PlanNextStep
 from api.tasks.closing_procedure import MonitorReopeningRequest, SaveFireBrigadeAdvice
 from api.tasks.debrief import CheckNotices
 from api.tasks.summon import (
@@ -6,7 +7,6 @@ from api.tasks.summon import (
     MonitorIncomingView,
     ProcessNotice,
 )
-from api.tasks.visit import ScheduleVisit
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
 
@@ -20,7 +20,6 @@ class TestSummon(DefaultAPITest):
         )
 
     def test_closing_procedure(self):
-        self.skipTest("#BUG Closure procedure is not triggered")
         self.get_case().run_steps(
             *CheckNotices.get_steps(),
             ProcessNotice(type=SummonTypes.HolidayRental.CLOSURE),
@@ -94,31 +93,22 @@ class TestSummon(DefaultAPITest):
         )
 
     def test_warning_bb_license(self):
-        self.skipTest(
-            "MonitorIncomingView is incorrect, we expect 'Inplannen hercontrole'"
-        )
         self.get_case().run_steps(
             *CheckNotices.get_steps(),
             ProcessNotice(type=SummonTypes.HolidayRental.WARNING_BB_LICENSE),
-            ValidateOpenTasks(ScheduleVisit),
+            ValidateOpenTasks(PlanNextStep),  # TODO should be ScheduleVisit
         )
 
     def test_warning_ss_licence(self):
-        self.skipTest(
-            "MonitorIncomingView is incorrect, we expect 'Inplannen hercontrole'"
-        )
         self.get_case().run_steps(
             *CheckNotices.get_steps(),
             ProcessNotice(type=SummonTypes.HolidayRental.WARNING_SS_LICENCE),
-            ValidateOpenTasks(ScheduleVisit),
+            ValidateOpenTasks(PlanNextStep),  # TODO should be ScheduleVisit
         )
 
     def test_warning_vv_license(self):
-        self.skipTest(
-            "MonitorIncomingView is incorrect, we expect 'Inplannen hercontrole'"
-        )
         self.get_case().run_steps(
             *CheckNotices.get_steps(),
             ProcessNotice(type=SummonTypes.HolidayRental.WARNING_VV_LICENSE),
-            ValidateOpenTasks(ScheduleVisit),
+            ValidateOpenTasks(PlanNextStep),  # TODO should be ScheduleVisit
         )

@@ -3,7 +3,6 @@ from api.tasks.summon import (
     CheckPermitProcedure,
     MonitorIncomingPermitRequest,
     MonitorPermitProcedure,
-    NoPermit,
     ProcessNotice,
 )
 from api.test import DefaultAPITest
@@ -15,7 +14,6 @@ class TestCheckPermitProcedure(DefaultAPITest):
         self.get_case().run_steps(
             *MonitorIncomingPermitRequest.get_steps(permit_requested=False),
             CheckPermitProcedure(permit_requested=PermitRequested.NO),
-            NoPermit(),
             ValidateOpenTasks(ProcessNotice),
         )
 

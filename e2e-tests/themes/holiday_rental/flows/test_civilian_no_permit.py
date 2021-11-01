@@ -2,7 +2,6 @@ from api.config import PermitRequested, SummonTypes
 from api.tasks.summon import (
     CheckIncomingPermitRequest,
     MonitorIncomingPermitRequest,
-    NoPermit,
     ProcessNotice,
 )
 from api.test import DefaultAPITest
@@ -19,6 +18,5 @@ class TestCivilianNoPermit(DefaultAPITest):
             ValidateOpenTasks(MonitorIncomingPermitRequest),
             WaitForTimer(),
             CheckIncomingPermitRequest(permit_requested=PermitRequested.NO),
-            NoPermit(),
             ValidateOpenTasks(ProcessNotice),
         )
