@@ -38,9 +38,6 @@ class TestCreateDecision(DefaultAPITest):
         In case of PREVENTIVE_BURDEN we don't expect SendTaxCollection or ContactDistrict.
         But we do expect PlanNextStep.
         """
-        self.skipTest(
-            "In case of PREVENTIVE_BURDEN we don't expect SendTaxCollection or ContactDistrict. But we do expect PlanNextStep."
-        )
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.PREVENTIVE_BURDEN),
@@ -52,9 +49,6 @@ class TestCreateDecision(DefaultAPITest):
         In case of BURDEN_UNDER_PENALTY we don't expect SendTaxCollection or ContactDistrict.
         But we do expect PlanNextStep.
         """
-        self.skipTest(
-            "In case of BURDEN_UNDER_PENALTY we don't expect SendTaxCollection or ContactDistrict. But we do expect PlanNextStep, behaviour seems inconsistent."
-        )
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.BURDEN_UNDER_PENALTY),
@@ -62,7 +56,6 @@ class TestCreateDecision(DefaultAPITest):
         )
 
     def test_revoke_vv_permit(self):
-        self.skipTest("In case of REVOKE_VV_PERMIT we don't expect SendTaxCollection.")
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.REVOKE_VV_PERMIT),
@@ -70,7 +63,6 @@ class TestCreateDecision(DefaultAPITest):
         )
 
     def test_revoke_bb_permit(self):
-        self.skipTest("In case of REVOKE_VV_PERMIT we don't expect SendTaxCollection.")
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.REVOKE_BB_PERMIT),
@@ -78,7 +70,6 @@ class TestCreateDecision(DefaultAPITest):
         )
 
     def test_revoke_shortstay_permit(self):
-        self.skipTest("In case of REVOKE_VV_PERMIT we don't expect SendTaxCollection.")
         self.get_case().run_steps(
             *CheckConceptDecision.get_steps(),
             Decision(type=DecisionType.HolidayRental.REVOKE_SHORTSTAY_PERMIT),
