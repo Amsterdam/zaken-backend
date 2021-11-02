@@ -24,7 +24,8 @@ def task_update_workflows(self):
     from apps.workflow.models import CaseWorkflow
 
     for workflow in CaseWorkflow.objects.filter(completed=False):
-        task_update_workflow.delay(workflow.id)
+        if workflow.has_a_timer_event_fired():
+            task_update_workflow.delay(workflow.id)
     return "task_update_workflows complete"
 
 
