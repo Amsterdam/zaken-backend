@@ -342,12 +342,11 @@ class CaseViewSet(
             if instance.to_directing_proccess:
                 workflow_type = CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
 
-            workflow_instance = CaseWorkflow.objects.create(
+            CaseWorkflow.objects.create(
                 case=case,
                 workflow_type=workflow_type,
                 workflow_message_name=instance.message_name,
             )
-            workflow_instance.start()
 
             return Response(
                 data=f"Workflow has started {str(instance)}",

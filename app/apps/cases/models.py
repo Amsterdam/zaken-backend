@@ -338,6 +338,7 @@ class CitizenReport(TaskModelEventEmitter):
         null=True,
         blank=True,
     )
+    nuisance = models.BooleanField(default=False)
     date_added = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
@@ -356,6 +357,7 @@ class CitizenReport(TaskModelEventEmitter):
             "reporter_email": self.reporter_email,
             "advertisement_linklist": self.advertisement_linklist,
             "description_citizenreport": self.description_citizenreport,
+            "nuisance": self.nuisance,
             "author": author,
         }
         if self.case_user_task_id != "-1":

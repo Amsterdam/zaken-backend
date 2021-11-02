@@ -31,6 +31,7 @@ class Migration(migrations.Migration):
                 case_user_task_id
             FROM
                 camunda_genericcompletedtask;
+            SELECT SETVAL((SELECT PG_GET_SERIAL_SEQUENCE('"workflow_genericcompletedtask"', 'id')), (SELECT (MAX("id") + 1) FROM "workflow_genericcompletedtask"), FALSE);
         """,
             reverse_sql="""
             INSERT INTO camunda_genericcompletedtask (

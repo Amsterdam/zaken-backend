@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_duration
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
+from SpiffWorkflow.bpmn.specs.event_definitions import TimerEventDefinition
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.task import Task
@@ -404,6 +405,24 @@ class CaseWorkflow(models.Model):
         # if end of subworkflow, try to get back to main workflow
         if wf.is_completed() and not self.completed:
             task_complete_worflow.delay(self.id, copy.deepcopy(self.get_data()))
+
+    def has_a_timer_event_fired(self):
+        wf = self.get_or_restore_workflow_state()
+        if not wf:
+            return
+        waiting_tasks = wf._get_waiting_tasks()
+        for task in waiting_tasks:
+            if hasattr(task.task_spec, "event_definition") and isinstance(
+                task.task_spec.event_definition, TimerEventDefinition
+            ):
+                event_definition = task.task_spec.event_definition
+                has_fired = event_definition.has_fired(task)
+                if has_fired:
+                    logger.info(
+                        f"TimerEventDefinition for task '{task.task_spec.name}' has expired. Workflow with id '{self.id}', needs an update"
+                    )
+                    return True
+        return False
 
     def _update_workflow(self, wf):
         wf.refresh_waiting_tasks()

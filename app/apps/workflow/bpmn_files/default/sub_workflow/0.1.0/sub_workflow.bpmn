@@ -22,6 +22,10 @@
         <bpmn:flowNodeRef>event_start_extra_information_process</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>end_094h2mm</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_status_extra_informatie</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_doorzetten_melding_overlast</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>start_nuisance_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_0bk5wui</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_status_report_nuisance</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="lane_projectmedewerker_1bcs10e" name="Projectmedewerker">
         <bpmn:flowNodeRef>task_create_signal</bpmn:flowNodeRef>
@@ -186,23 +190,68 @@
     <bpmn:endEvent id="end_0q70hru">
       <bpmn:incoming>Flow_0zw0zxy</bpmn:incoming>
     </bpmn:endEvent>
+    <bpmn:userTask id="task_doorzetten_melding_overlast" name="Doorzetten melding overlast" camunda:formKey="form_extra_information" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="extra_informatie" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0jee1e2</bpmn:incoming>
+      <bpmn:outgoing>Flow_16jc6al</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:startEvent id="start_nuisance_process" name="Start melding overlast proces" camunda:formKey="start_bezwaardossier">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="zaken_access_token" type="string" />
+          <camunda:formField id="case_identification" type="string" />
+          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+          <camunda:formField id="case_process_id" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_1gmn80j</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0qy2vyz" messageRef="Message_1kgqx8g" />
+    </bpmn:startEvent>
+    <bpmn:endEvent id="end_0bk5wui">
+      <bpmn:incoming>Flow_16jc6al</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="service_status_report_nuisance" name="Bijwerken status: Melding overlast">
+      <bpmn:incoming>Flow_1gmn80j</bpmn:incoming>
+      <bpmn:outgoing>Flow_0jee1e2</bpmn:outgoing>
+      <bpmn:script>set_status("Melding overlast")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_0jee1e2" sourceRef="service_status_report_nuisance" targetRef="task_doorzetten_melding_overlast" />
+    <bpmn:sequenceFlow id="Flow_16jc6al" sourceRef="task_doorzetten_melding_overlast" targetRef="end_0bk5wui" />
+    <bpmn:sequenceFlow id="Flow_1gmn80j" sourceRef="start_nuisance_process" targetRef="service_status_report_nuisance" />
   </bpmn:process>
   <bpmn:message id="Message_0f7jpp5" name="start_signal_process" />
   <bpmn:message id="Message_1wpao9m" name="start_correspondence_process" />
   <bpmn:message id="Message_0apv0c8" name="start_callbackrequest_process" />
   <bpmn:message id="Message_14yjprg" name="start_objectionfile_process" />
   <bpmn:message id="Message_0anwabj" name="start_extra_information" />
+  <bpmn:message id="Message_1kgqx8g" name="start_nuisance_process" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1nd8xuu">
       <bpmndi:BPMNShape id="Participant_03i0kl2_di" bpmnElement="Participant_03i0kl2" isHorizontal="true">
-        <dc:Bounds x="160" y="120" width="820" height="680" />
+        <dc:Bounds x="160" y="120" width="820" height="830" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1bcs10e_di" bpmnElement="lane_projectmedewerker_1bcs10e" isHorizontal="true">
         <dc:Bounds x="190" y="120" width="790" height="120" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_13qot1b_di" bpmnElement="lane_projecthandhaver_13qot1b" isHorizontal="true">
-        <dc:Bounds x="190" y="240" width="790" height="560" />
+        <dc:Bounds x="190" y="240" width="790" height="710" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1h3e4l1_di" bpmnElement="Flow_1h3e4l1">
+        <di:waypoint x="338" y="730" />
+        <di:waypoint x="411" y="730" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0lhfgfk_di" bpmnElement="Flow_0lhfgfk">
+        <di:waypoint x="680" y="730" />
+        <di:waypoint x="902" y="730" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1jq09n1_di" bpmnElement="Flow_1jq09n1">
+        <di:waypoint x="511" y="730" />
+        <di:waypoint x="580" y="730" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1dpqiy9_di" bpmnElement="Flow_1dpqiy9">
         <di:waypoint x="680" y="180" />
         <di:waypoint x="750" y="180" />
@@ -255,17 +304,17 @@
         <di:waypoint x="511" y="460" />
         <di:waypoint x="580" y="460" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1jq09n1_di" bpmnElement="Flow_1jq09n1">
-        <di:waypoint x="511" y="730" />
-        <di:waypoint x="580" y="730" />
+      <bpmndi:BPMNEdge id="Flow_0jee1e2_di" bpmnElement="Flow_0jee1e2">
+        <di:waypoint x="511" y="860" />
+        <di:waypoint x="580" y="860" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0lhfgfk_di" bpmnElement="Flow_0lhfgfk">
-        <di:waypoint x="680" y="730" />
-        <di:waypoint x="902" y="730" />
+      <bpmndi:BPMNEdge id="Flow_16jc6al_di" bpmnElement="Flow_16jc6al">
+        <di:waypoint x="680" y="860" />
+        <di:waypoint x="902" y="860" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1h3e4l1_di" bpmnElement="Flow_1h3e4l1">
-        <di:waypoint x="338" y="730" />
-        <di:waypoint x="411" y="730" />
+      <bpmndi:BPMNEdge id="Flow_1gmn80j_di" bpmnElement="Flow_1gmn80j">
+        <di:waypoint x="338" y="860" />
+        <di:waypoint x="411" y="860" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_0gt9gl2_di" bpmnElement="task_correspondence">
         <dc:Bounds x="580" y="290" width="100" height="80" />
@@ -344,6 +393,21 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0q70hru_di" bpmnElement="end_0q70hru">
         <dc:Bounds x="902" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0zof2go_di" bpmnElement="task_doorzetten_melding_overlast">
+        <dc:Bounds x="580" y="820" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1n5xdoi_di" bpmnElement="start_nuisance_process">
+        <dc:Bounds x="302" y="842" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="284" y="885" width="75" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0bk5wui_di" bpmnElement="end_0bk5wui">
+        <dc:Bounds x="902" y="842" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ymybmu_di" bpmnElement="service_status_report_nuisance">
+        <dc:Bounds x="411" y="820" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
