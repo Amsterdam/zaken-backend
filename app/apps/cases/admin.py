@@ -85,6 +85,7 @@ class CitizenReportAdmin(admin.ModelAdmin):
         "reporter_phone",
         "reporter_email",
         "description_citizenreport",
+        "nuisance",
         "author",
     )
 
