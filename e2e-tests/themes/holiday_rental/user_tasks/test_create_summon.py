@@ -93,6 +93,9 @@ class TestSummon(DefaultAPITest):
         )
 
     def test_warning_bb_license(self):
+        """
+        type of 'warning-letter'
+        """
         self.get_case().run_steps(
             *CheckNotices.get_steps(),
             ProcessNotice(type=SummonTypes.HolidayRental.WARNING_BB_LICENSE),
@@ -100,6 +103,9 @@ class TestSummon(DefaultAPITest):
         )
 
     def test_warning_ss_licence(self):
+        """
+        type of 'warning-letter'
+        """
         self.get_case().run_steps(
             *CheckNotices.get_steps(),
             ProcessNotice(type=SummonTypes.HolidayRental.WARNING_SS_LICENCE),
@@ -107,6 +113,9 @@ class TestSummon(DefaultAPITest):
         )
 
     def test_warning_vv_license(self):
+        """
+        type of 'warning-letter'
+        """
         self.get_case().run_steps(
             *CheckNotices.get_steps(),
             ProcessNotice(type=SummonTypes.HolidayRental.WARNING_VV_LICENSE),
