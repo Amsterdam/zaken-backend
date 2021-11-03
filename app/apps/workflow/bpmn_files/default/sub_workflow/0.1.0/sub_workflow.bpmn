@@ -190,12 +190,7 @@
     <bpmn:endEvent id="end_0q70hru">
       <bpmn:incoming>Flow_0zw0zxy</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:userTask id="task_doorzetten_melding_overlast" name="Doorzetten melding overlast" camunda:formKey="form_extra_information" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="extra_informatie" />
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="task_doorzetten_melding_overlast" name="Doorzetten melding overlast" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_0jee1e2</bpmn:incoming>
       <bpmn:outgoing>Flow_16jc6al</bpmn:outgoing>
     </bpmn:userTask>

@@ -24,6 +24,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         "workflow_version",
         "workflow_theme_name",
     )
+    search_fields = ("case__id",)
 
     def issues(self, obj):
         issues = obj.check_for_issues()
@@ -54,6 +55,8 @@ class CaseTaskAdmin(admin.ModelAdmin):
         "completed",
         "workflow",
     )
+    search_fields = ("case__id",)
+    list_filter = ("task_name", "name")
 
 
 @admin.register(WorkflowOption)
@@ -75,4 +78,7 @@ class GenericCompletedTaskAdmin(admin.ModelAdmin):
         "date_added",
         "description",
         "author",
+        "case_user_task_id",
     )
+    search_fields = ("case__id",)
+    list_filter = ("description",)
