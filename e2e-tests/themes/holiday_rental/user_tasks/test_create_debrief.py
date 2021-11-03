@@ -36,7 +36,6 @@ class TestDebrief(DefaultAPITest):
         )
 
     def test_violation_yes(self):
-        self.skipTest("#BUG FeedbackReporters is not given.")
         self.get_case().run_steps(
             *Visit.get_steps(),
             Debrief(violation=Violation.YES),
@@ -63,9 +62,6 @@ class TestDebrief(DefaultAPITest):
         )
 
     def test_additional_visit_with_authorization(self):
-        self.skipTest(
-            "Instead of RequestAuthorization, another CreateSchedule is given. Not working?: `authorization.value == 'Yes'`"
-        )
         self.get_case().run_steps(
             *Visit.get_steps(),
             Debrief(violation=Violation.ADDITIONAL_VISIT_WITH_AUTHORIZATION),

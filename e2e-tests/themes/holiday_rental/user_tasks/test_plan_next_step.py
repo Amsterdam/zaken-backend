@@ -15,7 +15,6 @@ class TestPlanNextStep(DefaultAPITest):
         )
 
     def test_recheck(self):
-        self.skipTest("PlanNextStep is not given")
         self.get_case().run_steps(
             *Decision.get_steps(type=DecisionType.HolidayRental.BURDEN_UNDER_PENALTY),
             PlanNextStep(next_step=NextStep.RECHECK),

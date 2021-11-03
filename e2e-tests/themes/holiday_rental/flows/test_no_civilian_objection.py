@@ -1,4 +1,4 @@
-from api.config import Objection, SummonTypes, Violation
+from api.config import ObjectionReceived, SummonTypes, Violation
 from api.tasks.debrief import (
     CreateConceptNotices,
     CreateFindingsReport,
@@ -33,6 +33,6 @@ class TestNoCivilianObjection(DefaultAPITest):
             ProcessNotice(type=SummonTypes.HolidayRental.INTENTION_TO_FINE),
             ValidateOpenTasks(MonitorIncomingView),
             WaitForTimer(),
-            CheckIncomingView(objection=Objection.NO),
+            CheckIncomingView(objection=ObjectionReceived.NO),
             ValidateOpenTasks(CreateConceptDecision),
         )

@@ -1,7 +1,7 @@
 import logging
 
 from api import events
-from api.config import DecisionType, Objection
+from api.config import DecisionType, ObjectionValid
 from api.tasks import AbstractUserTask, GenericUserTask
 from api.tasks.summon import JudgeView
 
@@ -14,7 +14,7 @@ class CreateConceptDecision(GenericUserTask):
     description = "Opstellen concept besluit"
 
     @staticmethod
-    def get_steps(objection_valid=Objection.NO):
+    def get_steps(objection_valid=ObjectionValid.NO):
         return [
             *JudgeView.get_steps(objection_valid=objection_valid),
             __class__(),
