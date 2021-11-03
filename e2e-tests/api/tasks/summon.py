@@ -143,19 +143,19 @@ class MonitorPermitProcedure(GenericUserTask):
 
 
 class CheckPermitProcedure(GenericUserTask):
-    task_name = "task_check_incoming_permit_application"
+    task_name = "Activity_1gaa36w"
     description = "Controleren vergunningsprocedure"
 
-    def __init__(self, permit_requested=PermitRequested.YES):
-        data = {"action_civilian_permit_requested": {"value": permit_requested}}
+    def __init__(self, has_permit=HasPermit.YES):
+        data = {"civilian_has_gotten_permit": {"value": has_permit}}
         super(CheckPermitProcedure, self).__init__(**data)
 
     @staticmethod
-    def get_steps(permit_requested=PermitRequested.YES):
+    def get_steps(has_permit=PermitRequested.YES):
         return [
             *MonitorPermitProcedure.get_steps(has_permit=False),
             WaitForTimer(),
-            __class__(permit_requested=permit_requested),
+            __class__(has_permit=has_permit),
         ]
 
 
