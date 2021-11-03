@@ -10,10 +10,12 @@ class DecisionAdmin(admin.ModelAdmin):
         "date_added",
         "sanction_id",
         "sanction_amount",
+        "case_user_task_id",
     )
     list_filter = ("date_added",)
     date_hierarchy = "date_added"
     actions = ["export_decisions_with_sanction"]
+    search_fields = ("case__id",)
 
     def export_decisions_with_sanction(self, request, queryset):
         serializer = DecisionSanctionSerializer(
