@@ -4,7 +4,12 @@ from django.contrib import admin
 
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
-    list_display = ("id", "case", "date_added")
+    list_display = (
+        "id",
+        "case",
+        "date_added",
+        "case_user_task_id",
+    )
     search_fields = ("case__id",)
 
 

@@ -2,6 +2,8 @@ import copy
 import logging
 
 import celery
+from apps.debriefings.models import Debriefing
+from apps.visits.models import Visit
 from celery import shared_task
 from django.conf import settings
 from django.db import DatabaseError, transaction
@@ -111,7 +113,7 @@ def task_create_main_worflow_for_case(self, case_id):
         )
         self.retry(exc=exception)
 
-    return f"task_start_main_worflow_for_case: workflow id '{workflow_instance.id}', for case with id '{case.id}', created"
+    return f"task_start_main_worflow_for_case: workflow id '{workflow_instance.id}', for case with id '{case_id}', created"
 
 
 @shared_task(bind=True, default_retry_delay=DEFAULT_RETRY_DELAY)
@@ -160,3 +162,101 @@ def task_complete_worflow(self, worklow_id, data):
         self.retry(exc=exception)
 
     return f"task_complete_worflow: workflow id '{worklow_id}', completed"
+
+
+@shared_task(bind=True, default_retry_delay=DEFAULT_RETRY_DELAY)
+def task_task_create_schedule(self, case_id):
+    from apps.workflow.models import CaseUserTask, CaseWorkflow
+
+    try:
+        task_create_schedule = CaseUserTask.objects.filter(
+            case__id=case_id, completed=False
+        ).first()
+        if (
+            task_create_schedule
+            and task_create_schedule.task_name == "task_create_schedule"
+        ):
+            CaseWorkflow.complete_user_task(task_create_schedule.id, {})
+        else:
+            return f"task_task_create_schedule: case id '{case_id}', task 'task_create_schedule' not found"
+
+    except Exception as exception:
+        logger.error(
+            f"ERROR: task_task_create_schedule: case id '{case_id}', {str(exception)}"
+        )
+        self.retry(exc=exception)
+
+    return f"task_task_create_schedule: case with id '{case_id}', created"
+
+
+@shared_task(bind=True, default_retry_delay=DEFAULT_RETRY_DELAY)
+def task_task_create_visit(self, case_id):
+    from apps.workflow.models import CaseUserTask, CaseWorkflow
+
+    try:
+        task_create_visit = CaseUserTask.objects.filter(
+            case__id=case_id, completed=False
+        ).first()
+        if task_create_visit and task_create_visit.task_name == "task_create_visit":
+            visit = Visit.objects.filter(case__id=case_id).first()
+            if visit:
+                CaseWorkflow.complete_user_task(
+                    task_create_visit.id,
+                    {
+                        "situation": {"value": visit.situation},
+                        "can_next_visit_go_ahead": {
+                            "value": visit.can_next_visit_go_ahead
+                        },
+                    },
+                )
+            else:
+                return f"task_task_create_visit: case id '{case_id}', visit not found"
+        else:
+            return f"task_task_create_visit: case id '{case_id}', task 'task_create_visit' not found"
+
+    except Exception as exception:
+        logger.error(
+            f"ERROR: task_task_create_visit: case id '{case_id}', {str(exception)}"
+        )
+        self.retry(exc=exception)
+
+    return f"task_task_create_visit: case with id '{case_id}', created"
+
+
+@shared_task(bind=True, default_retry_delay=DEFAULT_RETRY_DELAY)
+def task_task_create_debrief(self, case_id):
+    from apps.workflow.models import CaseUserTask, CaseWorkflow
+
+    try:
+        task_create_debrief = CaseUserTask.objects.filter(
+            case__id=case_id, completed=False
+        ).first()
+        if (
+            task_create_debrief
+            and task_create_debrief.task_name == "task_create_debrief"
+        ):
+            debriefing = Debriefing.objects.filter(case__id=case_id).first()
+            if debriefing:
+                CaseWorkflow.complete_user_task(
+                    task_create_debrief.id,
+                    {
+                        "violation": {
+                            "value": debriefing.violation,
+                        }
+                    },
+                )
+            else:
+                return (
+                    f"task_task_create_debrief: case id '{case_id}', debrief not found"
+                )
+
+        else:
+            return f"task_task_create_debrief: case id '{case_id}', task 'task_create_debrief' not found"
+
+    except Exception as exception:
+        logger.error(
+            f"ERROR: task_task_create_debrief: case id '{case_id}', {str(exception)}"
+        )
+        self.retry(exc=exception)
+
+    return f"task_task_create_debrief: case with id '{case_id}', created"

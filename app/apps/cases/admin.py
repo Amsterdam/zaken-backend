@@ -11,6 +11,12 @@ from apps.cases.models import (
     CaseTheme,
     CitizenReport,
 )
+from apps.workflow.tasks import (
+    task_create_main_worflow_for_case,
+    task_task_create_debrief,
+    task_task_create_schedule,
+    task_task_create_visit,
+)
 from django import forms
 from django.contrib import admin
 
@@ -35,6 +41,30 @@ class CaseAdminForm(forms.ModelForm):
     )
 
 
+@admin.action(description="Create main workflow for case")
+def create_main_worflow_for_case(modeladmin, request, queryset):
+    for case in queryset.filter(is_legacy_camunda=True, end_date__isnull=True):
+        task_create_main_worflow_for_case.delay(case.id)
+
+
+@admin.action(description="Migrate camunda case: try to complete task_create_schedule")
+def camunda_case_try_to_complete_task_create_schedule(modeladmin, request, queryset):
+    for case in queryset.filter(is_legacy_camunda=True, end_date__isnull=True):
+        task_task_create_schedule.delay(case.id)
+
+
+@admin.action(description="Migrate camunda case: try to complete task_create_visit")
+def camunda_case_try_to_complete_task_create_visit(modeladmin, request, queryset):
+    for case in queryset.filter(is_legacy_camunda=True, end_date__isnull=True):
+        task_task_create_visit.delay(case.id)
+
+
+@admin.action(description="Migrate camunda case: try to complete task_create_debrief")
+def camunda_case_try_to_complete_task_create_debrief(modeladmin, request, queryset):
+    for case in queryset.filter(is_legacy_camunda=True, end_date__isnull=True):
+        task_task_create_debrief.delay(case.id)
+
+
 @admin.register(Case)
 class CaseAdmin(admin.ModelAdmin):
     form = CaseAdminForm
@@ -51,6 +81,12 @@ class CaseAdmin(admin.ModelAdmin):
         "author",
     )
     list_filter = ("theme",)
+    actions = [
+        create_main_worflow_for_case,
+        camunda_case_try_to_complete_task_create_schedule,
+        camunda_case_try_to_complete_task_create_visit,
+        camunda_case_try_to_complete_task_create_debrief,
+    ]
 
 
 @admin.register(CaseState)
@@ -87,7 +123,10 @@ class CitizenReportAdmin(admin.ModelAdmin):
         "description_citizenreport",
         "nuisance",
         "author",
+        "date_added",
+        "case_user_task_id",
     )
+    search_fields = ("case__id",)
 
 
 @admin.register(CaseReason)
@@ -143,5 +182,16 @@ class CaseProcessInstanceAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(CaseClose)
+class CaseCloseAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "case",
+        "reason",
+        "date_added",
+        "case_user_task_id",
+    )
+    search_fields = ("case__id",)
+
+
 admin.site.register(CaseTheme, admin.ModelAdmin)
-admin.site.register(CaseClose, admin.ModelAdmin)
