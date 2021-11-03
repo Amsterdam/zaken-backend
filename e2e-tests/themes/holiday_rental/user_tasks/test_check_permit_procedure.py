@@ -12,14 +12,14 @@ from api.validators import ValidateOpenTasks
 class TestCheckPermitProcedure(DefaultAPITest):
     def test_no(self):
         self.get_case().run_steps(
-            *MonitorIncomingPermitRequest.get_steps(has_permit=False),
+            *MonitorIncomingPermitRequest.get_steps(permit_requested=False),
             CheckPermitProcedure(has_permit=HasPermit.NO),
             ValidateOpenTasks(ProcessNotice),
         )
 
     def test_yes(self):
         self.get_case().run_steps(
-            *MonitorIncomingPermitRequest.get_steps(has_permit=False),
+            *MonitorIncomingPermitRequest.get_steps(permit_requested=False),
             CheckPermitProcedure(has_permit=HasPermit.YES),
             ValidateOpenTasks(MonitorPermitProcedure),
         )
