@@ -1,4 +1,4 @@
-from api.config import ReviewRequest, SummonTypes, Violation
+from api.config import NextStep, ReviewRequest, SummonTypes, Violation
 from api.tasks.close_case import PlanNextStep
 from api.tasks.closing_procedure import (
     ContactOwner,
@@ -22,8 +22,7 @@ from api.validators import ValidateOpenTasks
 
 
 class TestViolationClosure(DefaultAPITest):
-    def test(self):
-        self.skipTest("PlanNextStep is not given")
+    def test_direct(self):
         self.get_case().run_steps(
             ScheduleVisit(),
             Visit(),
@@ -39,12 +38,19 @@ class TestViolationClosure(DefaultAPITest):
                 MonitorReopeningRequest,
             ),
             SaveFireBrigadeAdvice(),
-            WaitForTimer(),
-            ContactOwner(),
+            MonitorReopeningRequest(),
             JudgeReopeningRequest(review_request=ReviewRequest.DECLINED),
             MonitorReopeningRequestToBeDelivered(),
             JudgeReopeningRequest(),
             Reopen(),
-            PlanNextStep(),
+            PlanNextStep(next_step=NextStep.RECHECK),
             ValidateOpenTasks(ScheduleVisit),
+        )
+
+    def test_timer(self):
+        self.get_case().run_steps(
+            *SaveFireBrigadeAdvice.get_steps(),
+            WaitForTimer(),
+            ContactOwner(),
+            ValidateOpenTasks(JudgeReopeningRequest),
         )

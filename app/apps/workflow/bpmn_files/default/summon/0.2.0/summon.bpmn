@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0k0da6k" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0k0da6k" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
   <bpmn:collaboration id="Collaboration_1t5ylmo">
     <bpmn:participant id="Participant_1ciseh2" name="Process" processRef="summon" />
   </bpmn:collaboration>
@@ -32,7 +32,6 @@
         <bpmn:flowNodeRef>service_script_set_status_vergunningscheck</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_create_summon</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_script_next_step_close_case_summon</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>task_no_permit</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>end_0ysomyy</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_script_next_step_summon_01s1xpa</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_script_next_step_summon_02y42to</bpmn:flowNodeRef>
@@ -223,15 +222,6 @@
       <bpmn:outgoing>Flow_1smx7q3</bpmn:outgoing>
       <bpmn:script>summon_next_step = {"value": "close_case"}</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:userTask id="task_no_permit" name="Geen vergunning" camunda:formKey="form">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="summon_next_step" label="Geen vergunning?" type="string" defaultValue="decision" />
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_12sivk9</bpmn:incoming>
-      <bpmn:outgoing>Flow_1bea976</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:endEvent id="end_0ysomyy" name="start sluitingsproces">
       <bpmn:incoming>Flow_167bomv</bpmn:incoming>
     </bpmn:endEvent>
@@ -241,7 +231,7 @@
       <bpmn:script>summon_next_step = {"value": "summon"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="service_script_next_step_summon_02y42to" name="summon_next_step = summon&#34;">
-      <bpmn:incoming>Flow_1bea976</bpmn:incoming>
+      <bpmn:incoming>Flow_12sivk9</bpmn:incoming>
       <bpmn:outgoing>Flow_0l19ncx</bpmn:outgoing>
       <bpmn:script>summon_next_step = {"value": "summon"}</bpmn:script>
     </bpmn:scriptTask>
@@ -279,7 +269,6 @@
         <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">parse_duration(task_monitor_incoming_permit_application_timer_duration)</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
-    <bpmn:sequenceFlow id="Flow_1bea976" sourceRef="task_no_permit" targetRef="service_script_next_step_summon_02y42to" />
     <bpmn:sequenceFlow id="Flow_1oesxow" sourceRef="service_script_next_step_renounce_summon" targetRef="end_start_renounce_1va49v0" />
     <bpmn:sequenceFlow id="Flow_1db08jl" sourceRef="service_script_next_step_close_case_1neab16" targetRef="end_13bywna" />
     <bpmn:sequenceFlow id="Flow_167bomv" sourceRef="service_script_next_step_closing_procedure" targetRef="end_0ysomyy" />
@@ -314,7 +303,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit.value == "no_permit"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1f8btyg" sourceRef="Activity_1gaa36w" targetRef="gateway_has_permit_been_granted" />
-    <bpmn:sequenceFlow id="Flow_12sivk9" name="Nee, geen vergunning aangevraagd" sourceRef="gateway_has_permit_been_requested" targetRef="task_no_permit">
+    <bpmn:sequenceFlow id="Flow_12sivk9" name="Nee, geen vergunning aangevraagd" sourceRef="gateway_has_permit_been_requested" targetRef="service_script_next_step_summon_02y42to">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">action_civilian_permit_requested.value == "no_action"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0oyiegq" name="Ja, vergunning aangevraagd" sourceRef="task_monitor_incoming_permit_application" targetRef="task_monitor_permit_request_procedure">
@@ -459,9 +448,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_12sivk9_di" bpmnElement="Flow_12sivk9">
         <di:waypoint x="1305" y="720" />
-        <di:waypoint x="1680" y="720" />
+        <di:waypoint x="1920" y="720" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1344" y="670" width="65" height="40" />
+          <dc:Bounds x="1359" y="670" width="65" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1f8btyg_di" bpmnElement="Flow_1f8btyg">
@@ -572,10 +561,6 @@
         <di:waypoint x="2940" y="480" />
         <di:waypoint x="3002" y="480" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1bea976_di" bpmnElement="Flow_1bea976">
-        <di:waypoint x="1780" y="720" />
-        <di:waypoint x="1920" y="720" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Gateway_11453r6_di" bpmnElement="gateway_do_we_renounce_or_decision" isMarkerVisible="true">
         <dc:Bounds x="2625" y="455" width="50" height="50" />
       </bpmndi:BPMNShape>
@@ -644,9 +629,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1u8ay13_di" bpmnElement="service_script_next_step_close_case_summon">
         <dc:Bounds x="1920" y="559" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1xtboo1_di" bpmnElement="task_no_permit">
-        <dc:Bounds x="1680" y="680" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1euvv6c_di" bpmnElement="end_0ysomyy">
         <dc:Bounds x="1042" y="702" width="36" height="36" />
