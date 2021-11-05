@@ -8,9 +8,6 @@ logger = logging.getLogger("api")
 class Validator:
     tasks = []
 
-    def is_async(self):
-        return bool(filter(lambda task: task.is_async(), self.tasks))
-
     def run(self, client, case: Case):
         pass
 
@@ -37,9 +34,7 @@ class ValidateOpenTasks(Validator):
             f"Expecting case:{case.data['id']} to have:\n{self.tasks}\nFound:\n{open_task_names}"
         )
 
-        return not self.is_async() or (
-            self.is_async() and self.tasks == open_task_names
-        )
+        return self.tasks == open_task_names
 
 
 class ValidateNoOpenTasks(ValidateOpenTasks):

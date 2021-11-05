@@ -1,5 +1,6 @@
 import json
 import logging
+from itertools import chain
 
 import requests
 from api.case import Case
@@ -24,12 +25,12 @@ class Client:
         )
 
         res = requests.request(verb, url=url, headers=headers, json=json)
+
         logger.info(
-            f"Response {task_name} api status:{res.status_code} with text:\n{res.text}\n"
+            f"Response {task_name} api status:{res.status_code} with text:\n{res.text[:5000]}\n"
         )
 
         if not res.ok:
-            logger.info(res.text)
             raise Exception(
                 f"Error {task_name}: status: {res.status_code} on url: {url} with data: {json}"
             )
@@ -52,12 +53,13 @@ class Client:
 
     def get_case_tasks(self, case_id):
         response = self.call("get", f"/cases/{case_id}/tasks/")
-        tasks = [] if len(response) == 0 else response[0]["tasks"]
+        lists = map(lambda x: x["tasks"], response)
+        flat_list = list(chain.from_iterable(lists))
 
         logging.info(f"Open tasks for case id {case_id}:")
-        logging.info(f"{json.dumps(tasks, sort_keys=True, indent=4)}\n\n")
+        logging.info(f"{json.dumps(flat_list, sort_keys=True, indent=4)}\n\n")
 
-        return tasks
+        return flat_list
 
     def get_case_events(self, case_id):
         return self.call("get", f"/cases/{case_id}/events/")

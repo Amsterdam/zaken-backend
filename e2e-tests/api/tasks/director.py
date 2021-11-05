@@ -1,6 +1,8 @@
 import logging
 
+from api.config import Violation
 from api.tasks import GenericUserTask
+from api.tasks.debrief import Debrief
 
 logger = logging.getLogger("api")
 
@@ -22,7 +24,4 @@ class FeedbackReporters(GenericUserTask):
         """
         Weird one, because it's dependent on timer.
         """
-        return [
-            # No preceiding step, case was just created
-            __class__()
-        ]
+        return [*Debrief(violation=Violation.YES), __class__()]

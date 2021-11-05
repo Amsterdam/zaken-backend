@@ -50,6 +50,10 @@ schedule, created = IntervalSchedule.objects.get_or_create(every=10, period=Inte
 PeriodicTask.objects.get_or_create(interval=schedule, name='Update workflows', task='apps.workflow.tasks.task_update_workflows')"
 
 docker-compose run --rm zaak-gateway python manage.py shell -c "
+from apps.workflow.models import WorkflowOption
+taks, created = WorkflowOption.objects.get_or_create(name='Aanschrijving toevoegen', message_name='aanschrijving_toevoegen', to_directing_proccess=True, theme_id=1)"
+
+docker-compose run --rm zaak-gateway python manage.py shell -c "
 from apps.users.models import User, UserGroup
 from django.contrib.auth.models import Permission
 (group, _) = UserGroup.objects.get_or_create(name='PROJECTHANDHAVER', display_name='Projecthandhaver')

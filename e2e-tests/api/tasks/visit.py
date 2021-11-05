@@ -2,7 +2,7 @@ import datetime
 import logging
 
 from api import events
-from api.config import Action, DaySegment, Priority, Situations, WeekSegment
+from api.config import Action, DaySegment, Priority, Situations, Violation, WeekSegment
 from api.tasks import AbstractUserTask, GenericUserTask
 
 logger = logging.getLogger("api")
@@ -11,12 +11,13 @@ logger = logging.getLogger("api")
 class RequestAuthorization(GenericUserTask):
     task_name = "task_request_authorization"
     description = "Aanvragen machtiging"
-    # asynchronous = True  # TODO should be async right?
 
     @staticmethod
     def get_steps():
+        from api.tasks.debrief import Debrief
+
         return [
-            # No preceiding step, case was just created
+            *Debrief.get_steps(violation=Violation.ADDITIONAL_VISIT_WITH_AUTHORIZATION),
             __class__(),
         ]
 
