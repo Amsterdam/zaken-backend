@@ -513,7 +513,7 @@ USER_TASKS = {
         "due_date": datetime.timedelta(days=2),
     },
 }
-DEFAULT_USER_TASK_DUE_DATE = datetime.timedelta(days=0)
+DEFAULT_USER_TASK_DUE_DATE = datetime.timedelta(days=6)
 
 
 class CaseUserTask(models.Model):
