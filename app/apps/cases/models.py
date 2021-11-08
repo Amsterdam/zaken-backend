@@ -4,7 +4,7 @@ from apps.addresses.models import Address
 from apps.events.models import CaseEvent, ModelEventEmitter, TaskModelEventEmitter
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 
 
@@ -164,14 +164,18 @@ class Case(ModelEventEmitter):
 
     def close_case(self):
         # close all states just in case
-        for state in self.case_states.filter(end_date__isnull=True):
-            state.end_date = timezone.now().date()
-            state.save()
+        with transaction.atomic():
+            for state in self.case_states.filter(end_date__isnull=True):
+                state.end_date = timezone.now().date()
+                state.save()
 
-        self.workflows.all().delete()
+            self.workflows.filter(
+                completed=False,
+                main_workflow=False,
+            ).update(completed=True)
 
-        self.end_date = timezone.now().date()
-        self.save()
+            self.end_date = timezone.now().date()
+            self.save()
 
     class Meta:
         ordering = ["-start_date"]
