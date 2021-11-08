@@ -7,7 +7,7 @@ from apps.cases.models import Case, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
+from django.db import models, transaction
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_duration
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
@@ -18,13 +18,12 @@ from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.task import Task
 from utils.managers import BulkCreateSignalsManager
 
-from .tasks import task_complete_worflow, task_update_workflow
+from .tasks import task_complete_user_task_and_create_new_user_tasks
 from .utils import (
     compare_workflow_specs_by_task_specs,
     get_initial_data_from_config,
     get_workflow_path,
     get_workflow_spec,
-    map_variables_on_task_spec_form,
     parse_task_spec_form,
     workflow_health_check,
 )
@@ -218,9 +217,7 @@ class CaseWorkflow(models.Model):
             )
             wf = self._update_workflow(wf)
 
-        self.save_workflow_state(wf)
         self._update_db(wf)
-        self._check_completed_workflows(wf)
 
     def accept_message(self, message_name, extra_data):
         """
@@ -243,7 +240,6 @@ class CaseWorkflow(models.Model):
         wf.accept_message(message_name)
 
         wf = self._update_workflow(wf)
-        self.save_workflow_state(wf)
         self._update_db(wf)
 
     def get_data(self):
@@ -301,11 +297,7 @@ class CaseWorkflow(models.Model):
 
     @staticmethod
     def complete_user_task(id, data):
-        task = CaseUserTask.objects.filter(id=id).first()
-        if task:
-            task.workflow.complete_user_task_and_create_new_user_tasks(
-                task.task_id, data
-            )
+        task_complete_user_task_and_create_new_user_tasks.delay(id, data)
 
     def check_for_issues(self):
         wf = self.get_or_restore_workflow_state()
@@ -337,9 +329,7 @@ class CaseWorkflow(models.Model):
         wf = self._update_workflow(wf)
 
         # no changes to the workflow after this point
-        self.save_workflow_state(wf)
-
-        task_update_workflow.delay(self.id)
+        self._update_db(wf)
 
     def save_workflow_state(self, wf):
         if wf.last_task:
@@ -363,11 +353,8 @@ class CaseWorkflow(models.Model):
                     self.serialized_workflow_state, workflow_spec=workflow_spec
                 )
                 wf = self.get_script_engine(wf)
-            except Exception as e:
-                logger.error(
-                    f"get_or_restore_workflow_state: {self.id}, case id: {self.case.id}, error: {str(e)}"
-                )
-                return
+            except Exception:
+                return False
             return wf
         else:
             wf = BpmnWorkflow(workflow_spec)
@@ -397,19 +384,27 @@ class CaseWorkflow(models.Model):
         wf = self._update_workflow(wf)
 
         # no changes to the workflow after this point
-        self.save_workflow_state(wf)
         self._update_db(wf)
-        self._check_completed_workflows(wf)
 
     def _check_completed_workflows(self, wf):
         # if end of subworkflow, try to get back to main workflow
         if wf.is_completed() and not self.completed:
-            task_complete_worflow.delay(self.id, copy.deepcopy(self.get_data()))
+            data = copy.deepcopy(wf.last_task.data) if wf.last_task else {}
+            if (
+                self.parent_workflow
+                and self.parent_workflow.workflow_type
+                == CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+            ):
+                self.parent_workflow.accept_message(
+                    f"resume_after_{self.workflow_type}",
+                    data,
+                )
+            self.completed = True
 
     def has_a_timer_event_fired(self):
         wf = self.get_or_restore_workflow_state()
         if not wf:
-            return
+            return False
         waiting_tasks = wf._get_waiting_tasks()
         for task in waiting_tasks:
             if hasattr(task.task_spec, "event_definition") and isinstance(
@@ -430,8 +425,11 @@ class CaseWorkflow(models.Model):
         return wf
 
     def _update_db(self, wf):
-        self.set_absolete_tasks_to_completed(wf)
-        self.create_user_tasks(wf)
+        with transaction.atomic():
+            self._check_completed_workflows(wf)
+            self.save_workflow_state(wf)
+            self.set_absolete_tasks_to_completed(wf)
+            self.create_user_tasks(wf)
 
     def migrate_to(self, workflow_version, test=True):
         # tests and tries to migrate to an other version
