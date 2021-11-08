@@ -1,6 +1,7 @@
 import logging
 
 from apps.cases.models import Case, CaseClose, CitizenReport
+from apps.cases.tasks import task_close_case
 from apps.workflow.models import CaseWorkflow
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -26,4 +27,4 @@ def complete_citizen_report_task(sender, instance, created, **kwargs):
 def close_case(sender, instance, created, **kwargs):
     if instance.case_user_task_id != "-1" and created:
         CaseWorkflow.complete_user_task(instance.case_user_task_id, {})
-        instance.case.close_case()
+        task_close_case.delay(instance.case.id)
