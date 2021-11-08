@@ -147,7 +147,7 @@ class CaseWorkflow(models.Model):
             workflows_completed = [
                 a
                 for a in all_workflows.values_list("data", flat=True)
-                if a.get(message, "done")
+                if a.get(message) == "done"
             ]
             main_workflow = all_workflows.filter(main_workflow=True).first()
 
