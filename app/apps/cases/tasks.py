@@ -1,5 +1,4 @@
 import logging
-import time
 
 import celery
 from celery import shared_task
@@ -17,8 +16,6 @@ class BaseTaskWithRetry(celery.Task):
 @shared_task(bind=True, base=BaseTaskWithRetry)
 def task_close_case(self, case_id):
     from apps.cases.models import Case
-
-    time.sleep(1)
 
     case = Case.objects.get(id=case_id)
     case.close_case()

@@ -169,7 +169,10 @@ class Case(ModelEventEmitter):
                 state.end_date = timezone.now().date()
                 state.save()
 
-            self.workflows.all().delete()
+            self.workflows.filter(
+                completed=False,
+                main_workflow=False,
+            ).update(completed=True)
 
             self.end_date = timezone.now().date()
             self.save()
