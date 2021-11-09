@@ -4,6 +4,7 @@ from api.tasks.debrief import (
     CreateFindingsReport,
     CreatePictureReport,
     Debrief,
+    InformReporter,
 )
 from api.tasks.decision import (
     CheckConceptDecision,
@@ -24,6 +25,7 @@ class TestInvalidCivilianObjection(DefaultAPITest):
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.YES),
+            InformReporter(),
             CreatePictureReport(),
             CreateFindingsReport(),
             CreateConceptNotices(),
