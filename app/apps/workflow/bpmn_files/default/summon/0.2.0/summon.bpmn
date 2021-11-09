@@ -95,7 +95,12 @@
       <bpmn:outgoing>Flow_1usf3sm</bpmn:outgoing>
       <bpmn:outgoing>Flow_1izu6zi</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_afronden_vergunningscheck" name="Afronden vergunningscheck" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_afronden_vergunningscheck" name="Afronden vergunningscheck" camunda:formKey="afronden_vergunningscheck_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="afronden_vergunningscheck_formfield" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_0m6yape</bpmn:incoming>
       <bpmn:incoming>Flow_1izu6zi</bpmn:incoming>
       <bpmn:outgoing>Flow_0ddf58d</bpmn:outgoing>

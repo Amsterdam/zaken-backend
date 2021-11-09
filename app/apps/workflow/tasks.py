@@ -99,6 +99,57 @@ def task_start_worflow(self, worklow_id):
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
+def task_wait_for_workflows_and_send_message(self, workflow_id, message):
+    from apps.workflow.models import CaseWorkflow
+
+    logger.info(f"wait_for_workflows_and_send_message: {message}")
+    logger.info(f"workflow id: {workflow_id}")
+
+    workflow_instance = CaseWorkflow.objects.get(id=workflow_id)
+    # tell the other workfows that this one is waiting
+    workflow_instance.data.update(
+        {
+            message: "done",
+        }
+    )
+    workflow_instance.save(update_fields=["data"])
+    all_workflows = CaseWorkflow.objects.filter(
+        case=workflow_instance.case,
+        workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
+    )
+
+    workflows_completed = [
+        a
+        for a in all_workflows.values_list("data", flat=True)
+        if a.get(message) == "done"
+    ]
+    main_workflow = all_workflows.filter(main_workflow=True).first()
+
+    """
+    Tests if all workflows reached thit point,
+    so the last waiting worklfow kan tell the main workflow to accept the message after all, so only the main workflow can resume
+    """
+    if len(workflows_completed) == all_workflows.count() and main_workflow:
+
+        # pick up all summons and pass them on to the main workflow
+        all_summons = [
+            d.get("summon_id")
+            for d in all_workflows.values_list("data", flat=True)
+            if d.get("summon_id")
+        ]
+        extra_data = {
+            "all_summons": all_summons,
+        }
+
+        # sends the accept message to a task, because we have to wait until this current tasks, we are in, is completed
+        task_accept_message_for_workflow.delay(main_workflow.id, message, extra_data)
+
+        # TODO: cleanup(delete others), but the message is not send yet, so below should wait
+        # other_workflows = all_workflows.exclude(id=main_workflow.id)
+        # other_workflows.delete()
+
+
+@shared_task(bind=True, base=BaseTaskWithRetry)
 def task_complete_worflow(self, worklow_id, data):
     from apps.workflow.models import CaseWorkflow
 
@@ -113,10 +164,6 @@ def task_complete_worflow(self, worklow_id, data):
                 f"resume_after_{case_workflow.workflow_type}",
                 data,
             )
-        case_workflow.completed = True
-        case_workflow.save()
-        # maybe delete workflow object when completed
-        # self.delete()
 
     return f"task_complete_worflow: workflow id '{worklow_id}', completed"
 
@@ -125,7 +172,7 @@ def task_complete_worflow(self, worklow_id, data):
 def task_complete_user_task_and_create_new_user_tasks(self, id, data={}):
     from apps.workflow.models import CaseUserTask
 
-    task = CaseUserTask.objects.get(id=id)
+    task = CaseUserTask.objects.get(id=id, completed=False)
     task.workflow.complete_user_task_and_create_new_user_tasks(task.task_id, data)
 
     return f"task_complete_user_task_and_create_new_user_tasks: task with id '{id}', created"
