@@ -57,10 +57,6 @@ pipeline {
     ZAKEN_SOURCE = "./app"
     ZAKEN_NAME = "zaken"
 
-    CAMUNDA_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-camunda"
-    CAMUNDA_SOURCE = "./camunda/deployment"
-    CAMUNDA_NAME = "zaken-camunda"
-
     REDIS_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-redis"
     REDIS_SOURCE = "./redis"
     REDIS_NAME = "zaken-redis"
@@ -79,19 +75,13 @@ pipeline {
     stage("Build docker images") {
       steps {
         build_image(env.ZAKEN_IMAGE_URL, env.ZAKEN_SOURCE)
-
-        script {
-          if (env.BRANCH_NAME == 'master'){
-            build_image(env.CAMUNDA_IMAGE_URL, env.CAMUNDA_SOURCE)
-          }
-        }
       }
     }
 
     stage("Push and deploy acceptance images") {
       when {
         not { buildingTag() }
-        branch 'develop'
+        branch 'master'
       }
       steps {
         tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.ACCEPTANCE)
