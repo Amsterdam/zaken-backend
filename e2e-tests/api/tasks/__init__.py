@@ -16,9 +16,6 @@ class AbstractUserTask:
     def __str__(self):
         return f"<{self.__module__}.{self.__class__.__name__} task_name:{self.task_name} event:{self.event.type}>"
 
-    def is_async(self):
-        return True  # hasattr(self, "asynchronous") and self.asynchronous
-
     def is_ready(self, client, case):
         open_tasks = client.get_case_tasks(case.data["id"])
         tasks = list(task for task in open_tasks if task["task_name"] == self.task_name)
@@ -28,18 +25,9 @@ class AbstractUserTask:
 
         if len(tasks) == 1:
             self.task = tasks[0]
-        elif not self.is_async():
-            raise Exception(
-                f"No tasks found for this sync task {self}. Looking for {self.task_name} for case {case}."
-            )
+            return True
 
-        ready = not self.is_async() or (self.is_async() and self.task)
-        if not ready:
-            logger.info(
-                f"is_ready:{ready} lookin for case {case} with task {self}, found {tasks}"
-            )
-
-        return ready
+        return False
 
     def run(self, client, case):
         extra = self.get_post_data(case, self.task)

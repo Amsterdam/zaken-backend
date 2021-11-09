@@ -70,6 +70,18 @@ class ReviewRequest:
     ACCEPTED = "goedgekeurd"
 
 
+class Process:
+    class HolidayRental:
+        ADD_SUMMON = 1  # aanschrijving_toevoegen
+        # START_OBJECTION_FILE_PROCESS = ?  # start_objectionfile_process
+        # ALL_APPLICATIONS_AND_DECISIONS_COMPLETED = ?  # alle_aanschrijvingen_en_beslissingen_afgerond
+        # START_CORRESPONDENCE_PROCESS = ?  # start_correspondence_process
+        # START_EXTRA_INFORMATION = ?  # start_extra_information
+        # START_NUISANCE_PROCESS = ?  # start_nuisance_process
+        # START_SIGNAL_PROCESS = ?  # start_signal_process
+        # START_CALLBACK_REQUEST_PROCESS = ?  # start_callbackrequest_process
+
+
 class SummonTypes:
     class HolidayRental:
         LEGALIZATION_LETTER = 14  # Legalisatiebrief

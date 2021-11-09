@@ -52,3 +52,11 @@ class Case:
         # Check the timeline
         if validate_timeline and not wait_for(check_events, async_timeout, async_sleep):
             raise Exception("Timeline issue.")
+
+    def add_process(self, process):
+        return self.client.call(
+            "post",
+            f"/cases/{self.data['id']}/processes/start/",
+            {"workflow_option_id": process},
+            task_name="create_case",
+        )
