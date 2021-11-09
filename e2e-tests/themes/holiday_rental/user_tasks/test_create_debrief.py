@@ -6,6 +6,7 @@ from api.tasks.debrief import (
     Debrief,
     HomeVisitReport,
     InformReporter,
+    InformReporterNoViolation,
     Visit,
     WaitInternalResearch,
 )
@@ -20,7 +21,7 @@ class TestDebrief(DefaultAPITest):
         self.get_case().run_steps(
             *Visit.get_steps(),
             Debrief(violation=Violation.SEND_TO_OTHER_THEME),
-            InformReporter(),
+            InformReporterNoViolation(),
             ValidateOpenTasks(
                 FeedbackReporters,
                 HomeVisitReport,
@@ -31,7 +32,7 @@ class TestDebrief(DefaultAPITest):
         self.get_case().run_steps(
             *Visit.get_steps(),
             Debrief(violation=Violation.NO),
-            InformReporter(),
+            InformReporterNoViolation(),
             ValidateOpenTasks(
                 FeedbackReporters,
                 HomeVisitReport,

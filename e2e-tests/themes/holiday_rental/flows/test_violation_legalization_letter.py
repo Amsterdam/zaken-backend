@@ -4,6 +4,7 @@ from api.tasks.debrief import (
     CreateFindingsReport,
     CreatePictureReport,
     Debrief,
+    InformReporter,
 )
 from api.tasks.summon import CheckNotices, MonitorIncomingPermitRequest, ProcessNotice
 from api.tasks.visit import ScheduleVisit, Visit
@@ -17,6 +18,7 @@ class TestViolationLegalizationLetter(DefaultAPITest):
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.YES),
+            InformReporter(),
             ValidateOpenTasks(
                 CreateFindingsReport, CreatePictureReport, CreateConceptNotices
             ),

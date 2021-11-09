@@ -1,6 +1,6 @@
 from api.config import Violation
 from api.tasks.close_case import Close, PlanNextStep
-from api.tasks.debrief import Debrief, HomeVisitReport
+from api.tasks.debrief import Debrief, HomeVisitReport, InformReporterNoViolation
 from api.tasks.visit import ScheduleVisit, Visit
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
@@ -19,6 +19,7 @@ class TestTimeline(DefaultAPITest):
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.NO),
+            InformReporterNoViolation(),
             HomeVisitReport(),
             PlanNextStep(),
             Close(),
