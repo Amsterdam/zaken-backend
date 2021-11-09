@@ -1,5 +1,5 @@
 from api.tasks.closing_procedure import (
-    ContactOwner,
+    ContactOwnerFirst,
     JudgeReopeningRequest,
     MonitorReopeningRequest,
     SaveFireBrigadeAdvice,
@@ -21,5 +21,5 @@ class TestMonitorReopeningRequest(DefaultAPITest):
         self.get_case().run_steps(
             *SaveFireBrigadeAdvice.get_steps(),
             WaitForTimer(),
-            ValidateOpenTasks(ContactOwner),
+            ValidateOpenTasks(ContactOwnerFirst),
         )
