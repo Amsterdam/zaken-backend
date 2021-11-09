@@ -1,18 +1,27 @@
-from api.config import NextStep, ReviewRequest, SummonTypes, Violation
+from api.config import (
+    NextStep,
+    ReopenRequest,
+    ReviewReopenRequest,
+    SummonTypes,
+    Violation,
+)
 from api.tasks.close_case import PlanNextStep
 from api.tasks.closing_procedure import (
-    ContactOwner,
+    ContactOwnerFirst,
+    ContactOwnerSecond,
     JudgeReopeningRequest,
     MonitorReopeningRequest,
     MonitorReopeningRequestToBeDelivered,
-    Reopen,
+    ReturnKey,
     SaveFireBrigadeAdvice,
+    SaveReopenRequest,
 )
 from api.tasks.debrief import (
     CreateConceptNotices,
     CreateFindingsReport,
     CreatePictureReport,
     Debrief,
+    InformReporter,
 )
 from api.tasks.summon import CheckNotices, ProcessNotice
 from api.tasks.visit import ScheduleVisit, Visit
@@ -27,22 +36,20 @@ class TestViolationClosure(DefaultAPITest):
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.YES),
+            InformReporter(),
             CreatePictureReport(),
             CreateFindingsReport(),
             CreateConceptNotices(),
             ValidateOpenTasks(CheckNotices),
             CheckNotices(),
             ProcessNotice(type=SummonTypes.HolidayRental.CLOSURE),
-            ValidateOpenTasks(
-                SaveFireBrigadeAdvice,
-                MonitorReopeningRequest,
-            ),
             SaveFireBrigadeAdvice(),
             MonitorReopeningRequest(),
-            JudgeReopeningRequest(review_request=ReviewRequest.DECLINED),
+            JudgeReopeningRequest(review_request=ReviewReopenRequest.DECLINED),
             MonitorReopeningRequestToBeDelivered(),
             JudgeReopeningRequest(),
-            Reopen(),
+            SaveReopenRequest(),
+            ReturnKey(),
             PlanNextStep(next_step=NextStep.RECHECK),
             ValidateOpenTasks(ScheduleVisit),
         )
@@ -51,6 +58,16 @@ class TestViolationClosure(DefaultAPITest):
         self.get_case().run_steps(
             *SaveFireBrigadeAdvice.get_steps(),
             WaitForTimer(),
-            ContactOwner(),
+            ContactOwnerFirst(),
             ValidateOpenTasks(JudgeReopeningRequest),
+        )
+
+    def test_timer_second(self):
+        self.get_case().run_steps(
+            *SaveFireBrigadeAdvice.get_steps(),
+            MonitorReopeningRequest(),
+            JudgeReopeningRequest(review_request=ReviewReopenRequest.DECLINED),
+            WaitForTimer(),
+            ContactOwnerSecond(),
+            ValidateOpenTasks(MonitorReopeningRequestToBeDelivered),
         )

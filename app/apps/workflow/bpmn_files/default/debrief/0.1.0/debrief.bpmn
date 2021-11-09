@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1lcjjzz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" camunda:diagramRelationId="a8cc3f51-5a58-4e06-aca4-2a2b3ed71b3a">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1lcjjzz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0" camunda:diagramRelationId="a8cc3f51-5a58-4e06-aca4-2a2b3ed71b3a">
   <bpmn:collaboration id="Collaboration_1tztuvt">
     <bpmn:participant id="Participant_08m4w5n" name="Process" processRef="debrief" />
   </bpmn:collaboration>
@@ -31,6 +31,8 @@
         <bpmn:flowNodeRef>Activity_0i75ycd</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_04e97ob</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0bn66w5</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_terugkoppelen_melder_2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_terugkoppelen_melder_1</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:sequenceFlow id="Flow_14k2xx3" sourceRef="service_status_debrief" targetRef="gateway_merge_1t0o489" />
@@ -46,7 +48,7 @@
     <bpmn:sequenceFlow id="Flow_128bhfd" sourceRef="task_create_report_of_findings" targetRef="gateway_merge_1cbngmn" />
     <bpmn:sequenceFlow id="Flow_0m1sb6f" sourceRef="task_create_concept_summons" targetRef="gateway_merge_1cbngmn" />
     <bpmn:sequenceFlow id="Flow_1e63pco" sourceRef="gateway_merge_1cbngmn" targetRef="task_check_summons" />
-    <bpmn:sequenceFlow id="Flow_09fde08" name="violation.value = no OR To other theme" sourceRef="gateway_is_debrief_violation" targetRef="task_prepare_abbreviated_visit_rapport">
+    <bpmn:sequenceFlow id="Flow_09fde08" name="violation.value = no OR To other theme" sourceRef="gateway_is_debrief_violation" targetRef="task_terugkoppelen_melder_1">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "NO" or violation.value == "SEND_TO_OTHER_THEME"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1c3b8q1" sourceRef="task_prepare_abbreviated_visit_rapport" targetRef="service_script_set_summon_no" />
@@ -133,7 +135,7 @@
       <bpmn:outgoing>Flow_09t0nyr</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:userTask id="task_prepare_abbreviated_visit_rapport" name="Opstellen  verkorte rapportage huisbezoek" camunda:candidateGroups="Toezichthouder" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
-      <bpmn:incoming>Flow_09fde08</bpmn:incoming>
+      <bpmn:incoming>Flow_1l01bsu</bpmn:incoming>
       <bpmn:outgoing>Flow_1c3b8q1</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:parallelGateway id="gateway_merge_1cbngmn" name="+">
@@ -151,7 +153,7 @@
       <bpmn:outgoing>Flow_1xhnyyp</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:parallelGateway id="gateway_parallel_0289ucr" name="+">
-      <bpmn:incoming>Flow_090pn4r</bpmn:incoming>
+      <bpmn:incoming>Flow_0yr5jd0</bpmn:incoming>
       <bpmn:outgoing>Flow_1w9hb8b</bpmn:outgoing>
       <bpmn:outgoing>Flow_0inubyk</bpmn:outgoing>
       <bpmn:outgoing>Flow_0kzynfb</bpmn:outgoing>
@@ -170,7 +172,7 @@
       <bpmn:incoming>Flow_0woi9k1</bpmn:incoming>
       <bpmn:outgoing>Flow_14629v6</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_090pn4r" name="violation = yes" sourceRef="gateway_is_debrief_violation" targetRef="gateway_parallel_0289ucr" />
+    <bpmn:sequenceFlow id="Flow_090pn4r" name="violation = yes" sourceRef="gateway_is_debrief_violation" targetRef="task_terugkoppelen_melder_2" />
     <bpmn:sequenceFlow id="Flow_0dimecs" sourceRef="Activity_04e97ob" targetRef="Event_0bn66w5" />
     <bpmn:scriptTask id="Activity_0i75ycd" name="next_step = visit and authorization = Yes">
       <bpmn:incoming>Flow_09t0nyr</bpmn:incoming>
@@ -190,6 +192,16 @@
       <bpmn:incoming>Flow_0dimecs</bpmn:incoming>
       <bpmn:incoming>Flow_1874ngs</bpmn:incoming>
     </bpmn:endEvent>
+    <bpmn:userTask id="task_terugkoppelen_melder_2" name="Terugkoppelen melder" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:incoming>Flow_090pn4r</bpmn:incoming>
+      <bpmn:outgoing>Flow_0yr5jd0</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0yr5jd0" sourceRef="task_terugkoppelen_melder_2" targetRef="gateway_parallel_0289ucr" />
+    <bpmn:sequenceFlow id="Flow_1l01bsu" sourceRef="task_terugkoppelen_melder_1" targetRef="task_prepare_abbreviated_visit_rapport" />
+    <bpmn:userTask id="task_terugkoppelen_melder_1" name="Terugkoppelen melder" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:incoming>Flow_09fde08</bpmn:incoming>
+      <bpmn:outgoing>Flow_1l01bsu</bpmn:outgoing>
+    </bpmn:userTask>
   </bpmn:process>
   <bpmn:signal id="Signal_039rhog" name="S" />
   <bpmn:message id="Message_1x25hwu" name="inform_civilian" />
@@ -208,6 +220,14 @@
       <bpmndi:BPMNShape id="Lane_1hxgg1r_di" bpmnElement="lane_handhavingsjurist_1hxgg1r" isHorizontal="true">
         <dc:Bounds x="190" y="860" width="2060" height="180" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1l01bsu_di" bpmnElement="Flow_1l01bsu">
+        <di:waypoint x="1000" y="250" />
+        <di:waypoint x="1310" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0yr5jd0_di" bpmnElement="Flow_0yr5jd0">
+        <di:waypoint x="1000" y="370" />
+        <di:waypoint x="1095" y="370" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1874ngs_di" bpmnElement="Flow_1874ngs">
         <di:waypoint x="460" y="440" />
         <di:waypoint x="434" y="440" />
@@ -231,9 +251,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_090pn4r_di" bpmnElement="Flow_090pn4r">
         <di:waypoint x="805" y="370" />
-        <di:waypoint x="1095" y="370" />
+        <di:waypoint x="900" y="370" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="913" y="353" width="71" height="14" />
+          <dc:Bounds x="814" y="353" width="71" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1bb4c8d_di" bpmnElement="Flow_1bb4c8d">
@@ -279,9 +299,9 @@
       <bpmndi:BPMNEdge id="Flow_09fde08_di" bpmnElement="Flow_09fde08">
         <di:waypoint x="780" y="345" />
         <di:waypoint x="780" y="250" />
-        <di:waypoint x="1310" y="250" />
+        <di:waypoint x="900" y="250" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="916" y="250" width="80" height="40" />
+          <dc:Bounds x="790" y="200" width="80" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1e63pco_di" bpmnElement="Flow_1e63pco">
@@ -418,6 +438,12 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0bn66w5_di" bpmnElement="Event_0bn66w5">
         <dc:Bounds x="352" y="352" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1evctzy_di" bpmnElement="task_terugkoppelen_melder_2">
+        <dc:Bounds x="900" y="330" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1p1ljdw_di" bpmnElement="task_terugkoppelen_melder_1">
+        <dc:Bounds x="900" y="210" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
