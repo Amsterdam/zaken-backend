@@ -23,7 +23,6 @@ from api.validators import ValidateOpenTasks
 
 class TestViolationClosure(DefaultAPITest):
     def test_direct(self):
-        self.skipTest("PlanNextStep is not given. Xavier is working on it")
         self.get_case().run_steps(
             ScheduleVisit(),
             Visit(),

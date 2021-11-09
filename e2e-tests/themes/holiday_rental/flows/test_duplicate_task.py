@@ -20,9 +20,6 @@ class TestDuplicateTaskExecution(DefaultAPITest):
     """
 
     def test_generic_task(self):
-        self.skipTest(
-            "It should not be possible to re-execute the same task. Please note the bug might not only be about the generic-tasks. It should never be possible to re-execute a non-generic or a generic user tasks. Please not only fix this for Generic user-tasks."
-        )
         case = self.get_case()
         case.run_steps(
             *Debrief.get_steps(violation=Violation.ADDITIONAL_RESEARCH_REQUIRED),
@@ -93,3 +90,6 @@ class TestDuplicateTaskExecution(DefaultAPITest):
                 post_data,
                 task_name=Visit.task_name,
             )
+
+    def test_non_generic_user_task_non_visit(self):
+        self.skipTest("not implemented yet")
