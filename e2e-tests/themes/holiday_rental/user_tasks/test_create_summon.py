@@ -1,6 +1,6 @@
 from api.config import SummonTypes
 from api.tasks.close_case import PlanNextStep
-from api.tasks.closing_procedure import MonitorReopeningRequest, SaveFireBrigadeAdvice
+from api.tasks.closing_procedure import SaveFireBrigadeAdvice
 from api.tasks.debrief import CheckNotices
 from api.tasks.summon import (
     MonitorIncomingPermitRequest,
@@ -23,7 +23,7 @@ class TestSummon(DefaultAPITest):
         self.get_case().run_steps(
             *CheckNotices.get_steps(),
             ProcessNotice(type=SummonTypes.HolidayRental.CLOSURE),
-            ValidateOpenTasks(SaveFireBrigadeAdvice, MonitorReopeningRequest),
+            ValidateOpenTasks(SaveFireBrigadeAdvice),
         )
 
     def test_obligation_to_report_intention_to_fine(self):

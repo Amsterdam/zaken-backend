@@ -1,5 +1,5 @@
 from api.config import Violation
-from api.tasks.debrief import Debrief, HomeVisitReport
+from api.tasks.debrief import Debrief, HomeVisitReport, InformReporter
 from api.tasks.director import FeedbackReporters
 from api.tasks.visit import ScheduleVisit, Visit
 from api.test import DefaultAPITest
@@ -12,6 +12,7 @@ class TestNoViolation(DefaultAPITest):
             ScheduleVisit(),
             Visit(),
             Debrief(violation=Violation.NO),
+            InformReporter(),
             FeedbackReporters(),
             HomeVisitReport(),
             # TODO Current/old implementation gave PlanNextStep, but even
