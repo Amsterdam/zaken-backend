@@ -473,6 +473,9 @@ WORKFLOW_SPEC_CONFIG = {
         "closing_procedure": {
             "initial_data": {
                 "task_monitoren_heropeningsverzoek_timer_duration": timedelta(days=92),
+                "task_monitoren_nieuw_heropeningsverzoek_timer_duration": timedelta(
+                    days=31
+                ),
             },
             "versions": {"0.1.0": {}},
         },

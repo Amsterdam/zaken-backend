@@ -65,9 +65,14 @@ class NextStep:
     # RENOUNCE = "renounce"  # TODO where did this came from? It's no longer supported?
 
 
-class ReviewRequest:
-    DECLINED = "afgekeurd"
+class ReopenRequest:
+    ACCEPTED = "Yes"
+    DECLINED = "No"
+
+
+class ReviewReopenRequest:
     ACCEPTED = "goedgekeurd"
+    DECLINED = "afgekeurd"
 
 
 class Process:

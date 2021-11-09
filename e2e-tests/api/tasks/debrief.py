@@ -28,6 +28,24 @@ class Debrief(AbstractUserTask):
         }
 
 
+class InformReporterNoViolation(GenericUserTask):
+    task_name = "task_terugkoppelen_melder_1"
+    description = "Terugkoppelen melder"
+
+    @staticmethod
+    def get_steps(violation=Violation.NO):
+        return [*Debrief.get_steps(violation=violation), __class__()]
+
+
+class InformReporter(GenericUserTask):
+    task_name = "task_terugkoppelen_melder_2"
+    description = "Terugkoppelen melder"
+
+    @staticmethod
+    def get_steps(violation=Violation.YES):
+        return [*Debrief.get_steps(violation=violation), __class__()]
+
+
 class WaitInternalResearch(GenericUserTask):
     task_name = "task_wait_internal_reasearch"
     description = "Afwachten intern onderzoek"
@@ -46,7 +64,7 @@ class CreatePictureReport(GenericUserTask):
 
     @staticmethod
     def get_steps():
-        return [*Debrief.get_steps(violation=Violation.YES), __class__()]
+        return [*InformReporter.get_steps(), __class__()]
 
 
 class CreateFindingsReport(GenericUserTask):
@@ -55,7 +73,7 @@ class CreateFindingsReport(GenericUserTask):
 
     @staticmethod
     def get_steps():
-        return [*Debrief.get_steps(violation=Violation.YES), __class__()]
+        return [*InformReporter.get_steps(), __class__()]
 
 
 class CreateConceptNotices(GenericUserTask):
@@ -64,7 +82,7 @@ class CreateConceptNotices(GenericUserTask):
 
     @staticmethod
     def get_steps():
-        return [*Debrief.get_steps(violation=Violation.YES), __class__()]
+        return [*InformReporter.get_steps(), __class__()]
 
 
 class HomeVisitReport(GenericUserTask):
@@ -75,7 +93,7 @@ class HomeVisitReport(GenericUserTask):
     def get_steps(to_other_team=False):
         violation = Violation.SEND_TO_OTHER_THEME if to_other_team else Violation.NO
         return [
-            *Debrief.get_steps(violation=violation),
+            *InformReporterNoViolation.get_steps(violation=violation),
             __class__(),
         ]
 
@@ -88,6 +106,7 @@ class CheckNotices(GenericUserTask):
     def get_steps():
         return [
             *Debrief.get_steps(violation=Violation.YES),
+            InformReporter(),
             CreatePictureReport(),
             CreateFindingsReport(),
             CreateConceptNotices(),
