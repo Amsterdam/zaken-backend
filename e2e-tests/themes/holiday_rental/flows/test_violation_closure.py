@@ -59,7 +59,7 @@ class TestViolationClosure(DefaultAPITest):
             *SaveFireBrigadeAdvice.get_steps(),
             WaitForTimer(),
             ContactOwnerFirst(),
-            ValidateOpenTasks(JudgeReopeningRequest),
+            ValidateOpenTasks(MonitorReopeningRequest),
         )
 
     def test_timer_second(self):
