@@ -2,7 +2,6 @@ from apps.cases.serializers import CaseUserTaskListSerializer
 from apps.users.permissions import rest_permission_classes_for_top
 from apps.workflow.serializers import GenericCompletedTaskSerializer
 from apps.workflow.utils import map_variables_on_task_spec_form
-from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, status, viewsets
@@ -91,7 +90,9 @@ class GenericCompletedTaskViewSet(viewsets.ViewSet):
             data = serializer.validated_data
 
             variables = data.get("variables", {})
-            task = get_object_or_404(CaseUserTask, id=data["case_user_task_id"])
+            task = CaseUserTask.objects.get(
+                id=data["case_user_task_id"], completed=False
+            )
             variables["mapped_form_data"] = map_variables_on_task_spec_form(
                 variables, task.form
             )

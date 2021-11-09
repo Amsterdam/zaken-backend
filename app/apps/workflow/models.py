@@ -18,7 +18,12 @@ from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.task import Task
 from utils.managers import BulkCreateSignalsManager
 
-from .tasks import task_complete_user_task_and_create_new_user_tasks
+from .tasks import (
+    task_complete_user_task_and_create_new_user_tasks,
+    task_complete_worflow,
+    task_start_subworkflow,
+    task_wait_for_workflows_and_send_message,
+)
 from .utils import (
     compare_workflow_specs_by_task_specs,
     get_initial_data_from_config,
@@ -128,57 +133,11 @@ class CaseWorkflow(models.Model):
             case.set_state(input, workflow_instance)
 
         def wait_for_workflows_and_send_message(message):
-            logger.info(f"wait_for_workflows_and_send_message: {message}")
-            logger.info(f"workflow id: {workflow_instance.id}")
-
-            # tell the other workfows that this one is waiting
-            workflow_instance.data.update(
-                {
-                    message: "done",
-                }
+            task_wait_for_workflows_and_send_message.delay(
+                workflow_instance.id, message
             )
-            workflow_instance.save(update_fields=["data"])
-            all_workflows = CaseWorkflow.objects.filter(
-                case=workflow_instance.case,
-                workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
-            )
-
-            workflows_completed = [
-                a
-                for a in all_workflows.values_list("data", flat=True)
-                if a.get(message) == "done"
-            ]
-            main_workflow = all_workflows.filter(main_workflow=True).first()
-
-            """
-            Tests if all workflows reached thit point,
-            so the last waiting worklfow kan tell the main workflow to accept the message after all, so only the main workflow can resume
-            """
-            if len(workflows_completed) == all_workflows.count() and main_workflow:
-                from .tasks import task_accept_message_for_workflow
-
-                # pick up all summons and pass them on to the main workflow
-                all_summons = [
-                    d.get("summon_id")
-                    for d in all_workflows.values_list("data", flat=True)
-                    if d.get("summon_id")
-                ]
-                extra_data = {
-                    "all_summons": all_summons,
-                }
-
-                # sends the accept message to a task, because we have to wait until this current tasks, we are in, is completed
-                task_accept_message_for_workflow.delay(
-                    main_workflow.id, message, extra_data
-                )
-
-                # TODO: cleanup(delete others), but the message is not send yet, so below should wait
-                # other_workflows = all_workflows.exclude(id=main_workflow.id)
-                # other_workflows.delete()
 
         def start_subworkflow(subworkflow_name):
-            from .tasks import task_start_subworkflow
-
             task_start_subworkflow.delay(subworkflow_name, workflow_instance.id)
 
         def parse_duration_string(str_duration):
@@ -290,6 +249,11 @@ class CaseWorkflow(models.Model):
 
         return task_instances
 
+    def update_tasks(self, wf):
+        with transaction.atomic():
+            self.set_absolete_tasks_to_completed(wf)
+            transaction.on_commit(lambda: self.create_user_tasks(wf))
+
     @staticmethod
     def get_task_by_task_id(id):
         task = get_object_or_404(CaseUserTask, id=id)
@@ -336,10 +300,20 @@ class CaseWorkflow(models.Model):
             # update this workflow with the latest task data
             self.data.update(wf.last_task.data)
 
+        completed = False
+
+        if wf.is_completed() and not self.completed:
+            completed = True
+            self.completed = True
+
         state = self.get_serializer().serialize_workflow(wf, include_spec=False)
         self.serialized_workflow_state = state
 
         self.save()
+
+        if completed:
+            data = copy.deepcopy(wf.last_task.data) if wf.last_task else {}
+            task_complete_worflow.delay(self.id, data)
 
     def get_or_restore_workflow_state(self):
         # gets the unserialized workflow from this workflow instance, it has to use an workflow_spec, witch in this case will be load from filesystem.
@@ -386,21 +360,6 @@ class CaseWorkflow(models.Model):
         # no changes to the workflow after this point
         self._update_db(wf)
 
-    def _check_completed_workflows(self, wf):
-        # if end of subworkflow, try to get back to main workflow
-        if wf.is_completed() and not self.completed:
-            data = copy.deepcopy(wf.last_task.data) if wf.last_task else {}
-            if (
-                self.parent_workflow
-                and self.parent_workflow.workflow_type
-                == CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
-            ):
-                self.parent_workflow.accept_message(
-                    f"resume_after_{self.workflow_type}",
-                    data,
-                )
-            self.completed = True
-
     def has_a_timer_event_fired(self):
         wf = self.get_or_restore_workflow_state()
         if not wf:
@@ -426,10 +385,8 @@ class CaseWorkflow(models.Model):
 
     def _update_db(self, wf):
         with transaction.atomic():
-            self._check_completed_workflows(wf)
             self.save_workflow_state(wf)
-            self.set_absolete_tasks_to_completed(wf)
-            self.create_user_tasks(wf)
+            transaction.on_commit(lambda: self.update_tasks(wf))
 
     def migrate_to(self, workflow_version, test=True):
         # tests and tries to migrate to an other version
