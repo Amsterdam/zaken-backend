@@ -77,6 +77,7 @@ INSTALLED_APPS = (
     "apps.camunda",
     "apps.summons",
     "apps.schedules",
+    "apps.workflow",
 )
 
 # Add apps here to make them appear in the graphing visualisation
@@ -91,7 +92,6 @@ SPAGHETTI_SAUCE = {
         "visits",
         "events",
         "summons",
-        "camunda",
         "decisions",
         "schedules",
     ],
@@ -191,6 +191,11 @@ LOGGING = {
             "level": "INFO",
             "propagate": True,
         },
+        "utils": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
         "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
     },
 }
@@ -242,7 +247,7 @@ LOCAL_DEVELOPMENT_AUTHENTICATION = (
     os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
 )
 
-SESSION_COOKIE_AGE = 60 * 5
+SESSION_COOKIE_AGE = int(os.getenv("SESSION_COOKIE_AGE", "300"))
 SESSION_SAVE_EVERY_REQUEST = True
 
 AUTH_USER_MODEL = "users.User"
@@ -253,6 +258,8 @@ AUTHENTICATION_BACKENDS = (
     "apps.users.auth.AuthenticationBackend",
 )
 
+AXES_RESET_ON_SUCCESS = True
+AXES_ENABLED = os.getenv("AXES_ENABLED", "True") == "True"
 
 # Simple JWT is used for local development authentication only.
 SIMPLE_JWT = {
@@ -274,10 +281,6 @@ BELASTING_API_ACCESS_TOKEN = os.getenv("BELASTING_API_ACCESS_TOKEN", None)
 
 # Secret keys which can be used to access certain parts of the API
 SECRET_KEY_TOP_ZAKEN = os.getenv("SECRET_KEY_TOP_ZAKEN", None)
-CAMUNDA_SECRET_KEY = os.getenv("CAMUNDA_SECRET_KEY")
-# Authentication for the rest calls to camunda
-CAMUNDA_REST_AUTH = os.getenv("CAMUNDA_REST_AUTH")
-
 
 # NOTE: this is commented out because currently the internal health check is done over HTTP
 # SECURE_SSL_REDIRECT = is_secure_environment
@@ -416,12 +419,6 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-# CELERY_IMPORTS = ("apps.camunda.tasks", )
-
-CAMUNDA_HEALTH_CHECK_URL = os.getenv("CAMUNDA_HEALTH_CHECK_URL")
-CAMUNDA_REST_URL = os.getenv("CAMUNDA_REST_URL", "http://camunda:8080/engine-rest/")
-CAMUNDA_DIRECTING_PROCESS = "aza_wonen_local_vakantieverhuur_regie"
-
 REDIS = os.getenv("REDIS")
 REDIS_URL = f"redis://{REDIS}"
 CACHES = {
@@ -462,3 +459,104 @@ VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER = os.getenv(
 )
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+
+DEFAULT_WORKFLOW_TYPE = os.getenv("DEFAULT_WORKFLOW_TYPE", "director")
+
+DEFAULT_WORKFLOW_TIMER_DURATIONS = {
+    "development": timedelta(seconds=20),
+    "acceptance": timedelta(seconds=240),
+}
+
+WORKFLOW_SPEC_CONFIG = {
+    "default": {
+        "closing_procedure": {
+            "initial_data": {
+                "task_monitoren_heropeningsverzoek_timer_duration": timedelta(days=92),
+                "task_monitoren_nieuw_heropeningsverzoek_timer_duration": timedelta(
+                    days=31
+                ),
+            },
+            "versions": {"0.1.0": {}},
+        },
+        "close_case": {
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {},
+            },
+        },
+        "decision": {
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {},
+            },
+        },
+        "debrief": {
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {},
+            },
+        },
+        "director": {
+            "initial_data": {},
+            "versions": {
+                "0.2.0": {
+                    "messages": {
+                        "main_process": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                            },
+                        },
+                        "aanschrijving_toevoegen": {},  # TODO Remove this
+                    },
+                },
+            },
+        },
+        "renounce_decision": {
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {},
+            },
+        },
+        "sub_workflow": {
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {
+                    "messages": {
+                        "start_signal_process": {},
+                        "start_correspondence_process": {},
+                        "start_callbackrequest_process": {},
+                        "start_objectionfile_process": {},
+                    },
+                },
+            },
+        },
+        "summon": {
+            "initial_data": {
+                "task_monitor_incoming_permit_application_timer_duration": timedelta(
+                    days=32
+                ),
+                "task_monitor_permit_request_procedure_timer_duration": timedelta(
+                    days=56
+                ),
+                "task_monitor_incoming_point_of_view_timer_duration": timedelta(
+                    days=71
+                ),
+            },
+            "versions": {
+                "0.1.0": {},
+                "0.2.0": {},
+            },
+        },
+        "visit": {
+            "initial_data": {
+                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+            },
+            "versions": {
+                "0.1.0": {},
+                "0.2.0": {},
+                "0.3.0": {},
+            },
+        },
+    },
+}

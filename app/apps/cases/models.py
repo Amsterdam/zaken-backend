@@ -4,7 +4,7 @@ from apps.addresses.models import Address
 from apps.events.models import CaseEvent, ModelEventEmitter, TaskModelEventEmitter
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 
 
@@ -63,6 +63,7 @@ class Case(ModelEventEmitter):
         to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )
     is_legacy_bwv = models.BooleanField(default=False)
+    is_legacy_camunda = models.BooleanField(default=False)
     legacy_bwv_case_id = models.CharField(
         max_length=255, null=True, blank=True, unique=True
     )
@@ -125,7 +126,12 @@ class Case(ModelEventEmitter):
         return f"{self.id} Case"
 
     def get_current_states(self):
-        return self.case_states.filter(end_date__isnull=True)
+        states = []
+        for workflow in self.workflows.filter(tasks__completed=False):
+            case_state = workflow.case_states.all().order_by("id").last()
+            if case_state:
+                states.append(case_state)
+        return states
 
     def get_schedules(self):
         qs = self.schedules.all().order_by("-date_added")
@@ -133,15 +139,14 @@ class Case(ModelEventEmitter):
             qs = [qs.first()]
         return qs
 
-    def set_state(self, state_name, case_process_id, information="", *args, **kwargs):
+    def set_state(self, state_name, workflow, *args, **kwargs):
         state_type, _ = CaseStateType.objects.get_or_create(
             name=state_name, theme=self.theme
         )
         state = CaseState.objects.create(
             case=self,
             status=state_type,
-            information=information,
-            case_process_id=case_process_id,
+            workflow=workflow,
         )
 
         return state
@@ -157,29 +162,20 @@ class Case(ModelEventEmitter):
 
         super().save(*args, **kwargs)
 
-    def add_camunda_id(self, camunda_id, *args, **kwargs):
-        if self.camunda_ids:
-            self.camunda_ids.append(camunda_id)
-        else:
-            self.camunda_ids = [camunda_id]
-
-        self.save()
-        return self
-
     def close_case(self):
         # close all states just in case
-        for state in self.case_states.filter(end_date__isnull=True):
-            state.end_date = timezone.now().date()
-            state.save()
+        with transaction.atomic():
+            for state in self.case_states.filter(end_date__isnull=True):
+                state.end_date = timezone.now().date()
+                state.save()
 
-        for camunda_id in self.camunda_ids:
-            from apps.camunda.services import CamundaService
+            self.workflows.filter(
+                completed=False,
+                main_workflow=False,
+            ).update(completed=True)
 
-            CamundaService().delete_instance(camunda_id)
-            self.camunda_ids = []
-
-        self.end_date = timezone.now().date()
-        self.save()
+            self.end_date = timezone.now().date()
+            self.save()
 
     class Meta:
         ordering = ["-start_date"]
@@ -215,9 +211,31 @@ class CaseState(models.Model):
     )
     information = models.CharField(max_length=255, null=True, blank=True)
     case_process_id = models.CharField(max_length=255, null=True, default="")
+    workflow = models.ForeignKey(
+        "workflow.CaseWorkflow",
+        on_delete=models.CASCADE,
+        related_name="case_states",
+        null=True,
+        blank=True,
+    )
+
+    def get_information(self):
+        # TODO: replaces information field, so remove field
+        if self.workflow:
+            return self.workflow.get_data().get("names", {}).get("value", "")
+        return ""
 
     def __str__(self):
         return f"{self.start_date} - {self.end_date} - {self.case.identification} - {self.status.name}"
+
+    def get_tasks(self):
+        from apps.workflow.models import CaseUserTask
+
+        return (
+            self.workflow.tasks.filter(completed=False)
+            if self.workflow
+            else CaseUserTask.objects.none()
+        )
 
     def end_state(self):
         if not self.end_date:
@@ -324,6 +342,7 @@ class CitizenReport(TaskModelEventEmitter):
         null=True,
         blank=True,
     )
+    nuisance = models.BooleanField(default=False)
     date_added = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
@@ -342,9 +361,10 @@ class CitizenReport(TaskModelEventEmitter):
             "reporter_email": self.reporter_email,
             "advertisement_linklist": self.advertisement_linklist,
             "description_citizenreport": self.description_citizenreport,
+            "nuisance": self.nuisance,
             "author": author,
         }
-        if self.camunda_task_id != "-1":
+        if self.case_user_task_id != "-1":
             event_values.update(
                 {
                     "date_added": self.date_added,

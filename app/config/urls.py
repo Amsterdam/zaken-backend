@@ -1,11 +1,11 @@
 from apps.addresses.views import AddressViewSet
-from apps.camunda.views import CamundaTaskViewSet, CamundaWorkerViewSet, TaskViewSet
 from apps.cases.views import (
     CaseCloseViewSet,
     CaseStateViewSet,
     CaseThemeCitizenReportViewSet,
     CaseThemeViewSet,
     CaseViewSet,
+    download_data,
 )
 from apps.debriefings.views import DebriefingViewSet
 from apps.decisions.views import DecisionViewSet
@@ -21,6 +21,7 @@ from apps.users.views import (
     UserListView,
 )
 from apps.visits.views import VisitViewSet
+from apps.workflow.views import CaseUserTaskViewSet, GenericCompletedTaskViewSet
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
@@ -32,7 +33,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register(r"addresses", AddressViewSet, basename="addresses")
 router.register(r"cases", CaseViewSet, basename="cases")
-router.register(r"tasks", TaskViewSet, basename="tasks")
+router.register(r"tasks", CaseUserTaskViewSet, basename="tasks")
 router.register(r"case-states", CaseStateViewSet, basename="case-states")
 router.register(r"themes", CaseThemeViewSet, basename="themes")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")
@@ -47,12 +48,11 @@ router.register(r"summons", SummonViewSet, basename="summons")
 router.register(r"schedules", ScheduleViewSet, basename="schedules")
 router.register(r"case-close", CaseCloseViewSet, basename="case-closing")
 
-
-router.register(r"camunda/task", CamundaTaskViewSet, basename="camunda-tasks")
-router.register(r"camunda/worker", CamundaWorkerViewSet, basename="camunda-workers")
+router.register(r"generic-tasks", GenericCompletedTaskViewSet, basename="generic-tasks")
 
 urlpatterns = [
     # Admin environment
+    path("admin/download_data/", download_data),
     path("admin/", admin.site.urls),
     path(
         "bwv-zaken-importeren/vakantieverhuur/melding",

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1r20ftd" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.14.0">
+  <bpmn:collaboration id="Collaboration_0825zie">
+    <bpmn:participant id="Participant_1fgctiq" name="aza_wonen_global_voornemen_afzien" processRef="renounce_decision" />
+  </bpmn:collaboration>
+  <bpmn:process id="renounce_decision" name="renounce" isExecutable="true" camunda:versionTag="0.1.0">
+    <bpmn:laneSet id="LaneSet_0akxtcz">
+      <bpmn:lane id="lane_handhavingsjurist_12swn6l" name="Handhavingsjurist">
+        <bpmn:flowNodeRef>task_check_renounce_letter</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_projecthandhaver_0v65q88" name="Projecthandhaver">
+        <bpmn:flowNodeRef>task_create_concept_renounce</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_create_definitive_renounce</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>start_1337xTC</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_status_voornemen_afzien</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_06ukx2a</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_end_status_133c7jr</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0cyrkp2</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:userTask id="task_create_concept_renounce" name="Opstellen concept voornemen afzien" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:incoming>Flow_048xako</bpmn:incoming>
+      <bpmn:outgoing>Flow_1v6ql1z</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_check_renounce_letter" name="Nakijken brief" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+      <bpmn:incoming>Flow_1v6ql1z</bpmn:incoming>
+      <bpmn:outgoing>Flow_1lmk47t</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_create_definitive_renounce" name="Verwerken definitief voornemen afzien" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
+      <bpmn:incoming>Flow_1lmk47t</bpmn:incoming>
+      <bpmn:outgoing>Flow_0nnp7hu</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0nnp7hu" sourceRef="task_create_definitive_renounce" targetRef="Activity_0cyrkp2" />
+    <bpmn:sequenceFlow id="Flow_1lmk47t" sourceRef="task_check_renounce_letter" targetRef="task_create_definitive_renounce" />
+    <bpmn:sequenceFlow id="Flow_1v6ql1z" sourceRef="task_create_concept_renounce" targetRef="task_check_renounce_letter" />
+    <bpmn:sequenceFlow id="Flow_048xako" sourceRef="service_status_voornemen_afzien" targetRef="task_create_concept_renounce" />
+    <bpmn:sequenceFlow id="Flow_0t0j9vg" sourceRef="start_1337xTC" targetRef="service_status_voornemen_afzien" />
+    <bpmn:startEvent id="start_1337xTC" camunda:formKey="start_voornemen_afzien">
+      <bpmn:extensionElements>
+        <camunda:formData businessKey="case_process_id">
+          <camunda:formField id="zaken_access_token" type="string" />
+          <camunda:formField id="case_identification" type="string" />
+          <camunda:formField id="endpoint" type="string" />
+          <camunda:formField id="case_process_id" type="string" />
+          <camunda:formField id="super_process" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_0t0j9vg</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="service_status_voornemen_afzien" name="Status: &#34;Voornemen afzien&#34;">
+      <bpmn:incoming>Flow_0t0j9vg</bpmn:incoming>
+      <bpmn:outgoing>Flow_048xako</bpmn:outgoing>
+      <bpmn:script>print('Status: "Voornemen afzien"')</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="end_06ukx2a">
+      <bpmn:incoming>Flow_1oczkmn</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="service_end_status_133c7jr" name="Status Beëindigen">
+      <bpmn:incoming>Flow_1niydg5</bpmn:incoming>
+      <bpmn:outgoing>Flow_1oczkmn</bpmn:outgoing>
+      <bpmn:script>print('Status Beëindigen')</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_1oczkmn" sourceRef="service_end_status_133c7jr" targetRef="end_06ukx2a" />
+    <bpmn:scriptTask id="Activity_0cyrkp2" name="next_step = {&#34;value&#34;: &#34;close_case&#34;}">
+      <bpmn:incoming>Flow_0nnp7hu</bpmn:incoming>
+      <bpmn:outgoing>Flow_1niydg5</bpmn:outgoing>
+      <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_1niydg5" sourceRef="Activity_0cyrkp2" targetRef="service_end_status_133c7jr" />
+  </bpmn:process>
+  <bpmn:message id="Message_1oj3bnv" name="start_decision_process" />
+  <bpmn:message id="Message_0nm4fk2" name="model_create_summon" />
+  <bpmn:message id="Message_1uca11p" name="start_decision_process" />
+  <bpmn:message id="Message_0selkm5" name="start_uitzetten_vervolgstap" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0825zie">
+      <bpmndi:BPMNShape id="Participant_1fgctiq_di" bpmnElement="Participant_1fgctiq" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1230" height="350" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_0v65q88_di" bpmnElement="lane_projecthandhaver_0v65q88" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1200" height="210" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_12swn6l_di" bpmnElement="lane_handhavingsjurist_12swn6l" isHorizontal="true">
+        <dc:Bounds x="190" y="290" width="1200" height="140" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0t0j9vg_di" bpmnElement="Flow_0t0j9vg">
+        <di:waypoint x="278" y="170" />
+        <di:waypoint x="330" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_048xako_di" bpmnElement="Flow_048xako">
+        <di:waypoint x="430" y="170" />
+        <di:waypoint x="480" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1v6ql1z_di" bpmnElement="Flow_1v6ql1z">
+        <di:waypoint x="580" y="170" />
+        <di:waypoint x="610" y="170" />
+        <di:waypoint x="610" y="360" />
+        <di:waypoint x="640" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1lmk47t_di" bpmnElement="Flow_1lmk47t">
+        <di:waypoint x="740" y="360" />
+        <di:waypoint x="770" y="360" />
+        <di:waypoint x="770" y="170" />
+        <di:waypoint x="800" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nnp7hu_di" bpmnElement="Flow_0nnp7hu">
+        <di:waypoint x="900" y="170" />
+        <di:waypoint x="960" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1oczkmn_di" bpmnElement="Flow_1oczkmn">
+        <di:waypoint x="1230" y="170" />
+        <di:waypoint x="1262" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1niydg5_di" bpmnElement="Flow_1niydg5">
+        <di:waypoint x="1060" y="170" />
+        <di:waypoint x="1130" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_1xxaeyx_di" bpmnElement="task_create_concept_renounce">
+        <dc:Bounds x="480" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1gxlkcj_di" bpmnElement="task_check_renounce_letter">
+        <dc:Bounds x="640" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0qte498_di" bpmnElement="task_create_definitive_renounce">
+        <dc:Bounds x="800" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1425mhx_di" bpmnElement="start_1337xTC">
+        <dc:Bounds x="242" y="152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1iy02g5_di" bpmnElement="service_status_voornemen_afzien">
+        <dc:Bounds x="330" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_06ukx2a_di" bpmnElement="end_06ukx2a">
+        <dc:Bounds x="1262" y="152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0mr0cgv_di" bpmnElement="service_end_status_133c7jr">
+        <dc:Bounds x="1130" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0cyrkp2_di" bpmnElement="Activity_0cyrkp2">
+        <dc:Bounds x="960" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,4 +1,4 @@
-FROM amsterdam/python
+FROM amsterdam/python:3.9-buster
 LABEL maintainer="datapunt@amsterdam.nl"
 
 ENV REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
@@ -25,6 +25,7 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY . /app/
 
+RUN chmod +x /app/restore_db.sh
 RUN chmod +x /app/wait-for.sh
 RUN chmod +x /app/celery.sh
 RUN chmod +x /app/deploy/docker-entrypoint.sh

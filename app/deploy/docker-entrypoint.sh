@@ -19,10 +19,13 @@ chmod -R 777 /static
 echo Apply migrations
 python manage.py migrate --noinput
 
+python manage.py change_case_event_emitter_type_id_to_workflow
+
 echo Axes check
 python manage.py check
 
 # echo Create root user
 # python manage.py shell -c "from django.contrib.auth import get_user_model; get_user_model().objects.create_superuser('admin@admin.com', 'admin')"
 celery -A config worker -l info -D
+celery -A config beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler --detach
 exec uwsgi --ini /app/deploy/config.ini #--py-auto-reload=1

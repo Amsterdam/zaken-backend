@@ -1,16 +1,10 @@
 import datetime
 import logging
+import mimetypes
+import os
 
 import requests
 from apps.addresses.utils import search
-from apps.camunda.models import CamundaProcess
-from apps.camunda.serializers import (
-    CamundaProcessSerializer,
-    CamundaTaskSerializer,
-    CamundaTaskWithStateSerializer,
-)
-from apps.camunda.services import CamundaService
-from apps.cases.mock import mock
 from apps.cases.models import (
     Case,
     CaseClose,
@@ -25,7 +19,6 @@ from apps.cases.models import (
     CitizenReport,
 )
 from apps.cases.serializers import (
-    CamundaStartProcessSerializer,
     CaseCloseReasonSerializer,
     CaseCloseResultSerializer,
     CaseCloseSerializer,
@@ -36,10 +29,12 @@ from apps.cases.serializers import (
     CaseStateSerializer,
     CaseStateTypeSerializer,
     CaseThemeSerializer,
+    CaseWorkflowSerializer,
     CitizenReportSerializer,
     LegacyCaseCreateSerializer,
     LegacyCaseUpdateSerializer,
     PushCaseStateSerializer,
+    StartWorkflowSerializer,
 )
 from apps.cases.swagger_parameters import date as date_parameter
 from apps.cases.swagger_parameters import no_pagination as no_pagination_parameter
@@ -66,10 +61,13 @@ from apps.users.permissions import (
 )
 from apps.visits.models import Visit
 from apps.visits.serializers import VisitSerializer
+from apps.workflow.models import CaseWorkflow, WorkflowOption
+from apps.workflow.serializers import WorkflowOptionSerializer
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.edit import FormView
@@ -281,186 +279,82 @@ class CaseViewSet(
 
         return paginator.get_paginated_response(serializer.data)
 
-    @action(detail=False, methods=["post"], url_path="generate-mock")
-    def mock_cases(self, request):
-        try:
-            assert (
-                settings.DEBUG or settings.ENVIRONMENT == "acceptance"
-            ), "Incorrect enviroment"
-            mock()
-        except Exception as e:
-            return Response(data={"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(status=status.HTTP_200_OK)
-
     @extend_schema(
-        description="Get Camunda tasks for this Case",
-        responses={status.HTTP_200_OK: CamundaTaskWithStateSerializer(many=True)},
+        description="Get tasks for this Case",
+        responses={status.HTTP_200_OK: CaseWorkflowSerializer(many=True)},
     )
     @action(detail=True, methods=["get"], url_path="tasks")
     def get_tasks(self, request, pk):
         case = self.get_object()
-        user = request.user
-        camunda_tasks = []
+        request.user
 
-        for state in case.case_states.filter(end_date__isnull=True):
-            tasks = CamundaService().get_all_tasks_by_instance_id(state.case_process_id)
-            if tasks:
-                camunda_tasks.extend([{"state": state, "tasks": tasks}])
+        serializer = CaseWorkflowSerializer(
+            CaseWorkflow.objects.filter(
+                case=case, tasks__isnull=False, tasks__completed=False
+            ).distinct(),
+            many=True,
+            context={"request": request},
+        )
 
-        # FIXME Legacy code remove when we can
-        tasks = []
-        already_known_camunda_ids = [
-            state.case_process_id
-            for state in case.case_states.filter(end_date__isnull=True)
-        ]
-        for camunda_id in case.camunda_ids:
-            if camunda_id in already_known_camunda_ids:
-                continue
-
-            state_tasks = CamundaService().get_all_tasks_by_instance_id(camunda_id)
-
-            if state_tasks:
-                try:
-                    process_instance = CaseProcessInstance.objects.get(
-                        camunda_process_id=camunda_id
-                    )
-                    state = CaseState.objects.filter(
-                        case_process_id=process_instance.process_id,
-                        end_date__isnull=True,
-                    ).last()
-                    if state:
-                        camunda_tasks.extend([{"state": state, "tasks": state_tasks}])
-                    else:
-                        tasks.extend(state_tasks)
-                except (CaseProcessInstance.DoesNotExist, CaseState.DoesNotExist) as e:
-                    print(f"tasks CaseProcessInstance or CaseState error {e}")
-                    tasks.extend(state_tasks)
-
-        if len(tasks):
-            case_state, _ = CaseStateType.objects.get_or_create(
-                name="Geen Status", theme=case.theme
-            )
-            state = CaseState(
-                case=case, status=case_state, start_date=datetime.date.today()
-            )
-            camunda_tasks.extend([{"state": state, "tasks": tasks}])
-
-        # Camunda tasks can be an empty list or boolean. TODO: This should just be one datatype
-        if camunda_tasks is False:
-            return Response(
-                "Camunda service is offline",
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
-
-        for index in range(len(camunda_tasks)):
-            for task_index in range(len(camunda_tasks[index]["tasks"])):
-                task = camunda_tasks[index]["tasks"][task_index]
-
-                # Business rule; Except for create/close case every user
-                # with change_case permissions can perform this task.
-                if task["taskDefinitionKey"] == "task_close_case":
-                    # Business rule; Only users with close_case can
-                    # perform the last task.
-                    has_perm = user.has_perm("users.close_case")
-                else:
-                    has_perm = user.has_perm("users.perform_task")
-
-                camunda_tasks[index]["tasks"][task_index][
-                    "user_has_permission"
-                ] = has_perm
-
-        serializer = CamundaTaskWithStateSerializer(camunda_tasks, many=True)
         return Response(serializer.data)
 
     @extend_schema(
-        description="Get Camunda processes for this Case",
-        responses={status.HTTP_200_OK: CamundaProcessSerializer(many=True)},
+        description="Get WorkflowOption for this Case",
+        responses={status.HTTP_200_OK: WorkflowOptionSerializer(many=True)},
     )
     @action(
         detail=True,
         url_path="processes",
         methods=["get"],
-        serializer_class=CamundaProcessSerializer,
+        serializer_class=WorkflowOptionSerializer,
     )
-    def get_camunda_processes(self, request, pk):
+    def get_workflow_options(self, request, pk):
         """
-        Get camunda processes for this case. Currently this case detail linking
+        Get WorkflowOption instances for this case. Currently this case detail linking
         does not do anything. This is future proofing this rest call so that we can
         show and not show processes based on the current state of the case
         (for example not show the summon/aanschrijving process when we are in visit state)
         """
         case = get_object_or_404(Case, pk=pk)
-        serializer = CamundaProcessSerializer(
-            CamundaProcess.objects.filter(theme=case.theme), many=True
+        serializer = WorkflowOptionSerializer(
+            WorkflowOption.objects.filter(theme=case.theme), many=True
         )
         return Response(serializer.data)
 
     @extend_schema(
-        description="Start a process in Camunda",
+        description="Start based on a WorkflowOption",
     )
     @action(
         detail=True,
         url_path="processes/start",
         methods=["post"],
-        serializer_class=CamundaStartProcessSerializer,
+        serializer_class=StartWorkflowSerializer,
     )
     def start_process(self, request, pk):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
-            response = False
             data = serializer.validated_data
-            instance = data["camunda_process_id"]
+            case = self.get_object()
+            instance = data["workflow_option_id"]
 
-            try:
-                case = Case.objects.get(id=pk)
-            except Case.DoesNotExist:
-                return Response(
-                    data="Camunda process has not started. Case does not exist",
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-
+            workflow_type = CaseWorkflow.WORKFLOW_TYPE_SUB
             if instance.to_directing_proccess:
-                response = CamundaService().send_message_to_process_instance(
-                    message_name=instance.camunda_message_name,
-                    process_instance_id=case.directing_process,
-                )
-            else:
-                case_process_instance = CaseProcessInstance.objects.create(case=case)
-                case_process_id = case_process_instance.process_id.__str__()
+                workflow_type = CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
 
-                response = CamundaService().send_message(
-                    message_name=instance.camunda_message_name,
-                    case_identification=case.id,
-                    case_process_id=case_process_id,
-                )
+            CaseWorkflow.objects.create(
+                case=case,
+                workflow_type=workflow_type,
+                workflow_message_name=instance.message_name,
+            )
 
-                try:
-                    json_response = response.json()[0]
-                    camunda_process_id = json_response["processInstance"]["id"]
-                except Exception:
-                    return Response(
-                        data=f"Camunda process has not started. Json response not valid {str(response.content)}",
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    )
-
-                case_process_instance.camunda_process_id = camunda_process_id
-                case_process_instance.save()
-
-            if response:
-                return Response(
-                    data=f"Process has started {str(response.content)}",
-                    status=status.HTTP_200_OK,
-                )
-            else:
-                return Response(
-                    data=f"Camunda process has not started. Camunda request failed: {response}",
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
+            return Response(
+                data=f"Workflow has started {str(instance)}",
+                status=status.HTTP_200_OK,
+            )
 
         return Response(
-            data="Camunda process has not started. serializer not valid",
+            data="Workflow has not started. serializer not valid",
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
@@ -666,6 +560,27 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         serializer = CaseCloseResultSerializer(context, many=True)
 
         return paginator.get_paginated_response(serializer.data)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def download_data(request):
+    DATABASE_USER = os.environ.get("DATABASE_USER")
+    DATABASE_PASSWORD = os.environ.get("DATABASE_PASSWORD")
+    DATABASE_HOST = os.environ.get("DATABASE_HOST")
+    DATABASE_NAME = os.environ.get("DATABASE_NAME")
+
+    filename = "zaken_db.sql"
+
+    command = f"PGPASSWORD='{DATABASE_PASSWORD}' pg_dump -U {DATABASE_USER} -d {DATABASE_NAME} -h {DATABASE_HOST} > {filename}"
+    os.system(command)
+
+    fl_path = "/app/"
+
+    fl = open(os.path.join(fl_path, filename), "r")
+    mime_type, _ = mimetypes.guess_type(fl_path)
+    response = HttpResponse(fl, content_type=mime_type)
+    response["Content-Disposition"] = "attachment; filename=%s" % filename
+    return response
 
 
 class ImportBWVCaseDataView(UserPassesTestMixin, FormView):

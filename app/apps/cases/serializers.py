@@ -1,6 +1,5 @@
 from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer
-from apps.camunda.models import CamundaProcess
 from apps.cases.models import (
     Case,
     CaseClose,
@@ -14,6 +13,8 @@ from apps.cases.models import (
     CitizenReport,
 )
 from apps.schedules.serializers import ScheduleSerializer
+from apps.workflow.models import CaseUserTask, CaseWorkflow, WorkflowOption
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 
@@ -51,12 +52,110 @@ class CaseReasonSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class CaseUserTaskCaseListSerializer(serializers.ModelSerializer):
+    user_has_permission = serializers.SerializerMethodField()
+    case_user_task_id = serializers.CharField(source="id")
+    roles = serializers.ListSerializer(child=serializers.CharField(), required=True)
+
+    @extend_schema_field(serializers.BooleanField)
+    def get_user_has_permission(self, obj):
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            return request.user.has_perm("users.perform_task")
+        return False
+
+    class Meta:
+        model = CaseUserTask
+        exclude = ("form",)
+
+
+class CaseUserTaskSerializer(CaseUserTaskCaseListSerializer):
+    form = serializers.ListSerializer(child=serializers.DictField(), required=True)
+    form_variables = serializers.DictField(source="get_form_variables")
+
+    class Meta:
+        model = CaseUserTask
+        fields = "__all__"
+
+
+class CaseAddressSerializer(serializers.ModelSerializer):
+    """
+    Case-address serializer for CaseUserTasks
+    """
+
+    address = AddressSerializer()
+
+    class Meta:
+        model = Case
+        fields = (
+            "id",
+            "address",
+        )
+
+
+class CaseUserTaskListSerializer(CaseUserTaskSerializer):
+    case = CaseAddressSerializer()
+
+    class Meta:
+        model = CaseUserTask
+        fields = "__all__"
+
+
 class CaseStateSerializer(serializers.ModelSerializer):
     status_name = serializers.CharField(source="status.name", read_only=True)
+    tasks = CaseUserTaskCaseListSerializer(
+        source="get_tasks",
+        many=True,
+        read_only=True,
+    )
+
+    class Meta:
+        model = CaseState
+        exclude = ("information",)
+
+
+class CaseStateTaskSerializer(CaseStateSerializer):
+    information = serializers.CharField(source="get_information", read_only=True)
 
     class Meta:
         model = CaseState
         fields = "__all__"
+
+
+class CaseWorkflowSerializer(serializers.ModelSerializer):
+    state = serializers.SerializerMethodField()
+    tasks = serializers.SerializerMethodField()
+
+    @extend_schema_field(CaseUserTaskSerializer(many=True))
+    def get_tasks(self, obj):
+        return CaseUserTaskSerializer(
+            CaseUserTask.objects.filter(
+                workflow=obj,
+                completed=False,
+            ).order_by("id"),
+            many=True,
+            context=self.context,
+        ).data
+
+    @extend_schema_field(CaseStateTaskSerializer)
+    def get_state(self, obj):
+        return CaseStateTaskSerializer(obj.case_states.all().order_by("id").last()).data
+
+    class Meta:
+        model = CaseWorkflow
+        exclude = [
+            "id",
+            "case",
+            "created",
+            "serialized_workflow_state",
+            "main_workflow",
+            "workflow_type",
+            "workflow_version",
+            "workflow_theme_name",
+            "completed",
+            "parent_workflow",
+            "data",
+        ]
 
 
 class CaseProjectSerializer(serializers.ModelSerializer):
@@ -148,8 +247,8 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         address_data = validated_data.pop("address")
         address = Address.get(address_data.get("bag_id"))
-        case = Case.objects.create(**validated_data, address=address)
 
+        case = Case.objects.create(**validated_data, address=address)
         return case
 
 
@@ -187,9 +286,9 @@ class PushCaseStateSerializer(serializers.Serializer):
     user_emails = serializers.ListField(child=serializers.EmailField(), required=True)
 
 
-class CamundaStartProcessSerializer(serializers.Serializer):
-    camunda_process_id = serializers.PrimaryKeyRelatedField(
-        queryset=CamundaProcess.objects.all()
+class StartWorkflowSerializer(serializers.Serializer):
+    workflow_option_id = serializers.PrimaryKeyRelatedField(
+        queryset=WorkflowOption.objects.all()
     )
 
 

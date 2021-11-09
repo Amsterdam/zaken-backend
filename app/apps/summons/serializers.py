@@ -39,7 +39,7 @@ class SummonSerializer(serializers.ModelSerializer):
         for person in persons:
             SummonedPerson.objects.create(summon=summon, **person)
 
-        summon.complete_camunda_task()
+        summon.complete_task()
         return summon
 
 
@@ -49,5 +49,5 @@ class SummonTypeSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name",
-            "camunda_option",
+            "workflow_option",
         )

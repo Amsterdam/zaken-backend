@@ -10,5 +10,7 @@ admin.site.register(
         "date_modified",
         "author",
         "violation",
+        "case_user_task_id",
     ),
+    search_fields=("case__id",),
 )

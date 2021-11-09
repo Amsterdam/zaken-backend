@@ -77,6 +77,7 @@ class VisitApiTest(APITestCase):
             "authors": [{"email": "user@example.com"}],
             "start_time": "2021-03-31T17:17:52.126Z",
             "case": case.id,
+            "task": "42",
         }
         response = client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -98,6 +99,7 @@ class VisitApiTest(APITestCase):
             "authors": [{"email": "userA@example.com"}, {"email": "userB@example.com"}],
             "start_time": "2021-03-31T17:17:52.126Z",
             "case": case.id,
+            "task": "42",
         }
 
         response = client.post(url, data=data, format="json")
@@ -120,7 +122,9 @@ class VisitApiTest(APITestCase):
             "author_ids": [user_a.id, user_b.id],
             "start_time": "2021-03-31T17:17:52.126Z",
             "case": case.id,
+            "task": "42",
         }
+
         response = client.post(url, data=data, format="json")
 
         visit = Visit.objects.all()[0]

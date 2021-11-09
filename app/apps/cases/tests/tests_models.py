@@ -2,6 +2,7 @@ from datetime import date, datetime, timezone
 from uuid import UUID
 
 from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTheme
+from apps.workflow.models import CaseUserTask, CaseWorkflow
 from django.core import management
 from django.test import TestCase
 from freezegun import freeze_time
@@ -144,7 +145,10 @@ class CaseModelTest(TestCase):
         self.assertEqual(CaseState.objects.count(), 0)
         STATE_TYPE_NAME = "MOCK_STATE_TYPE"
         case = baker.make(Case)
-        case.set_state(STATE_TYPE_NAME, case_process_id=1)
+        workflow = baker.make(
+            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+        )
+        case.set_state(STATE_TYPE_NAME, workflow=workflow)
         self.assertEqual(CaseState.objects.count(), 1)
 
     def test_set_state_type(self):
@@ -154,7 +158,10 @@ class CaseModelTest(TestCase):
         self.assertEqual(CaseStateType.objects.count(), 0)
         STATE_TYPE_NAME = "MOCK_STATE_TYPE"
         case = baker.make(Case)
-        case.set_state(STATE_TYPE_NAME, case_process_id=1)
+        workflow = baker.make(
+            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+        )
+        case.set_state(STATE_TYPE_NAME, workflow=workflow)
         self.assertEqual(CaseStateType.objects.count(), 1)
 
     def test_set_state_type_duplicate(self):
@@ -164,8 +171,11 @@ class CaseModelTest(TestCase):
         self.assertEqual(CaseStateType.objects.count(), 0)
         STATE_TYPE_NAME = "MOCK_STATE_TYPE"
         case = baker.make(Case)
-        case.set_state(STATE_TYPE_NAME, case_process_id=1)
-        case.set_state(STATE_TYPE_NAME, case_process_id=1)
+        workflow = baker.make(
+            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+        )
+        case.set_state(STATE_TYPE_NAME, workflow=workflow)
+        case.set_state(STATE_TYPE_NAME, workflow=workflow)
         self.assertEqual(CaseStateType.objects.count(), 1)
 
     def test_get_open_states(self):
@@ -176,9 +186,16 @@ class CaseModelTest(TestCase):
         STATE_TYPE_NAME_B = "MOCK_STATE_TYPE_B"
 
         case = baker.make(Case)
-
-        state_a = case.set_state(STATE_TYPE_NAME_A, case_process_id=1)
-        state_b = case.set_state(STATE_TYPE_NAME_B, case_process_id=1)
+        workflow_a = baker.make(
+            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+        )
+        workflow_b = baker.make(
+            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+        )
+        baker.make(CaseUserTask, workflow=workflow_a, completed=False)
+        baker.make(CaseUserTask, workflow=workflow_b, completed=False)
+        state_a = case.set_state(STATE_TYPE_NAME_A, workflow=workflow_a)
+        state_b = case.set_state(STATE_TYPE_NAME_B, workflow=workflow_b)
 
         open_state_ids = []
         for open_state in case.get_current_states():
@@ -196,9 +213,17 @@ class CaseModelTest(TestCase):
 
         case = baker.make(Case)
 
-        state_a = case.set_state(STATE_TYPE_NAME_A, case_process_id=1)
-        state_b = case.set_state(STATE_TYPE_NAME_B, case_process_id=1)
-        state_c = case.set_state(STATE_TYPE_NAME_C, case_process_id=1)
+        workflow_a = baker.make(
+            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+        )
+        workflow_b = baker.make(
+            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+        )
+        baker.make(CaseUserTask, workflow=workflow_a, completed=False)
+        baker.make(CaseUserTask, workflow=workflow_b, completed=False)
+        state_b = case.set_state(STATE_TYPE_NAME_B, workflow=workflow_a)
+        state_a = case.set_state(STATE_TYPE_NAME_A, workflow=workflow_a)
+        state_c = case.set_state(STATE_TYPE_NAME_C, workflow=workflow_b)
 
         state_b.end_state()
         state_b.save()

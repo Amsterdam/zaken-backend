@@ -41,7 +41,7 @@ services:
       - postgresql-data:/var/lib/postgresql/data
 
   rabbitmq:
-    image: rabbitmq:3
+    image: rabbitmq:3.9
     networks:
       - zaken_network
     ports:
@@ -79,29 +79,6 @@ services:
       - zaken_network
     restart: on-failure
 
-  camunda:
-    build: camunda/deployment
-    hostname: camunda
-    image: camunda-ritense
-    ports:
-      - 7000:8080
-    env_file:
-      - camunda/.env
-    networks:
-      - zaken_network
-
-  camunda_db:
-    image: amsterdam/postgres11
-    networks:
-      - zaken_network
-    shm_size: "512m"
-    ports:
-      - "54321:5432"
-    env_file:
-      - camunda/.env
-    volumes:
-      - camunda-data:/var/lib/postgresql/data
-
 networks:
   zaken_network:
     external: true
@@ -109,5 +86,4 @@ networks:
     external: true
 
 volumes:
-  camunda-data:
   postgresql-data:
