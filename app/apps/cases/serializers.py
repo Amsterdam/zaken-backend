@@ -248,11 +248,21 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         address_data = validated_data.pop("address")
         address = Address.get(address_data.get("bag_id"))
 
-        case = Case.objects.create(**validated_data, address=address)
+        status_name = validated_data.pop("status_name", None)
+
+        case = Case(**validated_data, address=address)
+
+        if status_name:
+            case.status_name = status_name
+
+        case.save()
+
         return case
 
 
 class LegacyCaseCreateSerializer(CaseCreateUpdateSerializer):
+    status_name = serializers.CharField(required=False)
+
     class Meta:
         model = Case
         fields = (
@@ -264,6 +274,7 @@ class LegacyCaseCreateSerializer(CaseCreateUpdateSerializer):
             "legacy_bwv_case_id",
             "is_legacy_bwv",
             "start_date",
+            "status_name",
         )
 
 

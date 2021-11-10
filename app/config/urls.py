@@ -2,9 +2,9 @@ from apps.addresses.views import AddressViewSet
 from apps.cases.views import (
     CaseCloseViewSet,
     CaseStateViewSet,
-    CaseThemeCitizenReportViewSet,
     CaseThemeViewSet,
     CaseViewSet,
+    ImportBWVCaseDataView,
     download_data,
 )
 from apps.debriefings.views import DebriefingViewSet
@@ -53,16 +53,12 @@ router.register(r"generic-tasks", GenericCompletedTaskViewSet, basename="generic
 urlpatterns = [
     # Admin environment
     path("admin/download_data/", download_data),
-    path("admin/", admin.site.urls),
     path(
-        "bwv-zaken-importeren/vakantieverhuur/melding",
-        CaseThemeCitizenReportViewSet.as_view(),
-        {
-            "theme_name": "Vakantieverhuur",
-            "url_name": "import-cases-vakantieverhuur-melding",
-        },
-        name="import-cases-vakantieverhuur-melding",
+        "admin/import-bwv-cases",
+        ImportBWVCaseDataView.as_view(),
+        name="import-bwv-cases",
     ),
+    path("admin/", admin.site.urls),
     # API Routing
     path("api/v1/", include(router.urls)),
     path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),

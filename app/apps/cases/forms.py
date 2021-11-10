@@ -2,6 +2,7 @@ import json
 import logging
 from json.decoder import JSONDecodeError
 
+from apps.cases.models import CaseProject, CaseReason, CaseTheme
 from apps.users.models import User
 from django import forms
 
@@ -19,11 +20,39 @@ class ImportBWVCaseDataForm(forms.Form):
                 "style": "width: 100%",
             }
         ),
+        required=True,
     )
     user = forms.ModelChoiceField(
         queryset=User.objects.all(),
         label="Kies een gebruiker",
         to_field_name="pk",
+        required=True,
+    )
+    status_name = forms.ChoiceField(
+        choices=(
+            ("Huisbezoek", "Huisbezoek"),
+            ("Hercontrole", "Hercontrole"),
+        ),
+        label="Kies een de status van de zaak",
+        required=True,
+    )
+    theme = forms.ModelChoiceField(
+        queryset=CaseTheme.objects.all(),
+        label="Kies een thema",
+        to_field_name="pk",
+        required=True,
+    )
+    reason = forms.ModelChoiceField(
+        queryset=CaseReason.objects.all(),
+        label="Kies een aanleiding",
+        to_field_name="pk",
+        required=True,
+    )
+    project = forms.ModelChoiceField(
+        queryset=CaseProject.objects.all(),
+        label="Kies een project",
+        to_field_name="pk",
+        required=False,
     )
 
     def clean_json_data(self):

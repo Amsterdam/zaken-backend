@@ -50,7 +50,9 @@ def do_bag_search_address(address):
     """
     query = get_bag_search_query(address)
     address_search = requests.get(
-        settings.BAG_API_SEARCH_URL, params={"q": query}, timeout=1
+        settings.BAG_API_SEARCH_URL,
+        params={"q": query},
+        timeout=30,
     )
     return address_search.json()
 
