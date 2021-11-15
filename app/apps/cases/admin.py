@@ -3,7 +3,6 @@ from apps.cases.models import (
     CaseClose,
     CaseCloseReason,
     CaseCloseResult,
-    CaseProcessInstance,
     CaseProject,
     CaseReason,
     CaseState,
@@ -167,19 +166,6 @@ class CaseCloseResultAdmin(admin.ModelAdmin):
         "case_theme",
     )
     list_filter = ("case_theme",)
-
-
-@admin.register(CaseProcessInstance)
-class CaseProcessInstanceAdmin(admin.ModelAdmin):
-    list_display = (
-        "process_id",
-        "case",
-        "camunda_process_id",
-    )
-    search_fields = (
-        "process_id",
-        "camunda_process_id",
-    )
 
 
 @admin.register(CaseClose)
