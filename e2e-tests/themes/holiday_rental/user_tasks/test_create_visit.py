@@ -6,7 +6,7 @@ from api.validators import ValidateOpenTasks
 
 
 class TestTaskCreateVisit(DefaultAPITest):
-    def test_nobody_present(self):
+    def test_nobody_present_yes_next_visit(self):
         self.get_case().run_steps(
             *ScheduleVisit.get_steps(),
             Visit(
@@ -16,11 +16,22 @@ class TestTaskCreateVisit(DefaultAPITest):
             ValidateOpenTasks(ScheduleVisit),
         )
 
+    def test_nobody_present_no_next_visit(self):
+        self.get_case().run_steps(
+            *ScheduleVisit.get_steps(),
+            Visit(
+                situation=Situations.NOBODY_PRESENT,
+                can_next_visit_go_ahead=False,
+            ),
+            ValidateOpenTasks(Debrief),
+        )
+
     def test_no_cooperation(self):
         self.get_case().run_steps(
             *ScheduleVisit.get_steps(),
             Visit(
                 situation=Situations.NO_COOPERATION,
+                can_next_visit_go_ahead=False,
             ),
             ValidateOpenTasks(Debrief),
         )
