@@ -7,7 +7,7 @@ from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
 
 
-class TestAddProcess(DefaultAPITest):
+class TestMultipleSummons(DefaultAPITest):
     def test(self):
         case = self.get_case()
         case.add_process(Process.HolidayRental.ADD_SUMMON),
