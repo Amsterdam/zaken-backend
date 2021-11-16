@@ -1,0 +1,131 @@
+[{
+        "model": "decisions.decisiontype",
+        "pk": 17,
+        "fields": {
+            "theme": 3,
+            "name": "Afzien voornemen",
+            "workflow_option": "no_decision",
+            "is_sanction": false
+        }
+    },
+    {
+        "model": "decisions.decisiontype",
+        "pk": 18,
+        "fields": {
+            "theme": 3,
+            "name": "Boete",
+            "workflow_option": "boete",
+            "is_sanction": true
+        }
+    },
+    {
+        "model": "decisions.decisiontype",
+        "pk": 19,
+        "fields": {
+            "theme": 3,
+            "name": "Invordering dwangsom",
+            "workflow_option": "invordering_dwangsom",
+            "is_sanction": true
+        }
+    },
+    {
+        "model": "decisions.decisiontype",
+        "pk": 20,
+        "fields": {
+            "theme": 3,
+            "name": "Last onder dwangsom",
+            "workflow_option": "last_onder_dwangsom",
+            "is_sanction": false
+        }
+    },
+    {
+        "model": "decisions.decisiontype",
+        "pk": 9,
+        "fields": {
+            "theme": 2,
+            "name": "Boete",
+            "workflow_option": "boete",
+            "is_sanction": true
+        }
+    },
+    {
+        "model": "decisions.decisiontype",
+        "pk": 10,
+        "fields": {
+            "theme": 2,
+            "name": "Intrekken BB vergunning",
+            "workflow_option": "intrekken_bb_vergunning",
+            "is_sanction": false
+        }
+    },
+    {
+        "model": "decisions.decisiontype",
+        "pk": 11,
+        "fields": {
+            "theme": 2,
+            "name": "Intrekken Shortstay vergunning",
+            "workflow_option": "intrekken_shortstay_vergunning",
+            "is_sanction": false
+        }
+    },
+    {
+        "model": "decisions.decisiontype",
+        "pk": 12,
+        "fields": {
+            "theme": 2,
+            "name": "Intrekken VV vergunning",
+            "workflow_option": "intrekken_vv_vergunning",
+            "is_sanction": false
+        }
+    },
+    {
+        "model": "decisions.decisiontype",
+        "pk": 13,
+        "fields": {
+            "theme": 2,
+            "name": "Invordering dwangsom",
+            "workflow_option": "invordering_dwangsom",
+            "is_sanction": true
+        }
+    },
+    {
+        "model": "decisions.decisiontype",
+        "pk": 14,
+        "fields": {
+            "theme": 2,
+            "name": "Last onder dwangsom",
+            "workflow_option": "last_onder_dwangsom",
+            "is_sanction": false
+        }
+    },
+    {
+        "model": "decisions.decisiontype",
+        "pk": 15,
+        "fields": {
+            "theme": 2,
+            "name": "Meldplicht beschikking dwangsom",
+            "workflow_option": "meldplicht_beschikking_boete",
+            "is_sanction": true
+        }
+    },
+    {
+        "model": "decisions.decisiontype",
+        "pk": 16,
+        "fields": {
+            "theme": 2,
+            "name": "Preventieve last",
+            "workflow_option": "preventieve_last",
+            "is_sanction": false
+        }
+    },
+    {
+        "model": "decisions.decisiontype",
+        "pk": 21,
+        "fields": {
+            "theme": 2,
+            "name": "Afzien voornemen",
+            "workflow_option": "no_decision",
+            "is_sanction": false
+        }
+    }
+]

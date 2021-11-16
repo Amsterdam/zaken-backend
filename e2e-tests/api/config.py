@@ -23,31 +23,31 @@ async_timeout = 40  # in seconds
 
 
 class Themes:
-    HOLIDAY_RENTAL = 1
+    HOLIDAY_RENTAL = 2
 
 
 class DaySegment:
-    DAYTIME = 1
-    AT_NIGHT = 2
+    DAYTIME = 4
+    AT_NIGHT = 3
 
 
 class WeekSegment:
-    WEEKDAY = 1
-    WEEKEND = 2
+    WEEKDAY = 3
+    WEEKEND = 4
 
 
 class Action:
-    HOUSE_VISIT = 1
-    RECHECK = 2
+    HOUSE_VISIT = 2
+    RECHECK = 3
 
 
 class Priority:
-    HIGH = 1
-    NORMAL = 2
+    HIGH = 4
+    NORMAL = 5
 
 
 class Reason:
-    NOTIFICATION = 1
+    NOTIFICATION = 4
 
 
 class Violation:
@@ -77,7 +77,7 @@ class ReviewReopenRequest:
 
 class Process:
     class HolidayRental:
-        ADD_SUMMON = 1  # aanschrijving_toevoegen
+        ADD_SUMMON = 8  # aanschrijving_toevoegen
         # START_OBJECTION_FILE_PROCESS = ?  # start_objectionfile_process
         # ALL_APPLICATIONS_AND_DECISIONS_COMPLETED = ?  # alle_aanschrijvingen_en_beslissingen_afgerond
         # START_CORRESPONDENCE_PROCESS = ?  # start_correspondence_process
@@ -90,41 +90,43 @@ class Process:
 class SummonTypes:
     class HolidayRental:
         LEGALIZATION_LETTER = 14  # Legalisatiebrief
-        OBLIGATION_TO_REPORT_INTENTION_TO_FINE = 8  # Meldplicht voornemen boete
-        CLOSURE = 13  # Sluiting
-        ADVANCE_ANNOUNCEMENT_DURING_SUM = 5  # Vooraankondiging dwangsom
-        INTENTION_TO_FINE = 6  # Voornemen boete
-        INTENTION_TO_WITHDRAW_BB_LICENCE = 11  # Voornemen intrekking BB-vergunning
-        INTENTION_TO_WITHDRAW_SS_LICENCE = 10  # Voornemen intrekking SS-vergunning
-        INTENTION_TO_WITHDRAW_VV_LICENCE = 12  # Voornemen intrekking VV-vergunning
-        INTENTION_TO_RECOVER_DENSITY = 7  # Voornemen invordering dwangsom
-        INTENDED_PREVENTIVE_BURDEN = 9  # Voornemen preventieve last
-        WARNING_BB_LICENSE = 3  # Waarschuwing BB-vergunning
-        WARNING_SS_LICENCE = 2  # Waarschuwing SS-vergunning
-        WARNING_VV_LICENSE = 1  # Waarschuwing VV-vergunning
+        OBLIGATION_TO_REPORT_INTENTION_TO_FINE = 15  # Meldplicht voornemen boete
+        CLOSURE = 16  # Sluiting
+        ADVANCE_ANNOUNCEMENT_DURING_SUM = 18  # Vooraankondiging dwangsom
+        INTENTION_TO_FINE = 18  # Voornemen boete
+        INTENTION_TO_WITHDRAW_BB_LICENCE = 19  # Voornemen intrekking BB-vergunning
+        INTENTION_TO_WITHDRAW_SS_LICENCE = (
+            20  # Voornemen intrekking SS-vergunning. X: Why is it called this...
+        )
+        INTENTION_TO_WITHDRAW_VV_LICENCE = 21  # Voornemen intrekking VV-vergunning
+        INTENTION_TO_RECOVER_DENSITY = 22  # Voornemen invordering dwangsom
+        INTENDED_PREVENTIVE_BURDEN = 23  # Voornemen preventieve last
+        WARNING_BB_LICENSE = 24  # Waarschuwing BB-vergunning
+        WARNING_SS_LICENCE = 25  # Waarschuwing SS-vergunning
+        WARNING_VV_LICENSE = 26  # Waarschuwing VV-vergunning
 
 
 class DecisionType:
     class HolidayRental:
-        FINE = 1  # Boete
-        COLLECTION_PENALTY = 2  # Invordering dwangsom
-        DECISION_FINE_REPORT_DUTY = 3  # Meldplicht beschikking dwangsom
-        PREVENTIVE_BURDEN = 4  # Preventieve last
-        BURDEN_UNDER_PENALTY = 5  # Last onder dwangsom
-        REVOKE_VV_PERMIT = 6  # Intrekken VV vergunning
-        REVOKE_BB_PERMIT = 7  # Intrekken BB vergunning
-        REVOKE_SHORTSTAY_PERMIT = 8  # Intrekken Shortstay vergunning
-        NO_DECISION = 9  # Afzien voornemen
+        FINE = 9  # Boete
+        COLLECTION_PENALTY = 13  # Invordering dwangsom
+        DECISION_FINE_REPORT_DUTY = 15  # Meldplicht beschikking dwangsom
+        PREVENTIVE_BURDEN = 16  # Preventieve last
+        BURDEN_UNDER_PENALTY = 14  # Last onder dwangsom
+        REVOKE_VV_PERMIT = 12  # Intrekken VV vergunning
+        REVOKE_BB_PERMIT = 10  # Intrekken BB vergunning
+        REVOKE_SHORTSTAY_PERMIT = 11  # Intrekken Shortstay vergunning
+        NO_DECISION = 21  # Afzien voornemen
 
 
 class CloseReason:
     class HolidayRental:
-        DIFFERENT = 14  # Anders, vermeld in toelichting
-        FORWARDED_TO_ANOTHER_TEAM = 10  # Doorgezet naar ander team
-        NO_REASON_TO_VISIT_AGAIN = 9  # Geen aanleiding adres opnieuw te bezoeken
-        NO_FROUD = 11  # Geen woonfraude
-        NOT_ENOUGH_PROOF = 12  # Onvoldoende bewijs
-        RESULT_AFTER_RECHECK = 13  # Resultaat na hercontrole
+        DIFFERENT = 15  # Anders, vermeld in toelichting
+        FORWARDED_TO_ANOTHER_TEAM = 16  # Doorgezet naar ander team
+        NO_REASON_TO_VISIT_AGAIN = 17  # Geen aanleiding adres opnieuw te bezoeken
+        NO_FROUD = 18  # Geen woonfraude
+        NOT_ENOUGH_PROOF = 19  # Onvoldoende bewijs
+        RESULT_AFTER_RECHECK = 20  # Resultaat na hercontrole
 
 
 class ObjectionReceived:

@@ -1,0 +1,154 @@
+[{
+        "model": "summons.summontype",
+        "pk": 27,
+        "fields": {
+            "theme": 3,
+            "workflow_option": "legalisatie-brief",
+            "name": "Legalisatiebrief"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 28,
+        "fields": {
+            "theme": 3,
+            "workflow_option": "aanschrijvingen",
+            "name": "Vooraankondiging dwangsom"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 29,
+        "fields": {
+            "theme": 3,
+            "workflow_option": "aanschrijvingen",
+            "name": "Voornemen boete"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 30,
+        "fields": {
+            "theme": 3,
+            "workflow_option": "aanschrijvingen",
+            "name": "Voornemen invordering dwangsom"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 14,
+        "fields": {
+            "theme": 2,
+            "workflow_option": "legalisatie-brief",
+            "name": "Legalisatiebrief"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 15,
+        "fields": {
+            "theme": 2,
+            "workflow_option": "aanschrijvingen",
+            "name": "Meldplicht voornemen boete"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 16,
+        "fields": {
+            "theme": 2,
+            "workflow_option": "sluiting",
+            "name": "Sluitingsproces"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 17,
+        "fields": {
+            "theme": 2,
+            "workflow_option": "aanschrijvingen",
+            "name": "Vooraankondiging dwangsom"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 18,
+        "fields": {
+            "theme": 2,
+            "workflow_option": "aanschrijvingen",
+            "name": "Voornemen boete"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 19,
+        "fields": {
+            "theme": 2,
+            "workflow_option": "aanschrijvingen",
+            "name": "Voornemen intrekking BB-vergunning"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 20,
+        "fields": {
+            "theme": 2,
+            "workflow_option": "aanschrijvingen",
+            "name": "Voornemen intrekking SS-vergunning"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 21,
+        "fields": {
+            "theme": 2,
+            "workflow_option": "aanschrijvingen",
+            "name": "Voornemen intrekking VV-vergunning"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 22,
+        "fields": {
+            "theme": 2,
+            "workflow_option": "aanschrijvingen",
+            "name": "Voornemen invordering dwangsom"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 23,
+        "fields": {
+            "theme": 2,
+            "workflow_option": "aanschrijvingen",
+            "name": "Voornemen preventieve last"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 24,
+        "fields": {
+            "theme": 2,
+            "workflow_option": "waarschuwingsbrief",
+            "name": "Waarschuwing BB-vergunning"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 25,
+        "fields": {
+            "theme": 2,
+            "workflow_option": "waarschuwingsbrief",
+            "name": "Waarschuwing SS-vergunning"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 26,
+        "fields": {
+            "theme": 2,
+            "workflow_option": "waarschuwingsbrief",
+            "name": "Waarschuwing VV-vergunning"
+        }
+    }
+]

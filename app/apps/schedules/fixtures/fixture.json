@@ -1,0 +1,126 @@
+[{
+        "model": "schedules.action",
+        "pk": 3,
+        "fields": {
+            "name": "Huisbezoek",
+            "theme": 3
+        }
+    }, {
+        "model": "schedules.action",
+        "pk": 2,
+        "fields": {
+            "name": "Huisbezoek",
+            "theme": 2
+        }
+    },
+    {
+        "model": "schedules.daysegment",
+        "pk": 3,
+        "fields": {
+            "name": "Avond",
+            "theme": 2
+        }
+    },
+    {
+        "model": "schedules.daysegment",
+        "pk": 4,
+        "fields": {
+            "name": "Overdag",
+            "theme": 2
+        }
+    },
+    {
+        "model": "schedules.daysegment",
+        "pk": 5,
+        "fields": {
+            "name": "Avond",
+            "theme": 3
+        }
+    },
+    {
+        "model": "schedules.daysegment",
+        "pk": 6,
+        "fields": {
+            "name": "Overdag",
+            "theme": 3
+        }
+    },
+
+    {
+        "model": "schedules.priority",
+        "pk": 3,
+        "fields": {
+            "name": "Machtiging",
+            "theme": 2,
+            "weight": 0.0
+        }
+    },
+    {
+        "model": "schedules.priority",
+        "pk": 4,
+        "fields": {
+            "name": "Hoog",
+            "theme": 2,
+            "weight": 1.0
+        }
+    },
+    {
+        "model": "schedules.priority",
+        "pk": 5,
+        "fields": {
+            "name": "Normaal",
+            "theme": 3,
+            "weight": 0.0
+        }
+    },
+    {
+        "model": "schedules.priority",
+        "pk": 6,
+        "fields": {
+            "name": "Hoog",
+            "theme": 3,
+            "weight": 0.99
+        }
+    },
+    {
+        "model": "schedules.priority",
+        "pk": 7,
+        "fields": {
+            "name": "Machtiging",
+            "theme": 3,
+            "weight": 1.0
+        }
+    },
+    {
+        "model": "schedules.weeksegment",
+        "pk": 3,
+        "fields": {
+            "name": "Doordeweek",
+            "theme": 2
+        }
+    },
+    {
+        "model": "schedules.weeksegment",
+        "pk": 4,
+        "fields": {
+            "name": "Weekend",
+            "theme": 2
+        }
+    },
+    {
+        "model": "schedules.weeksegment",
+        "pk": 5,
+        "fields": {
+            "name": "Doordeweek",
+            "theme": 3
+        }
+    },
+    {
+        "model": "schedules.weeksegment",
+        "pk": 6,
+        "fields": {
+            "name": "Weekend",
+            "theme": 3
+        }
+    }
+]
