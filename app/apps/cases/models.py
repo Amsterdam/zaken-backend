@@ -67,6 +67,10 @@ class Case(ModelEventEmitter):
     legacy_bwv_case_id = models.CharField(
         max_length=255, null=True, blank=True, unique=True
     )
+    directing_process = models.CharField(max_length=255, null=True, blank=True)
+    camunda_ids = ArrayField(
+        models.CharField(max_length=255), default=list, null=True, blank=True
+    )
     theme = models.ForeignKey(to=CaseTheme, on_delete=models.PROTECT)
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT
@@ -248,6 +252,17 @@ class CaseState(models.Model):
 
     class Meta:
         ordering = ["start_date"]
+
+
+class CaseProcessInstance(models.Model):
+    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    process_id = models.CharField(max_length=255, default=uuid.uuid4, unique=True)
+    camunda_process_id = models.CharField(
+        max_length=255, unique=True, blank=True, null=True
+    )
+
+    def __str__(self):
+        return f"Case {self.case.id} - {self.process_id}"
 
 
 class CaseCloseResult(models.Model):
