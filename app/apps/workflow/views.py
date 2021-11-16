@@ -108,9 +108,7 @@ class GenericCompletedTaskViewSet(viewsets.ViewSet):
                 return Response(
                     f"CaseUserTask {data['case_user_task_id']} has been completed"
                 )
-            except Exception:
-                return Response(
-                    f"CaseUserTask {data['case_user_task_id']} has NOT been completed"
-                )
+            except Exception as e:
+                raise e
 
         return Response(status=status.HTTP_400_BAD_REQUEST)

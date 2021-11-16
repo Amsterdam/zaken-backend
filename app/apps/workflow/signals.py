@@ -1,6 +1,7 @@
 import copy
 import datetime
 
+from apps.events.models import TaskModelEventEmitter
 from apps.workflow.models import (
     DEFAULT_USER_TASK_DUE_DATE,
     USER_TASKS,
@@ -14,6 +15,24 @@ from django.dispatch import receiver
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 from .utils import get_latest_version_from_config
+
+
+@receiver(pre_save, dispatch_uid="event_emitter_pre_save")
+def event_emitter_pre_save(instance, **kwargs):
+    if (
+        issubclass(instance.__class__, TaskModelEventEmitter)
+        and not instance.id
+        and hasattr(instance, "case_user_task_id")
+        and instance.case_user_task_id
+        and instance.case_user_task_id != "-1"
+    ):
+        type_instance = instance.__class__.objects.filter(
+            case_user_task_id=instance.case_user_task_id
+        )
+        if type_instance:
+            raise Exception(
+                f"TaskModelEventEmitter of type '{instance.__class__.__name__}', with '{instance.case_user_task_id}', already exists"
+            )
 
 
 @receiver(pre_save, sender=CaseUserTask, dispatch_uid="case_user_task_pre_save")
@@ -70,4 +89,4 @@ def complete_generic_user_task_and_create_new_user_tasks(
     if created and task:
         data = copy.deepcopy(instance.variables)
         data.pop("mapped_form_data")
-        task.workflow.complete_user_task_and_create_new_user_tasks(task.task_id, data)
+        CaseWorkflow.complete_user_task(task.id, data)

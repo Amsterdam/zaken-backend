@@ -2,7 +2,7 @@ from concurrent.futures import as_completed
 
 from api.config import Violation
 from api.tasks import GenericUserTask
-from api.tasks.debrief import Debrief
+from api.tasks.debrief import Debrief, InformReporter
 from api.tasks.summon import CheckNotices
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
@@ -28,6 +28,7 @@ class TestParallelTasks(DefaultAPITest):
         case = self.get_case()
         case.run_steps(
             *Debrief.get_steps(violation=Violation.YES),
+            InformReporter(),
         )
 
         open_tasks = self.client.get_case_tasks(case.data["id"])
