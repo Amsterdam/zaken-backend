@@ -17,6 +17,13 @@ role_parameter = OpenApiParameter(
     required=False,
     description="Role",
 )
+theme_parameter = OpenApiParameter(
+    name="theme",
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.QUERY,
+    required=False,
+    description="Theme",
+)
 completed_parameter = OpenApiParameter(
     name="completed",
     type=OpenApiTypes.STR,
@@ -39,6 +46,7 @@ class CaseUserTaskViewSet(
     @extend_schema(
         parameters=[
             role_parameter,
+            theme_parameter,
             completed_parameter,
         ],
         description="CaseUserTask filter query parameters",
@@ -46,6 +54,7 @@ class CaseUserTaskViewSet(
     )
     def list(self, request):
         role = request.GET.get(role_parameter.name)
+        theme_name = request.GET.get(theme_parameter.name)
         completed = request.GET.get(completed_parameter.name, "not_completed")
 
         tasks = self.get_queryset()
@@ -54,6 +63,11 @@ class CaseUserTaskViewSet(
                 roles__contains=[
                     role,
                 ]
+            )
+
+        if theme_name:
+            tasks = tasks.filter(
+                case__theme__name=theme_name,
             )
 
         if completed != "all":
