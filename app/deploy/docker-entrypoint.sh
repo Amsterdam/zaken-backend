@@ -17,10 +17,12 @@ chmod -R 777 /static
 # python manage.py shell -c "from django.db import connection; cursor = connection.cursor(); cursor.execute('drop table if exists "django_migrations" cascade; drop table if exists "django_content_type" cascade; drop table if exists "auth_permission" cascade; drop table if exists "auth_group" cascade; drop table if exists "auth_group_permissions" cascade; drop table if exists "users_user" cascade; drop table if exists "users_user_groups" cascade; drop table if exists "users_user_user_permissions" cascade; drop table if exists "django_admin_log" cascade; drop table if exists "django_session" cascade;'); cursor.close();"
 
 echo Apply migrations
-python manage.py migrate --noinput
+python manage.py migrate --noinput --fake
 
 echo Axes check
 python manage.py check
+
+python manage.py loaddata fixture
 
 # echo Create root user
 # python manage.py shell -c "from django.contrib.auth import get_user_model; get_user_model().objects.create_superuser('admin@admin.com', 'admin')"

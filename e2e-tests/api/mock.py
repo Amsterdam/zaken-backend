@@ -1,4 +1,4 @@
-from api.config import Reason
+from api.config import Reason, Themes
 from faker import Faker
 
 fake = Faker()
@@ -20,7 +20,7 @@ Address = {"bag_id": "234"}
 
 
 def get_case_mock(
-    theme_id=1,
+    theme_id=Themes.HOLIDAY_RENTAL,
     reason=Reason.NOTIFICATION,
     address=Address,
     description_citizenreport=None,
