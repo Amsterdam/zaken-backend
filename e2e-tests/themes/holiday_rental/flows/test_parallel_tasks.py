@@ -1,6 +1,7 @@
 from concurrent.futures import as_completed
 
 from api.config import Violation
+from api.events import GenericTaskEvent
 from api.tasks import GenericUserTask
 from api.tasks.debrief import Debrief, InformReporter
 from api.tasks.summon import CheckNotices
@@ -22,9 +23,6 @@ class TestParallelTasks(DefaultAPITest):
     """
 
     def test(self):
-        self.skipTest(
-            "After completing the 3 parallel tasks we expect to not see them again. We do expect task_check_summons."
-        )
         case = self.get_case()
         case.run_steps(
             *Debrief.get_steps(violation=Violation.YES),
@@ -52,4 +50,9 @@ class TestParallelTasks(DefaultAPITest):
         # poll for the expected result
         case.run_steps(
             ValidateOpenTasks(CheckNotices),
+            extra_events=[
+                GenericTaskEvent.type,
+                GenericTaskEvent.type,
+                GenericTaskEvent.type,
+            ],
         )
