@@ -146,7 +146,10 @@ class CaseModelTest(TestCase):
         STATE_TYPE_NAME = "MOCK_STATE_TYPE"
         case = baker.make(Case)
         workflow = baker.make(
-            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+            CaseWorkflow,
+            case=case,
+            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
+            id=1,
         )
         case.set_state(STATE_TYPE_NAME, workflow=workflow)
         self.assertEqual(CaseState.objects.count(), 1)
@@ -159,7 +162,10 @@ class CaseModelTest(TestCase):
         STATE_TYPE_NAME = "MOCK_STATE_TYPE"
         case = baker.make(Case)
         workflow = baker.make(
-            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+            CaseWorkflow,
+            case=case,
+            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
+            id=2,
         )
         case.set_state(STATE_TYPE_NAME, workflow=workflow)
         self.assertEqual(CaseStateType.objects.count(), 1)
@@ -172,7 +178,10 @@ class CaseModelTest(TestCase):
         STATE_TYPE_NAME = "MOCK_STATE_TYPE"
         case = baker.make(Case)
         workflow = baker.make(
-            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+            CaseWorkflow,
+            case=case,
+            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
+            id=3,
         )
         case.set_state(STATE_TYPE_NAME, workflow=workflow)
         case.set_state(STATE_TYPE_NAME, workflow=workflow)
@@ -187,10 +196,16 @@ class CaseModelTest(TestCase):
 
         case = baker.make(Case)
         workflow_a = baker.make(
-            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+            CaseWorkflow,
+            case=case,
+            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
+            id=4,
         )
         workflow_b = baker.make(
-            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+            CaseWorkflow,
+            case=case,
+            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
+            id=5,
         )
         baker.make(CaseUserTask, workflow=workflow_a, completed=False)
         baker.make(CaseUserTask, workflow=workflow_b, completed=False)
@@ -214,10 +229,16 @@ class CaseModelTest(TestCase):
         case = baker.make(Case)
 
         workflow_a = baker.make(
-            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+            CaseWorkflow,
+            case=case,
+            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
+            id=6,
         )
         workflow_b = baker.make(
-            CaseWorkflow, case=case, workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+            CaseWorkflow,
+            case=case,
+            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
+            id=7,
         )
         baker.make(CaseUserTask, workflow=workflow_a, completed=False)
         baker.make(CaseUserTask, workflow=workflow_b, completed=False)

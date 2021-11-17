@@ -20,6 +20,7 @@ class WorkflowModelTest(TestCase):
         baker.make(
             CaseWorkflow,
             case=case,
+            workflow_version=None,
             workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
         )
         self.assertEquals(CaseWorkflow.objects.count(), 1)
@@ -33,6 +34,10 @@ class WorkflowModelTest(TestCase):
             CaseWorkflow,
             case=case,
             workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
+            id=8,
+            workflow_version="0.1.0",
+            workflow_theme_name="default",
+            data={},
         )
 
         self.assertEquals(workflow.get_workflow_spec().__class__, BpmnProcessSpec)
