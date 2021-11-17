@@ -3,10 +3,10 @@ from rest_framework import serializers
 from rest_framework.fields import empty
 from rest_framework.settings import api_settings
 
-from .models import WorkflowOption
+from .models import GenericCompletedTask, WorkflowOption
 
 
-class GenericCompletedTaskSerializer(serializers.Serializer):
+class GenericCompletedTaskSerializer(serializers.ModelSerializer):
     """
     Used to complete a GenericCompletedTask.
 
@@ -23,6 +23,10 @@ class GenericCompletedTaskSerializer(serializers.Serializer):
     case_user_task_id = serializers.CharField()
     case = serializers.PrimaryKeyRelatedField(queryset=Case.objects.all())
     variables = serializers.JSONField()
+
+    class Meta:
+        model = GenericCompletedTask
+        fields = "__all__"
 
 
 class WorkflowOptionSerializer(serializers.ModelSerializer):

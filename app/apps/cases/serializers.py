@@ -275,6 +275,7 @@ class LegacyCaseCreateSerializer(CaseCreateUpdateSerializer):
             "is_legacy_bwv",
             "start_date",
             "status_name",
+            "project",
         )
 
 
@@ -287,6 +288,7 @@ class LegacyCaseUpdateSerializer(CaseCreateUpdateSerializer):
             "legacy_bwv_case_id",
             "is_legacy_bwv",
             "start_date",
+            "project",
         )
 
     def validate(self, data):
@@ -303,7 +305,15 @@ class StartWorkflowSerializer(serializers.Serializer):
     )
 
 
+class BWVStatusSerializer(serializers.Serializer):
+    code = serializers.CharField()
+    begindatum = serializers.DateTimeField(
+        format="%d-%m-%Y", input_formats=["%d-%m-%Y"]
+    )
+
+
 class BWVCaseImportValidSerializer(serializers.Serializer):
+    historie = serializers.DictField(default={})
     legacy_bwv_case_id = serializers.CharField()
     is_legacy_bwv = serializers.BooleanField(default=True)
     ADS_NR_VRA = serializers.CharField()

@@ -14,6 +14,7 @@ from apps.cases.models import (
     CitizenReport,
 )
 from apps.cases.serializers import (
+    BWVStatusSerializer,
     CaseCloseReasonSerializer,
     CaseCloseResultSerializer,
     CaseCloseSerializer,
@@ -56,8 +57,11 @@ from apps.users.permissions import (
 )
 from apps.visits.models import Visit
 from apps.visits.serializers import VisitSerializer
-from apps.workflow.models import CaseWorkflow, WorkflowOption
-from apps.workflow.serializers import WorkflowOptionSerializer
+from apps.workflow.models import CaseWorkflow, GenericCompletedTask, WorkflowOption
+from apps.workflow.serializers import (
+    GenericCompletedTaskSerializer,
+    WorkflowOptionSerializer,
+)
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import user_passes_test
@@ -763,6 +767,37 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 if user:
                     citizen_report_instance.author = user
                     citizen_report_instance.save()
+
+            for status_data in d.get("historie", []):
+                generic_completed_task_data = {}
+                status_data["date_added"] = datetime.datetime.strptime(
+                    status_data["date_added"], "%d-%m-%Y"
+                )
+                status_data["case_user_task_id"] = "-1"
+
+                generic_completed_task_data.update(status_data)
+                generic_completed_task_data["case"] = d["case"]
+
+                instances = GenericCompletedTask.objects.filter(
+                    case__id=d.get("case"),
+                    **status_data,
+                )
+
+                serializer = GenericCompletedTaskSerializer(
+                    data=generic_completed_task_data, context={"request": self.request}
+                )
+                print(instances)
+                if serializer.is_valid() and not instances:
+                    generic_completed_task_instance = serializer.save()
+                    if user:
+                        generic_completed_task_instance.author = user
+                        generic_completed_task_instance.date_added = status_data[
+                            "date_added"
+                        ]
+                        generic_completed_task_instance.save()
+                else:
+                    print(serializer.errors)
+
         return errors, result_data
 
     def _parse_case_data_to_case_serializer(self, data):
@@ -801,6 +836,48 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
             }
         return data
 
+    def _add_bwv_status(self, data):
+        for d in data:
+            bwv_status_items = d.get("historie", {})
+            if bwv_status_items:
+                generic_completed_task_list = sorted(
+                    [v for k, v in bwv_status_items.items()],
+                    key=lambda d: d.get("begindatum"),
+                )
+
+                status_serializer = BWVStatusSerializer(
+                    data=generic_completed_task_list, many=True
+                )
+
+                if status_serializer.is_valid():
+                    validated_status_data = []
+                    for status_variables in status_serializer.data:
+                        mapped_form_data = dict(
+                            (
+                                k,
+                                {
+                                    "label": k,
+                                    "value": v,
+                                },
+                            )
+                            for k, v in status_variables.items()
+                        )
+                        status_data = {
+                            "description": f"BWV Status: {status_variables.get('code')}",
+                            "variables": {"mapped_form_data": mapped_form_data},
+                            "date_added": status_variables.get("begindatum"),
+                        }
+
+                        validated_status_data.append(status_data)
+                    print("validated_status_data")
+                    print(validated_status_data)
+                    print(len(validated_status_data))
+                    d["historie"] = validated_status_data
+                else:
+                    print(status_serializer.errors)
+
+        return data
+
     def add_parsed_data(self, data, *args, **kwargs):
         data, visit_errors = self._add_visits(data, *args, **kwargs)
         data = self.add_reason(data, *args, **kwargs)
@@ -808,6 +885,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         data = self.add_project(data, *args, **kwargs)
         data = self.add_status_name(data, *args, **kwargs)
         data = self._add_citizen_report(data)
+        data = self._add_bwv_status(data)
         return data, visit_errors
 
     def test_func(self):
