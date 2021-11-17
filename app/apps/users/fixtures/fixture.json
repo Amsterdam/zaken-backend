@@ -24,8 +24,8 @@
         "fields": {
             "name": "Update workflows",
             "task": "apps.workflow.tasks.task_update_workflows",
-            "interval": null,
-            "crontab": 1,
+            "interval": 1,
+            "crontab": null,
             "solar": null,
             "clocked": null,
             "args": "[]",
