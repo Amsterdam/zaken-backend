@@ -1,4 +1,24 @@
 [{
+        "model": "django_celery_beat.intervalschedule",
+        "pk": 1,
+        "fields": {
+            "every": 10,
+            "period": "seconds"
+        }
+    },
+    {
+        "model": "django_celery_beat.crontabschedule",
+        "pk": 1,
+        "fields": {
+            "minute": "5",
+            "hour": "*",
+            "day_of_week": "*",
+            "day_of_month": "*",
+            "month_of_year": "*",
+            "timezone": "UTC"
+        }
+    },
+    {
         "model": "django_celery_beat.periodictask",
         "pk": 1,
         "fields": {
@@ -24,14 +44,6 @@
             "total_run_count": 1,
             "date_changed": "2021-11-16T10:04:35.951Z",
             "description": ""
-        }
-    },
-    {
-        "model": "django_celery_beat.intervalschedule",
-        "pk": 1,
-        "fields": {
-            "every": 10,
-            "period": "seconds"
         }
     }
 ]
