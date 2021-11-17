@@ -1,6 +1,5 @@
 from apps.users.serializers import UserSerializer
 from apps.visits.models import Visit
-from apps.workflow.models import CaseUserTask
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -34,9 +33,6 @@ class VisitSerializer(serializers.ModelSerializer):
         return authors
 
     def create(self, validated_data):
-        CaseUserTask.objects.get(
-            id=validated_data["case_user_task_id"], completed=False
-        )
         authors = self.get_authors(validated_data)
         visit = Visit.objects.create(**validated_data)
         visit.authors.set(authors)

@@ -22,7 +22,7 @@ class Case:
     def __str__(self):
         return f"<{self.__module__}.{self.__class__.__name__} id:{self.data['id']}>"
 
-    def run_steps(self, *steps):
+    def run_steps(self, *steps, extra_events=[]):
         steps = filter(lambda step: step is not None, steps)
 
         for step in steps:
@@ -41,7 +41,9 @@ class Case:
 
         def check_events():
             events = self.client.get_case_events(self.data["id"])
-            expected_events = list(map(lambda event: event.type, self.timeline))
+            expected_events = (
+                list(map(lambda event: event.type, self.timeline)) + extra_events
+            )
             found_events = list(map(lambda event: event["type"], events))
 
             logging.info(f"Finding events for case id {self.data['id']} ...")

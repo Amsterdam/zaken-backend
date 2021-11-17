@@ -1,20 +1,37 @@
 import copy
-import logging
 
 import celery
+from apps.cases.models import Case
 from apps.debriefings.models import Debriefing
 from apps.visits.models import Visit
 from celery import shared_task
+from celery.utils.log import get_task_logger
 from django.conf import settings
+from django.core.cache import cache
 from django.db import transaction
 
-DEFAULT_RETRY_DELAY = 2
-logger = logging.getLogger(__name__)
+logger = get_task_logger(__name__)
+
+DEFAULT_RETRY_DELAY = 3
+MAX_RETRIES = 3
+
+LOCK_EXPIRE = 5
+
+
+def redis_lock(lock_id):
+    status = cache.add(lock_id, "lock", timeout=LOCK_EXPIRE)
+    logger.info(f"REDIS_LOCK START: lock id '{lock_id}', status: {status}")
+    return status
+
+
+def release_lock(lock_id):
+    logger.info(f"REDIS_LOCK END: lock id '{lock_id}'")
+    cache.delete(lock_id)
 
 
 class BaseTaskWithRetry(celery.Task):
     autoretry_for = (Exception,)
-    max_retries = 3
+    max_retries = MAX_RETRIES
     default_retry_delay = DEFAULT_RETRY_DELAY
 
 
@@ -22,22 +39,24 @@ class BaseTaskWithRetry(celery.Task):
 def task_update_workflows(self):
     from apps.workflow.models import CaseWorkflow
 
-    for workflow in CaseWorkflow.objects.filter(completed=False):
+    workflow_instances = CaseWorkflow.objects.filter(completed=False)
+    for workflow in workflow_instances:
         if workflow.has_a_timer_event_fired():
             task_update_workflow.delay(workflow.id)
-    return "task_update_workflows complete"
+    return f"task_update_workflows complete: count '{workflow_instances.count()}'"
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
 def task_update_workflow(self, workflow_id):
     from apps.workflow.models import CaseWorkflow
 
-    workflow = CaseWorkflow.objects.get(id=workflow_id)
-    with transaction.atomic():
-        workflow.update_workflow()
-
-    return (
-        f"task_update_workflow: update for workflow with id '{workflow_id}', complete"
+    workflow_instance = CaseWorkflow.objects.get(id=workflow_id)
+    if workflow_instance.get_lock():
+        with transaction.atomic():
+            workflow_instance.update_workflow()
+        return f"task_update_workflow: update for workflow with id '{workflow_id}', complete"
+    raise Exception(
+        f"task_update_workflow: update for workflow with id '{workflow_id}', is busy"
     )
 
 
@@ -45,11 +64,15 @@ def task_update_workflow(self, workflow_id):
 def task_accept_message_for_workflow(self, workflow_id, message, extra_data):
     from apps.workflow.models import CaseWorkflow
 
-    workflow = CaseWorkflow.objects.get(id=workflow_id)
-    with transaction.atomic():
-        workflow.accept_message(message, extra_data)
+    workflow_instance = CaseWorkflow.objects.get(id=workflow_id)
+    if workflow_instance.get_lock():
+        with transaction.atomic():
+            workflow_instance.accept_message(message, extra_data)
+            return f"task_accept_message_for_workflow: message '{message}' for workflow with id {workflow_id}, accepted"
 
-    return f"task_accept_message_for_workflow: message '{message}' for workflow with id {workflow_id}, accepted"
+    raise Exception(
+        f"task_accept_message_for_workflow: message '{message}' for workflow with id '{workflow_id}'', is busy"
+    )
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
@@ -72,7 +95,6 @@ def task_start_subworkflow(self, subworkflow_name, parent_workflow_id):
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
 def task_create_main_worflow_for_case(self, case_id):
-    from apps.cases.models import Case
     from apps.workflow.models import CaseWorkflow
 
     case = Case.objects.get(id=case_id)
@@ -91,95 +113,105 @@ def task_create_main_worflow_for_case(self, case_id):
 def task_start_worflow(self, worklow_id):
     from apps.workflow.models import CaseWorkflow
 
-    case_workflow = CaseWorkflow.objects.get(id=worklow_id)
-    with transaction.atomic():
-        case_workflow.start()
+    workflow_instance = CaseWorkflow.objects.get(id=worklow_id)
+    if workflow_instance.get_lock():
+        with transaction.atomic():
+            workflow_instance.start()
+            return f"task_start_worflow: workflow id '{worklow_id}', started"
 
-    return f"task_start_worflow: workflow id '{worklow_id}', started"
+    raise Exception(f"task_start_worflow: workflow id '{worklow_id}', is busy")
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
 def task_wait_for_workflows_and_send_message(self, workflow_id, message):
-    import time
-
     from apps.workflow.models import CaseWorkflow
 
-    time.sleep(2)
-
-    logger.info(f"wait_for_workflows_and_send_message: {message}")
-    logger.info(f"workflow id: {workflow_id}")
-
     workflow_instance = CaseWorkflow.objects.get(id=workflow_id)
-    # tell the other workfows that this one is waiting
-    workflow_instance.data.update(
-        {
-            message: "done",
-        }
-    )
-    workflow_instance.save(update_fields=["data"])
-    all_workflows = CaseWorkflow.objects.filter(
-        case=workflow_instance.case,
-        workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
-    )
 
-    workflows_completed = [
-        a
-        for a in all_workflows.values_list("data", flat=True)
-        if a.get(message) == "done"
-    ]
-    main_workflow = all_workflows.filter(main_workflow=True).first()
+    if workflow_instance.get_lock():
+        # tell the other workfows that this one is waiting
+        workflow_instance.data.update(
+            {
+                message: "done",
+            }
+        )
+        workflow_instance.save(update_fields=["data"])
+        all_workflows = CaseWorkflow.objects.filter(
+            case=workflow_instance.case,
+            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
+        )
 
-    """
-    Tests if all workflows reached thit point,
-    so the last waiting worklfow kan tell the main workflow to accept the message after all, so only the main workflow can resume
-    """
-    if len(workflows_completed) == all_workflows.count() and main_workflow:
-
-        # pick up all summons and pass them on to the main workflow
-        all_summons = [
-            d.get("summon_id")
-            for d in all_workflows.values_list("data", flat=True)
-            if d.get("summon_id")
+        workflows_completed = [
+            a
+            for a in all_workflows.values_list("data", flat=True)
+            if a.get(message) == "done"
         ]
-        extra_data = {
-            "all_summons": all_summons,
-        }
+        main_workflow = all_workflows.filter(main_workflow=True).first()
 
-        # sends the accept message to a task, because we have to wait until this current tasks, we are in, is completed
-        task_accept_message_for_workflow.delay(main_workflow.id, message, extra_data)
+        """
+        Tests if all workflows reached thit point,
+        so the last waiting worklfow kan tell the main workflow to accept the message after all, so only the main workflow can resume
+        """
+        if len(workflows_completed) == all_workflows.count() and main_workflow:
 
-        # TODO: cleanup(delete others), but the message is not send yet, so below should wait
-        # other_workflows = all_workflows.exclude(id=main_workflow.id)
-        # other_workflows.delete()
+            # pick up all summons and pass them on to the main workflow
+            all_summons = [
+                d.get("summon_id")
+                for d in all_workflows.values_list("data", flat=True)
+                if d.get("summon_id")
+            ]
+            extra_data = {
+                "all_summons": all_summons,
+            }
+
+            # sends the accept message to a task, because we have to wait until this current tasks, we are in, is completed
+            task_accept_message_for_workflow.delay(
+                main_workflow.id, message, extra_data
+            )
+
+            # TODO: cleanup(delete others), but the message is not send yet, so below should wait
+            # other_workflows = all_workflows.exclude(id=main_workflow.id)
+            # other_workflows.delete()
+        return f"task_wait_for_workflows_and_send_message: message '{message}' for workflow with id '{workflow_id}', completed"
+    raise Exception(
+        f"task_wait_for_workflows_and_send_message: message '{message}' for workflow with id '{workflow_id}', is busy"
+    )
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
 def task_complete_worflow(self, worklow_id, data):
     from apps.workflow.models import CaseWorkflow
 
-    case_workflow = CaseWorkflow.objects.get(id=worklow_id)
-    with transaction.atomic():
-        if (
-            case_workflow.parent_workflow
-            and case_workflow.parent_workflow.workflow_type
-            == CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
-        ):
-            case_workflow.parent_workflow.accept_message(
-                f"resume_after_{case_workflow.workflow_type}",
-                data,
-            )
+    workflow_instance = CaseWorkflow.objects.get(id=worklow_id)
+    if workflow_instance.get_lock():
+        with transaction.atomic():
+            if (
+                workflow_instance.parent_workflow
+                and workflow_instance.parent_workflow.workflow_type
+                == CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+            ):
+                workflow_instance.parent_workflow.accept_message(
+                    f"resume_after_{workflow_instance.workflow_type}",
+                    data,
+                )
 
-    return f"task_complete_worflow: workflow id '{worklow_id}', completed"
+        return f"task_complete_worflow: workflow id '{worklow_id}', completed"
+    raise Exception(f"task_complete_worflow: workflow id '{worklow_id}', is busy")
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
-def task_complete_user_task_and_create_new_user_tasks(self, id, data={}):
+def task_complete_user_task_and_create_new_user_tasks(self, task_id, data={}):
     from apps.workflow.models import CaseUserTask
 
-    task = CaseUserTask.objects.get(id=id, completed=False)
-    task.workflow.complete_user_task_and_create_new_user_tasks(task.task_id, data)
+    task = CaseUserTask.objects.get(id=task_id, completed=False)
 
-    return f"task_complete_user_task_and_create_new_user_tasks: task with id '{id}', created"
+    if task.workflow.get_lock():
+        task.workflow.complete_user_task_and_create_new_user_tasks(task.task_id, data)
+        return f"task_complete_user_task_and_create_new_user_tasks: complete task with name '{task.task_name}' for workflow with id '{task.workflow.id}', is completed"
+
+    raise Exception(
+        f"task_complete_user_task_and_create_new_user_tasks: complete task with name '{task.task_name}' for workflow with id '{task.workflow.id}', is busy"
+    )
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)

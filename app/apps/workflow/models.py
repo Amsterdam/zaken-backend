@@ -19,6 +19,8 @@ from SpiffWorkflow.task import Task
 from utils.managers import BulkCreateSignalsManager
 
 from .tasks import (
+    redis_lock,
+    release_lock,
     task_complete_user_task_and_create_new_user_tasks,
     task_complete_worflow,
     task_start_subworkflow,
@@ -104,6 +106,15 @@ class CaseWorkflow(models.Model):
     )
 
     serializer = BpmnSerializer
+
+    def get_lock_id(self):
+        return f"caseworkflow-lock-{self.id}"
+
+    def get_lock(self):
+        return redis_lock(self.get_lock_id())
+
+    def release_lock(self):
+        release_lock(self.get_lock_id())
 
     def get_serializer(self):
         return self.serializer()
@@ -250,9 +261,8 @@ class CaseWorkflow(models.Model):
         return task_instances
 
     def update_tasks(self, wf):
-        with transaction.atomic():
-            self.set_absolete_tasks_to_completed(wf)
-            transaction.on_commit(lambda: self.create_user_tasks(wf))
+        self.set_absolete_tasks_to_completed(wf)
+        self.create_user_tasks(wf)
 
     @staticmethod
     def get_task_by_task_id(id):
@@ -386,7 +396,8 @@ class CaseWorkflow(models.Model):
     def _update_db(self, wf):
         with transaction.atomic():
             self.save_workflow_state(wf)
-            transaction.on_commit(lambda: self.update_tasks(wf))
+            self.update_tasks(wf)
+            transaction.on_commit(lambda: self.release_lock())
 
     def migrate_to(self, workflow_version, test=True):
         # tests and tries to migrate to an other version

@@ -13,12 +13,10 @@ def update_decision_with_summon(sender, instance, created, **kwargs):
     """
     if created:
         task = CaseWorkflow.get_task_by_task_id(instance.case_user_task_id)
-        task.workflow.complete_user_task_and_create_new_user_tasks(
-            task.task_id,
-            {
-                "type_besluit": {"value": instance.decision_type.workflow_option},
-            },
-        )
+        data = {
+            "type_besluit": {"value": instance.decision_type.workflow_option},
+        }
+        CaseWorkflow.complete_user_task(task.id, data)
         summon = Summon.objects.filter(
             id=task.workflow.get_data().get("summon_id", {}).get("value", 0)
         ).first()

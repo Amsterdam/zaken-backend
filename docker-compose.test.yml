@@ -15,7 +15,7 @@ services:
       - database
     env_file:
       - .env
-    command: bash -c "/app/wait-for.sh database:5432 && /app/deploy/docker-entrypoint.development.sh"
+    command: bash -c "/app/wait-for.sh zaak-redis:6379 && /app/wait-for.sh database:5432 && /app/deploy/docker-entrypoint.development.sh"
     volumes:
       - ./app:/app
     stdin_open: true
@@ -53,7 +53,7 @@ services:
     image: zaak-gateway
     container_name: zaken_celery_worker
     hostname: zaken_celery_worker
-    command: bash -c "/app/wait-for.sh rabbitmq:5672 && /app/wait-for.sh zaak-gateway:8000 -- /app/celery.sh"
+    command: bash -c "/app/wait-for.sh zaak-redis:6379 && /app/wait-for.sh rabbitmq:5672 && /app/wait-for.sh zaak-gateway:8000 -- /app/celery.sh"
     depends_on:
       - zaak-gateway
       - database
@@ -68,7 +68,7 @@ services:
     image: zaak-gateway
     container_name: zaken_celery_beat
     hostname: zaken_celery_beat
-    command: sh -c "/app/wait-for.sh rabbitmq:5672 && /app/wait-for.sh zaak-gateway:8000 -- celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    command: sh -c "/app/wait-for.sh zaak-redis:6379 && /app/wait-for.sh rabbitmq:5672 && /app/wait-for.sh zaak-gateway:8000 -- celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
     depends_on:
       - zaak-gateway
       - database
