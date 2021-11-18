@@ -13,7 +13,38 @@ class ScheduleAdmin(admin.ModelAdmin):
     search_fields = ("case__id",)
 
 
-admin.site.register(DaySegment, admin.ModelAdmin)
-admin.site.register(Priority, admin.ModelAdmin)
-admin.site.register(Action, admin.ModelAdmin)
-admin.site.register(WeekSegment, admin.ModelAdmin)
+@admin.register(Action)
+class ActionAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "theme",
+    )
+    list_filter = ("theme",)
+
+
+@admin.register(DaySegment)
+class DaySegmentAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "theme",
+    )
+    list_filter = ("theme",)
+
+
+@admin.register(Priority)
+class PriorityAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "weight",
+        "theme",
+    )
+    list_filter = ("theme",)
+
+
+@admin.register(WeekSegment)
+class WeekSegmentAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "theme",
+    )
+    list_filter = ("theme",)
