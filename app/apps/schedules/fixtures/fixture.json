@@ -56,15 +56,6 @@
     },
     {
         "model": "schedules.priority",
-        "pk": 6,
-        "fields": {
-            "name": "Hoog",
-            "theme": 3,
-            "weight": 0.99
-        }
-    },
-    {
-        "model": "schedules.priority",
         "pk": 7,
         "fields": {
             "name": "Machtiging",
