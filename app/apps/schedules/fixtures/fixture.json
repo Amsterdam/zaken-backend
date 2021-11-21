@@ -56,6 +56,15 @@
     },
     {
         "model": "schedules.priority",
+        "pk": 5,
+        "fields": {
+            "name": "Normaal",
+            "theme": 3,
+            "weight": 0.0
+        }
+    },
+    {
+        "model": "schedules.priority",
         "pk": 6,
         "fields": {
             "name": "Hoog",
