@@ -3,7 +3,6 @@ import random
 from string import Template
 
 from apps.addresses.models import Address
-from apps.camunda.models import GenericCompletedTask as CamundaGenericCompletedTask
 from apps.cases.models import Case, CaseClose, CaseState, CitizenReport
 from apps.debriefings.models import Debriefing
 from apps.decisions.models import Decision
@@ -225,12 +224,6 @@ def get_email():
 
 def get_default_anonymizer():
     conf = [
-        (
-            CamundaGenericCompletedTask,
-            {
-                "variables": {},
-            },
-        ),
         (
             Case,
             {

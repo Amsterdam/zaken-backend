@@ -8,13 +8,8 @@ from apps.addresses.utils import search
 from apps.cases.models import (
     Case,
     CaseClose,
-    CaseCloseReason,
-    CaseCloseResult,
-    CaseProcessInstance,
-    CaseProject,
     CaseReason,
     CaseState,
-    CaseStateType,
     CaseTheme,
     CitizenReport,
 )

@@ -74,7 +74,6 @@ INSTALLED_APPS = (
     "apps.events",
     "apps.health",
     "apps.support",
-    "apps.camunda",
     "apps.summons",
     "apps.schedules",
     "apps.workflow",
