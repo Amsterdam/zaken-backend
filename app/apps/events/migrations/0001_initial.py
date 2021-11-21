@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("cases", "0002_initial"),
+        # ("cases", "0002_initial"),
         ("contenttypes", "0002_remove_content_type_name"),
     ]
 
