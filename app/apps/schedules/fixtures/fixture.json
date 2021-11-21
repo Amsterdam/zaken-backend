@@ -45,6 +45,16 @@
             "theme": 3
         }
     },
+
+    {
+        "model": "schedules.priority",
+        "pk": 3,
+        "fields": {
+            "name": "Machtiging",
+            "theme": 2,
+            "weight": 0.0
+        }
+    },
     {
         "model": "schedules.priority",
         "pk": 4,
