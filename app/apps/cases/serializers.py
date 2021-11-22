@@ -306,53 +306,67 @@ class StartWorkflowSerializer(serializers.Serializer):
 
 
 class BWVStatusSerializer(serializers.Serializer):
-    code = serializers.CharField()
-    begindatum = serializers.DateTimeField(
-        format="%d-%m-%Y", input_formats=["%d-%m-%Y"]
+    STADIUM_ID = serializers.CharField(allow_blank=True, required=False)
+    WS_STA_CD_OMSCHRIJVING = serializers.CharField()
+    WS_USER_MODIFIED = serializers.CharField(allow_blank=True, required=False)
+    WS_USER_CREATED = serializers.CharField(allow_blank=True, required=False)
+    WS_DATE_CREATED = serializers.DateTimeField(
+        format="%d-%m-%Y", input_formats=["%Y-%m-%d %H:%M:%S"]
     )
+    WS_EINDDATUM = serializers.DateTimeField(
+        format="%d-%m-%Y", input_formats=["%Y-%m-%d %H:%M:%S"]
+    )
+    WS_BEGINDATUM = serializers.DateTimeField(
+        format="%d-%m-%Y", input_formats=["%Y-%m-%d %H:%M:%S"]
+    )
+
+
+class BWVMeldingenSerializer(serializers.Serializer):
+    ZAAK_ID = serializers.CharField()
+    HOTLINE_MELDING_ID = serializers.CharField()
+
+    HM_USER_MODIFIED = serializers.CharField(allow_blank=True, required=False)
+    HM_USER_CREATED = serializers.CharField(allow_blank=True, required=False)
+    HM_DATE_CREATED = serializers.DateTimeField(
+        format="%d-%m-%Y", input_formats=["%Y-%m-%d %H:%M:%S"]
+    )
+    HM_OVERTREDING_CODE = serializers.CharField(allow_blank=True, required=False)
+    HM_MELDING_DATUM = serializers.DateTimeField(
+        format="%d-%m-%Y", input_formats=["%Y-%m-%d %H:%M:%S"]
+    )
+    HM_MELDER_ANONIEM = serializers.CharField(allow_blank=True, required=False)
+    HM_MELDER_TELNR = serializers.CharField(allow_blank=True, required=False)
+    HM_MELDER_EMAILADRES = serializers.CharField(allow_blank=True, required=False)
+    HM_MELDER_NAAM = serializers.CharField(allow_blank=True, required=False)
+    HM_SITUATIE_SCHETS = serializers.CharField(allow_blank=True, required=False)
 
 
 class BWVCaseImportValidSerializer(serializers.Serializer):
-    historie = serializers.DictField(default={})
+    geschiedenis = serializers.DictField(default={})
+    meldingen = serializers.DictField(default={})
     legacy_bwv_case_id = serializers.CharField()
     is_legacy_bwv = serializers.BooleanField(default=True)
-    ADS_NR_VRA = serializers.CharField()
-    OBJ_NR_VRA = serializers.CharField()
-    begindatum_zaak = serializers.CharField()
-    user_created_zaak = serializers.CharField()
-    date_created_zaak = serializers.DateTimeField(
-        format="%d-%m-%Y", input_formats=["%d-%m-%Y %H:%M:%S"]
-    )
-    user_modified_zaak = serializers.CharField(allow_null=True, allow_blank=True)
-    date_modified_zaak = serializers.CharField(allow_null=True, allow_blank=True)
-    mededelingen = serializers.CharField(allow_null=True, allow_blank=True)
-    sta_nr = serializers.FloatField()
-    sta_code = serializers.CharField()
-    mdr_code_stadia = serializers.CharField()
-    begindatum_stadia = serializers.CharField()
-    user_created_stadia = serializers.CharField()
-    date_created_stadia = serializers.CharField()
-    user_modified_stadia = serializers.CharField(allow_null=True, allow_blank=True)
-    date_modified_stadia = serializers.CharField(allow_null=True, allow_blank=True)
-    melding_datum = serializers.CharField(allow_null=True, allow_blank=True)
-    mdw_code_melding = serializers.CharField(allow_null=True, allow_blank=True)
-    melder_naam = serializers.CharField(allow_null=True, allow_blank=True)
-    melder_emailadres = serializers.CharField(allow_null=True, allow_blank=True)
-    melder_telnr = serializers.CharField(allow_null=True, allow_blank=True)
-    situatie_schets = serializers.CharField(allow_null=True, allow_blank=True)
-    user_created_melding = serializers.CharField(allow_null=True, allow_blank=True)
-    date_created_melding = serializers.CharField(allow_null=True, allow_blank=True)
-    user_modified_melding = serializers.CharField(allow_null=True, allow_blank=True)
-    date_modified_melding = serializers.CharField(allow_null=True, allow_blank=True)
-    postcode = serializers.CharField(allow_null=True, allow_blank=True)
-    straatnaam = serializers.CharField(
+    ADS_NR_VRA = serializers.CharField(
         allow_null=True, allow_blank=True, required=False
     )
-    huisnummer = serializers.IntegerField(allow_null=True, required=False)
-    huisletter = serializers.CharField(
+    ADS_NR_VRA = serializers.CharField(
         allow_null=True, allow_blank=True, required=False
     )
-    toev = serializers.CharField(allow_null=True, allow_blank=True, required=False)
+    WV_BEH_CD_OMSCHRIJVING = serializers.CharField(required=False)
+
+    WV_DATE_CREATED = serializers.DateTimeField(
+        format="%d-%m-%Y", input_formats=["%Y-%m-%d %H:%M:%S"]
+    )
+    WV_MEDEDELINGEN = serializers.CharField(allow_null=True, allow_blank=True)
+
+    ADS_PSCD = serializers.CharField(allow_null=True, allow_blank=True, required=False)
+    ADS_STRAAT_NAAM = serializers.CharField(
+        allow_null=True, allow_blank=True, required=False
+    )
+    ADS_HSNR = serializers.CharField(allow_null=True, allow_blank=True, required=False)
+    ADS_HSLT = serializers.CharField(allow_null=True, allow_blank=True, required=False)
+    ADS_HSTV = serializers.CharField(allow_null=True, allow_blank=True, required=False)
+    CASE_REASON = serializers.CharField()
 
 
 class CaseCloseReasonSerializer(serializers.ModelSerializer):

@@ -2,6 +2,7 @@ import datetime
 import logging
 import mimetypes
 import os
+from collections import OrderedDict
 
 import requests
 from apps.addresses.utils import search
@@ -14,6 +15,7 @@ from apps.cases.models import (
     CitizenReport,
 )
 from apps.cases.serializers import (
+    BWVMeldingenSerializer,
     BWVStatusSerializer,
     CaseCloseReasonSerializer,
     CaseCloseResultSerializer,
@@ -586,6 +588,42 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
     form_class = ImportBWVCaseDataForm
     template_name = "import/body.html"
 
+    reason_translate = {
+        "project": "Project",
+        "digitaal_toezicht": "Digitaal Toezicht",
+    }
+    project_translate = {
+        "Levant": "Levant",
+        "Project Lava": "Project Lava",
+        "SIA MELDING BenB": "SIA MELDING BenB",
+        "Shortstay aflopend 2021": "Shortstay aflopend 2021",
+        "Shortstay aflopend in 2020": "Shortstay aflopend in 2020",
+        "Shortstay aflopend in 2019": "Shortstay aflopend in 2019",
+        "Project Alaska": "Alaska",
+        "Hotline": "Hotline",
+    }
+    label_translate = {
+        "HM_DATE_CREATED": "Datum aangemaakt",
+        "WS_DATE_CREATED": "Datum aangemaakt",
+        "HM_USER_CREATED": "Aangemaakt door",
+        "WS_USER_CREATED": "Aangemaakt door",
+        "HM_USER_MODIFIED": "Aangepast door",
+        "WS_USER_MODIFIED": "Aangepast door",
+        "HM_SITUATIE_SCHETS": "Situatieschets",
+        "WS_STA_CD_OMSCHRIJVING": "Stadium naam",
+        "HM_MELDER_TELNR": "Melder telefoonnummer",
+    }
+
+    def translate_key_to_label(self, key):
+        label = self.label_translate.get(key)
+        if label:
+            return label
+        else:
+            label = key
+        if label.find("_", 0, 3) >= 0:
+            label = label.split("_", 1)[1]
+        return label.lower().replace("_", " ").capitalize()
+
     def _map_bag_result_to_address(self, address):
         map = {
             "adresseerbaar_object_id": "bag_id",
@@ -644,6 +682,9 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 visits = self._fetch_visit(d["legacy_bwv_case_id"])
 
                 if isinstance(visits, list):
+                    print("_add_visits")
+                    print(visits)
+                    print(d["legacy_bwv_case_id"])
                     for visit in visits:
                         visit["authors"] = [
                             tm.get("user", {}) for tm in visit.get("team_members", [])
@@ -660,29 +701,39 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
 
     def add_theme(self, data, *args, **kwargs):
         theme = CaseTheme.objects.get(id=kwargs.get("theme"))
+        missing_themes = []
         for d in data:
-            d["theme"] = theme.id
-        return data
-
-    def add_reason(self, data, *args, **kwargs):
-        reason = CaseReason.objects.get(id=kwargs.get("reason"))
-        for d in data:
-            d["reason"] = reason.id
-        return data
+            reason = CaseReason.objects.filter(
+                name=self.reason_translate.get(d.get("reason")),
+                theme=theme,
+            ).first()
+            project = CaseProject.objects.filter(
+                name=self.project_translate.get(d["project"]),
+                theme=theme,
+            ).first()
+            if reason and project:
+                d["reason"] = reason.id
+                d["project"] = project.id
+                d["theme"] = theme.id
+            else:
+                d["theme"] = "not_found"
+                missing_themes.append(
+                    {
+                        "legacy_bwv_case_id": d["legacy_bwv_case_id"],
+                        "reason": reason,
+                        "reason_found": d["reason"],
+                        "project": project,
+                        "project_found": d["project"],
+                    }
+                )
+        data = [d for d in data if d.get("theme") != "not_found"]
+        return data, missing_themes
 
     def add_status_name(self, data, *args, **kwargs):
         status_name = kwargs.get("status_name")
         if status_name:
             for d in data:
                 d["status_name"] = status_name
-        return data
-
-    def add_project(self, data, *args, **kwargs):
-        project = kwargs.get("project")
-        if project:
-            project = CaseProject.objects.get(id=project)
-            for d in data:
-                d["project"] = project.id
         return data
 
     def _get_object(self, case_id):
@@ -719,6 +770,9 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     # create visits, no update
                     for visit in d.get("visits", []):
                         visit["case"] = case.id
+                        visit["task"] = "-1"
+                        print("VISIT")
+                        print(visit)
                         visit_instances = Visit.objects.filter(
                             case=case,
                             start_time=visit.get("start_time"),
@@ -740,6 +794,8 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                         visit_serializer = VisitSerializer(data=visit)
                         if visit_serializer.is_valid() and not visit_instances:
                             visit_serializer.save()
+                        else:
+                            print(visit_serializer.errors)
 
                 results.append(d_clone)
             else:
@@ -754,60 +810,80 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
     def create_additional_types(self, result_data, user=None, *args, **kwargs):
         errors = []
         for d in result_data:
-            citizen_report = d.get("citizen_report", {})
-            citizen_report["case"] = d["case"]
-            instances = CitizenReport.objects.filter(
-                case__id=d.get("case"), **citizen_report
-            )
-            serializer = CitizenReportSerializer(
-                data=citizen_report, context={"request": self.request}
-            )
-            if serializer.is_valid() and not instances:
-                citizen_report_instance = serializer.save()
-                if user:
-                    citizen_report_instance.author = user
-                    citizen_report_instance.save()
-
-            for status_data in d.get("historie", []):
-                generic_completed_task_data = {}
-                status_data["date_added"] = datetime.datetime.strptime(
-                    status_data["date_added"], "%d-%m-%Y"
+            events = d["meldingen"] + d["geschiedenis"]
+            events = [
+                dict(
+                    e,
+                    date_added=datetime.datetime.strptime(e["date_added"], "%d-%m-%Y"),
+                    case_user_task_id="-1",
+                    author=user.id,
+                    case=d["case"],
                 )
-                status_data["case_user_task_id"] = "-1"
+                for e in events
+            ]
 
-                generic_completed_task_data.update(status_data)
-                generic_completed_task_data["case"] = d["case"]
+            events_sorted = sorted(events, key=lambda d: d.get("date_added"))
 
-                instances = GenericCompletedTask.objects.filter(
+            without_existing_events = [
+                e
+                for e in events_sorted
+                if not GenericCompletedTask.objects.filter(
                     case__id=d.get("case"),
-                    **status_data,
+                    description=e.get("description"),
                 )
-
-                serializer = GenericCompletedTaskSerializer(
-                    data=generic_completed_task_data, context={"request": self.request}
-                )
-                print(instances)
-                if serializer.is_valid() and not instances:
-                    generic_completed_task_instance = serializer.save()
-                    if user:
-                        generic_completed_task_instance.author = user
-                        generic_completed_task_instance.date_added = status_data[
-                            "date_added"
-                        ]
-                        generic_completed_task_instance.save()
-                else:
-                    print(serializer.errors)
-
+            ]
+            events_serializer = GenericCompletedTaskSerializer(
+                data=without_existing_events,
+                context={"request": self.request},
+                many=True,
+            )
+            if events_serializer.is_valid():
+                events_instances = events_serializer.save()
+                for e in events_instances:
+                    e.author = user
+                    try:
+                        date_added = dict(
+                            (
+                                ee.get("variables", {}).get("bwv_id"),
+                                ee.get("date_added"),
+                            )
+                            for ee in events
+                        ).get(e.variables.get("bwv_id"))
+                        e.date_added = date_added
+                    except Exception:
+                        pass
+                    e.save()
+            else:
+                print(events_serializer.errors)
         return errors, result_data
 
     def _parse_case_data_to_case_serializer(self, data):
         map = {
-            "date_created_zaak": "start_date",
-            "mededelingen": "description",
+            "WV_DATE_CREATED": "start_date",
+            "WV_MEDEDELINGEN": "description",
+            "ADS_PSCD": "postcode",
+            "ADS_HSNR": "huisnummer",
+            "ADS_HSLT": "huisletter",
+            "ADS_HSTV": "toev",
+            "CASE_REASON": "reason",
+            "WV_BEH_CD_OMSCHRIJVING": "project",
         }
 
-        def clean(value):
+        def to_int(v):
+
+            try:
+                v = int(v.strip().split(".")[0])
+            except Exception:
+                pass
+            return v
+
+        transform = {
+            "huisnummer": to_int,
+        }
+
+        def clean(value, key):
             value = value.strip() if isinstance(value, str) else value
+            value = value if not transform.get(key) else transform.get(key)(value)
             try:
                 value = datetime.datetime.strptime(value, "%d-%m-%Y").strftime(
                     "%Y-%m-%d"
@@ -816,7 +892,10 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 pass
             return value
 
-        return [dict((map.get(k, k), clean(v)) for k, v in d.items()) for d in data]
+        return [
+            dict((map.get(k, k), clean(v, map.get(k, k))) for k, v in d.items())
+            for d in data
+        ]
 
     def get_success_url(self, **kwargs):
         return reverse(kwargs.get("url_name"))
@@ -825,54 +904,97 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
     def get_serializer(self):
         return LegacyCaseCreateSerializer
 
-    def _add_citizen_report(self, data):
+    def _add_bwv_meldingen(self, data):
         for d in data:
-            d["citizen_report"] = {
-                "description_citizenreport": d.get("situatie_schets"),
-                "reporter_name": d.get("melder_naam"),
-                "reporter_phone": d.get("melder_telnr"),
-                "reporter_email": d.get("melder_emailadres"),
-                "identification": 1,
-            }
+            additionals_list_items = d.get("meldingen", {}).get("meldingen", {})
+            d["meldingen"] = []
+            if additionals_list_items:
+                additionals_list = [v for k, v in additionals_list_items.items()]
+                additionals_serializer = BWVMeldingenSerializer(
+                    data=additionals_list, many=True
+                )
+                if additionals_serializer.is_valid():
+                    sorted_data = sorted(
+                        additionals_serializer.data,
+                        key=lambda d: d.get("WS_DATE_CREATED"),
+                    )
+
+                    validated_data = []
+                    for status_variables in sorted_data:
+                        mapped_form_data = OrderedDict(
+                            (
+                                f"{list(status_variables.keys()).index(k):02}{k}",
+                                {
+                                    "label": self.translate_key_to_label(k),
+                                    "value": v,
+                                },
+                            )
+                            for k, v in status_variables.items()
+                        )
+                        status_data = OrderedDict(
+                            {
+                                "description": f"BWV Melding: {status_variables.get('HOTLINE_MELDING_ID')}",
+                                "variables": OrderedDict(
+                                    {
+                                        "mapped_form_data": mapped_form_data,
+                                        "bwv_id": status_variables.get(
+                                            "HOTLINE_MELDING_ID"
+                                        ),
+                                    }
+                                ),
+                                "date_added": status_variables.get("HM_DATE_CREATED"),
+                            }
+                        )
+
+                        validated_data.append(status_data)
+
+                    d["meldingen"] = validated_data
+                else:
+                    print(additionals_serializer.errors)
+
         return data
 
     def _add_bwv_status(self, data):
         for d in data:
-            bwv_status_items = d.get("historie", {})
+            bwv_status_items = d.get("geschiedenis", {}).get("history", {})
+            d["geschiedenis"] = []
             if bwv_status_items:
-                generic_completed_task_list = sorted(
-                    [v for k, v in bwv_status_items.items()],
-                    key=lambda d: d.get("begindatum"),
-                )
+
+                generic_completed_task_list = [v for k, v in bwv_status_items.items()]
 
                 status_serializer = BWVStatusSerializer(
                     data=generic_completed_task_list, many=True
                 )
 
                 if status_serializer.is_valid():
+                    sorted_data = sorted(
+                        status_serializer.data, key=lambda d: d.get("WS_DATE_CREATED")
+                    )
+
                     validated_status_data = []
-                    for status_variables in status_serializer.data:
-                        mapped_form_data = dict(
+                    for status_variables in sorted_data:
+                        mapped_form_data = OrderedDict(
                             (
                                 k,
                                 {
-                                    "label": k,
+                                    "label": self.translate_key_to_label(k),
                                     "value": v,
                                 },
                             )
                             for k, v in status_variables.items()
                         )
                         status_data = {
-                            "description": f"BWV Status: {status_variables.get('code')}",
-                            "variables": {"mapped_form_data": mapped_form_data},
-                            "date_added": status_variables.get("begindatum"),
+                            "description": f"BWV Status: {status_variables.get('WS_STA_CD_OMSCHRIJVING')}",
+                            "variables": {
+                                "mapped_form_data": mapped_form_data,
+                                "bwv_id": status_variables.get("STADIUM_ID"),
+                            },
+                            "date_added": status_variables.get("WS_DATE_CREATED"),
                         }
 
                         validated_status_data.append(status_data)
-                    print("validated_status_data")
-                    print(validated_status_data)
-                    print(len(validated_status_data))
-                    d["historie"] = validated_status_data
+
+                    d["geschiedenis"] = validated_status_data
                 else:
                     print(status_serializer.errors)
 
@@ -880,13 +1002,11 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
 
     def add_parsed_data(self, data, *args, **kwargs):
         data, visit_errors = self._add_visits(data, *args, **kwargs)
-        data = self.add_reason(data, *args, **kwargs)
-        data = self.add_theme(data, *args, **kwargs)
-        data = self.add_project(data, *args, **kwargs)
+        data, missing_themes = self.add_theme(data, *args, **kwargs)
         data = self.add_status_name(data, *args, **kwargs)
-        data = self._add_citizen_report(data)
+        data = self._add_bwv_meldingen(data)
         data = self._add_bwv_status(data)
-        return data, visit_errors
+        return data, visit_errors, missing_themes
 
     def test_func(self):
         return self.request.user.is_superuser
@@ -957,8 +1077,9 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
 
             data = self._parse_case_data_to_case_serializer(original_data)
             data, address_mismatches = self._add_address(data)
-
-            data, visit_errors = self.add_parsed_data(data, *args, **kwargs)
+            data, visit_errors, missing_themes = self.add_parsed_data(
+                data, *args, **kwargs
+            )
 
             create_update_errors, create_update_results = self._create_or_update(
                 data,
@@ -979,6 +1100,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 "create_update_errors": create_update_errors,
                 "create_update_results": create_update_results,
                 "visit_errors": visit_errors,
+                "missing_themes": missing_themes,
             }
         )
         return self.render_to_response(context)

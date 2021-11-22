@@ -2,7 +2,7 @@ import json
 import logging
 from json.decoder import JSONDecodeError
 
-from apps.cases.models import CaseProject, CaseReason, CaseTheme
+from apps.cases.models import CaseTheme
 from apps.users.models import User
 from django import forms
 
@@ -17,7 +17,9 @@ class ImportBWVCaseDataForm(forms.Form):
         widget=forms.Textarea(
             attrs={
                 "placeholder": 'format: {"123bwv_id": {"postcode": "1234ab", "field": "value", ...}} --',
-                "style": "width: 100%",
+                # "style": "width: 100%",
+                # ""
+                "class": "vLargeTextField",
             }
         ),
         required=True,
@@ -42,18 +44,6 @@ class ImportBWVCaseDataForm(forms.Form):
         to_field_name="pk",
         required=True,
     )
-    reason = forms.ModelChoiceField(
-        queryset=CaseReason.objects.all(),
-        label="Kies een aanleiding",
-        to_field_name="pk",
-        required=True,
-    )
-    project = forms.ModelChoiceField(
-        queryset=CaseProject.objects.all(),
-        label="Kies een project",
-        to_field_name="pk",
-        required=False,
-    )
 
     def clean_json_data(self):
         data = self.cleaned_data["json_data"]
@@ -65,8 +55,10 @@ class ImportBWVCaseDataForm(forms.Form):
             data = data.replace('"melder_emailadres": NaN', '"melder_emailadres": ""')
             data = data.replace('"melder_telnr": NaN', '"melder_telnr": ""')
             data = data.replace("NaN", '""')
+            data = data.replace("nan", "")
 
             data = json.loads(data)
+
             data = [
                 {
                     "legacy_bwv_case_id": k,

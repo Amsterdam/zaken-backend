@@ -32,13 +32,10 @@ def get_bag_search_query(address):
     """
     Constructs a BAG search query using the address data
     """
-    sttnaam = address.get("postcode")
-    hsnr = address.get("huisnummer")
-
     hsltr = address.get("huisletter", "") or ""
     toev = address.get("toev", "") or ""
 
-    query = "{} {} {}{}".format(sttnaam, hsnr, hsltr, toev)
+    query = f"{address.get('postcode')} {address.get('huisnummer')} {hsltr}{toev}"
 
     return query.strip()
 
@@ -71,7 +68,6 @@ def do_bag_search_address_exact(address):
         and r.get("bag_huisletter") == address.get("huisletter")
         and r.get("bag_toevoeging") == address.get("toev")
     ]
-    # result["results"] = [result["results"][0]] if result["results"] else []
     result["count_hits"] = len(result["results"])
     result["count"] = len(result["results"])
     return result
