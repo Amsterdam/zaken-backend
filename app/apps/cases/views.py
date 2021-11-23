@@ -2,18 +2,22 @@ import datetime
 import logging
 import mimetypes
 import os
+from collections import OrderedDict
 
 import requests
 from apps.addresses.utils import search
 from apps.cases.models import (
     Case,
     CaseClose,
+    CaseProject,
     CaseReason,
     CaseState,
     CaseTheme,
     CitizenReport,
 )
 from apps.cases.serializers import (
+    BWVMeldingenSerializer,
+    BWVStatusSerializer,
     CaseCloseReasonSerializer,
     CaseCloseResultSerializer,
     CaseCloseSerializer,
@@ -56,8 +60,11 @@ from apps.users.permissions import (
 )
 from apps.visits.models import Visit
 from apps.visits.serializers import VisitSerializer
-from apps.workflow.models import CaseWorkflow, WorkflowOption
-from apps.workflow.serializers import WorkflowOptionSerializer
+from apps.workflow.models import CaseWorkflow, GenericCompletedTask, WorkflowOption
+from apps.workflow.serializers import (
+    GenericCompletedTaskSerializer,
+    WorkflowOptionSerializer,
+)
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import user_passes_test
@@ -582,23 +589,41 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
     form_class = ImportBWVCaseDataForm
     template_name = "import/body.html"
 
-    def _map_bag_result_to_address(self, address):
-        map = {
-            "adresseerbaar_object_id": "bag_id",
-        }
-        return dict((map.get(k, k), v) for k, v in address.items())
+    reason_translate = {
+        "melding": "Melding",
+        "project": "Project",
+        "digitaal_toezicht": "Digitaal Toezicht",
+    }
+    label_translate = {
+        "HM_DATE_CREATED": "Datum aangemaakt",
+        "WS_DATE_CREATED": "Datum aangemaakt",
+        "WS_DATE_MODIFIED": "Datum aangepast",
+        "HM_DATE_MODIFIED": "Datum aangepast",
+        "HM_USER_CREATED": "Aangemaakt door",
+        "WS_USER_CREATED": "Aangemaakt door",
+        "HM_USER_MODIFIED": "Aangepast door",
+        "WS_USER_MODIFIED": "Aangepast door",
+        "HM_SITUATIE_SCHETS": "Situatieschets",
+        "WS_STA_CD_OMSCHRIJVING": "Stadium naam",
+        "HM_MELDER_TELNR": "Melder telefoonnummer",
+    }
+
+    def translate_key_to_label(self, key):
+        label = self.label_translate.get(key)
+        if label:
+            return label
+        else:
+            label = key
+        if label.find("_", 0, 3) >= 0:
+            label = label.split("_", 1)[1]
+        return label.lower().replace("_", " ").capitalize()
 
     def _add_address(self, data):
         address_mismatches = []
         results = []
         for d in data:
             bag_result = do_bag_search_address_exact(d).get("results", [])
-            bag_result = [
-                r
-                for r in bag_result
-                if not d.get("OBJ_NR_VRA")
-                or r["adresseerbaar_object_id"] == "0%s" % d.get("OBJ_NR_VRA")
-            ]
+            bag_result = [r for r in bag_result]
 
             d_clone = dict(d)
             if bag_result:
@@ -610,12 +635,6 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 address_mismatches.append({"data": d_clone, "address": bag_result})
 
         return results, address_mismatches
-
-    def _add_theme(self, data, *args, **kwargs):
-        theme = get_object_or_404(CaseTheme, name=kwargs.get("theme_name"))
-        for d in data:
-            d["theme"] = theme.id
-        return data
 
     def _get_headers(self, auth_header=None):
         token = settings.SECRET_KEY_AZA_TOP
@@ -660,21 +679,68 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     )
         return data, errors
 
-    def add_reason(self, data, *args, **kwargs):
-        raise NotImplementedError("Case needs a reason")
+    def add_theme(self, data, *args, **kwargs):
+        theme = CaseTheme.objects.get(id=kwargs.get("theme"))
+        used_theme_instances = {
+            "reasons": [],
+            "projects": [],
+        }
+        missing_themes = []
+        for d in data:
+            reason = CaseReason.objects.filter(
+                name=self.reason_translate.get(d.get("reason")),
+                theme=theme,
+            ).first()
+            project = CaseProject.objects.filter(
+                name=d["project"],
+                theme=theme,
+            ).first()
+            if reason and project:
+                d["reason"] = reason.id
+                d["project"] = project.id
+                d["theme"] = theme.id
+                used_theme_instances["reasons"].append(reason)
+                used_theme_instances["projects"].append(project)
+            else:
+                d["theme"] = "not_found"
+                missing_themes.append(
+                    {
+                        "legacy_bwv_case_id": d["legacy_bwv_case_id"],
+                        "reason": reason,
+                        "reason_found": d["reason"],
+                        "project": project,
+                        "project_found": d["project"],
+                    }
+                )
+        data = [d for d in data if d.get("theme") != "not_found"]
+        return data, missing_themes, used_theme_instances
+
+    def add_status_name(self, data, *args, **kwargs):
+        status_name = kwargs.get("status_name")
+        if status_name:
+            for d in data:
+                d["status_name"] = status_name
+        return data
 
     def _get_object(self, case_id):
         return Case.objects.filter(
             legacy_bwv_case_id=case_id, is_legacy_bwv=True
         ).first()
 
-    def _create_or_update(self, data, request, commit, user=None):
+    def _create_or_update(
+        self, data, request, commit, user=None, reasons=[], projects=[]
+    ):
+        melding = CaseReason.objects.get(name=settings.DEFAULT_REASON)
         errors = []
         results = []
         context = {"request": request}
         for d in data:
             d_clone = dict(d)
             instance = self._get_object(d.get("legacy_bwv_case_id"))
+
+            if d["reason"] == melding.id:
+                del d["project"]
+
             if instance:
                 serializer = self.get_serializer(instance, data=d, context=context)
             else:
@@ -688,6 +754,12 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     }
                 )
                 if commit:
+                    if d["reason"] in reasons:
+                        if d["reason"] != melding.id and d["project"] not in projects:
+                            continue
+                    else:
+                        continue
+
                     case = serializer.save()
                     if user:
                         case.author = user
@@ -697,6 +769,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     # create visits, no update
                     for visit in d.get("visits", []):
                         visit["case"] = case.id
+                        visit["task"] = "-1"
                         visit_instances = Visit.objects.filter(
                             case=case,
                             start_time=visit.get("start_time"),
@@ -718,6 +791,9 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                         visit_serializer = VisitSerializer(data=visit)
                         if visit_serializer.is_valid() and not visit_instances:
                             visit_serializer.save()
+                        else:
+                            logger.info(f"Visit serializer errors, case '{case.id}'")
+                            logger.info(visit_serializer.errors)
 
                 results.append(d_clone)
             else:
@@ -729,18 +805,85 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 )
         return errors, results
 
-    def create_additional_types(self, result_data, *args, **kwargs):
+    def create_additional_types(self, result_data, user=None, *args, **kwargs):
         errors = []
+        for d in result_data:
+            events = d["meldingen"] + d["geschiedenis"]
+            case = d["case"]
+            events = [
+                dict(
+                    e,
+                    date_added=datetime.datetime.strptime(e["date_added"], "%d-%m-%Y"),
+                    case_user_task_id="-1",
+                    author=user.id,
+                    case=d["case"],
+                )
+                for e in events
+            ]
+
+            events_sorted = sorted(events, key=lambda d: d.get("date_added"))
+
+            without_existing_events = [
+                e
+                for e in events_sorted
+                if not GenericCompletedTask.objects.filter(
+                    case__id=d.get("case"),
+                    description=e.get("description"),
+                )
+            ]
+            events_serializer = GenericCompletedTaskSerializer(
+                data=without_existing_events,
+                context={"request": self.request},
+                many=True,
+            )
+            if events_serializer.is_valid():
+                events_instances = events_serializer.save()
+                for e in events_instances:
+                    e.author = user
+                    try:
+                        date_added = dict(
+                            (
+                                ee.get("variables", {}).get("bwv_id"),
+                                ee.get("date_added"),
+                            )
+                            for ee in events
+                        ).get(e.variables.get("bwv_id"))
+                        e.date_added = date_added
+                    except Exception:
+                        pass
+                    e.save()
+            else:
+                logger.info(f"GenericCompletedTaskSerializer errors: case '{case}'")
+                logger.info(events_serializer.errors)
         return errors, result_data
 
     def _parse_case_data_to_case_serializer(self, data):
         map = {
-            "date_created_zaak": "start_date",
-            "mededelingen": "description",
+            "WV_DATE_CREATED": "start_date",
+            "WV_MEDEDELINGEN": "description",
+            "ADS_PSCD": "postcode",
+            "ADS_HSNR": "huisnummer",
+            "ADS_HSLT": "huisletter",
+            "ADS_HSTV": "toev",
+            "CASE_REASON": "reason",
+            "WV_BEH_CD_OMSCHRIJVING": "project",
         }
 
-        def clean(value):
+        def to_int(v):
+
+            try:
+                v = int(v.strip().split(".")[0])
+            except Exception:
+                pass
+            return v
+
+        transform = {
+            "huisnummer": to_int,
+        }
+
+        def clean(value, key):
             value = value.strip() if isinstance(value, str) else value
+            value = value if not transform.get(key) else transform.get(key)(value)
             try:
                 value = datetime.datetime.strptime(value, "%d-%m-%Y").strftime(
                     "%Y-%m-%d"
@@ -749,27 +892,127 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 pass
             return value
 
-        return [dict((map.get(k, k), clean(v)) for k, v in d.items()) for d in data]
+        return [
+            dict((map.get(k, k), clean(v, map.get(k, k))) for k, v in d.items())
+            for d in data
+        ]
 
     def get_success_url(self, **kwargs):
         return reverse(kwargs.get("url_name"))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(
-            {"theme": get_object_or_404(CaseTheme, name=kwargs.get("theme_name"))}
-        )
-        return context
 
     @property
     def get_serializer(self):
         return LegacyCaseCreateSerializer
 
+    def _add_bwv_meldingen(self, data):
+        for d in data:
+            additionals_list_items = d.get("meldingen", {}).get("meldingen", {})
+            d["meldingen"] = []
+            case = d.get("legacy_bwv_case_id")
+            if additionals_list_items:
+                additionals_list = [v for k, v in additionals_list_items.items()]
+                additionals_serializer = BWVMeldingenSerializer(
+                    data=additionals_list, many=True
+                )
+                if additionals_serializer.is_valid():
+                    sorted_data = sorted(
+                        additionals_serializer.data,
+                        key=lambda d: d.get("WS_DATE_CREATED"),
+                    )
+
+                    validated_data = []
+                    for status_variables in sorted_data:
+                        mapped_form_data = OrderedDict(
+                            (
+                                f"{list(status_variables.keys()).index(k):02}{k}",
+                                {
+                                    "label": self.translate_key_to_label(k),
+                                    "value": v,
+                                },
+                            )
+                            for k, v in status_variables.items()
+                        )
+                        status_data = OrderedDict(
+                            {
+                                "description": f"BWV Melding: {status_variables.get('HOTLINE_MELDING_ID')}",
+                                "variables": OrderedDict(
+                                    {
+                                        "mapped_form_data": mapped_form_data,
+                                        "bwv_id": status_variables.get(
+                                            "HOTLINE_MELDING_ID"
+                                        ),
+                                    }
+                                ),
+                                "date_added": status_variables.get("HM_DATE_CREATED"),
+                            }
+                        )
+
+                        validated_data.append(status_data)
+
+                    d["meldingen"] = validated_data
+                else:
+                    logger.info(f"BWVMeldingenSerializer errors: case '{case}'")
+                    logger.info(additionals_serializer.errors)
+
+        return data
+
+    def _add_bwv_status(self, data):
+        for d in data:
+            case = d.get("legacy_bwv_case_id")
+            bwv_status_items = d.get("geschiedenis", {}).get("history", {})
+            d["geschiedenis"] = []
+            if bwv_status_items:
+
+                generic_completed_task_list = [v for k, v in bwv_status_items.items()]
+
+                status_serializer = BWVStatusSerializer(
+                    data=generic_completed_task_list, many=True
+                )
+
+                if status_serializer.is_valid():
+                    sorted_data = sorted(
+                        status_serializer.data, key=lambda d: d.get("WS_DATE_CREATED")
+                    )
+
+                    validated_status_data = []
+                    for status_variables in sorted_data:
+                        mapped_form_data = OrderedDict(
+                            (
+                                f"{list(status_variables.keys()).index(k):02}{k}",
+                                {
+                                    "label": self.translate_key_to_label(k),
+                                    "value": v,
+                                },
+                            )
+                            for k, v in status_variables.items()
+                        )
+                        status_data = {
+                            "description": f"BWV Status: {status_variables.get('WS_STA_CD_OMSCHRIJVING')}",
+                            "variables": {
+                                "mapped_form_data": mapped_form_data,
+                                "bwv_id": status_variables.get("STADIUM_ID"),
+                            },
+                            "date_added": status_variables.get("WS_DATE_CREATED"),
+                        }
+
+                        validated_status_data.append(status_data)
+
+                    d["geschiedenis"] = validated_status_data
+                else:
+                    logger.info(f"BWVStatusSerializer errors: case '{case}'")
+                    logger.info(status_serializer.errors)
+
+        return data
+
     def add_parsed_data(self, data, *args, **kwargs):
-        data = self._add_theme(data, *args, **kwargs)
         data, visit_errors = self._add_visits(data, *args, **kwargs)
-        data = self.add_reason(data, *args, **kwargs)
-        return data, visit_errors
+        data, missing_themes, used_theme_instances = self.add_theme(
+            data, *args, **kwargs
+        )
+        data = self.add_status_name(data, *args, **kwargs)
+        data = self._add_bwv_meldingen(data)
+        data = self._add_bwv_status(data)
+        return data, visit_errors, missing_themes, used_theme_instances
 
     def test_func(self):
         return self.request.user.is_superuser
@@ -779,7 +1022,12 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         create_update_results = []
         if request.GET.get("commit"):
             data = self.request.session.get("validated_cases_data")
-            user = self.request.session.get("validated_cases_data_user")
+            form_data = self.request.session.get("validated_cases_data_form_data")
+            reasons = [int(id) for id in request.GET.getlist("reason", [])]
+            projects = [int(id) for id in request.GET.getlist("project", [])]
+            kwargs.update(form_data)
+
+            user = kwargs.get("user")
             if user:
                 user = User.objects.get(id=user)
             if data:
@@ -788,6 +1036,8 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     request,
                     True,
                     user,
+                    reasons,
+                    projects,
                 )
                 (
                     create_additionals_errors,
@@ -797,9 +1047,9 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     user,
                 )
                 del self.request.session["validated_cases_data"]
-                del self.request.session["validated_cases_data_user"]
+                del self.request.session["validated_cases_data_form_data"]
             else:
-                return redirect(reverse(context.get("url_name")))
+                return redirect(reverse("import-bwv-cases"))
             context.update(
                 {
                     "commited": True,
@@ -816,27 +1066,53 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
             original_data
         ) = (
             address_mismatches
-        ) = create_update_errors = create_update_results = visit_errors = []
+        ) = (
+            create_update_errors
+        ) = create_update_results = visit_errors = missing_themes = []
+        used_theme_instances = {}
         form_valid = False
 
         if form.is_valid():
             original_data = form.cleaned_data["json_data"]
-            user = form.cleaned_data["user"]
+            form_data = dict(
+                (k, str(v.id) if hasattr(v, "id") else v)
+                for k, v in form.cleaned_data.items()
+                if k
+                in [
+                    "user",
+                    "project",
+                    "reason",
+                    "theme",
+                    "status_name",
+                ]
+            )
+            kwargs.update(form_data)
 
             data = self._parse_case_data_to_case_serializer(original_data)
             data, address_mismatches = self._add_address(data)
-
-            data, visit_errors = self.add_parsed_data(data, *args, **kwargs)
+            (
+                data,
+                visit_errors,
+                missing_themes,
+                used_theme_instances,
+            ) = self.add_parsed_data(data, *args, **kwargs)
+            used_theme_instances["reasons"] = list(set(used_theme_instances["reasons"]))
+            used_theme_instances["projects"] = list(
+                set(used_theme_instances["projects"])
+            )
 
             create_update_errors, create_update_results = self._create_or_update(
                 data,
                 request,
                 False,
-                user,
+                kwargs.get("user"),
             )
             form_valid = True
             self.request.session["validated_cases_data"] = create_update_results
-            self.request.session["validated_cases_data_user"] = str(user.id)
+            self.request.session["validated_cases_data_form_data"] = form_data
+        else:
+            logger.info("bwv import errors")
+            logger.info(form.errors)
 
         context.update(
             {
@@ -847,51 +1123,11 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 "create_update_errors": create_update_errors,
                 "create_update_results": create_update_results,
                 "visit_errors": visit_errors,
+                "missing_themes": missing_themes,
+                "used_theme_instances": used_theme_instances,
             }
         )
         return self.render_to_response(context)
-
-
-class CaseThemeCitizenReportViewSet(ImportBWVCaseDataView):
-    def add_reason(self, data, *args, **kwargs):
-        reason, _ = CaseReason.objects.get_or_create(name=settings.DEFAULT_REASON)
-        for d in data:
-            d["reason"] = reason.id
-        return data
-
-    def _add_citizen_report(self, data):
-        for d in data:
-            d["citizen_report"] = {
-                "description_citizenreport": d.get("situatie_schets"),
-                "reporter_name": d.get("melder_naam"),
-                "reporter_phone": d.get("melder_telnr"),
-                "reporter_email": d.get("melder_emailadres"),
-                "identification": 1,
-            }
-        return data
-
-    def create_additional_types(self, result_data, user=None, *args, **kwargs):
-        errors = []
-        for d in result_data:
-            citizen_report = d.get("citizen_report", {})
-            citizen_report["case"] = d["case"]
-            instances = CitizenReport.objects.filter(
-                case__id=d.get("case"), **citizen_report
-            )
-            serializer = CitizenReportSerializer(
-                data=citizen_report, context={"request": self.request}
-            )
-            if serializer.is_valid() and not instances:
-                citizen_report_instance = serializer.save()
-                if user:
-                    citizen_report_instance.author = user
-                    citizen_report_instance.save()
-        return errors, result_data
-
-    def add_parsed_data(self, data, *args, **kwargs):
-        data, visit_errors = super().add_parsed_data(data, *args, **kwargs)
-        data = self._add_citizen_report(data)
-        return data, visit_errors
 
 
 class CaseCloseViewSet(

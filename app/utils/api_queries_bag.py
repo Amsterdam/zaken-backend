@@ -32,13 +32,10 @@ def get_bag_search_query(address):
     """
     Constructs a BAG search query using the address data
     """
-    sttnaam = address.get("postcode")
-    hsnr = address.get("huisnummer")
-
     hsltr = address.get("huisletter", "") or ""
     toev = address.get("toev", "") or ""
 
-    query = "{} {} {}{}".format(sttnaam, hsnr, hsltr, toev)
+    query = f"{address.get('postcode')} {address.get('huisnummer')} {hsltr}{toev}"
 
     return query.strip()
 
@@ -50,7 +47,9 @@ def do_bag_search_address(address):
     """
     query = get_bag_search_query(address)
     address_search = requests.get(
-        settings.BAG_API_SEARCH_URL, params={"q": query}, timeout=1
+        settings.BAG_API_SEARCH_URL,
+        params={"q": query},
+        timeout=30,
     )
     return address_search.json()
 
@@ -64,12 +63,11 @@ def do_bag_search_address_exact(address):
     result["results"] = [
         r
         for r in result["results"]
-        if r.get("huisnummer") == address.get("huisnummer")
-        and r.get("postcode") == address.get("postcode")
-        and r.get("bag_huisletter") == address.get("huisletter")
-        and r.get("bag_toevoeging") == address.get("toev")
+        if r.get("huisnummer") == address.get("huisnummer", "")
+        and r.get("postcode") == address.get("postcode", "")
+        and r.get("bag_huisletter") == (address.get("huisletter", "") or "")
+        and r.get("bag_toevoeging") == (address.get("toev", "") or "")
     ]
-    # result["results"] = [result["results"][0]] if result["results"] else []
     result["count_hits"] = len(result["results"])
     result["count"] = len(result["results"])
     return result

@@ -173,9 +173,9 @@ class CaseWorkflow(models.Model):
             self.case.theme.name, self.workflow_type
         )
 
-        initial_data.update(self.data)
         if isinstance(data, dict):
             initial_data.update(data)
+        initial_data.update(self.data)
 
         wf = self._initial_data(wf, initial_data)
 
@@ -579,9 +579,10 @@ class GenericCompletedTask(TaskModelEventEmitter):
     variables = models.JSONField(null=True)
 
     def __get_event_values__(self):
+        variables = self.variables.get("mapped_form_data", {}) or self.variables
         return {
             "author": self.author.__str__(),
             "date_added": self.date_added,
             "description": self.description,
-            "variables": self.variables.get("mapped_form_data"),
+            "variables": variables,
         }
