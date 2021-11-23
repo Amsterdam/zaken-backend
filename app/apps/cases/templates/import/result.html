@@ -31,6 +31,14 @@
         {% endfor %}
         </ul>
     {% endif %}
+    {% if missing_themes %}
+        <strong>{{ missing_themes|length }} zaken hebben geen correcte theme data voor deze omgeving</strong>
+        <ul style="overflow-y: scroll; max-height: 300px; margin-top: 10px; margin-bottom: 40px;">
+        {% for case in missing_themes %}
+            <li>{{ case.legacy_bwv_case_id }}: project: {{ case.project_found }}/{{ case.project }}: reason: {{ case.reason_found }}/{{ case.reason }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
 {% elif commited %}
     <h2>Resultaat</h2>
     <strong>{{ create_update_results|length }} zaken zijn aangemaakt of aangepast.</strong>

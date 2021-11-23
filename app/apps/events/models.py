@@ -47,11 +47,19 @@ class CaseEvent(models.Model):
 
     @property
     def event_variables(self):
+        from collections import OrderedDict
+
         """
         Returns a dictionary with event values retrieved from Emitter object
         """
         event_values = self.emitter.__get_event_values__()
-        return event_values.get("variables", {})
+        variables = event_values.get("variables", {})
+        variables_list = OrderedDict(
+            sorted(
+                [(k, v) for k, v in variables.items()], key=lambda d: d[0], reverse=True
+            )
+        )
+        return variables_list
 
     def __str__(self):
         return f"{self.case.id} Case - Event {self.id} - {self.date_created}"

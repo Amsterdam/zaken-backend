@@ -80,6 +80,7 @@ class CaseAdmin(admin.ModelAdmin):
         "author",
     )
     list_filter = ("theme",)
+    search_fields = ("id", "legacy_bwv_case_id")
     actions = [
         create_main_worflow_for_case,
         camunda_case_try_to_complete_task_create_schedule,

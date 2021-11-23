@@ -13,8 +13,11 @@ logger = logging.getLogger(__name__)
 def start_workflow_for_case(sender, instance, created, **kwargs):
     from apps.workflow.tasks import task_create_main_worflow_for_case
 
+    data = {}
+    if hasattr(instance, "status_name"):
+        data.update({"status_name": getattr(instance, "status_name")})
     if created:
-        task_create_main_worflow_for_case.delay(case_id=instance.id)
+        task_create_main_worflow_for_case.delay(case_id=instance.id, data=data)
 
 
 @receiver(post_save, sender=CitizenReport, dispatch_uid="complete_citizen_report_task")

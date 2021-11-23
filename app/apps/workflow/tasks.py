@@ -94,7 +94,7 @@ def task_start_subworkflow(self, subworkflow_name, parent_workflow_id):
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
-def task_create_main_worflow_for_case(self, case_id):
+def task_create_main_worflow_for_case(self, case_id, data={}):
     from apps.workflow.models import CaseWorkflow
 
     case = Case.objects.get(id=case_id)
@@ -104,6 +104,7 @@ def task_create_main_worflow_for_case(self, case_id):
             workflow_type=settings.DEFAULT_WORKFLOW_TYPE,
             main_workflow=True,
             workflow_message_name="main_process",
+            data=data,
         )
 
     return f"task_start_main_worflow_for_case: workflow id '{workflow_instance.id}', for case with id '{case_id}', created"

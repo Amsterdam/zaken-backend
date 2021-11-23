@@ -29,7 +29,7 @@ class CaseReason(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.theme.name})"
 
     class Meta:
         ordering = ["name"]
@@ -43,7 +43,7 @@ class CaseProject(models.Model):
         ordering = ["theme", "name"]
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.theme.name})"
 
 
 class Case(ModelEventEmitter):

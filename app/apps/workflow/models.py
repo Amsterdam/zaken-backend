@@ -173,9 +173,9 @@ class CaseWorkflow(models.Model):
             self.case.theme.name, self.workflow_type
         )
 
-        initial_data.update(self.data)
         if isinstance(data, dict):
             initial_data.update(data)
+        initial_data.update(self.data)
 
         wf = self._initial_data(wf, initial_data)
 
