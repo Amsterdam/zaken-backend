@@ -99,7 +99,6 @@ class GenericCompletedTaskViewSet(viewsets.ViewSet):
     def complete_task(self, request):
         context = {"request": self.request}
 
-        print(request.data)
         serializer = GenericCompletedTaskSerializer(data=request.data, context=context)
 
         if serializer.is_valid():
@@ -126,7 +125,5 @@ class GenericCompletedTaskViewSet(viewsets.ViewSet):
                 )
             except Exception as e:
                 raise e
-        else:
-            print(serializer.errors)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)

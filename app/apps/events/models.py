@@ -53,7 +53,7 @@ class CaseEvent(models.Model):
         Returns a dictionary with event values retrieved from Emitter object
         """
         event_values = self.emitter.__get_event_values__()
-        variables = event_values.get("variables", {})
+        variables = event_values.get("variables", {}) or {}
         variables_list = OrderedDict(
             sorted(
                 [(k, v) for k, v in variables.items()], key=lambda d: d[0], reverse=True
