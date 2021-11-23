@@ -26,7 +26,9 @@ class GenericCompletedTaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GenericCompletedTask
-        fields = "__all__"
+        exclude = [
+            "description",
+        ]
 
 
 class WorkflowOptionSerializer(serializers.ModelSerializer):

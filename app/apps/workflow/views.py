@@ -98,6 +98,7 @@ class GenericCompletedTaskViewSet(viewsets.ViewSet):
     )
     def complete_task(self, request):
         context = {"request": self.request}
+
         serializer = GenericCompletedTaskSerializer(data=request.data, context=context)
 
         if serializer.is_valid():

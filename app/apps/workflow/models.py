@@ -579,9 +579,10 @@ class GenericCompletedTask(TaskModelEventEmitter):
     variables = models.JSONField(null=True)
 
     def __get_event_values__(self):
+        variables = self.variables.get("mapped_form_data", {}) or self.variables
         return {
             "author": self.author.__str__(),
             "date_added": self.date_added,
             "description": self.description,
-            "variables": self.variables.get("mapped_form_data"),
+            "variables": variables,
         }
