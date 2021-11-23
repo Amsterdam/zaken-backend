@@ -134,11 +134,7 @@ class CaseStateViewSet(viewsets.ViewSet):
 
 class CaseViewSet(
     CaseEventsMixin,
-    mixins.CreateModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet,
+    viewsets.ModelViewSet,
 ):
     permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseSerializer
