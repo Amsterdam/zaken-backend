@@ -23,7 +23,7 @@ python manage.py migrate --noinput --fake
 echo Axes check
 python manage.py check
 
-# python manage.py loaddata fixture
+python manage.py loaddata fixture
 
 # echo Create root user
 # python manage.py shell -c "from django.contrib.auth import get_user_model; get_user_model().objects.create_superuser('admin@admin.com', 'admin')"
