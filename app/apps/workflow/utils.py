@@ -109,7 +109,7 @@ def get_base_path():
 
 
 def get_latest_version_from_config(
-    theme_name, workflow_type, workflow_spec_config=None
+    theme_name, workflow_type, current_version=None, workflow_spec_config=None
 ):
     workflow_spec_config = (
         workflow_spec_config if workflow_spec_config else settings.WORKFLOW_SPEC_CONFIG
@@ -127,7 +127,13 @@ def get_latest_version_from_config(
             f"Workflow type '{workflow_type}', does not exist in this workflow_spec config"
         )
 
+    def get_major(v):
+        return int(v.split(".")[0])
+
     version = sorted([v for v, k in config.get("versions").items()])
+
+    if current_version:
+        version = [v for v in version if get_major(current_version) >= get_major(v)]
 
     if not version:
         raise Exception(
