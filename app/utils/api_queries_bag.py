@@ -63,10 +63,10 @@ def do_bag_search_address_exact(address):
     result["results"] = [
         r
         for r in result["results"]
-        if r.get("huisnummer") == address.get("huisnummer")
-        and r.get("postcode") == address.get("postcode")
-        and r.get("bag_huisletter") == address.get("huisletter")
-        and r.get("bag_toevoeging") == address.get("toev")
+        if r.get("huisnummer") == address.get("huisnummer", "")
+        and r.get("postcode") == address.get("postcode", "")
+        and r.get("bag_huisletter") == (address.get("huisletter", "") or "")
+        and r.get("bag_toevoeging") == (address.get("toev", "") or "")
     ]
     result["count_hits"] = len(result["results"])
     result["count"] = len(result["results"])

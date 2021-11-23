@@ -262,6 +262,9 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
 
 class LegacyCaseCreateSerializer(CaseCreateUpdateSerializer):
     status_name = serializers.CharField(required=False)
+    project = serializers.PrimaryKeyRelatedField(
+        many=False, required=False, queryset=CaseProject.objects.all()
+    )
 
     class Meta:
         model = Case
@@ -280,6 +283,10 @@ class LegacyCaseCreateSerializer(CaseCreateUpdateSerializer):
 
 
 class LegacyCaseUpdateSerializer(CaseCreateUpdateSerializer):
+    project = serializers.PrimaryKeyRelatedField(
+        many=False, required=False, queryset=CaseProject.objects.all()
+    )
+
     class Meta:
         model = Case
         fields = (
@@ -306,18 +313,30 @@ class StartWorkflowSerializer(serializers.Serializer):
 
 
 class BWVStatusSerializer(serializers.Serializer):
-    STADIUM_ID = serializers.CharField(allow_blank=True, required=False)
+    STADIUM_ID = serializers.CharField(
+        allow_null=True, allow_blank=True, required=False
+    )
     WS_STA_CD_OMSCHRIJVING = serializers.CharField()
-    WS_USER_MODIFIED = serializers.CharField(allow_blank=True, required=False)
-    WS_USER_CREATED = serializers.CharField(allow_blank=True, required=False)
+    WS_USER_MODIFIED = serializers.CharField(
+        allow_null=True, allow_blank=True, required=False
+    )
+    WS_USER_CREATED = serializers.CharField(
+        allow_null=True, allow_blank=True, required=False
+    )
+    WS_DATE_MODIFIED = serializers.DateTimeField(
+        format="%d-%m-%Y",
+        input_formats=["%Y-%m-%d"],
+        allow_null=True,
+        required=False,
+    )
     WS_DATE_CREATED = serializers.DateTimeField(
-        format="%d-%m-%Y", input_formats=["%Y-%m-%d %H:%M:%S"]
+        format="%d-%m-%Y", input_formats=["%Y-%m-%d"]
     )
     WS_EINDDATUM = serializers.DateTimeField(
-        format="%d-%m-%Y", input_formats=["%Y-%m-%d %H:%M:%S"]
+        format="%d-%m-%Y", input_formats=["%Y-%m-%d"]
     )
     WS_BEGINDATUM = serializers.DateTimeField(
-        format="%d-%m-%Y", input_formats=["%Y-%m-%d %H:%M:%S"]
+        format="%d-%m-%Y", input_formats=["%Y-%m-%d"]
     )
 
 
@@ -325,20 +344,42 @@ class BWVMeldingenSerializer(serializers.Serializer):
     ZAAK_ID = serializers.CharField()
     HOTLINE_MELDING_ID = serializers.CharField()
 
-    HM_USER_MODIFIED = serializers.CharField(allow_blank=True, required=False)
-    HM_USER_CREATED = serializers.CharField(allow_blank=True, required=False)
+    HM_USER_MODIFIED = serializers.CharField(
+        allow_null=True, allow_blank=True, required=False
+    )
+    HM_USER_CREATED = serializers.CharField(
+        allow_null=True, allow_blank=True, required=False
+    )
+    HM_DATE_MODIFIED = serializers.DateTimeField(
+        format="%d-%m-%Y",
+        input_formats=["%Y-%m-%d"],
+        allow_null=True,
+        required=False,
+    )
     HM_DATE_CREATED = serializers.DateTimeField(
-        format="%d-%m-%Y", input_formats=["%Y-%m-%d %H:%M:%S"]
+        format="%d-%m-%Y", input_formats=["%Y-%m-%d"]
     )
-    HM_OVERTREDING_CODE = serializers.CharField(allow_blank=True, required=False)
+    HM_OVERTREDING_CODE = serializers.CharField(
+        allow_null=True, allow_blank=True, required=False
+    )
     HM_MELDING_DATUM = serializers.DateTimeField(
-        format="%d-%m-%Y", input_formats=["%Y-%m-%d %H:%M:%S"]
+        format="%d-%m-%Y", input_formats=["%Y-%m-%d"]
     )
-    HM_MELDER_ANONIEM = serializers.CharField(allow_blank=True, required=False)
-    HM_MELDER_TELNR = serializers.CharField(allow_blank=True, required=False)
-    HM_MELDER_EMAILADRES = serializers.CharField(allow_blank=True, required=False)
-    HM_MELDER_NAAM = serializers.CharField(allow_blank=True, required=False)
-    HM_SITUATIE_SCHETS = serializers.CharField(allow_blank=True, required=False)
+    HM_MELDER_ANONIEM = serializers.CharField(
+        allow_null=True, allow_blank=True, required=False
+    )
+    HM_MELDER_TELNR = serializers.CharField(
+        allow_null=True, allow_blank=True, required=False
+    )
+    HM_MELDER_EMAILADRES = serializers.CharField(
+        allow_null=True, allow_blank=True, required=False
+    )
+    HM_MELDER_NAAM = serializers.CharField(
+        allow_null=True, allow_blank=True, required=False
+    )
+    HM_SITUATIE_SCHETS = serializers.CharField(
+        allow_null=True, allow_blank=True, required=False
+    )
 
 
 class BWVCaseImportValidSerializer(serializers.Serializer):
@@ -355,7 +396,7 @@ class BWVCaseImportValidSerializer(serializers.Serializer):
     WV_BEH_CD_OMSCHRIJVING = serializers.CharField(required=False)
 
     WV_DATE_CREATED = serializers.DateTimeField(
-        format="%d-%m-%Y", input_formats=["%Y-%m-%d %H:%M:%S"]
+        format="%d-%m-%Y", input_formats=["%Y-%m-%d"]
     )
     WV_MEDEDELINGEN = serializers.CharField(allow_null=True, allow_blank=True)
 

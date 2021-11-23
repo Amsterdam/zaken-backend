@@ -52,6 +52,34 @@
         {% if validation_form_valid %}
         {% include './result.html' %}
         <form method="get">
+            {% if used_theme_instances.reasons %}
+            <fieldset class="module aligned ">
+                <div class="checkbox-row">
+                    <div>
+                        <label class="required">Reasons</label>
+                        <ul>
+                        {% for option in used_theme_instances.reasons %}
+                            <li>
+                                <label>{{option.name}} <input type="checkbox" name="reason" value="{{option.id}}"></label>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="checkbox-row">
+                    <div>
+                        <label class="required">Projects</label>
+                        <ul>
+                        {% for option in used_theme_instances.projects %}
+                            <li>
+                                <label>{{option.name}} <input type="checkbox" name="project" value="{{option.id}}"></label>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </fieldset>
+            {% endif %}
             <div class="submit-row">
                 <input type="hidden" name="commit" value="true" />
                 <input type="submit" value="Importeer ({{ create_update_results|length }}/{{ original_data|length }})" class="default">
@@ -62,6 +90,7 @@
     {% else %}
         {% if create_update_results %}
         De import is geslaagd.
+        {% include './result.html' %}
         {% else %}
         Data ontbreekt
         {% endif %}

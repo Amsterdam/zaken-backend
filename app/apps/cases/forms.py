@@ -17,8 +17,6 @@ class ImportBWVCaseDataForm(forms.Form):
         widget=forms.Textarea(
             attrs={
                 "placeholder": 'format: {"123bwv_id": {"postcode": "1234ab", "field": "value", ...}} --',
-                # "style": "width: 100%",
-                # ""
                 "class": "vLargeTextField",
             }
         ),
@@ -48,14 +46,9 @@ class ImportBWVCaseDataForm(forms.Form):
     def clean_json_data(self):
         data = self.cleaned_data["json_data"]
         try:
-            data = data.replace("null", "None")
-            data = data.replace('"huisnummer": NaN', '"huisnummer": 0')
-            data = data.replace('"situatie_schets": NaN', '"situatie_schets": ""')
-            data = data.replace('"melder_naam": NaN', '"melder_naam": ""')
-            data = data.replace('"melder_emailadres": NaN', '"melder_emailadres": ""')
-            data = data.replace('"melder_telnr": NaN', '"melder_telnr": ""')
-            data = data.replace("NaN", '""')
-            data = data.replace("nan", "")
+            data = data.replace('"NaN"', "null")
+            data = data.replace('"nan"', "null")
+            data = data.replace('"NaT"', "null")
 
             data = json.loads(data)
 
