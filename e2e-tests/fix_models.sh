@@ -6,5 +6,5 @@ from django.contrib.auth.models import Permission
 group.permissions.add(Permission.objects.get(name='Close a Case (by performing the last task)'))
 group.permissions.add(Permission.objects.get(name='Create a new Case'))
 group.permissions.add(Permission.objects.get(name='Can perform a tasks'))
-user = User.objects.get(email='local.user@dev.com')
+user = User.objects.get(email='admin@admin.com')
 user.groups.add(group)"
