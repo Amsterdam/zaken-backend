@@ -75,15 +75,6 @@
     },
     {
         "model": "schedules.priority",
-        "pk": 5,
-        "fields": {
-            "name": "Normaal",
-            "theme": 2,
-            "weight": 0.0
-        }
-    },
-    {
-        "model": "schedules.priority",
         "pk": 6,
         "fields": {
             "name": "Hoog",
@@ -98,6 +89,15 @@
             "name": "Machtiging",
             "theme": 3,
             "weight": 1.0
+        }
+    },
+    {
+        "model": "schedules.priority",
+        "pk": 8,
+        "fields": {
+            "name": "Normaal",
+            "theme": 2,
+            "weight": 0.0
         }
     },
     {
