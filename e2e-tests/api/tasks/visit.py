@@ -4,39 +4,40 @@ import logging
 from api import events
 from api.config import Action, DaySegment, Priority, Situations, Violation, WeekSegment
 from api.tasks import AbstractUserTask, GenericUserTask
+from api.user_tasks import (
+    task_aanvragen_machtiging,
+    task_doorgeven_status_top,
+    task_inplannen_status,
+    task_monitoren_binnenkomen_machtiging,
+)
 
-logger = logging.getLogger("api")
+logger = logging.getLogger(__name__)
 
 
-class RequestAuthorization(GenericUserTask):
-    task_name = "task_request_authorization"
-    description = "Aanvragen machtiging"
-
+class test_aanvragen_machtiging(GenericUserTask, task_aanvragen_machtiging):
     @staticmethod
     def get_steps():
-        from api.tasks.debrief import Debrief
+        from api.tasks.debrief import test_verwerken_debrief
 
         return [
-            *Debrief.get_steps(violation=Violation.ADDITIONAL_VISIT_WITH_AUTHORIZATION),
+            *test_verwerken_debrief.get_steps(
+                violation=Violation.ADDITIONAL_VISIT_WITH_AUTHORIZATION
+            ),
             __class__(),
         ]
 
 
-class MonitorIncomingAuthorization(GenericUserTask):
-    task_name = "task_monitor_incoming_authorization"
-    description = "Monitoren binnenkomen machtiging"
-
+class test_monitoren_binnenkomen_machtiging(
+    GenericUserTask, task_monitoren_binnenkomen_machtiging
+):
     @staticmethod
     def get_steps():
-        return [*RequestAuthorization.get_steps(), __class__()]
+        return [*test_aanvragen_machtiging.get_steps(), __class__()]
 
 
-class ScheduleVisit(AbstractUserTask):
-    asynchronous = True
+class test_inplannen_status(AbstractUserTask, task_inplannen_status):
     event = events.ScheduleEvent
     endpoint = "schedules"
-    task_name = "task_create_schedule"
-    description = "Inplannen $status_name"
 
     def __init__(
         self,
@@ -45,7 +46,7 @@ class ScheduleVisit(AbstractUserTask):
         day_segment=DaySegment.DAYTIME,
         priority=Priority.HIGH,
     ):
-        super(ScheduleVisit, self).__init__(
+        super(test_inplannen_status, self).__init__(
             action=action,
             week_segment=week_segment,
             day_segment=day_segment,
@@ -54,10 +55,8 @@ class ScheduleVisit(AbstractUserTask):
 
     @staticmethod
     def get_steps():
-        return [
-            # No preceiding step, case was just created
-            __class__()
-        ]
+        # No preceiding step, case was just created
+        return [__class__()]
 
     def get_post_data(self, case, task):
         return super().get_post_data(case, task) | {
@@ -65,11 +64,9 @@ class ScheduleVisit(AbstractUserTask):
         }
 
 
-class Visit(AbstractUserTask):
-    event = events.VisitEvent
+class test_doorgeven_status_top(AbstractUserTask, task_doorgeven_status_top):
     endpoint = "visits"
-    task_name = "task_create_visit"
-    description = "Doorgeven $status_name TOP"
+    event = events.VisitEvent
 
     def __init__(
         self,
@@ -78,7 +75,7 @@ class Visit(AbstractUserTask):
         situation=Situations.ACCESS_GRANTED,
         can_next_visit_go_ahead=False,
     ):
-        super(Visit, self).__init__(
+        super(test_doorgeven_status_top, self).__init__(
             authors=authors,
             start_time=start_time if start_time else str(datetime.datetime.now()),
             situation=situation,
@@ -91,7 +88,7 @@ class Visit(AbstractUserTask):
         can_next_visit_go_ahead=False,
     ):
         return [
-            *ScheduleVisit.get_steps(),
+            *test_inplannen_status.get_steps(),
             __class__(
                 situation=situation, can_next_visit_go_ahead=can_next_visit_go_ahead
             ),

@@ -1,5 +1,4 @@
 import copy
-import datetime
 import logging
 from string import Template
 
@@ -468,20 +467,6 @@ class CaseWorkflow(models.Model):
 
     class Meta:
         ordering = ["-id"]
-
-
-USER_TASKS = {
-    "task_prepare_abbreviated_visit_rapport": {
-        "due_date": datetime.timedelta(days=2),
-    },
-    "task_create_picture_rapport": {
-        "due_date": datetime.timedelta(days=2),
-    },
-    "task_create_report_of_findings": {
-        "due_date": datetime.timedelta(days=2),
-    },
-}
-DEFAULT_USER_TASK_DUE_DATE = datetime.timedelta(days=6)
 
 
 class CaseUserTask(models.Model):

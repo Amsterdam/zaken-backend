@@ -2,7 +2,7 @@ import logging
 
 from api.case import Case
 
-logger = logging.getLogger("api")
+logger = logging.getLogger(__name__)
 
 
 class Validator:
@@ -16,7 +16,8 @@ class ValidateOpenTasks(Validator):
     def __init__(self, *tasks):
         self.tasks = list(
             filter(
-                lambda task: task is not None, map(lambda task: task.task_name, tasks)
+                lambda task: task is not None,
+                map(lambda task: task.get_task_name(), tasks),
             )
         )
         self.tasks.sort()

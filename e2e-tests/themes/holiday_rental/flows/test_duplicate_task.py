@@ -3,12 +3,12 @@ import logging
 
 from api.config import Situations, Violation
 from api.tasks import GenericUserTask
-from api.tasks.debrief import Debrief, WaitInternalResearch
-from api.tasks.visit import ScheduleVisit, Visit
+from api.tasks.debrief import test_afwachten_intern_onderzoek, test_verwerken_debrief
+from api.tasks.visit import test_doorgeven_status_top, test_inplannen_status
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
 
-logger = logging.getLogger("api")
+logger = logging.getLogger(__name__)
 
 
 class TestDuplicateTaskExecution(DefaultAPITest):
@@ -22,15 +22,17 @@ class TestDuplicateTaskExecution(DefaultAPITest):
     def test_generic_task(self):
         case = self.get_case()
         case.run_steps(
-            *Debrief.get_steps(violation=Violation.ADDITIONAL_RESEARCH_REQUIRED),
-            ValidateOpenTasks(WaitInternalResearch),
+            *test_verwerken_debrief.get_steps(
+                violation=Violation.ADDITIONAL_RESEARCH_REQUIRED
+            ),
+            ValidateOpenTasks(test_afwachten_intern_onderzoek),
         )
 
         open_tasks = self.client.get_case_tasks(case.data["id"])
         tasks = list(
             task
             for task in open_tasks
-            if task["task_name"] == WaitInternalResearch.task_name
+            if task["task_name"] == test_afwachten_intern_onderzoek.task_name
         )
 
         post_data = {
@@ -43,14 +45,14 @@ class TestDuplicateTaskExecution(DefaultAPITest):
             "post",
             f"/{GenericUserTask.endpoint}/",
             post_data,
-            task_name=WaitInternalResearch.task_name,
+            task_name=test_afwachten_intern_onderzoek.task_name,
         )
         with self.assertRaisesRegex(Exception, "status: 500"):
             self.client.call(
                 "post",
                 f"/{GenericUserTask.endpoint}/",
                 post_data,
-                task_name=WaitInternalResearch.task_name,
+                task_name=test_afwachten_intern_onderzoek.task_name,
             )
 
     def test_non_generic_user_task(self):
@@ -59,13 +61,15 @@ class TestDuplicateTaskExecution(DefaultAPITest):
         )
         case = self.get_case()
         case.run_steps(
-            *ScheduleVisit.get_steps(),
-            ValidateOpenTasks(Visit),
+            *test_inplannen_status.get_steps(),
+            ValidateOpenTasks(test_doorgeven_status_top),
         )
 
         open_tasks = self.client.get_case_tasks(case.data["id"])
         tasks = list(
-            task for task in open_tasks if task["task_name"] == Visit.task_name
+            task
+            for task in open_tasks
+            if task["task_name"] == test_doorgeven_status_top.task_name
         )
         post_data = {
             "case": case.data["id"],
@@ -79,16 +83,16 @@ class TestDuplicateTaskExecution(DefaultAPITest):
 
         self.client.call(
             "post",
-            f"/{Visit.endpoint}/",
+            f"/{test_doorgeven_status_top.endpoint}/",
             post_data,
-            task_name=Visit.task_name,
+            task_name=test_doorgeven_status_top.task_name,
         )
         with self.assertRaisesRegex(Exception, "status: 500"):
             self.client.call(
                 "post",
-                f"/{Visit.endpoint}/",
+                f"/{test_doorgeven_status_top.endpoint}/",
                 post_data,
-                task_name=Visit.task_name,
+                task_name=test_doorgeven_status_top.task_name,
             )
 
     def test_non_generic_user_task_non_visit(self):

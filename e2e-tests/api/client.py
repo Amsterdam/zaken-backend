@@ -6,7 +6,7 @@ import requests
 from api.case import Case
 from api.events import CaseEvent, CitizenReportEvent
 
-logger = logging.getLogger("api")
+logger = logging.getLogger(__name__)
 
 
 class Client:

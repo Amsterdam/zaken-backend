@@ -5,7 +5,7 @@ import os
 skip_tests = not os.getenv("NO_SKIP", "False").lower() in ("true", "1", "t")
 
 # If you don't want to validate if the timeline is correct you can skip checks. Will be a bit faster
-validate_timeline = not os.getenv("NO_TIMELINE", "False").lower() in ("true", "1", "t")
+validate_tasks = not os.getenv("NO_VALIDATE", "False").lower() in ("true", "1", "t")
 
 # Setup logging
 loglevel = os.environ.get("LOGLEVEL", "WARNING")
@@ -17,9 +17,9 @@ api_config = {
 }
 
 # Timers and async waits
-timer_duration = 20 + 2 + 13  # timer itself + heartbeat + buffer
-async_sleep = 1  # in seconds
-async_timeout = 40  # in seconds
+timer_duration = 20 + 2 + 5  # timer itself + heartbeat + buffer
+async_sleep = 0.5  # in seconds
+async_timeout = 5  # in seconds
 
 
 class Themes:

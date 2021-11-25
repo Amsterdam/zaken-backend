@@ -3,35 +3,35 @@ import logging
 from api import events
 from api.config import CloseReason, NextStep
 from api.tasks import AbstractUserTask, GenericUserTask
-from api.tasks.decision import SendTaxCollection
+from api.tasks.decision import test_versturen_invordering_belastingen
+from api.user_tasks import task_afsluiten_zaak, task_uitzetten_vervolgstap
 
-logger = logging.getLogger("api")
+logger = logging.getLogger(__name__)
 
 
-class PlanNextStep(GenericUserTask):
-    asynchronous = True
-    task_name = "task_set_next_step"
-    description = "Uitzetten vervolgstap"
-
+class test_uitzetten_vervolgstap(GenericUserTask, task_uitzetten_vervolgstap):
     def __init__(self, next_step=NextStep.CLOSE):
         data = {"next_step": {"value": next_step}}
-        super(PlanNextStep, self).__init__(**data)
+        super(test_uitzetten_vervolgstap, self).__init__(**data)
 
     @staticmethod
     def get_steps():
-        return [*SendTaxCollection.get_steps(), __class__(next_step=NextStep.CLOSE)]
+        return [
+            *test_versturen_invordering_belastingen.get_steps(),
+            __class__(next_step=NextStep.CLOSE),
+        ]
 
 
-class Close(AbstractUserTask):
+class test_afsluiten_zaak(AbstractUserTask, task_afsluiten_zaak):
     event = events.CloseEvent
     endpoint = "case-close"
-    task_name = "task_close_case"
-    description = "Afsluiten zaak"
 
     def __init__(
         self, reason=CloseReason.HolidayRental.NO_FROUD, description="Some description"
     ):
-        super(Close, self).__init__(reason=reason, description=description)
+        super(test_afsluiten_zaak, self).__init__(
+            reason=reason, description=description
+        )
 
     def get_post_data(self, case, task):
         return super().get_post_data(case, task) | {
@@ -41,4 +41,4 @@ class Close(AbstractUserTask):
 
     @staticmethod
     def get_steps():
-        return [*PlanNextStep.get_steps(), __class__()]
+        return [*test_uitzetten_vervolgstap.get_steps(), __class__()]

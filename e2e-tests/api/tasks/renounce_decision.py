@@ -2,37 +2,41 @@ import logging
 
 from api.config import DecisionType
 from api.tasks import GenericUserTask
-from api.tasks.decision import Decision
+from api.tasks.decision import test_verwerken_definitieve_besluit
+from api.user_tasks import (
+    task_nakijken_afzien_voornemen,
+    task_opstellen_concept_voornemen_afzien,
+    task_verwerken_definitieve_voornemen_afzien,
+)
 
-logger = logging.getLogger("api")
+logger = logging.getLogger(__name__)
 
 
-class CreateConceptRenounce(GenericUserTask):
-    task_name = "task_create_concept_renounce"
-    description = "Opstellen concept voornemen afzien"
-    asynchronous = True
-
+class test_opstellen_concept_voornemen_afzien(
+    GenericUserTask, task_opstellen_concept_voornemen_afzien
+):
     @staticmethod
     def get_steps():
         return [
-            *Decision.get_steps(type=DecisionType.HolidayRental.NO_DECISION),
+            *test_verwerken_definitieve_besluit.get_steps(
+                type=DecisionType.HolidayRental.NO_DECISION
+            ),
             __class__(),
         ]
 
 
-class CheckRenounceLetter(GenericUserTask):
-    task_name = "task_check_renounce_letter"
-    description = "Nakijken brief"
-
+# TODO improve name
+class test_nakijken_afzien_voornemen(GenericUserTask, task_nakijken_afzien_voornemen):
     @staticmethod
     def get_steps():
-        return [*CreateConceptRenounce.get_steps(), __class__()]
+        return [*test_opstellen_concept_voornemen_afzien.get_steps(), __class__()]
 
 
-class CreateDefinitiveRenounce(GenericUserTask):
-    task_name = "task_create_definitive_renounce"
+class test_verwerken_definitieve_voornemen_afzien(
+    GenericUserTask, task_verwerken_definitieve_voornemen_afzien
+):
     description = "Verwerken definitief voornemen afzien"
 
     @staticmethod
     def get_steps():
-        return [*CheckRenounceLetter.get_steps(), __class__()]
+        return [*test_nakijken_afzien_voornemen.get_steps(), __class__()]

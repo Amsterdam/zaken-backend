@@ -4,7 +4,7 @@ import time
 
 from api.config import timer_duration
 
-logger = logging.getLogger("api")
+logger = logging.getLogger(__name__)
 
 
 def wait_for(fn, timeout, sleep_time):
