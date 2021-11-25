@@ -606,6 +606,12 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         "HM_SITUATIE_SCHETS": "Situatieschets",
         "WS_STA_CD_OMSCHRIJVING": "Stadium naam",
         "HM_MELDER_TELNR": "Melder telefoonnummer",
+        "HB_OPMERKING": "Huisbezoek opmerking",
+        "HB_HIT": "Huisbezoek hit",
+        "HB_TOEZ_HDR1_CODE": "Huisbezoek toezichthouder 1",
+        "HB_TOEZ_HDR2_CODE": "Huisbezoek toezichthouder 2",
+        "HB_BEVINDING_DATUM": "Huisbezoek datum",
+        "HB_BEVINDING_TIJD": "Huisbezoek tijd",
     }
 
     def translate_key_to_label(self, key):
@@ -728,9 +734,13 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         ).first()
 
     def _create_or_update(
-        self, data, request, commit, user=None, reasons=[], projects=[]
+        self, data, request, commit, user=None, reasons=[], projects=[], kwargs={}
     ):
-        melding = CaseReason.objects.get(name=settings.DEFAULT_REASON)
+        theme = CaseTheme.objects.get(id=kwargs.get("theme"))
+        melding = CaseReason.objects.get(
+            name=settings.DEFAULT_REASON,
+            theme=theme,
+        )
         errors = []
         results = []
         context = {"request": request}
@@ -1038,6 +1048,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     user,
                     reasons,
                     projects,
+                    kwargs,
                 )
                 (
                     create_additionals_errors,
@@ -1106,6 +1117,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 request,
                 False,
                 kwargs.get("user"),
+                kwargs=kwargs,
             )
             form_valid = True
             self.request.session["validated_cases_data"] = create_update_results
