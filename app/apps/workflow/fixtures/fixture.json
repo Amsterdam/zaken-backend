@@ -114,7 +114,7 @@
         "fields": {
             "theme": 3,
             "name": "Nieuwe melding",
-            "message_name": "start_extra_information",
+            "message_name": "start_signal_process",
             "to_directing_proccess": false
         }
     },
