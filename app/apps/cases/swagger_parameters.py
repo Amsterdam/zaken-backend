@@ -85,3 +85,12 @@ no_pagination = OpenApiParameter(
     required=False,
     description="Disable Pagination",
 )
+
+ton_ids = OpenApiParameter(
+    name="tonIds",
+    type=OpenApiTypes.STR,  # drf_spectacular doesn't support arrays, not so spectacular after all...
+    location=OpenApiParameter.QUERY,
+    required=False,
+    explode=True,
+    description="One or more TON IDs, comma separated"
+)

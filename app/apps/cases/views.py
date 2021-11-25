@@ -46,6 +46,7 @@ from apps.cases.swagger_parameters import street_name as street_name_parameter
 from apps.cases.swagger_parameters import street_number as street_number_parameter
 from apps.cases.swagger_parameters import suffix as suffix_parameter
 from apps.cases.swagger_parameters import theme as theme_parameter
+from apps.cases.swagger_parameters import ton_ids as ton_ids_parameter
 from apps.debriefings.models import Debriefing
 from apps.debriefings.serializers import ViolationTypeSerializer
 from apps.decisions.serializers import DecisionTypeSerializer
@@ -237,6 +238,7 @@ class CaseViewSet(
             street_name_parameter,
             suffix_parameter,
             theme_parameter,
+            ton_ids_parameter,
         ],
         description="Search query parameters",
         responses={200: CaseSerializer(many=True)},
@@ -249,6 +251,7 @@ class CaseViewSet(
         number = request.GET.get(street_number_parameter.name, None)
         suffix = request.GET.get(suffix_parameter.name, None)
         theme = request.GET.get(theme_parameter.name, None)
+        ton_ids = request.GET.getlist(ton_ids_parameter.name, None)
 
         if postal_code is None and street_name is None:
             return HttpResponseBadRequest(
@@ -274,6 +277,9 @@ class CaseViewSet(
 
         if theme:
             cases = cases.filter(theme=theme)
+
+        if ton_ids:
+            cases = cases.filter(ton_ids__overlap=ton_ids)
 
         paginator = PageNumberPagination()
         context = paginator.paginate_queryset(cases, request)
