@@ -251,7 +251,7 @@ class CaseViewSet(
         number = request.GET.get(street_number_parameter.name, None)
         suffix = request.GET.get(suffix_parameter.name, None)
         theme = request.GET.get(theme_parameter.name, None)
-        ton_ids = request.GET.getlist(ton_ids_parameter.name, None)
+        ton_ids = request.GET.get(ton_ids_parameter.name, None).split(",")
 
         if postal_code is None and street_name is None:
             return HttpResponseBadRequest(

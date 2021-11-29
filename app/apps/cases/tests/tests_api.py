@@ -664,4 +664,4 @@ class CaseSearchApiTest(APITestCase):
         response = client.get(url, SEARCH_QUERY_PARAMETERS)
         data = response.json()
         self.assertEquals(len(data["results"]), 1)
-        self.assertEqueals(data["results"][0]["tonIds"], MOCK_TON_IDS)
+        self.assertEquals(data["results"][0]["ton_ids"], MOCK_TON_IDS)
