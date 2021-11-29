@@ -52,15 +52,20 @@ def case_user_task_pre_save(sender, instance, **kwargs):
 @receiver(pre_save, sender=CaseWorkflow, dispatch_uid="case_workflow_pre_save")
 def case_workflow_pre_save(sender, instance, **kwargs):
     if not instance.id:
-        if instance.main_workflow:
-            existing_main_workflows = CaseWorkflow.objects.filter(
-                case=instance.case,
-                main_workflow=True,
-            )
-            if existing_main_workflows:
-                raise Exception("A main workflow for this case already exists")
+        existing_main_workflows = CaseWorkflow.objects.filter(
+            case=instance.case,
+            main_workflow=True,
+        ).first()
+        if instance.main_workflow and existing_main_workflows:
+            raise Exception("A main workflow for this case already exists")
 
         instance.data = instance.data if isinstance(instance.data, dict) else {}
+
+        current_verion = (
+            existing_main_workflows.workflow_version
+            if existing_main_workflows
+            else None
+        )
 
         (
             instance.workflow_theme_name,
@@ -68,6 +73,7 @@ def case_workflow_pre_save(sender, instance, **kwargs):
         ) = get_latest_version_from_config(
             instance.case.theme.name,
             instance.workflow_type,
+            current_verion,
         )
         workflow_spec = instance.get_workflow_spec()
         wf = BpmnWorkflow(workflow_spec)
