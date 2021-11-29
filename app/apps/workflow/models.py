@@ -170,7 +170,10 @@ class CaseWorkflow(models.Model):
             return
 
         initial_data = get_initial_data_from_config(
-            self.case.theme.name, self.workflow_type
+            self.workflow_theme_name,
+            self.workflow_type,
+            self.workflow_version,
+            self.workflow_message_name,
         )
 
         if isinstance(data, dict):

@@ -136,7 +136,9 @@ def get_latest_version_from_config(
     return theme_name, version[-1]
 
 
-def get_initial_data_from_config(theme_name, workflow_type, message_name=None):
+def get_initial_data_from_config(
+    theme_name, workflow_type, workflow_version, message_name=None
+):
     validated_workflow_spec_config = validate_workflow_spec(
         settings.WORKFLOW_SPEC_CONFIG
     )
@@ -163,15 +165,14 @@ def get_initial_data_from_config(theme_name, workflow_type, message_name=None):
 
     initial_data = config.get("initial_data", {})
 
-    version = sorted([v for v, k in config.get("versions").items()])
-
+    version = config.get("versions", {}).get(workflow_version)
     if (
         message_name
         and version
-        and version[0].get("messages", {}).get(message_name, {}).get("initial_data", {})
+        and version.get("messages", {}).get(message_name, {}).get("initial_data", {})
     ):
         initial_data = (
-            version[0].get("messages", {}).get(message_name, {}).get("initial_data", {})
+            version.get("messages", {}).get(message_name, {}).get("initial_data", {})
         )
 
     initial_data = dict(
