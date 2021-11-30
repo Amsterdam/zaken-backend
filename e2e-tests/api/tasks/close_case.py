@@ -15,10 +15,10 @@ class test_uitzetten_vervolgstap(GenericUserTask, task_uitzetten_vervolgstap):
         super(test_uitzetten_vervolgstap, self).__init__(**data)
 
     @staticmethod
-    def get_steps():
+    def get_steps(next_step=NextStep.CLOSE):
         return [
             *test_versturen_invordering_belastingen.get_steps(),
-            __class__(next_step=NextStep.CLOSE),
+            __class__(next_step=next_step),
         ]
 
 

@@ -43,7 +43,7 @@ class user_task:
     due_date = DEFAULT_USER_TASK_DUE_DATE
 
     @classmethod
-    def get_due_date(cls):
+    def get_due_date(cls, case):
         return getattr(cls, "due_date")
 
     @classmethod
@@ -65,6 +65,7 @@ class task_inplannen_status(user_task):
 class task_aanvragen_machtiging(user_task):
     """Aanvragen machtiging"""
 
+    _task_name = "task_request_authorization"
     due_date = relativedelta(days=2)
 
 
@@ -376,28 +377,15 @@ class task_afsluiten_zaak(user_task):
 
     @staticmethod
     def get_due_date(case):
-        """
-        TODO Can we add an inline script to 'Flow_1e320ch' or
-        'service_script_next_step_close_case'?
-             e.g. has_sanction = True
+        from apps.decision.models import Decision
 
-        But what about 'Flow_00nt5t7'?
-        En hoe werkt message_catch_event_next_step
-        """
-        return (
-            relativedelta(months=13)
-            if getattr(case.variables, "sanction_count", 0) > 0
-            else relativedelta(weeks=1)
+        sanction_count = (
+            Decision.objects.filter(case=case)
+            .exclude(decision_type__workflow_option="no_decision")
+            .count()
         )
 
-        # """
-        # Alternative; define 'get_fase()' for case?
-        # """
-        # switcher = {
-        #     "Handhaving": relativedelta(months=13),
-        #     "Toezichtfase": relativedelta(weeks=1),
-        # }
-        # return switcher.get(case.get_fase())
+        return relativedelta(months=13) if sanction_count else relativedelta(weeks=1)
 
 
 # future tasks

@@ -41,7 +41,7 @@ def case_user_task_pre_save(sender, instance, **kwargs):
         )
         task = get_task_by_name(instance.task_name)
         instance.due_date = d + (
-            task.get_due_date() if task else DEFAULT_USER_TASK_DUE_DATE
+            task.get_due_date(instance) if task else DEFAULT_USER_TASK_DUE_DATE
         )
 
 

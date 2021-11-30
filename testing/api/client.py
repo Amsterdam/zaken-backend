@@ -12,7 +12,6 @@ class Client:
     headers = None
 
     def __init__(self, config):
-        self.legacy_mode = config["legacy_mode"]  # using Spiff vs Camunda
         self.host = config["host"]
         if "://api.wonen.zaken.amsterdam.nl/" in self.host:
             raise Exception(f"Host ({self.host}) not allowed")
@@ -52,15 +51,6 @@ class Client:
 
     def get_close_reasons(self, theme):
         return self.call("get", f"/themes/{theme}/case-close-reasons/")["results"]
-
-    def get_task_name(self, task):
-        try:
-            (name, legacy_name) = task
-        except (TypeError):
-            logging.error(f"failed to unpack task-name for {task}")
-            raise
-
-        return legacy_name if self.legacy_mode else name
 
     def create_case(self, data):
         return Case(self.call("post", "/cases/", data), self)

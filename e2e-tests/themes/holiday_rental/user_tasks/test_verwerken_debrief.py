@@ -9,7 +9,6 @@ from api.tasks.debrief import (
     test_terugkoppelen_melder_2,
     test_verwerken_debrief,
 )
-from api.tasks.director import test_terugkoppelen_melder
 from api.tasks.visit import (
     test_aanvragen_machtiging,
     test_doorgeven_status_top,
@@ -25,10 +24,7 @@ class task_verwerken_debrief_test(DefaultAPITest):
             *test_doorgeven_status_top.get_steps(),
             test_verwerken_debrief(violation=Violation.SEND_TO_OTHER_THEME),
             test_terugkoppelen_melder_1(),
-            ValidateOpenTasks(
-                test_terugkoppelen_melder,
-                test_opstellen_verkorte_rapportage_huisbezoek,
-            ),
+            ValidateOpenTasks(test_opstellen_verkorte_rapportage_huisbezoek),
         )
 
     def test_violation_no(self):
@@ -36,10 +32,7 @@ class task_verwerken_debrief_test(DefaultAPITest):
             *test_doorgeven_status_top.get_steps(),
             test_verwerken_debrief(violation=Violation.NO),
             test_terugkoppelen_melder_1(),
-            ValidateOpenTasks(
-                test_terugkoppelen_melder,
-                test_opstellen_verkorte_rapportage_huisbezoek,
-            ),
+            ValidateOpenTasks(test_opstellen_verkorte_rapportage_huisbezoek),
         )
 
     def test_violation_yes(self):
@@ -48,7 +41,6 @@ class task_verwerken_debrief_test(DefaultAPITest):
             test_verwerken_debrief(violation=Violation.YES),
             test_terugkoppelen_melder_2(),
             ValidateOpenTasks(
-                test_terugkoppelen_melder,
                 test_opstellen_beeldverslag,
                 test_opstellen_rapport_van_bevindingen,
                 test_opstellen_concept_aanschrijvingen,
