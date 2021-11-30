@@ -91,5 +91,5 @@ ton_ids = OpenApiParameter(
     type=OpenApiTypes.STR,  # drf_spectacular doesn't support arrays, not so spectacular after all...
     location=OpenApiParameter.QUERY,
     required=False,
-    description="One or more TON IDs, comma separated"
+    description="One or more TON IDs, comma separated",
 )

@@ -658,7 +658,7 @@ class CaseSearchApiTest(APITestCase):
         SEARCH_QUERY_PARAMETERS = {
             "streetName": MOCK_STREET_NAME,
             "streetNumber": MOCK_STREET_NUMBER,
-            "tonIds": ",".join([str(_id) for _id in MOCK_TON_IDS])
+            "tonIds": ",".join([str(_id) for _id in MOCK_TON_IDS]),
         }
 
         response = client.get(url, SEARCH_QUERY_PARAMETERS)
