@@ -488,6 +488,11 @@ class CaseWorkflow(models.Model):
     def reset_subworkflow(self, subworkflow, test=True):
         success = False
         wf = self.get_or_restore_workflow_state()
+        if not wf:
+            original_data = self.data
+        else:
+            original_data = copy.deepcopy(wf.last_task.data)
+
         latest_theme_name, latest_version = get_latest_version_from_config(
             self.workflow_theme_name, self.workflow_type
         )
@@ -506,10 +511,8 @@ class CaseWorkflow(models.Model):
             "summon",
             "decision",
         )
-        if not self.main_workflow or subworkflow not in subworkflows or not wf:
+        if not self.main_workflow or subworkflow not in subworkflows:
             return False
-
-        original_data = copy.deepcopy(wf.last_task.data)
 
         script_engine = BpmnScriptEngine(
             scriptingAdditions={
@@ -596,12 +599,27 @@ class CaseWorkflow(models.Model):
             return "De subworkflow is niet gevonden"
 
         if test:
+            self.data = copy.deepcopy(workflow.last_task.data)
+            self.save()
             return {
+                "current_version": self.workflow_version,
+                "new_version": latest_version,
+                "current_theme_name": self.workflow_theme_name,
+                "new_theme_name": latest_theme_name,
                 "subworkflows_to_be_deleted": subworkflows_to_be_deleted,
                 "tasks_to_be_deleted": tasks_to_be_deleted,
             }
         else:
-            pass
+            state = self.get_serializer().serialize_workflow(wf, include_spec=False)
+            self.workflow_theme_name = latest_theme_name
+            self.workflow_version = latest_version
+            self.serialized_workflow_state = state
+            with transaction.atomic():
+                self.save()
+                subworkflows_to_be_deleted.delete()
+                transaction.on_commit(
+                    lambda: task_start_subworkflow.delay(subworkflow, self.id)
+                )
 
     def migrate_to(self, workflow_version, test=True):
         # tests and tries to migrate to an other version
