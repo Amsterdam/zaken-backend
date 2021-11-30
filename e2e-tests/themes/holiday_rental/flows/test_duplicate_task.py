@@ -32,7 +32,7 @@ class TestDuplicateTaskExecution(DefaultAPITest):
         tasks = list(
             task
             for task in open_tasks
-            if task["task_name"] == test_afwachten_intern_onderzoek.task_name
+            if task["task_name"] == test_afwachten_intern_onderzoek.get_task_name()
         )
 
         post_data = {
@@ -45,14 +45,14 @@ class TestDuplicateTaskExecution(DefaultAPITest):
             "post",
             f"/{GenericUserTask.endpoint}/",
             post_data,
-            task_name=test_afwachten_intern_onderzoek.task_name,
+            task_name=test_afwachten_intern_onderzoek.get_task_name(),
         )
         with self.assertRaisesRegex(Exception, "status: 500"):
             self.client.call(
                 "post",
                 f"/{GenericUserTask.endpoint}/",
                 post_data,
-                task_name=test_afwachten_intern_onderzoek.task_name,
+                task_name=test_afwachten_intern_onderzoek.get_task_name(),
             )
 
     def test_non_generic_user_task(self):
@@ -69,7 +69,7 @@ class TestDuplicateTaskExecution(DefaultAPITest):
         tasks = list(
             task
             for task in open_tasks
-            if task["task_name"] == test_doorgeven_status_top.task_name
+            if task["task_name"] == test_doorgeven_status_top.get_task_name()
         )
         post_data = {
             "case": case.data["id"],
@@ -85,14 +85,14 @@ class TestDuplicateTaskExecution(DefaultAPITest):
             "post",
             f"/{test_doorgeven_status_top.endpoint}/",
             post_data,
-            task_name=test_doorgeven_status_top.task_name,
+            task_name=test_doorgeven_status_top.get_task_name(),
         )
         with self.assertRaisesRegex(Exception, "status: 500"):
             self.client.call(
                 "post",
                 f"/{test_doorgeven_status_top.endpoint}/",
                 post_data,
-                task_name=test_doorgeven_status_top.task_name,
+                task_name=test_doorgeven_status_top.get_task_name(),
             )
 
     def test_non_generic_user_task_non_visit(self):

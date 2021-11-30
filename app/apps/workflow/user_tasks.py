@@ -43,6 +43,10 @@ class user_task:
     due_date = DEFAULT_USER_TASK_DUE_DATE
 
     @classmethod
+    def get_due_date(cls):
+        return getattr(cls, "due_date")
+
+    @classmethod
     def get_task_name(cls):
         return getattr(cls, "_task_name", cls.__name__)
 
@@ -60,6 +64,12 @@ class task_inplannen_status(user_task):
 
 class task_aanvragen_machtiging(user_task):
     """Aanvragen machtiging"""
+
+    due_date = relativedelta(days=2)
+
+
+class task_terugkoppelen_melder(user_task):
+    """Terugkoppelen melder"""
 
     due_date = relativedelta(days=2)
 
@@ -360,18 +370,34 @@ class task_verwerken_extra_informatie(user_task):
 
 
 class task_afsluiten_zaak(user_task):
-    """
-    Afsluiten zaak
-
-    1 week if 'Toezichtfase', 6 weeks if 'Handhavingsfase'
-    close_case?? = relativedelta(weeks=1)  # Afsluiten zaak
-    """
+    """Afsluiten zaak"""
 
     _task_name = "task_close_case"
 
     @staticmethod
-    def due_date(case):
-        return relativedelta(weeks=1 if case.bla == "....Toezichtfase" else 6)
+    def get_due_date(case):
+        """
+        TODO Can we add an inline script to 'Flow_1e320ch' or
+        'service_script_next_step_close_case'?
+             e.g. has_sanction = True
+
+        But what about 'Flow_00nt5t7'?
+        En hoe werkt message_catch_event_next_step
+        """
+        return (
+            relativedelta(months=13)
+            if getattr(case.variables, "sanction_count", 0) > 0
+            else relativedelta(weeks=1)
+        )
+
+        # """
+        # Alternative; define 'get_fase()' for case?
+        # """
+        # switcher = {
+        #     "Handhaving": relativedelta(months=13),
+        #     "Toezichtfase": relativedelta(weeks=1),
+        # }
+        # return switcher.get(case.get_fase())
 
 
 # future tasks

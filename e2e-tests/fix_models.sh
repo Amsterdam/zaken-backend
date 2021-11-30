@@ -1,5 +1,9 @@
 #!/bin/bash
 docker-compose run --rm zaak-gateway python manage.py shell -c "
+from django.contrib.auth import get_user_model
+get_user_model().objects.get_or_create(email='local.user@dev.com', first_name='local', last_name='user')"
+
+docker-compose run --rm zaak-gateway python manage.py shell -c "
 from apps.users.models import User, UserGroup
 from django.contrib.auth.models import Permission
 (group, _) = UserGroup.objects.get_or_create(name='PROJECTHANDHAVER', display_name='Projecthandhaver')

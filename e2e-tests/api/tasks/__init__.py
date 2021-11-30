@@ -14,7 +14,7 @@ class AbstractUserTask:
         self.data = data
 
     def __str__(self):
-        return f"<{self.__module__}.{type(self).__name__} task_name:{self.get_task_name()} event:{self.event.type}>"
+        return f"<{self.__module__}.{type(self).__name__} task_name:{self.get_task_name()} event:{self.event.type} due_date:{self.due_date}>"
 
     def is_ready(self, client, case):
         open_tasks = client.get_case_tasks(case.data["id"])
@@ -37,6 +37,7 @@ class AbstractUserTask:
         client.call(
             "post", f"/{self.endpoint}/", post_data, task_name=self.get_task_name()
         )
+        return self.task
 
     def get_post_data(self, case, task):
         return {
@@ -45,7 +46,9 @@ class AbstractUserTask:
 
     @classmethod
     def get_task_name(cls):
-        return f"task_{getattr(cls, '_task_name', cls.__name__)[5:]}"
+        # if cls has attribute _task_name return that, otherwise return the cls name
+        # but with task_ instead of test_ (naming convention)
+        return getattr(cls, "_task_name", f"task_{cls.__name__[5:]}")
 
 
 class GenericUserTask(AbstractUserTask):

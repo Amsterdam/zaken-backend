@@ -36,8 +36,12 @@ def case_user_task_pre_save(sender, instance, **kwargs):
         now = datetime.datetime.now()
         d = datetime.datetime(year=now.year, month=now.month, day=now.day)
         task = get_task_by_name(instance.task_name)
-        print(f"task: {task}, {task.due_date if task else DEFAULT_USER_TASK_DUE_DATE}")
-        instance.due_date = d + (task.due_date if task else DEFAULT_USER_TASK_DUE_DATE)
+        print(
+            f"task: {task}, {task.get_due_date() if task else DEFAULT_USER_TASK_DUE_DATE}"
+        )
+        instance.due_date = d + (
+            task.get_due_date() if task else DEFAULT_USER_TASK_DUE_DATE
+        )
 
 
 @receiver(pre_save, sender=CaseWorkflow, dispatch_uid="case_workflow_pre_save")

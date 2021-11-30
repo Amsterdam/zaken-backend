@@ -3,7 +3,7 @@ from concurrent.futures import as_completed
 from api.config import Violation
 from api.events import GenericTaskEvent
 from api.tasks import GenericUserTask
-from api.tasks.debrief import InformReporter, test_verwerken_debrief
+from api.tasks.debrief import task_terugkoppelen_melder_2, test_verwerken_debrief
 from api.tasks.summon import test_nakijken_aanschrijvingen
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
@@ -26,7 +26,7 @@ class TestParallelTasks(DefaultAPITest):
         case = self.get_case()
         case.run_steps(
             *test_verwerken_debrief.get_steps(violation=Violation.YES),
-            InformReporter(),
+            task_terugkoppelen_melder_2(),
         )
 
         open_tasks = self.client.get_case_tasks(case.data["id"])

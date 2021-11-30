@@ -17,9 +17,9 @@ api_config = {
 }
 
 # Timers and async waits
-timer_duration = 20 + 2 + 5  # timer itself + heartbeat + buffer
-async_sleep = 0.5  # in seconds
-async_timeout = 5  # in seconds
+timer_duration = 20 + 2 + 13  # timer itself + heartbeat + buffer
+async_sleep = 1  # in seconds
+async_timeout = 40  # in seconds
 
 
 class Themes:

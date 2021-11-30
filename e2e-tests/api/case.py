@@ -3,6 +3,10 @@ from datetime import datetime
 
 from api.config import async_sleep, async_timeout, validate_tasks
 from api.timers import wait_for
+from dateutil import parser
+
+from .tasks import AbstractUserTask
+from .user_tasks import get_task_by_name
 
 logger = logging.getLogger(__name__)
 
@@ -23,9 +27,10 @@ class Case:
     def __str__(self):
         return f"<{self.__module__}.{self.__class__.__name__} id:{self.data['id']}>"
 
-    def run_steps(self, *steps, extra_events=[]):
-        steps = filter(lambda step: step is not None, steps)
+    def run_steps(self, *x, extra_events=[]):
+        steps = list(filter(lambda step: step is not None, x))
 
+        user_task_log = []
         for step in steps:
             # Give Spiff some time to do async processing.
             # Keep retrying untill we have a timeout
@@ -34,11 +39,31 @@ class Case:
             ):
                 raise Exception(f"Step ({step}) is not ready for case {self}.")
 
-            step.run(self.client, self)
+            result = step.run(self.client, self)
+            if isinstance(step, AbstractUserTask):
+                user_task_log.append(result)
 
             # Append a timeline event for the step if expected
             if hasattr(step, "event") and step.event:
                 self.timeline.append(step.event)
+
+        # Check due_dates
+        logger.info(f"user_task_log = {user_task_log}")
+        for user_task in user_task_log:
+            task = get_task_by_name(user_task["task_name"])
+            today = (
+                datetime.now()
+                .astimezone()
+                .replace(hour=0, minute=0, second=0, microsecond=0)
+            )
+            expected = (today + task.due_date).timestamp()
+            due_date = parser.parse(user_task["due_date"]).timestamp()
+
+            logger.info(
+                f"Compare user_task's due_date '{due_date}' with expected '{expected}' (based on {task.due_date})"
+            )
+            if not expected == due_date:
+                raise Exception("Due date issue.")
 
         def check_tasks():
             """
@@ -50,21 +75,10 @@ class Case:
             )
             found_events = list(map(lambda event: event["type"], events))
 
-            logging.info(f"Finding events for case id {self.data['id']} ...")
-            logging.info(f"Expected events:\n{expected_events}\nFound:\n{found_events}")
+            logger.info(f"Finding events for case id {self.data['id']} ...")
+            logger.info(f"Expected events:\n{expected_events}\nFound:\n{found_events}")
 
-            due_dates_accurate = True
-            user_tasks = self.client.get_case_tasks(self.data["id"])
-            logging.info("Check due_dates on all tasks")
-            for i, step in enumerate(steps):
-                expected = str(datetime.now() + step.due_date)
-                logging.info(f"- expected = {expected}")
-                if not expected == user_tasks[i]["due_date"]:
-                    logging.info(f"-- failure! it's {user_tasks[i]['due_date']}")
-                    due_dates_accurate = False
-                    break
-
-            return expected_events == found_events and due_dates_accurate
+            return expected_events == found_events
 
         # Check the timeline
         if validate_tasks and not wait_for(check_tasks, async_timeout, async_sleep):
