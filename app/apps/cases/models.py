@@ -1,4 +1,5 @@
 import uuid
+from re import sub
 
 from apps.addresses.models import Address
 from apps.events.models import CaseEvent, ModelEventEmitter, TaskModelEventEmitter
@@ -8,12 +9,30 @@ from django.db import models, transaction
 from django.utils import timezone
 
 
+def snake_case(s):
+    return "_".join(
+        sub(
+            r"(\s|_|-)+",
+            " ",
+            sub(
+                r"[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+",
+                lambda mo: " " + mo.group(0).lower(),
+                s,
+            ),
+        ).split()
+    )
+
+
 class CaseTheme(models.Model):
     name = models.CharField(max_length=255, unique=True)
     case_state_types_top = models.ManyToManyField(
         to="CaseStateType",
         blank=True,
     )
+
+    @property
+    def snake_case_name(self):
+        return snake_case(self.name)
 
     def __str__(self):
         return self.name
@@ -27,6 +46,10 @@ class CaseReason(models.Model):
     theme = models.ForeignKey(
         to=CaseTheme, related_name="reasons", on_delete=models.CASCADE
     )
+
+    @property
+    def snake_case_name(self):
+        return snake_case(self.name)
 
     def __str__(self):
         return f"{self.name} ({self.theme.name})"

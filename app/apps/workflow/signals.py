@@ -61,6 +61,14 @@ def case_workflow_pre_save(sender, instance, **kwargs):
 
         instance.data = instance.data if isinstance(instance.data, dict) else {}
 
+        if instance.main_workflow:
+            instance.data.update(
+                {
+                    "theme": {"value": instance.case.theme.snake_case_name},
+                    "reason": {"value": instance.case.reason.snake_case_name},
+                }
+            )
+
         current_verion = (
             existing_main_workflows.workflow_version
             if existing_main_workflows
