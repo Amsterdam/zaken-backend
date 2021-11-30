@@ -205,9 +205,9 @@ class CaseWorkflow(models.Model):
             ]
             extra_data = {
                 "all_summons": all_summons,
-                "decision_count": Decision.objects.filter(
-                    case=main_workflow.case
-                ).count(),
+                "decision_count": Decision.objects.filter(case=main_workflow.case)
+                .exclude(decision_type__workflow_option="no_decision")
+                .count(),
             }
             other_workflows = all_workflows.exclude(id=main_workflow.id)
 
