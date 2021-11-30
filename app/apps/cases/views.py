@@ -251,7 +251,7 @@ class CaseViewSet(
         number = request.GET.get(street_number_parameter.name, None)
         suffix = request.GET.get(suffix_parameter.name, None)
         theme = request.GET.get(theme_parameter.name, None)
-        ton_ids = request.GET.get(ton_ids_parameter.name, None).split(",")
+        ton_ids = request.GET.get(ton_ids_parameter.name, None)
 
         if postal_code is None and street_name is None:
             return HttpResponseBadRequest(
@@ -279,7 +279,7 @@ class CaseViewSet(
             cases = cases.filter(theme=theme)
 
         if ton_ids:
-            cases = cases.filter(ton_ids__overlap=ton_ids)
+            cases = cases.filter(ton_ids__overlap=ton_ids.split(","))
 
         paginator = PageNumberPagination()
         context = paginator.paginate_queryset(cases, request)
