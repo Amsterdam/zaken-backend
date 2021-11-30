@@ -1,11 +1,13 @@
 import copy
 import datetime
 
+import pytz
 from apps.events.models import TaskModelEventEmitter
 from apps.workflow.models import CaseUserTask, CaseWorkflow, GenericCompletedTask
 from apps.workflow.tasks import task_start_worflow
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from django.utils import timezone
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 from .user_tasks import DEFAULT_USER_TASK_DUE_DATE, get_task_by_name
@@ -33,12 +35,11 @@ def event_emitter_pre_save(instance, **kwargs):
 @receiver(pre_save, sender=CaseUserTask, dispatch_uid="case_user_task_pre_save")
 def case_user_task_pre_save(sender, instance, **kwargs):
     if not instance.id:
-        now = datetime.datetime.now()
-        d = datetime.datetime(year=now.year, month=now.month, day=now.day)
-        task = get_task_by_name(instance.task_name)
-        print(
-            f"task: {task}, {task.get_due_date() if task else DEFAULT_USER_TASK_DUE_DATE}"
+        now = timezone.now()
+        d = datetime.datetime(
+            year=now.year, month=now.month, day=now.day, tzinfo=pytz.UTC
         )
+        task = get_task_by_name(instance.task_name)
         instance.due_date = d + (
             task.get_due_date() if task else DEFAULT_USER_TASK_DUE_DATE
         )
@@ -47,15 +48,28 @@ def case_user_task_pre_save(sender, instance, **kwargs):
 @receiver(pre_save, sender=CaseWorkflow, dispatch_uid="case_workflow_pre_save")
 def case_workflow_pre_save(sender, instance, **kwargs):
     if not instance.id:
-        if instance.main_workflow:
-            existing_main_workflows = CaseWorkflow.objects.filter(
-                case=instance.case,
-                main_workflow=True,
-            )
-            if existing_main_workflows:
-                raise Exception("A main workflow for this case already exists")
+        existing_main_workflows = CaseWorkflow.objects.filter(
+            case=instance.case,
+            main_workflow=True,
+        ).first()
+        if instance.main_workflow and existing_main_workflows:
+            raise Exception("A main workflow for this case already exists")
 
         instance.data = instance.data if isinstance(instance.data, dict) else {}
+
+        if instance.main_workflow:
+            instance.data.update(
+                {
+                    "theme": {"value": instance.case.theme.snake_case_name},
+                    "reason": {"value": instance.case.reason.snake_case_name},
+                }
+            )
+
+        current_verion = (
+            existing_main_workflows.workflow_version
+            if existing_main_workflows
+            else None
+        )
 
         (
             instance.workflow_theme_name,
@@ -63,6 +77,7 @@ def case_workflow_pre_save(sender, instance, **kwargs):
         ) = get_latest_version_from_config(
             instance.case.theme.name,
             instance.workflow_type,
+            current_verion,
         )
         workflow_spec = instance.get_workflow_spec()
         wf = BpmnWorkflow(workflow_spec)

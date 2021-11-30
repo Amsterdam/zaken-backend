@@ -1,3 +1,5 @@
+import re
+
 from apps.cases.models import Case
 from rest_framework import serializers
 from rest_framework.fields import empty
@@ -40,9 +42,26 @@ class WorkflowSpecConfigVerionSerializer(serializers.Serializer):
     messages = serializers.DictField(required=False, child=serializers.DictField())
 
 
+class WorkflowSpecConfigVerionListSerializer(serializers.DictField):
+    def run_validation(self, data=empty):
+        def validate_field(field):
+            return bool(re.match(r"(\d+\.)+(\d+\.)+(\d+)", field))
+
+        if data is not empty:
+            not_valid = [f for f in set(data) if not validate_field(f)]
+            if not_valid:
+                raise serializers.ValidationError(
+                    f"Versioning incorrect: {', '.join(not_valid)}"
+                )
+
+        return super().run_validation(data)
+
+
 class WorkflowSpecConfigThemeSerializer(serializers.Serializer):
     initial_data = serializers.DictField()
-    versions = serializers.DictField(child=WorkflowSpecConfigVerionSerializer())
+    versions = WorkflowSpecConfigVerionListSerializer(
+        child=WorkflowSpecConfigVerionSerializer()
+    )
 
     def run_validation(self, data=empty):
         if data is not empty:
