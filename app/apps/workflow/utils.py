@@ -601,16 +601,20 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
     }
 
 
-def workflow_test_message(message, workflow_spec, script_engine):
+def workflow_test_message(message, workflow_spec, script_engine, initial_data={}):
     try:
 
         workflow_a = BpmnWorkflow(workflow_spec)
+        first_task_a = workflow_a.get_tasks(Task.READY)
+        first_task_a[0].update_data(initial_data)
         workflow_a_serialized = BpmnSerializer().serialize_workflow(
             workflow_a, include_spec=False
         )
         workflow_b = BpmnSerializer().deserialize_workflow(
             workflow_a_serialized, workflow_spec
         )
+        first_task_b = workflow_a.get_tasks(Task.READY)
+        first_task_b[0].update_data(initial_data)
         workflow_a.script_engine = script_engine
         workflow_b.script_engine = script_engine
 
@@ -773,7 +777,14 @@ def workflow_spec_path_inspect(
             "messages": [
                 {
                     "message": m,
-                    "exists": workflow_test_message(m, workflow_spec, script_engine),
+                    "exists": workflow_test_message(
+                        m,
+                        workflow_spec,
+                        script_engine,
+                        initial_data
+                        if not v.get("initial_data")
+                        else v.get("initial_data", {}),
+                    ),
                     "tree_valid": workflow_tree_inspect(
                         workflow,
                         initial_data
