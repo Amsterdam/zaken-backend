@@ -146,8 +146,12 @@ class CaseListApiTest(APITestCase):
             response = client.get(url, params)
             return response.data["results"]
 
-        self.assertNotEqual(get_paginated_results(LIMIT, 0), get_paginated_results(LIMIT, LIMIT))
-        self.assertEqual(len(get_paginated_results(LIMIT)), len(get_paginated_results(LIMIT)))
+        self.assertNotEqual(
+            get_paginated_results(LIMIT, 0), get_paginated_results(LIMIT, LIMIT)
+        )
+        self.assertEqual(
+            len(get_paginated_results(LIMIT)), len(get_paginated_results(LIMIT))
+        )
 
     def test_filter_start_date(self):
         # Should only returb dates on the given date and newer

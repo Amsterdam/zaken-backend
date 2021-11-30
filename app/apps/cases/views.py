@@ -187,7 +187,7 @@ class CaseViewSet(
             theme_parameter,
             reason_parameter,
             open_status_parameter,
-            no_pagination_parameter
+            no_pagination_parameter,
         ],
         description="Case filter query parameters",
         responses={200: CaseSerializer(many=True)},
@@ -294,7 +294,9 @@ class CaseViewSet(
         ).distinct()
         paginator = LimitOffsetPagination()
         context = paginator.paginate_queryset(queryset, request)
-        serializer = CaseWorkflowSerializer(context, many=True, context={"request": request})
+        serializer = CaseWorkflowSerializer(
+            context, many=True, context={"request": request}
+        )
         return paginator.get_paginated_response(serializer.data)
 
     @extend_schema(
