@@ -492,10 +492,17 @@ WORKFLOW_SPEC_CONFIG = {
                 "0.1.0": {},
             },
         },
+        "digital_surveillance": {
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {},
+            },
+        },
         "debrief": {
             "initial_data": {},
             "versions": {
                 "0.1.0": {},
+                "1.0.0": {},
             },
         },
         "director": {
@@ -511,6 +518,25 @@ WORKFLOW_SPEC_CONFIG = {
                         "aanschrijving_toevoegen": {},  # TODO Remove this
                     },
                 },
+                "1.0.0": {
+                    "messages": {
+                        "main_process": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                            },
+                        },
+                        "aanschrijving_toevoegen": {},  # TODO Remove this
+                    },
+                },
+            },
+        },
+        "housing_corporation": {
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {},
             },
         },
         "renounce_decision": {
@@ -543,10 +569,12 @@ WORKFLOW_SPEC_CONFIG = {
                 "task_monitor_incoming_point_of_view_timer_duration": timedelta(
                     days=71
                 ),
+                "summon_next_step": {"value": "summon"},
             },
             "versions": {
                 "0.1.0": {},
                 "0.2.0": {},
+                "1.0.0": {},
             },
         },
         "visit": {

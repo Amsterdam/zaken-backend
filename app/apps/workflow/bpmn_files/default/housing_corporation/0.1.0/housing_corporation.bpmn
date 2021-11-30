@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1wko62w" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.14.0">
+  <bpmn:collaboration id="Collaboration_0d17nif">
+    <bpmn:participant id="Participant_09pktp7" name="Process" processRef="housing_corporation" />
+  </bpmn:collaboration>
+  <bpmn:process id="housing_corporation" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_1q07l78">
+      <bpmn:lane id="Lane_12nnnrj" name="Toezichthouder">
+        <bpmn:flowNodeRef>start_housing_corporation</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_housing_corporation</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_status_afstemmen_corporatie</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_afstemmen_corporatie_afgerond</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1x1hv6r" />
+    </bpmn:laneSet>
+    <bpmn:startEvent id="start_housing_corporation">
+      <bpmn:outgoing>Flow_1l76fkr</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="end_housing_corporation">
+      <bpmn:incoming>Flow_0vk92qy</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="service_status_afstemmen_corporatie" name="Status Bijwerken: &#39;Afstemmen corporatie&#39;">
+      <bpmn:incoming>Flow_1l76fkr</bpmn:incoming>
+      <bpmn:outgoing>Flow_1c36m7z</bpmn:outgoing>
+      <bpmn:script>set_status("Afstemmen corporatie")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="task_afstemmen_corporatie_afgerond" name="Afstemmen corporatie afgerond">
+      <bpmn:incoming>Flow_1c36m7z</bpmn:incoming>
+      <bpmn:outgoing>Flow_0vk92qy</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1l76fkr" sourceRef="start_housing_corporation" targetRef="service_status_afstemmen_corporatie" />
+    <bpmn:sequenceFlow id="Flow_1c36m7z" sourceRef="service_status_afstemmen_corporatie" targetRef="task_afstemmen_corporatie_afgerond" />
+    <bpmn:sequenceFlow id="Flow_0vk92qy" sourceRef="task_afstemmen_corporatie_afgerond" targetRef="end_housing_corporation" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0d17nif">
+      <bpmndi:BPMNShape id="Participant_09pktp7_di" bpmnElement="Participant_09pktp7" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="600" height="370" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_12nnnrj_di" bpmnElement="Lane_12nnnrj" isHorizontal="true">
+        <dc:Bounds x="190" y="200" width="570" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1x1hv6r_di" bpmnElement="Lane_1x1hv6r" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="570" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1l76fkr_di" bpmnElement="Flow_1l76fkr">
+        <di:waypoint x="279" y="331" />
+        <di:waypoint x="341" y="331" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1c36m7z_di" bpmnElement="Flow_1c36m7z">
+        <di:waypoint x="441" y="331" />
+        <di:waypoint x="501" y="331" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0vk92qy_di" bpmnElement="Flow_0vk92qy">
+        <di:waypoint x="601" y="331" />
+        <di:waypoint x="673" y="331" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0gebmr6_di" bpmnElement="start_housing_corporation">
+        <dc:Bounds x="243" y="313" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="217" y="356" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_17wjvj1_di" bpmnElement="end_housing_corporation">
+        <dc:Bounds x="673" y="313" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="650" y="356" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_08t184v_di" bpmnElement="service_status_afstemmen_corporatie">
+        <dc:Bounds x="341" y="291" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1fuxqgl_di" bpmnElement="task_afstemmen_corporatie_afgerond">
+        <dc:Bounds x="501" y="291" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
