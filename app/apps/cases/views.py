@@ -82,7 +82,7 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from utils.api_queries_bag import do_bag_search_address_exact
@@ -187,7 +187,7 @@ class CaseViewSet(
             theme_parameter,
             reason_parameter,
             open_status_parameter,
-            no_pagination_parameter,
+            no_pagination_parameter
         ],
         description="Case filter query parameters",
         responses={200: CaseSerializer(many=True)},
@@ -224,7 +224,7 @@ class CaseViewSet(
             serializer = CaseSerializer(queryset, many=True)
             return Response(serializer.data)
 
-        paginator = PageNumberPagination()
+        paginator = LimitOffsetPagination()
         context = paginator.paginate_queryset(queryset, request)
         serializer = CaseSerializer(context, many=True)
 
@@ -289,16 +289,13 @@ class CaseViewSet(
     def get_tasks(self, request, pk):
         case = self.get_object()
         request.user
-
-        serializer = CaseWorkflowSerializer(
-            CaseWorkflow.objects.filter(
-                case=case, tasks__isnull=False, tasks__completed=False
-            ).distinct(),
-            many=True,
-            context={"request": request},
-        )
-
-        return Response(serializer.data)
+        queryset = CaseWorkflow.objects.filter(
+            case=case, tasks__isnull=False, tasks__completed=False
+        ).distinct()
+        paginator = LimitOffsetPagination()
+        context = paginator.paginate_queryset(queryset, request)
+        serializer = CaseWorkflowSerializer(context, many=True, context={"request": request})
+        return paginator.get_paginated_response(serializer.data)
 
     @extend_schema(
         description="Get WorkflowOption for this Case",
