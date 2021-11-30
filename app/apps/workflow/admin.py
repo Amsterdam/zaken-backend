@@ -42,6 +42,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
                     "task_states": ["COMPLETED", "READY", "WAITING", "CANCELLED"],
                 }
             )
+            obj.reset_subworkflow("debrief")
         return super().render_change_form(request, context, add, change, form_url, obj)
 
 

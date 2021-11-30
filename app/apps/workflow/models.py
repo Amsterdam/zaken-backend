@@ -12,8 +12,10 @@ from django.utils.dateparse import parse_duration
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.specs.event_definitions import TimerEventDefinition
+from SpiffWorkflow.bpmn.specs.ScriptTask import ScriptTask
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
+from SpiffWorkflow.specs.StartTask import StartTask
 from SpiffWorkflow.task import Task
 from utils.managers import BulkCreateSignalsManager
 
@@ -28,6 +30,7 @@ from .tasks import (
 from .utils import (
     compare_workflow_specs_by_task_specs,
     get_initial_data_from_config,
+    get_latest_version_from_config,
     get_workflow_path,
     get_workflow_spec,
     parse_task_spec_form,
@@ -481,6 +484,124 @@ class CaseWorkflow(models.Model):
             self.save_workflow_state(wf)
             self.update_tasks(wf)
             transaction.on_commit(lambda: self.release_lock())
+
+    def reset_subworkflow(self, subworkflow, test=True):
+        success = False
+        wf = self.get_or_restore_workflow_state()
+        latest_theme_name, latest_version = get_latest_version_from_config(
+            self.workflow_theme_name, self.workflow_type
+        )
+        latest_path = get_workflow_path(
+            self.workflow_type,
+            latest_theme_name,
+            latest_version,
+        )
+        self.get_workflow_spec()
+        wf_spec_latest = get_workflow_spec(latest_path, self.workflow_type)
+        print(latest_version)
+
+        subworkflows = (
+            "visit",
+            "debrief",
+            "summon",
+            "decision",
+        )
+        if not self.main_workflow or subworkflow not in subworkflows or not wf:
+            return False
+
+        original_data = copy.deepcopy(wf.last_task.data)
+
+        script_engine = BpmnScriptEngine(
+            scriptingAdditions={
+                "set_status": lambda *args: None,
+                "wait_for_workflows_and_send_message": lambda *args: None,
+                "start_subworkflow": lambda *args: None,
+                "parse_duration": lambda *args: None,
+            }
+        )
+        workflow = BpmnWorkflow(wf_spec_latest, script_engine=script_engine)
+
+        nav = workflow.get_deep_nav_list()
+        print(nav)
+
+        first_task = workflow.get_tasks(Task.READY)[0]
+        first_task.update_data(original_data)
+        workflow.refresh_waiting_tasks()
+        workflow.do_engine_steps()
+        workflow.message(
+            self.workflow_message_name, self.workflow_message_name, "message_name"
+        )
+        workflow.refresh_waiting_tasks()
+        workflow.do_engine_steps()
+        ready_tasks = workflow.get_tasks(Task.WAITING)
+        print(ready_tasks)
+        print(workflow.get_tasks(Task.READY))
+        # def ff_wf(wf, task_spec_name):
+
+        while len(ready_tasks) > 0:
+            for task in ready_tasks:
+                if (
+                    task.task_spec.description == f"resume_after_{subworkflow}"
+                    and isinstance(workflow.last_task.task_spec, ScriptTask)
+                    and workflow.last_task.task_spec.script
+                    == f'start_subworkflow("{subworkflow}")'
+                ):
+                    ready_tasks = []
+                else:
+                    if task.task_spec.inputs and not isinstance(
+                        task.task_spec.inputs[0], StartTask
+                    ):
+                        print(" ----- ")
+                        print(task.task_spec.name)
+                        print(task.task_spec.description)
+
+                        if hasattr(task.task_spec, "spec"):
+                            print(task.task_spec.spec)
+                            if hasattr(task.task_spec.spec, "start"):
+                                print(task.task_spec.spec.start)
+                        print(task.task_spec.__class__)
+                        if hasattr(task.task_spec, "event_definition"):
+                            # print(task.__dir__())
+                            # print(task.task_spec.__dir__())
+                            print(task.task_spec.inputs)
+                            print(task.task_spec.event_definition)
+                        task.update_data(original_data)
+                        workflow.complete_task_from_id(task.id)
+                        workflow.refresh_waiting_tasks()
+                        workflow.do_engine_steps()
+                        ready_tasks = workflow.get_tasks(Task.WAITING)
+        print(" - RESULT - ")
+        print(workflow.last_task.id)
+        print(workflow.last_task.task_spec.name)
+        print(workflow.last_task.task_spec.description)
+        print(workflow.last_task.task_spec.script)
+        print([workflow.last_task.data.keys()])
+        print([original_data.keys()])
+        print(workflow.last_task.data)
+
+        if (
+            isinstance(workflow.last_task.task_spec, ScriptTask)
+            and workflow.last_task.task_spec.script
+            == f'start_subworkflow("{subworkflow}")'
+        ):
+            subworkflows_to_be_deleted = CaseWorkflow.objects.filter(
+                parent_workflow=self
+            )
+            tasks_to_be_deleted = CaseUserTask.objects.filter(
+                workflow__in=subworkflows_to_be_deleted
+            )
+            success = True
+
+        if not success:
+            return "De subworkflow is niet gevonden"
+
+        if test:
+            return {
+                "subworkflows_to_be_deleted": subworkflows_to_be_deleted,
+                "tasks_to_be_deleted": tasks_to_be_deleted,
+            }
+        else:
+            pass
 
     def migrate_to(self, workflow_version, test=True):
         # tests and tries to migrate to an other version
