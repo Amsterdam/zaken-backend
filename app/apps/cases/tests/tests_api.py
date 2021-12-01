@@ -134,6 +134,25 @@ class CaseListApiTest(APITestCase):
         results = response.data["results"]
         self.assertEqual(len(results), QUANTITY)
 
+    def test_pagination(self):
+        QUANTITY = 100
+        LIMIT = 50
+        baker.make(Case, _quantity=QUANTITY)
+        url = reverse("cases-list")
+
+        def get_paginated_results(limit, offset=LIMIT):
+            params = {"limit": limit, "offset": offset}
+            client = get_authenticated_client()
+            response = client.get(url, params)
+            return response.data["results"]
+
+        self.assertNotEqual(
+            get_paginated_results(LIMIT, 0), get_paginated_results(LIMIT, LIMIT)
+        )
+        self.assertEqual(
+            len(get_paginated_results(LIMIT)), len(get_paginated_results(LIMIT))
+        )
+
     def test_filter_start_date(self):
         # Should only returb dates on the given date and newer
         DATE_A = datetime.datetime.now()

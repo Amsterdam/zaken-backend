@@ -83,7 +83,7 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from utils.api_queries_bag import do_bag_search_address_exact
@@ -225,7 +225,7 @@ class CaseViewSet(
             serializer = CaseSerializer(queryset, many=True)
             return Response(serializer.data)
 
-        paginator = PageNumberPagination()
+        paginator = LimitOffsetPagination()
         context = paginator.paginate_queryset(queryset, request)
         serializer = CaseSerializer(context, many=True)
 
@@ -281,7 +281,7 @@ class CaseViewSet(
         if ton_ids:
             cases = cases.filter(ton_ids__overlap=ton_ids.split(","))
 
-        paginator = PageNumberPagination()
+        paginator = LimitOffsetPagination()
         context = paginator.paginate_queryset(cases, request)
         serializer = CaseSerializer(context, many=True)
 
@@ -295,16 +295,15 @@ class CaseViewSet(
     def get_tasks(self, request, pk):
         case = self.get_object()
         request.user
-
+        queryset = CaseWorkflow.objects.filter(
+            case=case, tasks__isnull=False, tasks__completed=False
+        ).distinct()
+        paginator = LimitOffsetPagination()
+        context = paginator.paginate_queryset(queryset, request)
         serializer = CaseWorkflowSerializer(
-            CaseWorkflow.objects.filter(
-                case=case, tasks__isnull=False, tasks__completed=False
-            ).distinct(),
-            many=True,
-            context={"request": request},
+            context, many=True, context={"request": request}
         )
-
-        return Response(serializer.data)
+        return paginator.get_paginated_response(serializer.data)
 
     @extend_schema(
         description="Get WorkflowOption for this Case",
@@ -411,7 +410,7 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         methods=["get"],
     )
     def reasons(self, request, pk):
-        paginator = PageNumberPagination()
+        paginator = LimitOffsetPagination()
         theme = self.get_object()
         query_set = theme.reasons.all()
 
@@ -430,7 +429,7 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         methods=["get"],
     )
     def summon_types(self, request, pk):
-        paginator = PageNumberPagination()
+        paginator = LimitOffsetPagination()
         theme = self.get_object()
         query_set = theme.summon_types.all()
 
@@ -449,7 +448,7 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         methods=["get"],
     )
     def decision_types(self, request, pk):
-        paginator = PageNumberPagination()
+        paginator = LimitOffsetPagination()
         theme = self.get_object()
         query_set = theme.decision_types.all()
 
@@ -482,7 +481,7 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         methods=["get"],
     )
     def state_types(self, request, pk):
-        paginator = PageNumberPagination()
+        paginator = LimitOffsetPagination()
         theme = self.get_object()
         query_set = theme.state_types.all()
         if request.GET.get("role") == "toezichthouder":
@@ -505,7 +504,7 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         methods=["get"],
     )
     def violation_types(self, request, pk):
-        paginator = PageNumberPagination()
+        paginator = LimitOffsetPagination()
         types = [{"key": t[0]} for t in Debriefing.VIOLATION_CHOICES]
         context = paginator.paginate_queryset(types, request)
         serializer = ViolationTypeSerializer(context, many=True)
@@ -522,7 +521,7 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         methods=["get"],
     )
     def case_close_reasons(self, request, pk):
-        paginator = PageNumberPagination()
+        paginator = LimitOffsetPagination()
         theme = self.get_object()
         query_set = theme.caseclosereason_set.all()
 
@@ -541,7 +540,7 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         methods=["get"],
     )
     def case_projects(self, request, pk):
-        paginator = PageNumberPagination()
+        paginator = LimitOffsetPagination()
         theme = self.get_object()
         query_set = theme.caseproject_set.all()
 
@@ -560,7 +559,7 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         methods=["get"],
     )
     def case_close_results(self, request, pk):
-        paginator = PageNumberPagination()
+        paginator = LimitOffsetPagination()
         theme = self.get_object()
         query_set = theme.casecloseresult_set.all()
 
