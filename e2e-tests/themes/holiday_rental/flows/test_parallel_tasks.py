@@ -3,8 +3,8 @@ from concurrent.futures import as_completed
 from api.config import Violation
 from api.events import GenericTaskEvent
 from api.tasks import GenericUserTask
-from api.tasks.debrief import task_terugkoppelen_melder_2, test_verwerken_debrief
-from api.tasks.summon import test_nakijken_aanschrijving
+from api.tasks.debrief import test_verwerken_debrief
+from api.tasks.summon import test_opstellen_concept_aanschrijving
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
 from requests_futures.sessions import FuturesSession
@@ -26,7 +26,6 @@ class TestParallelTasks(DefaultAPITest):
         case = self.get_case()
         case.run_steps(
             *test_verwerken_debrief.get_steps(violation=Violation.YES),
-            task_terugkoppelen_melder_2(),
         )
 
         open_tasks = self.client.get_case_tasks(case.data["id"])
@@ -49,7 +48,7 @@ class TestParallelTasks(DefaultAPITest):
 
         # poll for the expected result
         case.run_steps(
-            ValidateOpenTasks(test_nakijken_aanschrijving),
+            ValidateOpenTasks(test_opstellen_concept_aanschrijving),
             extra_events=[
                 GenericTaskEvent.type,
                 GenericTaskEvent.type,

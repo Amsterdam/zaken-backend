@@ -173,6 +173,10 @@ class test_beoordelen_zienswijze(GenericUserTask, task_beoordelen_zienswijze):
 class test_monitoren_binnenkomen_vergunningaanvraag(
     GenericUserTask, task_monitoren_binnenkomen_vergunningaanvraag
 ):
+    def __init__(self):
+        data = {"action_civilian_permit_requested": {"value": True}}
+        super(test_monitoren_binnenkomen_vergunningaanvraag, self).__init__(**data)
+
     @staticmethod
     def get_steps(permit_requested=True):
         return [
@@ -226,13 +230,4 @@ class test_controleren_vergunningsprocedure(
             *test_monitoren_vergunningsprocedure.get_steps(has_permit=False),
             WaitForTimer(),
             __class__(has_permit=has_permit),
-        ]
-
-
-class test_afronden_vergunningscheck(GenericUserTask, task_afronden_vergunningscheck):
-    @staticmethod
-    def get_steps():
-        return [
-            *test_controleren_vergunningsprocedure.get_steps(),
-            __class__(),
         ]

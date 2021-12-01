@@ -366,11 +366,11 @@ class task_afsluiten_zaak(user_task):
     _task_name = "task_close_case"
 
     @staticmethod
-    def get_due_date(case):
-        from apps.decision.models import Decision
+    def get_due_date(case_user_task):
+        from apps.decisions.models import Decision
 
         sanction_count = (
-            Decision.objects.filter(case=case)
+            Decision.objects.filter(case=case_user_task.case)
             .exclude(decision_type__workflow_option="no_decision")
             .count()
         )

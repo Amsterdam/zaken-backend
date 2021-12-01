@@ -1,5 +1,5 @@
+from api.tasks.close_case import test_uitzetten_vervolgstap
 from api.tasks.summon import (
-    test_afronden_vergunningscheck,
     test_controleren_vergunningsprocedure,
     test_monitoren_binnenkomen_vergunningaanvraag,
     test_monitoren_vergunningsprocedure,
@@ -16,7 +16,7 @@ class task_monitoren_vergunningsprocedure_test(DefaultAPITest):
                 permit_requested=True
             ),
             test_monitoren_vergunningsprocedure(),
-            ValidateOpenTasks(test_afronden_vergunningscheck),
+            ValidateOpenTasks(test_uitzetten_vervolgstap),
         )
 
     def test_has_permit(self):

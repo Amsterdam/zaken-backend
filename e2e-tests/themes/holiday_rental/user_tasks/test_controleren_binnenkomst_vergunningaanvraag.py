@@ -3,7 +3,7 @@ from api.tasks.summon import (
     test_controleren_binnenkomst_vergunningaanvraag,
     test_monitoren_binnenkomen_vergunningaanvraag,
     test_monitoren_vergunningsprocedure,
-    test_verwerk_aanschrijving,
+    test_opstellen_concept_aanschrijving,
 )
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
@@ -29,5 +29,5 @@ class task_controleren_binnenkomst_vergunningaanvraag_test(DefaultAPITest):
             test_controleren_binnenkomst_vergunningaanvraag(
                 permit_requested=PermitRequested.NO
             ),
-            ValidateOpenTasks(test_verwerk_aanschrijving),
+            ValidateOpenTasks(test_opstellen_concept_aanschrijving),
         )

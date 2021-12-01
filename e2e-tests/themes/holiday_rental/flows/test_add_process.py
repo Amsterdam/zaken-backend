@@ -1,5 +1,9 @@
 from api.config import Process
-from api.tasks.summon import test_nakijken_aanschrijving, test_verwerk_aanschrijving
+from api.tasks.summon import (
+    test_nakijken_aanschrijving,
+    test_opstellen_concept_aanschrijving,
+    test_verwerk_aanschrijving,
+)
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
 
@@ -12,5 +16,7 @@ class TestAddProcess(DefaultAPITest):
         )
         case.add_process(Process.HolidayRental.ADD_SUMMON),
         case.run_steps(
-            ValidateOpenTasks(test_verwerk_aanschrijving, test_verwerk_aanschrijving),
+            ValidateOpenTasks(
+                test_verwerk_aanschrijving, test_opstellen_concept_aanschrijving
+            ),
         )
