@@ -64,8 +64,10 @@ def case_workflow_pre_save(sender, instance, **kwargs):
         if instance.main_workflow:
             instance.data.update(
                 {
-                    "theme": {"value": instance.case.theme.snake_case_name},
-                    "reason": {"value": instance.case.reason.snake_case_name},
+                    "theme": {"value": f"theme_{instance.case.theme.snake_case_name}"},
+                    "reason": {
+                        "value": f"reason_{instance.case.reason.snake_case_name}"
+                    },
                 }
             )
 
