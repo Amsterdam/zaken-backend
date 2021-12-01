@@ -130,49 +130,18 @@ def task_wait_for_workflows_and_send_message(self, workflow_id, message):
     workflow_instance = CaseWorkflow.objects.get(id=workflow_id)
 
     if workflow_instance.get_lock():
-        # tell the other workfows that this one is waiting
-        workflow_instance.data.update(
-            {
-                message: "done",
-            }
-        )
-        workflow_instance.save(update_fields=["data"])
-        all_workflows = CaseWorkflow.objects.filter(
-            case=workflow_instance.case,
-            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
-        )
+        main_workflow = CaseWorkflow.objects.filter(
+            case=workflow_instance.case, main_workflow=True
+        ).first()
 
-        workflows_completed = [
-            a
-            for a in all_workflows.values_list("data", flat=True)
-            if a.get(message) == "done"
-        ]
-        main_workflow = all_workflows.filter(main_workflow=True).first()
+        if hasattr(main_workflow.__class__, f"handle_{message}") and callable(
+            getattr(main_workflow.__class__, f"handle_{message}")
+        ):
+            data = getattr(main_workflow, f"handle_{message}")(workflow_instance)
 
-        """
-        Tests if all workflows reached thit point,
-        so the last waiting worklfow kan tell the main workflow to accept the message after all, so only the main workflow can resume
-        """
-        if len(workflows_completed) == all_workflows.count() and main_workflow:
+            if data:
+                task_accept_message_for_workflow.delay(main_workflow.id, message, data)
 
-            # pick up all summons and pass them on to the main workflow
-            all_summons = [
-                d.get("summon_id")
-                for d in all_workflows.values_list("data", flat=True)
-                if d.get("summon_id")
-            ]
-            extra_data = {
-                "all_summons": all_summons,
-            }
-
-            # sends the accept message to a task, because we have to wait until this current tasks, we are in, is completed
-            task_accept_message_for_workflow.delay(
-                main_workflow.id, message, extra_data
-            )
-
-            # TODO: cleanup(delete others), but the message is not send yet, so below should wait
-            # other_workflows = all_workflows.exclude(id=main_workflow.id)
-            # other_workflows.delete()
         return f"task_wait_for_workflows_and_send_message: message '{message}' for workflow with id '{workflow_id}', completed"
     raise Exception(
         f"task_wait_for_workflows_and_send_message: message '{message}' for workflow with id '{workflow_id}', is busy"

@@ -109,7 +109,7 @@ def get_base_path():
 
 
 def get_latest_version_from_config(
-    theme_name, workflow_type, workflow_spec_config=None
+    theme_name, workflow_type, current_version=None, workflow_spec_config=None
 ):
     workflow_spec_config = (
         workflow_spec_config if workflow_spec_config else settings.WORKFLOW_SPEC_CONFIG
@@ -127,7 +127,13 @@ def get_latest_version_from_config(
             f"Workflow type '{workflow_type}', does not exist in this workflow_spec config"
         )
 
+    def get_major(v):
+        return int(v.split(".")[0])
+
     version = sorted([v for v, k in config.get("versions").items()])
+
+    if current_version:
+        version = [v for v in version if get_major(current_version) >= get_major(v)]
 
     if not version:
         raise Exception(
@@ -136,7 +142,9 @@ def get_latest_version_from_config(
     return theme_name, version[-1]
 
 
-def get_initial_data_from_config(theme_name, workflow_type, message_name=None):
+def get_initial_data_from_config(
+    theme_name, workflow_type, workflow_version, message_name=None
+):
     validated_workflow_spec_config = validate_workflow_spec(
         settings.WORKFLOW_SPEC_CONFIG
     )
@@ -163,15 +171,14 @@ def get_initial_data_from_config(theme_name, workflow_type, message_name=None):
 
     initial_data = config.get("initial_data", {})
 
-    version = sorted([v for v, k in config.get("versions").items()])
-
+    version = config.get("versions", {}).get(workflow_version)
     if (
         message_name
         and version
-        and version[0].get("messages", {}).get(message_name, {}).get("initial_data", {})
+        and version.get("messages", {}).get(message_name, {}).get("initial_data", {})
     ):
         initial_data = (
-            version[0].get("messages", {}).get(message_name, {}).get("initial_data", {})
+            version.get("messages", {}).get(message_name, {}).get("initial_data", {})
         )
 
     initial_data = dict(
@@ -594,16 +601,20 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
     }
 
 
-def workflow_test_message(message, workflow_spec, script_engine):
+def workflow_test_message(message, workflow_spec, script_engine, initial_data={}):
     try:
 
         workflow_a = BpmnWorkflow(workflow_spec)
+        first_task_a = workflow_a.get_tasks(Task.READY)
+        first_task_a[0].update_data(initial_data)
         workflow_a_serialized = BpmnSerializer().serialize_workflow(
             workflow_a, include_spec=False
         )
         workflow_b = BpmnSerializer().deserialize_workflow(
             workflow_a_serialized, workflow_spec
         )
+        first_task_b = workflow_a.get_tasks(Task.READY)
+        first_task_b[0].update_data(initial_data)
         workflow_a.script_engine = script_engine
         workflow_b.script_engine = script_engine
 
@@ -766,7 +777,14 @@ def workflow_spec_path_inspect(
             "messages": [
                 {
                     "message": m,
-                    "exists": workflow_test_message(m, workflow_spec, script_engine),
+                    "exists": workflow_test_message(
+                        m,
+                        workflow_spec,
+                        script_engine,
+                        initial_data
+                        if not v.get("initial_data")
+                        else v.get("initial_data", {}),
+                    ),
                     "tree_valid": workflow_tree_inspect(
                         workflow,
                         initial_data

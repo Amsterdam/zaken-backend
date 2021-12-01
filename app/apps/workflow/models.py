@@ -164,13 +164,70 @@ class CaseWorkflow(models.Model):
         )
         return wf
 
+    # legacy method, should be removed if all directors use version >=1.0.0
+    def handle_message_catch_event_next_step(self, workflow_instance):
+        return self.handle_message_wait_for_summons(workflow_instance)
+
+    def handle_message_wait_for_summons(self, workflow_instance):
+        from apps.decisions.models import Decision
+
+        message = "message_wait_for_summons"
+
+        # tell the other workfows that this one is waiting
+        workflow_instance.data.update(
+            {
+                message: "done",
+            }
+        )
+        workflow_instance.save(update_fields=["data"])
+        all_workflows = CaseWorkflow.objects.filter(
+            case=workflow_instance.case,
+            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
+        )
+
+        workflows_completed = [
+            a
+            for a in all_workflows.values_list("data", flat=True)
+            if a.get(message) == "done"
+        ]
+
+        main_workflow = all_workflows.filter(main_workflow=True).first()
+        """
+        Tests if all workflows reached thit point,
+        so the last waiting worklfow kan tell the main workflow to accept the message after all, so only the main workflow can resume
+        """
+        if len(workflows_completed) == all_workflows.count() and main_workflow:
+
+            # pick up all summons and pass them on to the main workflow
+            all_summons = [
+                d.get("summon_id")
+                for d in all_workflows.values_list("data", flat=True)
+                if d.get("summon_id")
+            ]
+            extra_data = {
+                "all_summons": all_summons,
+                "decision_count": Decision.objects.filter(
+                    case=main_workflow.case
+                ).count(),
+            }
+            other_workflows = all_workflows.exclude(id=main_workflow.id)
+
+            for workflow in other_workflows:
+                workflow.complete_workflow()
+
+            return extra_data
+        return False
+
     def start(self, data={}):
         wf = self.get_or_restore_workflow_state()
         if not wf:
             return
 
         initial_data = get_initial_data_from_config(
-            self.case.theme.name, self.workflow_type
+            self.workflow_theme_name,
+            self.workflow_type,
+            self.workflow_version,
+            self.workflow_message_name,
         )
 
         if isinstance(data, dict):
@@ -259,6 +316,17 @@ class CaseWorkflow(models.Model):
         task_instances = CaseUserTask.objects.bulk_create(task_data)
 
         return task_instances
+
+    def complete_workflow(self):
+        wf = self.get_or_restore_workflow_state()
+        if not wf:
+            return
+        wf.complete_all(False, False)
+        # TODO: There are probably still waiting tasks active, so cleanup, if we should not wait for those tasks
+
+        self.completed = True
+
+        self._update_db(wf)
 
     def update_tasks(self, wf):
         self.set_absolete_tasks_to_completed(wf)
