@@ -64,6 +64,17 @@ class CaseWorkflow(models.Model):
         (WORKFLOW_TYPE_CLOSE_CASE, WORKFLOW_TYPE_CLOSE_CASE),
     )
 
+    SUBWORKFLOWS = (
+        "visit",
+        "debrief",
+        "summon",
+        "decision",
+        "renounce_decision",
+        "closing_procedure",
+        "closing_procedure",
+        "close_case",
+    )
+
     case = models.ForeignKey(
         to=Case,
         related_name="workflows",
@@ -501,17 +512,20 @@ class CaseWorkflow(models.Model):
             latest_theme_name,
             latest_version,
         )
-        self.get_workflow_spec()
-        wf_spec_latest = get_workflow_spec(latest_path, self.workflow_type)
-        print(latest_version)
-
-        subworkflows = (
-            "visit",
-            "debrief",
-            "summon",
-            "decision",
+        initial_data = get_initial_data_from_config(
+            latest_theme_name,
+            self.workflow_type,
+            latest_version,
+            self.workflow_message_name,
         )
-        if not self.main_workflow or subworkflow not in subworkflows:
+        initial_data.update(original_data)
+
+        wf_spec_latest = get_workflow_spec(latest_path, self.workflow_type)
+
+        if (
+            not self.workflow_type == CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+            or subworkflow not in self.SUBWORKFLOWS
+        ):
             return False
 
         script_engine = BpmnScriptEngine(
@@ -524,22 +538,18 @@ class CaseWorkflow(models.Model):
         )
         workflow = BpmnWorkflow(wf_spec_latest, script_engine=script_engine)
 
-        nav = workflow.get_deep_nav_list()
-        print(nav)
-
         first_task = workflow.get_tasks(Task.READY)[0]
-        first_task.update_data(original_data)
+        first_task.update_data(initial_data)
+
         workflow.refresh_waiting_tasks()
         workflow.do_engine_steps()
+
         workflow.message(
             self.workflow_message_name, self.workflow_message_name, "message_name"
         )
         workflow.refresh_waiting_tasks()
         workflow.do_engine_steps()
         ready_tasks = workflow.get_tasks(Task.WAITING)
-        print(ready_tasks)
-        print(workflow.get_tasks(Task.READY))
-        # def ff_wf(wf, task_spec_name):
 
         while len(ready_tasks) > 0:
             for task in ready_tasks:
@@ -554,33 +564,15 @@ class CaseWorkflow(models.Model):
                     if task.task_spec.inputs and not isinstance(
                         task.task_spec.inputs[0], StartTask
                     ):
-                        print(" ----- ")
-                        print(task.task_spec.name)
-                        print(task.task_spec.description)
-
-                        if hasattr(task.task_spec, "spec"):
-                            print(task.task_spec.spec)
-                            if hasattr(task.task_spec.spec, "start"):
-                                print(task.task_spec.spec.start)
-                        print(task.task_spec.__class__)
-                        if hasattr(task.task_spec, "event_definition"):
-                            # print(task.__dir__())
-                            # print(task.task_spec.__dir__())
-                            print(task.task_spec.inputs)
-                            print(task.task_spec.event_definition)
-                        task.update_data(original_data)
+                        task.update_data(initial_data)
                         workflow.complete_task_from_id(task.id)
-                        workflow.refresh_waiting_tasks()
-                        workflow.do_engine_steps()
-                        ready_tasks = workflow.get_tasks(Task.WAITING)
-        print(" - RESULT - ")
-        print(workflow.last_task.id)
-        print(workflow.last_task.task_spec.name)
-        print(workflow.last_task.task_spec.description)
-        print(workflow.last_task.task_spec.script)
-        print([workflow.last_task.data.keys()])
-        print([original_data.keys()])
-        print(workflow.last_task.data)
+                        try:
+                            workflow.refresh_waiting_tasks()
+                            workflow.do_engine_steps()
+                            ready_tasks = workflow.get_tasks(Task.WAITING)
+                        except Exception as e:
+                            ready_tasks = []
+                            logger.error(f"ERROR: Reset subworkflows: {e}")
 
         if (
             isinstance(workflow.last_task.task_spec, ScriptTask)
@@ -595,22 +587,38 @@ class CaseWorkflow(models.Model):
             )
             success = True
 
+        result = {
+            "success": success,
+            "data": initial_data,
+        }
+
         if not success:
-            return "De subworkflow is niet gevonden"
+            result.update(
+                {
+                    "message": "Op basis van de huidige data van deze director, kun je niet resetten naar de gekozen workflow"
+                }
+            )
+            return result
 
         if test:
             self.data = copy.deepcopy(workflow.last_task.data)
             self.save()
-            return {
-                "current_version": self.workflow_version,
-                "new_version": latest_version,
-                "current_theme_name": self.workflow_theme_name,
-                "new_theme_name": latest_theme_name,
-                "subworkflows_to_be_deleted": subworkflows_to_be_deleted,
-                "tasks_to_be_deleted": tasks_to_be_deleted,
-            }
+            result.update(
+                {
+                    "current_version": self.workflow_version,
+                    "new_version": latest_version,
+                    "current_theme_name": self.workflow_theme_name,
+                    "new_theme_name": latest_theme_name,
+                    "subworkflows_to_be_deleted": subworkflows_to_be_deleted,
+                    "tasks_to_be_deleted": tasks_to_be_deleted,
+                    "subworkflow": subworkflow,
+                }
+            )
+            return result
         else:
-            state = self.get_serializer().serialize_workflow(wf, include_spec=False)
+            state = self.get_serializer().serialize_workflow(
+                workflow, include_spec=False
+            )
             self.workflow_theme_name = latest_theme_name
             self.workflow_version = latest_version
             self.serialized_workflow_state = state

@@ -1,6 +1,11 @@
+from django.conf.urls import url
 from django.contrib import admin
-from django.utils.html import mark_safe
+from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
+from django.urls import reverse
+from django.utils.html import format_html, mark_safe
 
+from .forms import ResetSubworkflowsForm
 from .models import CaseUserTask, CaseWorkflow, GenericCompletedTask, WorkflowOption
 
 
@@ -16,6 +21,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         "parent_workflow",
         "issues",
         "completed",
+        "reset_subworkflows",
     )
 
     list_filter = (
@@ -44,6 +50,69 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
             )
             obj.reset_subworkflow("debrief")
         return super().render_change_form(request, context, add, change, form_url, obj)
+
+    def reset_subworkflows(self, obj):
+        if obj.workflow_type == CaseWorkflow.WORKFLOW_TYPE_DIRECTOR:
+            return format_html(
+                '<a class="button" href="{}" id="caseworkflow_id_{}">Reset subworkflows</a>',
+                reverse("admin:reset-subworkflows", args=[obj.pk]),
+                obj.pk,
+            )
+        else:
+            return ""
+
+    reset_subworkflows.short_description = "Reset subworkflows"
+    reset_subworkflows.allow_tags = True
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            url(
+                r"^(?P<caseworkflow_id>.+)/reset-subworkflows/$",
+                self.admin_site.admin_view(self.process_reset_subworkflows),
+                name="reset-subworkflows",
+            ),
+        ]
+        return custom_urls + urls
+
+    def process_reset_subworkflows(self, request, caseworkflow_id, *args, **kwargs):
+        caseworkflow = self.get_object(request, caseworkflow_id)
+        result = {}
+        if request.method == "GET":
+            form = ResetSubworkflowsForm(caseworkflow=caseworkflow)
+            if request.GET.get("reset_to"):
+                result = caseworkflow.reset_subworkflow(
+                    request.GET.get("reset_to"), False
+                )
+                url = reverse(
+                    "admin:reset-subworkflows",
+                    args=[caseworkflow.pk],
+                    current_app=self.admin_site.name,
+                )
+                return HttpResponseRedirect(f"{url}?done=true")
+        else:
+            form = ResetSubworkflowsForm(request.POST, caseworkflow=caseworkflow)
+            if form.is_valid():
+                result = form.save(caseworkflow)
+
+        context = self.admin_site.each_context(request)
+
+        context.update(
+            {
+                "opts": self.model._meta,
+                "form": form,
+                "caseworkflow": caseworkflow,
+                "result": result,
+                "workflow": caseworkflow.get_or_restore_workflow_state(),
+                "task_states": ["COMPLETED", "READY", "WAITING", "CANCELLED"],
+                "title": "Reset subworkflows for director",
+            }
+        )
+        return TemplateResponse(
+            request,
+            "admin/workflow/caseworkflow/reset_subworkflows.html",
+            context,
+        )
 
 
 @admin.register(CaseUserTask)
