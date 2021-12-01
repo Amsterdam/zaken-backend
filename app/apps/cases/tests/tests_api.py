@@ -638,3 +638,30 @@ class CaseSearchApiTest(APITestCase):
         data = response.json()
 
         self.assertEquals(len(data["results"]), 1)
+
+    def test_ton_ids_filter(self):
+        """Search for cases that contain the supplied TON IDs."""
+        # TODO: this test hasn't been completely run yet due too psycopg errors when creating a Case
+        url = reverse("cases-search")
+        client = get_authenticated_client()
+
+        MOCK_TON_IDS = [1, 2, 3]
+        MOCK_STREET_NAME = "FOO STREET NAME"
+        MOCK_STREET_NUMBER = 5
+
+        address = baker.make(
+            Address, street_name=MOCK_STREET_NAME, number=MOCK_STREET_NUMBER
+        )
+
+        baker.make(Case, address=address, ton_ids=MOCK_TON_IDS)
+
+        SEARCH_QUERY_PARAMETERS = {
+            "streetName": MOCK_STREET_NAME,
+            "streetNumber": MOCK_STREET_NUMBER,
+            "tonIds": ",".join([str(_id) for _id in MOCK_TON_IDS]),
+        }
+
+        response = client.get(url, SEARCH_QUERY_PARAMETERS)
+        data = response.json()
+        self.assertEquals(len(data["results"]), 1)
+        self.assertEquals(data["results"][0]["ton_ids"], MOCK_TON_IDS)
