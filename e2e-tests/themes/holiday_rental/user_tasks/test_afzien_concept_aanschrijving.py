@@ -2,9 +2,7 @@ from api.config import RenounceConceptSummon, TypeConceptSummon
 from api.tasks.close_case import test_uitzetten_vervolgstap
 from api.tasks.summon import (
     test_afzien_concept_aanschrijving,
-    test_nakijken_aanschrijving,
     test_opstellen_concept_aanschrijving,
-    test_verwerk_aanschrijving,
 )
 from api.tasks.visit import test_inplannen_status
 from api.test import DefaultAPITest

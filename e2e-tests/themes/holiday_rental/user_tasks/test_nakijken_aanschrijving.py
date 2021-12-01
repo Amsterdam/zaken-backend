@@ -9,7 +9,7 @@ from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
 
 
-class task_nakijken_aanschrijving(DefaultAPITest):
+class task_nakijken_aanschrijving_test(DefaultAPITest):
     def test_valid(self):
         self.get_case().run_steps(
             *test_opstellen_concept_aanschrijving.get_steps(),

@@ -1,26 +1,10 @@
-import sys
-
-"""
-@nico wat is het verschil tussen:
-- opstellen concept besluit
-- Nakijken besluit
-- Verwerken definitieve besluit
-
-en:
-- opstellen intrekken besluit
-- Nakijken intrekken besluit
-- Verwerken intrekken besluit
-
-???
-"""
-
 import logging
+import sys
 
 from dateutil.relativedelta import relativedelta
 
 logger = logging.getLogger(__name__)
 
-# TODO, check if days=6 == 7 days ?
 DEFAULT_USER_TASK_DUE_DATE = relativedelta(weeks=1)
 
 
@@ -38,7 +22,7 @@ def get_task_by_name(task_name):
 
 class user_task:
 
-    # TODO It would be nice if all tasks implement their own due_date, but for
+    # It would be nice if all tasks implement their own due_date, but for
     # now we'll set a default as well.
     due_date = DEFAULT_USER_TASK_DUE_DATE
 

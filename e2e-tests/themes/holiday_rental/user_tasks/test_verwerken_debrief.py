@@ -2,13 +2,13 @@ from api.config import Violation
 from api.tasks.debrief import (
     test_afwachten_intern_onderzoek,
     test_opstellen_beeldverslag,
-    test_opstellen_concept_aanschrijvingen,
     test_opstellen_rapport_van_bevindingen,
     test_opstellen_verkorte_rapportage_huisbezoek,
     test_terugkoppelen_melder_1,
     test_terugkoppelen_melder_2,
     test_verwerken_debrief,
 )
+from api.tasks.summon import test_opstellen_concept_aanschrijving
 from api.tasks.visit import (
     test_aanvragen_machtiging,
     test_doorgeven_status_top,
@@ -43,7 +43,7 @@ class task_verwerken_debrief_test(DefaultAPITest):
             ValidateOpenTasks(
                 test_opstellen_beeldverslag,
                 test_opstellen_rapport_van_bevindingen,
-                test_opstellen_concept_aanschrijvingen,
+                test_opstellen_concept_aanschrijving,
             ),
         )
 

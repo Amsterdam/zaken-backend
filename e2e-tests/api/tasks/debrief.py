@@ -6,9 +6,7 @@ from api.tasks import AbstractUserTask, GenericUserTask
 from api.tasks.visit import test_doorgeven_status_top
 from api.user_tasks import (
     task_afwachten_intern_onderzoek,
-    task_nakijken_aanschrijving,
     task_opstellen_beeldverslag,
-    task_opstellen_concept_aanschrijving,
     task_opstellen_rapport_van_bevindingen,
     task_opstellen_verkorte_rapportage_huisbezoek,
     task_terugkoppelen_melder_1,

@@ -24,11 +24,11 @@ class Case:
     def __str__(self):
         return f"<{self.__module__}.{self.__class__.__name__} id:{self.data['id']}>"
 
-    def run_steps(self, *x, extra_events=[]):
-        steps = list(filter(lambda step: step is not None, x))
+    def run_steps(self, *steps, extra_events=[]):
+        filtered_steps = list(filter(lambda step: step is not None, steps))
 
         user_task_log = []
-        for step in steps:
+        for step in filtered_steps:
             # Give Spiff some time to do async processing.
             # Keep retrying untill we have a timeout
             if hasattr(step, "is_ready") and not wait_for(

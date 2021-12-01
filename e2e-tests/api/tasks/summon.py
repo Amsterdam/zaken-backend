@@ -8,7 +8,6 @@ from api.config import (
     SummonTypes,
     SummonValidity,
     TypeConceptSummon,
-    Violation,
 )
 from api.mock import get_person
 from api.tasks import AbstractUserTask, GenericUserTask
@@ -16,7 +15,6 @@ from api.tasks.debrief import (
     test_opstellen_beeldverslag,
     test_opstellen_rapport_van_bevindingen,
     test_terugkoppelen_melder_2,
-    test_verwerken_debrief,
 )
 from api.timers import WaitForTimer
 from api.user_tasks import (
@@ -31,14 +29,8 @@ from api.user_tasks import (
     task_monitoren_binnenkomen_zienswijze,
     task_monitoren_vergunningsprocedure,
     task_nakijken_aanschrijving,
-    task_opstellen_beeldverslag,
     task_opstellen_concept_aanschrijving,
-    task_opstellen_rapport_van_bevindingen,
-    task_opstellen_verkorte_rapportage_huisbezoek,
-    task_terugkoppelen_melder_1,
-    task_terugkoppelen_melder_2,
     task_verwerk_aanschrijving,
-    task_verwerken_debrief,
 )
 
 
