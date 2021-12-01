@@ -115,7 +115,6 @@ class CaseStateSerializer(serializers.ModelSerializer):
             "id",
             "case",
             "case_process_id",
-            "status",
             "users",
             "workflow",
             "information",
