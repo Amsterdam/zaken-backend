@@ -166,7 +166,6 @@ class CaseProjectSerializer(serializers.ModelSerializer):
 
 class CaseSerializer(serializers.ModelSerializer):
     address = AddressSerializer(required=True)
-    case_states = CaseStateSerializer(many=True)
     current_states = CaseStateSerializer(
         source="get_current_states",
         many=True,
