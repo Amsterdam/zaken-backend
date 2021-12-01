@@ -23,7 +23,7 @@ from api.tasks.debrief import (
     test_terugkoppelen_melder_2,
     test_verwerken_debrief,
 )
-from api.tasks.summon import test_nakijken_aanschrijvingen, test_verwerk_aanschrijving
+from api.tasks.summon import test_nakijken_aanschrijving, test_verwerk_aanschrijving
 from api.tasks.visit import test_doorgeven_status_top, test_inplannen_status
 from api.test import DefaultAPITest
 from api.timers import WaitForTimer
@@ -40,8 +40,8 @@ class TestViolationClosure(DefaultAPITest):
             test_opstellen_beeldverslag(),
             test_opstellen_rapport_van_bevindingen(),
             test_opstellen_concept_aanschrijvingen(),
-            ValidateOpenTasks(test_nakijken_aanschrijvingen),
-            test_nakijken_aanschrijvingen(),
+            ValidateOpenTasks(test_nakijken_aanschrijving),
+            test_nakijken_aanschrijving(),
             test_verwerk_aanschrijving(type=SummonTypes.HolidayRental.CLOSURE),
             test_opslaan_brandweeradvies(),
             test_monitoren_heropeningsverzoek(),

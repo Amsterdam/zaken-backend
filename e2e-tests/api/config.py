@@ -59,6 +59,22 @@ class Violation:
     ADDITIONAL_VISIT_WITH_AUTHORIZATION = "ADDITIONAL_VISIT_WITH_AUTHORIZATION"
 
 
+class TypeConceptSummon:
+    OTHER_SUMMON = "aanschrijvingen"
+    RENOUNCE_SUMMON = "afzien_aanschrijving"
+
+
+class SummonValidity:
+    YES = "ja"
+    NO = "nee"
+
+
+class RenounceConceptSummon:
+    NEW_CONCEPT_SUMMON = "concept_aanschrijving"
+    NO_VIOLATION = "geen_overtreding"
+    NEW_VISIT_REQUIRED = "nieuw_huisbezoek"
+
+
 class NextStep:
     RECHECK = "hercontrole"
     CLOSE = "sluiten"

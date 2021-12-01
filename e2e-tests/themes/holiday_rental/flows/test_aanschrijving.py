@@ -8,7 +8,7 @@ from api.tasks.debrief import (
 )
 from api.tasks.summon import (
     test_monitoren_binnenkomen_vergunningaanvraag,
-    test_nakijken_aanschrijvingen,
+    test_nakijken_aanschrijving,
     test_verwerk_aanschrijving,
 )
 from api.tasks.visit import test_doorgeven_status_top, test_inplannen_status
@@ -31,7 +31,7 @@ class TestViolationLegalizationLetter(DefaultAPITest):
             test_opstellen_beeldverslag(),
             test_opstellen_rapport_van_bevindingen(),
             test_opstellen_concept_aanschrijvingen(),
-            test_nakijken_aanschrijvingen(),
+            test_nakijken_aanschrijving(),
             test_verwerk_aanschrijving(
                 type=SummonTypes.HolidayRental.LEGALIZATION_LETTER
             ),

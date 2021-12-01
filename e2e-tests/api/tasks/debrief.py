@@ -6,9 +6,9 @@ from api.tasks import AbstractUserTask, GenericUserTask
 from api.tasks.visit import test_doorgeven_status_top
 from api.user_tasks import (
     task_afwachten_intern_onderzoek,
-    task_nakijken_aanschrijvingen,
+    task_nakijken_aanschrijving,
     task_opstellen_beeldverslag,
-    task_opstellen_concept_aanschrijvingen,
+    task_opstellen_concept_aanschrijving,
     task_opstellen_rapport_van_bevindingen,
     task_opstellen_verkorte_rapportage_huisbezoek,
     task_terugkoppelen_melder_1,
@@ -75,14 +75,6 @@ class test_opstellen_rapport_van_bevindingen(
         return [*test_terugkoppelen_melder_2.get_steps(), __class__()]
 
 
-class test_opstellen_concept_aanschrijvingen(
-    GenericUserTask, task_opstellen_concept_aanschrijvingen
-):
-    @staticmethod
-    def get_steps():
-        return [*test_terugkoppelen_melder_2.get_steps(), __class__()]
-
-
 class test_opstellen_verkorte_rapportage_huisbezoek(
     GenericUserTask, task_opstellen_verkorte_rapportage_huisbezoek
 ):
@@ -91,18 +83,5 @@ class test_opstellen_verkorte_rapportage_huisbezoek(
         violation = Violation.SEND_TO_OTHER_THEME if to_other_team else Violation.NO
         return [
             *test_terugkoppelen_melder_1.get_steps(violation=violation),
-            __class__(),
-        ]
-
-
-class test_nakijken_aanschrijvingen(GenericUserTask, task_nakijken_aanschrijvingen):
-    @staticmethod
-    def get_steps():
-        return [
-            *test_verwerken_debrief.get_steps(violation=Violation.YES),
-            test_terugkoppelen_melder_2(),
-            test_opstellen_beeldverslag(),
-            test_opstellen_rapport_van_bevindingen(),
-            test_opstellen_concept_aanschrijvingen(),
             __class__(),
         ]

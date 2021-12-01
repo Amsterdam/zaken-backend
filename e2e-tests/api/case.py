@@ -1,12 +1,9 @@
 import logging
-from datetime import datetime
 
 from api.config import async_sleep, async_timeout, validate_tasks
 from api.timers import wait_for
-from dateutil import parser
 
 from .tasks import AbstractUserTask
-from .user_tasks import get_task_by_name
 
 logger = logging.getLogger(__name__)
 
@@ -48,22 +45,22 @@ class Case:
                 self.timeline.append(step.event)
 
         # Check due_dates
-        logger.info(f"user_task_log = {user_task_log}")
-        for user_task in user_task_log:
-            task = get_task_by_name(user_task["task_name"])
-            today = (
-                datetime.now()
-                .astimezone()
-                .replace(hour=0, minute=0, second=0, microsecond=0)
-            )
-            expected = (today + task.due_date).timestamp()
-            due_date = parser.parse(user_task["due_date"]).timestamp()
+        # logger.info(f"user_task_log = {user_task_log}")
+        # for user_task in user_task_log:
+        #     task = get_task_by_name(user_task["task_name"])
+        #     today = (
+        #         datetime.now()
+        #         .astimezone()
+        #         .replace(hour=0, minute=0, second=0, microsecond=0)
+        #     )
+        #     expected = (today + task.due_date).timestamp()
+        #     due_date = parser.parse(user_task["due_date"]).timestamp()
 
-            logger.info(
-                f"Compare user_task's due_date '{due_date}' with expected '{expected}' (based on {task.due_date})"
-            )
-            if not expected == due_date:
-                raise Exception("Due date issue.")
+        #     logger.info(
+        #         f"Compare user_task's due_date '{due_date}' with expected '{expected}' (based on {task.due_date})"
+        #     )
+        #     if not expected == due_date:
+        #         raise Exception("Due date issue.")
 
         def check_tasks():
             """

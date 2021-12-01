@@ -143,17 +143,23 @@ class task_opstellen_rapport_van_bevindingen(user_task):
     due_date = relativedelta(weeks=1)
 
 
-class task_opstellen_concept_aanschrijvingen(user_task):
-    """Opstellen concept aanschrijvingen"""
+class task_opstellen_concept_aanschrijving(user_task):
+    """Opstellen concept aanschrijving"""
 
     _task_name = "task_create_concept_summons"
     due_date = relativedelta(weeks=2)
 
 
-class task_nakijken_aanschrijvingen(user_task):
-    """Nakijken aanschrijving(en)"""
+class task_nakijken_aanschrijving(user_task):
+    """Nakijken aanschrijving"""
 
     _task_name = "task_check_summons"
+    due_date = relativedelta(weeks=1)
+
+
+class task_afzien_concept_aanschrijving(user_task):
+    """Afzien concept aanschrijving"""
+
     due_date = relativedelta(weeks=1)
 
 

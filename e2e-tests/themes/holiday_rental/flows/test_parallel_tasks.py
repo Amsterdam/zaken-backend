@@ -4,7 +4,7 @@ from api.config import Violation
 from api.events import GenericTaskEvent
 from api.tasks import GenericUserTask
 from api.tasks.debrief import task_terugkoppelen_melder_2, test_verwerken_debrief
-from api.tasks.summon import test_nakijken_aanschrijvingen
+from api.tasks.summon import test_nakijken_aanschrijving
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
 from requests_futures.sessions import FuturesSession
@@ -49,7 +49,7 @@ class TestParallelTasks(DefaultAPITest):
 
         # poll for the expected result
         case.run_steps(
-            ValidateOpenTasks(test_nakijken_aanschrijvingen),
+            ValidateOpenTasks(test_nakijken_aanschrijving),
             extra_events=[
                 GenericTaskEvent.type,
                 GenericTaskEvent.type,
