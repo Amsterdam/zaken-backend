@@ -1,41 +1,5 @@
 [{
         "model": "summons.summontype",
-        "pk": 27,
-        "fields": {
-            "theme": 3,
-            "workflow_option": "legalisatie-brief",
-            "name": "Legalisatiebrief"
-        }
-    },
-    {
-        "model": "summons.summontype",
-        "pk": 28,
-        "fields": {
-            "theme": 3,
-            "workflow_option": "aanschrijvingen",
-            "name": "Vooraankondiging dwangsom"
-        }
-    },
-    {
-        "model": "summons.summontype",
-        "pk": 29,
-        "fields": {
-            "theme": 3,
-            "workflow_option": "aanschrijvingen",
-            "name": "Voornemen boete"
-        }
-    },
-    {
-        "model": "summons.summontype",
-        "pk": 30,
-        "fields": {
-            "theme": 3,
-            "workflow_option": "aanschrijvingen",
-            "name": "Voornemen invordering dwangsom"
-        }
-    },
-    {
-        "model": "summons.summontype",
         "pk": 14,
         "fields": {
             "theme": 2,
@@ -149,6 +113,42 @@
             "theme": 2,
             "workflow_option": "waarschuwingsbrief",
             "name": "Waarschuwing VV-vergunning"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 27,
+        "fields": {
+            "theme": 3,
+            "workflow_option": "legalisatie-brief",
+            "name": "Legalisatiebrief"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 28,
+        "fields": {
+            "theme": 3,
+            "workflow_option": "aanschrijvingen",
+            "name": "Vooraankondiging dwangsom"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 29,
+        "fields": {
+            "theme": 3,
+            "workflow_option": "aanschrijvingen",
+            "name": "Voornemen boete"
+        }
+    },
+    {
+        "model": "summons.summontype",
+        "pk": 30,
+        "fields": {
+            "theme": 3,
+            "workflow_option": "aanschrijvingen",
+            "name": "Voornemen invordering dwangsom"
         }
     }
 ]

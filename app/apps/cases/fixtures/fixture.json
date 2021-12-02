@@ -2,7 +2,7 @@
         "model": "cases.casetheme",
         "pk": 1,
         "fields": {
-            "name": "fasfasffas"
+            "name": "(Legacy) Vakantieverhuur"
         }
     },
     {
@@ -38,7 +38,7 @@
     },
     {
         "model": "cases.casereason",
-        "pk": 6,
+        "pk": 5,
         "fields": {
             "name": "Project",
             "theme": 3
@@ -47,12 +47,11 @@
     },
     {
         "model": "cases.casereason",
-        "pk": 7,
+        "pk": 6,
         "fields": {
             "name": "Melding",
             "theme": 3
         }
-
     },
     {
         "model": "cases.caseclosereason",
@@ -164,25 +163,9 @@
     },
     {
         "model": "cases.casecloseresult",
-        "pk": 8,
+        "pk": 4,
         "fields": {
             "name": "Gelegaliseerd",
-            "case_theme": 3
-        }
-    },
-    {
-        "model": "cases.casecloseresult",
-        "pk": 7,
-        "fields": {
-            "name": "Regulier bewoond",
-            "case_theme": 3
-        }
-    },
-    {
-        "model": "cases.casecloseresult",
-        "pk": 6,
-        "fields": {
-            "name": "Regulier bewoond",
             "case_theme": 2
         }
     },
@@ -196,10 +179,26 @@
     },
     {
         "model": "cases.casecloseresult",
-        "pk": 4,
+        "pk": 6,
+        "fields": {
+            "name": "Regulier bewoond",
+            "case_theme": 2
+        }
+    },
+    {
+        "model": "cases.casecloseresult",
+        "pk": 7,
+        "fields": {
+            "name": "Regulier bewoond",
+            "case_theme": 3
+        }
+    },
+    {
+        "model": "cases.casecloseresult",
+        "pk": 8,
         "fields": {
             "name": "Gelegaliseerd",
-            "case_theme": 2
+            "case_theme": 3
         }
     },
     {

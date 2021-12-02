@@ -104,7 +104,7 @@
         "model": "schedules.weeksegment",
         "pk": 3,
         "fields": {
-            "name": "Doordeweek",
+            "name": "Doordeweeks",
             "theme": 2
         }
     },
@@ -120,7 +120,7 @@
         "model": "schedules.weeksegment",
         "pk": 5,
         "fields": {
-            "name": "Doordeweek",
+            "name": "Doordeweeks",
             "theme": 3
         }
     },
