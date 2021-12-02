@@ -22,7 +22,7 @@
       <bpmn:incoming>Flow_048xako</bpmn:incoming>
       <bpmn:outgoing>Flow_1v6ql1z</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_check_renounce_letter" name="Nakijken brief" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+    <bpmn:userTask id="task_check_renounce_letter" name="Nakijken afzien voornemen" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
       <bpmn:incoming>Flow_1v6ql1z</bpmn:incoming>
       <bpmn:outgoing>Flow_1lmk47t</bpmn:outgoing>
     </bpmn:userTask>
@@ -83,6 +83,14 @@
       <bpmndi:BPMNShape id="Lane_12swn6l_di" bpmnElement="lane_handhavingsjurist_12swn6l" isHorizontal="true">
         <dc:Bounds x="190" y="290" width="1200" height="140" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1niydg5_di" bpmnElement="Flow_1niydg5">
+        <di:waypoint x="1060" y="170" />
+        <di:waypoint x="1130" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1oczkmn_di" bpmnElement="Flow_1oczkmn">
+        <di:waypoint x="1230" y="170" />
+        <di:waypoint x="1262" y="170" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0t0j9vg_di" bpmnElement="Flow_0t0j9vg">
         <di:waypoint x="278" y="170" />
         <di:waypoint x="330" y="170" />
@@ -106,14 +114,6 @@
       <bpmndi:BPMNEdge id="Flow_0nnp7hu_di" bpmnElement="Flow_0nnp7hu">
         <di:waypoint x="900" y="170" />
         <di:waypoint x="960" y="170" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1oczkmn_di" bpmnElement="Flow_1oczkmn">
-        <di:waypoint x="1230" y="170" />
-        <di:waypoint x="1262" y="170" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1niydg5_di" bpmnElement="Flow_1niydg5">
-        <di:waypoint x="1060" y="170" />
-        <di:waypoint x="1130" y="170" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_1xxaeyx_di" bpmnElement="task_create_concept_renounce">
         <dc:Bounds x="480" y="130" width="100" height="80" />
