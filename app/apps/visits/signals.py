@@ -1,7 +1,18 @@
 from apps.visits.models import Visit
 from apps.workflow.models import CaseWorkflow
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+
+
+@receiver(pre_save, sender=Visit, dispatch_uid="add_case_user_task_id_to_visit")
+def add_case_user_task_id_to_visit(sender, instance, **kwargs):
+    if not instance.id:
+        task = instance.case.tasks.filter(
+            task_name="task_create_visit",
+            completed=False,
+        ).first()
+        if task:
+            instance.case_user_task_id = str(task.id)
 
 
 @receiver(post_save, sender=Visit, dispatch_uid="complete_task_create_visit")
