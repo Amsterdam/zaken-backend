@@ -1,7 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 
-def today():
-    return (
-        datetime.now().astimezone().replace(hour=0, minute=0, second=0, microsecond=0)
-    )
+def midnight():
+    return datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)

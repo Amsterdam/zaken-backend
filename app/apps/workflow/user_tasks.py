@@ -369,13 +369,15 @@ class task_afsluiten_zaak(user_task):
     def get_due_date(case_user_task):
         from apps.decisions.models import Decision
 
-        sanction_count = (
-            Decision.objects.filter(case=case_user_task.case)
-            .exclude(decision_type__workflow_option="no_decision")
-            .count()
-        )
+        non_renounced_decisions = Decision.objects.filter(
+            case=case_user_task.case
+        ).exclude(decision_type__workflow_option="no_decision")
 
-        return relativedelta(months=13) if sanction_count else relativedelta(weeks=1)
+        return (
+            relativedelta(months=13)
+            if non_renounced_decisions.count()
+            else relativedelta(weeks=1)
+        )
 
 
 # future tasks

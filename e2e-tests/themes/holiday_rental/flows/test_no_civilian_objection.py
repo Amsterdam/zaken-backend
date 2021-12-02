@@ -6,7 +6,6 @@ from api.tasks.debrief import (
     test_verwerken_debrief,
 )
 from api.tasks.decision import test_opstellen_concept_besluit
-from api.tasks.director import test_terugkoppelen_melder
 from api.tasks.summon import (
     test_controleren_binnenkomst_zienswijze,
     test_monitoren_binnenkomen_zienswijze,
@@ -26,7 +25,6 @@ class TestNoCivilianObjection(DefaultAPITest):
             test_inplannen_status(),
             test_doorgeven_status_top(),
             test_verwerken_debrief(violation=Violation.YES),
-            test_terugkoppelen_melder(),
             test_terugkoppelen_melder_2(),
             test_opstellen_beeldverslag(),
             test_opstellen_rapport_van_bevindingen(),

@@ -4,7 +4,6 @@ from api.tasks.debrief import (
     test_terugkoppelen_melder_1,
     test_verwerken_debrief,
 )
-from api.tasks.director import test_terugkoppelen_melder
 from api.tasks.visit import test_doorgeven_status_top, test_inplannen_status
 from api.test import DefaultAPITest
 from api.validators import ValidateNoOpenTasks
@@ -17,7 +16,6 @@ class TestNoViolation(DefaultAPITest):
             test_doorgeven_status_top(),
             test_verwerken_debrief(violation=Violation.NO),
             test_terugkoppelen_melder_1(),
-            test_terugkoppelen_melder(),
             test_opstellen_verkorte_rapportage_huisbezoek(),
             # TODO Current/old implementation gave PlanNextStep, but even
             #   better would be skipping this step all together.
