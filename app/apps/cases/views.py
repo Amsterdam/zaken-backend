@@ -398,7 +398,7 @@ class CaseViewSet(
 class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
     permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseThemeSerializer
-    queryset = CaseTheme.objects.all().order_by
+    queryset = CaseTheme.objects.all()
 
     @extend_schema(
         description="Gets the reasons associated with the requested theme",
