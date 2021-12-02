@@ -578,9 +578,7 @@ WORKFLOW_SPEC_CONFIG = {
             },
         },
         "visit": {
-            "initial_data": {
-                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-            },
+            "initial_data": {},
             "versions": {
                 "0.1.0": {},
                 "0.2.0": {},
