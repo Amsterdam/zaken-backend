@@ -3,7 +3,6 @@ from api.tasks.close_case import test_uitzetten_vervolgstap
 from api.tasks.debrief import test_opstellen_verkorte_rapportage_huisbezoek
 from api.tasks.summon import (
     test_afzien_concept_aanschrijving,
-    test_nakijken_aanschrijving,
     test_opstellen_concept_aanschrijving,
 )
 from api.tasks.visit import test_inplannen_status
