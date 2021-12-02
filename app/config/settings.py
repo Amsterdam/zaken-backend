@@ -150,7 +150,7 @@ TEMPLATES = [
 ]
 
 REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "PAGE_SIZE": 500,
     "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S%z",
@@ -578,9 +578,7 @@ WORKFLOW_SPEC_CONFIG = {
             },
         },
         "visit": {
-            "initial_data": {
-                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-            },
+            "initial_data": {},
             "versions": {
                 "0.1.0": {},
                 "0.2.0": {},

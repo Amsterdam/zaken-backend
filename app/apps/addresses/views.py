@@ -9,7 +9,7 @@ from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from utils.api_queries_brp import get_brp
@@ -77,7 +77,7 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
             else:
                 query_set = address.cases.filter(end_date__isnull=False)
 
-            paginator = PageNumberPagination()
+            paginator = LimitOffsetPagination()
             context = paginator.paginate_queryset(query_set, request)
             serializer = CaseSerializer(context, many=True)
 

@@ -111,7 +111,14 @@ class CaseStateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CaseState
-        exclude = ("information",)
+        exclude = (
+            "id",
+            "case",
+            "case_process_id",
+            "users",
+            "workflow",
+            "information",
+        )
 
 
 class CaseStateTaskSerializer(CaseStateSerializer):
@@ -166,7 +173,6 @@ class CaseProjectSerializer(serializers.ModelSerializer):
 
 class CaseSerializer(serializers.ModelSerializer):
     address = AddressSerializer(required=True)
-    case_states = CaseStateSerializer(many=True)
     current_states = CaseStateSerializer(
         source="get_current_states",
         many=True,
@@ -179,7 +185,14 @@ class CaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Case
-        fields = "__all__"
+        exclude = (
+            "camunda_ids",
+            "directing_process",
+            "identification",
+            "is_legacy_bwv",
+            "is_legacy_camunda",
+            "legacy_bwv_case_id",
+        )
 
 
 class CaseCreateUpdateSerializer(serializers.ModelSerializer):
