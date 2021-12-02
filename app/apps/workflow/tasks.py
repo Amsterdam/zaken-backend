@@ -12,8 +12,8 @@ from django.db import transaction
 
 logger = get_task_logger(__name__)
 
-DEFAULT_RETRY_DELAY = 3
-MAX_RETRIES = 3
+DEFAULT_RETRY_DELAY = 2
+MAX_RETRIES = 6
 
 LOCK_EXPIRE = 5
 
