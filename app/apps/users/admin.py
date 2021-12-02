@@ -10,6 +10,7 @@ admin.site.unregister(Group)
 @admin.register(UserGroup)
 class UserGroupAdmin(GroupAdmin):
     fields = (
+        "id",
         "name",
         "display_name",
         "permissions",
@@ -44,6 +45,6 @@ class UserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {"classes": ("wide",), "fields": ("email", "password1", "password2")}),
     )
-    list_display = ("full_name", "email", "is_staff")
+    list_display = ("id", "full_name", "email", "is_staff")
     search_fields = ("email",)
     ordering = ("email",)

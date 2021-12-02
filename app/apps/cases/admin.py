@@ -132,6 +132,7 @@ class CitizenReportAdmin(admin.ModelAdmin):
 @admin.register(CaseReason)
 class CaseReasonAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "name",
         "theme",
     )
@@ -141,6 +142,7 @@ class CaseReasonAdmin(admin.ModelAdmin):
 @admin.register(CaseProject)
 class CaseProjectAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "name",
         "theme",
     )
@@ -150,6 +152,7 @@ class CaseProjectAdmin(admin.ModelAdmin):
 @admin.register(CaseCloseReason)
 class CaseCloseReasonAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "name",
         "case_theme",
         "result",
@@ -163,6 +166,7 @@ class CaseCloseReasonAdmin(admin.ModelAdmin):
 @admin.register(CaseCloseResult)
 class CaseCloseResultAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "name",
         "case_theme",
     )

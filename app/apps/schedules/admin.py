@@ -16,6 +16,7 @@ class ScheduleAdmin(admin.ModelAdmin):
 @admin.register(Action)
 class ActionAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "name",
         "theme",
     )
@@ -25,6 +26,7 @@ class ActionAdmin(admin.ModelAdmin):
 @admin.register(DaySegment)
 class DaySegmentAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "name",
         "theme",
     )
@@ -34,6 +36,7 @@ class DaySegmentAdmin(admin.ModelAdmin):
 @admin.register(Priority)
 class PriorityAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "name",
         "weight",
         "theme",
@@ -44,6 +47,7 @@ class PriorityAdmin(admin.ModelAdmin):
 @admin.register(WeekSegment)
 class WeekSegmentAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "name",
         "theme",
     )

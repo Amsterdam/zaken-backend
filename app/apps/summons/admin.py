@@ -4,7 +4,7 @@ from django.contrib import admin
 admin.site.register(
     SummonType,
     admin.ModelAdmin,
-    list_display=("name", "workflow_option", "theme"),
+    list_display=("id", "name", "workflow_option", "theme"),
     list_filter=(
         "workflow_option",
         "theme",
