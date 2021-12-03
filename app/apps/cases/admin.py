@@ -79,7 +79,7 @@ class CaseAdmin(admin.ModelAdmin):
         "is_legacy_camunda",
         "author",
     )
-    list_filter = ("theme",)
+    list_filter = ("theme", "is_legacy_bwv", "is_legacy_camunda")
     search_fields = ("id", "legacy_bwv_case_id")
     actions = [
         create_main_worflow_for_case,
