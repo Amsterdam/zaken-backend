@@ -5,6 +5,7 @@ admin.site.register(
     Debriefing,
     admin.ModelAdmin,
     list_display=(
+        "id",
         "case",
         "date_added",
         "date_modified",

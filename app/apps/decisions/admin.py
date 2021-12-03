@@ -6,6 +6,8 @@ from django.http import JsonResponse
 
 class DecisionAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
+        "case",
         "decision_type",
         "date_added",
         "sanction_id",
@@ -30,6 +32,7 @@ class DecisionAdmin(admin.ModelAdmin):
 
 class DecisionTypeAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "name",
         "workflow_option",
         "is_sanction",
