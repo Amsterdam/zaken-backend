@@ -13,3 +13,8 @@ group.permissions.add(Permission.objects.get(name='Create a new Case'))
 group.permissions.add(Permission.objects.get(name='Can perform a tasks'))
 user = User.objects.get(email='local.user@dev.com')
 user.groups.add(group)"
+
+docker-compose run --rm zaak-gateway python manage.py shell -c "
+from django_celery_beat.models import PeriodicTask, IntervalSchedule
+schedule, created = IntervalSchedule.objects.get_or_create(every=10, period=IntervalSchedule.SECONDS)
+PeriodicTask.objects.get_or_create(interval=schedule, name='Update workflows', task='apps.workflow.tasks.task_update_workflows')"
