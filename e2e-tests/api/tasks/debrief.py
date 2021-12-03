@@ -3,24 +3,32 @@ import logging
 from api import events
 from api.config import Violation
 from api.tasks import AbstractUserTask, GenericUserTask
-from api.tasks.visit import Visit
+from api.tasks.visit import test_doorgeven_status_top
+from api.user_tasks import (
+    task_afwachten_intern_onderzoek,
+    task_opstellen_beeldverslag,
+    task_opstellen_rapport_van_bevindingen,
+    task_opstellen_verkorte_rapportage_huisbezoek,
+    task_terugkoppelen_melder_1,
+    task_terugkoppelen_melder_2,
+    task_verwerken_debrief,
+)
 
-logger = logging.getLogger("api")
+logger = logging.getLogger(__name__)
 
 
-class Debrief(AbstractUserTask):
+class test_verwerken_debrief(AbstractUserTask, task_verwerken_debrief):
     event = events.DebriefingEvent
     endpoint = "debriefings"
-    task_name = "task_create_debrief"
-    description = "Verwerken debrief"
-    asynchronous = True
 
     def __init__(self, violation=Violation.NO, feedback="Some feedback"):
-        super(Debrief, self).__init__(violation=violation, feedback=feedback)
+        super(test_verwerken_debrief, self).__init__(
+            violation=violation, feedback=feedback
+        )
 
     @staticmethod
     def get_steps(violation=Violation.NO):
-        return [*Visit.get_steps(), __class__(violation=violation)]
+        return [*test_doorgeven_status_top.get_steps(), __class__(violation=violation)]
 
     def get_post_data(self, case, task):
         return super().get_post_data(case, task) | {
@@ -28,87 +36,50 @@ class Debrief(AbstractUserTask):
         }
 
 
-class InformReporterNoViolation(GenericUserTask):
-    task_name = "task_terugkoppelen_melder_1"
-    description = "Terugkoppelen melder"
-
+class test_terugkoppelen_melder_1(GenericUserTask, task_terugkoppelen_melder_1):
     @staticmethod
     def get_steps(violation=Violation.NO):
-        return [*Debrief.get_steps(violation=violation), __class__()]
+        return [*test_verwerken_debrief.get_steps(violation=violation), __class__()]
 
 
-class InformReporter(GenericUserTask):
-    task_name = "task_terugkoppelen_melder_2"
-    description = "Terugkoppelen melder"
-
+class test_terugkoppelen_melder_2(GenericUserTask, task_terugkoppelen_melder_2):
     @staticmethod
     def get_steps(violation=Violation.YES):
-        return [*Debrief.get_steps(violation=violation), __class__()]
+        return [*test_verwerken_debrief.get_steps(violation=violation), __class__()]
 
 
-class WaitInternalResearch(GenericUserTask):
-    task_name = "task_wait_internal_reasearch"
-    description = "Afwachten intern onderzoek"
-
+class test_afwachten_intern_onderzoek(GenericUserTask, task_afwachten_intern_onderzoek):
     @staticmethod
     def get_steps():
         return [
-            *Debrief.get_steps(violation=Violation.ADDITIONAL_RESEARCH_REQUIRED),
+            *test_verwerken_debrief.get_steps(
+                violation=Violation.ADDITIONAL_RESEARCH_REQUIRED
+            ),
             __class__(),
         ]
 
 
-class CreatePictureReport(GenericUserTask):
-    task_name = "task_create_picture_rapport"
-    description = "Opstellen beeldverslag"
-
+class test_opstellen_beeldverslag(GenericUserTask, task_opstellen_beeldverslag):
     @staticmethod
     def get_steps():
-        return [*InformReporter.get_steps(), __class__()]
+        return [*test_terugkoppelen_melder_2.get_steps(), __class__()]
 
 
-class CreateFindingsReport(GenericUserTask):
-    task_name = "task_create_report_of_findings"
-    description = "Opstellen rapport van bevindingen"
-
+class test_opstellen_rapport_van_bevindingen(
+    GenericUserTask, task_opstellen_rapport_van_bevindingen
+):
     @staticmethod
     def get_steps():
-        return [*InformReporter.get_steps(), __class__()]
+        return [*test_terugkoppelen_melder_2.get_steps(), __class__()]
 
 
-class CreateConceptNotices(GenericUserTask):
-    task_name = "task_create_concept_summons"
-    description = "Opstellen concept aanschrijvingen"
-
-    @staticmethod
-    def get_steps():
-        return [*InformReporter.get_steps(), __class__()]
-
-
-class HomeVisitReport(GenericUserTask):
-    task_name = "task_prepare_abbreviated_visit_rapport"
-    description = "Opstellen verkorte rapportage huisbezoek"
-
+class test_opstellen_verkorte_rapportage_huisbezoek(
+    GenericUserTask, task_opstellen_verkorte_rapportage_huisbezoek
+):
     @staticmethod
     def get_steps(to_other_team=False):
         violation = Violation.SEND_TO_OTHER_THEME if to_other_team else Violation.NO
         return [
-            *InformReporterNoViolation.get_steps(violation=violation),
-            __class__(),
-        ]
-
-
-class CheckNotices(GenericUserTask):
-    task_name = "task_check_summons"
-    description = "Nakijken aanschrijving(en)"
-
-    @staticmethod
-    def get_steps():
-        return [
-            *Debrief.get_steps(violation=Violation.YES),
-            InformReporter(),
-            CreatePictureReport(),
-            CreateFindingsReport(),
-            CreateConceptNotices(),
+            *test_terugkoppelen_melder_1.get_steps(violation=violation),
             __class__(),
         ]

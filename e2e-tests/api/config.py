@@ -5,7 +5,7 @@ import os
 skip_tests = not os.getenv("NO_SKIP", "False").lower() in ("true", "1", "t")
 
 # If you don't want to validate if the timeline is correct you can skip checks. Will be a bit faster
-validate_timeline = not os.getenv("NO_TIMELINE", "False").lower() in ("true", "1", "t")
+validate_tasks = not os.getenv("NO_VALIDATE", "False").lower() in ("true", "1", "t")
 
 # Setup logging
 loglevel = os.environ.get("LOGLEVEL", "WARNING")
@@ -57,6 +57,22 @@ class Violation:
     ADDITIONAL_RESEARCH_REQUIRED = "ADDITIONAL_RESEARCH_REQUIRED"
     ADDITIONAL_VISIT_REQUIRED = "ADDITIONAL_VISIT_REQUIRED"
     ADDITIONAL_VISIT_WITH_AUTHORIZATION = "ADDITIONAL_VISIT_WITH_AUTHORIZATION"
+
+
+class TypeConceptSummon:
+    OTHER_SUMMON = "aanschrijvingen"
+    RENOUNCE_SUMMON = "afzien_aanschrijving"
+
+
+class SummonValidity:
+    YES = "ja"
+    NO = "nee"
+
+
+class RenounceConceptSummon:
+    NEW_CONCEPT_SUMMON = "concept_aanschrijving"
+    NO_VIOLATION = "geen_overtreding"
+    NEW_VISIT_REQUIRED = "nieuw_huisbezoek"
 
 
 class NextStep:

@@ -20,17 +20,14 @@ pip install -r requirements.txt
 
 Follow install instructions from the main README.md file.
 And make sure we have the right database configuration.
-
-```
-docker-compose -f ../docker-compose.test.yml build
-docker-compose run --rm zaak-gateway python manage.py migrate
-bash ../bin/setup_credentials.sh
-./fix_models.sh
-```
-
 Now start Docker with the test config file and run the test suite.
 
 ```
-docker-compose -f ../docker-compose.test.yml up
+./setup_or_reset_and_start.sh
+```
+
 LOGLEVEL=INFO NO_SKIP=1 nose2
+
+```
+
 ```

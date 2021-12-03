@@ -170,31 +170,31 @@
     <bpmn:scriptTask id="service_script_next_step_renounce_summon" name="renounce">
       <bpmn:incoming>Flow_1kxv6a9</bpmn:incoming>
       <bpmn:outgoing>Flow_09zglj3</bpmn:outgoing>
-      <bpmn:script>summon_next_step = {"value": "renounce"}</bpmn:script>
+      <bpmn:script>next_step = {"value": "renounce"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="service_script_next_step_decision_summon" name="decision">
       <bpmn:incoming>Flow_0o6dkue</bpmn:incoming>
       <bpmn:incoming>Flow_15k43jt</bpmn:incoming>
       <bpmn:outgoing>Flow_1nk79jc</bpmn:outgoing>
-      <bpmn:script>summon_next_step = {"value": "decision"}</bpmn:script>
+      <bpmn:script>next_step = {"value": "decision"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="service_script_next_step_summon" name="summon">
       <bpmn:incoming>Flow_12sivk9</bpmn:incoming>
       <bpmn:incoming>Flow_1usf3sm</bpmn:incoming>
       <bpmn:outgoing>Flow_1l3103l</bpmn:outgoing>
-      <bpmn:script>summon_next_step = {"value": "summon"}</bpmn:script>
+      <bpmn:script>next_step = {"value": "summon"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="service_script_next_step_close_case_summon" name="close_case">
       <bpmn:incoming>Flow_0sy2hc3</bpmn:incoming>
       <bpmn:incoming>Flow_025eea2</bpmn:incoming>
       <bpmn:incoming>Flow_1e0tx2f</bpmn:incoming>
       <bpmn:outgoing>Flow_15oojg9</bpmn:outgoing>
-      <bpmn:script>summon_next_step = {"value": "close_case"}</bpmn:script>
+      <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="service_script_next_step_closing_procedure" name="closing_procedure">
       <bpmn:incoming>Flow_0jcg14m</bpmn:incoming>
       <bpmn:outgoing>Flow_01jkj9f</bpmn:outgoing>
-      <bpmn:script>summon_next_step = {"value": "closing_procedure"}</bpmn:script>
+      <bpmn:script>next_step = {"value": "closing_procedure"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:userTask id="task_afzien_concept_aanschrijving" name="Afzien concept aanschrijving" camunda:formKey="task_afzien_concept_aanschrijving_form">
       <bpmn:extensionElements>
@@ -223,7 +223,7 @@
     <bpmn:scriptTask id="service_script_next_step_visit" name="visit">
       <bpmn:incoming>Flow_0kqbmg9</bpmn:incoming>
       <bpmn:outgoing>Flow_0fx0k7f</bpmn:outgoing>
-      <bpmn:script>summon_next_step = {"value": "visit"}</bpmn:script>
+      <bpmn:script>next_step = {"value": "visit"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="Event_12zzx0r">
       <bpmn:incoming>Flow_01jkj9f</bpmn:incoming>

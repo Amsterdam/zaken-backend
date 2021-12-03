@@ -3,19 +3,14 @@ import datetime
 
 import pytz
 from apps.events.models import TaskModelEventEmitter
-from apps.workflow.models import (
-    DEFAULT_USER_TASK_DUE_DATE,
-    USER_TASKS,
-    CaseUserTask,
-    CaseWorkflow,
-    GenericCompletedTask,
-)
+from apps.workflow.models import CaseUserTask, CaseWorkflow, GenericCompletedTask
 from apps.workflow.tasks import task_start_worflow
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
+from .user_tasks import DEFAULT_USER_TASK_DUE_DATE, get_task_by_name
 from .utils import get_latest_version_from_config
 
 
@@ -44,8 +39,9 @@ def case_user_task_pre_save(sender, instance, **kwargs):
         d = datetime.datetime(
             year=now.year, month=now.month, day=now.day, tzinfo=pytz.UTC
         )
-        instance.due_date = d + USER_TASKS.get(instance.task_name, {}).get(
-            "due_date", DEFAULT_USER_TASK_DUE_DATE
+        task = get_task_by_name(instance.task_name)
+        instance.due_date = d + (
+            task.get_due_date(instance) if task else DEFAULT_USER_TASK_DUE_DATE
         )
 
 

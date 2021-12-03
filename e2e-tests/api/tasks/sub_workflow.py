@@ -1,11 +1,15 @@
 from api.tasks import GenericUserTask
+from api.user_tasks import (
+    task_aanleveren_bezwaardossier,
+    task_nieuwe_melding_verwerken,
+    task_oppakken_correspondentie,
+    task_oppakken_terugbelverzoek,
+    task_sia_terugkoppeling_melders,
+    task_verwerken_extra_informatie,
+)
 
 
-class CreateSignal(GenericUserTask):
-    task_name = "task_create_signal"
-    description = "Nieuwe melding verwerken"
-    # asynchronous = True  # TODO should be async right?
-
+class test_nieuwe_melding_verwerken(GenericUserTask, task_nieuwe_melding_verwerken):
     @staticmethod
     def get_steps():
         return [
@@ -14,23 +18,16 @@ class CreateSignal(GenericUserTask):
         ]
 
 
-class SIAFeedbackReporters(GenericUserTask):
-    task_name = "Activity_19a40xb"
-    description = "SIA terugkoppeling melder(s)"
-
+class test_sia_terugkoppeling_melders(GenericUserTask, task_sia_terugkoppeling_melders):
     @staticmethod
     def get_steps():
         return [
-            *CreateSignal.get_steps(),
+            *test_nieuwe_melding_verwerken.get_steps(),
             __class__(),
         ]
 
 
-class Correspondence(GenericUserTask):
-    task_name = "task_correspondence"
-    description = "Oppakken correspondentie"
-    # asynchronous = True  # TODO should be async right?
-
+class test_oppakken_correspondentie(GenericUserTask, task_oppakken_correspondentie):
     @staticmethod
     def get_steps():
         return [
@@ -39,11 +36,7 @@ class Correspondence(GenericUserTask):
         ]
 
 
-class CallbackRequest(GenericUserTask):
-    task_name = "task_callback_request"
-    description = "Oppakken terugbelverzoek"
-    # asynchronous = True  # TODO should be async right?
-
+class test_oppakken_terugbelverzoek(GenericUserTask, task_oppakken_terugbelverzoek):
     @staticmethod
     def get_steps():
         return [
@@ -52,11 +45,7 @@ class CallbackRequest(GenericUserTask):
         ]
 
 
-class SubmitObjectionFile(GenericUserTask):
-    task_name = "task_submit_objectionfile"
-    description = "Aanleveren bezwaardossier"
-    # asynchronous = True  # TODO should be async right?
-
+class test_aanleveren_bezwaardossier(GenericUserTask, task_aanleveren_bezwaardossier):
     @staticmethod
     def get_steps():
         return [
@@ -65,11 +54,7 @@ class SubmitObjectionFile(GenericUserTask):
         ]
 
 
-class AddExtraInformation(GenericUserTask):
-    task_name = "task_add_extra_information"
-    description = "Verwerken extra informatie"
-    # asynchronous = True  # TODO should be async right?
-
+class test_verwerken_extra_informatie(GenericUserTask, task_verwerken_extra_informatie):
     @staticmethod
     def get_steps():
         return [

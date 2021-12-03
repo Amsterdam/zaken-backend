@@ -569,7 +569,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "task_monitor_incoming_point_of_view_timer_duration": timedelta(
                     days=71
                 ),
-                "summon_next_step": {"value": "summon"},
+                "next_step": {"value": "summon"},
             },
             "versions": {
                 "0.1.0": {},

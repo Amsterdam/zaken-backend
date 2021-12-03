@@ -1,9 +1,14 @@
 import logging
 
-from api.config import async_sleep, async_timeout, validate_timeline
+from api.config import async_sleep, async_timeout, validate_tasks
 from api.timers import wait_for
+from api.user_tasks import get_task_by_name
+from api.util import midnight
+from dateutil import parser
 
-logger = logging.getLogger("api")
+from .tasks import AbstractUserTask
+
+logger = logging.getLogger(__name__)
 
 
 class Case:
@@ -23,9 +28,10 @@ class Case:
         return f"<{self.__module__}.{self.__class__.__name__} id:{self.data['id']}>"
 
     def run_steps(self, *steps, extra_events=[]):
-        steps = filter(lambda step: step is not None, steps)
+        filtered_steps = list(filter(lambda step: step is not None, steps))
 
-        for step in steps:
+        user_task_log = []
+        for step in filtered_steps:
             # Give Spiff some time to do async processing.
             # Keep retrying untill we have a timeout
             if hasattr(step, "is_ready") and not wait_for(
@@ -33,26 +39,45 @@ class Case:
             ):
                 raise Exception(f"Step ({step}) is not ready for case {self}.")
 
-            step.run(self.client, self)
+            result = step.run(self.client, self)
+            if isinstance(step, AbstractUserTask):
+                user_task_log.append(result)
 
             # Append a timeline event for the step if expected
             if hasattr(step, "event") and step.event:
                 self.timeline.append(step.event)
 
-        def check_events():
+        # Check due_dates
+        logger.info(f"user_task_log = {user_task_log}")
+        for user_task in user_task_log:
+            task = get_task_by_name(user_task["task_name"])
+
+            expected = midnight() + task.due_date
+            due_date = parser.parse(user_task["due_date"])
+
+            logger.info(
+                f"Compare user_task's due_date '{due_date}' with expected '{expected}' (based on {task.due_date})"
+            )
+            if expected.timestamp() != due_date.timestamp():
+                raise Exception("Due date issue.")
+
+        def check_tasks():
+            """
+            Check if the event is added to the timeline and if due-date is accurate.
+            """
             events = self.client.get_case_events(self.data["id"])
             expected_events = (
                 list(map(lambda event: event.type, self.timeline)) + extra_events
             )
             found_events = list(map(lambda event: event["type"], events))
 
-            logging.info(f"Finding events for case id {self.data['id']} ...")
-            logging.info(f"Expected events:\n{expected_events}\nFound:\n{found_events}")
+            logger.info(f"Finding events for case id {self.data['id']} ...")
+            logger.info(f"Expected events:\n{expected_events}\nFound:\n{found_events}")
 
             return expected_events == found_events
 
         # Check the timeline
-        if validate_timeline and not wait_for(check_events, async_timeout, async_sleep):
+        if validate_tasks and not wait_for(check_tasks, async_timeout, async_sleep):
             raise Exception("Timeline issue.")
 
     def add_process(self, process):
