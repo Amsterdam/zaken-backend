@@ -21,6 +21,7 @@ python manage.py migrate --noinput
 
 echo Axes check
 python manage.py check
+python manage.py axes_reset
 
 python manage.py loaddata fixture
 
