@@ -211,6 +211,18 @@ class CaseWorkflow(models.Model):
                     .count()
                 },
             }
+
+            next_step_visit = [
+                cwf
+                for cwf in all_workflows
+                if cwf.get_data().get("next_step", {}).get("value") == "visit"
+            ]
+            if next_step_visit:
+                extra_data.update(
+                    {
+                        "next_step": {"value": "visit"},
+                    }
+                )
             other_workflows = all_workflows.exclude(id=main_workflow.id)
 
             for workflow in other_workflows:
