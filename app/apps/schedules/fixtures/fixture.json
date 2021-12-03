@@ -45,14 +45,13 @@
             "theme": 3
         }
     },
-
     {
         "model": "schedules.priority",
         "pk": 3,
         "fields": {
-            "name": "Machtiging",
+            "name": "Normaal",
             "theme": 2,
-            "weight": 1.0
+            "weight": 0.0
         }
     },
     {
@@ -95,9 +94,9 @@
         "model": "schedules.priority",
         "pk": 8,
         "fields": {
-            "name": "Normaal",
+            "name": "Machtiging",
             "theme": 2,
-            "weight": 0.0
+            "weight": 1.0
         }
     },
     {
