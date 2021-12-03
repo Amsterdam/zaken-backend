@@ -261,7 +261,7 @@ AUTHENTICATION_BACKENDS = (
 
 AXES_RESET_ON_SUCCESS = True
 AXES_ENABLED = os.getenv("AXES_ENABLED", "True") == "True"
-AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
+AXES_META_PRECEDENCE_ORDER = ["HTTP_X_FORWARDED_FOR", "REMOTE_ADDR"]
 
 # Simple JWT is used for local development authentication only.
 SIMPLE_JWT = {
