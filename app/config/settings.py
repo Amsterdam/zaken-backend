@@ -504,6 +504,7 @@ WORKFLOW_SPEC_CONFIG = {
             "versions": {
                 "0.1.0": {},
                 "1.0.0": {},
+                "2.0.0": {},
             },
         },
         "director": {
@@ -520,6 +521,19 @@ WORKFLOW_SPEC_CONFIG = {
                     },
                 },
                 "1.0.0": {
+                    "messages": {
+                        "main_process": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                            },
+                        },
+                        "aanschrijving_toevoegen": {},  # TODO Remove this
+                    },
+                },
+                "2.0.0": {
                     "messages": {
                         "main_process": {
                             "initial_data": {
@@ -576,6 +590,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "0.1.0": {},
                 "0.2.0": {},
                 "1.0.0": {},
+                "2.0.0": {},
             },
         },
         "visit": {
