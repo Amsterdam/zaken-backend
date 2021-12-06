@@ -204,6 +204,7 @@ class CaseWorkflow(models.Model):
                 if d.get("summon_id")
             ]
             extra_data = {
+                "next_step": {"value": "default"},
                 "all_summons": all_summons,
                 "decision_count": {
                     "value": Decision.objects.filter(case=main_workflow.case)
@@ -215,7 +216,7 @@ class CaseWorkflow(models.Model):
             next_step_visit = [
                 cwf
                 for cwf in all_workflows
-                if cwf.get_data().get("next_step", {}).get("value") == "visit"
+                if cwf.get_data().get("summon_next_step", {}).get("value") == "visit"
             ]
             if next_step_visit:
                 extra_data.update(
@@ -223,6 +224,7 @@ class CaseWorkflow(models.Model):
                         "next_step": {"value": "visit"},
                     }
                 )
+
             other_workflows = all_workflows.exclude(id=main_workflow.id)
 
             for workflow in other_workflows:
