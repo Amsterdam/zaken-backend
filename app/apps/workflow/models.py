@@ -65,6 +65,8 @@ class CaseWorkflow(models.Model):
     )
 
     SUBWORKFLOWS = (
+        "housing_corporation",
+        "digital_surveillance",
         "visit",
         "debrief",
         "summon",
@@ -520,6 +522,12 @@ class CaseWorkflow(models.Model):
         )
         initial_data.update(original_data)
 
+        # data transforms form all previous versions to latest version
+        if initial_data.get("debrief_next_step"):
+            initial_data["next_step"] = initial_data.get("debrief_next_step")
+        if initial_data.get("summon_next_step"):
+            initial_data["next_step"] = initial_data.get("summon_next_step")
+
         wf_spec_latest = get_workflow_spec(latest_path, self.workflow_type)
 
         if (
@@ -549,8 +557,17 @@ class CaseWorkflow(models.Model):
         )
         workflow.refresh_waiting_tasks()
         workflow.do_engine_steps()
-        ready_tasks = workflow.get_tasks(Task.WAITING)
 
+        def get_waiting_tasks(wf):
+            return [
+                t
+                for t in wf.get_tasks(Task.WAITING)
+                if t.task_spec.inputs
+                and not isinstance(t.task_spec.inputs[0], StartTask)
+            ]
+
+        ready_tasks = get_waiting_tasks(workflow)
+        completed = []
         while len(ready_tasks) > 0:
             for task in ready_tasks:
                 if (
@@ -560,20 +577,32 @@ class CaseWorkflow(models.Model):
                     == f'start_subworkflow("{subworkflow}")'
                 ):
                     ready_tasks = []
+                    break
                 else:
-                    if task.task_spec.inputs and not isinstance(
-                        task.task_spec.inputs[0], StartTask
+                    if (
+                        task.task_spec.inputs
+                        and not isinstance(task.task_spec.inputs[0], StartTask)
+                        and task.task_spec.description not in completed
                     ):
-                        task.update_data(initial_data)
-                        workflow.complete_task_from_id(task.id)
                         try:
+                            print(task.task_spec.description)
+                            task.update_data(initial_data)
+                            workflow.complete_task_from_id(task.id)
                             workflow.refresh_waiting_tasks()
                             workflow.do_engine_steps()
-                            ready_tasks = workflow.get_tasks(Task.WAITING)
+                            completed.append(task.task_spec.description)
+                            ready_tasks = get_waiting_tasks(workflow)
+                            print(ready_tasks)
                         except Exception as e:
                             ready_tasks = []
                             logger.error(f"ERROR: Reset subworkflows: {e}")
+                            # break
+                    else:
+                        ready_tasks = []
+                        # break
 
+        print("RESULT")
+        print(task.task_spec.description)
         if (
             isinstance(workflow.last_task.task_spec, ScriptTask)
             and workflow.last_task.task_spec.script
@@ -601,8 +630,10 @@ class CaseWorkflow(models.Model):
             return result
 
         if test:
-            self.data = copy.deepcopy(workflow.last_task.data)
-            self.save()
+            # if wf:
+            #     self.data = copy.deepcopy(workflow.last_task.data)
+            #     self.save()
+
             result.update(
                 {
                     "current_version": self.workflow_version,
@@ -612,10 +643,12 @@ class CaseWorkflow(models.Model):
                     "subworkflows_to_be_deleted": subworkflows_to_be_deleted,
                     "tasks_to_be_deleted": tasks_to_be_deleted,
                     "subworkflow": subworkflow,
+                    "data": initial_data,
                 }
             )
             return result
         else:
+            print("FOR REALS")
             state = self.get_serializer().serialize_workflow(
                 workflow, include_spec=False
             )

@@ -16,7 +16,11 @@
 {% block content %}
 <h2>{{caseworkflow}}</h2>
 <div id="content-main">
-
+<dl>
+  <dt>Last task data</dt>
+  <dd>{{ workflow.last_task.data }}</dd>
+</dl>
+<b>Workflow tree</b>
 {% include "./tasks.html" with task=workflow.task_tree task_states=task_states only %}
 
 <form action="." method="post" novalidate>
@@ -24,7 +28,7 @@
 
     <div>
     {{ form.as_p }}
-    <input type="submit" value="Test">
+    <input type="submit" value="Validate">
     {% comment %} {% block field_sets %} {% endcomment %}
 
 
@@ -58,6 +62,8 @@
         <span>Workflow version veranderd van <b>{{result.current_version}}</b>, naar <b>{{result.new_version}}</b></span>
         {% endif %}
 
+        <h3>Nieuwe workflow data</h3>
+        {{result.data}}
         <br>
         <br>
         <span>De volgende objecten zullen worden verwijderd</span>
