@@ -38,14 +38,14 @@ class test_verwerken_debrief(AbstractUserTask, task_verwerken_debrief):
 
 class test_terugkoppelen_melder_1(GenericUserTask, task_terugkoppelen_melder_1):
     @staticmethod
-    def get_steps(violation=Violation.NO):
-        return [*test_verwerken_debrief.get_steps(violation=violation), __class__()]
+    def get_steps():
+        return [*test_verwerken_debrief.get_steps(violation=Violation.NO), __class__()]
 
 
 class test_terugkoppelen_melder_2(GenericUserTask, task_terugkoppelen_melder_2):
     @staticmethod
-    def get_steps(violation=Violation.YES):
-        return [*test_verwerken_debrief.get_steps(violation=violation), __class__()]
+    def get_steps():
+        return [*test_verwerken_debrief.get_steps(violation=Violation.YES), __class__()]
 
 
 class test_afwachten_intern_onderzoek(GenericUserTask, task_afwachten_intern_onderzoek):
@@ -77,9 +77,8 @@ class test_opstellen_verkorte_rapportage_huisbezoek(
     GenericUserTask, task_opstellen_verkorte_rapportage_huisbezoek
 ):
     @staticmethod
-    def get_steps(to_other_team=False):
-        violation = Violation.SEND_TO_OTHER_THEME if to_other_team else Violation.NO
+    def get_steps():
         return [
-            *test_terugkoppelen_melder_1.get_steps(violation=violation),
+            *test_terugkoppelen_melder_1.get_steps(),
             __class__(),
         ]
