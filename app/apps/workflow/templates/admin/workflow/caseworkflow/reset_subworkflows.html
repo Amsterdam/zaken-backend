@@ -1,0 +1,95 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+{{ media }}
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
+
+{% block coltype %}colM{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-form{% endblock %}
+
+
+{% block content %}
+<h2>{{caseworkflow}}</h2>
+<div id="content-main">
+<dl>
+  <dt>Last task data</dt>
+  <dd>{{ workflow.last_task.data }}</dd>
+</dl>
+<b>Workflow tree</b>
+{% include "./tasks.html" with task=workflow.task_tree task_states=task_states only %}
+
+<form action="." method="post" novalidate>
+    {% csrf_token %}
+
+    <div>
+    {{ form.as_p }}
+    <input type="submit" value="Validate">
+    {% comment %} {% block field_sets %} {% endcomment %}
+
+
+    {% comment %} {% endblock %} {% endcomment %}
+    {% comment %} {% block after_related_objects %}{% endblock %} {% endcomment %}
+
+    {% block submit_buttons_bottom %}{% endblock %}
+
+    {% block admin_change_form_document_ready %}
+        <script type="text/javascript">
+        </script>
+    {% endblock %}
+
+    {# JavaScript for prepopulated fields #}
+    {% comment %} {% prepopulated_fields_js %} {% endcomment %}
+
+    </div>
+</form>
+{% if result %}
+    {% if result.success %}
+        <br>
+        <br>
+        <br>
+        <br>
+        <h1>Deze workflow director kan worden gereset naar <b>{{result.subworkflow}}</b></h1>
+
+        {% if result.current_theme_name != result.new_theme_name %}
+        <span>Workflow theme veranderd van <b>{{result.current_theme_name}}</b>, naar <b>{{result.new_theme_name}}</b></span>
+        {% endif %}
+        {% if result.current_version != result.new_version %}
+        <span>Workflow version veranderd van <b>{{result.current_version}}</b>, naar <b>{{result.new_version}}</b></span>
+        {% endif %}
+
+        <h3>Nieuwe workflow data</h3>
+        {{result.data}}
+        <br>
+        <br>
+        <span>De volgende objecten zullen worden verwijderd</span>
+        <h3>CaseWorkflows({{result.subworkflows_to_be_deleted|length}})</h3>
+        <ul>
+            {% for wf in result.subworkflows_to_be_deleted %}
+            <li>{{wf}}</li>
+            {% endfor %}
+        </ul>
+        <h3>CaseUserTasks({{result.tasks_to_be_deleted|length}})</h3>
+        <ul>
+            {% for wf in result.tasks_to_be_deleted %}
+            <li>{{wf.name}}: {{wf.completed}}</li>
+            {% endfor %}
+        </ul>
+
+        <form action="." method="get" novalidate>
+            <h2>Wil je de subworkflows resetten naar de geselecteerde subworkflow?</h2>
+            <h2>Let op! Deze actie kan niet worden terug gedraaid!</h2>
+            <h2>Let op! De eerst volgende taak/taken van voor deze workflow zijn de eerste taak/taken van de gekozen subworkflow!</h2>
+            <input type="hidden" name="reset_to" value="{{result.subworkflow}}">
+            <input type="submit" value="Ja, reset subworkflows">
+        </form>
+    {% else %}
+    {{result.message}}
+    {% endif %}
+{% endif %}
+</div>
+{% endblock %}
