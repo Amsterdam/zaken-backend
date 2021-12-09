@@ -12,10 +12,8 @@ from django.utils.dateparse import parse_duration
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.specs.event_definitions import TimerEventDefinition
-from SpiffWorkflow.bpmn.specs.ScriptTask import ScriptTask
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
-from SpiffWorkflow.specs.StartTask import StartTask
 from SpiffWorkflow.task import Task
 from utils.managers import BulkCreateSignalsManager
 
@@ -25,10 +23,13 @@ from .tasks import (
     task_complete_user_task_and_create_new_user_tasks,
     task_complete_worflow,
     task_start_subworkflow,
+    task_update_workflow,
     task_wait_for_workflows_and_send_message,
 )
 from .utils import (
     compare_workflow_specs_by_task_specs,
+    ff_to_subworkflow,
+    ff_workflow,
     get_initial_data_from_config,
     get_latest_version_from_config,
     get_workflow_path,
@@ -522,12 +523,6 @@ class CaseWorkflow(models.Model):
         )
         initial_data.update(original_data)
 
-        # data transforms form all previous versions to latest version
-        if initial_data.get("debrief_next_step"):
-            initial_data["next_step"] = initial_data.get("debrief_next_step")
-        if initial_data.get("summon_next_step"):
-            initial_data["next_step"] = initial_data.get("summon_next_step")
-
         wf_spec_latest = get_workflow_spec(latest_path, self.workflow_type)
 
         if (
@@ -536,78 +531,11 @@ class CaseWorkflow(models.Model):
         ):
             return False
 
-        script_engine = BpmnScriptEngine(
-            scriptingAdditions={
-                "set_status": lambda *args: None,
-                "wait_for_workflows_and_send_message": lambda *args: None,
-                "start_subworkflow": lambda *args: None,
-                "parse_duration": lambda *args: None,
-            }
+        workflow = ff_to_subworkflow(
+            subworkflow, wf_spec_latest, self.workflow_message_name, initial_data
         )
-        workflow = BpmnWorkflow(wf_spec_latest, script_engine=script_engine)
+        if workflow:
 
-        first_task = workflow.get_tasks(Task.READY)[0]
-        first_task.update_data(initial_data)
-
-        workflow.refresh_waiting_tasks()
-        workflow.do_engine_steps()
-
-        workflow.message(
-            self.workflow_message_name, self.workflow_message_name, "message_name"
-        )
-        workflow.refresh_waiting_tasks()
-        workflow.do_engine_steps()
-
-        def get_waiting_tasks(wf):
-            return [
-                t
-                for t in wf.get_tasks(Task.WAITING)
-                if t.task_spec.inputs
-                and not isinstance(t.task_spec.inputs[0], StartTask)
-            ]
-
-        ready_tasks = get_waiting_tasks(workflow)
-        completed = []
-        while len(ready_tasks) > 0:
-            for task in ready_tasks:
-                if (
-                    task.task_spec.description == f"resume_after_{subworkflow}"
-                    and isinstance(workflow.last_task.task_spec, ScriptTask)
-                    and workflow.last_task.task_spec.script
-                    == f'start_subworkflow("{subworkflow}")'
-                ):
-                    ready_tasks = []
-                    break
-                else:
-                    if (
-                        task.task_spec.inputs
-                        and not isinstance(task.task_spec.inputs[0], StartTask)
-                        and task.task_spec.description not in completed
-                    ):
-                        try:
-                            print(task.task_spec.description)
-                            task.update_data(initial_data)
-                            workflow.complete_task_from_id(task.id)
-                            workflow.refresh_waiting_tasks()
-                            workflow.do_engine_steps()
-                            completed.append(task.task_spec.description)
-                            ready_tasks = get_waiting_tasks(workflow)
-                            print(ready_tasks)
-                        except Exception as e:
-                            ready_tasks = []
-                            logger.error(f"ERROR: Reset subworkflows: {e}")
-                            # break
-                    else:
-                        ready_tasks = []
-                        # break
-
-        print("RESULT")
-        print(task.task_spec.description)
-        if (
-            isinstance(workflow.last_task.task_spec, ScriptTask)
-            and workflow.last_task.task_spec.script
-            == f'start_subworkflow("{subworkflow}")'
-        ):
             subworkflows_to_be_deleted = CaseWorkflow.objects.filter(
                 parent_workflow=self
             )
@@ -648,7 +576,6 @@ class CaseWorkflow(models.Model):
             )
             return result
         else:
-            print("FOR REALS")
             state = self.get_serializer().serialize_workflow(
                 workflow, include_spec=False
             )
@@ -662,69 +589,201 @@ class CaseWorkflow(models.Model):
                     lambda: task_start_subworkflow.delay(subworkflow, self.id)
                 )
 
-    def migrate_to(self, workflow_version, test=True):
-        # tests and tries to migrate to an other version
-        """
-        Tests and tries to migrate to an other version
-        Below the steps to perform
+    def migrate_to_version(self, workflow_version, test=True):
+        wf = self.get_or_restore_workflow_state()
+        if not self.parent_workflow or not wf:
+            return False
 
-        *   This performs checks on the current uncompleted db tasks based on the new workflow_spec
-            Check if task.task_name exists in the new workflow_spec, if not, could it be renamed.
-            If it exists, is the path for the new workflow_spec to this task the same as the old one.
-            At the end of the task name checks, a new task name set(maybe the same as the old one), can be used to do the next check.
+        original_data = copy.deepcopy(wf.last_task.data)
+        expected_user_task_names = [t.task_spec.name for t in wf.get_ready_user_tasks()]
 
-        *   Perform checks on all the data gathered until this state of the workflow.
-            Assemble the form fields of the spiff UserTasks on the path to current uncompleted db tasks for current and new workflow_spec.
-            Compare the keys of the two results, and provide defaults for the missing data, for new fields in the new workflow_spec.
+        # manual override of expected tasks for version 2.0.0
+        if self.workflow_type == CaseWorkflow.WORKFLOW_TYPE_DEBRIEF and sorted(
+            expected_user_task_names
+        ) == sorted(
+            [
+                "task_create_concept_summons",
+                "task_create_picture_rapport",
+                "task_create_report_of_findings",
+            ]
+        ):
+            expected_user_task_names = [
+                "task_create_picture_rapport",
+                "task_create_report_of_findings",
+            ]
+        if self.workflow_type == CaseWorkflow.WORKFLOW_TYPE_DEBRIEF and sorted(
+            expected_user_task_names
+        ) == sorted(["task_create_concept_summons"]):
+            expected_user_task_names = ["task_terugkoppelen_melder_2"]
+        if self.workflow_type == CaseWorkflow.WORKFLOW_TYPE_DEBRIEF and sorted(
+            expected_user_task_names
+        ) == sorted(["task_create_concept_summons", "task_create_report_of_findings"]):
+            expected_user_task_names = ["task_create_report_of_findings"]
+        if self.workflow_type == CaseWorkflow.WORKFLOW_TYPE_DEBRIEF and sorted(
+            expected_user_task_names
+        ) == sorted(
+            [
+                "task_check_summons",
+            ]
+        ):
+            expected_user_task_names = ["task_terugkoppelen_melder_2"]
+        if self.workflow_type == CaseWorkflow.WORKFLOW_TYPE_DEBRIEF and sorted(
+            expected_user_task_names
+        ) == sorted(
+            [
+                "task_terugkoppelen_melder_1",
+            ]
+        ):
+            expected_user_task_names = [
+                "task_terugkoppelen_melder_1",
+                "task_prepare_abbreviated_visit_rapport",
+            ]
 
-        *   Perform a fast-forward on a new workflow, based on the new workflow_spec, by completing all the UserTasks until the current uncompleted db tasks.
-            This fast-forward on a workflow, could generate a exception, if a ScriptTasks uses variables that are not generated by forms.
-            The result of the fast-forward, should be a new workflow based on the new workflow_spec, that can be serialized and saved in this workflow instances field 'serialized_workflow_state'
-            The current uncompleted db tasks field 'task_id', should be changed to the task.id's from new workflow's Task.READY tasks.
-        """
-
-        valid = True
-        path = get_workflow_path(
+        latest_theme_name, latest_version = get_latest_version_from_config(
+            self.workflow_theme_name, self.workflow_type, workflow_version
+        )
+        latest_path = get_workflow_path(
             self.workflow_type,
             self.workflow_theme_name,
-            workflow_version,
+            latest_version,
         )
-        try:
-            workflow_spec_b = get_workflow_spec(path, self.workflow_type)
-        except Exception:
-            return f"Version '{workflow_version}' not found"
-
-        workflow_spec_a = self.get_workflow_spec()
-
-        uncompleted_users_tasks = self.tasks.filter(completed=False)
-        last_completed_users_task = (
-            self.tasks.filter(completed=True).order_by("updated").first()
+        initial_data = get_initial_data_from_config(
+            latest_theme_name,
+            self.workflow_type,
+            latest_version,
+            self.workflow_message_name,
         )
-        if last_completed_users_task:
-            last_completed_users_task = last_completed_users_task.task_name
+        initial_data.update(original_data)
 
-        valid, new_task_name_ids = compare_workflow_specs_by_task_specs(
-            workflow_spec_a,
-            workflow_spec_b,
-            uncompleted_users_tasks.values_list("task_name", flat=True),
+        wf_spec_latest = get_workflow_spec(latest_path, self.workflow_type)
+
+        current_workflow = self.get_or_restore_workflow_state()
+        timer_event_task_start_times = dict(
+            (t.task_spec.name, t.internal_data.get("start_time"))
+            for t in current_workflow.task_tree
+            if t.internal_data.get("start_time")
         )
 
-        # translate task_name's
-        expected_user_task_names = [
-            new_task_name_ids.get(t.task_name, t.task_name)
-            for t in uncompleted_users_tasks
-        ]
-
-        # fast forward workflow to uncompleted user task names with existing data
-        result = workflow_health_check(
-            workflow_spec_b, copy.deepcopy(self.data), expected_user_task_names
+        workflow = ff_workflow(
+            wf_spec_latest,
+            initial_data,
+            expected_user_task_names,
+            timer_event_task_start_times,
         )
-        logger.info(result)
-        if not test and valid:
-            # existing uncompleted tasks can be deleted. They should be created with the new workflow with new task id's
-            uncompleted_users_tasks.delete()
 
-            self.serialized_workflow_state = ""
+        result = {
+            "workflow": workflow,
+            "workflow_type": self.workflow_type,
+            "current_workflow": current_workflow,
+            "found_user_task_names": [
+                t.task_spec.name for t in workflow.get_ready_user_tasks()
+            ]
+            if workflow
+            else [],
+            "expected_user_task_names": expected_user_task_names,
+            "current_version": self.workflow_version,
+            "latest_version": latest_version,
+            "current_theme_name": self.workflow_theme_name,
+            "latest_theme_name": latest_theme_name,
+        }
+        return result, bool(workflow)
+
+    def migrate_to_latest(self, test=True):
+        success = False
+        result = {}
+        if not self.workflow_type == CaseWorkflow.WORKFLOW_TYPE_DIRECTOR:
+            return {"workflow_result": "Not a director"}, False
+        if self.case.end_date:
+            return {"workflow_result": "Case is closed"}, False
+        wf = self.get_or_restore_workflow_state()
+        if not wf:
+            original_data = self.data
+        else:
+            original_data = copy.deepcopy(wf.last_task.data)
+
+        subworkflows = CaseWorkflow.objects.filter(
+            parent_workflow=self, completed=False
+        )
+        if subworkflows.count() != 1:
+            return {"subworkflow_count": subworkflows.count()}, False
+        subworkflow = subworkflows.first()
+
+        latest_theme_name, latest_version = get_latest_version_from_config(
+            self.workflow_theme_name, self.workflow_type
+        )
+        latest_path = get_workflow_path(
+            self.workflow_type,
+            latest_theme_name,
+            latest_version,
+        )
+        initial_data = get_initial_data_from_config(
+            latest_theme_name,
+            self.workflow_type,
+            latest_version,
+            self.workflow_message_name,
+        )
+        initial_data.update(original_data)
+
+        wf_spec_latest = get_workflow_spec(latest_path, self.workflow_type)
+
+        workflow_result, workflow_success = ff_to_subworkflow(
+            subworkflow.workflow_type,
+            wf_spec_latest,
+            self.workflow_message_name,
+            initial_data,
+        )
+        workflow_result.update(
+            {
+                "current_version": self.workflow_version,
+                "latest_version": latest_version,
+                "current_theme_name": self.workflow_theme_name,
+                "latest_theme_name": latest_theme_name,
+            }
+        )
+        result.update(
+            {
+                "workflow_result": workflow_result,
+                "subworkflow_result": None,
+            }
+        )
+        subworkflow_result = {}
+        if workflow_success:
+            subworkflow_result, subworkflow_success = subworkflow.migrate_to_version(
+                latest_version
+            )
+            result.update(
+                {
+                    "subworkflow_result": subworkflow_result,
+                }
+            )
+            if subworkflow_success:
+                success = True
+        if not test and success:
+            state = self.get_serializer().serialize_workflow(
+                workflow_result.get("workflow"), include_spec=False
+            )
+            self.workflow_theme_name = latest_theme_name
+            self.workflow_version = latest_version
+            self.serialized_workflow_state = state
+
+            subworkflow_state = self.get_serializer().serialize_workflow(
+                subworkflow_result.get("workflow"), include_spec=False
+            )
+            subworkflow.workflow_theme_name = subworkflow_result.get(
+                "latest_theme_name"
+            )
+            subworkflow.workflow_version = subworkflow_result.get("latest_version")
+            subworkflow.serialized_workflow_state = subworkflow_state
+
+            with transaction.atomic():
+                self.save()
+                subworkflow.save()
+                CaseUserTask.objects.filter(workflow=subworkflow).delete()
+                transaction.on_commit(
+                    lambda: task_update_workflow.delay(subworkflow.id)
+                )
+
+        return result, success
 
     def __str__(self):
         return f"{self.id}, case: {self.case.id}"

@@ -9,6 +9,39 @@ from .forms import ResetSubworkflowsForm
 from .models import CaseUserTask, CaseWorkflow, GenericCompletedTask, WorkflowOption
 
 
+@admin.action(description="Migrate to latest")
+def migrate_worflows_to_latest(modeladmin, request, queryset):
+    results = []
+    test = request.POST.get("confirmation") is None
+    for caseworkflow in queryset.all():
+        result, success = caseworkflow.migrate_to_latest(test)
+        results.append(
+            {
+                "workflow_id": caseworkflow.id,
+                "result": result,
+                "success": success,
+            }
+        )
+    if request.POST.get("confirmation") is None:
+        request.current_app = modeladmin.admin_site.name
+
+        incompatible_migrations = sorted(
+            [r for r in results if not r.get("success")],
+            key=lambda d: str(d.get("result", {}).get("workflow_result")),
+        )
+        compatible_migrations = [r for r in results if r.get("success")]
+
+        context = {
+            "action": request.POST["action"],
+            "queryset": queryset,
+            "incompatible_migrations": incompatible_migrations,
+            "compatible_migrations": compatible_migrations,
+        }
+        return TemplateResponse(
+            request, "admin/workflow/caseworkflow/migrate_to_latest.html", context
+        )
+
+
 @admin.register(CaseWorkflow)
 class CaseWorkflowAdmin(admin.ModelAdmin):
     list_display = (
@@ -32,6 +65,8 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
     )
     search_fields = ("case__id",)
 
+    actions = (migrate_worflows_to_latest,)
+
     def issues(self, obj):
         issues = obj.check_for_issues()
         if issues == "no issues":
@@ -42,8 +77,14 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         self, request, context, add=False, change=False, form_url="", obj=None
     ):
         if obj:
+            (
+                migrate_to_latest_result,
+                migrate_to_latest_success,
+            ) = obj.migrate_to_latest()
             context.update(
                 {
+                    "migrate_to_latest_success": migrate_to_latest_success,
+                    "migrate_to_latest_result": migrate_to_latest_result,
                     "workflow": obj.get_or_restore_workflow_state(),
                     "task_states": ["COMPLETED", "READY", "WAITING", "CANCELLED"],
                 }
