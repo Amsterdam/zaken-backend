@@ -558,6 +558,7 @@ WORKFLOW_SPEC_CONFIG = {
             "initial_data": {},
             "versions": {
                 "0.1.0": {},
+                "0.1.1": {},
             },
         },
         "sub_workflow": {
