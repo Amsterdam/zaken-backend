@@ -16,6 +16,8 @@ from .utils import get_latest_version_from_config
 
 @receiver(pre_save, dispatch_uid="event_emitter_pre_save")
 def event_emitter_pre_save(instance, **kwargs):
+    if kwargs.get("raw"):
+        return
     if (
         issubclass(instance.__class__, TaskModelEventEmitter)
         and not instance.id
@@ -34,6 +36,8 @@ def event_emitter_pre_save(instance, **kwargs):
 
 @receiver(pre_save, sender=CaseUserTask, dispatch_uid="case_user_task_pre_save")
 def case_user_task_pre_save(sender, instance, **kwargs):
+    if kwargs.get("raw"):
+        return
     if not instance.id:
         now = timezone.now()
         d = datetime.datetime(
@@ -47,6 +51,8 @@ def case_user_task_pre_save(sender, instance, **kwargs):
 
 @receiver(pre_save, sender=CaseWorkflow, dispatch_uid="case_workflow_pre_save")
 def case_workflow_pre_save(sender, instance, **kwargs):
+    if kwargs.get("raw"):
+        return
     if not instance.id:
         existing_main_workflows = CaseWorkflow.objects.filter(
             case=instance.case,
@@ -89,6 +95,8 @@ def case_workflow_pre_save(sender, instance, **kwargs):
 
 @receiver(post_save, sender=CaseWorkflow, dispatch_uid="start_workflow")
 def start_workflow(sender, instance, created, **kwargs):
+    if kwargs.get("raw"):
+        return
     if created:
         task_start_worflow(instance.id)
 
@@ -101,6 +109,8 @@ def start_workflow(sender, instance, created, **kwargs):
 def complete_generic_user_task_and_create_new_user_tasks(
     sender, instance, created, **kwargs
 ):
+    if kwargs.get("raw"):
+        return
     task = CaseUserTask.objects.filter(id=instance.case_user_task_id).first()
     if created and task:
         data = copy.deepcopy(instance.variables)

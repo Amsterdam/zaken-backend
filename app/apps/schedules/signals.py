@@ -6,5 +6,7 @@ from django.dispatch import receiver
 
 @receiver(post_save, sender=Schedule, dispatch_uid="schedule_create_complete_task")
 def complete_task_create_schedule(sender, instance, created, **kwargs):
+    if kwargs.get("raw"):
+        return
     if created:
         CaseWorkflow.complete_user_task(instance.case_user_task_id, {})
