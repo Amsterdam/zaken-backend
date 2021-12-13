@@ -21,6 +21,13 @@
     }
   },
   {
+    "model": "cases.casetheme",
+    "pk": 4,
+    "fields": {
+      "name": "Ondermijning"
+    }
+  },
+  {
     "model": "cases.casereason",
     "pk": 2,
     "fields": {
@@ -222,6 +229,166 @@
     "fields": {
       "name": "Levant",
       "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 1,
+    "fields": {
+      "name": "Crimineel gebruik",
+      "theme": 4
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 2,
+    "fields": {
+      "name": "Hennep",
+      "theme": 4
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 3,
+    "fields": {
+      "name": "Overige woonfraude",
+      "theme": 4
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 4,
+    "fields": {
+      "name": "Geen nachtverblijf",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 5,
+    "fields": {
+      "name": "Niet-melden",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 6,
+    "fields": {
+      "name": "Ontbreken inschrijving BRP",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 7,
+    "fields": {
+      "name": "Ontbreken registratienummer",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 8,
+    "fields": {
+      "name": "Ontbreken VV vergunning",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 9,
+    "fields": {
+      "name": "Overschrijding nachten",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 10,
+    "fields": {
+      "name": "Overschrijding personen",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 11,
+    "fields": {
+      "name": "Schending oppervlakte eisen",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 12,
+    "fields": {
+      "name": "VV in sociale huurwoning",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 13,
+    "fields": {
+      "name": "VV zonder feitelijke bewoning",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 14,
+    "fields": {
+      "name": "Meer dan het toegestane aantal huishoudens",
+      "theme": 3
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 15,
+    "fields": {
+      "name": "Kortdurend verblijf",
+      "theme": 3
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 16,
+    "fields": {
+      "name": "Crimineel gebruik",
+      "theme": 3
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 17,
+    "fields": {
+      "name": "Hennep",
+      "theme": 3
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 18,
+    "fields": {
+      "name": "Overige woonfraude",
+      "theme": 3
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 19,
+    "fields": {
+      "name": "Verbouwd naar twee of meer zelfstandige woningen",
+      "theme": 3
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 20,
+    "fields": {
+      "name": "Samenvoeging van woningen",
+      "theme": 3
     }
   }
 ]
