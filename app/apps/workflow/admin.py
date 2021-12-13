@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -124,6 +124,11 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
             if request.GET.get("reset_to"):
                 result = caseworkflow.reset_subworkflow(
                     request.GET.get("reset_to"), False
+                )
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    f"De workflow director '{caseworkflow.id}' is gemigreert naar de laatste versie en gereset naar de de subworkflow '{request.GET.get('reset_to')}'",
                 )
                 url = reverse(
                     "admin:reset-subworkflows",
