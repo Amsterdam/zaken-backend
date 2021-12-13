@@ -1,0 +1,8 @@
+        <div>
+        <b>{{object.workflow_id}}</b>: {{ object.success }}<br>
+        {% if object.result.workflow_result.current_version != object.result.workflow_result.latest_version %}<p>Director migratie van <b>{{object.result.workflow_result.current_version}}</b> naar <b>{{object.result.workflow_result.latest_version}}</b></p>{% endif %}
+        {% if object.result.subworkflow_result.current_version != object.result.subworkflow_result.latest_version %}<p>Subworkflow '{{object.result.subworkflow_result.workflow_type}}' migratie van <b>{{object.result.subworkflow_result.current_version}}</b> naar <b>{{object.result.subworkflow_result.latest_version}}</b></p>{% endif %}
+        {{ object.result.workflow_result }}<br>
+        {{ object.result.subworkflow_result }}
+        </div>
+        <hr>

@@ -33,6 +33,23 @@
   </ul>
 {% endif %}{% endif %}
 {% endblock %}
+<h2>Migrate to latest report</h2>
+<p>Can be migrated: <b>{{migrate_to_latest_success}}</b></p>
+<p>Director(this workflow) migration: from <b>{{migrate_to_latest_result.workflow_result.current_version}}</b>, to <b>{{migrate_to_latest_result.workflow_result.latest_version}}</b></p>
+<p>Subworkflow: <b>{{migrate_to_latest_result.subworkflow_result.workflow_type}}</b></p>
+<p>Subworkflow migration: from <b>{{migrate_to_latest_result.subworkflow_result.current_version}}</b>, to <b>{{migrate_to_latest_result.subworkflow_result.latest_version}}</b></p>
+<p>{{migrate_to_latest_result}}</p>
+
+{% if migrate_to_latest_result.subworkflow_result.workflow %}
+<h3>Current subworkflow state</h3>
+{% include "./tasks.html" with task=migrate_to_latest_result.subworkflow_result.current_workflow.task_tree task_states=task_states only %}
+<h3>New subworkflow state</h3>
+{% include "./tasks.html" with task=migrate_to_latest_result.subworkflow_result.workflow.task_tree task_states=task_states only %}
+{% endif %}
+<hr>
+<hr>
+<hr>
+<hr>
 <dl>
   <dt>Last task data</dt>
   <dd>{{ workflow.last_task.data }}</dd>

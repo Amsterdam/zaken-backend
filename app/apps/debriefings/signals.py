@@ -6,6 +6,8 @@ from django.dispatch import receiver
 
 @receiver(post_save, sender=Debriefing, dispatch_uid="debrief_create_complete_task")
 def complete_task_create_debrief(sender, instance, created, **kwargs):
+    if kwargs.get("raw"):
+        return
     if created:
         CaseWorkflow.complete_user_task(
             instance.case_user_task_id,

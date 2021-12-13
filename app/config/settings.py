@@ -558,6 +558,7 @@ WORKFLOW_SPEC_CONFIG = {
             "initial_data": {},
             "versions": {
                 "0.1.0": {},
+                "0.1.1": {},
             },
         },
         "sub_workflow": {
@@ -585,6 +586,8 @@ WORKFLOW_SPEC_CONFIG = {
                     days=71
                 ),
                 "next_step": {"value": "summon"},
+                "type_concept_aanschrijving": {"value": "default"},
+                "aanschrijving_valide": {"value": "default"},
             },
             "versions": {
                 "0.1.0": {},

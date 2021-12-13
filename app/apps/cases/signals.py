@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 def start_workflow_for_case(sender, instance, created, **kwargs):
     from apps.workflow.tasks import task_create_main_worflow_for_case
 
+    if kwargs.get("raw"):
+        return
     data = {}
     if hasattr(instance, "status_name"):
         data.update({"status_name": getattr(instance, "status_name")})
@@ -22,12 +24,16 @@ def start_workflow_for_case(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=CitizenReport, dispatch_uid="complete_citizen_report_task")
 def complete_citizen_report_task(sender, instance, created, **kwargs):
+    if kwargs.get("raw"):
+        return
     if instance.case_user_task_id != "-1" and created:
         CaseWorkflow.complete_user_task(instance.case_user_task_id, {})
 
 
 @receiver(post_save, sender=CaseClose)
 def close_case(sender, instance, created, **kwargs):
+    if kwargs.get("raw"):
+        return
     if instance.case_user_task_id != "-1" and created:
         CaseWorkflow.complete_user_task(instance.case_user_task_id, {})
         task_close_case.delay(instance.case.id)

@@ -71,6 +71,7 @@ class CaseAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "theme",
+        "reason",
         "identification",
         "start_date",
         "end_date",
@@ -80,7 +81,7 @@ class CaseAdmin(admin.ModelAdmin):
         "is_legacy_camunda",
         "author",
     )
-    list_filter = ("theme", "is_legacy_bwv", "is_legacy_camunda", "subjects")
+    list_filter = ("theme", "is_legacy_bwv", "is_legacy_camunda", "project", "subjects")
     search_fields = ("id", "legacy_bwv_case_id")
     actions = [
         create_main_worflow_for_case,
@@ -88,6 +89,7 @@ class CaseAdmin(admin.ModelAdmin):
         camunda_case_try_to_complete_task_create_visit,
         camunda_case_try_to_complete_task_create_debrief,
     ]
+    list_editable = ("theme", "reason")
 
 
 @admin.register(CaseState)
@@ -102,6 +104,7 @@ class CaseStateAdmin(admin.ModelAdmin):
     )
     list_filter = ("status", "end_date")
     search_fields = ("case__id",)
+    list_editable = ("status",)
 
 
 @admin.register(CaseStateType)
@@ -111,6 +114,7 @@ class CaseStateTypeAdmin(admin.ModelAdmin):
         "name",
         "theme",
     )
+    list_filter = ("theme",)
 
 
 @admin.register(CitizenReport)
@@ -148,6 +152,7 @@ class CaseProjectAdmin(admin.ModelAdmin):
         "theme",
     )
     list_filter = ("theme",)
+    list_editable = ("theme",)
 
 
 @admin.register(Subject)
@@ -197,6 +202,8 @@ class CaseCloseAdmin(admin.ModelAdmin):
         "case_user_task_id",
     )
     search_fields = ("case__id",)
+    list_editable = ("reason",)
+    list_filter = ("reason",)
 
 
 admin.site.register(CaseTheme, admin.ModelAdmin)

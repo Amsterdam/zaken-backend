@@ -11,6 +11,8 @@ def update_decision_with_summon(sender, instance, created, **kwargs):
     TODO: Temporary hook to update decision with a summon instance.
     This will be resolved when we support multiple summons.
     """
+    if kwargs.get("raw"):
+        return
     if created:
         task = CaseWorkflow.get_task_by_task_id(instance.case_user_task_id)
         data = {
