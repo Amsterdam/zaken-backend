@@ -10,7 +10,7 @@ class Action(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.theme}"
 
     class Meta:
         ordering = ["name"]
@@ -24,7 +24,7 @@ class WeekSegment(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.theme}"
 
     class Meta:
         ordering = ["name"]
@@ -38,7 +38,7 @@ class DaySegment(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.theme}"
 
     class Meta:
         ordering = ["name"]
@@ -53,7 +53,7 @@ class Priority(models.Model):
     weight = models.FloatField()
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.theme}"
 
     class Meta:
         ordering = ["weight"]

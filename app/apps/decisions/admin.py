@@ -18,6 +18,7 @@ class DecisionAdmin(admin.ModelAdmin):
     date_hierarchy = "date_added"
     actions = ["export_decisions_with_sanction"]
     search_fields = ("case__id",)
+    list_editable = ("decision_type",)
 
     def export_decisions_with_sanction(self, request, queryset):
         serializer = DecisionSanctionSerializer(
