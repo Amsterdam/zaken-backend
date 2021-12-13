@@ -44,5 +44,8 @@ class TestTimelineWithIdentification(DefaultAPITest):
             test_inplannen_status(), ValidateOpenTasks(test_doorgeven_status_top)
         )
         events = self.client.get_case_events(case.data["id"])
-        self.assertEqual(len(case.timeline), len(events))
+        self.assertEqual(
+            len(case.timeline),
+            len(events),
+        )
         self.assertEqual(3, len(events))

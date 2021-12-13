@@ -11,6 +11,7 @@ from apps.cases.models import (
     CaseStateType,
     CaseTheme,
     CitizenReport,
+    Subject,
 )
 from apps.schedules.serializers import ScheduleSerializer
 from apps.workflow.models import CaseUserTask, CaseWorkflow, WorkflowOption
@@ -171,6 +172,12 @@ class CaseProjectSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class SubjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subject
+        fields = "__all__"
+
+
 class CaseSerializer(serializers.ModelSerializer):
     address = AddressSerializer(required=True)
     current_states = CaseStateSerializer(
@@ -182,6 +189,7 @@ class CaseSerializer(serializers.ModelSerializer):
     reason = CaseReasonSerializer(required=True)
     schedules = ScheduleSerializer(source="get_schedules", many=True, read_only=True)
     project = CaseProjectSerializer()
+    subjects = SubjectSerializer(many=True, read_only=True)
 
     class Meta:
         model = Case
@@ -219,6 +227,7 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
             "author",
             "project",
             "ton_ids",
+            "subjects",
         )
 
     def validate(self, data):
@@ -245,6 +254,7 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         return data
 
     def update(self, instance, validated_data):
+        subjects = validated_data.pop("subjects")
         address_data = validated_data.pop("address", None)
         if address_data:
             address = Address.get(address_data.get("bag_id"))
@@ -253,11 +263,13 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         for key, value in validated_data.items():
             setattr(instance, key, value)
 
+        instance.subjects.set(subjects)
         instance.save()
 
         return instance
 
     def create(self, validated_data):
+        subjects = validated_data.pop("subjects")
         address_data = validated_data.pop("address")
         address = Address.get(address_data.get("bag_id"))
 
@@ -269,6 +281,7 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
             case.status_name = status_name
 
         case.save()
+        case.subjects.set(subjects)
 
         return case
 

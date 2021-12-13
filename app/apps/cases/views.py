@@ -34,6 +34,7 @@ from apps.cases.serializers import (
     LegacyCaseUpdateSerializer,
     PushCaseStateSerializer,
     StartWorkflowSerializer,
+    SubjectSerializer,
 )
 from apps.cases.swagger_parameters import date as date_parameter
 from apps.cases.swagger_parameters import no_pagination as no_pagination_parameter
@@ -306,6 +307,25 @@ class CaseViewSet(
         return paginator.get_paginated_response(serializer.data)
 
     @extend_schema(
+        description="Gets the Subjects associated with the given theme",
+        responses={status.HTTP_200_OK: SubjectSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="subjects",
+        methods=["get"],
+    )
+    def subjects(self, request, pk):
+        paginator = LimitOffsetPagination()
+        case = self.get_object()
+        query_set = case.subjects.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = SubjectSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
         description="Get WorkflowOption for this Case",
         responses={status.HTTP_200_OK: WorkflowOptionSerializer(many=True)},
     )
@@ -565,6 +585,25 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = CaseCloseResultSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the subjects associated with the requested theme",
+        responses={status.HTTP_200_OK: SubjectSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="subjects",
+        methods=["get"],
+    )
+    def subjects(self, request, pk):
+        paginator = LimitOffsetPagination()
+        theme = self.get_object()
+        query_set = theme.subject_set.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = SubjectSerializer(context, many=True)
 
         return paginator.get_paginated_response(serializer.data)
 
