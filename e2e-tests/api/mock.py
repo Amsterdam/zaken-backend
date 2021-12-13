@@ -23,6 +23,7 @@ def get_case_mock(
     theme_id=Themes.HOLIDAY_RENTAL,
     reason=Reason.NOTIFICATION,
     address=Address,
+    subjects=[],
     description_citizenreport=None,
     identification=None,
 ):
@@ -30,6 +31,7 @@ def get_case_mock(
         "theme": theme_id,
         "reason": reason,
         "address": address,
+        "subjects": subjects,
         "description_citizenreport": description_citizenreport,
         "identification": identification,
     }

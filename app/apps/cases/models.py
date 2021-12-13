@@ -70,9 +70,16 @@ class CaseProject(models.Model):
         return f"{self.name} ({self.theme.name})"
 
 
+class Subject(models.Model):
+    name = models.CharField(max_length=255)
+    theme = models.ForeignKey(CaseTheme, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f"{self.theme.name}: {self.name}"
+
+
 class Case(ModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CASE
-
     # RESULT_NOT_COMPLETED = "ACTIVE"
     # RESULT_ACHIEVED = "RESULT"
     # RESULT_MISSED
@@ -105,6 +112,7 @@ class Case(ModelEventEmitter):
     project = models.ForeignKey(
         to=CaseProject, null=True, blank=True, on_delete=models.PROTECT
     )
+    subjects = models.ManyToManyField(Subject, related_name="cases", blank=True)
     ton_ids = ArrayField(models.IntegerField(), default=list, null=True, blank=True)
 
     def __get_event_values__(self):
@@ -116,12 +124,14 @@ class Case(ModelEventEmitter):
             author = self.author.full_name
         else:
             author = "Medewerker onbekend"
+
         event_values = {
             "start_date": self.start_date,
             "end_date": self.end_date,
             "reason": reason,
             "description": self.description,
             "author": author,
+            "subjects": map(lambda subject: subject.name, self.subjects.all()),
         }
 
         # TODO better way for db reason with python logic

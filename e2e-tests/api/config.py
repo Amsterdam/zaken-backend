@@ -64,6 +64,13 @@ class TypeConceptSummon:
     RENOUNCE_SUMMON = "afzien_aanschrijving"
 
 
+class Subjects:
+    class HolidayRental:
+        HENNEP = 1
+        OVERIGE_WOONFRAUDE = 2
+        CRIMINEEL_GEBRUIK = 3
+
+
 class SummonValidity:
     YES = "ja"
     NO = "nee"

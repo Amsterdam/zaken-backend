@@ -3,7 +3,7 @@ import logging
 from api import events
 from api.config import CloseReason, NextStep
 from api.tasks import AbstractUserTask, GenericUserTask
-from api.tasks.decision import test_versturen_invordering_belastingen
+from api.tasks.debrief import test_opstellen_verkorte_rapportage_huisbezoek
 from api.user_tasks import task_afsluiten_zaak, task_uitzetten_vervolgstap
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,7 @@ class test_uitzetten_vervolgstap(GenericUserTask, task_uitzetten_vervolgstap):
     @staticmethod
     def get_steps(next_step=NextStep.CLOSE):
         return [
-            *test_versturen_invordering_belastingen.get_steps(),
+            *test_opstellen_verkorte_rapportage_huisbezoek.get_steps(),  # shortest path
             __class__(next_step=next_step),
         ]
 
