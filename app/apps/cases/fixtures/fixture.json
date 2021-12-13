@@ -303,7 +303,7 @@
   },
   {
     "model": "cases.casecloseresult",
-    "pk": 7,
+    "pk": 9,
     "fields": {
       "name": "Gelegaliseerd",
       "case_theme": 4
@@ -311,7 +311,7 @@
   },
   {
     "model": "cases.casecloseresult",
-    "pk": 8,
+    "pk": 10,
     "fields": {
       "name": "Regulier bewoond",
       "case_theme": 4
