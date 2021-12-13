@@ -207,16 +207,11 @@ class Case(ModelEventEmitter):
 
 
 class CaseStateType(models.Model):
-    def default_theme():
-        theme, _ = CaseTheme.objects.get_or_create(name=settings.DEFAULT_THEME)
-        return theme.id
-
     name = models.CharField(max_length=255)
     theme = models.ForeignKey(
         to=CaseTheme,
         related_name="state_types",
         on_delete=models.CASCADE,
-        default=default_theme,
     )
 
     def __str__(self):

@@ -2,7 +2,6 @@
 
 import uuid
 
-import apps.cases.models
 import django
 from django.conf import settings
 from django.db import migrations, models
@@ -290,7 +289,6 @@ class Migration(migrations.Migration):
             model_name="casestatetype",
             name="theme",
             field=models.ForeignKey(
-                default=apps.cases.models.CaseStateType.default_theme,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="state_types",
                 to="cases.casetheme",
