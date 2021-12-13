@@ -24,7 +24,8 @@
     "model": "cases.casetheme",
     "pk": 4,
     "fields": {
-      "name": "Ondermijning"
+      "name": "Ondermijning",
+      "sensitive": true
     }
   },
   {

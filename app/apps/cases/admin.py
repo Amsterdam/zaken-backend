@@ -9,6 +9,7 @@ from apps.cases.models import (
     CaseStateType,
     CaseTheme,
     CitizenReport,
+    Subject,
 )
 from apps.workflow.tasks import (
     task_create_main_worflow_for_case,
@@ -80,7 +81,7 @@ class CaseAdmin(admin.ModelAdmin):
         "is_legacy_camunda",
         "author",
     )
-    list_filter = ("theme", "is_legacy_bwv", "is_legacy_camunda", "project")
+    list_filter = ("theme", "is_legacy_bwv", "is_legacy_camunda", "project", "subjects")
     search_fields = ("id", "legacy_bwv_case_id")
     actions = [
         create_main_worflow_for_case,
@@ -161,6 +162,19 @@ class CaseProjectAdmin(admin.ModelAdmin):
     )
     list_filter = ("theme",)
     list_editable = ("theme",)
+
+
+@admin.register(Subject)
+class SubjectAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "theme",
+    )
+    list_filter = (
+        "theme",
+        "name",
+    )
 
 
 @admin.register(CaseCloseReason)

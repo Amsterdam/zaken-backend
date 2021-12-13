@@ -11,6 +11,9 @@ class Validator:
     def run(self, client, case: Case):
         pass
 
+    def __str__(self):
+        return f"<{self.__module__}.{self.__class__.__name__} tasks:{self.tasks}>"
+
 
 class ValidateOpenTasks(Validator):
     def __init__(self, *tasks):
@@ -21,9 +24,6 @@ class ValidateOpenTasks(Validator):
             )
         )
         self.tasks.sort()
-
-    def __str__(self):
-        return f"<{self.__module__}.{self.__class__.__name__} tasks:{self.tasks}>"
 
     def is_ready(self, client, case: Case):
         # Get the names of all open tasks
