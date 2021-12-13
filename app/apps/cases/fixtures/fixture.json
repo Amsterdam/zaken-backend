@@ -1,228 +1,227 @@
-[{
-        "model": "cases.casetheme",
-        "pk": 1,
-        "fields": {
-            "name": "(Legacy) Vakantieverhuur"
-        }
-    },
-    {
-        "model": "cases.casetheme",
-        "pk": 2,
-        "fields": {
-            "name": "Vakantieverhuur"
-        }
-    },
-    {
-        "model": "cases.casetheme",
-        "pk": 3,
-        "fields": {
-            "name": "Kamerverhuur"
-        }
-    },
-    {
-        "model": "cases.casereason",
-        "pk": 2,
-        "fields": {
-            "name": "Project",
-            "theme": 2
-        }
-    },
-    {
-        "model": "cases.casereason",
-        "pk": 4,
-        "fields": {
-            "name": "Melding",
-            "theme": 2
-        }
-
-    },
-    {
-        "model": "cases.casereason",
-        "pk": 5,
-        "fields": {
-            "name": "Project",
-            "theme": 3
-        }
-
-    },
-    {
-        "model": "cases.casereason",
-        "pk": 6,
-        "fields": {
-            "name": "Melding",
-            "theme": 3
-        }
-    },
-    {
-        "model": "cases.caseclosereason",
-        "pk": 15,
-        "fields": {
-            "name": "Anders, vermeld in toelichting",
-            "case_theme": 2,
-            "result": false
-        }
-    },
-    {
-        "model": "cases.caseclosereason",
-        "pk": 16,
-        "fields": {
-            "name": "Doorgezet naar ander team",
-            "case_theme": 2,
-            "result": false
-        }
-    },
-    {
-        "model": "cases.caseclosereason",
-        "pk": 17,
-        "fields": {
-            "name": "Geen aanleiding adres opnieuw te bezoeken",
-            "case_theme": 2,
-            "result": false
-        }
-    },
-    {
-        "model": "cases.caseclosereason",
-        "pk": 18,
-        "fields": {
-            "name": "Geen woonfraude",
-            "case_theme": 2,
-            "result": false
-        }
-    },
-    {
-        "model": "cases.caseclosereason",
-        "pk": 19,
-        "fields": {
-            "name": "Onvoldoende bewijs",
-            "case_theme": 2,
-            "result": false
-        }
-    },
-    {
-        "model": "cases.caseclosereason",
-        "pk": 20,
-        "fields": {
-            "name": "Resultaat na hercontrole",
-            "case_theme": 2,
-            "result": true
-        }
-    },
-    {
-        "model": "cases.caseclosereason",
-        "pk": 21,
-        "fields": {
-            "name": "Anders, vermeld in toelichting",
-            "case_theme": 3,
-            "result": false
-        }
-    },
-    {
-        "model": "cases.caseclosereason",
-        "pk": 22,
-        "fields": {
-            "name": "Doorgezet naar ander team",
-            "case_theme": 3,
-            "result": false
-        }
-    },
-    {
-        "model": "cases.caseclosereason",
-        "pk": 23,
-        "fields": {
-            "name": "Geen aanleiding adres opnieuw te bezoeken",
-            "case_theme": 3,
-            "result": false
-        }
-    },
-    {
-        "model": "cases.caseclosereason",
-        "pk": 24,
-        "fields": {
-            "name": "Geen woonfraude",
-            "case_theme": 3,
-            "result": false
-        }
-    },
-    {
-        "model": "cases.caseclosereason",
-        "pk": 25,
-        "fields": {
-            "name": "Onvoldoende bewijs",
-            "case_theme": 3,
-            "result": false
-        }
-    },
-    {
-        "model": "cases.caseclosereason",
-        "pk": 26,
-        "fields": {
-            "name": "Resultaat na hercontrole",
-            "case_theme": 3,
-            "result": true
-        }
-    },
-    {
-        "model": "cases.casecloseresult",
-        "pk": 4,
-        "fields": {
-            "name": "Gelegaliseerd",
-            "case_theme": 2
-        }
-    },
-    {
-        "model": "cases.casecloseresult",
-        "pk": 5,
-        "fields": {
-            "name": "Regulier verhuurd",
-            "case_theme": 2
-        }
-    },
-    {
-        "model": "cases.casecloseresult",
-        "pk": 6,
-        "fields": {
-            "name": "Regulier bewoond",
-            "case_theme": 2
-        }
-    },
-    {
-        "model": "cases.casecloseresult",
-        "pk": 7,
-        "fields": {
-            "name": "Regulier bewoond",
-            "case_theme": 3
-        }
-    },
-    {
-        "model": "cases.casecloseresult",
-        "pk": 8,
-        "fields": {
-            "name": "Gelegaliseerd",
-            "case_theme": 3
-        }
-    },
-    {
-        "model": "cases.caseproject",
-        "pk": 3,
-        "fields": {
-            "name": "Jupiter",
-            "theme": 3
-        }
-    },
-    {
-        "model": "cases.caseproject",
-        "pk": 4,
-        "fields": {
-            "name": "Pluto",
-            "theme": 3
-        }
-    },
-    {
-        "model": "cases.caseproject",
-        "pk": 1,
-        "fields": {
-            "name": "Levant",
-            "theme": 2
-        }
+[
+  {
+    "model": "cases.casetheme",
+    "pk": 1,
+    "fields": {
+      "name": "(Legacy) Vakantieverhuur"
     }
+  },
+  {
+    "model": "cases.casetheme",
+    "pk": 2,
+    "fields": {
+      "name": "Vakantieverhuur"
+    }
+  },
+  {
+    "model": "cases.casetheme",
+    "pk": 3,
+    "fields": {
+      "name": "Kamerverhuur"
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 2,
+    "fields": {
+      "name": "Project",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 4,
+    "fields": {
+      "name": "Melding",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 5,
+    "fields": {
+      "name": "Project",
+      "theme": 3
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 6,
+    "fields": {
+      "name": "Melding",
+      "theme": 3
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 15,
+    "fields": {
+      "name": "Anders, vermeld in toelichting",
+      "case_theme": 2,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 16,
+    "fields": {
+      "name": "Doorgezet naar ander team",
+      "case_theme": 2,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 17,
+    "fields": {
+      "name": "Geen aanleiding adres opnieuw te bezoeken",
+      "case_theme": 2,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 18,
+    "fields": {
+      "name": "Geen woonfraude",
+      "case_theme": 2,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 19,
+    "fields": {
+      "name": "Onvoldoende bewijs",
+      "case_theme": 2,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 20,
+    "fields": {
+      "name": "Resultaat na hercontrole",
+      "case_theme": 2,
+      "result": true
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 21,
+    "fields": {
+      "name": "Anders, vermeld in toelichting",
+      "case_theme": 3,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 22,
+    "fields": {
+      "name": "Doorgezet naar ander team",
+      "case_theme": 3,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 23,
+    "fields": {
+      "name": "Geen aanleiding adres opnieuw te bezoeken",
+      "case_theme": 3,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 24,
+    "fields": {
+      "name": "Geen woonfraude",
+      "case_theme": 3,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 25,
+    "fields": {
+      "name": "Onvoldoende bewijs",
+      "case_theme": 3,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 26,
+    "fields": {
+      "name": "Resultaat na hercontrole",
+      "case_theme": 3,
+      "result": true
+    }
+  },
+  {
+    "model": "cases.casecloseresult",
+    "pk": 4,
+    "fields": {
+      "name": "Gelegaliseerd",
+      "case_theme": 2
+    }
+  },
+  {
+    "model": "cases.casecloseresult",
+    "pk": 5,
+    "fields": {
+      "name": "Regulier verhuurd",
+      "case_theme": 2
+    }
+  },
+  {
+    "model": "cases.casecloseresult",
+    "pk": 6,
+    "fields": {
+      "name": "Regulier bewoond",
+      "case_theme": 2
+    }
+  },
+  {
+    "model": "cases.casecloseresult",
+    "pk": 7,
+    "fields": {
+      "name": "Regulier bewoond",
+      "case_theme": 3
+    }
+  },
+  {
+    "model": "cases.casecloseresult",
+    "pk": 8,
+    "fields": {
+      "name": "Gelegaliseerd",
+      "case_theme": 3
+    }
+  },
+  {
+    "model": "cases.caseproject",
+    "pk": 3,
+    "fields": {
+      "name": "Jupiter",
+      "theme": 3
+    }
+  },
+  {
+    "model": "cases.caseproject",
+    "pk": 4,
+    "fields": {
+      "name": "Pluto",
+      "theme": 3
+    }
+  },
+  {
+    "model": "cases.caseproject",
+    "pk": 1,
+    "fields": {
+      "name": "Levant",
+      "theme": 2
+    }
+  }
 ]
