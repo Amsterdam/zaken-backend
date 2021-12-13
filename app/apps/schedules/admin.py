@@ -9,8 +9,24 @@ class ScheduleAdmin(admin.ModelAdmin):
         "case",
         "date_added",
         "case_user_task_id",
+        "action",
+        "week_segment",
+        "day_segment",
+        "priority",
     )
     search_fields = ("case__id",)
+    list_editable = (
+        "action",
+        "week_segment",
+        "day_segment",
+        "priority",
+    )
+    list_filter = (
+        "action",
+        "week_segment",
+        "day_segment",
+        "priority",
+    )
 
 
 @admin.register(Action)
