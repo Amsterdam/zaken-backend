@@ -29,11 +29,6 @@
     <div>
     {{ form.as_p }}
     <input type="submit" value="Validate">
-    {% comment %} {% block field_sets %} {% endcomment %}
-
-
-    {% comment %} {% endblock %} {% endcomment %}
-    {% comment %} {% block after_related_objects %}{% endblock %} {% endcomment %}
 
     {% block submit_buttons_bottom %}{% endblock %}
 
@@ -42,8 +37,6 @@
         </script>
     {% endblock %}
 
-    {# JavaScript for prepopulated fields #}
-    {% comment %} {% prepopulated_fields_js %} {% endcomment %}
 
     </div>
 </form>

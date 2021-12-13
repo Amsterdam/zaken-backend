@@ -500,7 +500,6 @@ class CaseWorkflow(models.Model):
             transaction.on_commit(lambda: self.release_lock())
 
     def reset_subworkflow(self, subworkflow, test=True):
-        success = False
         wf = self.get_or_restore_workflow_state()
         if not wf:
             original_data = self.data
@@ -531,10 +530,10 @@ class CaseWorkflow(models.Model):
         ):
             return False
 
-        workflow = ff_to_subworkflow(
+        workflow_result, success = ff_to_subworkflow(
             subworkflow, wf_spec_latest, self.workflow_message_name, initial_data
         )
-        if workflow:
+        if success:
 
             subworkflows_to_be_deleted = CaseWorkflow.objects.filter(
                 parent_workflow=self
@@ -542,7 +541,6 @@ class CaseWorkflow(models.Model):
             tasks_to_be_deleted = CaseUserTask.objects.filter(
                 workflow__in=subworkflows_to_be_deleted
             )
-            success = True
 
         result = {
             "success": success,
@@ -558,9 +556,6 @@ class CaseWorkflow(models.Model):
             return result
 
         if test:
-            # if wf:
-            #     self.data = copy.deepcopy(workflow.last_task.data)
-            #     self.save()
 
             result.update(
                 {
@@ -577,7 +572,7 @@ class CaseWorkflow(models.Model):
             return result
         else:
             state = self.get_serializer().serialize_workflow(
-                workflow, include_spec=False
+                workflow_result.get("workflow"), include_spec=False
             )
             self.workflow_theme_name = latest_theme_name
             self.workflow_version = latest_version
@@ -588,6 +583,7 @@ class CaseWorkflow(models.Model):
                 transaction.on_commit(
                     lambda: task_start_subworkflow.delay(subworkflow, self.id)
                 )
+            return result
 
     def migrate_to_version(self, workflow_version, test=True):
         wf = self.get_or_restore_workflow_state()
