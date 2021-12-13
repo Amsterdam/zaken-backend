@@ -97,7 +97,7 @@
       <bpmn:outgoing>Flow_1rtyo5h</bpmn:outgoing>
       <bpmn:outgoing>Flow_1glf0ko</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_visit_bepalen_zaakproces" name="Bepalen zaakproces">
+    <bpmn:userTask id="task_visit_bepalen_zaakproces" name="Bepalen zaakproces" camunda:formKey="visit_next_step_form">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="visit_next_step" label="Wat is de gewenste vervolgstap?" type="enum">
@@ -136,7 +136,7 @@
     <bpmn:sequenceFlow id="Flow_1tx62ja" sourceRef="service_status_inplannen_huisbezoek_hercontrole" targetRef="gateway_visit_vervolg_stap_nodig" />
     <bpmn:sequenceFlow id="Flow_1921ocy" sourceRef="start_xbisnr1" targetRef="gateway_merge_1fmcb00" />
     <bpmn:sequenceFlow id="Flow_1glf0ko" name="theme = ondermijning" sourceRef="gateway_visit_vervolg_stap_nodig" targetRef="task_visit_bepalen_zaakproces">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">theme.value == "ondermijning"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">theme.value == "theme_ondermijning"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0q3mp95" sourceRef="Gateway_0i97097" targetRef="gateway_is_authorisation_required" />
     <bpmn:sequenceFlow id="Flow_19qcmz2" name="visit_next_step = visit_with_authorization" sourceRef="Gateway_0i97097" targetRef="task_request_authorization">
