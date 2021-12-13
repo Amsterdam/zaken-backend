@@ -90,6 +90,7 @@ class CaseAddressSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "address",
+            "sensitive",
         )
 
 

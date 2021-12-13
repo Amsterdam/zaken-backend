@@ -29,6 +29,7 @@ class CaseTheme(models.Model):
         to="CaseStateType",
         blank=True,
     )
+    sensitive = models.BooleanField(default=False)
 
     @property
     def snake_case_name(self):
@@ -85,6 +86,7 @@ class Case(ModelEventEmitter):
     address = models.ForeignKey(
         to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )
+    sensitive = models.BooleanField(default=False)
     is_legacy_bwv = models.BooleanField(default=False)
     is_legacy_camunda = models.BooleanField(default=False)
     legacy_bwv_case_id = models.CharField(

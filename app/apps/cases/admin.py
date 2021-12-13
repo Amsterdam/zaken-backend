@@ -91,6 +91,15 @@ class CaseAdmin(admin.ModelAdmin):
     list_editable = ("theme", "reason")
 
 
+@admin.register(CaseTheme)
+class CaseThemeAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "sensitive",
+    )
+
+
 @admin.register(CaseState)
 class CaseStateAdmin(admin.ModelAdmin):
     list_display = (
@@ -190,6 +199,3 @@ class CaseCloseAdmin(admin.ModelAdmin):
     search_fields = ("case__id",)
     list_editable = ("reason",)
     list_filter = ("reason",)
-
-
-admin.site.register(CaseTheme, admin.ModelAdmin)

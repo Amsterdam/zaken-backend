@@ -3,10 +3,18 @@ import logging
 from apps.cases.models import Case, CaseClose, CitizenReport
 from apps.cases.tasks import task_close_case
 from apps.workflow.models import CaseWorkflow
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 logger = logging.getLogger(__name__)
+
+
+@receiver(pre_save, sender=Case, dispatch_uid="case_pre_save")
+def case_pre_save(sender, instance, **kwargs):
+    if kwargs.get("raw"):
+        return
+    if not instance.id:
+        instance.sensitive = instance.theme.sensitive
 
 
 @receiver(post_save, sender=Case, dispatch_uid="start_workflow_for_case")
