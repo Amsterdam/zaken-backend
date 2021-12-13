@@ -21,6 +21,7 @@
         <bpmn:flowNodeRef>gateway_visit_vervolg_stap_nodig</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_visit_bepalen_zaakproces</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0i97097</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_1vlqpiy</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="lane_projecthandhaver" name="Projecthandhaver">
         <bpmn:flowNodeRef>task_monitor_incoming_authorization</bpmn:flowNodeRef>
@@ -66,8 +67,7 @@
       <bpmn:incoming>Flow_15wg2t8</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:exclusiveGateway id="gateway_is_authorisation_required" name="Is er een machtiging nodig?" default="Flow_1ud05n0">
-      <bpmn:incoming>Flow_1rtyo5h</bpmn:incoming>
-      <bpmn:incoming>Flow_0q3mp95</bpmn:incoming>
+      <bpmn:incoming>Flow_1w441rj</bpmn:incoming>
       <bpmn:outgoing>Flow_1ud05n0</bpmn:outgoing>
       <bpmn:outgoing>Flow_0aiyxmw</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -106,12 +106,6 @@
       <bpmn:incoming>Flow_1glf0ko</bpmn:incoming>
       <bpmn:outgoing>Flow_1d4p7zq</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:exclusiveGateway id="Gateway_0i97097" default="Flow_0q3mp95">
-      <bpmn:incoming>Flow_1d4p7zq</bpmn:incoming>
-      <bpmn:outgoing>Flow_0q3mp95</bpmn:outgoing>
-      <bpmn:outgoing>Flow_19qcmz2</bpmn:outgoing>
-      <bpmn:outgoing>Flow_15wg2t8</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_100ib64" name="situation == &#34;nobody_present&#34; and can_next_visit_go_ahead == True" sourceRef="gateway_what_is_result_visit" targetRef="gateway_merge_1fmcb00">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">situation.value == "nobody_present" and can_next_visit_go_ahead.value == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -125,7 +119,7 @@
     <bpmn:sequenceFlow id="Flow_04ckol7" sourceRef="task_create_schedule" targetRef="service_status_huisbezoek_hercontrole" />
     <bpmn:sequenceFlow id="Flow_0bbwpzi" sourceRef="service_status_huisbezoek_hercontrole" targetRef="task_create_visit" />
     <bpmn:sequenceFlow id="Flow_1o3d54n" sourceRef="task_monitor_incoming_authorization" targetRef="gateway_merge_0h60qot" />
-    <bpmn:sequenceFlow id="Flow_1rtyo5h" sourceRef="gateway_visit_vervolg_stap_nodig" targetRef="gateway_is_authorisation_required" />
+    <bpmn:sequenceFlow id="Flow_1rtyo5h" sourceRef="gateway_visit_vervolg_stap_nodig" targetRef="Gateway_1vlqpiy" />
     <bpmn:sequenceFlow id="Flow_1d4p7zq" sourceRef="task_visit_bepalen_zaakproces" targetRef="Gateway_0i97097" />
     <bpmn:sequenceFlow id="Flow_0co89x0" sourceRef="task_request_authorization" targetRef="task_monitor_incoming_authorization" />
     <bpmn:sequenceFlow id="Flow_0hnj8op" sourceRef="gateway_merge_1fmcb00" targetRef="service_status_inplannen_huisbezoek_hercontrole" />
@@ -134,7 +128,6 @@
     <bpmn:sequenceFlow id="Flow_1glf0ko" name="theme = ondermijning" sourceRef="gateway_visit_vervolg_stap_nodig" targetRef="task_visit_bepalen_zaakproces">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">theme.value == "theme_ondermijning"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0q3mp95" sourceRef="Gateway_0i97097" targetRef="gateway_is_authorisation_required" />
     <bpmn:sequenceFlow id="Flow_19qcmz2" name="visit_next_step = visit_with_authorization" sourceRef="Gateway_0i97097" targetRef="Gateway_19hfteh">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">visit_next_step.value == "visit_with_authorization"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -151,6 +144,19 @@
       <bpmn:incoming>Flow_0zdn4il</bpmn:incoming>
       <bpmn:outgoing>Flow_0co89x0</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1w441rj" sourceRef="Gateway_1vlqpiy" targetRef="gateway_is_authorisation_required" />
+    <bpmn:exclusiveGateway id="Gateway_0i97097" default="Flow_0q3mp95">
+      <bpmn:incoming>Flow_1d4p7zq</bpmn:incoming>
+      <bpmn:outgoing>Flow_0q3mp95</bpmn:outgoing>
+      <bpmn:outgoing>Flow_19qcmz2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_15wg2t8</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_1vlqpiy">
+      <bpmn:incoming>Flow_1rtyo5h</bpmn:incoming>
+      <bpmn:incoming>Flow_0q3mp95</bpmn:incoming>
+      <bpmn:outgoing>Flow_1w441rj</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0q3mp95" sourceRef="Gateway_0i97097" targetRef="Gateway_1vlqpiy" />
   </bpmn:process>
   <bpmn:signal id="Signal_039rhog" name="S" />
   <bpmn:message id="Message_1x25hwu" name="inform_civilian" />
@@ -222,11 +228,11 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1rtyo5h_di" bpmnElement="Flow_1rtyo5h">
         <di:waypoint x="655" y="470" />
-        <di:waypoint x="975" y="470" />
+        <di:waypoint x="835" y="470" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1d4p7zq_di" bpmnElement="Flow_1d4p7zq">
         <di:waypoint x="770" y="350" />
-        <di:waypoint x="805" y="350" />
+        <di:waypoint x="835" y="350" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0co89x0_di" bpmnElement="Flow_0co89x0">
         <di:waypoint x="1180" y="210" />
@@ -252,31 +258,34 @@
           <dc:Bounds x="559" y="382" width="63" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0q3mp95_di" bpmnElement="Flow_0q3mp95">
-        <di:waypoint x="855" y="350" />
-        <di:waypoint x="1000" y="350" />
-        <di:waypoint x="1000" y="445" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_19qcmz2_di" bpmnElement="Flow_19qcmz2">
-        <di:waypoint x="830" y="325" />
-        <di:waypoint x="830" y="210" />
+        <di:waypoint x="860" y="325" />
+        <di:waypoint x="860" y="210" />
         <di:waypoint x="975" y="210" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="872" y="169" width="85" height="40" />
+          <dc:Bounds x="885" y="169" width="85" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_15wg2t8_di" bpmnElement="Flow_15wg2t8">
-        <di:waypoint x="830" y="325" />
-        <di:waypoint x="830" y="140" />
+        <di:waypoint x="860" y="325" />
+        <di:waypoint x="860" y="140" />
         <di:waypoint x="1920" y="140" />
         <di:waypoint x="1920" y="592" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1358" y="106" width="83" height="27" />
+          <dc:Bounds x="1372" y="106" width="83" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0zdn4il_di" bpmnElement="Flow_0zdn4il">
         <di:waypoint x="1025" y="210" />
         <di:waypoint x="1080" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1w441rj_di" bpmnElement="Flow_1w441rj">
+        <di:waypoint x="885" y="470" />
+        <di:waypoint x="975" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0q3mp95_di" bpmnElement="Flow_0q3mp95">
+        <di:waypoint x="860" y="375" />
+        <di:waypoint x="860" y="445" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_1ee51w4_di" bpmnElement="task_create_schedule">
         <dc:Bounds x="1460" y="430" width="100" height="80" />
@@ -326,14 +335,17 @@
       <bpmndi:BPMNShape id="Activity_1omnzt5_di" bpmnElement="task_visit_bepalen_zaakproces">
         <dc:Bounds x="670" y="310" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0i97097_di" bpmnElement="Gateway_0i97097" isMarkerVisible="true">
-        <dc:Bounds x="805" y="325" width="50" height="50" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_19hfteh_di" bpmnElement="Gateway_19hfteh" isMarkerVisible="true">
         <dc:Bounds x="975" y="185" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0w7qtkz_di" bpmnElement="task_request_authorization">
         <dc:Bounds x="1080" y="170" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0i97097_di" bpmnElement="Gateway_0i97097" isMarkerVisible="true">
+        <dc:Bounds x="835" y="325" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1vlqpiy_di" bpmnElement="Gateway_1vlqpiy" isMarkerVisible="true">
+        <dc:Bounds x="835" y="445" width="50" height="50" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
