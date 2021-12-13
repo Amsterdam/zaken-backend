@@ -254,7 +254,7 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         return data
 
     def update(self, instance, validated_data):
-        subjects = validated_data.pop("subjects")
+        subjects = validated_data.pop("subjects", [])
         address_data = validated_data.pop("address", None)
         if address_data:
             address = Address.get(address_data.get("bag_id"))
@@ -269,7 +269,7 @@ class CaseCreateUpdateSerializer(serializers.ModelSerializer):
         return instance
 
     def create(self, validated_data):
-        subjects = validated_data.pop("subjects")
+        subjects = validated_data.pop("subjects", [])
         address_data = validated_data.pop("address")
         address = Address.get(address_data.get("bag_id"))
 
