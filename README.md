@@ -79,6 +79,16 @@ Set LOCAL_DEVELOPMENT_AUTHENTICATION environment variable to False
 
 You can generate mock data easily (from the API swagger environment) by executing the /api/v1/generate-mock/ GET request.
 
+## Update fixtures
+
+Generate new fixtures json file:
+
+```
+docker-compose run --rm zaak-gateway python manage.py dumpdata --indent 2 -o temp_fixture.json [app_name]
+```
+
+Now manually copy changes you need to the corresponding fixtures file.
+
 ## Adding pre-commit hooks
 
 You can add pre-commit hooks for checking and cleaning up your changes:

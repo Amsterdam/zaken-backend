@@ -67,5 +67,5 @@ class TestSubjects(DefaultAPITest):
             ValidateSubjects(updated_subjects),
         )
 
-        # Validate timeline
+        # Validate timeline only on create-case event
         # events = self.client.get_case_events(case.data["id"])
