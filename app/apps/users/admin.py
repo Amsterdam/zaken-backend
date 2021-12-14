@@ -10,7 +10,6 @@ admin.site.unregister(Group)
 @admin.register(UserGroup)
 class UserGroupAdmin(GroupAdmin):
     fields = (
-        "id",
         "name",
         "display_name",
         "permissions",
