@@ -64,11 +64,32 @@ class TypeConceptSummon:
     RENOUNCE_SUMMON = "afzien_aanschrijving"
 
 
-class Subjects:
+class Subject:
+    class Ondermijning:
+        CRIMINEEL_GEBRUIK = 1
+        HENNEP = 2
+        OVERIGE_WOONFRAUDE = 3
+
     class HolidayRental:
-        HENNEP = 1
-        OVERIGE_WOONFRAUDE = 2
-        CRIMINEEL_GEBRUIK = 3
+        GEEN_NACHTVERBLIJF = 4
+        NIET_MELDEN = 5
+        ONTBREKEN_INSCHRIJVING_BRP = 6
+        ONTBREKEN_REGISTRATIENUMMER = 7
+        ONTBREKEN_VV_VERGUNNING = 8
+        OVERSCHRIJDING_NACHTEN = 9
+        OVERSCHRIJDING_PERSONEN = 10
+        SCHENDING_OPPERVLAKTE_EISEN = 11
+        VV_IN_SOCIALE_HUURWONING = 12
+        VV_ZONDER_FEITELIJKE_BEWONING = 13
+
+    class Kamerverhuur:
+        MEER_DAN_HET_TOEGESTANE_AANTAL_HUISHOUDENS = 14
+        KORTDUREND_VERBLIJF = 15
+        CRIMINEEL_GEBRUIK = 16
+        HENNEP = 17
+        OVERIGE_WOONFRAUDE = 18
+        VERBOUWD_NAAR_TWEE_OF_MEER_ZELFSTANDIGE_WONINGEN = 19
+        SAMENVOEGING_VAN_WONINGEN = 20
 
 
 class SummonValidity:

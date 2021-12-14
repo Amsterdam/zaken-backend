@@ -1,4 +1,4 @@
-from api.config import Subjects
+from api.config import Subject
 from api.tasks.close_case import test_afsluiten_zaak
 from api.test import DefaultAPITest
 from api.validators import Validator
@@ -22,7 +22,7 @@ class TestSubjects(DefaultAPITest):
     def get_case_data(self):
         return {
             "subjects": [
-                Subjects.HolidayRental.HENNEP,
+                Subject.HolidayRental.GEEN_NACHTVERBLIJF,
             ]
         }
 
@@ -31,13 +31,13 @@ class TestSubjects(DefaultAPITest):
 
         # Validate if create-case added the right subjects
         case.run_steps(
-            ValidateSubjects([Subjects.HolidayRental.HENNEP]),
+            ValidateSubjects([Subject.HolidayRental.GEEN_NACHTVERBLIJF]),
         )
 
         # Change the subjects
         updated_subjects = [
-            Subjects.HolidayRental.HENNEP,
-            Subjects.HolidayRental.CRIMINEEL_GEBRUIK,
+            Subject.HolidayRental.GEEN_NACHTVERBLIJF,
+            Subject.HolidayRental.ONTBREKEN_INSCHRIJVING_BRP,
         ]
 
         self.client.call(
