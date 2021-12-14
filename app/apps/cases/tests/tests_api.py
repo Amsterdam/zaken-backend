@@ -136,21 +136,25 @@ class CaseListApiTest(APITestCase):
 
     def test_pagination(self):
         QUANTITY = 100
-        LIMIT = 50
+        PAGE_SIZE = 50
+        STARTING_PAGE = 1
+        NEXT_PAGE = 2
         baker.make(Case, _quantity=QUANTITY)
         url = reverse("cases-list")
 
-        def get_paginated_results(limit, offset=LIMIT):
-            params = {"limit": limit, "offset": offset}
+        def get_paginated_results(PAGE_SIZE, PAGE=STARTING_PAGE):
+            params = {"page_size": PAGE_SIZE, "page": PAGE}
             client = get_authenticated_client()
             response = client.get(url, params)
+
             return response.data["results"]
 
         self.assertNotEqual(
-            get_paginated_results(LIMIT, 0), get_paginated_results(LIMIT, LIMIT)
+            get_paginated_results(PAGE_SIZE, STARTING_PAGE),
+            get_paginated_results(PAGE_SIZE, NEXT_PAGE),
         )
         self.assertEqual(
-            len(get_paginated_results(LIMIT)), len(get_paginated_results(LIMIT))
+            len(get_paginated_results(PAGE_SIZE)), len(get_paginated_results(PAGE_SIZE))
         )
 
     def test_filter_start_date(self):
@@ -159,7 +163,7 @@ class CaseListApiTest(APITestCase):
         DATE_B = DATE_A - datetime.timedelta(days=2)
         DATE_C = DATE_A + datetime.timedelta(days=2)
 
-        FILTER_PARAMETERS = {"startDate": DATE_A.strftime("%Y-%m-%d")}
+        FILTER_PARAMETERS = {"from_start_date": DATE_A.strftime("%Y-%m-%d")}
 
         baker.make(Case, start_date=DATE_A)
         baker.make(Case, start_date=DATE_B)
@@ -178,7 +182,7 @@ class CaseListApiTest(APITestCase):
         DATE_B = DATE_A - datetime.timedelta(days=2)
         DATE_C = DATE_A + datetime.timedelta(days=2)
 
-        FILTER_PARAMETERS = {"date": DATE_A.strftime("%Y-%m-%d")}
+        FILTER_PARAMETERS = {"start_date": DATE_A.strftime("%Y-%m-%d")}
 
         baker.make(Case, start_date=DATE_A)
         baker.make(Case, start_date=DATE_B)
@@ -192,7 +196,7 @@ class CaseListApiTest(APITestCase):
         self.assertEqual(len(results), 1)
 
     def test_filter_open_cases(self):
-        FILTER_PARAMETERS = {"openCases": "true"}
+        FILTER_PARAMETERS = {"open_cases": "true"}
         CLOSED_CASES_QUANTITY = 10
         OPEN_CASES_QUANTITY = 5
 
@@ -209,7 +213,7 @@ class CaseListApiTest(APITestCase):
         self.assertEqual(len(results), OPEN_CASES_QUANTITY)
 
     def test_filter_closed_cases(self):
-        FILTER_PARAMETERS = {"openCases": "false"}
+        FILTER_PARAMETERS = {"open_cases": "false"}
         CLOSED_CASES_QUANTITY = 10
         OPEN_CASES_QUANTITY = 5
 
@@ -272,7 +276,7 @@ class CaseListApiTest(APITestCase):
         url = reverse("cases-list")
         client = get_authenticated_client()
 
-        FILTER_PARAMETERS = {"openStatus": state_type.id}
+        FILTER_PARAMETERS = {"open_status": state_type.id}
         response = client.get(url, FILTER_PARAMETERS)
 
         results = response.data["results"]
@@ -286,7 +290,7 @@ class CaseListApiTest(APITestCase):
         client = get_authenticated_client()
 
         test_state = case_states[0]
-        FILTER_PARAMETERS = {"openStatus": test_state.status.id}
+        FILTER_PARAMETERS = {"open_status": test_state.status.id}
         response = client.get(url, FILTER_PARAMETERS)
 
         results = response.data["results"]
