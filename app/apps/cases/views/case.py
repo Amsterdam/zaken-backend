@@ -72,9 +72,7 @@ class CaseOrderingFilter(filters.FilterSet):
     )
 
     def get_open_cases(self, queryset, name, value):
-        if value:
-            return queryset.filter(case_states__end_date__isnull=True)
-        return queryset
+        return queryset.filter(end_date__isnull=value)
 
     def get_open_cases_with_statuses(self, queryset, name, value):
         if value:
