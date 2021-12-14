@@ -172,6 +172,14 @@ class CaseViewSet(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if hasattr(self.request, "user") and not self.request.user.has_perm(
+            "users.access_sensitive_dossiers"
+        ):
+            queryset = queryset.exclude(sensitive=True)
+        return queryset
+
     def perform_create(self, serializer):
         return serializer.save()
 
