@@ -49,7 +49,8 @@ from apps.workflow.serializers import (
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import filters as rest_filters
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -96,6 +97,19 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 1000
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter("start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
+        OpenApiParameter("from_start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
+        OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
+        OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
+        OpenApiParameter("open_status", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),
+    ]
+)
 class CaseViewSet(
     CaseEventsMixin,
     mixins.CreateModelMixin,
