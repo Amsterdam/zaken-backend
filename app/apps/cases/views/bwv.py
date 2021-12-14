@@ -1,5 +1,7 @@
 import datetime
 import logging
+import mimetypes
+import os
 from collections import OrderedDict
 
 import requests
@@ -48,7 +50,9 @@ from apps.workflow.serializers import (
     WorkflowOptionSerializer,
 )
 from django.conf import settings
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.edit import FormView
@@ -60,6 +64,27 @@ from rest_framework.generics import (
 from utils.api_queries_bag import do_bag_search_address_exact
 
 logger = logging.getLogger(__name__)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def download_data(request):
+    DATABASE_USER = os.environ.get("DATABASE_USER")
+    DATABASE_PASSWORD = os.environ.get("DATABASE_PASSWORD")
+    DATABASE_HOST = os.environ.get("DATABASE_HOST")
+    DATABASE_NAME = os.environ.get("DATABASE_NAME")
+
+    filename = "zaken_db.sql"
+
+    command = f"PGPASSWORD='{DATABASE_PASSWORD}' pg_dump -U {DATABASE_USER} -d {DATABASE_NAME} -h {DATABASE_HOST} > {filename}"
+    os.system(command)
+
+    fl_path = "/app/"
+
+    fl = open(os.path.join(fl_path, filename), "r")
+    mime_type, _ = mimetypes.guess_type(fl_path)
+    response = HttpResponse(fl, content_type=mime_type)
+    response["Content-Disposition"] = "attachment; filename=%s" % filename
+    return response
 
 
 class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
