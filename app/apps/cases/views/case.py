@@ -217,13 +217,13 @@ class CaseViewSet(
         for address in address_queryset:
             cases = cases | address.cases.all()
 
-        cases = cases.filter(end_date=None)
-
         if theme:
             cases = cases.filter(theme=theme)
 
         if ton_ids:
             cases = cases.filter(ton_ids__overlap=ton_ids.split(","))
+        else:
+            cases = cases.filter(end_date=None)
 
         paginator = LimitOffsetPagination()
         context = paginator.paginate_queryset(cases, request)
