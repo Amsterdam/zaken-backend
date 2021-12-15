@@ -40,7 +40,7 @@
     "model": "cases.casereason",
     "pk": 4,
     "fields": {
-      "name": "Melding",
+      "name": "SIA Melding",
       "theme": 2
     }
   },
@@ -56,7 +56,7 @@
     "model": "cases.casereason",
     "pk": 6,
     "fields": {
-      "name": "Melding",
+      "name": "SIA melding",
       "theme": 3
     }
   },
