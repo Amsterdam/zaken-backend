@@ -1,4 +1,4 @@
-from api.config import SummonTypes
+from api.config import SummonType
 from api.tasks.close_case import test_uitzetten_vervolgstap
 from api.tasks.closing_procedure import test_opslaan_brandweeradvies
 from api.tasks.summon import (
@@ -16,7 +16,7 @@ class task_verwerk_aanschrijving_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_aanschrijving.get_steps(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.LEGALIZATION_LETTER
+                type=SummonType.Vakantieverhuur.LEGALIZATION_LETTER
             ),
             ValidateOpenTasks(test_monitoren_binnenkomen_vergunningaanvraag),
         )
@@ -24,7 +24,7 @@ class task_verwerk_aanschrijving_test(DefaultAPITest):
     def test_closing_procedure(self):
         self.get_case().run_steps(
             *test_nakijken_aanschrijving.get_steps(),
-            test_verwerk_aanschrijving(type=SummonTypes.HolidayRental.CLOSURE),
+            test_verwerk_aanschrijving(type=SummonType.Vakantieverhuur.CLOSURE),
             ValidateOpenTasks(test_opslaan_brandweeradvies),
         )
 
@@ -32,7 +32,7 @@ class task_verwerk_aanschrijving_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_aanschrijving.get_steps(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.OBLIGATION_TO_REPORT_INTENTION_TO_FINE
+                type=SummonType.Vakantieverhuur.OBLIGATION_TO_REPORT_INTENTION_TO_FINE
             ),
             ValidateOpenTasks(test_monitoren_binnenkomen_zienswijze),
         )
@@ -41,7 +41,7 @@ class task_verwerk_aanschrijving_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_aanschrijving.get_steps(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.ADVANCE_ANNOUNCEMENT_DURING_SUM
+                type=SummonType.Vakantieverhuur.ADVANCE_ANNOUNCEMENT_DURING_SUM
             ),
             ValidateOpenTasks(test_monitoren_binnenkomen_zienswijze),
         )
@@ -50,7 +50,7 @@ class task_verwerk_aanschrijving_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_aanschrijving.get_steps(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.INTENTION_TO_FINE
+                type=SummonType.Vakantieverhuur.INTENTION_TO_FINE
             ),
             ValidateOpenTasks(test_monitoren_binnenkomen_zienswijze),
         )
@@ -59,7 +59,7 @@ class task_verwerk_aanschrijving_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_aanschrijving.get_steps(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.INTENTION_TO_WITHDRAW_BB_LICENCE
+                type=SummonType.Vakantieverhuur.INTENTION_TO_WITHDRAW_BB_LICENCE
             ),
             ValidateOpenTasks(test_monitoren_binnenkomen_zienswijze),
         )
@@ -68,7 +68,7 @@ class task_verwerk_aanschrijving_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_aanschrijving.get_steps(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.INTENTION_TO_WITHDRAW_SS_LICENCE
+                type=SummonType.Vakantieverhuur.INTENTION_TO_WITHDRAW_SS_LICENCE
             ),
             ValidateOpenTasks(test_monitoren_binnenkomen_zienswijze),
         )
@@ -77,7 +77,7 @@ class task_verwerk_aanschrijving_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_aanschrijving.get_steps(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.INTENTION_TO_WITHDRAW_VV_LICENCE
+                type=SummonType.Vakantieverhuur.INTENTION_TO_WITHDRAW_VV_LICENCE
             ),
             ValidateOpenTasks(test_monitoren_binnenkomen_zienswijze),
         )
@@ -86,7 +86,7 @@ class task_verwerk_aanschrijving_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_aanschrijving.get_steps(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.INTENTION_TO_RECOVER_DENSITY
+                type=SummonType.Vakantieverhuur.INTENTION_TO_RECOVER_DENSITY
             ),
             ValidateOpenTasks(test_monitoren_binnenkomen_zienswijze),
         )
@@ -95,7 +95,7 @@ class task_verwerk_aanschrijving_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_aanschrijving.get_steps(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.INTENDED_PREVENTIVE_BURDEN
+                type=SummonType.Vakantieverhuur.INTENDED_PREVENTIVE_BURDEN
             ),
             ValidateOpenTasks(test_monitoren_binnenkomen_zienswijze),
         )
@@ -107,7 +107,7 @@ class task_verwerk_aanschrijving_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_aanschrijving.get_steps(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.WARNING_BB_LICENSE
+                type=SummonType.Vakantieverhuur.WARNING_BB_LICENSE
             ),
             ValidateOpenTasks(
                 test_uitzetten_vervolgstap
@@ -121,7 +121,7 @@ class task_verwerk_aanschrijving_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_aanschrijving.get_steps(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.WARNING_SS_LICENCE
+                type=SummonType.Vakantieverhuur.WARNING_SS_LICENCE
             ),
             ValidateOpenTasks(
                 test_uitzetten_vervolgstap
@@ -135,7 +135,7 @@ class task_verwerk_aanschrijving_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_aanschrijving.get_steps(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.WARNING_VV_LICENSE
+                type=SummonType.Vakantieverhuur.WARNING_VV_LICENSE
             ),
             ValidateOpenTasks(
                 test_uitzetten_vervolgstap

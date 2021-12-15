@@ -6,49 +6,17 @@ from collections import OrderedDict
 
 import requests
 from apps.cases.forms import ImportBWVCaseDataForm
-from apps.cases.models import (
-    Case,
-    CaseClose,
-    CaseProject,
-    CaseReason,
-    CaseState,
-    CaseTheme,
-    CitizenReport,
-)
+from apps.cases.models import Case, CaseProject, CaseReason, CaseTheme
 from apps.cases.serializers import (
     BWVMeldingenSerializer,
     BWVStatusSerializer,
-    CaseCloseReasonSerializer,
-    CaseCloseResultSerializer,
-    CaseCloseSerializer,
-    CaseCreateUpdateSerializer,
-    CaseProjectSerializer,
-    CaseReasonSerializer,
-    CaseSerializer,
-    CaseStateSerializer,
-    CaseStateTypeSerializer,
-    CaseThemeSerializer,
-    CaseWorkflowSerializer,
-    CitizenReportSerializer,
     LegacyCaseCreateSerializer,
-    LegacyCaseUpdateSerializer,
-    PushCaseStateSerializer,
-    StartWorkflowSerializer,
-    SubjectSerializer,
 )
 from apps.users.models import User
-from apps.users.permissions import (
-    CanCloseCase,
-    CanCreateCase,
-    rest_permission_classes_for_top,
-)
 from apps.visits.models import Visit
 from apps.visits.serializers import VisitSerializer
 from apps.workflow.models import GenericCompletedTask
-from apps.workflow.serializers import (
-    GenericCompletedTaskSerializer,
-    WorkflowOptionSerializer,
-)
+from apps.workflow.serializers import GenericCompletedTaskSerializer
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -56,11 +24,6 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.edit import FormView
-from rest_framework.generics import (
-    ListAPIView,
-    ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-)
 from utils.api_queries_bag import do_bag_search_address_exact
 
 logger = logging.getLogger(__name__)

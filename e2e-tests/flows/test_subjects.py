@@ -1,5 +1,6 @@
-from api.config import Reason, Subjects, Themes
+from api.config import Reason, Subject, Theme
 from api.tasks.close_case import test_afsluiten_zaak
+from api.tasks.visit import test_bepalen_zaakproces
 from api.test import DefaultAPITest
 from api.validators import Validator
 
@@ -21,10 +22,10 @@ class ValidateSubjects(Validator):
 class TestSubjects(DefaultAPITest):
     def get_case_data(self):
         return {
-            "theme_id": Themes.ONDERMIJNING,
+            "theme_id": Theme.ONDERMIJNING,
             "reason": Reason.Ondermijning.EIGEN_ONDERZOEK,
             "subjects": [
-                Subjects.Ondermijning.HENNEP,
+                Subject.Ondermijning.HENNEP,
             ],
         }
 
@@ -33,13 +34,13 @@ class TestSubjects(DefaultAPITest):
 
         # Validate if create-case added the right subjects
         case.run_steps(
-            ValidateSubjects([Subjects.Ondermijning.HENNEP]),
+            ValidateSubjects([Subject.Ondermijning.HENNEP]),
         )
 
         # Change the subjects
         updated_subject_ids = [
-            Subjects.Ondermijning.HENNEP,
-            Subjects.Ondermijning.CRIMINEEL_GEBRUIK,
+            Subject.Ondermijning.HENNEP,
+            Subject.Ondermijning.CRIMINEEL_GEBRUIK,
         ]
 
         self.client.call(
@@ -62,6 +63,7 @@ class TestSubjects(DefaultAPITest):
         # Check if the subjects are updated and keep their value after close case
         case.run_steps(
             ValidateSubjects(updated_subject_ids),
+            test_bepalen_zaakproces(),
             *test_afsluiten_zaak.get_steps(),
             ValidateSubjects(updated_subject_ids),
         )

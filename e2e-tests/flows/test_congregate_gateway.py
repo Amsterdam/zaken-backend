@@ -1,4 +1,4 @@
-from api.config import Process, RenounceConceptSummon, SummonTypes, TypeConceptSummon
+from api.config import Process, RenounceConceptSummon, SummonType, TypeConceptSummon
 from api.tasks.debrief import test_opstellen_verkorte_rapportage_huisbezoek
 from api.tasks.summon import (
     test_afzien_concept_aanschrijving,
@@ -52,7 +52,7 @@ class TestCongregateGateway(DefaultAPITest):
             test_opstellen_concept_aanschrijving(),
             test_nakijken_aanschrijving(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.WARNING_BB_LICENSE
+                type=SummonType.Vakantieverhuur.WARNING_BB_LICENSE
             ),
             ValidateOpenTasks(test_inplannen_status),
         )

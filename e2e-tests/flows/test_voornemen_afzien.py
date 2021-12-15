@@ -17,7 +17,7 @@ class TestVoornemenAfzien(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_besluit.get_steps(),
             test_verwerken_definitieve_besluit(
-                type=DecisionType.HolidayRental.NO_DECISION
+                type=DecisionType.Vakantieverhuur.NO_DECISION
             ),
             test_opstellen_concept_voornemen_afzien(),
             test_nakijken_afzien_voornemen(),

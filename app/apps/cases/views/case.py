@@ -1,31 +1,10 @@
 from apps.addresses.utils import search
-from apps.cases.models import (
-    Case,
-    CaseClose,
-    CaseProject,
-    CaseReason,
-    CaseState,
-    CaseTheme,
-    CitizenReport,
-)
+from apps.cases.models import Case, CaseState, CitizenReport
 from apps.cases.serializers import (
-    BWVMeldingenSerializer,
-    BWVStatusSerializer,
-    CaseCloseReasonSerializer,
-    CaseCloseResultSerializer,
-    CaseCloseSerializer,
     CaseCreateUpdateSerializer,
-    CaseProjectSerializer,
-    CaseReasonSerializer,
     CaseSerializer,
-    CaseStateSerializer,
-    CaseStateTypeSerializer,
-    CaseThemeSerializer,
     CaseWorkflowSerializer,
     CitizenReportSerializer,
-    LegacyCaseCreateSerializer,
-    LegacyCaseUpdateSerializer,
-    PushCaseStateSerializer,
     StartWorkflowSerializer,
     SubjectSerializer,
 )
@@ -36,16 +15,9 @@ from apps.cases.swagger_parameters import suffix as suffix_parameter
 from apps.cases.swagger_parameters import theme as theme_parameter
 from apps.cases.swagger_parameters import ton_ids as ton_ids_parameter
 from apps.events.mixins import CaseEventsMixin
-from apps.users.permissions import (
-    CanCloseCase,
-    CanCreateCase,
-    rest_permission_classes_for_top,
-)
+from apps.users.permissions import CanCreateCase, rest_permission_classes_for_top
 from apps.workflow.models import CaseWorkflow, WorkflowOption
-from apps.workflow.serializers import (
-    GenericCompletedTaskSerializer,
-    WorkflowOptionSerializer,
-)
+from apps.workflow.serializers import WorkflowOptionSerializer
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
@@ -54,11 +26,6 @@ from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import filters as rest_filters
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.generics import (
-    ListAPIView,
-    ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-)
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
@@ -230,9 +197,9 @@ class CaseViewSet(
         theme = request.GET.get(theme_parameter.name, None)
         ton_ids = request.GET.get(ton_ids_parameter.name, None)
 
-        if postal_code is None and street_name is None:
+        if postal_code is None and street_name is None and ton_ids is None:
             return HttpResponseBadRequest(
-                "A postal_code or street_name queryparameter should be provided"
+                "A postal_code or street_name or ton_ids queryparameter should be provided"
             )
         if postal_code is not None and number is None:
             return HttpResponseBadRequest("number queryparameter is required")

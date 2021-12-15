@@ -5,7 +5,7 @@ from api.config import (
     ObjectionValid,
     PermitRequested,
     RenounceConceptSummon,
-    SummonTypes,
+    SummonType,
     SummonValidity,
     TypeConceptSummon,
 )
@@ -42,11 +42,10 @@ class test_opstellen_concept_aanschrijving(
         type_concept_summon=TypeConceptSummon.OTHER_SUMMON,
         description="Concept aanschrijving toelichting",
     ):
-        data = {
-            "type_concept_aanschrijving": {"value": type_concept_summon},
-            "concept_aanschrijving_toelichting": {"value": description},
-        }
-        super(test_opstellen_concept_aanschrijving, self).__init__(**data)
+        super().__init__(
+            type_concept_aanschrijving={"value": type_concept_summon},
+            concept_aanschrijving_toelichting={"value": description},
+        )
 
     @staticmethod
     def get_steps(
@@ -66,8 +65,7 @@ class test_opstellen_concept_aanschrijving(
 
 class test_nakijken_aanschrijving(GenericUserTask, task_nakijken_aanschrijving):
     def __init__(self, summon_validity=SummonValidity.YES):
-        data = {"aanschrijving_valide": {"value": summon_validity}}
-        super(test_nakijken_aanschrijving, self).__init__(**data)
+        super().__init__(aanschrijving_valide={"value": summon_validity})
 
     @staticmethod
     def get_steps(summon_validity=SummonValidity.YES):
@@ -81,8 +79,9 @@ class test_afzien_concept_aanschrijving(
     GenericUserTask, task_afzien_concept_aanschrijving
 ):
     def __init__(self, renounce_concept_summon=RenounceConceptSummon.NO_VIOLATION):
-        data = {"afzien_concept_aanschrijving": {"value": renounce_concept_summon}}
-        super(test_afzien_concept_aanschrijving, self).__init__(**data)
+        super().__init__(
+            afzien_concept_aanschrijving={"value": renounce_concept_summon}
+        )
 
     @staticmethod
     def get_steps(renounce_concept_summon=RenounceConceptSummon.NO_VIOLATION):
@@ -98,16 +97,16 @@ class test_verwerk_aanschrijving(AbstractUserTask, task_verwerk_aanschrijving):
 
     def __init__(
         self,
-        type=SummonTypes.HolidayRental.LEGALIZATION_LETTER,
+        type=SummonType.Vakantieverhuur.LEGALIZATION_LETTER,
         persons=None,
     ):
-        super(test_verwerk_aanschrijving, self).__init__(
+        super().__init__(
             type=type,
             persons=persons if persons else [get_person()],
         )
 
     @staticmethod
-    def get_steps(type=SummonTypes.HolidayRental.LEGALIZATION_LETTER):
+    def get_steps(type=SummonType.Vakantieverhuur.LEGALIZATION_LETTER):
         return [
             *test_nakijken_aanschrijving.get_steps(),
             __class__(type=type),
@@ -123,17 +122,15 @@ class test_monitoren_binnenkomen_zienswijze(
     GenericUserTask, task_monitoren_binnenkomen_zienswijze
 ):
     def __init__(self, civilian_objection_received=True):
-        data = {
-            "is_civilian_objection_received": {"value": civilian_objection_received}
-        }
-
-        super(test_monitoren_binnenkomen_zienswijze, self).__init__(**data)
+        super().__init__(
+            is_civilian_objection_received={"value": civilian_objection_received}
+        )
 
     @staticmethod
     def get_steps(civilian_objection_received=True):
         return [
             *test_verwerk_aanschrijving.get_steps(
-                type=SummonTypes.HolidayRental.INTENTION_TO_FINE
+                type=SummonType.Vakantieverhuur.INTENTION_TO_FINE
             ),
             __class__(civilian_objection_received=civilian_objection_received),
         ]
@@ -143,9 +140,7 @@ class test_controleren_binnenkomst_zienswijze(
     GenericUserTask, task_controleren_binnenkomst_zienswijze
 ):
     def __init__(self, objection=ObjectionReceived.NO):
-        data = {"is_civilian_objection_received": {"value": objection}}
-
-        super(test_controleren_binnenkomst_zienswijze, self).__init__(**data)
+        super().__init__(is_civilian_objection_received={"value": objection})
 
     @staticmethod
     def get_steps(objection=ObjectionReceived.NO):
@@ -159,8 +154,7 @@ class test_controleren_binnenkomst_zienswijze(
 
 class test_beoordelen_zienswijze(GenericUserTask, task_beoordelen_zienswijze):
     def __init__(self, objection_valid=ObjectionValid.YES):
-        data = {"is_citizen_objection_valid": {"value": objection_valid}}
-        super(test_beoordelen_zienswijze, self).__init__(**data)
+        super().__init__(is_citizen_objection_valid={"value": objection_valid})
 
     @staticmethod
     def get_steps(objection_valid=ObjectionValid.YES):
@@ -174,14 +168,14 @@ class test_monitoren_binnenkomen_vergunningaanvraag(
     GenericUserTask, task_monitoren_binnenkomen_vergunningaanvraag
 ):
     def __init__(self):
-        data = {"action_civilian_permit_requested": {"value": True}}
-        super(test_monitoren_binnenkomen_vergunningaanvraag, self).__init__(**data)
+
+        super().__init__(action_civilian_permit_requested={"value": True})
 
     @staticmethod
     def get_steps(permit_requested=True):
         return [
             *test_verwerk_aanschrijving.get_steps(
-                type=SummonTypes.HolidayRental.LEGALIZATION_LETTER
+                type=SummonType.Vakantieverhuur.LEGALIZATION_LETTER
             ),
             __class__() if permit_requested else WaitForTimer(),
         ]
@@ -191,8 +185,7 @@ class test_controleren_binnenkomst_vergunningaanvraag(
     GenericUserTask, task_controleren_binnenkomst_vergunningaanvraag
 ):
     def __init__(self, permit_requested=PermitRequested.NO):
-        data = {"action_civilian_permit_requested": {"value": permit_requested}}
-        super(test_controleren_binnenkomst_vergunningaanvraag, self).__init__(**data)
+        super().__init__(action_civilian_permit_requested={"value": permit_requested})
 
     @staticmethod
     def get_steps(permit_requested=PermitRequested.NO):
@@ -206,8 +199,7 @@ class test_monitoren_vergunningsprocedure(
     GenericUserTask, task_monitoren_vergunningsprocedure
 ):
     def __init__(self):
-        data = {"civilian_has_gotten_permit": {"value": True}}
-        super(test_monitoren_vergunningsprocedure, self).__init__(**data)
+        super().__init__(civilian_has_gotten_permit={"value": True})
 
     @staticmethod
     def get_steps(has_permit=True):
@@ -221,8 +213,7 @@ class test_controleren_vergunningsprocedure(
     GenericUserTask, task_controleren_vergunningsprocedure
 ):
     def __init__(self, has_permit=HasPermit.YES):
-        data = {"civilian_has_gotten_permit": {"value": has_permit}}
-        super(test_controleren_vergunningsprocedure, self).__init__(**data)
+        super().__init__(civilian_has_gotten_permit={"value": has_permit})
 
     @staticmethod
     def get_steps(has_permit=PermitRequested.YES):

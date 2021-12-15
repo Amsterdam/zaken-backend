@@ -15,7 +15,7 @@ class task_verwerken_definitieve_besluit_test(DefaultAPITest):
     def test_fine(self):
         self.get_case().run_steps(
             *test_nakijken_besluit.get_steps(),
-            test_verwerken_definitieve_besluit(type=DecisionType.HolidayRental.FINE),
+            test_verwerken_definitieve_besluit(type=DecisionType.Vakantieverhuur.FINE),
             ValidateOpenTasks(test_versturen_invordering_belastingen),
         )
 
@@ -23,7 +23,7 @@ class task_verwerken_definitieve_besluit_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_besluit.get_steps(),
             test_verwerken_definitieve_besluit(
-                type=DecisionType.HolidayRental.COLLECTION_PENALTY
+                type=DecisionType.Vakantieverhuur.COLLECTION_PENALTY
             ),
             ValidateOpenTasks(test_versturen_invordering_belastingen),
         )
@@ -32,7 +32,7 @@ class task_verwerken_definitieve_besluit_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_besluit.get_steps(),
             test_verwerken_definitieve_besluit(
-                type=DecisionType.HolidayRental.DECISION_FINE_REPORT_DUTY
+                type=DecisionType.Vakantieverhuur.DECISION_FINE_REPORT_DUTY
             ),
             ValidateOpenTasks(test_versturen_invordering_belastingen),
         )
@@ -45,7 +45,7 @@ class task_verwerken_definitieve_besluit_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_besluit.get_steps(),
             test_verwerken_definitieve_besluit(
-                type=DecisionType.HolidayRental.PREVENTIVE_BURDEN
+                type=DecisionType.Vakantieverhuur.PREVENTIVE_BURDEN
             ),
             ValidateOpenTasks(test_uitzetten_vervolgstap),
         )
@@ -58,7 +58,7 @@ class task_verwerken_definitieve_besluit_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_besluit.get_steps(),
             test_verwerken_definitieve_besluit(
-                type=DecisionType.HolidayRental.BURDEN_UNDER_PENALTY
+                type=DecisionType.Vakantieverhuur.BURDEN_UNDER_PENALTY
             ),
             ValidateOpenTasks(test_uitzetten_vervolgstap),
         )
@@ -67,7 +67,7 @@ class task_verwerken_definitieve_besluit_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_besluit.get_steps(),
             test_verwerken_definitieve_besluit(
-                type=DecisionType.HolidayRental.REVOKE_VV_PERMIT
+                type=DecisionType.Vakantieverhuur.REVOKE_VV_PERMIT
             ),
             ValidateOpenTasks(test_contacteren_stadsdeel),
         )
@@ -76,7 +76,7 @@ class task_verwerken_definitieve_besluit_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_besluit.get_steps(),
             test_verwerken_definitieve_besluit(
-                type=DecisionType.HolidayRental.REVOKE_BB_PERMIT
+                type=DecisionType.Vakantieverhuur.REVOKE_BB_PERMIT
             ),
             ValidateOpenTasks(test_contacteren_stadsdeel),
         )
@@ -85,7 +85,7 @@ class task_verwerken_definitieve_besluit_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_besluit.get_steps(),
             test_verwerken_definitieve_besluit(
-                type=DecisionType.HolidayRental.REVOKE_SHORTSTAY_PERMIT
+                type=DecisionType.Vakantieverhuur.REVOKE_SHORTSTAY_PERMIT
             ),
             ValidateOpenTasks(test_contacteren_stadsdeel),
         )
@@ -94,7 +94,7 @@ class task_verwerken_definitieve_besluit_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_nakijken_besluit.get_steps(),
             test_verwerken_definitieve_besluit(
-                type=DecisionType.HolidayRental.NO_DECISION
+                type=DecisionType.Vakantieverhuur.NO_DECISION
             ),
             ValidateOpenTasks(test_opstellen_concept_voornemen_afzien),
         )
