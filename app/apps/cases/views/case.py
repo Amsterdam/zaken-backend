@@ -49,6 +49,7 @@ from apps.workflow.serializers import (
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
+from django_filters.constants import EMPTY_VALUES
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import filters as rest_filters
@@ -64,12 +65,19 @@ from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 
 
+class ListFilter(filters.Filter):
+    def filter(self, qs, value):
+        if value in EMPTY_VALUES:
+            return qs
+        value_list = value.split(",")
+        qs = super().filter(qs, value_list)
+        return qs
+
+
 class CaseOrderingFilter(filters.FilterSet):
     from_start_date = filters.DateFilter(field_name="start_date", lookup_expr="gte")
     open_cases = filters.BooleanFilter(method="get_open_cases")
-    open_status = filters.ModelMultipleChoiceFilter(
-        queryset=CaseState.objects.all(), method="get_open_cases_with_statuses"
-    )
+    open_status = ListFilter(method="get_open_cases_with_statuses")
 
     def get_open_cases(self, queryset, name, value):
         return queryset.filter(end_date__isnull=value)
@@ -78,9 +86,7 @@ class CaseOrderingFilter(filters.FilterSet):
         if value:
             return queryset.filter(
                 case_states__end_date__isnull=True,
-                case_states__status__id__in=list(
-                    map(lambda casestate: casestate.id, value)
-                ),
+                case_states__status__id__in=value.split(","),
             )
         return queryset
 
