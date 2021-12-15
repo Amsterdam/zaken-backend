@@ -19,7 +19,7 @@ class test_opstellen_concept_voornemen_afzien(
     def get_steps():
         return [
             *test_verwerken_definitieve_besluit.get_steps(
-                type=DecisionType.HolidayRental.NO_DECISION
+                type=DecisionType.Vakantieverhuur.NO_DECISION
             ),
             __class__(),
         ]

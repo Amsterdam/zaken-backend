@@ -1,6 +1,6 @@
 import logging
 
-from api.config import ReopenRequest, ReviewReopenRequest, SummonTypes
+from api.config import ReopenRequest, ReviewReopenRequest, SummonType
 from api.tasks import GenericUserTask
 from api.tasks.summon import test_verwerk_aanschrijving
 from api.timers import WaitForTimer
@@ -23,7 +23,7 @@ class test_opslaan_brandweeradvies(GenericUserTask, task_opslaan_brandweeradvies
     def get_steps():
         return [
             *test_verwerk_aanschrijving.get_steps(
-                type=SummonTypes.HolidayRental.CLOSURE
+                type=SummonType.Vakantieverhuur.CLOSURE
             ),
             __class__(),
         ]
@@ -33,8 +33,9 @@ class test_monitoren_heropeningsverzoek(
     GenericUserTask, task_monitoren_heropeningsverzoek
 ):
     def __init__(self, reopen_request_received=ReopenRequest.ACCEPTED):
-        data = {"heropeningsverzoek_binnengekomen": {"value": reopen_request_received}}
-        super(test_monitoren_heropeningsverzoek, self).__init__(**data)
+        super().__init__(
+            heropeningsverzoek_binnengekomen={"value": reopen_request_received}
+        )
 
     @staticmethod
     def get_steps():
@@ -54,8 +55,7 @@ class test_beoordelen_heropeningsverzoek(
     GenericUserTask, task_beoordelen_heropeningsverzoek
 ):
     def __init__(self, review_request=ReviewReopenRequest.ACCEPTED):
-        data = {"beoordeling_verzoek": {"value": review_request}}
-        super(test_beoordelen_heropeningsverzoek, self).__init__(**data)
+        super().__init__(beoordeling_verzoek={"value": review_request})
 
     @staticmethod
     def get_steps(review_request=ReviewReopenRequest.ACCEPTED):
@@ -69,9 +69,7 @@ class test_monitoren_nieuw_heropeningsverzoek(
     GenericUserTask, task_monitoren_nieuw_heropeningsverzoek
 ):
     def __init__(self, review_request=ReopenRequest.ACCEPTED):
-        data = {"nieuw_heropenings_verzoek": {"value": review_request}}
-
-        super(test_monitoren_nieuw_heropeningsverzoek, self).__init__(**data)
+        super().__init__(nieuw_heropenings_verzoek={"value": review_request})
 
     @staticmethod
     def get_steps():

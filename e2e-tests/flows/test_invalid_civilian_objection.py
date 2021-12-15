@@ -1,4 +1,4 @@
-from api.config import DecisionType, ObjectionValid, SummonTypes, Violation
+from api.config import DecisionType, ObjectionValid, SummonType, Violation
 from api.tasks.debrief import (
     test_opstellen_beeldverslag,
     test_opstellen_rapport_van_bevindingen,
@@ -35,13 +35,13 @@ class TestInvalidCivilianObjection(DefaultAPITest):
             test_opstellen_concept_aanschrijving(),
             test_nakijken_aanschrijving(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.INTENTION_TO_FINE
+                type=SummonType.Vakantieverhuur.INTENTION_TO_FINE
             ),
             test_monitoren_binnenkomen_zienswijze(),
             test_beoordelen_zienswijze(objection_valid=ObjectionValid.NO),
             test_opstellen_concept_besluit(),
             test_nakijken_besluit(),
-            test_verwerken_definitieve_besluit(type=DecisionType.HolidayRental.FINE),
+            test_verwerken_definitieve_besluit(type=DecisionType.Vakantieverhuur.FINE),
             test_versturen_invordering_belastingen(),
             ValidateNoOpenTasks(),
             # For now user has to stage another step, in the future we would like to trigger

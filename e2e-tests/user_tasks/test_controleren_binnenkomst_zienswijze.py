@@ -1,4 +1,4 @@
-from api.config import SummonTypes
+from api.config import SummonType
 from api.tasks.summon import (
     test_beoordelen_zienswijze,
     test_controleren_binnenkomst_zienswijze,
@@ -14,7 +14,7 @@ class task_controleren_binnenkomst_zienswijze_test(DefaultAPITest):
     def test_timer(self):
         self.get_case().run_steps(
             *test_verwerk_aanschrijving.get_steps(
-                SummonTypes.HolidayRental.INTENTION_TO_FINE
+                SummonType.Vakantieverhuur.INTENTION_TO_FINE
             ),
             WaitForTimer(),
             ValidateOpenTasks(test_controleren_binnenkomst_zienswijze),
@@ -23,7 +23,7 @@ class task_controleren_binnenkomst_zienswijze_test(DefaultAPITest):
     def test_no_timer(self):
         self.get_case().run_steps(
             *test_verwerk_aanschrijving.get_steps(
-                SummonTypes.HolidayRental.INTENTION_TO_FINE
+                SummonType.Vakantieverhuur.INTENTION_TO_FINE
             ),
             test_monitoren_binnenkomen_zienswijze(),
             ValidateOpenTasks(test_beoordelen_zienswijze),

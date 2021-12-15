@@ -1,4 +1,4 @@
-from api.config import NextStep, ReviewReopenRequest, SummonTypes, Violation
+from api.config import NextStep, ReviewReopenRequest, SummonType, Violation
 from api.tasks.close_case import test_uitzetten_vervolgstap
 from api.tasks.closing_procedure import (
     test_beoordelen_heropeningsverzoek,
@@ -39,7 +39,7 @@ class TestViolationClosure(DefaultAPITest):
             test_opstellen_concept_aanschrijving(),
             ValidateOpenTasks(test_nakijken_aanschrijving),
             test_nakijken_aanschrijving(),
-            test_verwerk_aanschrijving(type=SummonTypes.HolidayRental.CLOSURE),
+            test_verwerk_aanschrijving(type=SummonType.Vakantieverhuur.CLOSURE),
             test_opslaan_brandweeradvies(),
             test_monitoren_heropeningsverzoek(),
             test_beoordelen_heropeningsverzoek(

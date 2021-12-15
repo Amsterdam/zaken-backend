@@ -39,7 +39,7 @@ class TestAfsluitenZaak(DefaultAPITest):
         case = self.get_case()
         case.run_steps(
             *test_verwerken_definitieve_besluit.get_steps(
-                type=DecisionType.HolidayRental.PREVENTIVE_BURDEN
+                type=DecisionType.Vakantieverhuur.PREVENTIVE_BURDEN
             ),
             test_uitzetten_vervolgstap(),
         )
@@ -51,7 +51,7 @@ class TestAfsluitenZaak(DefaultAPITest):
         case = self.get_case()
         case.run_steps(
             *test_verwerken_definitieve_besluit.get_steps(
-                type=DecisionType.HolidayRental.NO_DECISION
+                type=DecisionType.Vakantieverhuur.NO_DECISION
             ),
             test_opstellen_concept_voornemen_afzien(),
             test_nakijken_afzien_voornemen(),

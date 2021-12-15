@@ -22,8 +22,10 @@ async_sleep = 1  # in seconds
 async_timeout = 40  # in seconds
 
 
-class Themes:
-    HOLIDAY_RENTAL = 2
+class Theme:
+    VAKANTIEVERHUUR = 2
+    KAMERVERHUUR = 3
+    ONDERMIJNING = 4
 
 
 class DaySegment:
@@ -47,7 +49,16 @@ class Priority:
 
 
 class Reason:
-    NOTIFICATION = 4
+    class Ondermijning:
+        SIA_MELDING = 7
+        EIGEN_ONDERZOEK = 8
+        MMA = 9
+        POLITIE = 10
+        ANDER_TEAM = 11
+
+    class HolidayRental:
+        PROJECT = 2
+        NOTIFICATION = 4
 
 
 class Violation:
@@ -109,6 +120,12 @@ class NextStep:
     # RENOUNCE = "renounce"  # TODO where did this came from? It's no longer supported?
 
 
+class VisitNextStep:
+    VISIT_WITH_AUTHORIZATION = "visit_with_authorization"
+    VISIT_WITHOUT_AUTHORIZATION = "visit_without_authorization"
+    NO_VISIT = "no_visit"
+
+
 class ReopenRequest:
     ACCEPTED = "Yes"
     DECLINED = "No"
@@ -131,8 +148,8 @@ class Process:
         # START_CALLBACK_REQUEST_PROCESS = ?  # start_callbackrequest_process
 
 
-class SummonTypes:
-    class HolidayRental:
+class SummonType:
+    class Vakantieverhuur:
         LEGALIZATION_LETTER = 14  # Legalisatiebrief
         OBLIGATION_TO_REPORT_INTENTION_TO_FINE = 15  # Meldplicht voornemen boete
         CLOSURE = 16  # Sluiting
@@ -151,7 +168,7 @@ class SummonTypes:
 
 
 class DecisionType:
-    class HolidayRental:
+    class Vakantieverhuur:
         FINE = 9  # Boete
         COLLECTION_PENALTY = 13  # Invordering dwangsom
         DECISION_FINE_REPORT_DUTY = 15  # Meldplicht beschikking dwangsom
@@ -164,7 +181,7 @@ class DecisionType:
 
 
 class CloseReason:
-    class HolidayRental:
+    class Vakantieverhuur:
         DIFFERENT = 15  # Anders, vermeld in toelichting
         FORWARDED_TO_ANOTHER_TEAM = 16  # Doorgezet naar ander team
         NO_REASON_TO_VISIT_AGAIN = 17  # Geen aanleiding adres opnieuw te bezoeken

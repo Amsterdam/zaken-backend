@@ -1,4 +1,4 @@
-from api.config import ObjectionReceived, SummonTypes, Violation
+from api.config import ObjectionReceived, SummonType, Violation
 from api.tasks.debrief import (
     test_opstellen_beeldverslag,
     test_opstellen_rapport_van_bevindingen,
@@ -31,7 +31,7 @@ class TestNoCivilianObjection(DefaultAPITest):
             test_opstellen_concept_aanschrijving(),
             test_nakijken_aanschrijving(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.INTENTION_TO_FINE
+                type=SummonType.Vakantieverhuur.INTENTION_TO_FINE
             ),
             ValidateOpenTasks(test_monitoren_binnenkomen_zienswijze),
             WaitForTimer(),
