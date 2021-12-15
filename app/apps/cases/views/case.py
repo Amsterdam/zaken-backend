@@ -1,5 +1,14 @@
 from apps.addresses.utils import search
-from apps.cases.models import Case, CaseState, CitizenReport
+from apps.cases.models import (
+    Case,
+    CaseClose,
+    CaseProject,
+    CaseReason,
+    CaseState,
+    CaseStateType,
+    CaseTheme,
+    CitizenReport,
+)
 from apps.cases.serializers import (
     CaseCreateUpdateSerializer,
     CaseSerializer,
@@ -34,21 +43,18 @@ from rest_framework.response import Response
 class CaseOrderingFilter(filters.FilterSet):
     from_start_date = filters.DateFilter(field_name="start_date", lookup_expr="gte")
     open_cases = filters.BooleanFilter(method="get_open_cases")
-    open_status = filters.ModelMultipleChoiceFilter(
-        queryset=CaseState.objects.all(), method="get_open_cases_with_statuses"
+    state_types = filters.ModelMultipleChoiceFilter(
+        queryset=CaseStateType.objects.all(), method="get_state_types"
     )
 
     def get_open_cases(self, queryset, name, value):
         return queryset.filter(end_date__isnull=value)
 
-    def get_open_cases_with_statuses(self, queryset, name, value):
+    def get_state_types(self, queryset, name, value):
         if value:
             return queryset.filter(
-                case_states__end_date__isnull=True,
-                case_states__status__id__in=list(
-                    map(lambda casestate: casestate.id, value)
-                ),
-            )
+                case_states__status__in=value,
+            ).distinct()
         return queryset
 
     class Meta:
