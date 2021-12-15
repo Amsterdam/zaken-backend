@@ -215,13 +215,17 @@ class CaseWorkflow(models.Model):
         if len(workflows_completed) == all_workflows.count() and main_workflow:
 
             # pick up all summons and pass them on to the main workflow
+            theme = main_workflow.case.theme.snake_case_name
+
             all_summons = [
                 d.get("summon_id")
                 for d in all_workflows.values_list("data", flat=True)
                 if d.get("summon_id")
             ]
             extra_data = {
-                "next_step": {"value": "default"},
+                "bepalen_zaakproces": {
+                    "value": "ja" if theme == "ondermijning" else "default"
+                },
                 "all_summons": all_summons,
                 "decision_count": {
                     "value": Decision.objects.filter(case=main_workflow.case)

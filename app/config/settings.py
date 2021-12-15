@@ -541,6 +541,7 @@ WORKFLOW_SPEC_CONFIG = {
                                 "authorization": {"value": "No"},
                                 "reason": {"value": "default"},
                                 "theme": {"value": "default"},
+                                "bepalen_zaakproces": {"value": "default"},
                             },
                         },
                         "aanschrijving_toevoegen": {},  # TODO Remove this
