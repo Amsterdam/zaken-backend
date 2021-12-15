@@ -1,31 +1,11 @@
-from apps.cases.models import (
-    Case,
-    CaseClose,
-    CaseProject,
-    CaseReason,
-    CaseState,
-    CaseTheme,
-    CitizenReport,
-)
+from apps.cases.models import CaseTheme
 from apps.cases.serializers import (
-    BWVMeldingenSerializer,
-    BWVStatusSerializer,
     CaseCloseReasonSerializer,
     CaseCloseResultSerializer,
-    CaseCloseSerializer,
-    CaseCreateUpdateSerializer,
     CaseProjectSerializer,
     CaseReasonSerializer,
-    CaseSerializer,
-    CaseStateSerializer,
     CaseStateTypeSerializer,
     CaseThemeSerializer,
-    CaseWorkflowSerializer,
-    CitizenReportSerializer,
-    LegacyCaseCreateSerializer,
-    LegacyCaseUpdateSerializer,
-    PushCaseStateSerializer,
-    StartWorkflowSerializer,
     SubjectSerializer,
 )
 from apps.debriefings.models import Debriefing
@@ -33,23 +13,11 @@ from apps.debriefings.serializers import ViolationTypeSerializer
 from apps.decisions.serializers import DecisionTypeSerializer
 from apps.schedules.serializers import ThemeScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
-from apps.users.permissions import (
-    CanCloseCase,
-    CanCreateCase,
-    rest_permission_classes_for_top,
-)
-from apps.workflow.serializers import (
-    GenericCompletedTaskSerializer,
-    WorkflowOptionSerializer,
-)
+from apps.users.permissions import rest_permission_classes_for_top
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.generics import (
-    ListAPIView,
-    ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-)
+from rest_framework.generics import ListAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
