@@ -197,9 +197,9 @@ class CaseViewSet(
         theme = request.GET.get(theme_parameter.name, None)
         ton_ids = request.GET.get(ton_ids_parameter.name, None)
 
-        if postal_code is None and street_name is None:
+        if postal_code is None and street_name is None and ton_ids is None:
             return HttpResponseBadRequest(
-                "A postal_code or street_name queryparameter should be provided"
+                "A postal_code or street_name or ton_ids queryparameter should be provided"
             )
         if postal_code is not None and number is None:
             return HttpResponseBadRequest("number queryparameter is required")
