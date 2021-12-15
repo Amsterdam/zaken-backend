@@ -1,4 +1,4 @@
-from api.config import SummonTypes, Violation
+from api.config import SummonType, Violation
 from api.tasks.debrief import (
     test_opstellen_beeldverslag,
     test_opstellen_rapport_van_bevindingen,
@@ -33,7 +33,7 @@ class TestViolationLegalizationLetter(DefaultAPITest):
             test_opstellen_concept_aanschrijving(),
             test_nakijken_aanschrijving(),
             test_verwerk_aanschrijving(
-                type=SummonTypes.HolidayRental.LEGALIZATION_LETTER
+                type=SummonType.Vakantieverhuur.LEGALIZATION_LETTER
             ),
             ValidateOpenTasks(test_monitoren_binnenkomen_vergunningaanvraag),
         )

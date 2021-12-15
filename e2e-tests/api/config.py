@@ -22,8 +22,10 @@ async_sleep = 1  # in seconds
 async_timeout = 40  # in seconds
 
 
-class Themes:
-    HOLIDAY_RENTAL = 2
+class Theme:
+    VAKANTIEVERHUUR = 2
+    KAMERVERHUUR = 3
+    ONDERMIJNING = 4
 
 
 class DaySegment:
@@ -47,7 +49,16 @@ class Priority:
 
 
 class Reason:
-    NOTIFICATION = 4
+    class Ondermijning:
+        SIA_MELDING = 7
+        EIGEN_ONDERZOEK = 8
+        MMA = 9
+        POLITIE = 10
+        ANDER_TEAM = 11
+
+    class HolidayRental:
+        PROJECT = 2
+        NOTIFICATION = 4
 
 
 class Violation:
@@ -64,11 +75,32 @@ class TypeConceptSummon:
     RENOUNCE_SUMMON = "afzien_aanschrijving"
 
 
-class Subjects:
+class Subject:
+    class Ondermijning:
+        CRIMINEEL_GEBRUIK = 1
+        HENNEP = 2
+        OVERIGE_WOONFRAUDE = 3
+
     class HolidayRental:
-        HENNEP = 1
-        OVERIGE_WOONFRAUDE = 2
-        CRIMINEEL_GEBRUIK = 3
+        GEEN_NACHTVERBLIJF = 4
+        NIET_MELDEN = 5
+        ONTBREKEN_INSCHRIJVING_BRP = 6
+        ONTBREKEN_REGISTRATIENUMMER = 7
+        ONTBREKEN_VV_VERGUNNING = 8
+        OVERSCHRIJDING_NACHTEN = 9
+        OVERSCHRIJDING_PERSONEN = 10
+        SCHENDING_OPPERVLAKTE_EISEN = 11
+        VV_IN_SOCIALE_HUURWONING = 12
+        VV_ZONDER_FEITELIJKE_BEWONING = 13
+
+    class Kamerverhuur:
+        MEER_DAN_HET_TOEGESTANE_AANTAL_HUISHOUDENS = 14
+        KORTDUREND_VERBLIJF = 15
+        CRIMINEEL_GEBRUIK = 16
+        HENNEP = 17
+        OVERIGE_WOONFRAUDE = 18
+        VERBOUWD_NAAR_TWEE_OF_MEER_ZELFSTANDIGE_WONINGEN = 19
+        SAMENVOEGING_VAN_WONINGEN = 20
 
 
 class SummonValidity:
@@ -86,6 +118,12 @@ class NextStep:
     RECHECK = "hercontrole"
     CLOSE = "sluiten"
     # RENOUNCE = "renounce"  # TODO where did this came from? It's no longer supported?
+
+
+class VisitNextStep:
+    VISIT_WITH_AUTHORIZATION = "visit_with_authorization"
+    VISIT_WITHOUT_AUTHORIZATION = "visit_without_authorization"
+    NO_VISIT = "no_visit"
 
 
 class ReopenRequest:
@@ -110,8 +148,8 @@ class Process:
         # START_CALLBACK_REQUEST_PROCESS = ?  # start_callbackrequest_process
 
 
-class SummonTypes:
-    class HolidayRental:
+class SummonType:
+    class Vakantieverhuur:
         LEGALIZATION_LETTER = 14  # Legalisatiebrief
         OBLIGATION_TO_REPORT_INTENTION_TO_FINE = 15  # Meldplicht voornemen boete
         CLOSURE = 16  # Sluiting
@@ -130,7 +168,7 @@ class SummonTypes:
 
 
 class DecisionType:
-    class HolidayRental:
+    class Vakantieverhuur:
         FINE = 9  # Boete
         COLLECTION_PENALTY = 13  # Invordering dwangsom
         DECISION_FINE_REPORT_DUTY = 15  # Meldplicht beschikking dwangsom
@@ -143,7 +181,7 @@ class DecisionType:
 
 
 class CloseReason:
-    class HolidayRental:
+    class Vakantieverhuur:
         DIFFERENT = 15  # Anders, vermeld in toelichting
         FORWARDED_TO_ANOTHER_TEAM = 16  # Doorgezet naar ander team
         NO_REASON_TO_VISIT_AGAIN = 17  # Geen aanleiding adres opnieuw te bezoeken

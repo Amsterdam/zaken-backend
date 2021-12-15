@@ -11,8 +11,7 @@ logger = logging.getLogger(__name__)
 
 class test_uitzetten_vervolgstap(GenericUserTask, task_uitzetten_vervolgstap):
     def __init__(self, next_step=NextStep.CLOSE):
-        data = {"next_step": {"value": next_step}}
-        super(test_uitzetten_vervolgstap, self).__init__(**data)
+        super().__init__(next_step={"value": next_step})
 
     @staticmethod
     def get_steps(next_step=NextStep.CLOSE):
@@ -27,11 +26,11 @@ class test_afsluiten_zaak(AbstractUserTask, task_afsluiten_zaak):
     endpoint = "case-close"
 
     def __init__(
-        self, reason=CloseReason.HolidayRental.NO_FROUD, description="Some description"
+        self,
+        reason=CloseReason.Vakantieverhuur.NO_FROUD,
+        description="Some description",
     ):
-        super(test_afsluiten_zaak, self).__init__(
-            reason=reason, description=description
-        )
+        super().__init__(reason=reason, description=description)
 
     def get_post_data(self, case, task):
         return super().get_post_data(case, task) | {

@@ -39,12 +39,11 @@ class test_verwerken_definitieve_besluit(
     endpoint = "decisions"
     event = events.DecisionEvent
 
-    def __init__(self, type=DecisionType.HolidayRental.NO_DECISION):
-        data = {"decision_type": type}
-        super(test_verwerken_definitieve_besluit, self).__init__(**data)
+    def __init__(self, type=DecisionType.Vakantieverhuur.NO_DECISION):
+        super().__init__(decision_type=type)
 
     @staticmethod
-    def get_steps(type=DecisionType.HolidayRental.NO_DECISION):
+    def get_steps(type=DecisionType.Vakantieverhuur.NO_DECISION):
         return [
             *test_nakijken_besluit.get_steps(),
             __class__(type=type),
@@ -63,7 +62,7 @@ class test_versturen_invordering_belastingen(
     def get_steps():
         return [
             *test_verwerken_definitieve_besluit.get_steps(
-                type=DecisionType.HolidayRental.FINE
+                type=DecisionType.Vakantieverhuur.FINE
             ),
             __class__(),
         ]
@@ -74,7 +73,7 @@ class test_contacteren_stadsdeel(GenericUserTask, task_contacteren_stadsdeel):
     def get_steps():
         return [
             *test_verwerken_definitieve_besluit.get_steps(
-                type=DecisionType.HolidayRental.REVOKE_VV_PERMIT
+                type=DecisionType.Vakantieverhuur.REVOKE_VV_PERMIT
             ),
             __class__(),
         ]

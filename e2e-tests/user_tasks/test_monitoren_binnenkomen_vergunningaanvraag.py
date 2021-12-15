@@ -1,4 +1,4 @@
-from api.config import SummonTypes
+from api.config import SummonType
 from api.tasks.summon import (
     test_controleren_binnenkomst_vergunningaanvraag,
     test_monitoren_binnenkomen_vergunningaanvraag,
@@ -14,7 +14,7 @@ class task_monitoren_binnenkomen_vergunningaanvraag_test(DefaultAPITest):
     def test_timeout(self):
         self.get_case().run_steps(
             *test_verwerk_aanschrijving.get_steps(
-                type=SummonTypes.HolidayRental.LEGALIZATION_LETTER
+                type=SummonType.Vakantieverhuur.LEGALIZATION_LETTER
             ),
             ValidateOpenTasks(test_monitoren_binnenkomen_vergunningaanvraag),
             WaitForTimer(),
@@ -24,7 +24,7 @@ class task_monitoren_binnenkomen_vergunningaanvraag_test(DefaultAPITest):
     def test_no_timeout(self):
         self.get_case().run_steps(
             *test_verwerk_aanschrijving.get_steps(
-                type=SummonTypes.HolidayRental.LEGALIZATION_LETTER
+                type=SummonType.Vakantieverhuur.LEGALIZATION_LETTER
             ),
             ValidateOpenTasks(test_monitoren_binnenkomen_vergunningaanvraag),
             test_monitoren_binnenkomen_vergunningaanvraag(),

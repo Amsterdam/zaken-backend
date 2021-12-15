@@ -2,16 +2,35 @@ import datetime
 import logging
 
 from api import events
-from api.config import Action, DaySegment, Priority, Situations, Violation, WeekSegment
+from api.config import (
+    Action,
+    DaySegment,
+    Priority,
+    Situations,
+    Violation,
+    VisitNextStep,
+    WeekSegment,
+)
 from api.tasks import AbstractUserTask, GenericUserTask
 from api.user_tasks import (
     task_aanvragen_machtiging,
+    task_bepalen_zaakproces,
     task_doorgeven_status_top,
     task_inplannen_status,
     task_monitoren_binnenkomen_machtiging,
 )
 
 logger = logging.getLogger(__name__)
+
+
+class test_bepalen_zaakproces(GenericUserTask, task_bepalen_zaakproces):
+    def __init__(self, visit_next_step=VisitNextStep.NO_VISIT):
+        super().__init__(visit_next_step={"value": visit_next_step})
+
+    @staticmethod
+    def get_steps():
+        # No preceiding step, case was just created
+        return [__class__()]
 
 
 class test_aanvragen_machtiging(GenericUserTask, task_aanvragen_machtiging):
@@ -46,7 +65,7 @@ class test_inplannen_status(AbstractUserTask, task_inplannen_status):
         day_segment=DaySegment.DAYTIME,
         priority=Priority.HIGH,
     ):
-        super(test_inplannen_status, self).__init__(
+        super().__init__(
             action=action,
             week_segment=week_segment,
             day_segment=day_segment,
@@ -75,7 +94,7 @@ class test_doorgeven_status_top(AbstractUserTask, task_doorgeven_status_top):
         situation=Situations.ACCESS_GRANTED,
         can_next_visit_go_ahead=False,
     ):
-        super(test_doorgeven_status_top, self).__init__(
+        super().__init__(
             authors=authors,
             start_time=start_time if start_time else str(datetime.datetime.now()),
             situation=situation,
