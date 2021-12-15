@@ -12,7 +12,7 @@ from api.tasks.renounce_decision import (
 from api.tasks.visit import test_inplannen_status
 from api.test import DefaultAPITest
 from api.util import midnight
-from api.validators import ValidateOpenTasks
+from api.validators import ValidateNoOpenTasks, ValidateOpenTasks
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
 
@@ -28,6 +28,13 @@ class TestAfsluitenZaak(DefaultAPITest):
             *test_uitzetten_vervolgstap.get_steps(next_step=NextStep.CLOSE),
         )
         ValidateOpenTasks(test_afsluiten_zaak)
+
+    def test_sluiten(self):
+        self.get_case().run_steps(
+            *test_uitzetten_vervolgstap.get_steps(next_step=NextStep.CLOSE),
+            test_afsluiten_zaak(),
+        )
+        ValidateNoOpenTasks()
 
     def test_hercontrole(self):
         self.get_case().run_steps(
