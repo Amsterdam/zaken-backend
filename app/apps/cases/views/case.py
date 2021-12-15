@@ -53,6 +53,7 @@ class CaseOrderingFilter(filters.FilterSet):
     def get_state_types(self, queryset, name, value):
         if value:
             return queryset.filter(
+                case_states__end_date__isnull=True,
                 case_states__status__in=value,
             ).distinct()
         return queryset
