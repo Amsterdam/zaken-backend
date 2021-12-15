@@ -76,7 +76,7 @@ class StandardResultsSetPagination(PageNumberPagination):
         OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
-        OpenApiParameter("open_status", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),
     ]
