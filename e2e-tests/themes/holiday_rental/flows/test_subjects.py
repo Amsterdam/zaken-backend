@@ -1,4 +1,4 @@
-from api.config import Subjects
+from api.config import Reason, Subjects, Themes
 from api.tasks.close_case import test_afsluiten_zaak
 from api.test import DefaultAPITest
 from api.validators import Validator
@@ -21,9 +21,11 @@ class ValidateSubjects(Validator):
 class TestSubjects(DefaultAPITest):
     def get_case_data(self):
         return {
+            "theme_id": Themes.ONDERMIJNING,
+            "reason": Reason.Ondermijning.EIGEN_ONDERZOEK,
             "subjects": [
-                Subjects.HolidayRental.HENNEP,
-            ]
+                Subjects.Ondermijning.HENNEP,
+            ],
         }
 
     def test(self):
@@ -31,23 +33,20 @@ class TestSubjects(DefaultAPITest):
 
         # Validate if create-case added the right subjects
         case.run_steps(
-            ValidateSubjects([Subjects.HolidayRental.HENNEP]),
+            ValidateSubjects([Subjects.Ondermijning.HENNEP]),
         )
 
         # Change the subjects
-        updated_subjects = [
-            Subjects.HolidayRental.HENNEP,
-            Subjects.HolidayRental.CRIMINEEL_GEBRUIK,
+        updated_subject_ids = [
+            Subjects.Ondermijning.HENNEP,
+            Subjects.Ondermijning.CRIMINEEL_GEBRUIK,
         ]
 
         self.client.call(
-            "put",
+            "patch",
             f"/cases/{case.data['id']}/",
             {
-                "address": case.data["address"],
-                "theme": case.data["theme"],
-                "reason": case.data["reason"],
-                "subjects": updated_subjects,
+                "subject_ids": updated_subject_ids,
             },
         )
 
@@ -62,9 +61,9 @@ class TestSubjects(DefaultAPITest):
 
         # Check if the subjects are updated and keep their value after close case
         case.run_steps(
-            ValidateSubjects(updated_subjects),
+            ValidateSubjects(updated_subject_ids),
             *test_afsluiten_zaak.get_steps(),
-            ValidateSubjects(updated_subjects),
+            ValidateSubjects(updated_subject_ids),
         )
 
         # Validate timeline only on create-case event

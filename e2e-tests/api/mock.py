@@ -21,7 +21,7 @@ Address = {"bag_id": "234"}
 
 def get_case_mock(
     theme_id=Themes.HOLIDAY_RENTAL,
-    reason=Reason.NOTIFICATION,
+    reason=Reason.Vakantieverhuur.NOTIFICATION,
     address=Address,
     subjects=[],
     description_citizenreport=None,

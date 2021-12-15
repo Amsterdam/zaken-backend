@@ -24,6 +24,7 @@ async_timeout = 40  # in seconds
 
 class Themes:
     HOLIDAY_RENTAL = 2
+    ONDERMIJNING = 4
 
 
 class DaySegment:
@@ -47,7 +48,11 @@ class Priority:
 
 
 class Reason:
-    NOTIFICATION = 4
+    class Vakantieverhuur:
+        NOTIFICATION = 4
+
+    class Ondermijning:
+        EIGEN_ONDERZOEK = 8
 
 
 class Violation:
@@ -65,10 +70,10 @@ class TypeConceptSummon:
 
 
 class Subjects:
-    class HolidayRental:
-        HENNEP = 1
-        OVERIGE_WOONFRAUDE = 2
-        CRIMINEEL_GEBRUIK = 3
+    class Ondermijning:
+        CRIMINEEL_GEBRUIK = 1
+        HENNEP = 2
+        OVERIGE_WOONFRAUDE = 3
 
 
 class SummonValidity:
