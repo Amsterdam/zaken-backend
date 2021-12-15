@@ -1,4 +1,4 @@
-from api.config import Reason, Subject, Theme
+from api.config import Reason, Subject, Theme, VisitNextStep
 from api.tasks.close_case import test_afsluiten_zaak
 from api.tasks.visit import test_bepalen_zaakproces
 from api.test import DefaultAPITest
@@ -63,7 +63,9 @@ class TestSubjects(DefaultAPITest):
         # Check if the subjects are updated and keep their value after close case
         case.run_steps(
             ValidateSubjects(updated_subject_ids),
-            test_bepalen_zaakproces(),
+            test_bepalen_zaakproces(
+                visit_next_step=VisitNextStep.VISIT_WITHOUT_AUTHORIZATION
+            ),
             *test_afsluiten_zaak.get_steps(),
             ValidateSubjects(updated_subject_ids),
         )
