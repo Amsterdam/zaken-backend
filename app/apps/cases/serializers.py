@@ -104,22 +104,38 @@ class CaseUserTaskListSerializer(CaseUserTaskSerializer):
 
 
 class CaseStateSerializer(serializers.ModelSerializer):
-    status_name = serializers.CharField(source="status.name", read_only=True)
-    tasks = CaseUserTaskCaseListSerializer(
-        source="get_tasks",
-        many=True,
-        read_only=True,
-    )
+    status_name = serializers.CharField(source="case_state_type.name", read_only=True)
+    status = serializers.CharField(source="case_state_type.id", read_only=True)
+    # tasks = serializers.SerializerMethodField()
+
+    # @extend_schema_field(CaseUserTaskSerializer(many=True))
+    # def get_tasks(self, obj):
+    #     return CaseUserTaskSerializer(
+    #         CaseUserTask.objects.filter(
+    #             workflow=obj,
+    #             completed=False,
+    #         ).order_by("id"),
+    #         many=True,
+    #         context=self.context,
+    #     ).data
 
     class Meta:
-        model = CaseState
+        model = CaseWorkflow
         exclude = (
             "id",
             "case",
-            "case_process_id",
-            "users",
-            "workflow",
-            "information",
+            "parent_workflow",
+            "main_workflow",
+            "workflow_type",
+            "workflow_theme_name",
+            "workflow_message_name",
+            "created",
+            "serialized_workflow_state",
+            "data",
+            "started",
+            "completed",
+            "workflow_version",
+            "case_state_type",
         )
 
 
@@ -128,6 +144,17 @@ class CaseStateTaskSerializer(CaseStateSerializer):
 
     class Meta:
         model = CaseState
+        fields = "__all__"
+
+
+class CaseStateTypeTaskSerializer(serializers.ModelSerializer):
+    # information = serializers.CharField(source="get_information", read_only=True)
+    status_name = serializers.CharField(source="name", read_only=True)
+    status = serializers.CharField(source="id", read_only=True)
+    # tasks = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CaseStateType
         fields = "__all__"
 
 
@@ -146,9 +173,10 @@ class CaseWorkflowSerializer(serializers.ModelSerializer):
             context=self.context,
         ).data
 
-    @extend_schema_field(CaseStateTaskSerializer)
+    @extend_schema_field(CaseStateTypeTaskSerializer)
     def get_state(self, obj):
-        return CaseStateTaskSerializer(obj.case_states.all().order_by("id").last()).data
+
+        return CaseStateTypeTaskSerializer(obj.case_state_type).data
 
     class Meta:
         model = CaseWorkflow
@@ -164,6 +192,8 @@ class CaseWorkflowSerializer(serializers.ModelSerializer):
             "completed",
             "parent_workflow",
             "data",
+            "started",
+            "workflow_message_name",
         ]
 
 

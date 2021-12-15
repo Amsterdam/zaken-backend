@@ -2,7 +2,7 @@ import copy
 import logging
 from string import Template
 
-from apps.cases.models import Case, CaseTheme
+from apps.cases.models import Case, CaseStateType, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -117,6 +117,16 @@ class CaseWorkflow(models.Model):
     serialized_workflow_state = models.JSONField(null=True)
     data = models.JSONField(null=True)
 
+    case_state_type = models.ForeignKey(
+        to="cases.CaseStateType",
+        related_name="workflows",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    started = models.BooleanField(
+        default=False,
+    )
     completed = models.BooleanField(
         default=False,
     )
@@ -151,13 +161,18 @@ class CaseWorkflow(models.Model):
 
         return spec
 
+    def set_case_state_type(self, state_name):
+        self.case_state_type, _ = CaseStateType.objects.get_or_create(
+            name=state_name, theme=self.case.theme
+        )
+        self.save()
+
     def get_script_engine(self, wf):
         # injects functions in workflow
-        case = self.case
         workflow_instance = self
 
         def set_status(input):
-            case.set_state(input, workflow_instance)
+            workflow_instance.set_case_state_type(input)
 
         def wait_for_workflows_and_send_message(message):
             task_wait_for_workflows_and_send_message.delay(
@@ -276,6 +291,7 @@ class CaseWorkflow(models.Model):
             )
             wf = self._update_workflow(wf)
 
+        self.started = True
         self._update_db(wf)
 
     def accept_message(self, message_name, extra_data):
