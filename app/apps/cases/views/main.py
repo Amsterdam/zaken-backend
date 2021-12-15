@@ -1,53 +1,16 @@
 import logging
 
-from apps.cases.models import (
-    Case,
-    CaseClose,
-    CaseProject,
-    CaseReason,
-    CaseState,
-    CaseTheme,
-    CitizenReport,
-)
+from apps.cases.models import CaseClose, CaseState
 from apps.cases.serializers import (
-    BWVMeldingenSerializer,
-    BWVStatusSerializer,
-    CaseCloseReasonSerializer,
-    CaseCloseResultSerializer,
     CaseCloseSerializer,
-    CaseCreateUpdateSerializer,
-    CaseProjectSerializer,
-    CaseReasonSerializer,
-    CaseSerializer,
     CaseStateSerializer,
-    CaseStateTypeSerializer,
-    CaseThemeSerializer,
-    CaseWorkflowSerializer,
-    CitizenReportSerializer,
-    LegacyCaseCreateSerializer,
-    LegacyCaseUpdateSerializer,
     PushCaseStateSerializer,
-    StartWorkflowSerializer,
-    SubjectSerializer,
 )
-from apps.users.permissions import (
-    CanCloseCase,
-    CanCreateCase,
-    rest_permission_classes_for_top,
-)
-from apps.workflow.serializers import (
-    GenericCompletedTaskSerializer,
-    WorkflowOptionSerializer,
-)
+from apps.users.permissions import CanCloseCase, rest_permission_classes_for_top
 from django.contrib.auth import get_user_model
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
-from rest_framework.generics import (
-    ListAPIView,
-    ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-)
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 
