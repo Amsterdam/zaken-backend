@@ -263,20 +263,19 @@ class CaseListApiTest(APITestCase):
         results = response.data["results"]
         self.assertEqual(len(results), 1)
 
-    def test_filter_status_same_type(self):
+    def test_filter_status(self):
         """
-        Cases have same state type, should only return cases with open state
+        Should return only one case
         """
-        state_type = baker.make(CaseStateType)
-        baker.make(CaseState, status=state_type)
-        # Makes closed states
-        baker.make(CaseState, end_date=datetime.datetime.now(), status=state_type)
-        baker.make(CaseState, end_date=datetime.datetime.now(), status=state_type)
+        state_type_a = baker.make(CaseStateType)
+        state_type_b = baker.make(CaseStateType)
+        baker.make(CaseState, status=state_type_a)
+        baker.make(CaseState, status=state_type_b)
 
         url = reverse("cases-list")
         client = get_authenticated_client()
 
-        FILTER_PARAMETERS = {"open_status": state_type.id}
+        FILTER_PARAMETERS = {"state_types": state_type_a.id}
         response = client.get(url, FILTER_PARAMETERS)
 
         results = response.data["results"]
@@ -290,7 +289,7 @@ class CaseListApiTest(APITestCase):
         client = get_authenticated_client()
 
         test_state = case_states[0]
-        FILTER_PARAMETERS = {"open_status": test_state.status.id}
+        FILTER_PARAMETERS = {"state_types": test_state.status.id}
         response = client.get(url, FILTER_PARAMETERS)
 
         results = response.data["results"]

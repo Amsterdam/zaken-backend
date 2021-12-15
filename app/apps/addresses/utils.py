@@ -15,6 +15,6 @@ def search(street_name=None, postal_code=None, number=None, suffix=None):
         queryset = queryset.filter(number=number)
 
     if suffix:
-        queryset = queryset.filter(suffix=suffix)
+        queryset = queryset.filter(suffix__iexact=suffix)
 
     return queryset
