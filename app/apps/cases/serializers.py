@@ -191,6 +191,9 @@ class CaseSerializer(serializers.ModelSerializer):
     schedules = ScheduleSerializer(source="get_schedules", many=True, read_only=True)
     project = CaseProjectSerializer()
     subjects = SubjectSerializer(many=True, read_only=True)
+    subject_ids = serializers.PrimaryKeyRelatedField(
+        many=True, read_only=False, queryset=Subject.objects.all(), source="subjects"
+    )
 
     class Meta:
         model = Case

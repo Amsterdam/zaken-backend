@@ -49,6 +49,9 @@ class Priority:
 
 
 class Reason:
+    class Vakantieverhuur:
+        NOTIFICATION = 4
+
     class Ondermijning:
         SIA_MELDING = 7
         EIGEN_ONDERZOEK = 8
