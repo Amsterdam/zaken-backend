@@ -1,14 +1,5 @@
 from apps.addresses.utils import search
-from apps.cases.models import (
-    Case,
-    CaseClose,
-    CaseProject,
-    CaseReason,
-    CaseState,
-    CaseStateType,
-    CaseTheme,
-    CitizenReport,
-)
+from apps.cases.models import Case, CaseStateType, CitizenReport
 from apps.cases.serializers import (
     CaseCreateUpdateSerializer,
     CaseSerializer,
