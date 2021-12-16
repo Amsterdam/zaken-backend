@@ -55,7 +55,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
     template_name = "import/body.html"
 
     reason_translate = {
-        "melding": "Melding",
+        "melding": "SIA melding",
         "project": "Project",
         "digitaal_toezicht": "Digitaal Toezicht",
     }
