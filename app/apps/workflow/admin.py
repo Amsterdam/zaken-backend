@@ -5,7 +5,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.html import format_html, mark_safe
 
-from .forms import ResetSubworkflowsForm
+from .forms import ResetSubworkflowsForm, UpdateDataForWorkflowsForm
 from .models import CaseUserTask, CaseWorkflow, GenericCompletedTask, WorkflowOption
 
 
@@ -54,6 +54,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         "parent_workflow",
         "issues",
         "completed",
+        "update_data",
         "reset_subworkflows",
     )
 
@@ -95,7 +96,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
     def reset_subworkflows(self, obj):
         if obj.workflow_type == CaseWorkflow.WORKFLOW_TYPE_DIRECTOR:
             return format_html(
-                '<a class="button" href="{}" id="caseworkflow_id_{}">Reset subworkflows</a>',
+                '<a class="button" href="{}" id="caseworkflow_id_{}">Reset&nbsp;subworkflows</a>',
                 reverse("admin:reset-subworkflows", args=[obj.pk]),
                 obj.pk,
             )
@@ -105,18 +106,35 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
     reset_subworkflows.short_description = "Reset subworkflows"
     reset_subworkflows.allow_tags = True
 
+    def update_data(self, obj):
+        return format_html(
+            '<a class="button" href="{}" id="caseworkflow_id_{}">Update&nbsp;data</a>',
+            reverse("admin:update-data-for-subworkflow", args=[obj.pk]),
+            obj.pk,
+        )
+
+    update_data.short_description = "Update data"
+    update_data.allow_tags = True
+
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
             url(
                 r"^(?P<caseworkflow_id>.+)/reset-subworkflows/$",
-                self.admin_site.admin_view(self.process_reset_subworkflows),
+                self.admin_site.admin_view(self.admin_process_reset_subworkflows),
                 name="reset-subworkflows",
+            ),
+            url(
+                r"^(?P<caseworkflow_id>.+)/update-data-for-subworkflow/$",
+                self.admin_site.admin_view(self.admin_update_data_for_workflow),
+                name="update-data-for-subworkflow",
             ),
         ]
         return custom_urls + urls
 
-    def process_reset_subworkflows(self, request, caseworkflow_id, *args, **kwargs):
+    def admin_process_reset_subworkflows(
+        self, request, caseworkflow_id, *args, **kwargs
+    ):
         caseworkflow = self.get_object(request, caseworkflow_id)
         result = {}
         if request.method == "GET":
@@ -157,6 +175,49 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         return TemplateResponse(
             request,
             "admin/workflow/caseworkflow/reset_subworkflows.html",
+            context,
+        )
+
+    def admin_update_data_for_workflow(self, request, caseworkflow_id, *args, **kwargs):
+        caseworkflow = self.get_object(request, caseworkflow_id)
+        result = {}
+        success = False
+        form = UpdateDataForWorkflowsForm(caseworkflow=caseworkflow)
+        if request.method == "POST":
+            form = UpdateDataForWorkflowsForm(request.POST, caseworkflow=caseworkflow)
+            if form.is_valid():
+                result, success = form.save(
+                    caseworkflow, not request.POST.get("update", False)
+                )
+            if request.POST.get("update", False):
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    f"De data voor de workflow '{caseworkflow.id}' is aangepast",
+                )
+                url = reverse(
+                    "admin:update-data-for-subworkflow",
+                    args=[caseworkflow.pk],
+                    current_app=self.admin_site.name,
+                )
+                return HttpResponseRedirect(f"{url}")
+
+        context = self.admin_site.each_context(request)
+        context.update(
+            {
+                "opts": self.model._meta,
+                "form": form,
+                "caseworkflow": caseworkflow,
+                "success": success,
+                "result": result,
+                "workflow": caseworkflow.get_or_restore_workflow_state(),
+                "task_states": ["COMPLETED", "READY", "WAITING", "CANCELLED"],
+                "title": "Update data for workflow",
+            }
+        )
+        return TemplateResponse(
+            request,
+            "admin/workflow/caseworkflow/update_data_for_workflow.html",
             context,
         )
 
