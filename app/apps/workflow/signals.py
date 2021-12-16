@@ -64,11 +64,14 @@ def case_workflow_pre_save(sender, instance, **kwargs):
         instance.data = instance.data if isinstance(instance.data, dict) else {}
 
         if instance.main_workflow:
+            theme = instance.case.theme.snake_case_name
+            reason = instance.case.reason.snake_case_name
             instance.data.update(
                 {
-                    "theme": {"value": f"theme_{instance.case.theme.snake_case_name}"},
-                    "reason": {
-                        "value": f"reason_{instance.case.reason.snake_case_name}"
+                    "theme": {"value": f"theme_{theme}"},
+                    "reason": {"value": f"reason_{reason}"},
+                    "bepalen_processtap": {
+                        "value": "ja" if theme == "ondermijning" else "default",
                     },
                 }
             )

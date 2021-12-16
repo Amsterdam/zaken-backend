@@ -46,10 +46,9 @@ class task_inplannen_status(user_task):
     due_date = relativedelta(weeks=1)
 
 
-class task_bepalen_zaakproces(user_task):
-    """Bepalen zaakproces"""
+class task_bepalen_processtap(user_task):
+    """Bepalen processtap"""
 
-    _task_name = "task_visit_bepalen_zaakproces"
     due_date = relativedelta(days=2)
 
 
