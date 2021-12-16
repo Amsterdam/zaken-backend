@@ -121,6 +121,14 @@ class CaseViewSet(
 
         return self.serializer_class
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if hasattr(self.request, "user") and not self.request.user.has_perm(
+            "users.access_sensitive_dossiers"
+        ):
+            queryset = queryset.exclude(sensitive=True)
+        return queryset
+
     # @extend_schema(
     #     parameters=[
     #         date_parameter,

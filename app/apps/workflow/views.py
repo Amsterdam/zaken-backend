@@ -43,6 +43,14 @@ class CaseUserTaskViewSet(
     queryset = CaseUserTask.objects.all()
     http_method_names = ["patch", "get"]
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if hasattr(self.request, "user") and not self.request.user.has_perm(
+            "users.access_sensitive_dossiers"
+        ):
+            queryset = queryset.exclude(case__sensitive=True)
+        return queryset
+
     @extend_schema(
         parameters=[
             role_parameter,
