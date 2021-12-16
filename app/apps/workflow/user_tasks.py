@@ -386,6 +386,11 @@ class task_afsluiten_zaak(user_task):
         )
 
 
+class task_afwachten_casus_overleg(user_task):
+    _task_name = "task_afwachten_casus_overleg"
+    due_date = relativedelta(weeks=1)
+
+
 # future tasks
 
 # class x(user_task):
