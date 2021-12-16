@@ -29,7 +29,7 @@
         <bpmn:flowNodeRef>task_afwachten_casus_overleg</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>start_casus_overleg_proces</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>end_1id87mn</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>service_status_melding_overlast</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_status_casus_overleg</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="lane_projectmedewerker_1bcs10e" name="Projectmedewerker">
         <bpmn:flowNodeRef>task_create_signal</bpmn:flowNodeRef>
@@ -240,14 +240,14 @@
     <bpmn:endEvent id="end_1id87mn">
       <bpmn:incoming>Flow_15w8err</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:scriptTask id="service_status_melding_overlast" name="Bijwerken status: Melding overlast">
+    <bpmn:scriptTask id="service_status_casus_overleg" name="Bijwerken status: Casus overleg">
       <bpmn:incoming>Flow_1sx8pu0</bpmn:incoming>
       <bpmn:outgoing>Flow_1kxgx3x</bpmn:outgoing>
-      <bpmn:script>set_status("Melding overlast")</bpmn:script>
+      <bpmn:script>set_status("Casus overleg")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:sequenceFlow id="Flow_1kxgx3x" sourceRef="service_status_melding_overlast" targetRef="task_afwachten_casus_overleg" />
+    <bpmn:sequenceFlow id="Flow_1kxgx3x" sourceRef="service_status_casus_overleg" targetRef="task_afwachten_casus_overleg" />
     <bpmn:sequenceFlow id="Flow_15w8err" sourceRef="task_afwachten_casus_overleg" targetRef="end_1id87mn" />
-    <bpmn:sequenceFlow id="Flow_1sx8pu0" sourceRef="start_casus_overleg_proces" targetRef="service_status_melding_overlast" />
+    <bpmn:sequenceFlow id="Flow_1sx8pu0" sourceRef="start_casus_overleg_proces" targetRef="service_status_casus_overleg" />
   </bpmn:process>
   <bpmn:message id="Message_0f7jpp5" name="start_signal_process" />
   <bpmn:message id="Message_1wpao9m" name="start_correspondence_process" />
@@ -460,7 +460,7 @@
       <bpmndi:BPMNShape id="Event_1id87mn_di" bpmnElement="end_1id87mn">
         <dc:Bounds x="902" y="972" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_147xj7x_di" bpmnElement="service_status_melding_overlast">
+      <bpmndi:BPMNShape id="Activity_147xj7x_di" bpmnElement="service_status_casus_overleg">
         <dc:Bounds x="411" y="950" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
