@@ -1,5 +1,4 @@
-[
-  {
+[{
     "model": "workflow.workflowoption",
     "pk": 2,
     "fields": {
@@ -206,6 +205,36 @@
       "theme": 4,
       "name": "Aanleveren bezwaardossier",
       "message_name": "start_objectionfile_process",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 32,
+    "fields": {
+      "theme": 2,
+      "name": "Casus overleg",
+      "message_name": "start_casus_overleg_proces",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 33,
+    "fields": {
+      "theme": 3,
+      "name": "Casus overleg",
+      "message_name": "start_casus_overleg_proces",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 34,
+    "fields": {
+      "theme": 4,
+      "name": "Casus overleg",
+      "message_name": "start_casus_overleg_proces",
       "to_directing_proccess": false
     }
   }
