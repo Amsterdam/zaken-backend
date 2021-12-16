@@ -223,7 +223,7 @@ class CaseWorkflow(models.Model):
                 if d.get("summon_id")
             ]
             extra_data = {
-                "bepalen_zaakproces": {
+                "bepalen_processtap": {
                     "value": "ja" if theme == "ondermijning" else "default"
                 },
                 "all_summons": all_summons,
@@ -232,6 +232,7 @@ class CaseWorkflow(models.Model):
                     .exclude(decision_type__workflow_option="no_decision")
                     .count()
                 },
+                "next_step": {"value": "default"},
             }
 
             next_step_visit = [

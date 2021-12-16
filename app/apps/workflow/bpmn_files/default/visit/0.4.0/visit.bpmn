@@ -20,8 +20,8 @@
         <bpmn:flowNodeRef>service_status_inplannen_huisbezoek_hercontrole</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>gateway_merge_1fmcb00</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>start_xbisnr1</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>gateway_visit_vervolg_stap_nodig</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>task_visit_bepalen_zaakproces</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gateway_bepalen_processtap</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_bepalen_processtap</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_02nz0hn</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="lane_projecthandhaver" name="Projecthandhaver">
@@ -109,12 +109,12 @@
     <bpmn:startEvent id="start_xbisnr1">
       <bpmn:outgoing>Flow_1921ocy</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:exclusiveGateway id="gateway_visit_vervolg_stap_nodig" default="Flow_1rtyo5h">
+    <bpmn:exclusiveGateway id="gateway_bepalen_processtap" default="Flow_1rtyo5h">
       <bpmn:incoming>Flow_1tx62ja</bpmn:incoming>
       <bpmn:outgoing>Flow_1rtyo5h</bpmn:outgoing>
       <bpmn:outgoing>Flow_1glf0ko</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_visit_bepalen_zaakproces" name="Bepalen zaakproces" camunda:formKey="visit_next_step_form">
+    <bpmn:userTask id="task_bepalen_processtap" name="Bepalen processtap" camunda:formKey="visit_next_step_form">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="visit_next_step" label="Wat is de gewenste vervolgstap?" type="enum">
@@ -127,10 +127,10 @@
       <bpmn:incoming>Flow_1glf0ko</bpmn:incoming>
       <bpmn:outgoing>Flow_1d4p7zq</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:scriptTask id="Activity_02nz0hn" name="bepalen_zaakproces = default">
+    <bpmn:scriptTask id="Activity_02nz0hn" name="bepalen_processtap = default">
       <bpmn:incoming>Flow_1d4p7zq</bpmn:incoming>
       <bpmn:outgoing>Flow_1vk0xad</bpmn:outgoing>
-      <bpmn:script>bepalen_zaakproces = {"value": "default"}</bpmn:script>
+      <bpmn:script>bepalen_processtap = {"value": "default"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_100ib64" name="situation == &#34;nobody_present&#34; and can_next_visit_go_ahead == True" sourceRef="gateway_what_is_result_visit" targetRef="gateway_merge_1fmcb00">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">situation.value == "nobody_present" and can_next_visit_go_ahead.value == True</bpmn:conditionExpression>
@@ -145,8 +145,8 @@
     <bpmn:sequenceFlow id="Flow_04ckol7" sourceRef="task_create_schedule" targetRef="service_status_huisbezoek_hercontrole" />
     <bpmn:sequenceFlow id="Flow_0bbwpzi" sourceRef="service_status_huisbezoek_hercontrole" targetRef="task_create_visit" />
     <bpmn:sequenceFlow id="Flow_1o3d54n" sourceRef="task_monitor_incoming_authorization" targetRef="gateway_merge_0h60qot" />
-    <bpmn:sequenceFlow id="Flow_1rtyo5h" sourceRef="gateway_visit_vervolg_stap_nodig" targetRef="Gateway_1vlqpiy" />
-    <bpmn:sequenceFlow id="Flow_1d4p7zq" sourceRef="task_visit_bepalen_zaakproces" targetRef="Activity_02nz0hn" />
+    <bpmn:sequenceFlow id="Flow_1rtyo5h" sourceRef="gateway_bepalen_processtap" targetRef="Gateway_1vlqpiy" />
+    <bpmn:sequenceFlow id="Flow_1d4p7zq" sourceRef="task_bepalen_processtap" targetRef="Activity_02nz0hn" />
     <bpmn:sequenceFlow id="Flow_0co89x0" sourceRef="task_request_authorization" targetRef="task_monitor_incoming_authorization" />
     <bpmn:sequenceFlow id="Flow_19qcmz2" name="visit_next_step = visit_with_authorization" sourceRef="Gateway_0i97097" targetRef="Gateway_19hfteh">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">visit_next_step.value == "visit_with_authorization"</bpmn:conditionExpression>
@@ -158,10 +158,10 @@
     <bpmn:sequenceFlow id="Flow_1w441rj" sourceRef="Gateway_1vlqpiy" targetRef="gateway_is_authorisation_required" />
     <bpmn:sequenceFlow id="Flow_0q3mp95" sourceRef="Gateway_0i97097" targetRef="Gateway_1vlqpiy" />
     <bpmn:sequenceFlow id="Flow_0hnj8op" sourceRef="gateway_merge_1fmcb00" targetRef="service_status_inplannen_huisbezoek_hercontrole" />
-    <bpmn:sequenceFlow id="Flow_1tx62ja" sourceRef="service_status_inplannen_huisbezoek_hercontrole" targetRef="gateway_visit_vervolg_stap_nodig" />
+    <bpmn:sequenceFlow id="Flow_1tx62ja" sourceRef="service_status_inplannen_huisbezoek_hercontrole" targetRef="gateway_bepalen_processtap" />
     <bpmn:sequenceFlow id="Flow_1921ocy" sourceRef="start_xbisnr1" targetRef="gateway_merge_1fmcb00" />
-    <bpmn:sequenceFlow id="Flow_1glf0ko" name="bepalen_zaakproces = ja" sourceRef="gateway_visit_vervolg_stap_nodig" targetRef="task_visit_bepalen_zaakproces">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">bepalen_zaakproces.value == "ja"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_1glf0ko" name="bepalen_processtap = ja" sourceRef="gateway_bepalen_processtap" targetRef="task_bepalen_processtap">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">bepalen_processtap.value == "ja"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1vk0xad" sourceRef="Activity_02nz0hn" targetRef="Gateway_0i97097" />
   </bpmn:process>
@@ -291,7 +291,7 @@
         <di:waypoint x="670" y="350" />
         <di:waypoint x="710" y="350" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="586" y="382" width="90" height="27" />
+          <dc:Bounds x="575" y="382" width="87" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1vk0xad_di" bpmnElement="Flow_1vk0xad">
@@ -352,10 +352,10 @@
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="start_xbisnr1">
         <dc:Bounds x="272" y="452" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_16lkk5w_di" bpmnElement="gateway_visit_vervolg_stap_nodig" isMarkerVisible="true">
+      <bpmndi:BPMNShape id="Gateway_16lkk5w_di" bpmnElement="gateway_bepalen_processtap" isMarkerVisible="true">
         <dc:Bounds x="645" y="445" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1omnzt5_di" bpmnElement="task_visit_bepalen_zaakproces">
+      <bpmndi:BPMNShape id="Activity_1omnzt5_di" bpmnElement="task_bepalen_processtap">
         <dc:Bounds x="710" y="310" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1esel69_di" bpmnElement="Activity_02nz0hn">

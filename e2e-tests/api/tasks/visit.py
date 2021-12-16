@@ -14,7 +14,7 @@ from api.config import (
 from api.tasks import AbstractUserTask, GenericUserTask
 from api.user_tasks import (
     task_aanvragen_machtiging,
-    task_bepalen_zaakproces,
+    task_bepalen_processtap,
     task_doorgeven_status_top,
     task_inplannen_status,
     task_monitoren_binnenkomen_machtiging,
@@ -23,7 +23,7 @@ from api.user_tasks import (
 logger = logging.getLogger(__name__)
 
 
-class test_bepalen_zaakproces(GenericUserTask, task_bepalen_zaakproces):
+class test_bepalen_processtap(GenericUserTask, task_bepalen_processtap):
     def __init__(self, visit_next_step=VisitNextStep.NO_VISIT):
         super().__init__(visit_next_step={"value": visit_next_step})
 

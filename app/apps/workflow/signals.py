@@ -70,7 +70,7 @@ def case_workflow_pre_save(sender, instance, **kwargs):
                 {
                     "theme": {"value": f"theme_{theme}"},
                     "reason": {"value": f"reason_{reason}"},
-                    "bepalen_zaakproces": {
+                    "bepalen_processtap": {
                         "value": "ja" if theme == "ondermijning" else "default",
                     },
                 }
