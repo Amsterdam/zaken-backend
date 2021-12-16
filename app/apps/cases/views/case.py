@@ -1,5 +1,5 @@
 from apps.addresses.utils import search
-from apps.cases.models import Case, CaseState, CitizenReport
+from apps.cases.models import Case, CaseStateType, CitizenReport
 from apps.cases.serializers import (
     CaseCreateUpdateSerializer,
     CaseSerializer,
@@ -34,21 +34,18 @@ from rest_framework.response import Response
 class CaseOrderingFilter(filters.FilterSet):
     from_start_date = filters.DateFilter(field_name="start_date", lookup_expr="gte")
     open_cases = filters.BooleanFilter(method="get_open_cases")
-    open_status = filters.ModelMultipleChoiceFilter(
-        queryset=CaseState.objects.all(), method="get_open_cases_with_statuses"
+    state_types = filters.ModelMultipleChoiceFilter(
+        queryset=CaseStateType.objects.all(), method="get_state_types"
     )
 
     def get_open_cases(self, queryset, name, value):
         return queryset.filter(end_date__isnull=value)
 
-    def get_open_cases_with_statuses(self, queryset, name, value):
+    def get_state_types(self, queryset, name, value):
         if value:
             return queryset.filter(
-                case_states__end_date__isnull=True,
-                case_states__status__id__in=list(
-                    map(lambda casestate: casestate.id, value)
-                ),
-            )
+                case_states__status__in=value,
+            ).distinct()
         return queryset
 
     class Meta:
@@ -70,7 +67,7 @@ class StandardResultsSetPagination(PageNumberPagination):
         OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
-        OpenApiParameter("open_status", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),
     ]
@@ -217,13 +214,13 @@ class CaseViewSet(
         for address in address_queryset:
             cases = cases | address.cases.all()
 
-        cases = cases.filter(end_date=None)
-
         if theme:
             cases = cases.filter(theme=theme)
 
         if ton_ids:
             cases = cases.filter(ton_ids__overlap=ton_ids.split(","))
+        else:
+            cases = cases.filter(end_date=None)
 
         paginator = LimitOffsetPagination()
         context = paginator.paginate_queryset(cases, request)
