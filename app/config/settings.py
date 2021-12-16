@@ -573,6 +573,17 @@ WORKFLOW_SPEC_CONFIG = {
                         "start_objectionfile_process": {},
                     },
                 },
+                "0.2.0": {
+                    "messages": {
+                        "start_signal_process": {},
+                        "start_correspondence_process": {},
+                        "start_callbackrequest_process": {},
+                        "start_objectionfile_process": {},
+                        "start_extra_information": {},
+                        "start_nuisance_process": {},
+                        "start_casus_overleg_proces": {},
+                    },
+                },
             },
         },
         "summon": {
