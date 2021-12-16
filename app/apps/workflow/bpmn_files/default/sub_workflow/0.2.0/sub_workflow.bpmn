@@ -221,7 +221,12 @@
     <bpmn:sequenceFlow id="Flow_0jee1e2" sourceRef="service_status_report_nuisance" targetRef="task_doorzetten_melding_overlast" />
     <bpmn:sequenceFlow id="Flow_16jc6al" sourceRef="task_doorzetten_melding_overlast" targetRef="end_0bk5wui" />
     <bpmn:sequenceFlow id="Flow_1gmn80j" sourceRef="start_nuisance_process" targetRef="service_status_report_nuisance" />
-    <bpmn:userTask id="task_afwachten_casus_overleg" name="Afwachten casus overleg" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(7).toDate()}">
+    <bpmn:userTask id="task_afwachten_casus_overleg" name="Afwachten casus overleg" camunda:formKey="form_afwachten_casus_overleg" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(7).toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="casus_explanation" label="toelichting" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_1kxgx3x</bpmn:incoming>
       <bpmn:outgoing>Flow_15w8err</bpmn:outgoing>
     </bpmn:userTask>
