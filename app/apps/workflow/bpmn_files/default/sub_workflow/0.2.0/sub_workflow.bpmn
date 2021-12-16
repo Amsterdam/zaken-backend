@@ -224,7 +224,7 @@
     <bpmn:userTask id="task_afwachten_casus_overleg" name="Afwachten casus overleg" camunda:formKey="form_afwachten_casus_overleg" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(7).toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="casus_explanation" label="toelichting" type="string" />
+          <camunda:formField id="casus_explanation" label="Toelichting" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1kxgx3x</bpmn:incoming>
