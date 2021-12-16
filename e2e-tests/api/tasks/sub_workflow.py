@@ -1,6 +1,7 @@
 from api.tasks import GenericUserTask
 from api.user_tasks import (
     task_aanleveren_bezwaardossier,
+    task_afwachten_casus_overleg,
     task_nieuwe_melding_verwerken,
     task_oppakken_correspondentie,
     task_oppakken_terugbelverzoek,
@@ -55,6 +56,15 @@ class test_aanleveren_bezwaardossier(GenericUserTask, task_aanleveren_bezwaardos
 
 
 class test_verwerken_extra_informatie(GenericUserTask, task_verwerken_extra_informatie):
+    @staticmethod
+    def get_steps():
+        return [
+            # *X.get_steps(),  # TODO what is the preceiding step?
+            __class__(),
+        ]
+
+
+class test_casus_overleg(GenericUserTask, task_afwachten_casus_overleg):
     @staticmethod
     def get_steps():
         return [
