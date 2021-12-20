@@ -124,9 +124,6 @@ class CaseWorkflow(models.Model):
         null=True,
         blank=True,
     )
-    started = models.BooleanField(
-        default=False,
-    )
     completed = models.BooleanField(
         default=False,
     )
@@ -291,7 +288,6 @@ class CaseWorkflow(models.Model):
             )
             wf = self._update_workflow(wf)
 
-        self.started = True
         self._update_db(wf)
 
     def accept_message(self, message_name, extra_data):
