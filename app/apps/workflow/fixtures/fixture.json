@@ -60,16 +60,6 @@
   },
   {
     "model": "workflow.workflowoption",
-    "pk": 15,
-    "fields": {
-      "theme": 3,
-      "name": "Melding overlast",
-      "message_name": "start_nuisance_process",
-      "to_directing_proccess": false
-    }
-  },
-  {
-    "model": "workflow.workflowoption",
     "pk": 17,
     "fields": {
       "theme": 2,
@@ -135,16 +125,6 @@
       "theme": 3,
       "name": "Aanleveren bezwaardossier",
       "message_name": "start_objectionfile_process",
-      "to_directing_proccess": false
-    }
-  },
-  {
-    "model": "workflow.workflowoption",
-    "pk": 25,
-    "fields": {
-      "theme": 4,
-      "name": "Melding overlast",
-      "message_name": "start_nuisance_process",
       "to_directing_proccess": false
     }
   },
