@@ -1,6 +1,8 @@
-from apps.cases.serializers import CaseUserTaskListSerializer
 from apps.users.permissions import rest_permission_classes_for_top
-from apps.workflow.serializers import GenericCompletedTaskSerializer
+from apps.workflow.serializers import (
+    CaseUserTaskListSerializer,
+    GenericCompletedTaskSerializer,
+)
 from apps.workflow.utils import map_variables_on_task_spec_form
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
