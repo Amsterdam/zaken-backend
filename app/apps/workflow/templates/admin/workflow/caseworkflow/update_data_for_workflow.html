@@ -1,0 +1,73 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+{{ media }}
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
+
+{% block coltype %}colM{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-form{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'change' caseworkflow.pk|admin_urlquote %}">{{ caseworkflow|truncatewords:"18" }}</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<h2>{{caseworkflow}}</h2>
+<div id="content-main">
+<dl>
+  <dt>Last task data ({{workflow.last_task.task_spec.name}})</dt>
+  <dd>{{ workflow.last_task.data }}</dd>
+</dl>
+<b>Workflow tree</b>
+{% include "./tasks.html" with task=workflow.task_tree task_states=task_states only %}
+
+<form action="." method="post" novalidate>
+    {% csrf_token %}
+
+    <div>
+    {{ form.as_p }}
+    <input type="submit" value="Validate">
+
+    {% if success %}
+        {% if result.data_to_be_changed %}
+        <h2>Informatie die overschreven wordt</h2>
+        <ul>
+        {% for k, v in result.data_to_be_changed.items %}
+        </li>
+        <dl>
+            <dt>{{k}}</dt>
+            <dd><b>Huidige waarde: </b>{{v.current}}</dd>
+            <dd><b>Nieuwe waarde: </b>{{v.new}}</dd>
+        </dl>
+        </li>
+        {% endfor %}
+        </ul>
+
+        {% endif %}
+
+        {% if result.new_data %}
+        <h2>Informatie die wordt toegevoegd</h2>
+        <p>{{result.new_data}}</p>
+        {% endif %}
+
+        <button type="submit" value="update" name="update">Update data</button>
+    {% else %}
+        {{result.message}}
+    {% endif %}
+
+
+    </div>
+</form>
+
+</div>
+{% endblock %}
