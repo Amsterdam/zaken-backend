@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                     ("access_recovery_check", "Can access 'invorderingscheck'"),
                     (
                         "access_sensitive_dossiers",
-                        "Can read gevoelige dossiers (RIEC? / RIEPermisson)",
+                        "Can read gevoelige dossiers",
                     ),
                     ("access_sigital_surveillance", "Can read 'Digitaal toezicht'"),
                     (
