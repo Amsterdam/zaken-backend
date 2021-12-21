@@ -518,7 +518,7 @@ WORKFLOW_SPEC_CONFIG = {
                                 "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
                             },
                         },
-                        "aanschrijving_toevoegen": {},  # TODO Remove this
+                        "aanschrijving_toevoegen": {},
                     },
                 },
                 "1.0.0": {
@@ -531,7 +531,7 @@ WORKFLOW_SPEC_CONFIG = {
                                 "theme": {"value": "default"},
                             },
                         },
-                        "aanschrijving_toevoegen": {},  # TODO Remove this
+                        "aanschrijving_toevoegen": {},
                     },
                 },
                 "2.0.0": {
@@ -545,7 +545,21 @@ WORKFLOW_SPEC_CONFIG = {
                                 "bepalen_processtap": {"value": "default"},
                             },
                         },
-                        "aanschrijving_toevoegen": {},  # TODO Remove this
+                        "aanschrijving_toevoegen": {},
+                    },
+                },
+                "2.1.0": {
+                    "messages": {
+                        "main_process": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "default"},
+                            },
+                        },
+                        "aanschrijving_toevoegen": {},
                     },
                 },
             },
