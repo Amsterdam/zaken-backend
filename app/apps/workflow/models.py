@@ -114,6 +114,7 @@ class CaseWorkflow(models.Model):
         blank=True,
     )
     created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     serialized_workflow_state = models.JSONField(null=True)
     data = models.JSONField(null=True)
 
@@ -123,6 +124,9 @@ class CaseWorkflow(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
+    )
+    started = models.BooleanField(
+        default=False,
     )
     completed = models.BooleanField(
         default=False,

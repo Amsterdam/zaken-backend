@@ -88,7 +88,8 @@ class CaseUserTaskListSerializer(CaseUserTaskBaseSerializer):
 
 class CaseWorkflowCaseDetailSerializer(serializers.ModelSerializer):
     status_name = serializers.CharField(source="case_state_type.name", read_only=True)
-    status = serializers.CharField(source="case_state_type.id", read_only=True)
+    status = serializers.IntegerField(source="case_state_type.id", read_only=True)
+    start_date = serializers.DateTimeField(source="date_modified", read_only=True)
 
     class Meta:
         model = CaseWorkflow
@@ -101,6 +102,7 @@ class CaseWorkflowCaseDetailSerializer(serializers.ModelSerializer):
             "workflow_theme_name",
             "workflow_message_name",
             "created",
+            "started",
             "serialized_workflow_state",
             "data",
             "completed",
@@ -134,6 +136,7 @@ class CaseWorkflowSerializer(serializers.ModelSerializer):
             "id",
             "case",
             "created",
+            "started",
             "serialized_workflow_state",
             "main_workflow",
             "workflow_type",
