@@ -18,7 +18,7 @@ custom_permissions = [
     ),
     ("access_signals", "Can access 'SIA' (signalen)"),
     ("access_recovery_check", "Can access 'invorderingscheck'"),
-    ("access_sensitive_dossiers", "Can read gevoelige dossiers (RIEC? / RIEPermisson)"),
+    ("access_sensitive_dossiers", "Can read gevoelige dossiers"),
     ("access_sigital_surveillance", "Can read 'Digitaal toezicht'"),
     ("access_document_management_system", "Can access 'DMS' (Alfresco / Decos)"),
 ]
