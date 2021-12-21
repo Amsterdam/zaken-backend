@@ -497,7 +497,7 @@ WORKFLOW_SPEC_CONFIG = {
         "digital_surveillance": {
             "initial_data": {},
             "versions": {
-                "0.1.0": {},
+                "3.0.0": {},
             },
         },
         "debrief": {

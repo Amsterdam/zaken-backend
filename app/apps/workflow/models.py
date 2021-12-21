@@ -52,6 +52,8 @@ class CaseWorkflow(models.Model):
     WORKFLOW_TYPE_DECISION = "decision"
     WORKFLOW_TYPE_RENOUNCE_DECISION = "renounce_decision"
     WORKFLOW_TYPE_CLOSE_CASE = "close_case"
+    WORKFLOW_TYPE_DIGITAL_SURVEILLANCE = "digital_surveillance"
+    WORKFLOW_TYPE_HOUSING_CORPORATION = "housing_corporation"
     WORKFLOW_TYPES = (
         (WORKFLOW_TYPE_MAIN, WORKFLOW_TYPE_MAIN),
         (WORKFLOW_TYPE_SUB, WORKFLOW_TYPE_SUB),
@@ -63,6 +65,8 @@ class CaseWorkflow(models.Model):
         (WORKFLOW_TYPE_DECISION, WORKFLOW_TYPE_DECISION),
         (WORKFLOW_TYPE_RENOUNCE_DECISION, WORKFLOW_TYPE_RENOUNCE_DECISION),
         (WORKFLOW_TYPE_CLOSE_CASE, WORKFLOW_TYPE_CLOSE_CASE),
+        (WORKFLOW_TYPE_DIGITAL_SURVEILLANCE, WORKFLOW_TYPE_DIGITAL_SURVEILLANCE),
+        (WORKFLOW_TYPE_HOUSING_CORPORATION, WORKFLOW_TYPE_HOUSING_CORPORATION),
     )
 
     SUBWORKFLOWS = (
@@ -73,7 +77,6 @@ class CaseWorkflow(models.Model):
         "summon",
         "decision",
         "renounce_decision",
-        "closing_procedure",
         "closing_procedure",
         "close_case",
     )
