@@ -15,7 +15,6 @@ class VisitSerializer(serializers.ModelSerializer):
         many=True,
         required=False,
     )
-    task = serializers.CharField(source="case_user_task_id")
 
     def get_authors(self, validated_data):
         authors_data = validated_data.pop("authors")
@@ -41,4 +40,4 @@ class VisitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Visit
-        fields = "__all__"
+        exclude = ("case_user_task_id",)
