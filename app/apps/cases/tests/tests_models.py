@@ -2,7 +2,7 @@ from datetime import date, datetime, timezone
 from uuid import UUID
 
 from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTheme
-from apps.workflow.models import CaseUserTask, CaseWorkflow
+from apps.workflow.models import CaseWorkflow
 from django.core import management
 from django.test import TestCase
 from freezegun import freeze_time
@@ -190,70 +190,3 @@ class CaseModelTest(TestCase):
         case.set_state(STATE_TYPE_NAME, workflow=workflow)
         case.set_state(STATE_TYPE_NAME, workflow=workflow)
         self.assertEqual(CaseStateType.objects.count(), 1)
-
-    def test_get_open_states(self):
-        """
-        get_current_states returns open states
-        """
-        STATE_TYPE_NAME_A = "MOCK_STATE_TYPE_A"
-        STATE_TYPE_NAME_B = "MOCK_STATE_TYPE_B"
-
-        case = baker.make(Case)
-        workflow_a = baker.make(
-            CaseWorkflow,
-            case=case,
-            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
-            id=4,
-        )
-        workflow_b = baker.make(
-            CaseWorkflow,
-            case=case,
-            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
-            id=5,
-        )
-        baker.make(CaseUserTask, workflow=workflow_a, completed=False)
-        baker.make(CaseUserTask, workflow=workflow_b, completed=False)
-        state_a = case.set_state(STATE_TYPE_NAME_A, workflow=workflow_a)
-        state_b = case.set_state(STATE_TYPE_NAME_B, workflow=workflow_b)
-
-        open_state_ids = []
-        for open_state in case.get_current_states():
-            open_state_ids.append(open_state.id)
-
-        self.assertListEqual(open_state_ids, [state_b.id, state_a.id])
-
-    def test_get_only_open_states(self):
-        """
-        get_current_states returns no closed states
-        """
-        STATE_TYPE_NAME_A = "MOCK_STATE_TYPE_A"
-        STATE_TYPE_NAME_B = "MOCK_STATE_TYPE_B"
-        STATE_TYPE_NAME_C = "MOCK_STATE_TYPE_C"
-
-        case = baker.make(Case)
-
-        workflow_a = baker.make(
-            CaseWorkflow,
-            case=case,
-            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
-            id=6,
-        )
-        workflow_b = baker.make(
-            CaseWorkflow,
-            case=case,
-            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
-            id=7,
-        )
-        baker.make(CaseUserTask, workflow=workflow_a, completed=False)
-        baker.make(CaseUserTask, workflow=workflow_b, completed=False)
-        state_b = case.set_state(STATE_TYPE_NAME_B, workflow=workflow_a)
-        state_a = case.set_state(STATE_TYPE_NAME_A, workflow=workflow_a)
-        state_c = case.set_state(STATE_TYPE_NAME_C, workflow=workflow_b)
-
-        state_b.end_state()
-        state_b.save()
-
-        open_state_ids = []
-        for open_state in case.get_current_states():
-            open_state_ids.append(open_state.id)
-        self.assertListEqual(open_state_ids, [state_c.id, state_a.id])

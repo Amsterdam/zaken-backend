@@ -11,7 +11,7 @@ from django.contrib.auth.models import Permission
 group.permissions.add(Permission.objects.get(name='Close a Case (by performing the last task)'))
 group.permissions.add(Permission.objects.get(name='Create a new Case'))
 group.permissions.add(Permission.objects.get(name='Can perform a tasks'))
-group.permissions.add(Permission.objects.get(name='Can read gevoelige dossiers (RIEC? / RIEPermisson)'))
+group.permissions.add(Permission.objects.get(name='Can read gevoelige dossiers'))
 user = User.objects.get(email='local.user@dev.com')
 user.groups.add(group)"
 
