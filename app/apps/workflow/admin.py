@@ -11,7 +11,7 @@ from .models import CaseUserTask, CaseWorkflow, GenericCompletedTask, WorkflowOp
 
 @admin.action(description="Update_case_state_type_for_workflows")
 def update_case_state_type_for_workflows(modeladmin, request, queryset):
-    for workflow in queryset.filter(completed=False, etasks__completed=False):
+    for workflow in queryset.filter(completed=False, tasks__completed=False):
         case_state = workflow.case_states.all().order_by("id").last()
         if case_state:
             workflow.case_state_type = case_state.status
