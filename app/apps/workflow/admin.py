@@ -9,6 +9,15 @@ from .forms import ResetSubworkflowsForm, UpdateDataForWorkflowsForm
 from .models import CaseUserTask, CaseWorkflow, GenericCompletedTask, WorkflowOption
 
 
+@admin.action(description="Update_case_state_type_for_workflows")
+def update_case_state_type_for_workflows(modeladmin, request, queryset):
+    for workflow in queryset.filter(completed=False, etasks__completed=False):
+        case_state = workflow.case_states.all().order_by("id").last()
+        if case_state:
+            workflow.case_state_type = case_state.status
+            workflow.save()
+
+
 @admin.action(description="Migrate to latest")
 def migrate_worflows_to_latest(modeladmin, request, queryset):
     results = []
@@ -66,7 +75,10 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
     )
     search_fields = ("case__id",)
 
-    actions = (migrate_worflows_to_latest,)
+    actions = (
+        migrate_worflows_to_latest,
+        update_case_state_type_for_workflows,
+    )
 
     def issues(self, obj):
         issues = obj.check_for_issues()

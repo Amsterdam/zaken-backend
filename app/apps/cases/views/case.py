@@ -3,9 +3,7 @@ from apps.cases.models import Case, CaseStateType, CitizenReport
 from apps.cases.serializers import (
     CaseCreateUpdateSerializer,
     CaseSerializer,
-    CaseWorkflowSerializer,
     CitizenReportSerializer,
-    StartWorkflowSerializer,
     SubjectSerializer,
 )
 from apps.cases.swagger_parameters import postal_code as postal_code_parameter
@@ -17,7 +15,11 @@ from apps.cases.swagger_parameters import ton_ids as ton_ids_parameter
 from apps.events.mixins import CaseEventsMixin
 from apps.users.permissions import CanCreateCase, rest_permission_classes_for_top
 from apps.workflow.models import CaseWorkflow, WorkflowOption
-from apps.workflow.serializers import WorkflowOptionSerializer
+from apps.workflow.serializers import (
+    CaseWorkflowSerializer,
+    StartWorkflowSerializer,
+    WorkflowOptionSerializer,
+)
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters

@@ -4,7 +4,6 @@ from apps.cases.serializers import (
     CaseCloseResultSerializer,
     CaseProjectSerializer,
     CaseReasonSerializer,
-    CaseStateTypeSerializer,
     CaseThemeSerializer,
     SubjectSerializer,
 )
@@ -14,6 +13,7 @@ from apps.decisions.serializers import DecisionTypeSerializer
 from apps.schedules.serializers import ThemeScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.permissions import rest_permission_classes_for_top
+from apps.workflow.serializers import CaseStateTypeSerializer
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action

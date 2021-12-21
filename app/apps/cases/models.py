@@ -161,12 +161,9 @@ class Case(ModelEventEmitter):
         return f"{self.id} Case"
 
     def get_current_states(self):
-        states = []
-        for workflow in self.workflows.filter(tasks__completed=False):
-            case_state = workflow.case_states.all().order_by("id").last()
-            if case_state:
-                states.append(case_state)
-        return states
+        return self.workflows.filter(
+            tasks__completed=False, case_state_type__isnull=False
+        )
 
     def get_schedules(self):
         qs = self.schedules.all().order_by("-date_added")
