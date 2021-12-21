@@ -506,6 +506,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "0.1.0": {},
                 "1.0.0": {},
                 "2.0.0": {},
+                "3.0.0": {},
             },
         },
         "director": {
@@ -548,7 +549,7 @@ WORKFLOW_SPEC_CONFIG = {
                         "aanschrijving_toevoegen": {},
                     },
                 },
-                "2.1.0": {
+                "3.0.0": {
                     "messages": {
                         "main_process": {
                             "initial_data": {
@@ -557,6 +558,10 @@ WORKFLOW_SPEC_CONFIG = {
                                 "reason": {"value": "default"},
                                 "theme": {"value": "default"},
                                 "bepalen_processtap": {"value": "default"},
+                                "debrief_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
                             },
                         },
                         "aanschrijving_toevoegen": {},
@@ -621,6 +626,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "0.2.0": {},
                 "1.0.0": {},
                 "2.0.0": {},
+                "3.0.0": {},
             },
         },
         "visit": {

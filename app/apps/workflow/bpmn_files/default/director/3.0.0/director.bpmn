@@ -178,8 +178,8 @@
       <bpmn:messageEventDefinition id="MessageEventDefinition_1l3faoh" />
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_0s3mvda" sourceRef="Event_1k7mwzt" targetRef="gateway_merge_0wumcd2" />
-    <bpmn:sequenceFlow id="Flow_161irhq" name="debrief_next_step = Visit" sourceRef="gateway_merge_0wumcd2" targetRef="Gateway_1sarvet">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "visit"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_161irhq" name="debrief_next_step = Visit or debrief_next_step = digital_surveillance" sourceRef="gateway_merge_0wumcd2" targetRef="Gateway_1sarvet">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "visit" or debrief_next_step.value == "digital_surveillance"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:scriptTask id="script_start_closing_procedure_subworkflow" name="script_start_closing_procedure_subworkflow">
       <bpmn:incoming>Flow_0wmhmgd</bpmn:incoming>
@@ -237,7 +237,7 @@
       <bpmn:outgoing>Flow_16wkjh5</bpmn:outgoing>
       <bpmn:script>start_subworkflow("housing_corporation")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:sequenceFlow id="Flow_0yz93jc" name="reason = digitaal_toezicht" sourceRef="gateway_reason_toezicht" targetRef="script_start_digital_surveillance_subworkflow">
+    <bpmn:sequenceFlow id="Flow_0yz93jc" name="reason = digitaal_toezicht" sourceRef="gateway_reason_toezicht" targetRef="Gateway_13f3cii">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reason.value == "reason_digitaal_toezicht"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_188gtgc" sourceRef="script_start_digital_surveillance_subworkflow" targetRef="resume_after_digital_surveillance" />
@@ -248,7 +248,7 @@
       <bpmn:messageEventDefinition id="MessageEventDefinition_08e99s8" />
     </bpmn:intermediateCatchEvent>
     <bpmn:scriptTask id="script_start_digital_surveillance_subworkflow" name="script_start_digital_surveillance_subworkflow">
-      <bpmn:incoming>Flow_0yz93jc</bpmn:incoming>
+      <bpmn:incoming>Flow_0lficrx</bpmn:incoming>
       <bpmn:outgoing>Flow_188gtgc</bpmn:outgoing>
       <bpmn:script>start_subworkflow("digital_surveillance")</bpmn:script>
     </bpmn:scriptTask>
@@ -261,12 +261,13 @@
     <bpmn:sequenceFlow id="Flow_0bgyjfv" name="summon_next_step = visit" sourceRef="gateway_next_step_visit_and_no_violation" targetRef="Gateway_1sarvet">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "visit" and decision_count.value == 0</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:exclusiveGateway id="Gateway_1sarvet">
+    <bpmn:exclusiveGateway id="Gateway_1sarvet" default="Flow_1dcoqd4">
       <bpmn:incoming>Flow_1ce0ocf</bpmn:incoming>
       <bpmn:incoming>Flow_161irhq</bpmn:incoming>
       <bpmn:incoming>Flow_0bgyjfv</bpmn:incoming>
       <bpmn:incoming>Flow_011ql1v</bpmn:incoming>
       <bpmn:outgoing>Flow_1dcoqd4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0cfknxr</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1dcoqd4" sourceRef="Gateway_1sarvet" targetRef="script_start_visit_subworkflow" />
     <bpmn:exclusiveGateway id="Gateway_1vdnxbk" default="Flow_1whc19q">
@@ -277,6 +278,15 @@
     <bpmn:sequenceFlow id="Flow_1whc19q" sourceRef="Gateway_1vdnxbk" targetRef="Gateway_1ghwpqi" />
     <bpmn:sequenceFlow id="Flow_0rtnb42" name="digitaal_toezicht_next_step = summon" sourceRef="Gateway_1vdnxbk" targetRef="gateway_merge_1obmbig">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">digitaal_toezicht_next_step.value == "summon"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_13f3cii">
+      <bpmn:incoming>Flow_0yz93jc</bpmn:incoming>
+      <bpmn:incoming>Flow_0cfknxr</bpmn:incoming>
+      <bpmn:outgoing>Flow_0lficrx</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0lficrx" sourceRef="Gateway_13f3cii" targetRef="script_start_digital_surveillance_subworkflow" />
+    <bpmn:sequenceFlow id="Flow_0cfknxr" name="debrief_next_step = digital_surveillance" sourceRef="Gateway_1sarvet" targetRef="Gateway_13f3cii">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "digital_surveillance"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmn:message id="Message_053q3rk" name="aanschrijving_toevoegen" />
@@ -316,7 +326,7 @@
       <bpmndi:BPMNEdge id="Flow_0yz93jc_di" bpmnElement="Flow_0yz93jc">
         <di:waypoint x="730" y="505" />
         <di:waypoint x="730" y="610" />
-        <di:waypoint x="920" y="610" />
+        <di:waypoint x="805" y="610" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="660" y="615" width="79" height="27" />
         </bpmndi:BPMNLabel>
@@ -376,7 +386,7 @@
         <di:waypoint x="830" y="330" />
         <di:waypoint x="830" y="455" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1127" y="296" width="88" height="27" />
+          <dc:Bounds x="1116" y="340" width="88" height="80" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0s3mvda_di" bpmnElement="Flow_0s3mvda">
@@ -558,7 +568,18 @@
         <di:waypoint x="1620" y="610" />
         <di:waypoint x="1620" y="505" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1366" y="613" width="76" height="40" />
+          <dc:Bounds x="1366" y="601" width="76" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0lficrx_di" bpmnElement="Flow_0lficrx">
+        <di:waypoint x="855" y="610" />
+        <di:waypoint x="920" y="610" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0cfknxr_di" bpmnElement="Flow_0cfknxr">
+        <di:waypoint x="830" y="505" />
+        <di:waypoint x="830" y="585" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="836" y="533" width="88" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Gateway_188y8fu_di" bpmnElement="gateway_do_we_need_a_hercontrole" isMarkerVisible="true">
@@ -713,6 +734,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1vdnxbk_di" bpmnElement="Gateway_1vdnxbk" isMarkerVisible="true">
         <dc:Bounds x="1135" y="585" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_13f3cii_di" bpmnElement="Gateway_13f3cii" isMarkerVisible="true">
+        <dc:Bounds x="805" y="585" width="50" height="50" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
