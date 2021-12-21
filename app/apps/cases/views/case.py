@@ -46,7 +46,7 @@ class CaseOrderingFilter(filters.FilterSet):
     def get_state_types(self, queryset, name, value):
         if value:
             return queryset.filter(
-                case_states__status__in=value,
+                workflows__case_state_type__in=value,
             ).distinct()
         return queryset
 
