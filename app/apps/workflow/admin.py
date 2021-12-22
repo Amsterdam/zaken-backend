@@ -63,6 +63,8 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         "parent_workflow",
         "issues",
         "completed",
+        "date_modified",
+        "created",
         "update_data",
         "reset_subworkflows",
     )
