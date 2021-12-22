@@ -21,8 +21,6 @@ def add_case_user_task_id_to_visit(sender, instance, **kwargs):
                 )
             else:
                 instance.case_user_task_id = str(task.id)
-        else:
-            raise Exception(f"Task not found, case '{instance.case}'")
 
 
 @receiver(post_save, sender=Visit, dispatch_uid="complete_task_create_visit")
