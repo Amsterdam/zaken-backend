@@ -495,13 +495,18 @@ WORKFLOW_SPEC_CONFIG = {
             },
         },
         "digital_surveillance": {
-            "initial_data": {},
+            "initial_data": {
+                "debrief_next_step": {"value": "default"},
+                "monitoren_reactie_platform_duration": timedelta(days=14),
+            },
             "versions": {
                 "3.0.0": {},
             },
         },
         "debrief": {
-            "initial_data": {},
+            "initial_data": {
+                "reason": {"value": "default"},
+            },
             "versions": {
                 "0.1.0": {},
                 "1.0.0": {},
@@ -617,6 +622,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "task_monitor_incoming_point_of_view_timer_duration": timedelta(
                     days=71
                 ),
+                "monitoren_reactie_platform_duration": timedelta(days=14),
                 "next_step": {"value": "summon"},
                 "type_concept_aanschrijving": {"value": "default"},
                 "aanschrijving_valide": {"value": "default"},
