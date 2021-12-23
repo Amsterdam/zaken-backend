@@ -87,7 +87,6 @@ class CaseUserTaskListSerializer(CaseUserTaskBaseSerializer):
     class Meta:
         model = CaseUserTask
         exclude = (
-            "id",
             "form",
             "workflow",
             "task_name",
