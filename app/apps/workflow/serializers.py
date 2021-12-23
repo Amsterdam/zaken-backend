@@ -12,13 +12,15 @@ from .models import GenericCompletedTask, WorkflowOption
 
 
 class CaseStateTypeSerializer(serializers.ModelSerializer):
-    # information = serializers.CharField(source="get_information", read_only=True)
     status_name = serializers.CharField(source="name", read_only=True)
-    status = serializers.IntegerField(source="id", read_only=True)
 
     class Meta:
         model = CaseStateType
-        fields = "__all__"
+        exclude = (
+            "id",
+            "name",
+            "theme",
+        )
 
 
 class CaseUserTaskBaseSerializer(serializers.ModelSerializer):
@@ -52,7 +54,15 @@ class CaseUserTaskSerializer(CaseUserTaskBaseSerializer):
 
     class Meta:
         model = CaseUserTask
-        fields = "__all__"
+        exclude = (
+            "id",
+            "completed",
+            "created",
+            "task_id",
+            "updated",
+            "owner",
+            "workflow",
+        )
 
 
 class CaseAddressSerializer(serializers.ModelSerializer):
@@ -102,6 +112,7 @@ class CaseWorkflowCaseDetailSerializer(serializers.ModelSerializer):
             "workflow_theme_name",
             "workflow_message_name",
             "created",
+            "date_modified",
             "started",
             "serialized_workflow_state",
             "data",
@@ -114,6 +125,10 @@ class CaseWorkflowCaseDetailSerializer(serializers.ModelSerializer):
 class CaseWorkflowSerializer(serializers.ModelSerializer):
     state = serializers.SerializerMethodField()
     tasks = serializers.SerializerMethodField()
+    information = serializers.SerializerMethodField()
+
+    def get_information(self, obj):
+        return obj.data.get("names", {}).get("value", "")
 
     @extend_schema_field(CaseUserTaskSerializer(many=True))
     def get_tasks(self, obj):
@@ -146,6 +161,8 @@ class CaseWorkflowSerializer(serializers.ModelSerializer):
             "parent_workflow",
             "data",
             "workflow_message_name",
+            "case_state_type",
+            "date_modified",
         ]
 
 
