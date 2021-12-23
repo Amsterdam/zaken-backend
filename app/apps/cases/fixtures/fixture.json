@@ -1,5 +1,4 @@
-[
-  {
+[{
     "model": "cases.casetheme",
     "pk": 1,
     "fields": {
@@ -106,6 +105,14 @@
     "fields": {
       "name": "Digitaal toezicht",
       "theme": 2
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 13,
+    "fields": {
+      "name": "Doorzon",
+      "theme": 4
     }
   },
   {
@@ -508,6 +515,14 @@
     "fields": {
       "name": "Samenvoeging van woningen",
       "theme": 3
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 21,
+    "fields": {
+      "name": "Ontbreken B&B vergunning",
+      "theme": 2
     }
   }
 ]
