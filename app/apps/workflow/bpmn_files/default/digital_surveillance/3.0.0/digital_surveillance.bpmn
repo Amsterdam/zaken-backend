@@ -162,7 +162,7 @@
     <bpmn:userTask id="task_opstellen_digitale_analyse" name="Opstellen digitale analyse" camunda:formKey="form_opstellen_digitale_analyse">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="opstellen_digitale_analyse" label="Hoe wil je met de analyse verder gaan" type="enum">
+          <camunda:formField id="opstellen_digitale_analyse" label="Hoe verder?" type="enum">
             <camunda:value id="overleg_met_projecthandhaver" name="Overleg met projecthandhaver" />
             <camunda:value id="uitzetten_naar_handhaving" name="Uitzetten naar handhaving" />
           </camunda:formField>
