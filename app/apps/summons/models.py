@@ -87,10 +87,12 @@ class SummonedPerson(models.Model):
     PERSON_ROLE_OWNER = "PERSON_ROLE_OWNER"
     PERSON_ROLE_RESIDENT = "PERSON_ROLE_RESIDENT"
     PERSON_ROLE_MIDDLEMAN = "PERSON_ROLE_MIDDLEMAN"
+    PERSON_ROLE_PLATFORM = "PERSON_ROLE_PLATFORM"
     PERSON_ROLE = (
         (PERSON_ROLE_OWNER, PERSON_ROLE_OWNER),
         (PERSON_ROLE_RESIDENT, PERSON_ROLE_RESIDENT),
         (PERSON_ROLE_MIDDLEMAN, PERSON_ROLE_MIDDLEMAN),
+        (PERSON_ROLE_PLATFORM, PERSON_ROLE_PLATFORM),
     )
     first_name = models.CharField(max_length=255)
     preposition = models.CharField(max_length=255, null=True, blank=True)
