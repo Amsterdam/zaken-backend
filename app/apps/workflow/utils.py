@@ -40,6 +40,7 @@ def parse_task_spec_form(form):
             ],
             "name": f.__dict__.get("id"),
             "validation": [v.__dict__ for v in f.__dict__.get("validation", [])],
+            "properties": [v.__dict__ for v in f.__dict__.get("properties", [])],
             "type": trans_types.get(f.__dict__.get("type"), "text"),
             "required": bool(
                 [
