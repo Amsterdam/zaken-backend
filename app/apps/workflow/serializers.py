@@ -16,11 +16,7 @@ class CaseStateTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CaseStateType
-        exclude = (
-            "id",
-            "name",
-            "theme",
-        )
+        exclude = ("theme",)
 
 
 class CaseUserTaskBaseSerializer(serializers.ModelSerializer):
