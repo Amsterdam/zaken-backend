@@ -564,6 +564,7 @@ WORKFLOW_SPEC_CONFIG = {
                                 "theme": {"value": "default"},
                                 "bepalen_processtap": {"value": "default"},
                                 "debrief_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
                                 "monitoren_reactie_platform_duration": timedelta(
                                     days=14
                                 ),
@@ -642,6 +643,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "0.2.0": {},
                 "0.3.0": {},
                 "0.4.0": {},
+                "0.5.0": {},
             },
         },
     },
