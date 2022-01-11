@@ -60,7 +60,6 @@ class CaseUserTaskSerializer(CaseUserTaskBaseSerializer):
             "created",
             "task_id",
             "updated",
-            "owner",
             "workflow",
         )
 
