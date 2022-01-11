@@ -169,7 +169,9 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
     def case_projects(self, request, pk):
         paginator = LimitOffsetPagination()
         theme = self.get_object()
-        query_set = theme.caseproject_set.all()
+        query_set = theme.caseproject_set.filter(
+            active=True,
+        )
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = CaseProjectSerializer(context, many=True)

@@ -159,9 +159,10 @@ class CaseProjectAdmin(admin.ModelAdmin):
         "id",
         "name",
         "theme",
+        "active",
     )
     list_filter = ("theme",)
-    list_editable = ("theme",)
+    list_editable = ("active",)
 
 
 @admin.register(Subject)
