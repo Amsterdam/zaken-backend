@@ -92,7 +92,7 @@ class CaseViewSet(
     filter_backends = (
         filters.DjangoFilterBackend,
         rest_filters.OrderingFilter,
-    )  # CustomOrderingFilter)
+    )
     ordering_fields = "__all__"
     filterset_class = CaseFilter
     pagination_class = StandardResultsSetPagination
