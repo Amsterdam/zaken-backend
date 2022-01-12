@@ -621,7 +621,7 @@ WORKFLOW_SPEC_CONFIG = {
                     days=56
                 ),
                 "task_monitor_incoming_point_of_view_timer_duration": timedelta(
-                    days=71
+                    days=17
                 ),
                 "monitoren_reactie_platform_duration": timedelta(days=14),
                 "next_step": {"value": "summon"},
