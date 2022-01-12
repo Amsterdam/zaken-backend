@@ -1,17 +1,9 @@
-from apps.addresses.utils import search
 from apps.cases.models import Case, CaseStateType, CitizenReport
 from apps.cases.serializers import (
-    CaseCreateUpdateSerializer,
     CaseSerializer,
     CitizenReportSerializer,
     SubjectSerializer,
 )
-from apps.cases.swagger_parameters import postal_code as postal_code_parameter
-from apps.cases.swagger_parameters import street_name as street_name_parameter
-from apps.cases.swagger_parameters import street_number as street_number_parameter
-from apps.cases.swagger_parameters import suffix as suffix_parameter
-from apps.cases.swagger_parameters import theme as theme_parameter
-from apps.cases.swagger_parameters import ton_ids as ton_ids_parameter
 from apps.events.mixins import CaseEventsMixin
 from apps.users.permissions import CanCreateCase, rest_permission_classes_for_top
 from apps.workflow.models import CaseWorkflow, WorkflowOption
@@ -20,7 +12,6 @@ from apps.workflow.serializers import (
     StartWorkflowSerializer,
     WorkflowOptionSerializer,
 )
-from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
@@ -33,12 +24,17 @@ from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 
 
-class CaseOrderingFilter(filters.FilterSet):
+class CharArrayFilter(filters.BaseCSVFilter, filters.CharFilter):
+    pass
+
+
+class CaseFilter(filters.FilterSet):
     from_start_date = filters.DateFilter(field_name="start_date", lookup_expr="gte")
     open_cases = filters.BooleanFilter(method="get_open_cases")
     state_types = filters.ModelMultipleChoiceFilter(
         queryset=CaseStateType.objects.all(), method="get_state_types"
     )
+    ton_ids = CharArrayFilter(field_name="ton_ids", lookup_expr="contains")
 
     def get_open_cases(self, queryset, name, value):
         return queryset.filter(end_date__isnull=value)
@@ -52,7 +48,14 @@ class CaseOrderingFilter(filters.FilterSet):
 
     class Meta:
         model = Case
-        fields = ["start_date", "from_start_date", "theme", "reason", "sensitive"]
+        fields = [
+            "start_date",
+            "from_start_date",
+            "theme",
+            "reason",
+            "sensitive",
+            "ton_ids",
+        ]
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -72,6 +75,7 @@ class StandardResultsSetPagination(PageNumberPagination):
         OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("ton_ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
     ]
 )
 class CaseViewSet(
@@ -85,43 +89,18 @@ class CaseViewSet(
     permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
-    filter_backends = (filters.DjangoFilterBackend, rest_filters.OrderingFilter)
+    filter_backends = (
+        filters.DjangoFilterBackend,
+        rest_filters.OrderingFilter,
+    )  # CustomOrderingFilter)
     ordering_fields = "__all__"
-    filterset_class = CaseOrderingFilter
+    filterset_class = CaseFilter
     pagination_class = StandardResultsSetPagination
 
     def get_permissions(self):
         if self.action == "create" and self.request.method not in SAFE_METHODS:
             self.permission_classes.append(CanCreateCase)
         return super(CaseViewSet, self).get_permissions()
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        case = self.perform_create(serializer)
-
-        citizen_report_data = {"case": case.id}
-        citizen_report_data.update(request.data)
-        citizen_report_serializer = CitizenReportSerializer(
-            data=citizen_report_data,
-            context={"request": request},
-        )
-        if citizen_report_serializer.is_valid():
-            citizen_report_serializer.save()
-
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers
-        )
-
-    def perform_create(self, serializer):
-        return serializer.save()
-
-    def get_serializer_class(self, *args, **kwargs):
-        if self.action in ["create", "update"]:
-            return CaseCreateUpdateSerializer
-
-        return self.serializer_class
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -130,113 +109,6 @@ class CaseViewSet(
         ):
             queryset = queryset.exclude(sensitive=True)
         return queryset
-
-    # @extend_schema(
-    #     parameters=[
-    #         date_parameter,
-    #         start_date_parameter,
-    #         open_cases_parameter,
-    #         theme_parameter,
-    #         reason_parameter,
-    #         open_status_parameter,
-    #         no_pagination_parameter,
-    #     ],
-    #     description="Case filter query parameters",
-    #     responses={200: CaseSerializer(many=True)},
-    # )
-    # def list(self, request):
-    #     date = request.GET.get(date_parameter.name, None)
-    #     start_date = request.GET.get(start_date_parameter.name, None)
-    #     open_cases = request.GET.get(open_cases_parameter.name, None)
-    #     theme = request.GET.get(theme_parameter.name, None)
-    #     reason = request.GET.get(reason_parameter.name, None)
-    #     open_status = request.GET.get(open_status_parameter.name, None)
-    #     no_pagination = request.GET.get(no_pagination_parameter.name, None)
-
-    #     queryset = self.get_queryset()
-
-    #     if date:
-    #         queryset = queryset.filter(start_date=date)
-    #     if start_date:
-    #         queryset = queryset.filter(start_date__gte=start_date)
-    #     if open_cases:
-    #         open_cases = open_cases == "true"
-    #         queryset = queryset.filter(end_date__isnull=open_cases)
-    #     if theme:
-    #         queryset = queryset.filter(theme=theme)
-    #     if reason:
-    #         queryset = queryset.filter(reason=reason)
-    #     if open_status:
-    #         queryset = queryset.filter(
-    #             case_states__end_date__isnull=True,
-    #             case_states__status__id__in=open_status.split(","),
-    #         ).distinct()
-
-    #     if no_pagination == "true":
-    #         serializer = CaseSerializer(queryset, many=True)
-    #         return Response(serializer.data)
-
-    #     paginator = LimitOffsetPagination()
-    #     context = paginator.paginate_queryset(queryset, request)
-    #     serializer = CaseSerializer(context, many=True)
-
-    #     return paginator.get_paginated_response(serializer.data)
-
-    @extend_schema(
-        parameters=[
-            postal_code_parameter,
-            street_number_parameter,
-            street_name_parameter,
-            suffix_parameter,
-            theme_parameter,
-            ton_ids_parameter,
-        ],
-        description="Search query parameters",
-        responses={200: CaseSerializer(many=True)},
-        operation=None,
-    )
-    @action(detail=False, methods=["get"], url_path="search")
-    def search(self, request):
-        postal_code = request.GET.get(postal_code_parameter.name, None)
-        street_name = request.GET.get(street_name_parameter.name, None)
-        number = request.GET.get(street_number_parameter.name, None)
-        suffix = request.GET.get(suffix_parameter.name, None)
-        theme = request.GET.get(theme_parameter.name, None)
-        ton_ids = request.GET.get(ton_ids_parameter.name, None)
-
-        if postal_code is None and street_name is None and ton_ids is None:
-            return HttpResponseBadRequest(
-                "A postal_code or street_name or ton_ids queryparameter should be provided"
-            )
-        if postal_code is not None and number is None:
-            return HttpResponseBadRequest("number queryparameter is required")
-        if street_name is not None and number is None:
-            return HttpResponseBadRequest("number queryparameter is required")
-
-        address_queryset = search(
-            street_name=street_name,
-            postal_code=postal_code,
-            number=number,
-            suffix=suffix,
-        )
-
-        cases = Case.objects.none()
-        for address in address_queryset:
-            cases = cases | address.cases.all()
-
-        if theme:
-            cases = cases.filter(theme=theme)
-
-        if ton_ids:
-            cases = cases.filter(ton_ids__overlap=ton_ids.split(","))
-        else:
-            cases = cases.filter(end_date=None)
-
-        paginator = LimitOffsetPagination()
-        context = paginator.paginate_queryset(cases, request)
-        serializer = CaseSerializer(context, many=True)
-
-        return paginator.get_paginated_response(serializer.data)
 
     @extend_schema(
         description="Get tasks for this Case",
