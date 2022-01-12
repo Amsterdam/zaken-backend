@@ -247,6 +247,7 @@ LOCAL_DEVELOPMENT_AUTHENTICATION = (
 )
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 3000
 
 SESSION_COOKIE_AGE = int(os.getenv("SESSION_COOKIE_AGE", "300"))
 SESSION_SAVE_EVERY_REQUEST = True
@@ -494,17 +495,23 @@ WORKFLOW_SPEC_CONFIG = {
             },
         },
         "digital_surveillance": {
-            "initial_data": {},
+            "initial_data": {
+                "debrief_next_step": {"value": "default"},
+                "monitoren_reactie_platform_duration": timedelta(days=14),
+            },
             "versions": {
-                "0.1.0": {},
+                "3.0.0": {},
             },
         },
         "debrief": {
-            "initial_data": {},
+            "initial_data": {
+                "reason": {"value": "default"},
+            },
             "versions": {
                 "0.1.0": {},
                 "1.0.0": {},
                 "2.0.0": {},
+                "3.0.0": {},
             },
         },
         "director": {
@@ -517,7 +524,7 @@ WORKFLOW_SPEC_CONFIG = {
                                 "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
                             },
                         },
-                        "aanschrijving_toevoegen": {},  # TODO Remove this
+                        "aanschrijving_toevoegen": {},
                     },
                 },
                 "1.0.0": {
@@ -530,7 +537,7 @@ WORKFLOW_SPEC_CONFIG = {
                                 "theme": {"value": "default"},
                             },
                         },
-                        "aanschrijving_toevoegen": {},  # TODO Remove this
+                        "aanschrijving_toevoegen": {},
                     },
                 },
                 "2.0.0": {
@@ -544,7 +551,26 @@ WORKFLOW_SPEC_CONFIG = {
                                 "bepalen_processtap": {"value": "default"},
                             },
                         },
-                        "aanschrijving_toevoegen": {},  # TODO Remove this
+                        "aanschrijving_toevoegen": {},
+                    },
+                },
+                "3.0.0": {
+                    "messages": {
+                        "main_process": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "default"},
+                                "debrief_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
+                            },
+                        },
+                        "aanschrijving_toevoegen": {},
                     },
                 },
             },
@@ -597,6 +623,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "task_monitor_incoming_point_of_view_timer_duration": timedelta(
                     days=71
                 ),
+                "monitoren_reactie_platform_duration": timedelta(days=14),
                 "next_step": {"value": "summon"},
                 "type_concept_aanschrijving": {"value": "default"},
                 "aanschrijving_valide": {"value": "default"},
@@ -606,6 +633,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "0.2.0": {},
                 "1.0.0": {},
                 "2.0.0": {},
+                "3.0.0": {},
             },
         },
         "visit": {
@@ -615,6 +643,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "0.2.0": {},
                 "0.3.0": {},
                 "0.4.0": {},
+                "0.5.0": {},
             },
         },
     },

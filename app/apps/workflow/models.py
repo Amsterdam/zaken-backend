@@ -2,7 +2,7 @@ import copy
 import logging
 from string import Template
 
-from apps.cases.models import Case, CaseTheme
+from apps.cases.models import Case, CaseStateType, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -52,6 +52,8 @@ class CaseWorkflow(models.Model):
     WORKFLOW_TYPE_DECISION = "decision"
     WORKFLOW_TYPE_RENOUNCE_DECISION = "renounce_decision"
     WORKFLOW_TYPE_CLOSE_CASE = "close_case"
+    WORKFLOW_TYPE_DIGITAL_SURVEILLANCE = "digital_surveillance"
+    WORKFLOW_TYPE_HOUSING_CORPORATION = "housing_corporation"
     WORKFLOW_TYPES = (
         (WORKFLOW_TYPE_MAIN, WORKFLOW_TYPE_MAIN),
         (WORKFLOW_TYPE_SUB, WORKFLOW_TYPE_SUB),
@@ -63,6 +65,8 @@ class CaseWorkflow(models.Model):
         (WORKFLOW_TYPE_DECISION, WORKFLOW_TYPE_DECISION),
         (WORKFLOW_TYPE_RENOUNCE_DECISION, WORKFLOW_TYPE_RENOUNCE_DECISION),
         (WORKFLOW_TYPE_CLOSE_CASE, WORKFLOW_TYPE_CLOSE_CASE),
+        (WORKFLOW_TYPE_DIGITAL_SURVEILLANCE, WORKFLOW_TYPE_DIGITAL_SURVEILLANCE),
+        (WORKFLOW_TYPE_HOUSING_CORPORATION, WORKFLOW_TYPE_HOUSING_CORPORATION),
     )
 
     SUBWORKFLOWS = (
@@ -73,7 +77,6 @@ class CaseWorkflow(models.Model):
         "summon",
         "decision",
         "renounce_decision",
-        "closing_procedure",
         "closing_procedure",
         "close_case",
     )
@@ -114,9 +117,20 @@ class CaseWorkflow(models.Model):
         blank=True,
     )
     created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     serialized_workflow_state = models.JSONField(null=True)
     data = models.JSONField(null=True)
 
+    case_state_type = models.ForeignKey(
+        to="cases.CaseStateType",
+        related_name="workflows",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    started = models.BooleanField(
+        default=False,
+    )
     completed = models.BooleanField(
         default=False,
     )
@@ -151,13 +165,18 @@ class CaseWorkflow(models.Model):
 
         return spec
 
+    def set_case_state_type(self, state_name):
+        self.case_state_type, _ = CaseStateType.objects.get_or_create(
+            name=state_name, theme=self.case.theme
+        )
+        self.save()
+
     def get_script_engine(self, wf):
         # injects functions in workflow
-        case = self.case
         workflow_instance = self
 
         def set_status(input):
-            case.set_state(input, workflow_instance)
+            workflow_instance.set_case_state_type(input)
 
         def wait_for_workflows_and_send_message(message):
             task_wait_for_workflows_and_send_message.delay(

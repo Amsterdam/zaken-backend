@@ -16,6 +16,15 @@ def force_update_workflows(modeladmin, request, queryset):
         task_update_workflow.delay(workflow.id)
 
 
+@admin.action(description="Update_case_state_type_for_workflows")
+def update_case_state_type_for_workflows(modeladmin, request, queryset):
+    for workflow in queryset.filter(completed=False, tasks__completed=False):
+        case_state = workflow.case_states.all().order_by("id").last()
+        if case_state:
+            workflow.case_state_type = case_state.status
+            workflow.save()
+
+
 @admin.action(description="Migrate to latest")
 def migrate_worflows_to_latest(modeladmin, request, queryset):
     results = []
@@ -59,13 +68,18 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         "workflow_version",
         "workflow_theme_name",
         "parent_workflow",
+        "case_state_type",
         "issues",
         "completed",
+        "date_modified",
+        "created",
         "update_data",
         "reset_subworkflows",
     )
 
     list_filter = (
+        "completed",
+        "case_state_type",
         "main_workflow",
         "workflow_type",
         "workflow_version",
@@ -73,8 +87,11 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
     )
     search_fields = ("case__id",)
 
+    list_editable = ("case_state_type",)
+
     actions = (
         migrate_worflows_to_latest,
+        update_case_state_type_for_workflows,
         force_update_workflows,
     )
 

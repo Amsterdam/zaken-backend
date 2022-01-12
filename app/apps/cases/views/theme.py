@@ -4,7 +4,6 @@ from apps.cases.serializers import (
     CaseCloseResultSerializer,
     CaseProjectSerializer,
     CaseReasonSerializer,
-    CaseStateTypeSerializer,
     CaseThemeSerializer,
     SubjectSerializer,
 )
@@ -14,6 +13,7 @@ from apps.decisions.serializers import DecisionTypeSerializer
 from apps.schedules.serializers import ThemeScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.permissions import rest_permission_classes_for_top
+from apps.workflow.serializers import CaseStateTypeSerializer
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -169,7 +169,9 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
     def case_projects(self, request, pk):
         paginator = LimitOffsetPagination()
         theme = self.get_object()
-        query_set = theme.caseproject_set.all()
+        query_set = theme.caseproject_set.filter(
+            active=True,
+        )
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = CaseProjectSerializer(context, many=True)

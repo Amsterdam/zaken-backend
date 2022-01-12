@@ -187,5 +187,14 @@
       "workflow_option": "aanschrijvingen",
       "name": "Voornemen invordering dwangsom"
     }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 35,
+    "fields": {
+      "theme": 2,
+      "workflow_option": "verzoek_verwijdering_advertentie",
+      "name": "Verzoek tot verwijdering advertentie"
+    }
   }
 ]

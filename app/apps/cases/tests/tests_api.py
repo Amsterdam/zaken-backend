@@ -1,8 +1,9 @@
 import datetime
 
 from apps.addresses.models import Address
-from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTheme
+from apps.cases.models import Case, CaseReason, CaseStateType, CaseTheme
 from apps.summons.models import SummonType
+from apps.workflow.models import CaseWorkflow
 from django.core import management
 from django.urls import reverse
 from model_bakery import baker
@@ -269,8 +270,11 @@ class CaseListApiTest(APITestCase):
         """
         state_type_a = baker.make(CaseStateType)
         state_type_b = baker.make(CaseStateType)
-        baker.make(CaseState, status=state_type_a)
-        baker.make(CaseState, status=state_type_b)
+        THEME_A = "thame_a"
+        theme_a = baker.make(CaseTheme, name=THEME_A)
+        case = baker.make(Case, theme=theme_a)
+        baker.make(CaseWorkflow, case_state_type=state_type_a, case=case)
+        baker.make(CaseWorkflow, case_state_type=state_type_b, case=case)
 
         url = reverse("cases-list")
         client = get_authenticated_client()
@@ -283,13 +287,24 @@ class CaseListApiTest(APITestCase):
 
     def test_filter_status_different_states(self):
         """ Each case has a different state type, should only return one case """
-        case_states = baker.make(CaseState, _quantity=10)
+        state_type_a = baker.make(CaseStateType)
+        THEME_A = "thame_a"
+        theme_a = baker.make(CaseTheme, name=THEME_A)
+        case = baker.make(Case, theme=theme_a)
+        case_workflow = baker.make(
+            CaseWorkflow,
+            id=42,
+            created=datetime.datetime.now(),
+            case=case,
+            _quantity=10,
+            case_state_type=state_type_a,
+        )
 
         url = reverse("cases-list")
         client = get_authenticated_client()
 
-        test_state = case_states[0]
-        FILTER_PARAMETERS = {"state_types": test_state.status.id}
+        test_state = case_workflow[0]
+        FILTER_PARAMETERS = {"state_types": test_state.case_state_type.id}
         response = client.get(url, FILTER_PARAMETERS)
 
         results = response.data["results"]
