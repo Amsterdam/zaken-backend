@@ -4,6 +4,7 @@ import json
 from django import forms
 
 from .models import CaseWorkflow
+from .tasks import task_update_workflow
 
 
 class ResetSubworkflowsForm(forms.Form):
@@ -73,12 +74,11 @@ class UpdateDataForWorkflowsForm(forms.Form):
             wf.last_task.update_data(data)
             for t in wf.last_task.children:
                 t.update_data(data)
-            wf.refresh_waiting_tasks()
-            wf.do_engine_steps()
             serialize_wf = caseworkflow.get_serializer().serialize_workflow(
                 wf, include_spec=False
             )
             caseworkflow.serialized_workflow_state = serialize_wf
             caseworkflow.save()
+            task_update_workflow.delay(caseworkflow.id)
 
         return result, True

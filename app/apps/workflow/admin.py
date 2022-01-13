@@ -7,6 +7,13 @@ from django.utils.html import format_html, mark_safe
 
 from .forms import ResetSubworkflowsForm, UpdateDataForWorkflowsForm
 from .models import CaseUserTask, CaseWorkflow, GenericCompletedTask, WorkflowOption
+from .tasks import task_update_workflow
+
+
+@admin.action(description="Force update workflows")
+def force_update_workflows(modeladmin, request, queryset):
+    for workflow in queryset.all():
+        task_update_workflow.delay(workflow.id)
 
 
 @admin.action(description="Update_case_state_type_for_workflows")
@@ -85,6 +92,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
     actions = (
         migrate_worflows_to_latest,
         update_case_state_type_for_workflows,
+        force_update_workflows,
     )
 
     def issues(self, obj):
