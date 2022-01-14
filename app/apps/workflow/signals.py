@@ -47,7 +47,7 @@ def case_user_task_pre_save(sender, instance, **kwargs):
         task_elapse_datetime = instance.workflow.get_task_elapse_datetime(
             instance.task_id
         )
-        if task_elapse_datetime:
+        if isinstance(task_elapse_datetime, datetime.datetime):
             instance.due_date = task_elapse_datetime
         else:
             instance.due_date = d + (

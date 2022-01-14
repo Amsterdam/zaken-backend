@@ -1,5 +1,7 @@
+import datetime
 import logging
 
+import pytz
 from api.config import async_sleep, async_timeout, validate_tasks
 from api.timers import wait_for
 from api.user_tasks import get_task_by_name
@@ -54,6 +56,9 @@ class Case:
 
             expected = midnight() + task.due_date
             due_date = parser.parse(user_task["due_date"])
+            due_date = datetime.datetime(
+                due_date.year, due_date.month, due_date.day, tzinfo=pytz.UTC
+            )
 
             logger.info(
                 f"Compare user_task's due_date '{due_date}' with expected '{expected}' (based on {task.due_date})"

@@ -170,7 +170,7 @@ class task_monitoren_binnenkomen_vergunningaanvraag(user_task):
     """Monitoren binnenkomen vergunningaanvraag"""
 
     _task_name = "task_monitor_incoming_permit_application"
-    due_date = relativedelta(weeks=5)
+    due_date = relativedelta(weeks=0)
 
 
 class task_controleren_binnenkomst_vergunningaanvraag(user_task):
@@ -184,7 +184,7 @@ class task_monitoren_vergunningsprocedure(user_task):
     """Monitoren vergunningsprocedure"""
 
     _task_name = "task_monitor_permit_request_procedure"
-    due_date = relativedelta(weeks=8)
+    due_date = relativedelta(weeks=0)
 
 
 class task_controleren_vergunningsprocedure(user_task):
@@ -204,7 +204,7 @@ class task_monitoren_binnenkomen_zienswijze(user_task):
     """Monitoren binnenkomen zienswijze"""
 
     _task_name = "task_monitor_incoming_point_of_view"
-    due_date = relativedelta(weeks=3)
+    due_date = relativedelta(days=0)
 
 
 class task_controleren_binnenkomst_zienswijze(user_task):
@@ -293,7 +293,7 @@ class task_opslaan_brandweeradvies(user_task):
 class task_monitoren_heropeningsverzoek(user_task):
     """Monitoren heropeningsverzoek"""
 
-    due_date = relativedelta(months=+3)
+    due_date = relativedelta(weeks=0)
 
 
 class task_contacteren_eigenaar_1(user_task):
@@ -329,7 +329,7 @@ class task_beoordelen_heropeningsverzoek(user_task):
 class task_monitoren_nieuw_heropeningsverzoek(user_task):
     """Monitoren nieuw aan te leveren heropeningsverzoek"""
 
-    due_date = relativedelta(weeks=4)
+    due_date = relativedelta(weeks=0)
 
 
 class task_nieuwe_melding_verwerken(user_task):
