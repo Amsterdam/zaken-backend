@@ -1,4 +1,3 @@
-from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer
 from apps.cases.models import (
     Case,
@@ -15,10 +14,13 @@ from apps.cases.serializers.main import (
     CaseProjectSerializer,
     CaseReasonSerializer,
     CaseThemeSerializer,
+    CitizenReportCaseSerializer,
+    CitizenReportSerializer,
     SubjectSerializer,
 )
 from apps.schedules.serializers import ScheduleSerializer
 from apps.workflow.serializers import CaseWorkflowCaseDetailSerializer
+from drf_writable_nested.serializers import WritableNestedModelSerializer
 from rest_framework import serializers
 
 
@@ -38,6 +40,7 @@ class BaseCaseSerializer(serializers.ModelSerializer):
         """
         Check CaseReason and CaseTheme relation
         """
+        super().validate(data)
         theme = data["theme"]
         reason = data["reason"]
         project = data.get("project")
@@ -57,40 +60,40 @@ class BaseCaseSerializer(serializers.ModelSerializer):
 
         return data
 
-    def update(self, instance, validated_data):
-        subjects = validated_data.pop("subjects", [])
-        address_data = validated_data.pop("address", None)
-        if address_data:
-            address = Address.get(address_data.get("bag_id"))
-            instance.address = address
+    # def update(self, instance, validated_data):
+    #     subjects = validated_data.pop("subjects", [])
+    #     address_data = validated_data.pop("address", None)
+    #     if address_data:
+    #         address = Address.get(address_data.get("bag_id"))
+    #         instance.address = address
 
-        for key, value in validated_data.items():
-            setattr(instance, key, value)
+    #     for key, value in validated_data.items():
+    #         setattr(instance, key, value)
 
-        instance.subjects.set(subjects)
-        instance.save()
+    #     instance.subjects.set(subjects)
+    #     instance.save()
 
-        return instance
+    #     return instance
 
-    def create(self, validated_data):
-        subjects = validated_data.pop("subjects", [])
-        address_data = validated_data.pop("address")
-        address = Address.get(address_data.get("bag_id"))
+    # def create(self, validated_data):
+    #     subjects = validated_data.pop("subjects", [])
+    #     address_data = validated_data.pop("address")
+    #     address = Address.get(address_data.get("bag_id"))
 
-        status_name = validated_data.pop("status_name", None)
+    #     status_name = validated_data.pop("status_name", None)
 
-        case = Case(**validated_data, address=address)
+    #     case = Case(**validated_data, address=address)
 
-        if status_name:
-            case.status_name = status_name
+    #     if status_name:
+    #         case.status_name = status_name
 
-        case.save()
-        case.subjects.set(subjects)
+    #     case.save()
+    #     case.subjects.set(subjects)
 
-        return case
+    #     return case
 
 
-class CaseSerializer(BaseCaseSerializer):
+class CaseSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
     author = serializers.HiddenField(
         default=serializers.CurrentUserDefault(), write_only=True
     )
@@ -128,6 +131,7 @@ class CaseSerializer(BaseCaseSerializer):
         queryset=Subject.objects.all(),
         source="subjects",
     )
+    case_citizen_reports = CitizenReportCaseSerializer(many=True)
 
     class Meta:
         model = Case

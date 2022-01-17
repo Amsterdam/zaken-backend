@@ -13,10 +13,22 @@ from rest_framework import serializers
 
 
 class AdvertisementLinklist(serializers.Field):
+    def to_representation(self, value):
+        return value
+
     def to_internal_value(self, data):
         return [
             li.get("advertisement_link") for li in data if li.get("advertisement_link")
         ]
+
+
+class CitizenReportCaseSerializer(serializers.ModelSerializer):
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    advertisement_linklist = AdvertisementLinklist(required=False)
+
+    class Meta:
+        model = CitizenReport
+        exclude = ["case"]
 
 
 class CitizenReportSerializer(serializers.ModelSerializer):
