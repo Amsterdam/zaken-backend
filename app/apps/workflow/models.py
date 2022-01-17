@@ -1,4 +1,5 @@
 import copy
+import datetime
 import logging
 from string import Template
 
@@ -11,6 +12,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_duration
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
+from SpiffWorkflow.bpmn.specs.BoundaryEvent import _BoundaryEventParent
 from SpiffWorkflow.bpmn.specs.event_definitions import TimerEventDefinition
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
@@ -468,6 +470,61 @@ class CaseWorkflow(models.Model):
             wf = BpmnWorkflow(workflow_spec)
             wf = self.get_script_engine(wf)
             return wf
+
+    def get_task_elapse_datetime(self, task_id, workflow=None):
+        if workflow is None:
+            workflow = self.get_or_restore_workflow_state()
+        if not workflow:
+            return
+
+        task = workflow.get_task(task_id)
+        sibling = (
+            next(iter([t for t in task.parent.children if t.id != task_id]), None)
+            if hasattr(task, "parent")
+            else None
+        )
+        if (
+            sibling
+            and isinstance(task.parent.task_spec, _BoundaryEventParent)
+            and hasattr(sibling.task_spec, "event_definition")
+            and isinstance(sibling.task_spec.event_definition, TimerEventDefinition)
+        ):
+            start_time = datetime.datetime.strptime(
+                sibling._get_internal_data("start_time", None), "%Y-%m-%d %H:%M:%S.%f"
+            )
+            task_datetime = sibling.workflow.script_engine.evaluate(
+                sibling, sibling.task_spec.event_definition.dateTime
+            )
+            if isinstance(task_datetime, datetime.timedelta):
+                return start_time + task_datetime
+
+    def set_task_elapse_datetime(self, task_id, datetime_new):
+        workflow = self.get_or_restore_workflow_state()
+        if not workflow:
+            return
+
+        task = workflow.get_task(task_id)
+        sibling = (
+            next(iter([t for t in task.parent.children if t.id != task_id]), None)
+            if hasattr(task, "parent")
+            else None
+        )
+        if (
+            sibling
+            and isinstance(task.parent.task_spec, _BoundaryEventParent)
+            and hasattr(sibling.task_spec, "event_definition")
+            and isinstance(sibling.task_spec.event_definition, TimerEventDefinition)
+        ):
+            task_datetime = sibling.workflow.script_engine.evaluate(
+                sibling, sibling.task_spec.event_definition.dateTime
+            )
+            if isinstance(task_datetime, datetime.timedelta):
+                new_start_time = (datetime_new - task_datetime).strftime(
+                    "%Y-%m-%d %H:%M:%S.%f"
+                )
+                sibling.internal_data["start_time"] = new_start_time
+                self.save_workflow_state(workflow)
+                return new_start_time
 
     def _initial_data(self, wf, data):
 

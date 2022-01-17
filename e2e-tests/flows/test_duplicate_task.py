@@ -65,16 +65,8 @@ class TestDuplicateTaskExecution(DefaultAPITest):
             ValidateOpenTasks(test_doorgeven_status_top),
         )
 
-        open_tasks = self.client.get_case_tasks(case.data["id"])
-        tasks = list(
-            task
-            for task in open_tasks
-            if task["task_name"] == test_doorgeven_status_top.get_task_name()
-        )
         post_data = {
             "case": case.data["id"],
-            # "case_user_task_id": tasks[0]["case_user_task_id"],
-            "task": tasks[0]["case_user_task_id"],
             "authors": [],
             "start_time": str(datetime.datetime.now()),
             "situation": Situations.ACCESS_GRANTED,
