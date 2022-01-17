@@ -478,10 +478,14 @@ class CaseWorkflow(models.Model):
             return
 
         task = workflow.get_task(task_id)
-        sibling = next(iter([t for t in task.parent.children if t.id != task_id]), None)
+        sibling = (
+            next(iter([t for t in task.parent.children if t.id != task_id]), None)
+            if hasattr(task, "parent")
+            else None
+        )
         if (
-            isinstance(task.parent.task_spec, _BoundaryEventParent)
-            and sibling
+            sibling
+            and isinstance(task.parent.task_spec, _BoundaryEventParent)
             and hasattr(sibling.task_spec, "event_definition")
             and isinstance(sibling.task_spec.event_definition, TimerEventDefinition)
         ):
@@ -500,10 +504,14 @@ class CaseWorkflow(models.Model):
             return
 
         task = workflow.get_task(task_id)
-        sibling = next(iter([t for t in task.parent.children if t.id != task_id]), None)
+        sibling = (
+            next(iter([t for t in task.parent.children if t.id != task_id]), None)
+            if hasattr(task, "parent")
+            else None
+        )
         if (
-            isinstance(task.parent.task_spec, _BoundaryEventParent)
-            and sibling
+            sibling
+            and isinstance(task.parent.task_spec, _BoundaryEventParent)
             and hasattr(sibling.task_spec, "event_definition")
             and isinstance(sibling.task_spec.event_definition, TimerEventDefinition)
         ):
