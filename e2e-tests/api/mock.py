@@ -16,13 +16,10 @@ def get_person():
     }
 
 
-Address = {"bag_id": "234"}
-
-
 def get_case_mock(
     theme_id=Theme.VAKANTIEVERHUUR,
     reason=Reason.Vakantieverhuur.NOTIFICATION,
-    address=Address,
+    bag_id="234",
     subjects=[],
     description_citizenreport=None,
     identification=None,
@@ -30,7 +27,7 @@ def get_case_mock(
     return {
         "theme_id": theme_id,
         "reason_id": reason,
-        "address": address,
+        "bag_id": bag_id,
         "subjects": subjects,
         "description_citizenreport": description_citizenreport,
         "identification": identification,
