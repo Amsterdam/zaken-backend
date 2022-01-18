@@ -151,4 +151,6 @@ class CaseDetailSerializer(CaseSerializer):
             "project",
             "ton_ids",
             "subjects",
+            "last_updated",
+            "created",
         )
