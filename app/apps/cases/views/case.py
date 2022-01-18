@@ -5,6 +5,7 @@ from apps.cases.serializers import (
     SubjectSerializer,
 )
 from apps.events.mixins import CaseEventsMixin
+from apps.main.filters import RelatedOrderingFilter
 from apps.users.permissions import CanCreateCase, rest_permission_classes_for_top
 from apps.workflow.models import CaseWorkflow, WorkflowOption
 from apps.workflow.serializers import (
@@ -16,7 +17,6 @@ from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import filters as rest_filters
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
@@ -91,9 +91,9 @@ class CaseViewSet(
     queryset = Case.objects.all()
     filter_backends = (
         filters.DjangoFilterBackend,
-        rest_filters.OrderingFilter,
+        RelatedOrderingFilter,
     )
-    ordering_fields = "__all__"
+    ordering_fields = "__all_related__"
     filterset_class = CaseFilter
     pagination_class = StandardResultsSetPagination
 
