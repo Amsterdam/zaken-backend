@@ -261,6 +261,9 @@ AUTHENTICATION_BACKENDS = (
 )
 
 AXES_RESET_ON_SUCCESS = True
+AXES_ONLY_USER_FAILURES = (
+    True  # Enabled because IP from user is always .amsterdam.nl gateway
+)
 AXES_ENABLED = os.getenv("AXES_ENABLED", "True") == "True"
 AXES_META_PRECEDENCE_ORDER = ["HTTP_X_FORWARDED_FOR", "REMOTE_ADDR"]
 
