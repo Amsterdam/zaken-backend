@@ -28,8 +28,8 @@ def get_case_mock(
     identification=None,
 ):
     return {
-        "theme": theme_id,
-        "reason": reason,
+        "theme_id": theme_id,
+        "reason_id": reason,
         "address": address,
         "subjects": subjects,
         "description_citizenreport": description_citizenreport,
