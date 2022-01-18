@@ -7,6 +7,13 @@ from django.utils.html import format_html, mark_safe
 
 from .forms import ResetSubworkflowsForm, UpdateDataForWorkflowsForm
 from .models import CaseUserTask, CaseWorkflow, GenericCompletedTask, WorkflowOption
+from .tasks import task_update_workflow
+
+
+@admin.action(description="Force update workflows")
+def force_update_workflows(modeladmin, request, queryset):
+    for workflow in queryset.all():
+        task_update_workflow.delay(workflow.id)
 
 
 @admin.action(description="Update_case_state_type_for_workflows")
@@ -61,6 +68,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         "workflow_version",
         "workflow_theme_name",
         "parent_workflow",
+        "case_state_type",
         "issues",
         "completed",
         "date_modified",
@@ -70,6 +78,8 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
     )
 
     list_filter = (
+        "completed",
+        "case_state_type",
         "main_workflow",
         "workflow_type",
         "workflow_version",
@@ -77,9 +87,12 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
     )
     search_fields = ("case__id",)
 
+    list_editable = ("case_state_type",)
+
     actions = (
         migrate_worflows_to_latest,
         update_case_state_type_for_workflows,
+        force_update_workflows,
     )
 
     def issues(self, obj):

@@ -1,5 +1,6 @@
-from apps.cases.models import Case
+from apps.cases.models import Case, CaseTheme
 from apps.visits.models import Visit
+from apps.workflow.models import CaseUserTask, CaseWorkflow
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core import management
@@ -43,7 +44,27 @@ class VisitApiTest(APITestCase):
         self.assertEquals(data["results"], [])
 
     def test_authenticated_get_filled(self):
-        baker.make(Visit, _quantity=2)
+
+        casetheme = baker.make(CaseTheme)
+        case1 = baker.make(Case, theme=casetheme)
+        caseworkflow = baker.make(CaseWorkflow, case=case1, id=7)
+        baker.make(
+            CaseUserTask,
+            workflow=caseworkflow,
+            case=case1,
+            task_name="task_create_visit",
+        )
+
+        case2 = baker.make(Case, theme=casetheme)
+        caseworkflow = baker.make(CaseWorkflow, case=case2, id=8)
+        baker.make(
+            CaseUserTask,
+            workflow=caseworkflow,
+            case=case2,
+            task_name="task_create_visit",
+        )
+        baker.make(Visit, case=case1)
+        baker.make(Visit, case=case2)
 
         url = reverse("visits-list")
         client = get_authenticated_client()
@@ -68,7 +89,15 @@ class VisitApiTest(APITestCase):
     def test_authenticated_post_201(self):
         self.assertEquals(Visit.objects.count(), 0)
 
-        case = baker.make(Case)
+        casetheme = baker.make(CaseTheme)
+        case = baker.make(Case, theme=casetheme)
+        caseworkflow = baker.make(CaseWorkflow, case=case, id=2)
+        baker.make(
+            CaseUserTask,
+            workflow=caseworkflow,
+            case=case,
+            task_name="task_create_visit",
+        )
 
         url = reverse("visits-list")
         client = get_authenticated_client()
@@ -87,7 +116,16 @@ class VisitApiTest(APITestCase):
         # Should create users using the given email if they don't exist yet
         self.assertEquals(User.objects.count(), 0)
 
-        case = baker.make(Case)
+        casetheme = baker.make(CaseTheme)
+        case = baker.make(Case, theme=casetheme)
+        caseworkflow = baker.make(CaseWorkflow, case=case, id=3)
+        baker.make(
+            CaseUserTask,
+            workflow=caseworkflow,
+            case=case,
+            task_name="task_create_visit",
+        )
+
         # also tests case insensitive
         baker.make(User, email="usera@example.com")
         baker.make(User, email="userb@example.com")
@@ -112,6 +150,13 @@ class VisitApiTest(APITestCase):
     def test_authenticated_visit_create_existing_users(self):
         # Should be able to process a visit using existing Users and their ids
         case = baker.make(Case)
+        caseworkflow = baker.make(CaseWorkflow, case=case, id=4)
+        baker.make(
+            CaseUserTask,
+            case=case,
+            workflow=caseworkflow,
+            task_name="task_create_visit",
+        )
         user_a = baker.make(User, email="userA@example.com")
         user_b = baker.make(User, email="userB@example.com")
 
