@@ -28,7 +28,7 @@ def get_case_mock(
         "theme_id": theme_id,
         "reason_id": reason,
         "bag_id": bag_id,
-        "subjects": subjects,
+        "subject_ids": subjects,
         "description_citizenreport": description_citizenreport,
         "identification": identification,
     }

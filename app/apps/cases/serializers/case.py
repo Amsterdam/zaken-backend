@@ -42,27 +42,30 @@ class BaseCaseSerializer(serializers.ModelSerializer):
         Check CaseReason and CaseTheme relation
         """
         super().validate(data)
-        theme = data["theme"]
-        reason = data["reason"]
+
+        theme = data.get("theme")
+        reason = data.get("reason")
         project = data.get("project")
 
-        if reason.theme != theme:
-            raise serializers.ValidationError(
-                "reason must be one of the theme CaseReasons"
-            )
+        if theme:
+            if reason.theme != theme:
+                raise serializers.ValidationError(
+                    "reason must be one of the theme CaseReasons"
+                )
 
-        if reason.name == "Project" and not project:
-            raise serializers.ValidationError("missing project for reason Project")
+            if reason.name == "Project" and not project:
+                raise serializers.ValidationError("missing project for reason Project")
 
-        if project and project.theme != theme:
-            raise serializers.ValidationError(
-                "project must be one of the theme CaseReasons"
-            )
+            if project and project.theme != theme:
+                raise serializers.ValidationError(
+                    "project must be one of the theme CaseReasons"
+                )
 
         return data
 
     def update(self, instance, validated_data):
-        validated_data.pop("bag_id")
+        if "bag_id" in validated_data:
+            validated_data.pop("bag_id")
         return super().update(instance, validated_data)
 
     def create(self, validated_data):
