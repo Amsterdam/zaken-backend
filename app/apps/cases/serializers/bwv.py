@@ -64,29 +64,32 @@ class BWVStatusSerializer(serializers.Serializer):
         allow_null=True, allow_blank=True, required=False
     )
     WS_STA_CD_OMSCHRIJVING = serializers.CharField()
+    WS_TOELICHTING = serializers.CharField(
+        allow_null=True, allow_blank=True, required=False
+    )
     WS_USER_MODIFIED = serializers.CharField(
         allow_null=True, allow_blank=True, required=False
     )
     WS_USER_CREATED = serializers.CharField(
         allow_null=True, allow_blank=True, required=False
     )
-    WS_DATE_MODIFIED = serializers.DateTimeField(
+    WS_DATE_MODIFIED = serializers.DateField(
         format="%d-%m-%Y",
         input_formats=["%Y-%m-%d"],
         allow_null=True,
         required=False,
     )
-    WS_DATE_CREATED = serializers.DateTimeField(
+    WS_DATE_CREATED = serializers.DateField(
         format="%d-%m-%Y",
         input_formats=["%Y-%m-%d"],
     )
-    WS_EINDDATUM = serializers.DateTimeField(
+    WS_EINDDATUM = serializers.DateField(
         format="%d-%m-%Y",
         input_formats=["%Y-%m-%d"],
         allow_null=True,
         required=False,
     )
-    WS_BEGINDATUM = serializers.DateTimeField(
+    WS_BEGINDATUM = serializers.DateField(
         format="%d-%m-%Y",
         input_formats=["%Y-%m-%d"],
         allow_null=True,
@@ -95,7 +98,7 @@ class BWVStatusSerializer(serializers.Serializer):
 
 
 class BWVMeldingenSerializer(serializers.Serializer):
-    ZAAK_ID = serializers.CharField()
+    ZAAK_ID = serializers.CharField(allow_null=True, allow_blank=True, required=False)
     HOTLINE_MELDING_ID = serializers.CharField()
 
     HB_BEVINDING_TIJD = serializers.CharField(
