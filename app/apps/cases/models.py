@@ -114,6 +114,8 @@ class Case(ModelEventEmitter):
     )
     subjects = models.ManyToManyField(Subject, related_name="cases", blank=True)
     ton_ids = ArrayField(models.IntegerField(), default=list, null=True, blank=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def __get_event_values__(self):
         reason = self.reason.name

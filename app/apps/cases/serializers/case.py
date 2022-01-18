@@ -1,3 +1,4 @@
+from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer
 from apps.cases.models import (
     Case,
@@ -60,45 +61,28 @@ class BaseCaseSerializer(serializers.ModelSerializer):
 
         return data
 
-    # def update(self, instance, validated_data):
-    #     subjects = validated_data.pop("subjects", [])
-    #     address_data = validated_data.pop("address", None)
-    #     if address_data:
-    #         address = Address.get(address_data.get("bag_id"))
-    #         instance.address = address
+    def update(self, instance, validated_data):
+        validated_data.pop("bag_id")
+        return super().update(instance, validated_data)
 
-    #     for key, value in validated_data.items():
-    #         setattr(instance, key, value)
+    def create(self, validated_data):
+        bag_id = validated_data.pop("bag_id")
+        address = Address.get(bag_id)
 
-    #     instance.subjects.set(subjects)
-    #     instance.save()
+        case = super().create(validated_data)
 
-    #     return instance
+        case.address = address
+        case.save()
 
-    # def create(self, validated_data):
-    #     subjects = validated_data.pop("subjects", [])
-    #     address_data = validated_data.pop("address")
-    #     address = Address.get(address_data.get("bag_id"))
-
-    #     status_name = validated_data.pop("status_name", None)
-
-    #     case = Case(**validated_data, address=address)
-
-    #     if status_name:
-    #         case.status_name = status_name
-
-    #     case.save()
-    #     case.subjects.set(subjects)
-
-    #     return case
+        return case
 
 
 class CaseSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
     author = serializers.HiddenField(
         default=serializers.CurrentUserDefault(), write_only=True
     )
-    # address = something only bag id
-    address = AddressSerializer(required=True)
+    address = AddressSerializer(read_only=True)
+    bag_id = serializers.CharField(required=True, write_only=True)
     current_states = CaseWorkflowCaseDetailSerializer(
         source="get_current_states",
         many=True,
@@ -131,7 +115,9 @@ class CaseSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
         queryset=Subject.objects.all(),
         source="subjects",
     )
-    case_citizen_reports = CitizenReportCaseSerializer(many=True)
+    citizen_reports = CitizenReportCaseSerializer(
+        source="case_citizen_reports", many=True, required=False
+    )
 
     class Meta:
         model = Case
