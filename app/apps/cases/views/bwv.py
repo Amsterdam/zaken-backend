@@ -57,7 +57,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
     reason_translate = {
         "melding": "SIA melding",
         "project": "Project",
-        "digitaal_toezicht": "Digitaal Toezicht",
+        "digitaal_toezicht": "Digitaal toezicht",
     }
     label_translate = {
         "HM_DATE_CREATED": "Datum aangemaakt",
@@ -77,6 +77,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         "HB_TOEZ_HDR2_CODE": "Huisbezoek toezichthouder 2",
         "HB_BEVINDING_DATUM": "Huisbezoek datum",
         "HB_BEVINDING_TIJD": "Huisbezoek tijd",
+        "WS_TOELICHTING": "Toelichting",
     }
 
     def translate_key_to_label(self, key):
@@ -288,7 +289,9 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
             events = [
                 dict(
                     e,
-                    date_added=datetime.datetime.strptime(e["date_added"], "%d-%m-%Y"),
+                    date_added=datetime.datetime.strptime(
+                        e["date_added"], "%d-%m-%Y %H:%M:%S %z"
+                    ),
                     case_user_task_id="-1",
                     author=user.id,
                     case=d["case"],
@@ -354,6 +357,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
 
         transform = {
             "huisnummer": to_int,
+            "toev": to_int,
         }
 
         def clean(value, key):
@@ -392,7 +396,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                 if additionals_serializer.is_valid():
                     sorted_data = sorted(
                         additionals_serializer.data,
-                        key=lambda d: d.get("WS_DATE_CREATED"),
+                        key=lambda d: d.get("HM_DATE_CREATED"),
                     )
 
                     validated_data = []
@@ -407,6 +411,9 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                             )
                             for k, v in status_variables.items()
                         )
+                        date_added = (
+                            f'{status_variables.get("HM_DATE_CREATED")} 00:00:00 +0000'
+                        )
                         status_data = OrderedDict(
                             {
                                 "description": f"BWV Melding: {status_variables.get('HOTLINE_MELDING_ID')}",
@@ -418,7 +425,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                                         ),
                                     }
                                 ),
-                                "date_added": status_variables.get("HM_DATE_CREATED"),
+                                "date_added": date_added,
                             }
                         )
 
@@ -461,13 +468,16 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                             )
                             for k, v in status_variables.items()
                         )
+                        date_added = (
+                            f'{status_variables.get("WS_DATE_CREATED")} 00:00:00 +0000'
+                        )
                         status_data = {
                             "description": f"BWV Status: {status_variables.get('WS_STA_CD_OMSCHRIJVING')}",
                             "variables": {
                                 "mapped_form_data": mapped_form_data,
                                 "bwv_id": status_variables.get("STADIUM_ID"),
                             },
-                            "date_added": status_variables.get("WS_DATE_CREATED"),
+                            "date_added": date_added,
                         }
 
                         validated_status_data.append(status_data)
