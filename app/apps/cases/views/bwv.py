@@ -99,9 +99,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
 
             d_clone = dict(d)
             if bag_result:
-                d_clone["address"] = {
-                    "bag_id": bag_result[0]["adresseerbaar_object_id"]
-                }
+                d_clone["bag_id"] = bag_result[0]["adresseerbaar_object_id"]
                 results.append(d_clone)
             else:
                 address_mismatches.append({"data": d_clone, "address": bag_result})
