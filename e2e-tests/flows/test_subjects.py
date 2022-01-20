@@ -11,11 +11,11 @@ class ValidateSubjects(Validator):
         self.subjects = subjects
 
     def run(self, client, case):
-        case_subjects = case.data["subjects"]
+        case_subjects = [subject["id"] for subject in case.data["subjects"]]
         case_subjects.sort()
         if case_subjects != self.subjects:
             raise Exception(
-                f"Case's ({case}) subject ({case_subjects}) are not as excpected ({self.subjects})"
+                f"Case's ({case}) subjects ({case_subjects}) are not as excpected ({self.subjects})"
             )
 
 
@@ -51,14 +51,8 @@ class TestSubjects(DefaultAPITest):
             },
         )
 
-        # Update case's data
-        new_subjects = list(
-            map(
-                lambda subject: subject["id"],
-                self.client.call("get", f"/cases/{case.data['id']}/")["subjects"],
-            )
-        )
-        case.data["subjects"] = new_subjects
+        subjects = self.client.call("get", f"/cases/{case.data['id']}/")["subjects"]
+        case.data["subjects"] = subjects
 
         # Check if the subjects are updated and keep their value after close case
         case.run_steps(
