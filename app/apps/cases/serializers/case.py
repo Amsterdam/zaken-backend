@@ -65,14 +65,15 @@ class BaseCaseSerializer(serializers.ModelSerializer):
         validated_data.pop("bag_id")
         return super().update(instance, validated_data)
 
-    def create(self, validated_data):
+    def create(self, validated_data, commit=True):
         bag_id = validated_data.pop("bag_id")
         address = Address.get(bag_id)
 
         case = super().create(validated_data)
 
         case.address = address
-        case.save()
+        if commit:
+            case.save()
 
         return case
 

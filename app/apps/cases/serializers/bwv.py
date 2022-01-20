@@ -18,6 +18,7 @@ class LegacyCaseCreateSerializer(BaseCaseSerializer):
     project = serializers.PrimaryKeyRelatedField(
         many=False, required=False, queryset=CaseProject.objects.all()
     )
+    bag_id = serializers.CharField(required=True, write_only=True)
 
     class Meta:
         model = Case
@@ -32,13 +33,23 @@ class LegacyCaseCreateSerializer(BaseCaseSerializer):
             "start_date",
             "status_name",
             "project",
+            "bag_id",
         )
+
+    def create(self, validated_data):
+        status_name = validated_data.pop("status_name", None)
+        case = super().create(validated_data, commit=False)
+        if status_name:
+            case.status_name = status_name
+        case.save()
+        return case
 
 
 class LegacyCaseUpdateSerializer(BaseCaseSerializer):
     project = serializers.PrimaryKeyRelatedField(
         many=False, required=False, queryset=CaseProject.objects.all()
     )
+    bag_id = serializers.CharField(required=True, write_only=True)
 
     class Meta:
         model = Case
@@ -49,6 +60,7 @@ class LegacyCaseUpdateSerializer(BaseCaseSerializer):
             "is_legacy_bwv",
             "start_date",
             "project",
+            "bag_id",
         )
 
     def validate(self, data):
