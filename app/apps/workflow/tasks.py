@@ -1,7 +1,7 @@
 import copy
 
 import celery
-from apps.cases.models import Case
+from apps.cases.models import Case, CitizenReport
 from apps.debriefings.models import Debriefing
 from apps.visits.models import Visit
 from celery import shared_task
@@ -111,6 +111,26 @@ def task_create_main_worflow_for_case(self, case_id, data={}):
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
+def task_create_citizen_report_worflow_for_case(self, citizen_report_id, data={}):
+    from apps.workflow.models import CaseWorkflow
+
+    citizen_report = CitizenReport.objects.get(id=citizen_report_id)
+    data.update(
+        {
+            "citizen_report_id": citizen_report_id,
+        }
+    )
+    with transaction.atomic():
+        workflow_instance = CaseWorkflow.objects.create(
+            case=citizen_report.case,
+            workflow_type="citizen_report_feedback",
+            data=data,
+        )
+
+    return f"task_create_citizen_report_worflow_for_case: workflow id '{workflow_instance.id}', for citizen_report with id '{citizen_report_id}', created"
+
+
+@shared_task(bind=True, base=BaseTaskWithRetry)
 def task_start_worflow(self, worklow_id):
     from apps.workflow.models import CaseWorkflow
 
@@ -146,6 +166,24 @@ def task_wait_for_workflows_and_send_message(self, workflow_id, message, extra_d
     raise Exception(
         f"task_wait_for_workflows_and_send_message: message '{message}' for workflow with id '{workflow_id}', is busy"
     )
+
+
+@shared_task(bind=True, base=BaseTaskWithRetry)
+def task_script_wait(self, workflow_id, message, extra_data={}):
+    from apps.workflow.models import CaseWorkflow
+
+    workflow_instance = CaseWorkflow.objects.get(id=workflow_id)
+
+    if hasattr(workflow_instance.__class__, f"handle_{message}") and callable(
+        getattr(workflow_instance.__class__, f"handle_{message}")
+    ):
+        data = getattr(workflow_instance, f"handle_{message}")()
+
+        print(data)
+        if data:
+            task_accept_message_for_workflow.delay(workflow_instance.id, message, data)
+
+    return f"task_script_wait: message '{message}' for workflow with id '{workflow_id}', completed"
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)

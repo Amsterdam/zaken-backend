@@ -474,6 +474,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 DEFAULT_WORKFLOW_TYPE = os.getenv("DEFAULT_WORKFLOW_TYPE", "director")
 
+CITIZEN_REPORT_FEEDBACK_PERIODS = os.getenv(
+    "CITIZEN_REPORT_FEEDBACK_PERIODS", "56 days, 0:00:00|28 days, 0:00:00"
+).split("|")
+
 DEFAULT_WORKFLOW_TIMER_DURATIONS = {
     "development": timedelta(seconds=20),
     "acceptance": timedelta(seconds=240),
@@ -741,6 +745,12 @@ WORKFLOW_SPEC_CONFIG = {
                 "0.3.0": {},
                 "0.4.0": {},
                 "0.5.0": {},
+            },
+        },
+        "citizen_report_feedback": {
+            "initial_data": {},
+            "versions": {
+                "0.1.0": {},
             },
         },
     },

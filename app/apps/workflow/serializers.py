@@ -264,6 +264,7 @@ class WorkflowSpecConfigThemeTypeSerializer(serializers.Serializer):
     summon = WorkflowSpecConfigThemeSerializer(required=False)
     unoccupied = WorkflowSpecConfigThemeSerializer(required=False)
     visit = WorkflowSpecConfigThemeSerializer(required=False)
+    citizen_report_feedback = WorkflowSpecConfigThemeSerializer(required=False)
 
     def run_validation(self, data=empty):
         if data is not empty:

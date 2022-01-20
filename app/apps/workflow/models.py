@@ -14,7 +14,10 @@ from django.utils.dateparse import parse_duration
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.specs.BoundaryEvent import _BoundaryEventParent
-from SpiffWorkflow.bpmn.specs.event_definitions import TimerEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions import (
+    MessageEventDefinition,
+    TimerEventDefinition,
+)
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.task import Task
@@ -25,6 +28,7 @@ from .tasks import (
     release_lock,
     task_complete_user_task_and_create_new_user_tasks,
     task_complete_worflow,
+    task_script_wait,
     task_start_subworkflow,
     task_update_workflow,
     task_wait_for_workflows_and_send_message,
@@ -189,6 +193,9 @@ class CaseWorkflow(models.Model):
                 workflow_instance.id, message
             )
 
+        def script_wait(message):
+            task_script_wait.delay(workflow_instance.id, message)
+
         def start_subworkflow(subworkflow_name, data={}):
             task_start_subworkflow.delay(subworkflow_name, workflow_instance.id, data)
 
@@ -199,6 +206,7 @@ class CaseWorkflow(models.Model):
             scriptingAdditions={
                 "set_status": set_status,
                 "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
+                "script_wait": script_wait,
                 "start_subworkflow": start_subworkflow,
                 "parse_duration": parse_duration_string,
             }
@@ -208,6 +216,74 @@ class CaseWorkflow(models.Model):
     # legacy method, should be removed if all directors use version >=1.0.0
     def handle_message_catch_event_next_step(self, workflow_instance):
         return self.handle_message_wait_for_summons(workflow_instance)
+
+    def handle_citizen_report_feedback_2(self, extra_data={}):
+        wf = self.get_or_restore_workflow_state()
+
+        print("handle_citizen_report_feedback_2")
+        data = {
+            "feedback_period": [
+                period for period in settings.CITIZEN_REPORT_FEEDBACK_PERIODS
+            ][1],
+            # "start_time": self.date_modified,
+        }
+        data.update(extra_data)
+        print("self.date_modified")
+        print(self.date_modified)
+        # print("last_task datetime")
+        # print(datetime.datetime.fromtimestamp(wf.last_task.last_state_change))
+        # print("last_task spec name")
+        # print(wf.last_task.task_spec.name)
+        for task in wf.get_tasks():
+            print(task.task_spec.name)
+            print(task.get_state())
+            print(datetime.datetime.fromtimestamp(task.last_state_change))
+
+        print(data)
+        return self.handle_citizen_report_feedback_1(data)
+
+    def handle_citizen_report_feedback_1(self, extra_data={}):
+        from apps.cases.models import CitizenReport
+        from django.utils import timezone
+
+        print("handle_citizen_report_feedback_1")
+        print("self.date_modified")
+        print(self.date_modified)
+        data = self.get_data()
+
+        main_workflow = self.case.workflows.filter(main_workflow=True).first()
+        main_workflow_data = main_workflow.get_data()
+        has_summon = (
+            main_workflow_data.get("debrief_next_step", {}).get("value", "") == "summon"
+        )
+        citizen_report = CitizenReport.objects.filter(
+            id=data.get("citizen_report_id")
+        ).first()
+        data.update(
+            {
+                "feedback_period": [
+                    period for period in settings.CITIZEN_REPORT_FEEDBACK_PERIODS
+                ][0],
+                "start_time": citizen_report.date_added,
+                "names": {
+                    "value": f"{citizen_report.identification}: {citizen_report.reporter_name}, {citizen_report.reporter_phone}, {citizen_report.reporter_email}"
+                },
+                "has_summon": {"value": "true" if has_summon else "false"},
+            }
+        )
+        data.update(extra_data)
+        feedback_period = parse_duration(data.get("feedback_period"))
+        start_time = data.get("start_time")
+
+        feedback_period_exeeded = (start_time + feedback_period) < timezone.now()
+        print(feedback_period)
+        print(start_time)
+        print((start_time + feedback_period))
+        print(timezone.now())
+        data.pop("start_time")
+        if feedback_period_exeeded or has_summon:
+            return data
+        return False
 
     def handle_message_wait_for_summons(self, workflow_instance):
         from apps.decisions.models import Decision
@@ -361,6 +437,10 @@ class CaseWorkflow(models.Model):
 
     def create_user_tasks(self, wf):
         ready_tasks = wf.get_ready_user_tasks()
+        print("create_user_tasks")
+        for task in ready_tasks:
+            print(task.task_spec.name)
+            print(datetime.datetime.fromtimestamp(task.last_state_change))
         task_data = [
             CaseUserTask(
                 task_id=task.id,
@@ -451,7 +531,7 @@ class CaseWorkflow(models.Model):
 
         state = self.get_serializer().serialize_workflow(wf, include_spec=False)
         self.serialized_workflow_state = state
-
+        print("!!!!! SAVE")
         self.save()
 
         if completed:
@@ -563,6 +643,31 @@ class CaseWorkflow(models.Model):
         if not wf:
             return False
         waiting_tasks = wf._get_waiting_tasks()
+        for task in waiting_tasks:
+            if (
+                hasattr(task.task_spec, "event_definition")
+                and isinstance(task.task_spec.event_definition, MessageEventDefinition)
+                and wf.get_tasks_from_spec_name(
+                    f"script_{task.task_spec.event_definition.message}"
+                )
+            ):
+                script_task = wf.get_tasks_from_spec_name(
+                    f"script_{task.task_spec.event_definition.message}"
+                )[0]
+                script_task.workflow.script_engine.execute(
+                    script_task, script_task.task_spec.script, wf.last_task.data
+                )
+
+        # if self.workflow_type == "citizen_report_feedback" \
+        #     and [wt.task_spec.name for wt in waiting_tasks if wt.task_spec.name in ["message_wait_before_citizen_report_feedback_1", "message_wait_before_citizen_report_feedback_2"]]:
+        #     script_task = wf.get_tasks_from_spec_name("script_wait_before_citizen_report_feedback")
+        #     print("has_a_timer_event_fired")
+        #     print(script_task)
+        #     if script_task:
+        #         script_task = script_task[0]
+        #         print(script_task.task_spec.script)
+        #         script_task.workflow.script_engine.execute(script_task, script_task.task_spec.script, script_task.data)
+
         for task in waiting_tasks:
             if hasattr(task.task_spec, "event_definition") and isinstance(
                 task.task_spec.event_definition, TimerEventDefinition
