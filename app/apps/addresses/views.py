@@ -12,7 +12,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
-from utils.api_queries_brp import get_brp
+from utils.api_queries_brp import get_brp_by_address
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +38,9 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
         url_path="residents",
     )
     def residents_by_bag_id(self, request, bag_id):
+        address = self.get_object()
         try:
-            brp_data = get_brp(bag_id)
+            brp_data = get_brp_by_address(address, request)
             serialized_residents = ResidentsSerializer(data=brp_data)
             serialized_residents.is_valid()
 
