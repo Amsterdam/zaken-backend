@@ -12,6 +12,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
+from utils.api_queries_bag import do_bag_search_id
 from utils.api_queries_brp import get_brp_by_address
 
 logger = logging.getLogger(__name__)
@@ -38,18 +39,35 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
         url_path="residents",
     )
     def residents_by_bag_id(self, request, bag_id):
-        address = self.get_object()
+        # address = self.get_object()
         try:
-            brp_data = get_brp_by_address(address, request)
-            serialized_residents = ResidentsSerializer(data=brp_data)
-            serialized_residents.is_valid()
+            bag_data = do_bag_search_id(bag_id)
+            result = bag_data.get("results", [])
+        except Exception:
+            result = []
+        if len(result):
+            result = result[0]
+            address = Address()
 
-            return Response(serialized_residents.data)
+            address.postal_code = result.get("postcode", "")
+            address.street_name = result.get("straatnaam", "")
+            address.number = result.get("huisnummer", "")
+            address.suffix_letter = result.get("bag_huisletter", "")
+            address.suffix = result.get("bag_toevoeging", "")
 
-        except Exception as e:
-            logger.error(f"Could not retrieve residents for bag id {bag_id}: {e}")
+            try:
+                brp_data = get_brp_by_address(address, request)
+                serialized_residents = ResidentsSerializer(data=brp_data)
+                serialized_residents.is_valid()
 
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(serialized_residents.data)
+
+            except Exception as e:
+                logger.error(f"Could not retrieve residents for bag id {bag_id}: {e}")
+
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"error": "not found"}, status=status.HTTP_404_NOT_FOUND)
 
     @extend_schema(
         parameters=[open_cases],

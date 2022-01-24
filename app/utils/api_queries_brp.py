@@ -52,10 +52,9 @@ def get_brp_by_address(address, request):
     url = f"{settings.BRP_API_URL}"
     queryParams = {
         "verblijfplaats__postcode": address.postal_code,
-        "verblijfplaats__straat": address.street_name,
         "verblijfplaats__huisnummer": address.number,
         "verblijfplaats__huisnummertoevoeging": address.suffix,
-        "verblijfplaats__huisletter": address.suffix_letter,
+        # "verblijfplaats__huisletter": address.suffix_letter,
     }
     print(queryParams)
     print(request.headers.get("Authorization"))
@@ -66,8 +65,6 @@ def get_brp_by_address(address, request):
         params=queryParams,
         timeout=30,
         headers={
-            "MKS_APPLICATIE": "fp_burger",
-            "MKS_GEBRUIKER": "test_burger",
             "Authorization": request.headers.get("Authorization"),
         },
     )
