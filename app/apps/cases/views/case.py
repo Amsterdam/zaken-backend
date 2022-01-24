@@ -35,6 +35,18 @@ class CaseFilter(filters.FilterSet):
         queryset=CaseStateType.objects.all(), method="get_state_types"
     )
     ton_ids = CharArrayFilter(field_name="ton_ids", lookup_expr="contains")
+    street_name = filters.CharFilter(method="get_fuzy_street_name")
+    number = filters.CharFilter(method="get_number")
+    suffix = filters.CharFilter(method="get_suffix")
+
+    def get_fuzy_street_name(self, queryset, name, value):
+        return queryset.filter(address__street_name__trigram_similar=value)
+
+    def get_number(self, queryset, name, value):
+        return queryset.filter(address__number=value)
+
+    def get_suffix(self, queryset, name, value):
+        return queryset.filter(address__suffix=value)
 
     def get_open_cases(self, queryset, name, value):
         return queryset.filter(end_date__isnull=value)
@@ -55,6 +67,9 @@ class CaseFilter(filters.FilterSet):
             "reason",
             "sensitive",
             "ton_ids",
+            "street_name",
+            "number",
+            "suffix",
         ]
 
 
