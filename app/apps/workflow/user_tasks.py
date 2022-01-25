@@ -391,6 +391,10 @@ class task_afwachten_casus_overleg(user_task):
     due_date = relativedelta(weeks=1)
 
 
+class task_sub_workflow_opstellen_digitale_analyse(user_task):
+    due_date = relativedelta(days=3)
+
+
 # future tasks
 
 # class x(user_task):

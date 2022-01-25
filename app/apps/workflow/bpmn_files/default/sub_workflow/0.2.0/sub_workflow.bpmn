@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1g1rvb9" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0" camunda:diagramRelationId="efab761f-3315-414e-a9d6-d8cf7d1ab0a9">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1g1rvb9" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" camunda:diagramRelationId="efab761f-3315-414e-a9d6-d8cf7d1ab0a9">
   <bpmn:collaboration id="Collaboration_1nd8xuu">
     <bpmn:participant id="Participant_03i0kl2" name="Optionele taken" processRef="sub_workflow" />
   </bpmn:collaboration>
@@ -37,6 +37,12 @@
         <bpmn:flowNodeRef>event_start_signal_process</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_status_melding</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>end_0q70hru</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_toezichthouder" name="Toezichthouder">
+        <bpmn:flowNodeRef>task_sub_workflow_opstellen_digitale_analyse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>start_opstellen_digitale_analyse_proces</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_opstellen_digitale_analyse_proces</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_status_digitale_analyse</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:userTask id="task_correspondence" name="Oppakken correspondentie" camunda:formKey="correspondentie_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
@@ -221,15 +227,17 @@
     <bpmn:sequenceFlow id="Flow_0jee1e2" sourceRef="service_status_report_nuisance" targetRef="task_doorzetten_melding_overlast" />
     <bpmn:sequenceFlow id="Flow_16jc6al" sourceRef="task_doorzetten_melding_overlast" targetRef="end_0bk5wui" />
     <bpmn:sequenceFlow id="Flow_1gmn80j" sourceRef="start_nuisance_process" targetRef="service_status_report_nuisance" />
-    <bpmn:userTask id="task_afwachten_casus_overleg" name="Afwachten casus overleg" camunda:formKey="form_afwachten_casus_overleg" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(7).toDate()}">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="casus_explanation" label="Toelichting" type="string" />
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1kxgx3x</bpmn:incoming>
-      <bpmn:outgoing>Flow_15w8err</bpmn:outgoing>
-    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1sx8pu0" sourceRef="start_casus_overleg_proces" targetRef="service_status_casus_overleg" />
+    <bpmn:sequenceFlow id="Flow_15w8err" sourceRef="task_afwachten_casus_overleg" targetRef="end_1id87mn" />
+    <bpmn:sequenceFlow id="Flow_1kxgx3x" sourceRef="service_status_casus_overleg" targetRef="task_afwachten_casus_overleg" />
+    <bpmn:scriptTask id="service_status_casus_overleg" name="Bijwerken status: Casus overleg">
+      <bpmn:incoming>Flow_1sx8pu0</bpmn:incoming>
+      <bpmn:outgoing>Flow_1kxgx3x</bpmn:outgoing>
+      <bpmn:script>set_status("Casus overleg")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="end_1id87mn">
+      <bpmn:incoming>Flow_15w8err</bpmn:incoming>
+    </bpmn:endEvent>
     <bpmn:startEvent id="start_casus_overleg_proces" name="Start Casus overleg proces" camunda:formKey="start_bezwaardossier">
       <bpmn:extensionElements>
         <camunda:formData>
@@ -242,17 +250,42 @@
       <bpmn:outgoing>Flow_1sx8pu0</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0ukqo9b" messageRef="Message_0n17wr4" />
     </bpmn:startEvent>
-    <bpmn:endEvent id="end_1id87mn">
-      <bpmn:incoming>Flow_15w8err</bpmn:incoming>
+    <bpmn:userTask id="task_afwachten_casus_overleg" name="Afwachten casus overleg" camunda:formKey="form_afwachten_casus_overleg" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(7).toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="casus_explanation" label="Toelichting" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1kxgx3x</bpmn:incoming>
+      <bpmn:outgoing>Flow_15w8err</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_sub_workflow_opstellen_digitale_analyse" name="Opstellen digitale analyse" camunda:candidateGroups="Toezichthouder">
+      <bpmn:incoming>Flow_1ddhrnp</bpmn:incoming>
+      <bpmn:outgoing>Flow_1byn9r2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:startEvent id="start_opstellen_digitale_analyse_proces" name="Start opstellen digitale analyse proces" camunda:formKey="start_bezwaardossier">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="zaken_access_token" type="string" />
+          <camunda:formField id="case_identification" type="string" />
+          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+          <camunda:formField id="case_process_id" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_1ccbixy</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1u4uf1b" messageRef="Message_0wnd7zs" />
+    </bpmn:startEvent>
+    <bpmn:endEvent id="end_opstellen_digitale_analyse_proces">
+      <bpmn:incoming>Flow_1byn9r2</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:scriptTask id="service_status_casus_overleg" name="Bijwerken status: Casus overleg">
-      <bpmn:incoming>Flow_1sx8pu0</bpmn:incoming>
-      <bpmn:outgoing>Flow_1kxgx3x</bpmn:outgoing>
-      <bpmn:script>set_status("Casus overleg")</bpmn:script>
+    <bpmn:scriptTask id="service_status_digitale_analyse" name="Bijwerken status: Digitale analyse">
+      <bpmn:incoming>Flow_1ccbixy</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ddhrnp</bpmn:outgoing>
+      <bpmn:script>set_status("Digitale analyse")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:sequenceFlow id="Flow_1kxgx3x" sourceRef="service_status_casus_overleg" targetRef="task_afwachten_casus_overleg" />
-    <bpmn:sequenceFlow id="Flow_15w8err" sourceRef="task_afwachten_casus_overleg" targetRef="end_1id87mn" />
-    <bpmn:sequenceFlow id="Flow_1sx8pu0" sourceRef="start_casus_overleg_proces" targetRef="service_status_casus_overleg" />
+    <bpmn:sequenceFlow id="Flow_1ddhrnp" sourceRef="service_status_digitale_analyse" targetRef="task_sub_workflow_opstellen_digitale_analyse" />
+    <bpmn:sequenceFlow id="Flow_1byn9r2" sourceRef="task_sub_workflow_opstellen_digitale_analyse" targetRef="end_opstellen_digitale_analyse_proces" />
+    <bpmn:sequenceFlow id="Flow_1ccbixy" sourceRef="start_opstellen_digitale_analyse_proces" targetRef="service_status_digitale_analyse" />
   </bpmn:process>
   <bpmn:message id="Message_0f7jpp5" name="start_signal_process" />
   <bpmn:message id="Message_1wpao9m" name="start_correspondence_process" />
@@ -261,17 +294,33 @@
   <bpmn:message id="Message_0anwabj" name="start_extra_information" />
   <bpmn:message id="Message_1kgqx8g" name="start_nuisance_process" />
   <bpmn:message id="Message_0n17wr4" name="start_casus_overleg_proces" />
+  <bpmn:message id="Message_0wnd7zs" name="start_opstellen_digitale_analyse_proces" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1nd8xuu">
       <bpmndi:BPMNShape id="Participant_03i0kl2_di" bpmnElement="Participant_03i0kl2" isHorizontal="true">
-        <dc:Bounds x="160" y="120" width="820" height="1010" />
+        <dc:Bounds x="160" y="120" width="820" height="1110" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1bcs10e_di" bpmnElement="lane_projectmedewerker_1bcs10e" isHorizontal="true">
         <dc:Bounds x="190" y="120" width="790" height="120" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_13qot1b_di" bpmnElement="lane_projecthandhaver_13qot1b" isHorizontal="true">
-        <dc:Bounds x="190" y="240" width="790" height="890" />
+        <dc:Bounds x="190" y="240" width="790" height="850" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1vyowd9_di" bpmnElement="lane_toezichthouder" isHorizontal="true">
+        <dc:Bounds x="190" y="1090" width="790" height="140" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1sx8pu0_di" bpmnElement="Flow_1sx8pu0">
+        <di:waypoint x="338" y="990" />
+        <di:waypoint x="411" y="990" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15w8err_di" bpmnElement="Flow_15w8err">
+        <di:waypoint x="680" y="990" />
+        <di:waypoint x="902" y="990" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1kxgx3x_di" bpmnElement="Flow_1kxgx3x">
+        <di:waypoint x="511" y="990" />
+        <di:waypoint x="580" y="990" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1gmn80j_di" bpmnElement="Flow_1gmn80j">
         <di:waypoint x="338" y="860" />
         <di:waypoint x="411" y="860" />
@@ -348,17 +397,17 @@
         <di:waypoint x="511" y="460" />
         <di:waypoint x="580" y="460" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1kxgx3x_di" bpmnElement="Flow_1kxgx3x">
-        <di:waypoint x="511" y="990" />
-        <di:waypoint x="580" y="990" />
+      <bpmndi:BPMNEdge id="Flow_1ddhrnp_di" bpmnElement="Flow_1ddhrnp">
+        <di:waypoint x="511" y="1160" />
+        <di:waypoint x="580" y="1160" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_15w8err_di" bpmnElement="Flow_15w8err">
-        <di:waypoint x="680" y="990" />
-        <di:waypoint x="902" y="990" />
+      <bpmndi:BPMNEdge id="Flow_1byn9r2_di" bpmnElement="Flow_1byn9r2">
+        <di:waypoint x="680" y="1160" />
+        <di:waypoint x="902" y="1160" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1sx8pu0_di" bpmnElement="Flow_1sx8pu0">
-        <di:waypoint x="338" y="990" />
-        <di:waypoint x="411" y="990" />
+      <bpmndi:BPMNEdge id="Flow_1ccbixy_di" bpmnElement="Flow_1ccbixy">
+        <di:waypoint x="338" y="1160" />
+        <di:waypoint x="411" y="1160" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_0gt9gl2_di" bpmnElement="task_correspondence">
         <dc:Bounds x="580" y="290" width="100" height="80" />
@@ -467,6 +516,21 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_147xj7x_di" bpmnElement="service_status_casus_overleg">
         <dc:Bounds x="411" y="950" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00xq7vx_di" bpmnElement="task_sub_workflow_opstellen_digitale_analyse">
+        <dc:Bounds x="580" y="1120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0nrae8q_di" bpmnElement="start_opstellen_digitale_analyse_proces">
+        <dc:Bounds x="302" y="1142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="286" y="1185" width="76" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1my9xv5_di" bpmnElement="end_opstellen_digitale_analyse_proces">
+        <dc:Bounds x="902" y="1142" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_133lgts_di" bpmnElement="service_status_digitale_analyse">
+        <dc:Bounds x="411" y="1120" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
