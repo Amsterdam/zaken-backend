@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import date
 from uuid import UUID
 
 from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTheme
@@ -134,15 +134,15 @@ class CaseModelTest(TestCase):
     def test_auto_start_date(self):
         """ If a start data isn't specified, it should be set to the current time """
         case = baker.make(Case)
-        self.assertEquals(case.start_date, datetime(2019, 12, 25, tzinfo=timezone.utc))
+        self.assertEquals(case.start_date, date(2019, 12, 25))
 
     @freeze_time("2019-12-25")
     def test_set_start_date(self):
         """ If a start data is specified, it should be set to correctly """
-        date = datetime(2020, 1, 1, tzinfo=timezone.utc)
-        case = baker.make(Case, start_date=date)
+        start_date = date(2020, 1, 1)
+        case = baker.make(Case, start_date=start_date)
 
-        self.assertEquals(case.start_date, date)
+        self.assertEquals(case.start_date, start_date)
 
     def test_set_state(self):
         """ set_state function creates a state with the given name """

@@ -24,11 +24,24 @@ def get_case_mock(
     description_citizenreport=None,
     identification=None,
 ):
-    return {
+    case_data = {
         "theme_id": theme_id,
         "reason_id": reason,
         "bag_id": bag_id,
         "subject_ids": subjects,
-        "description_citizenreport": description_citizenreport,
-        "identification": identification,
     }
+
+    if identification:
+        case_data["citizen_reports"] = [
+            {
+                "identification": identification,
+                "reporter_name": "Arie",
+                "reporter_phone": "0612345678",
+                "reporter_email": "example@amsterdam.nl",
+                "advertisement_linklist": [],
+                "description_citizenreport": description_citizenreport,
+                "nuisance": False,
+            }
+        ]
+
+    return case_data

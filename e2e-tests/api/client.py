@@ -73,7 +73,7 @@ class Client:
     def create_case(self, data):
         events = [CaseEvent]
 
-        if "identification" in data and data["identification"]:
+        if "citizen_reports" in data and data["citizen_reports"]:
             events.append(CitizenReportEvent)
 
         return Case(
