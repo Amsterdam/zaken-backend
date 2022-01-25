@@ -13,6 +13,7 @@ from apps.workflow.serializers import (
     StartWorkflowSerializer,
     WorkflowOptionSerializer,
 )
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
@@ -47,11 +48,13 @@ class CaseFilter(filters.FilterSet):
         return queryset.filter(address__number=value)
 
     def get_suffix(self, queryset, name, value):
-        return queryset.filter(address__suffix__iexact=value)
+        return queryset.filter(
+            Q(address__suffix__iexact=value) | Q(address_suffix_letter__iexact=value)
+        )
 
     def get_open_cases(self, queryset, name, value):
         return queryset.filter(end_date__isnull=value)
-    
+
     def get_postal_code(self, queryset, name, value):
         return queryset.filter(address__postal_code__iexact=value.replace(" ", ""))
 
@@ -74,7 +77,7 @@ class CaseFilter(filters.FilterSet):
             "street_name",
             "number",
             "suffix",
-            "postal_code"
+            "postal_code",
         ]
 
 
