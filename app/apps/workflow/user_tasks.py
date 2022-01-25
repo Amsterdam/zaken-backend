@@ -116,21 +116,21 @@ class task_opstellen_verkorte_rapportage_huisbezoek(user_task):
     """Opstellen verkorte rapportage huisbezoek"""
 
     _task_name = "task_prepare_abbreviated_visit_rapport"
-    due_date = relativedelta(weeks=1)
+    due_date = relativedelta(days=3)
 
 
 class task_opstellen_beeldverslag(user_task):
     """Opstellen beeldverslag"""
 
     _task_name = "task_create_picture_rapport"
-    due_date = relativedelta(weeks=1)
+    due_date = relativedelta(days=3)
 
 
 class task_opstellen_rapport_van_bevindingen(user_task):
     """Opstellen rapport van bevindingen"""
 
     _task_name = "task_create_report_of_findings"
-    due_date = relativedelta(weeks=1)
+    due_date = relativedelta(days=3)
 
 
 class task_opstellen_concept_aanschrijving(user_task):
@@ -390,8 +390,25 @@ class task_afwachten_casus_overleg(user_task):
     _task_name = "task_afwachten_casus_overleg"
     due_date = relativedelta(weeks=1)
 
-
 class task_sub_workflow_opstellen_digitale_analyse(user_task):
+    due_date = relativedelta(days=3)
+
+class task_opstelllen_rapport_van_bevindingen_1(user_task):
+    due_date = relativedelta(days=3)
+
+class task_create_picture_rapport_1(user_task):
+    due_date = relativedelta(days=3)
+
+class task_opstellen_digitale_analyse(user_task):
+    due_date = relativedelta(days=3)
+
+class task_create_picture_rapport_2(user_task):
+    due_date = relativedelta(days=3)
+
+class task_opstelllen_rapport_van_bevindingen_2(user_task):
+    due_date = relativedelta(days=3)
+
+class task_opstellen_verzoek_tot_inlichtingen(user_task):
     due_date = relativedelta(days=3)
 
 
