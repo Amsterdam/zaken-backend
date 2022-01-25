@@ -390,24 +390,30 @@ class task_afwachten_casus_overleg(user_task):
     _task_name = "task_afwachten_casus_overleg"
     due_date = relativedelta(weeks=1)
 
+
 class task_sub_workflow_opstellen_digitale_analyse(user_task):
     due_date = relativedelta(days=3)
+
 
 class task_opstelllen_rapport_van_bevindingen_1(user_task):
     due_date = relativedelta(days=3)
 
+
 class task_create_picture_rapport_1(user_task):
     due_date = relativedelta(days=3)
+
 
 class task_opstellen_digitale_analyse(user_task):
     due_date = relativedelta(days=3)
 
+
 class task_create_picture_rapport_2(user_task):
     due_date = relativedelta(days=3)
+
 
 class task_opstelllen_rapport_van_bevindingen_2(user_task):
     due_date = relativedelta(days=3)
 
+
 class task_opstellen_verzoek_tot_inlichtingen(user_task):
     due_date = relativedelta(days=3)
-
