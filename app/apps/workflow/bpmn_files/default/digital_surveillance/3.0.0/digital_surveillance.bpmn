@@ -21,7 +21,7 @@
       <bpmn:lane id="lane_toezichthouder" name="Toezichthouder">
         <bpmn:flowNodeRef>Gateway_0zapr2k</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_extra_inlichtingen</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>task_opstellen_verzoek_tot_nlichtingen</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_opstellen_verzoek_tot_inlichtingen</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_059aorr</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_monitoren_reactie_platform</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_verwerken_informatie_platform</bpmn:flowNodeRef>
@@ -61,7 +61,7 @@
       <bpmn:incoming>Flow_02uij0x</bpmn:incoming>
       <bpmn:outgoing>Flow_0s4mrid</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_opstellen_verzoek_tot_nlichtingen" name="Opstellen verzoek tot inlichtingen">
+    <bpmn:userTask id="task_opstellen_verzoek_tot_inlichtingen" name="Opstellen verzoek tot inlichtingen">
       <bpmn:incoming>Flow_0qox8mr</bpmn:incoming>
       <bpmn:outgoing>Flow_040f72a</bpmn:outgoing>
     </bpmn:userTask>
@@ -236,10 +236,10 @@
     <bpmn:sequenceFlow id="Flow_0ipqqhf" sourceRef="Gateway_0cyoym3" targetRef="task_bepalen_processtap" />
     <bpmn:sequenceFlow id="Flow_0z2cckq" sourceRef="Gateway_1f3ywi7" targetRef="Gateway_0zapr2k" />
     <bpmn:sequenceFlow id="Flow_0s4mrid" sourceRef="task_extra_inlichtingen" targetRef="Gateway_059aorr" />
-    <bpmn:sequenceFlow id="Flow_0qox8mr" name="extra_inlichtingen_nodig = ja" sourceRef="Gateway_059aorr" targetRef="task_opstellen_verzoek_tot_nlichtingen">
+    <bpmn:sequenceFlow id="Flow_0qox8mr" name="extra_inlichtingen_nodig = ja" sourceRef="Gateway_059aorr" targetRef="task_opstellen_verzoek_tot_inlichtingen">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">extra_inlichtingen_nodig.value == "ja"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_040f72a" sourceRef="task_opstellen_verzoek_tot_nlichtingen" targetRef="task_monitoren_reactie_platform" />
+    <bpmn:sequenceFlow id="Flow_040f72a" sourceRef="task_opstellen_verzoek_tot_inlichtingen" targetRef="task_monitoren_reactie_platform" />
     <bpmn:sequenceFlow id="Flow_13p5gby" name="extra_inlichtingen_nodig = nee" sourceRef="Gateway_059aorr" targetRef="Gateway_1si19kh" />
     <bpmn:sequenceFlow id="Flow_0vsc8b1" name="rappelleren_informeren_collegas_beleid = opnieuw_monitoren" sourceRef="gateway_reactie_platform" targetRef="task_monitoren_reactie_platform">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">rappelleren_informeren_collegas_beleid.value == "opnieuw_monitoren"</bpmn:conditionExpression>
@@ -573,7 +573,7 @@
       <bpmndi:BPMNShape id="Activity_0lr22sn_di" bpmnElement="task_extra_inlichtingen">
         <dc:Bounds x="1910" y="390" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1f55q82_di" bpmnElement="task_opstellen_verzoek_tot_nlichtingen">
+      <bpmndi:BPMNShape id="Activity_1f55q82_di" bpmnElement="task_opstellen_verzoek_tot_inlichtingen">
         <dc:Bounds x="2080" y="510" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_059aorr_di" bpmnElement="Gateway_059aorr" isMarkerVisible="true">
