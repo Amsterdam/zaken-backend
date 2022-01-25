@@ -46,7 +46,7 @@ class CaseFilter(filters.FilterSet):
         return queryset.filter(address__number=value)
 
     def get_suffix(self, queryset, name, value):
-        return queryset.filter(address__suffix=value)
+        return queryset.filter(address__suffix__iexact=value)
 
     def get_open_cases(self, queryset, name, value):
         return queryset.filter(end_date__isnull=value)
