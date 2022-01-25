@@ -217,5 +217,15 @@
       "message_name": "start_casus_overleg_proces",
       "to_directing_proccess": false
     }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 35,
+    "fields": {
+      "theme": 2,
+      "name": "Opstellen digitale analyse",
+      "message_name": "start_opstellen_digitale_analyse_proces",
+      "to_directing_proccess": false
+    }
   }
 ]
