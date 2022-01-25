@@ -390,73 +390,30 @@ class task_afwachten_casus_overleg(user_task):
     _task_name = "task_afwachten_casus_overleg"
     due_date = relativedelta(weeks=1)
 
+
 class task_sub_workflow_opstellen_digitale_analyse(user_task):
     due_date = relativedelta(days=3)
+
 
 class task_opstelllen_rapport_van_bevindingen_1(user_task):
     due_date = relativedelta(days=3)
 
+
 class task_create_picture_rapport_1(user_task):
     due_date = relativedelta(days=3)
+
 
 class task_opstellen_digitale_analyse(user_task):
     due_date = relativedelta(days=3)
 
+
 class task_create_picture_rapport_2(user_task):
     due_date = relativedelta(days=3)
+
 
 class task_opstelllen_rapport_van_bevindingen_2(user_task):
     due_date = relativedelta(days=3)
 
+
 class task_opstellen_verzoek_tot_inlichtingen(user_task):
     due_date = relativedelta(days=3)
-
-
-# future tasks
-
-# class x(user_task):
-#   """Opstellen intrekken besluit"""
-#     due_date = relativedelta(weeks=2)
-
-
-# class x(user_task):
-#   """Nakijken intrekken besluit"""
-#     due_date = relativedelta(weeks=1)
-
-
-# class x(user_task):
-#   """Verwerken intrekken besluit"""
-#     due_date = relativedelta(days=2)
-
-
-# class x(user_task):
-#   """Intrekken invordering"""
-#     due_date = relativedelta(weeks=2)
-
-
-# class x(user_task):
-#   """wobverzoek"""
-#     due_date = relativedelta(weeks=2)
-
-
-################## Extra taken bij handhavingsverzoek???
-
-
-# class x(user_task):
-#   """Afwijzen handhavingsverzoek (na toezicht)"""
-#     due_date = relativedelta(weeks=2)
-
-
-# class x(user_task):
-#   """Opstellen aanvraag buiten behandeling laten"""
-#     due_date = relativedelta(weeks=2)
-
-
-# class x(user_task):
-#   """Verwerken en opsturen brief"""
-#     due_date = relativedelta(days=2)
-
-
-# class x(user_task):
-#   """Versturen ontvangstbevestiging"""
-#     due_date = relativedelta(weeks=1)

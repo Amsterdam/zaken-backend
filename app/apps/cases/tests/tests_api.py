@@ -338,9 +338,9 @@ class CaseCreatApiTest(APITestCase):
             url,
             {
                 "description": "Foo",
-                "theme": theme.pk,
-                "reason": reason.pk,
-                "address": {"bag_id": "foo bag ID"},
+                "theme_id": theme.pk,
+                "reason_id": reason.pk,
+                "bag_id": "foo bag ID",
             },
             format="json",
         )
@@ -359,9 +359,9 @@ class CaseCreatApiTest(APITestCase):
             url,
             {
                 "description": "Foo",
-                "theme": 10,
-                "reason": reason.pk,
-                "address": {"bag_id": "foo bag ID"},
+                "theme_id": 10,
+                "reason_id": reason.pk,
+                "bag_id": "foo bag ID",
             },
             format="json",
         )
@@ -403,9 +403,9 @@ class CaseCreatApiTest(APITestCase):
             url,
             {
                 "description": "Foo",
-                "theme": theme_b.pk,
-                "reason": reason.pk,
-                "address": {"bag_id": "foo bag ID"},
+                "theme_id": theme_b.pk,
+                "reason_id": reason.pk,
+                "bag_id": "foo bag ID",
             },
             format="json",
         )
@@ -428,14 +428,16 @@ class CaseCreatApiTest(APITestCase):
             url,
             {
                 "description": "Foo",
-                "theme": theme.pk,
-                "reason": reason.pk,
-                "address": {"bag_id": "foo bag ID"},
+                "theme_id": theme.pk,
+                "reason_id": reason.pk,
+                "bag_id": "foo bag ID",
             },
             format="json",
         )
 
         test_user = get_test_user()
+        print("test_authenticated_post_create_author")
+        print(response.data)
         case = Case.objects.get(id=response.data["id"])
 
         self.assertEquals(case.author, test_user)
