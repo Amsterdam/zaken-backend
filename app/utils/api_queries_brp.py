@@ -6,59 +6,35 @@ from tenacity import after_log, retry, stop_after_attempt
 
 logger = logging.getLogger(__name__)
 
-# The following fields were presented in the example spreadsheet documentation, which should mirror the BRP API:
-# (TODO: remove this once the BRP API is up and its documentation is accessible )
-# A-nummer
-# BSN
-# sleutel paraplu
-# Onderzoek algemeen
-# Burgerlijke staat
-# Geboortedatum
-# Geboortelandcode
-# Geslachtsaanduiding
-# Geslachtsnaam
-# Voorletters
-# Voornamen
-# Voorvoegsel geslachtsnaam
-# Indicatie geheim
-# Landcode immigratie
-# Datum inschrijving
-# Gemeente code inschrijving
-# Aanduiding naamgebruik
-# Datum begin relatie verblijfadres
-# Aanduiding in onderzoek verblijfadres
-# Straatnaam
-# Huisnummer
-# Huisletter 0=n.v.t.
-# Huisnummertoevoeging 0=n.v.t.
-# Postcode
+
+def get_brp_by_bag_id(request, bag_id):
+    """ Returns BRP data by bag_"""
+
+    queryParams = {
+        "verblijfplaats__nummeraanduidingIdentificatie": f"{bag_id}",
+    }
+    return get_brp(request, queryParams)
+
+
+def get_brp_by_address(request, postal_code, number, suffix, suffix_letter):
+    """ Returns BRP data by address info"""
+
+    queryParams = {
+        "verblijfplaats__postcode": postal_code,
+        "verblijfplaats__huisnummer": number,
+        "verblijfplaats__huisnummertoevoeging": f"{suffix} {suffix_letter}".strip(),
+    }
+    return get_brp(request, queryParams)
 
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def get_brp_by_bag_id(bag_id):
+def get_brp(request, queryParams):
     """ Returns BRP data"""
-    # TODO: Replace with actual request when BRP API is ready
-    """
-    curl -H "MKS_APPLICATIE: fp_burger" -H "MKS_GEBRUIKER: test_burger"  -H "Authorization: Bearer ACCESS_TOKEN" "https://acc.api.secure.amsterdam.nl/gob_stuf/brp/ingeschrevenpersonen?verblijfplaats__postcode=1098WE&verblijfplaats__huisnummer=208&expand=partners,ouders,kinderen"
 
-    """
-    return get_mock_brp()
-
-
-@retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def get_brp_by_address(address, request):
-    """ Returns BRP data"""
+    if settings.ENVIRONMENT == "production":
+        return get_mock_brp()
 
     url = f"{settings.BRP_API_URL}"
-    queryParams = {
-        "verblijfplaats__postcode": address.postal_code,
-        "verblijfplaats__huisnummer": address.number,
-        "verblijfplaats__huisnummertoevoeging": address.suffix,
-        # "verblijfplaats__huisletter": address.suffix_letter,
-    }
-    print(queryParams)
-    print(request.headers.get("Authorization"))
-    print(url)
 
     response = requests.get(
         url,
@@ -69,10 +45,7 @@ def get_brp_by_address(address, request):
         },
     )
     response.raise_for_status()
-    print(response)
-    print(response.text)
-    print(response.url)
-    print(response.headers)
+
     results = [
         {
             "geboortedatum": p.get("geboorte", {}).get("datum", {}).get("datum"),

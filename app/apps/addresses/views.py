@@ -39,24 +39,30 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
         url_path="residents",
     )
     def residents_by_bag_id(self, request, bag_id):
-        # address = self.get_object()
-        try:
-            bag_data = do_bag_search_id(bag_id)
-            result = bag_data.get("results", [])
-        except Exception:
-            result = []
-        if len(result):
-            result = result[0]
-            address = Address()
-
-            address.postal_code = result.get("postcode", "")
-            address.street_name = result.get("straatnaam", "")
-            address.number = result.get("huisnummer", "")
-            address.suffix_letter = result.get("bag_huisletter", "")
-            address.suffix = result.get("bag_toevoeging", "")
-
+        address = self.queryset.filter(bag_id=bag_id).first()
+        if not address:
             try:
-                brp_data = get_brp_by_address(address, request)
+                bag_data = do_bag_search_id(bag_id)
+                result = bag_data.get("results", [])[0]
+                address = {
+                    "postal_code": result.get("postcode", ""),
+                    "number": result.get("huisnummer", ""),
+                    "suffix": result.get("bag_toevoeging", ""),
+                    "suffix_letter": result.get("bag_huisletter", ""),
+                }
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            address = {
+                "postal_code": address.postal_code,
+                "number": address.number,
+                "suffix": address.suffix,
+                "suffix_letter": address.suffix_letter,
+            }
+
+        if address:
+            try:
+                brp_data = get_brp_by_address(request, **address)
                 serialized_residents = ResidentsSerializer(data=brp_data)
                 serialized_residents.is_valid()
 
