@@ -29,25 +29,21 @@ def parse_task_spec_form(form):
     }
     fields = [
         {
-            **f.__dict__,
+            "label": f.label,
             "options": [
                 {
-                    **o.__dict__,
-                    "value": o.__dict__.get("id"),
-                    "label": o.__dict__.get("name"),
+                    "value": o.id,
+                    "label": o.name,
                 }
                 for o in f.__dict__.get("options", [])
             ],
-            "name": f.__dict__.get("id"),
-            "validation": [v.__dict__ for v in f.__dict__.get("validation", [])],
-            "properties": [v.__dict__ for v in f.__dict__.get("properties", [])],
-            "type": trans_types.get(f.__dict__.get("type"), "text"),
-            "required": bool(
-                [
-                    v.__dict__
-                    for v in f.__dict__.get("validation", [])
-                    if v.__dict__.get("name") == "required"
-                ]
+            "name": f.id,
+            "type": trans_types.get(f.type, "text"),
+            "required": not bool(
+                [v.name for v in f.validation if v.name == "optional"]
+            ),
+            "tooltip_text": next(
+                iter([v.value for v in f.properties if v.id == "tooltip_text"]), None
             ),
         }
         for f in form.fields
@@ -57,7 +53,7 @@ def parse_task_spec_form(form):
 
 def map_variables_on_task_spec_form(variables, task_spec_form):
     # transforms form result data and adds labels for the frontend
-    form = dict((f.get("id"), f) for f in task_spec_form)
+    form = dict((f.get("name"), f) for f in task_spec_form)
     return dict(
         (
             k,
@@ -65,7 +61,7 @@ def map_variables_on_task_spec_form(variables, task_spec_form):
                 "label": form.get(k, {}).get("label", v.get("value")),
                 "value": v.get("value")
                 if not form.get(k, {}).get("options")
-                else dict((o.get("id"), o) for o in form.get(k, {}).get("options"))
+                else dict((o.get("value"), o) for o in form.get(k, {}).get("options"))
                 .get(v.get("value"), {})
                 .get("label", v.get("value")),
             },

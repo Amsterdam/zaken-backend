@@ -11,6 +11,22 @@ from rest_framework.settings import api_settings
 from .models import GenericCompletedTask, WorkflowOption
 
 
+class GenericFormFieldOptionSerializer(serializers.Serializer):
+    label = serializers.CharField()
+    value = serializers.CharField()
+
+
+class GenericFormFieldSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    label = serializers.CharField()
+    options = GenericFormFieldOptionSerializer(many=True, required=False)
+    type = serializers.ChoiceField(
+        choices=(("text", "text"), ("select", "select"), ("checkbox", "checkbox"))
+    )
+    tooltip_text = serializers.CharField(required=False)
+    required = serializers.BooleanField()
+
+
 class CaseStateTypeSerializer(serializers.ModelSerializer):
     status_name = serializers.CharField(source="name", read_only=True)
 
@@ -45,7 +61,7 @@ class CaseUserTaskBaseSerializer(serializers.ModelSerializer):
 
 class CaseUserTaskSerializer(CaseUserTaskBaseSerializer):
     case_user_task_id = serializers.CharField(source="id")
-    form = serializers.ListSerializer(child=serializers.DictField(), required=True)
+    form = GenericFormFieldSerializer(many=True)
     form_variables = serializers.DictField(source="get_form_variables")
 
     class Meta:

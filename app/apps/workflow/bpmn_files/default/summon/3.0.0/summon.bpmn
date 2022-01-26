@@ -168,7 +168,11 @@
             <camunda:value id="aanschrijvingen" name="Ja, aanschrijving nakijken" />
             <camunda:value id="afzien_aanschrijving" name="Nee, afzien aanschrijving" />
           </camunda:formField>
-          <camunda:formField id="concept_aanschrijving_toelichting" label="Toelichting" type="string" />
+          <camunda:formField id="concept_aanschrijving_toelichting" label="Toelichting" type="string">
+            <camunda:properties>
+              <camunda:property id="tooltip_text" value="Vermeld hier type concept (bijv. voornemen boete) en naam aangeschreven persoon" />
+            </camunda:properties>
+          </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1atmgnk</bpmn:incoming>
