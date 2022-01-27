@@ -42,8 +42,8 @@ def parse_task_spec_form(form):
             "required": not bool(
                 [v.name for v in f.validation if v.name == "optional"]
             ),
-            "tooltip_text": next(
-                iter([v.value for v in f.properties if v.id == "tooltip_text"]), None
+            "tooltip": next(
+                iter([v.value for v in f.properties if v.id == "tooltip"]), None
             ),
         }
         for f in form.fields

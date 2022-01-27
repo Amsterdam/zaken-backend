@@ -170,7 +170,7 @@
           </camunda:formField>
           <camunda:formField id="concept_aanschrijving_toelichting" label="Toelichting" type="string">
             <camunda:properties>
-              <camunda:property id="tooltip_text" value="Vermeld hier type concept (bijv. voornemen boete) en naam aangeschreven persoon" />
+              <camunda:property id="tooltip" value="Vermeld hier type concept (bijv. voornemen boete) en naam aangeschreven persoon" />
             </camunda:properties>
           </camunda:formField>
         </camunda:formData>

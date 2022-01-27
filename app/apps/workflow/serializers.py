@@ -23,7 +23,7 @@ class GenericFormFieldSerializer(serializers.Serializer):
     type = serializers.ChoiceField(
         choices=(("text", "text"), ("select", "select"), ("checkbox", "checkbox"))
     )
-    tooltip_text = serializers.CharField(required=False)
+    tooltip = serializers.CharField(required=False)
     required = serializers.BooleanField()
 
 
