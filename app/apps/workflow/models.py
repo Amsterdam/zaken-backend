@@ -733,7 +733,17 @@ class CaseWorkflow(models.Model):
             latest_version,
             self.workflow_message_name,
         )
+
         initial_data.update(original_data)
+
+        if self.workflow_type == CaseWorkflow.WORKFLOW_TYPE_VISIT:
+            initial_data.update(
+                {
+                    "bepalen_processtap": {
+                        "value": "ja" if self.case.theme.id == 4 else "default"
+                    },
+                }
+            )
 
         wf_spec_latest = get_workflow_spec(latest_path, self.workflow_type)
 
