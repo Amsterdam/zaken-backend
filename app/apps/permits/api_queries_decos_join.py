@@ -25,6 +25,8 @@ class VakantieverhuurReports:
         self.days_removed = []
 
     def add_raw_data(self, data):
+        if settings.USE_DECOS_MOCK_DATA:
+            data = get_decos_join_mock_folder_fields().get("content", [])
         if not self.report_id or not self.cancellation_id:
             return
         data = [
@@ -57,7 +59,7 @@ class VakantieverhuurReports:
             for d_set in data:
                 d = {
                     "report_date": datetime.strptime(
-                        d_set["date1"].split("T")[0], "%Y-%m-%d"
+                        d_set["document_date"].split("T")[0], "%Y-%m-%d"
                     ),
                     "check_in_date": datetime.strptime(
                         d_set["date6"].split("T")[0], "%Y-%m-%d"
@@ -96,8 +98,25 @@ class VakantieverhuurReports:
         ]
         reports.reverse()
         o.update(self._rented(year, today))
-        o.update({"reports": reports})
+        o.update(
+            {
+                "reports": reports,
+                "year": year,
+            }
+        )
         return o
+
+    def all_years(self, today):
+        years = []
+        if not self.days:
+            return []
+        this_year = datetime.today().year
+        start_year = sorted(self.days, key=lambda d: d[1])[0][1].year
+        for year in range(start_year, this_year + 1):
+            year_reports = self.get_set_by_year(year, today)
+            if year_reports.get("reports"):
+                years.append(year_reports)
+        return years
 
     def _days_flat(self, days):
         return [d for d_set in days for d in d_set[0]]
@@ -419,8 +438,8 @@ class DecosJoinRequest:
         response.update(
             {
                 "permits": permits,
-                "vakantieverhuur_reports": vakantieverhuur_reports.get_set_by_year(
-                    datetime.today().year, datetime.today()
+                "vakantieverhuur_reports": vakantieverhuur_reports.all_years(
+                    datetime.today()
                 ),
             }
         )

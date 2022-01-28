@@ -129,7 +129,7 @@ class PermitSerializer(serializers.Serializer):
 
 
 class DecosVakantieverhuurReportSerializer(serializers.Serializer):
-    date1 = serializers.DateTimeField(format="iso-8601")
+    document_date = serializers.DateTimeField(format="iso-8601")
     date6 = serializers.DateTimeField(format="iso-8601")
     date7 = serializers.DateTimeField(format="iso-8601")
     sequence = serializers.FloatField()
@@ -144,6 +144,7 @@ class VakantieverhuurReportSerializer(serializers.Serializer):
 
 
 class VakantieverhuurReportInformationSerializer(serializers.Serializer):
+    year = serializers.IntegerField()
     rented_days_count = serializers.IntegerField(allow_null=True)
     planned_days_count = serializers.IntegerField(allow_null=True)
     is_rented_today = serializers.BooleanField()
@@ -153,5 +154,6 @@ class VakantieverhuurReportInformationSerializer(serializers.Serializer):
 class DecosSerializer(serializers.Serializer):
     permits = PermitSerializer(many=True)
     vakantieverhuur_reports = VakantieverhuurReportInformationSerializer(
-        allow_null=True
+        many=True,
+        allow_null=True,
     )
