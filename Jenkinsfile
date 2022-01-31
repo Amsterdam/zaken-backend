@@ -106,7 +106,7 @@ pipeline {
       steps {
         tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.PRODUCTION)
         tag_and_deploy(env.OPEN_ZAAK_IMAGE_URL, env.OPEN_ZAAK_NAME, env.PRODUCTION)
-        tag_and_deploy(env.OPEN_NOTIFICATIES_IMAGE_URL, env.OPEN_NOTIFICATIES_NAME, env.PRODUCTION)w
+        tag_and_deploy(env.OPEN_NOTIFICATIES_IMAGE_URL, env.OPEN_NOTIFICATIES_NAME, env.PRODUCTION)
       }
     }
   }
