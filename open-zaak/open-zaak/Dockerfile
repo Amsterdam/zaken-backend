@@ -1,4 +1,4 @@
-FROM openzaak/open-zaak
+FROM openzaak/open-zaak:1.5.0
 
 USER root
 

@@ -1,4 +1,4 @@
-FROM openzaak/open-notificaties
+FROM openzaak/open-notificaties:1.2.3
 
 
 ENV REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
