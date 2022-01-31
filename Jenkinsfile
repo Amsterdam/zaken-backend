@@ -62,11 +62,11 @@ pipeline {
     REDIS_NAME = "zaken-redis"
 
     OPEN_ZAAK_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-open-zaak"
-    OPEN_ZAAK_SOURCE = "./open-zaak"
+    OPEN_ZAAK_SOURCE = "./open-zaak/open-zaak"
     OPEN_ZAAK_NAME = "zaken-open-zaak"
 
     OPEN_NOTIFICATIES_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-open-notificaties"
-    OPEN_NOTIFICATIES_SOURCE = "./zaken-open-notificaties"
+    OPEN_NOTIFICATIES_SOURCE = "./open-zaal/open-notificaties"
     OPEN_NOTIFICATIES_NAME = "zaken-open-notificaties"
   }
 
