@@ -1,5 +1,6 @@
 FROM openzaak/open-notificaties:1.2.3
 
+USER root
 
 ENV REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
@@ -10,6 +11,7 @@ RUN chmod 644 /usr/local/share/ca-certificates/adp_rootca.crt \
     && chmod 644 /usr/local/share/ca-certificates/nl_root.crt \
     && update-ca-certificates --fresh
 
+USER opennotificaties
 
 # TODO: this is a mock cmis_mapper, based on https://github.com/open-zaak/open-zaak/blob/master/config/cmis_mapper.json
 # Update this once we have received the definite mapping
