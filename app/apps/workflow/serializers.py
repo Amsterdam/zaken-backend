@@ -262,6 +262,7 @@ class WorkflowSpecConfigThemeTypeSerializer(serializers.Serializer):
     renounce_decision = WorkflowSpecConfigThemeSerializer(required=False)
     sub_workflow = WorkflowSpecConfigThemeSerializer(required=False)
     summon = WorkflowSpecConfigThemeSerializer(required=False)
+    unoccupied = WorkflowSpecConfigThemeSerializer(required=False)
     visit = WorkflowSpecConfigThemeSerializer(required=False)
 
     def run_validation(self, data=empty):

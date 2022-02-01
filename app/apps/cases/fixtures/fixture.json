@@ -28,6 +28,14 @@
     }
   },
   {
+    "model": "cases.casetheme",
+    "pk": 5,
+    "fields": {
+      "name": "Leegstand",
+      "sensitive": false
+    }
+  },
+  {
     "model": "cases.casereason",
     "pk": 2,
     "fields": {
@@ -113,6 +121,22 @@
     "fields": {
       "name": "Doorzon",
       "theme": 4
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 14,
+    "fields": {
+      "name": "Project",
+      "theme": 5
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 15,
+    "fields": {
+      "name": "SIA melding",
+      "theme": 5
     }
   },
   {
@@ -274,6 +298,51 @@
     "fields": {
       "name": "Resultaat na hercontrole",
       "case_theme": 4,
+      "result": true
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 33,
+    "fields": {
+      "name": "Geen aanleiding adres opnieuw te bezoeken",
+      "case_theme": 5,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 34,
+    "fields": {
+      "name": "Doorgezet naar ander team",
+      "case_theme": 5,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 35,
+    "fields": {
+      "name": "Geen woonfraude",
+      "case_theme": 5,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 36,
+    "fields": {
+      "name": "Resultaat na hercontrole",
+      "case_theme": 5,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 37,
+    "fields": {
+      "name": "Anders, vermeld in toelichting",
+      "case_theme": 5,
       "result": true
     }
   },

@@ -15,6 +15,7 @@ class Debriefing(TaskModelEventEmitter):
         "ADDITIONAL_VISIT_WITH_AUTHORIZATION"
     )
     VIOLATION_SEND_TO_OTHER_THEME = "SEND_TO_OTHER_THEME"
+    VIOLATION_LIKELY_INHABITED = "LIKELY_INHABITED"
 
     VIOLATION_CHOICES = [
         (VIOLATION_NO, "No"),
@@ -26,6 +27,7 @@ class Debriefing(TaskModelEventEmitter):
             "Nieuw huisbezoek inclusief machtingaanvraag",
         ),
         (VIOLATION_SEND_TO_OTHER_THEME, "Naar ander team"),
+        (VIOLATION_LIKELY_INHABITED, "Vermoeden bewoning"),
     ]
 
     case = models.ForeignKey(
