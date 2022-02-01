@@ -6,13 +6,18 @@ from apps.cases.serializers import (
 )
 from apps.events.mixins import CaseEventsMixin
 from apps.main.filters import RelatedOrderingFilter
-from apps.users.permissions import CanCreateCase, rest_permission_classes_for_top
+from apps.users.permissions import (
+    CanCreateCase,
+    CanCreateDigitalSurveillanceCase,
+    rest_permission_classes_for_top,
+)
 from apps.workflow.models import CaseWorkflow, WorkflowOption
 from apps.workflow.serializers import (
     CaseWorkflowSerializer,
     StartWorkflowSerializer,
     WorkflowOptionSerializer,
 )
+from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
@@ -122,7 +127,10 @@ class CaseViewSet(
 
     def get_permissions(self):
         if self.action == "create" and self.request.method not in SAFE_METHODS:
-            self.permission_classes.append(CanCreateCase)
+            if self.request.data.get("reason_id") in settings.DIGITAL_SURVEILLANCE_IDS:
+                self.permission_classes.append(CanCreateDigitalSurveillanceCase)
+            else:
+                self.permission_classes.append(CanCreateCase)
         return super(CaseViewSet, self).get_permissions()
 
     def get_queryset(self):
