@@ -5,6 +5,7 @@ from rest_framework.permissions import BasePermission
 custom_permissions = [
     # Permissions for cases/tasks
     ("create_case", "Create a new Case"),
+    ("create_digital_surveilance_case", "Create a new 'Digitaal toezicht' Case"),
     ("close_case", "Close a Case (by performing the last task)"),
     ("perform_task", "Can perform a tasks"),
     # Permissions to access remote API's
@@ -31,6 +32,15 @@ class CanCreateCase(BasePermission):
 
     def has_permission(self, request, view):
         return request.user.has_perm("users.create_case")
+
+
+class CanCreateDigitalSurveillanceCase(BasePermission):
+    """
+    Custom permission to only allow users with create-case permissions
+    """
+
+    def has_permission(self, request, view):
+        return request.user.has_perm("users.create_digital_surveilance_case")
 
 
 class CanPerformTask(BasePermission):
