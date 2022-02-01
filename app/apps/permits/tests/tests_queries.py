@@ -396,14 +396,14 @@ class VakantieverhuurReportsTest(TestCase):
 
         MOCK_DATA = [
             {
-                "date1": "2020-07-26T00:00:00",
+                "document_date": "2020-07-26T00:00:00",
                 "date6": "2020-07-26T00:00:00",
                 "date7": "2020-07-29T00:00:00",
                 "sequence": 2.0,
                 "is_cancellation": True,
             },
             {
-                "date1": "2020-07-26T00:00:00",
+                "document_date": "2020-07-26T00:00:00",
                 "date6": "2020-07-26T00:00:00",
                 "date7": "2020-07-29T00:00:00",
                 "sequence": 1.0,
@@ -420,6 +420,7 @@ class VakantieverhuurReportsTest(TestCase):
         serializer = VakantieverhuurReportInformationSerializer(data=data)
 
         expected_result = {
+            "year": 2020,
             "rented_days_count": 0,
             "planned_days_count": 0,
             "is_rented_today": False,
@@ -450,28 +451,28 @@ class VakantieverhuurReportsTest(TestCase):
 
         MOCK_DATA = [
             {
-                "date1": "2020-07-26T00:00:00",
+                "document_date": "2020-07-26T00:00:00",
                 "date6": "2020-07-26T00:00:00",
                 "date7": "2020-07-29T00:00:00",
                 "sequence": 2.0,
                 "is_cancellation": True,
             },
             {
-                "date1": "2020-07-26T00:00:00",
+                "document_date": "2020-07-26T00:00:00",
                 "date6": "2020-07-26T00:00:00",
                 "date7": "2020-07-29T00:00:00",
                 "sequence": 1.0,
                 "is_cancellation": False,
             },
             {
-                "date1": "2020-07-27T00:00:00",
+                "document_date": "2020-07-27T00:00:00",
                 "date6": "2020-07-27T00:00:00",
                 "date7": "2020-07-30T00:00:00",
                 "sequence": 3.0,
                 "is_cancellation": False,
             },
             {
-                "date1": "2019-12-29T00:00:00",
+                "document_date": "2019-12-29T00:00:00",
                 "date6": "2019-12-29T00:00:00",
                 "date7": "2020-01-02T00:00:00",
                 "sequence": 4.0,
@@ -487,6 +488,7 @@ class VakantieverhuurReportsTest(TestCase):
         )
         serializer = VakantieverhuurReportInformationSerializer(data=data)
         expected_result = {
+            "year": 2020,
             "rented_days_count": 2,
             "planned_days_count": 2,
             "is_rented_today": True,
