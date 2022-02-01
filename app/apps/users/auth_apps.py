@@ -21,3 +21,7 @@ class AppsKeyAuth(BasePermission):
 
 class TopKeyAuth(AppsKeyAuth):
     SECRET_KEY = settings.SECRET_KEY_TOP_ZAKEN
+
+
+class TonKeyAuth(AppsKeyAuth):
+    SECRET_KEY = settings.SECRET_KEY_TON_ZAKEN
