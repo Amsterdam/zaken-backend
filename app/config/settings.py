@@ -517,6 +517,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "1.0.0": {},
                 "2.0.0": {},
                 "3.0.0": {},
+                "4.0.0": {},
             },
         },
         "director": {
@@ -569,6 +570,26 @@ WORKFLOW_SPEC_CONFIG = {
                                 "theme": {"value": "default"},
                                 "bepalen_processtap": {"value": "default"},
                                 "debrief_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
+                            },
+                        },
+                        "aanschrijving_toevoegen": {},
+                    },
+                },
+                "4.0.0": {
+                    "messages": {
+                        "main_process": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "default"},
+                                "debrief_next_step": {"value": "default"},
+                                "summon_next_step": {"value": "default"},
                                 "visit_next_step": {"value": "default"},
                                 "monitoren_reactie_platform_duration": timedelta(
                                     days=14
@@ -639,6 +660,22 @@ WORKFLOW_SPEC_CONFIG = {
                 "1.0.0": {},
                 "2.0.0": {},
                 "3.0.0": {},
+                "4.0.0": {},
+            },
+        },
+        "unoccupied": {
+            "initial_data": {
+                "task_leegstand_monitoren_binnenkomen_reactie_timer_duration": timedelta(
+                    days=18
+                ),
+                "task_leegstand_monitoren_binnenkomen_melding_timer_duration": timedelta(
+                    days=18
+                ),
+                "task_afwachten_afspraken_periode_timer_duration": timedelta(days=7),
+                "constateringsbrief_proces": "ja",
+            },
+            "versions": {
+                "4.0.0": {},
             },
         },
         "visit": {

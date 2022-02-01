@@ -168,5 +168,46 @@
       "workflow_option": "no_decision",
       "is_sanction": false
     }
+  },
+
+  {
+    "model": "decisions.decisiontype",
+    "pk": 26,
+    "fields": {
+      "theme": 5,
+      "name": "Afzien voornemen",
+      "workflow_option": "no_decision",
+      "is_sanction": false
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 27,
+    "fields": {
+      "theme": 5,
+      "name": "Boete",
+      "workflow_option": "boete",
+      "is_sanction": true
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 28,
+    "fields": {
+      "theme": 5,
+      "name": "Last onder dwangsom",
+      "workflow_option": "last_onder_dwangsom",
+      "is_sanction": false
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 29,
+    "fields": {
+      "theme": 5,
+      "name": "Leegstandbeschikking",
+      "workflow_option": "leegstandbeschikking",
+      "is_sanction": false
+    }
   }
 ]

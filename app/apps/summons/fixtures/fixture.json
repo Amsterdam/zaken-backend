@@ -196,5 +196,50 @@
       "workflow_option": "verzoek_verwijdering_advertentie",
       "name": "Verzoek tot verwijdering advertentie"
     }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 36,
+    "fields": {
+      "theme": 5,
+      "workflow_option": "legalisatie-brief",
+      "name": "Legalisatiebrief"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 37,
+    "fields": {
+      "theme": 5,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen boete"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 38,
+    "fields": {
+      "theme": 5,
+      "workflow_option": "aanschrijvingen",
+      "name": "Vooraankondiging dwangsom"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 39,
+    "fields": {
+      "theme": 5,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen leegstandbeschikking"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 40,
+    "fields": {
+      "theme": 5,
+      "workflow_option": "leegstandsbrief",
+      "name": "Leegstandsbrief"
+    }
   }
 ]
