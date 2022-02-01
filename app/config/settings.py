@@ -289,6 +289,7 @@ BRP_API_URL = os.getenv(
 
 # Secret keys which can be used to access certain parts of the API
 SECRET_KEY_TOP_ZAKEN = os.getenv("SECRET_KEY_TOP_ZAKEN", None)
+SECRET_KEY_TON_ZAKEN = os.getenv("SECRET_KEY_TON_ZAKEN", None)
 
 # NOTE: this is commented out because currently the internal health check is done over HTTP
 # SECURE_SSL_REDIRECT = is_secure_environment
