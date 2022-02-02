@@ -36,7 +36,21 @@ class UserDetailSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(required=False)
     last_name = serializers.CharField(required=False)
     full_name = serializers.CharField(required=False)
-    groups = GroupSerializer(required=False, many=True)
+    permissions = serializers.SerializerMethodField()
+
+    @extend_schema_field(serializers.MultipleChoiceField(choices=custom_permissions))
+    def get_permissions(self, object):
+        return list(
+            set(
+                [
+                    p
+                    for p in object.groups.values_list(
+                        "permissions__codename", flat=True
+                    )
+                    if p
+                ]
+            )
+        )
 
     class Meta:
         model = User
@@ -48,6 +62,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             "is_active",
             "date_joined",
             "user_permissions",
+            "groups",
         ]
 
 
