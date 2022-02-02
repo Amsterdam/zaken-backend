@@ -8,7 +8,7 @@
       <bpmn:lane id="lane_projectmedewerker" name="Projectmedewerker">
         <bpmn:flowNodeRef>start_event_unoccupied</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0v7g8m3</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>task_verturen_informatie_status_woning</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_opstellen_aanschrijving_eigenaar</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_leegstand_monitoren_binnenkomen_reactie</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0tslqg0</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1y34uj2</bpmn:flowNodeRef>
@@ -21,7 +21,7 @@
         <bpmn:flowNodeRef>task_leegstand_monitoren_binnenkomen_melding</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0xdw5sz</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_05tzqvj</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>task_inplannen_leegstand_gesprek</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_inplannen_leegstandgesprek</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0xwxrsz</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1ku1e8l</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0b8aigx</bpmn:flowNodeRef>
@@ -62,15 +62,14 @@
       <bpmn:outgoing>Flow_1849ztt</bpmn:outgoing>
       <bpmn:outgoing>Flow_036iptq</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_verturen_informatie_status_woning" name="Opstellen aanschrijving eigenaar">
+    <bpmn:userTask id="task_opstellen_aanschrijving_eigenaar" name="Opstellen aanschrijving eigenaar">
       <bpmn:incoming>Flow_1849ztt</bpmn:incoming>
       <bpmn:outgoing>Flow_1er1r68</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:userTask id="task_leegstand_monitoren_binnenkomen_reactie" name="Monitoren binnenkomen reactie" camunda:formKey="form_monitoren_binnenkomen_reactie">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="leegstand_reactie" label="Is er al een reactie ontvangen?" type="enum">
-            <camunda:value id="woning_niet_leeg" name="Nee, overgaan to handhaven" />
+          <camunda:formField id="leegstand_reactie" label="Is er een reactie ontvangen?" type="enum">
             <camunda:value id="woning_leeg" name="Ja, woning leegstand gemeld" />
             <camunda:value id="pied_a_terre" name="Ja, pied-à-terre" />
             <camunda:value id="geen_aanschrijving" name="Ja, geen aanschrijving" />
@@ -188,7 +187,7 @@
     <bpmn:userTask id="task_uitvoeren_administratief_onderzoek" name="Uitvoeren administratief onderzoek" camunda:formKey="form_uitvoeren_administratief_onderzoek">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="leegstand_resultaat_onderzoek" label="Wat is het resultaat van het onderzoek" type="enum">
+          <camunda:formField id="leegstand_resultaat_onderzoek" label="Wat is het resultaat van het onderzoek?" type="enum">
             <camunda:value id="woning_nog_niet_bewoonbaar" name="Woning nog niet bewoonbaar" />
             <camunda:value id="woning_te_huur_koop" name="Woning te huur/koop" />
             <camunda:value id="woning_verkocht" name="Woning verkocht" />
@@ -249,18 +248,18 @@
     <bpmn:sequenceFlow id="Flow_1pr9sst" name="leegstand_reactie == reactie_ontvangen_woning_leeg" sourceRef="Gateway_0tslqg0" targetRef="Gateway_05tzqvj">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_reactie.value == "woning_leeg"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1849ztt" sourceRef="Gateway_0v7g8m3" targetRef="task_verturen_informatie_status_woning" />
-    <bpmn:sequenceFlow id="Flow_1er1r68" sourceRef="task_verturen_informatie_status_woning" targetRef="task_leegstand_monitoren_binnenkomen_reactie" />
+    <bpmn:sequenceFlow id="Flow_1849ztt" sourceRef="Gateway_0v7g8m3" targetRef="task_opstellen_aanschrijving_eigenaar" />
+    <bpmn:sequenceFlow id="Flow_1er1r68" sourceRef="task_opstellen_aanschrijving_eigenaar" targetRef="task_leegstand_monitoren_binnenkomen_reactie" />
     <bpmn:sequenceFlow id="Flow_036iptq" name="summon_next_step == unoccupied" sourceRef="Gateway_0v7g8m3" targetRef="task_leegstand_monitoren_binnenkomen_melding">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon_next_step.value == "unoccupied"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1k3djn6" sourceRef="Event_0xdw5sz" targetRef="task_controleren_binnenkomen_melding" />
-    <bpmn:sequenceFlow id="Flow_1wo1deu" sourceRef="Gateway_05tzqvj" targetRef="task_inplannen_leegstand_gesprek" />
+    <bpmn:sequenceFlow id="Flow_1wo1deu" sourceRef="Gateway_05tzqvj" targetRef="task_inplannen_leegstandgesprek" />
     <bpmn:sequenceFlow id="Flow_11wtcis" sourceRef="task_controleren_binnenkomen_melding" targetRef="Gateway_0f2k564" />
     <bpmn:sequenceFlow id="Flow_1kfpx2m" sourceRef="task_leegstand_monitoren_binnenkomen_melding" targetRef="Gateway_0b8aigx">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" />
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0rdqj1a" sourceRef="task_inplannen_leegstand_gesprek" targetRef="Gateway_0xwxrsz" />
+    <bpmn:sequenceFlow id="Flow_0rdqj1a" sourceRef="task_inplannen_leegstandgesprek" targetRef="Gateway_0xwxrsz" />
     <bpmn:sequenceFlow id="Flow_1b0zi4a" sourceRef="task_versturen_afspraakbrief" targetRef="task_uitvoeren_leegstandgesprek" />
     <bpmn:sequenceFlow id="Flow_1eryuub" sourceRef="service_script_next_step_unoccupied_close_case" targetRef="end_event_unoccupied" />
     <bpmn:sequenceFlow id="Flow_06ck92e" name="leegstand_gesprek == woning_niet_geschikt" sourceRef="Gateway_1rxsmhl" targetRef="Gateway_1oa7hdg">
@@ -310,7 +309,7 @@
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="leegstand_reactie" label="Is er al een reactie ontvangen?" type="enum">
-            <camunda:value id="woning_niet_leeg" name="Nee, overgaan to handhaven" />
+            <camunda:value id="woning_niet_leeg" name="Nee, overgaan tot handhaven" />
             <camunda:value id="woning_leeg" name="Ja, woning leegstand gemeld" />
             <camunda:value id="pied_a_terre" name="Ja, pied-à-terre" />
             <camunda:value id="geen_aanschrijving" name="Ja, geen aanschrijving" />
@@ -321,7 +320,14 @@
       <bpmn:incoming>Flow_1a2o14d</bpmn:incoming>
       <bpmn:outgoing>Flow_1e69sic</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_leegstand_monitoren_binnenkomen_melding" name="Monitoren binnenkomen melding">
+    <bpmn:userTask id="task_leegstand_monitoren_binnenkomen_melding" name="Monitoren binnenkomen melding" camunda:formKey="form_leegstand_monitoren_binnenkomen_melding">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="melding_binnengekomen" label="Is er een melding binnengekomen?" type="enum">
+            <camunda:value id="melding_binnengekomen" name="Ja, melding is binnengekomen" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_036iptq</bpmn:incoming>
       <bpmn:outgoing>Flow_1kfpx2m</bpmn:outgoing>
     </bpmn:userTask>
@@ -338,11 +344,11 @@
       <bpmn:outgoing>Flow_1wo1deu</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0hi8x32" sourceRef="Gateway_0b8aigx" targetRef="Gateway_05tzqvj" />
-    <bpmn:userTask id="task_inplannen_leegstand_gesprek" name="Inplannen leegstand gesprek" camunda:formKey="form_inplannen_leegstand_gesprek">
+    <bpmn:userTask id="task_inplannen_leegstandgesprek" name="Inplannen leegstandgesprek" camunda:formKey="form_inplannen_leegstand_gesprek">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="leegstand_gesprek_ingeplanned" type="enum">
-            <camunda:value id="geen_afspraak_ingeplanned" name="Nee, geen afspraak kunnen ingeplannen" />
+          <camunda:formField id="leegstandgesprek_ingeplanned" label="Is er een afspraak gemaakt?" type="enum">
+            <camunda:value id="geen_afspraak_ingeplanned" name="Nee, geen afspraak kunnen inplannen" />
             <camunda:value id="afspraak_ingeplanned" name="Ja, afspraak kunnen inplannen" />
           </camunda:formField>
         </camunda:formData>
@@ -360,8 +366,8 @@
       <bpmn:incoming>Flow_0v3g1u8</bpmn:incoming>
       <bpmn:outgoing>Flow_107zyol</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0v3g1u8" name="leegstand_gesprek_ingeplanned == geen_afspraak_ingeplanned" sourceRef="Gateway_0xwxrsz" targetRef="Gateway_1ku1e8l">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_gesprek_ingeplanned.value == "geen_afspraak_ingeplanned"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0v3g1u8" name="leegstandgesprek_ingeplanned == geen_afspraak_ingeplanned" sourceRef="Gateway_0xwxrsz" targetRef="Gateway_1ku1e8l">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstandgesprek_ingeplanned.value == "geen_afspraak_ingeplanned"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0fnsis0" name="leegstand_melding_binnengekomen == melding_nee_vorder" sourceRef="Gateway_0f2k564" targetRef="task_opstellen_vorderingsbrief">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_melding_binnengekomen.value == "melding_nee_vorder"</bpmn:conditionExpression>
@@ -438,7 +444,7 @@
         <di:waypoint x="1075" y="870" />
         <di:waypoint x="1515" y="870" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1254" y="852" width="82" height="66" />
+          <dc:Bounds x="1252" y="852" width="87" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0hi8x32_di" bpmnElement="Flow_0hi8x32">
@@ -677,7 +683,7 @@
       <bpmndi:BPMNShape id="Gateway_0v7g8m3_di" bpmnElement="Gateway_0v7g8m3" isMarkerVisible="true">
         <dc:Bounds x="355" y="392" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_01p4wqi_di" bpmnElement="task_verturen_informatie_status_woning">
+      <bpmndi:BPMNShape id="Activity_01p4wqi_di" bpmnElement="task_opstellen_aanschrijving_eigenaar">
         <dc:Bounds x="470" y="377" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_07zktx6_di" bpmnElement="task_leegstand_monitoren_binnenkomen_reactie">
@@ -761,7 +767,7 @@
       <bpmndi:BPMNShape id="Gateway_05tzqvj_di" bpmnElement="Gateway_05tzqvj" isMarkerVisible="true">
         <dc:Bounds x="1025" y="605" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0ewrckv_di" bpmnElement="task_inplannen_leegstand_gesprek">
+      <bpmndi:BPMNShape id="Activity_0ewrckv_di" bpmnElement="task_inplannen_leegstandgesprek">
         <dc:Bounds x="1000" y="700" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0xwxrsz_di" bpmnElement="Gateway_0xwxrsz" isMarkerVisible="true">

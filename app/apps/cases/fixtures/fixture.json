@@ -334,7 +334,7 @@
     "fields": {
       "name": "Resultaat na hercontrole",
       "case_theme": 5,
-      "result": false
+      "result": true
     }
   },
   {
@@ -343,7 +343,7 @@
     "fields": {
       "name": "Anders, vermeld in toelichting",
       "case_theme": 5,
-      "result": true
+      "result": false
     }
   },
   {
@@ -400,6 +400,30 @@
     "fields": {
       "name": "Regulier bewoond",
       "case_theme": 4
+    }
+  },
+  {
+    "model": "cases.casecloseresult",
+    "pk": 11,
+    "fields": {
+      "name": "Gelegaliseerd",
+      "case_theme": 5
+    }
+  },
+  {
+    "model": "cases.casecloseresult",
+    "pk": 12,
+    "fields": {
+      "name": "Regulier verhuurd",
+      "case_theme": 5
+    }
+  },
+  {
+    "model": "cases.casecloseresult",
+    "pk": 13,
+    "fields": {
+      "name": "Regulier bewoond",
+      "case_theme": 5
     }
   },
   {
