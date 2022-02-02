@@ -12,7 +12,7 @@ from django.db import models, transaction
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_duration
-from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.specs.BoundaryEvent import _BoundaryEventParent
 from SpiffWorkflow.bpmn.specs.event_definitions import (
@@ -204,7 +204,7 @@ class CaseWorkflow(models.Model):
         def parse_duration_string(str_duration):
             return parse_duration(str_duration)
 
-        wf.script_engine = BpmnScriptEngine(
+        wf.script_engine = PythonScriptEngine(
             scriptingAdditions={
                 "set_status": set_status,
                 "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
@@ -552,7 +552,8 @@ class CaseWorkflow(models.Model):
                     self.serialized_workflow_state, workflow_spec=workflow_spec
                 )
                 wf = self.get_script_engine(wf)
-            except Exception:
+            except Exception as e:
+                logger.error(f"deserialize workflow failed: {e}")
                 return False
             return wf
         else:
