@@ -424,12 +424,24 @@ class task_opstellen_aanschrijving_eigenaar(user_task):
     due_date = relativedelta(days=7)
 
 
+class task_controleren_binnenkomen_reactie(user_task):
+    due_date = relativedelta(days=7)
+
+
 class task_inplannen_leegstandgesprek(user_task):
     due_date = relativedelta(days=7)
 
 
 class task_controleren_binnenkomen_melding(user_task):
     due_date = relativedelta(days=7)
+
+
+class task_opstellen_vorderingsbrief(user_task):
+    due_date = relativedelta(days=7)
+
+
+class task_monitoren_binnenkomen_reactie_vordering(user_task):
+    due_date = relativedelta(days=18)
 
 
 class task_versturen_afspraakbrief(user_task):
@@ -441,6 +453,14 @@ class task_leegstand_opstellen_rapport_van_bevindingen(user_task):
 
 
 class task_opstellen_constateringsbrief(user_task):
+    due_date = relativedelta(days=7)
+
+
+class task_nakijken_constateringsbrief(user_task):
+    due_date = relativedelta(days=7)
+
+
+class task_verwerken_constateringsbrief(user_task):
     due_date = relativedelta(days=7)
 
 
