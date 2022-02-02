@@ -227,5 +227,66 @@
       "message_name": "start_opstellen_digitale_analyse_proces",
       "to_directing_proccess": false
     }
+  },
+
+  {
+    "model": "workflow.workflowoption",
+    "pk": 36,
+    "fields": {
+      "theme": 5,
+      "name": "Correspondentie",
+      "message_name": "start_correspondence_process",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 37,
+    "fields": {
+      "theme": 5,
+      "name": "Extra aanschrijving",
+      "message_name": "aanschrijving_toevoegen",
+      "to_directing_proccess": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 38,
+    "fields": {
+      "theme": 5,
+      "name": "Extra informatie",
+      "message_name": "start_extra_information",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 39,
+    "fields": {
+      "theme": 5,
+      "name": "Nieuwe melding",
+      "message_name": "start_signal_process",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 40,
+    "fields": {
+      "theme": 5,
+      "name": "Terugbelverzoek",
+      "message_name": "start_callbackrequest_process",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 41,
+    "fields": {
+      "theme": 5,
+      "name": "Aanleveren bezwaardossier",
+      "message_name": "start_objectionfile_process",
+      "to_directing_proccess": false
+    }
   }
 ]

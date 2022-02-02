@@ -415,5 +415,38 @@ class task_opstelllen_rapport_van_bevindingen_2(user_task):
     due_date = relativedelta(days=3)
 
 
+# leegstand tasks
 class task_opstellen_verzoek_tot_inlichtingen(user_task):
     due_date = relativedelta(days=3)
+
+
+class task_opstellen_aanschrijving_eigenaar(user_task):
+    due_date = relativedelta(days=7)
+
+
+class task_inplannen_leegstandgesprek(user_task):
+    due_date = relativedelta(days=7)
+
+
+class task_controleren_binnenkomen_melding(user_task):
+    due_date = relativedelta(days=7)
+
+
+class task_versturen_afspraakbrief(user_task):
+    due_date = relativedelta(days=3)
+
+
+class task_leegstand_opstellen_rapport_van_bevindingen(user_task):
+    due_date = relativedelta(days=3)
+
+
+class task_opstellen_constateringsbrief(user_task):
+    due_date = relativedelta(days=7)
+
+
+class task_uitvoeren_leegstandgesprek(user_task):
+    due_date = relativedelta(weeks=4)
+
+
+class task_uitvoeren_administratief_onderzoek(user_task):
+    due_date = relativedelta(weeks=2)
