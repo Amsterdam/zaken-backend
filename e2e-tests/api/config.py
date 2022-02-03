@@ -71,6 +71,7 @@ class Violation:
     ADDITIONAL_RESEARCH_REQUIRED = "ADDITIONAL_RESEARCH_REQUIRED"
     ADDITIONAL_VISIT_REQUIRED = "ADDITIONAL_VISIT_REQUIRED"
     ADDITIONAL_VISIT_WITH_AUTHORIZATION = "ADDITIONAL_VISIT_WITH_AUTHORIZATION"
+    LIKELY_INHABITED = "LIKELY_INHABITED"
 
 
 class TypeConceptSummon:
@@ -168,6 +169,13 @@ class SummonType:
         WARNING_BB_LICENSE = 24  # Waarschuwing BB-vergunning
         WARNING_SS_LICENCE = 25  # Waarschuwing SS-vergunning
         WARNING_VV_LICENSE = 26  # Waarschuwing VV-vergunning
+
+    class Leegstand:
+        LEGALIZATION_LETTER = 36  # Legalisatiebrief
+        INTENTION_TO_FINE = 37  # Voornemen boete
+        ADVANCE_ANNOUNCEMENT_DURING_SUM = 38  # Vooraankondiging dwangsom
+        LEEGSTAND_BESCHIKKING = 39  # Vooraankondiging dwangsom
+        LEEGSTANDSBRIEF = 40  # Leegstandsbrief
 
 
 class DecisionType:

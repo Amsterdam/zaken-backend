@@ -617,5 +617,13 @@
       "name": "Ontbreken B&B vergunning",
       "theme": 2
     }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 22,
+    "fields": {
+      "name": "TEST",
+      "theme": 5
+    }
   }
 ]
