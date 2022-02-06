@@ -59,8 +59,8 @@
         <bpmn:flowNodeRef>Event_0xdw5sz</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:sequenceFlow id="Flow_0tjpgeg" name="leegstand_resultaat_onderzoek == woning_verkocht or leegstand_resultaat_onderzoek == reguliere_woning" sourceRef="Gateway_1kl0rqm" targetRef="Gateway_1rpbfjx">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_resultaat_onderzoek.value == "woning_verkocht" or leegstand_resultaat_onderzoek.value == "reguliere_woning"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0tjpgeg" name="leegstand_resultaat_onderzoek == woning_verkocht or leegstand_resultaat_onderzoek == reguliere_bewoning" sourceRef="Gateway_1kl0rqm" targetRef="Gateway_1rpbfjx">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_resultaat_onderzoek.value == "woning_verkocht" or leegstand_resultaat_onderzoek.value == "reguliere_bewoning"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_01chn0h" sourceRef="task_uitvoeren_administratief_onderzoek" targetRef="Gateway_1kl0rqm" />
     <bpmn:sequenceFlow id="Flow_0444u2a" sourceRef="task_nakijken_constateringsbrief" targetRef="task_verwerken_constateringsbrief" />
@@ -394,7 +394,7 @@
             <camunda:value id="woning_nog_niet_bewoonbaar" name="Woning nog niet bewoonbaar" />
             <camunda:value id="woning_te_huur_koop" name="Woning te huur/koop" />
             <camunda:value id="woning_verkocht" name="Woning verkocht" />
-            <camunda:value id="reguliere_woning" name="Reguliere woning" />
+            <camunda:value id="reguliere_bewoning" name="Reguliere bewoning" />
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
