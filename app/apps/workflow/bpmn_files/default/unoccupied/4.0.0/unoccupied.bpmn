@@ -395,6 +395,7 @@
             <camunda:value id="woning_te_huur_koop" name="Woning te huur/koop" />
             <camunda:value id="woning_verkocht" name="Woning verkocht" />
             <camunda:value id="reguliere_bewoning" name="Reguliere bewoning" />
+            <camunda:value id="woning_gereed_geen_bewoning" name="Woning gereed, maar geen bewoning" />
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
