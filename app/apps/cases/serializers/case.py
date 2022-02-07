@@ -12,6 +12,7 @@ from apps.cases.models import (
     Subject,
 )
 from apps.cases.serializers.main import (
+    AdvertisementSerializer,
     CaseProjectSerializer,
     CaseReasonSerializer,
     CaseThemeSerializer,
@@ -122,6 +123,7 @@ class CaseSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
     citizen_reports = CitizenReportCaseSerializer(
         source="case_citizen_reports", many=True, required=False
     )
+    advertisements = AdvertisementSerializer(many=True, required=False)
 
     class Meta:
         model = Case

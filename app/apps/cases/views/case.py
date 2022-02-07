@@ -1,5 +1,6 @@
 from apps.cases.models import Case, CaseStateType, CitizenReport
 from apps.cases.serializers import (
+    AdvertisementSerializer,
     CaseSerializer,
     CitizenReportSerializer,
     SubjectSerializer,
@@ -266,3 +267,20 @@ class CaseViewSet(
             data="CitizenReport error. serializer not valid",
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
+    @extend_schema(
+        description="Gets the Advertisements associated with this case",
+        responses={status.HTTP_200_OK: AdvertisementSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="advertisements",
+        methods=["get"],
+    )
+    def advertisements(self, request, pk):
+        paginator = LimitOffsetPagination()
+        case = self.get_object()
+        query_set = case.advertisements.all()
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = AdvertisementSerializer(context, many=True)
+        return paginator.get_paginated_response(serializer.data)
