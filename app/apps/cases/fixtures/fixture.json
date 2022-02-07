@@ -625,5 +625,13 @@
       "name": "TEST",
       "theme": 5
     }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 23,
+    "fields": {
+      "name": "Zelfstandige B&B",
+      "theme": 2
+    }
   }
 ]
