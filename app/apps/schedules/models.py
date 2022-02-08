@@ -77,6 +77,10 @@ class Schedule(TaskModelEventEmitter):
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT
     )
+    visit_from_datetime = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
 
     def __get_event_values__(self):
         return {
@@ -87,4 +91,5 @@ class Schedule(TaskModelEventEmitter):
             "priority": self.priority.name,
             "description": self.description,
             "author": self.author.__str__(),
+            "visit_from_datetime": self.visit_from_datetime,
         }
