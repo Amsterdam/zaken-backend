@@ -39,9 +39,12 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
 
 class ScheduleCreateSerializer(serializers.ModelSerializer):
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = Schedule
         fields = (
+            "author",
             "action",
             "week_segment",
             "day_segment",
