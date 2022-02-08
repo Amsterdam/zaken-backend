@@ -258,6 +258,7 @@ class CaseTaskAdmin(admin.ModelAdmin):
         "task_name",
         "completed",
         "workflow",
+        "owner",
     )
     search_fields = ("case__id",)
     list_filter = ("task_name", "name")

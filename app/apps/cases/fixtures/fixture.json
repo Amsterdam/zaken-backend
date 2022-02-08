@@ -1,12 +1,5 @@
 [{
     "model": "cases.casetheme",
-    "pk": 1,
-    "fields": {
-      "name": "(Legacy) Vakantieverhuur"
-    }
-  },
-  {
-    "model": "cases.casetheme",
     "pk": 2,
     "fields": {
       "name": "Vakantieverhuur"
