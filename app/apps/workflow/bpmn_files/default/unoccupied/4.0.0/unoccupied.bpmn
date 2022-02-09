@@ -57,7 +57,7 @@
         <bpmn:flowNodeRef>task_opstellen_aanschrijving_eigenaar</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_status_aanschrijving_eigenaar</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_05nnzfi</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>service_status_leegstand_melding</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_status_leegstandsmelding</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1derutl</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
@@ -92,7 +92,7 @@
     <bpmn:sequenceFlow id="Flow_1bxos4w" name="leegstand_reactie == woning_niet_leeg" sourceRef="Gateway_0tslqg0" targetRef="Gateway_1ku1e8l">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_reactie.value == "woning_niet_leeg"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1a9zrzn" sourceRef="service_status_leegstand_melding" targetRef="task_leegstand_monitoren_binnenkomen_melding" />
+    <bpmn:sequenceFlow id="Flow_1a9zrzn" sourceRef="service_status_leegstandsmelding" targetRef="task_leegstand_monitoren_binnenkomen_melding" />
     <bpmn:userTask id="task_versturen_afspraakbrief" name="Versturen afspraakbrief">
       <bpmn:incoming>Flow_1k0rwdq</bpmn:incoming>
       <bpmn:outgoing>Flow_1b0zi4a</bpmn:outgoing>
@@ -170,7 +170,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1wf847d" sourceRef="start_event_unoccupied" targetRef="Gateway_0v7g8m3" />
     <bpmn:sequenceFlow id="Flow_1849ztt" sourceRef="Gateway_0v7g8m3" targetRef="Gateway_05nnzfi" />
-    <bpmn:sequenceFlow id="Flow_036iptq" name="summon_next_step == unoccupied" sourceRef="Gateway_0v7g8m3" targetRef="service_status_leegstand_melding">
+    <bpmn:sequenceFlow id="Flow_036iptq" name="summon_next_step == unoccupied" sourceRef="Gateway_0v7g8m3" targetRef="service_status_leegstandsmelding">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon_next_step.value == "unoccupied"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1er1r68" sourceRef="task_opstellen_aanschrijving_eigenaar" targetRef="task_leegstand_monitoren_binnenkomen_reactie" />
@@ -285,8 +285,8 @@
       <bpmn:outgoing>Flow_01tcxcn</bpmn:outgoing>
       <bpmn:script>set_status("Vorderen")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:sequenceFlow id="Flow_0fnsis0" name="leegstand_melding_binnengekomen == melding_nee_vorder" sourceRef="Gateway_0f2k564" targetRef="service_status_vorderen">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_melding_binnengekomen.value == "melding_nee_vorder"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0fnsis0" name="leegstandsmelding_binnengekomen == melding_nee_vorder" sourceRef="Gateway_0f2k564" targetRef="service_status_vorderen">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstandsmelding_binnengekomen.value == "melding_nee_vorder"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_01tcxcn" sourceRef="service_status_vorderen" targetRef="task_opstellen_vorderingsbrief" />
     <bpmn:sequenceFlow id="Flow_0yzorna" sourceRef="task_opstellen_vorderingsbrief" targetRef="task_monitoren_binnenkomen_reactie_vordering" />
@@ -318,8 +318,8 @@
       <bpmn:incoming>Flow_1kpgdka</bpmn:incoming>
       <bpmn:outgoing>Flow_1x88ujy</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0utegrz" name="leegstand_melding_binnengekomen == melding_is_niet_binnengekomen" sourceRef="Gateway_0f2k564" targetRef="Gateway_151oz0u">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_melding_binnengekomen.value == "melding_is_niet_binnengekomen"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0utegrz" name="leegstandsmelding_binnengekomen == melding_is_niet_binnengekomen" sourceRef="Gateway_0f2k564" targetRef="Gateway_151oz0u">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstandsmelding_binnengekomen.value == "melding_nee_handhaven"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1sfzuqw" sourceRef="Gateway_1oa7hdg" targetRef="Gateway_0jgp7ic" />
     <bpmn:sequenceFlow id="Flow_1iia9fd" sourceRef="Gateway_1kl0rqm" targetRef="Gateway_0jgp7ic" />
@@ -360,7 +360,7 @@
     <bpmn:userTask id="task_controleren_binnenkomen_melding" name="Controleren binnenkomen melding" camunda:formKey="form_controleren_binnenkomen_melding">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="leegstand_melding_binnengekomen" label="Is de melding binnengekomen?" type="enum">
+          <camunda:formField id="leegstandsmelding_binnengekomen" label="Is de melding binnengekomen?" type="enum">
             <camunda:value id="melding_ja" name="Ja, de melding is binnengekomen" />
             <camunda:value id="melding_nee_vorder" name="Nee, vorderen" />
             <camunda:value id="melding_nee_handhaven" name="Nee, overgaan tot handhaven" />
@@ -450,10 +450,10 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstandsmelding_eigenaar.value == "ja"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0epnziu" sourceRef="Activity_1derutl" targetRef="Gateway_0b8aigx" />
-    <bpmn:scriptTask id="service_status_leegstand_melding" name="Status: &#34;Leegstand melding&#34;">
+    <bpmn:scriptTask id="service_status_leegstandsmelding" name="Status: &#34;Leegstandsmelding&#34;">
       <bpmn:incoming>Flow_036iptq</bpmn:incoming>
       <bpmn:outgoing>Flow_1a9zrzn</bpmn:outgoing>
-      <bpmn:script>set_status("Leegstand melding")</bpmn:script>
+      <bpmn:script>set_status("Leegstandsmelding")</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Activity_1derutl" name="leegstandsmelding_eigenaar = default">
       <bpmn:incoming>Flow_0r5copp</bpmn:incoming>
@@ -478,6 +478,21 @@
       <bpmndi:BPMNShape id="Lane_1t0698b_di" bpmnElement="lane_handhavingsjurist" isHorizontal="true">
         <dc:Bounds x="190" y="1950" width="2338" height="190" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0epnziu_di" bpmnElement="Flow_0epnziu">
+        <di:waypoint x="570" y="530" />
+        <di:waypoint x="570" y="585" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0r5copp_di" bpmnElement="Flow_0r5copp">
+        <di:waypoint x="570" y="375" />
+        <di:waypoint x="570" y="450" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="478" y="385" width="86" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0aviyn0_di" bpmnElement="Flow_0aviyn0">
+        <di:waypoint x="595" y="350" />
+        <di:waypoint x="640" y="350" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1vzg8ql_di" bpmnElement="Flow_1vzg8ql">
         <di:waypoint x="2010" y="1788" />
         <di:waypoint x="2010" y="1820" />
@@ -754,21 +769,6 @@
           <dc:Bounds x="2135" y="1026" width="89" height="93" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0aviyn0_di" bpmnElement="Flow_0aviyn0">
-        <di:waypoint x="595" y="350" />
-        <di:waypoint x="640" y="350" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0r5copp_di" bpmnElement="Flow_0r5copp">
-        <di:waypoint x="570" y="375" />
-        <di:waypoint x="570" y="450" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="478" y="385" width="86" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0epnziu_di" bpmnElement="Flow_0epnziu">
-        <di:waypoint x="570" y="530" />
-        <di:waypoint x="570" y="585" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_06ok0rh_di" bpmnElement="task_versturen_afspraakbrief">
         <dc:Bounds x="1270" y="1060" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -895,11 +895,17 @@
       <bpmndi:BPMNShape id="Gateway_05nnzfi_di" bpmnElement="Gateway_05nnzfi" isMarkerVisible="true">
         <dc:Bounds x="545" y="325" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_11r29gl_di" bpmnElement="service_status_leegstand_melding">
+      <bpmndi:BPMNShape id="Activity_11r29gl_di" bpmnElement="service_status_leegstandsmelding">
         <dc:Bounds x="380" y="450" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1sd74z8_di" bpmnElement="Activity_1derutl">
         <dc:Bounds x="520" y="450" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0b4ii1b_di" bpmnElement="Event_0a3iarg">
+        <dc:Bounds x="1052" y="372" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1047" y="414" width="46" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0cprl7z_di" bpmnElement="Event_0z3oxd4">
         <dc:Bounds x="1992" y="1752" width="36" height="36" />
@@ -908,12 +914,6 @@
         <dc:Bounds x="362" y="632" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="306" y="643" width="46" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0b4ii1b_di" bpmnElement="Event_0a3iarg">
-        <dc:Bounds x="1052" y="372" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1047" y="414" width="46" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>

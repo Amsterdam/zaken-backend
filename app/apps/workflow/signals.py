@@ -86,13 +86,11 @@ def case_workflow_pre_save(sender, instance, **kwargs):
 
         instance.data = instance.data if isinstance(instance.data, dict) else {}
 
+        theme = instance.case.theme.snake_case_name
+        reason = instance.case.reason.snake_case_name
         if instance.main_workflow:
-            theme = instance.case.theme.snake_case_name
-            reason = instance.case.reason.snake_case_name
             instance.data.update(
                 {
-                    "theme": {"value": f"theme_{theme}"},
-                    "reason": {"value": f"reason_{reason}"},
                     "bepalen_processtap": {
                         "value": "ja" if theme == "ondermijning" else "default",
                     },
@@ -101,6 +99,13 @@ def case_workflow_pre_save(sender, instance, **kwargs):
                         if reason == "leegstandsmelding_eigenaar"
                         else "default",
                     },
+                }
+            )
+        if instance.workflow_type == CaseWorkflow.WORKFLOW_TYPE_DIRECTOR:
+            instance.data.update(
+                {
+                    "theme": {"value": f"theme_{theme}"},
+                    "reason": {"value": f"reason_{reason}"},
                 }
             )
 

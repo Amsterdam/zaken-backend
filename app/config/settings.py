@@ -557,7 +557,15 @@ WORKFLOW_SPEC_CONFIG = {
                                 "bepalen_processtap": {"value": "default"},
                             },
                         },
-                        "aanschrijving_toevoegen": {},
+                        "aanschrijving_toevoegen": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "default"},
+                            },
+                        },
                     },
                 },
                 "3.0.0": {
@@ -576,7 +584,20 @@ WORKFLOW_SPEC_CONFIG = {
                                 ),
                             },
                         },
-                        "aanschrijving_toevoegen": {},
+                        "aanschrijving_toevoegen": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "default"},
+                                "debrief_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
+                            },
+                        },
                     },
                 },
                 "4.0.0": {
@@ -597,7 +618,22 @@ WORKFLOW_SPEC_CONFIG = {
                                 "leegstandsmelding_eigenaar": {"value": "default"},
                             },
                         },
-                        "aanschrijving_toevoegen": {},
+                        "aanschrijving_toevoegen": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "default"},
+                                "debrief_next_step": {"value": "default"},
+                                "summon_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
+                                "leegstandsmelding_eigenaar": {"value": "default"},
+                            },
+                        },
                     },
                 },
             },
