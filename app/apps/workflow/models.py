@@ -184,7 +184,7 @@ class CaseWorkflow(models.Model):
         def set_status(input):
             workflow_instance.set_case_state_type(input)
 
-        def wait_for_workflows_and_send_message(message):
+        def wait_for_workflows_and_send_message(message, data={}):
             task_wait_for_workflows_and_send_message.delay(
                 workflow_instance.id, message
             )
@@ -220,7 +220,10 @@ class CaseWorkflow(models.Model):
                 message: "done",
             }
         )
-        workflow_instance.save(update_fields=["data"])
+        with transaction.atomic():
+            workflow_instance.save(update_fields=["data"])
+            transaction.on_commit(lambda: workflow_instance.release_lock())
+
         all_workflows = CaseWorkflow.objects.filter(
             case=workflow_instance.case,
             workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,

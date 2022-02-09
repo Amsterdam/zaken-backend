@@ -1,4 +1,5 @@
 from api.config import Violation
+from api.tasks.close_case import test_uitzetten_vervolgstap
 from api.tasks.debrief import (
     test_opstellen_verkorte_rapportage_huisbezoek,
     test_terugkoppelen_melder_1,
@@ -6,7 +7,7 @@ from api.tasks.debrief import (
 )
 from api.tasks.visit import test_doorgeven_status_top, test_inplannen_status
 from api.test import DefaultAPITest
-from api.validators import ValidateNoOpenTasks
+from api.validators import ValidateOpenTasks
 
 
 class TestNoViolation(DefaultAPITest):
@@ -17,9 +18,5 @@ class TestNoViolation(DefaultAPITest):
             test_verwerken_debrief(violation=Violation.NO),
             test_terugkoppelen_melder_1(),
             test_opstellen_verkorte_rapportage_huisbezoek(),
-            # TODO Current/old implementation gave PlanNextStep, but even
-            #   better would be skipping this step all together.
-            # PlanNextStep(),
-            # Close(),
-            ValidateNoOpenTasks(),
+            ValidateOpenTasks(test_uitzetten_vervolgstap),
         )

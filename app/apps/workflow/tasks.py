@@ -124,7 +124,7 @@ def task_start_worflow(self, worklow_id):
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
-def task_wait_for_workflows_and_send_message(self, workflow_id, message):
+def task_wait_for_workflows_and_send_message(self, workflow_id, message, extra_data={}):
     from apps.workflow.models import CaseWorkflow
 
     workflow_instance = CaseWorkflow.objects.get(id=workflow_id)

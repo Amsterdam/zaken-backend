@@ -630,7 +630,7 @@ def ff_to_subworkflow(subworkflow, spec, message_name, data):
                 task.task_spec.description == f"resume_after_{subworkflow}"
                 and isinstance(workflow.last_task.task_spec, ScriptTask)
                 and workflow.last_task.task_spec.script
-                == f'start_subworkflow("{subworkflow}")'
+                == f'start_subworkflow("{subworkflow}", vars())'
             ):
                 ready_tasks = []
                 success = True
@@ -988,7 +988,7 @@ def workflow_spec_paths_inspect(workflow_spec_conf):
     def wait_for_workflows_and_send_message(message):
         pass
 
-    def start_subworkflow(subflow):
+    def start_subworkflow(subflow, data={}):
         pass
 
     def parse_duration_string(duration_str):
