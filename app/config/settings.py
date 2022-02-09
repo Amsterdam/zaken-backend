@@ -594,6 +594,7 @@ WORKFLOW_SPEC_CONFIG = {
                                 "monitoren_reactie_platform_duration": timedelta(
                                     days=14
                                 ),
+                                "leegstandsmelding_eigenaar": {"value": "default"},
                             },
                         },
                         "aanschrijving_toevoegen": {},

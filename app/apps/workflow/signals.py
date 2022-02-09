@@ -96,6 +96,11 @@ def case_workflow_pre_save(sender, instance, **kwargs):
                     "bepalen_processtap": {
                         "value": "ja" if theme == "ondermijning" else "default",
                     },
+                    "leegstandsmelding_eigenaar": {
+                        "value": "ja"
+                        if reason == "leegstandsmelding_eigenaar"
+                        else "default",
+                    },
                 }
             )
 

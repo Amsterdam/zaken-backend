@@ -189,8 +189,8 @@ class CaseWorkflow(models.Model):
                 workflow_instance.id, message
             )
 
-        def start_subworkflow(subworkflow_name):
-            task_start_subworkflow.delay(subworkflow_name, workflow_instance.id)
+        def start_subworkflow(subworkflow_name, data={}):
+            task_start_subworkflow.delay(subworkflow_name, workflow_instance.id, data)
 
         def parse_duration_string(str_duration):
             return parse_duration(str_duration)
