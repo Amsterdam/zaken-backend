@@ -133,6 +133,14 @@
     }
   },
   {
+    "model": "cases.casereason",
+    "pk": 16,
+    "fields": {
+      "name": "Leegstandsmelding eigenaar",
+      "theme": 5
+    }
+  },
+  {
     "model": "cases.caseclosereason",
     "pk": 15,
     "fields": {
@@ -615,7 +623,7 @@
     "model": "cases.subject",
     "pk": 22,
     "fields": {
-      "name": "TEST",
+      "name": "Leegstand",
       "theme": 5
     }
   }

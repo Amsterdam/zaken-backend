@@ -428,7 +428,7 @@ class task_controleren_binnenkomen_reactie(user_task):
     due_date = relativedelta(days=7)
 
 
-class task_inplannen_leegstandgesprek(user_task):
+class task_inplannen_leegstandsgesprek(user_task):
     due_date = relativedelta(days=7)
 
 
@@ -464,7 +464,7 @@ class task_verwerken_constateringsbrief(user_task):
     due_date = relativedelta(days=7)
 
 
-class task_uitvoeren_leegstandgesprek(user_task):
+class task_uitvoeren_leegstandsgesprek(user_task):
     due_date = relativedelta(weeks=4)
 
 
