@@ -205,8 +205,8 @@
     "pk": 29,
     "fields": {
       "theme": 5,
-      "name": "Leegstandbeschikking",
-      "workflow_option": "leegstandbeschikking",
+      "name": "Leegstandsbeschikking",
+      "workflow_option": "leegstandsbeschikking",
       "is_sanction": false
     }
   }
