@@ -52,6 +52,7 @@ class ScheduleCreateSerializer(serializers.ModelSerializer):
             "description",
             "case",
             "case_user_task_id",
+            "visit_from_datetime",
         )
         read_only_fields = ("id",)
 
