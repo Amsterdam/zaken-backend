@@ -677,6 +677,20 @@ WORKFLOW_SPEC_CONFIG = {
                         "start_casus_overleg_proces": {},
                     },
                 },
+                "0.3.0": {
+                    "messages": {
+                        "start_signal_process": {},
+                        "start_correspondence_process": {},
+                        "start_callbackrequest_process": {},
+                        "start_objectionfile_process": {},
+                        "start_extra_information": {},
+                        "start_nuisance_process": {},
+                        "start_casus_overleg_proces": {},
+                        "start_opstellen_digitale_analyse_proces": {},
+                        "start_aanleveren_wob_dossier": {},
+                        "start_terugkoppelen_bi": {},
+                    },
+                },
             },
         },
         "summon": {

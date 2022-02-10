@@ -470,3 +470,11 @@ class task_uitvoeren_leegstandsgesprek(user_task):
 
 class task_uitvoeren_administratief_onderzoek(user_task):
     due_date = relativedelta(weeks=2)
+
+
+class task_sub_workflow_terugkoppelen_bi(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_aanleveren_wob_dossier(user_task):
+    due_date = relativedelta(days=3)
