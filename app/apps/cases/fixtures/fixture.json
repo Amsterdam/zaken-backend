@@ -149,6 +149,22 @@
     }
   },
   {
+    "model": "cases.casereason",
+    "pk": 18,
+    "fields": {
+      "name": "BI melding",
+      "theme": 5
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 19,
+    "fields": {
+      "name": "Pied-à-Terre melding",
+      "theme": 5
+    }
+  },
+  {
     "model": "cases.caseclosereason",
     "pk": 15,
     "fields": {
@@ -341,7 +357,7 @@
     "model": "cases.caseclosereason",
     "pk": 36,
     "fields": {
-      "name": "Resultaat na hercontrole",
+      "name": "Resultaat na handhaving/hercontrole",
       "case_theme": 5,
       "result": true
     }
