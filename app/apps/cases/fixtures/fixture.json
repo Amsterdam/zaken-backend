@@ -1,12 +1,5 @@
 [{
     "model": "cases.casetheme",
-    "pk": 1,
-    "fields": {
-      "name": "(Legacy) Vakantieverhuur"
-    }
-  },
-  {
-    "model": "cases.casetheme",
     "pk": 2,
     "fields": {
       "name": "Vakantieverhuur"
@@ -136,6 +129,38 @@
     "pk": 15,
     "fields": {
       "name": "SIA melding",
+      "theme": 5
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 16,
+    "fields": {
+      "name": "Leegstandsmelding eigenaar",
+      "theme": 5
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 17,
+    "fields": {
+      "name": "Project",
+      "theme": 4
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 18,
+    "fields": {
+      "name": "BI melding",
+      "theme": 5
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 19,
+    "fields": {
+      "name": "Pied-à-Terre melding",
       "theme": 5
     }
   },
@@ -332,7 +357,7 @@
     "model": "cases.caseclosereason",
     "pk": 36,
     "fields": {
-      "name": "Resultaat na hercontrole",
+      "name": "Resultaat na handhaving/hercontrole",
       "case_theme": 5,
       "result": true
     }
@@ -622,7 +647,7 @@
     "model": "cases.subject",
     "pk": 22,
     "fields": {
-      "name": "TEST",
+      "name": "Leegstand",
       "theme": 5
     }
   }

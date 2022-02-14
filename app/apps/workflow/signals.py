@@ -5,6 +5,7 @@ import pytz
 from apps.events.models import TaskModelEventEmitter
 from apps.workflow.models import CaseUserTask, CaseWorkflow, GenericCompletedTask
 from apps.workflow.tasks import task_start_worflow
+from django.core.cache import cache
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -47,7 +48,17 @@ def case_user_task_pre_save(sender, instance, **kwargs):
         task_elapse_datetime = instance.workflow.get_task_elapse_datetime(
             instance.task_id
         )
-        if isinstance(task_elapse_datetime, datetime.datetime):
+        cached_task_key = (
+            f"parent_workflow_{instance.workflow.parent_workflow.id}_{instance.task_name}_due_date"
+            if instance.workflow.parent_workflow
+            else None
+        )
+        cached_task = cache.get(cached_task_key) if cached_task_key else None
+        if cached_task:
+            instance.due_date = cached_task.get("due_date")
+            instance.owner = cached_task.get("owner")
+            cache.delete(cached_task_key)
+        elif isinstance(task_elapse_datetime, datetime.datetime):
             instance.due_date = task_elapse_datetime
         else:
             instance.due_date = d + (
@@ -75,16 +86,26 @@ def case_workflow_pre_save(sender, instance, **kwargs):
 
         instance.data = instance.data if isinstance(instance.data, dict) else {}
 
+        theme = instance.case.theme.snake_case_name
+        reason = instance.case.reason.snake_case_name
         if instance.main_workflow:
-            theme = instance.case.theme.snake_case_name
-            reason = instance.case.reason.snake_case_name
+            instance.data.update(
+                {
+                    "bepalen_processtap": {
+                        "value": "ja" if theme == "ondermijning" else "default",
+                    },
+                    "leegstandsmelding_eigenaar": {
+                        "value": "ja"
+                        if reason == "leegstandsmelding_eigenaar"
+                        else "default",
+                    },
+                }
+            )
+        if instance.workflow_type == CaseWorkflow.WORKFLOW_TYPE_DIRECTOR:
             instance.data.update(
                 {
                     "theme": {"value": f"theme_{theme}"},
                     "reason": {"value": f"reason_{reason}"},
-                    "bepalen_processtap": {
-                        "value": "ja" if theme == "ondermijning" else "default",
-                    },
                 }
             )
 

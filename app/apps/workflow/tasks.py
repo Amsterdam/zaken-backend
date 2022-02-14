@@ -76,13 +76,13 @@ def task_accept_message_for_workflow(self, workflow_id, message, extra_data):
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
-def task_start_subworkflow(self, subworkflow_name, parent_workflow_id):
+def task_start_subworkflow(self, subworkflow_name, parent_workflow_id, extra_data={}):
     from apps.workflow.models import CaseWorkflow
 
     parent_workflow = CaseWorkflow.objects.get(id=parent_workflow_id)
     with transaction.atomic():
         data = copy.deepcopy(parent_workflow.get_data())
-
+        data.update(extra_data)
         subworkflow = CaseWorkflow.objects.create(
             case=parent_workflow.case,
             parent_workflow=parent_workflow,
@@ -124,7 +124,7 @@ def task_start_worflow(self, worklow_id):
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
-def task_wait_for_workflows_and_send_message(self, workflow_id, message):
+def task_wait_for_workflows_and_send_message(self, workflow_id, message, extra_data={}):
     from apps.workflow.models import CaseWorkflow
 
     workflow_instance = CaseWorkflow.objects.get(id=workflow_id)

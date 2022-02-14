@@ -7,6 +7,7 @@ from apps.cases.models import Case, CaseStateType, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
+from django.core.cache import cache
 from django.db import models, transaction
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_duration
@@ -183,13 +184,13 @@ class CaseWorkflow(models.Model):
         def set_status(input):
             workflow_instance.set_case_state_type(input)
 
-        def wait_for_workflows_and_send_message(message):
+        def wait_for_workflows_and_send_message(message, data={}):
             task_wait_for_workflows_and_send_message.delay(
                 workflow_instance.id, message
             )
 
-        def start_subworkflow(subworkflow_name):
-            task_start_subworkflow.delay(subworkflow_name, workflow_instance.id)
+        def start_subworkflow(subworkflow_name, data={}):
+            task_start_subworkflow.delay(subworkflow_name, workflow_instance.id, data)
 
         def parse_duration_string(str_duration):
             return parse_duration(str_duration)
@@ -219,7 +220,10 @@ class CaseWorkflow(models.Model):
                 message: "done",
             }
         )
-        workflow_instance.save(update_fields=["data"])
+        with transaction.atomic():
+            workflow_instance.save(update_fields=["data"])
+            transaction.on_commit(lambda: workflow_instance.release_lock())
+
         all_workflows = CaseWorkflow.objects.filter(
             case=workflow_instance.case,
             workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
@@ -719,6 +723,23 @@ class CaseWorkflow(models.Model):
                 "task_prepare_abbreviated_visit_rapport",
             ]
 
+        for case_user_task in CaseUserTask.objects.filter(
+            workflow=self,
+            task_name__in=expected_user_task_names,
+            workflow__parent_workflow__isnull=False,
+            completed=False,
+            due_date__isnull=False,
+        ):
+            cached_task_key = f"parent_workflow_{case_user_task.workflow.parent_workflow.id}_{case_user_task.task_name}_due_date"
+            cache.set(
+                cached_task_key,
+                {
+                    "due_date": case_user_task.due_date,
+                    "owner": case_user_task.owner,
+                },
+                60 * 60,
+            )
+
         latest_theme_name, latest_version = get_latest_version_from_config(
             self.workflow_theme_name, self.workflow_type, workflow_version
         )
@@ -733,7 +754,17 @@ class CaseWorkflow(models.Model):
             latest_version,
             self.workflow_message_name,
         )
+
         initial_data.update(original_data)
+
+        if self.workflow_type == CaseWorkflow.WORKFLOW_TYPE_VISIT:
+            initial_data.update(
+                {
+                    "bepalen_processtap": {
+                        "value": "ja" if self.case.theme.id == 4 else "default"
+                    },
+                }
+            )
 
         wf_spec_latest = get_workflow_spec(latest_path, self.workflow_type)
 

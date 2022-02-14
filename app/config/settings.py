@@ -261,6 +261,9 @@ AUTHENTICATION_BACKENDS = (
 )
 
 AXES_RESET_ON_SUCCESS = True
+AXES_ONLY_USER_FAILURES = (
+    True  # Enabled because IP from user is always .amsterdam.nl gateway
+)
 AXES_ENABLED = os.getenv("AXES_ENABLED", "True") == "True"
 AXES_META_PRECEDENCE_ORDER = ["HTTP_X_FORWARDED_FOR", "REMOTE_ADDR"]
 
@@ -557,7 +560,15 @@ WORKFLOW_SPEC_CONFIG = {
                                 "bepalen_processtap": {"value": "default"},
                             },
                         },
-                        "aanschrijving_toevoegen": {},
+                        "aanschrijving_toevoegen": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "default"},
+                            },
+                        },
                     },
                 },
                 "3.0.0": {
@@ -576,7 +587,20 @@ WORKFLOW_SPEC_CONFIG = {
                                 ),
                             },
                         },
-                        "aanschrijving_toevoegen": {},
+                        "aanschrijving_toevoegen": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "default"},
+                                "debrief_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
+                            },
+                        },
                     },
                 },
                 "4.0.0": {
@@ -594,9 +618,25 @@ WORKFLOW_SPEC_CONFIG = {
                                 "monitoren_reactie_platform_duration": timedelta(
                                     days=14
                                 ),
+                                "leegstandsmelding_eigenaar": {"value": "default"},
                             },
                         },
-                        "aanschrijving_toevoegen": {},
+                        "aanschrijving_toevoegen": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "default"},
+                                "debrief_next_step": {"value": "default"},
+                                "summon_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
+                                "leegstandsmelding_eigenaar": {"value": "default"},
+                            },
+                        },
                     },
                 },
             },
@@ -635,6 +675,20 @@ WORKFLOW_SPEC_CONFIG = {
                         "start_extra_information": {},
                         "start_nuisance_process": {},
                         "start_casus_overleg_proces": {},
+                    },
+                },
+                "0.3.0": {
+                    "messages": {
+                        "start_signal_process": {},
+                        "start_correspondence_process": {},
+                        "start_callbackrequest_process": {},
+                        "start_objectionfile_process": {},
+                        "start_extra_information": {},
+                        "start_nuisance_process": {},
+                        "start_casus_overleg_proces": {},
+                        "start_opstellen_digitale_analyse_proces": {},
+                        "start_aanleveren_wob_dossier": {},
+                        "start_terugkoppelen_bi": {},
                     },
                 },
             },

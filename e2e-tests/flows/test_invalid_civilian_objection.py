@@ -1,4 +1,5 @@
 from api.config import DecisionType, ObjectionValid, SummonType, Violation
+from api.tasks.close_case import test_uitzetten_vervolgstap
 from api.tasks.debrief import (
     test_opstellen_beeldverslag,
     test_opstellen_rapport_van_bevindingen,
@@ -20,7 +21,7 @@ from api.tasks.summon import (
 )
 from api.tasks.visit import test_doorgeven_status_top, test_inplannen_status
 from api.test import DefaultAPITest
-from api.validators import ValidateNoOpenTasks
+from api.validators import ValidateOpenTasks
 
 
 class TestInvalidCivilianObjection(DefaultAPITest):
@@ -43,8 +44,5 @@ class TestInvalidCivilianObjection(DefaultAPITest):
             test_nakijken_besluit(),
             test_verwerken_definitieve_besluit(type=DecisionType.Vakantieverhuur.FINE),
             test_versturen_invordering_belastingen(),
-            ValidateNoOpenTasks(),
-            # For now user has to stage another step, in the future we would like to trigger
-            # PlanNextStep automatically
-            # ValidateOpenTasks(PlanNextStep)
+            ValidateOpenTasks(test_uitzetten_vervolgstap),
         )

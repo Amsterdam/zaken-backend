@@ -116,7 +116,9 @@ class Case(ModelEventEmitter):
         to=CaseProject, null=True, blank=True, on_delete=models.PROTECT
     )
     subjects = models.ManyToManyField(Subject, related_name="cases", blank=True)
-    ton_ids = ArrayField(models.IntegerField(), default=list, null=True, blank=True)
+    ton_ids = ArrayField(
+        models.PositiveBigIntegerField(), default=list, null=True, blank=True
+    )
     last_updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 

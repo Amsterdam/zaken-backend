@@ -1,5 +1,6 @@
 from apps.cases.models import Case, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
+from django.conf import settings
 from django.db import models
 
 
@@ -73,6 +74,13 @@ class Schedule(TaskModelEventEmitter):
     )
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    author = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT
+    )
+    visit_from_datetime = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
 
     def __get_event_values__(self):
         return {
@@ -82,4 +90,6 @@ class Schedule(TaskModelEventEmitter):
             "day_segment": self.day_segment.name,
             "priority": self.priority.name,
             "description": self.description,
+            "author": self.author.__str__(),
+            "visit_from_datetime": self.visit_from_datetime,
         }

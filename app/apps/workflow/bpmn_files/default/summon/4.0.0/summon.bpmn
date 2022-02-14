@@ -167,7 +167,7 @@
     <bpmn:userTask id="task_create_concept_summons" name="Opstellen concept aanschrijving" camunda:formKey="task_opstellen_concept_aanschrijving_form">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="type_concept_aanschrijving" label="Wil je deze aanschrijving laten nakijken?" type="enum">
+          <camunda:formField id="type_concept_aanschrijving" label="Is er een concept opgesteld?" type="enum">
             <camunda:value id="aanschrijvingen" name="Ja, aanschrijving nakijken" />
             <camunda:value id="afzien_aanschrijving" name="Nee, afzien aanschrijving" />
           </camunda:formField>
@@ -505,6 +505,19 @@
       <bpmndi:BPMNShape id="Lane_1szfa18_di" bpmnElement="lane_projecthandhaver_1szfa18" isHorizontal="true">
         <dc:Bounds x="190" y="600" width="4090" height="810" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1ejttzw_di" bpmnElement="Flow_1ejttzw">
+        <di:waypoint x="1270" y="685" />
+        <di:waypoint x="1270" y="340" />
+        <di:waypoint x="3950" y="340" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1277" y="290" width="85" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_01fmf92_di" bpmnElement="Flow_01fmf92">
+        <di:waypoint x="4050" y="340" />
+        <di:waypoint x="4160" y="340" />
+        <di:waypoint x="4160" y="1292" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0763lk9_di" bpmnElement="Flow_0763lk9">
         <di:waypoint x="1620" y="710" />
         <di:waypoint x="1950" y="710" />
@@ -815,19 +828,6 @@
       <bpmndi:BPMNEdge id="Flow_1detbpm_di" bpmnElement="Flow_1detbpm">
         <di:waypoint x="1160" y="710" />
         <di:waypoint x="1245" y="710" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_01fmf92_di" bpmnElement="Flow_01fmf92">
-        <di:waypoint x="4050" y="340" />
-        <di:waypoint x="4160" y="340" />
-        <di:waypoint x="4160" y="1292" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1ejttzw_di" bpmnElement="Flow_1ejttzw">
-        <di:waypoint x="1270" y="685" />
-        <di:waypoint x="1270" y="340" />
-        <di:waypoint x="3950" y="340" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1277" y="290" width="85" height="40" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Gateway_1t6r1v4_di" bpmnElement="gateway_which_type_of_summon" isMarkerVisible="true">
         <dc:Bounds x="1245" y="685" width="50" height="50" />
