@@ -59,7 +59,7 @@ class CaseUserTaskBaseSerializer(serializers.ModelSerializer):
         )
 
 
-class CaseUserTaskSerializer(CaseUserTaskBaseSerializer):
+class CaseUserTaskWorkdflowSerializer(CaseUserTaskBaseSerializer):
     case_user_task_id = serializers.CharField(source="id")
     form = GenericFormFieldSerializer(many=True)
     form_variables = serializers.DictField(source="get_form_variables")
@@ -92,7 +92,7 @@ class CaseAddressSerializer(serializers.ModelSerializer):
         )
 
 
-class CaseUserTaskListSerializer(CaseUserTaskBaseSerializer):
+class CaseUserTaskSerializer(CaseUserTaskBaseSerializer):
     case = CaseAddressSerializer()
 
     class Meta:
@@ -140,9 +140,9 @@ class CaseWorkflowSerializer(serializers.ModelSerializer):
     def get_information(self, obj):
         return obj.data.get("names", {}).get("value", "")
 
-    @extend_schema_field(CaseUserTaskSerializer(many=True))
+    @extend_schema_field(CaseUserTaskWorkdflowSerializer(many=True))
     def get_tasks(self, obj):
-        return CaseUserTaskSerializer(
+        return CaseUserTaskWorkdflowSerializer(
             CaseUserTask.objects.filter(
                 workflow=obj,
                 completed=False,

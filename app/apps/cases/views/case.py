@@ -6,6 +6,7 @@ from apps.cases.serializers import (
 )
 from apps.events.mixins import CaseEventsMixin
 from apps.main.filters import RelatedOrderingFilter
+from apps.main.pagination import EmptyPagination
 from apps.users.permissions import (
     CanCreateCase,
     CanCreateDigitalSurveillanceCase,
@@ -25,7 +26,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 
@@ -86,7 +87,7 @@ class CaseFilter(filters.FilterSet):
         ]
 
 
-class StandardResultsSetPagination(PageNumberPagination):
+class StandardResultsSetPagination(EmptyPagination):
     page_size = 100
     page_size_query_param = "page_size"
     max_page_size = 1000
