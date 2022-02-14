@@ -1,6 +1,6 @@
 import datetime
 
-from apps.cases.models import Case, CaseReason, CaseStateType, CaseTheme
+from apps.cases.models import Advertisement, Case, CaseReason, CaseStateType, CaseTheme
 from apps.summons.models import SummonType
 from apps.workflow.models import CaseWorkflow
 from django.core import management
@@ -346,6 +346,29 @@ class CaseCreatApiTest(APITestCase):
         )
 
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(Case.objects.count(), 1)
+
+    def test_authenticated_post_create_with_advertisements(self):
+        self.assertEquals(Case.objects.count(), 0)
+
+        theme = baker.make(CaseTheme)
+        reason = baker.make(CaseReason, theme=theme)
+
+        url = reverse("cases-list")
+        client = get_authenticated_client()
+        response = client.post(
+            url,
+            {
+                "description": "Foo",
+                "theme_id": theme.pk,
+                "reason_id": reason.pk,
+                "bag_id": "foo bag ID",
+                "advertisements": [{"link": "https://www.example.com"}],
+            },
+            format="json",
+        )
+        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(Advertisement.objects.count(), 1)
         self.assertEquals(Case.objects.count(), 1)
 
     def test_authenticated_post_create_fail_wrong_theme(self):

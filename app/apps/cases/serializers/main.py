@@ -16,7 +16,7 @@ from rest_framework import serializers
 class AdvertisementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Advertisement
-        fields = "__all__"
+        exclude = ["case"]
 
 
 class AdvertisementLinklist(serializers.Field):
