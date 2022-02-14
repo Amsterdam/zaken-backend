@@ -70,6 +70,8 @@ When the LOCAL_DEVELOPMENT_AUTHENTICATION environment variable is set to True, y
 You can use the 'access' token in the response:
 Click on the 'Authorize' button in the top right corner of the page, and enter the given access token.
 This allows you to execute the API endpoints in the page.
+By default, the `local.user@dev.com` user doesn't have any roles assigned.
+From the [admin interface](http://localhost:8080/admin/) you can either assign roles or make the user superuser.
 
 ## Enabling Keycloak authentication for a locally run zaken-frontend
 
