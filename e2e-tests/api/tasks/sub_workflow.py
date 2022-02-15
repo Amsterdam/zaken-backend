@@ -5,7 +5,7 @@ from api.user_tasks import (
     task_nieuwe_melding_verwerken,
     task_oppakken_correspondentie,
     task_oppakken_terugbelverzoek,
-    task_sia_terugkoppeling_melders,
+    task_sia_terugkoppeling_melders_legacy,
     task_verwerken_extra_informatie,
 )
 
@@ -19,7 +19,9 @@ class test_nieuwe_melding_verwerken(GenericUserTask, task_nieuwe_melding_verwerk
         ]
 
 
-class test_sia_terugkoppeling_melders(GenericUserTask, task_sia_terugkoppeling_melders):
+class test_sia_terugkoppeling_melders(
+    GenericUserTask, task_sia_terugkoppeling_melders_legacy
+):
     @staticmethod
     def get_steps():
         return [

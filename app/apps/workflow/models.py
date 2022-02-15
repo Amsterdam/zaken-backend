@@ -3,13 +3,15 @@ import datetime
 import logging
 from string import Template
 
-from apps.cases.models import Case, CaseStateType, CaseTheme
+from apps.cases.models import Case, CaseStateType, CaseTheme, CitizenReport
+from apps.debriefings.models import Debriefing
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import cache
 from django.db import models, transaction
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.dateparse import parse_duration
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
@@ -62,6 +64,7 @@ class CaseWorkflow(models.Model):
     WORKFLOW_TYPE_DIGITAL_SURVEILLANCE = "digital_surveillance"
     WORKFLOW_TYPE_HOUSING_CORPORATION = "housing_corporation"
     WORKFLOW_TYPE_UNOCCUPIED = "unoccupied"
+    WORKFLOW_TYPE_CITIZEN_REPORT_FEEDBACK = "citizen_report_feedback"
     WORKFLOW_TYPES = (
         (WORKFLOW_TYPE_MAIN, WORKFLOW_TYPE_MAIN),
         (WORKFLOW_TYPE_SUB, WORKFLOW_TYPE_SUB),
@@ -76,6 +79,7 @@ class CaseWorkflow(models.Model):
         (WORKFLOW_TYPE_DIGITAL_SURVEILLANCE, WORKFLOW_TYPE_DIGITAL_SURVEILLANCE),
         (WORKFLOW_TYPE_HOUSING_CORPORATION, WORKFLOW_TYPE_HOUSING_CORPORATION),
         (WORKFLOW_TYPE_UNOCCUPIED, WORKFLOW_TYPE_UNOCCUPIED),
+        (WORKFLOW_TYPE_CITIZEN_REPORT_FEEDBACK, WORKFLOW_TYPE_CITIZEN_REPORT_FEEDBACK),
     )
 
     SUBWORKFLOWS = (
@@ -89,6 +93,7 @@ class CaseWorkflow(models.Model):
         "closing_procedure",
         "close_case",
         "unoccupied",
+        WORKFLOW_TYPE_CITIZEN_REPORT_FEEDBACK,
     )
 
     case = models.ForeignKey(
@@ -193,8 +198,8 @@ class CaseWorkflow(models.Model):
                 workflow_instance.id, message
             )
 
-        def script_wait(message):
-            task_script_wait.delay(workflow_instance.id, message)
+        def script_wait(message, data={}):
+            task_script_wait.delay(workflow_instance.id, message, data)
 
         def start_subworkflow(subworkflow_name, data={}):
             task_start_subworkflow.delay(subworkflow_name, workflow_instance.id, data)
@@ -218,69 +223,63 @@ class CaseWorkflow(models.Model):
         return self.handle_message_wait_for_summons(workflow_instance)
 
     def handle_citizen_report_feedback_2(self, extra_data={}):
-        wf = self.get_or_restore_workflow_state()
-
-        print("handle_citizen_report_feedback_2")
-        data = {
-            "feedback_period": [
-                period for period in settings.CITIZEN_REPORT_FEEDBACK_PERIODS
-            ][1],
-            # "start_time": self.date_modified,
-        }
-        data.update(extra_data)
-        print("self.date_modified")
-        print(self.date_modified)
-        # print("last_task datetime")
-        # print(datetime.datetime.fromtimestamp(wf.last_task.last_state_change))
-        # print("last_task spec name")
-        # print(wf.last_task.task_spec.name)
-        for task in wf.get_tasks():
-            print(task.task_spec.name)
-            print(task.get_state())
-            print(datetime.datetime.fromtimestamp(task.last_state_change))
-
-        print(data)
-        return self.handle_citizen_report_feedback_1(data)
+        return self.handle_citizen_report_feedback_1(extra_data)
 
     def handle_citizen_report_feedback_1(self, extra_data={}):
-        from apps.cases.models import CitizenReport
-        from django.utils import timezone
+        data = {}
+        data.update(extra_data)
 
-        print("handle_citizen_report_feedback_1")
-        print("self.date_modified")
-        print(self.date_modified)
-        data = self.get_data()
-
-        main_workflow = self.case.workflows.filter(main_workflow=True).first()
-        main_workflow_data = main_workflow.get_data()
-        has_summon = (
-            main_workflow_data.get("debrief_next_step", {}).get("value", "") == "summon"
+        latest_debrief = (
+            Debriefing.objects.filter(
+                case=self.case,
+            )
+            .order_by("date_modified")
+            .last()
         )
+
+        has_summon = latest_debrief and (
+            latest_debrief.violation
+            in [
+                Debriefing.VIOLATION_NO,
+                Debriefing.VIOLATION_YES,
+                Debriefing.VIOLATION_SEND_TO_OTHER_THEME,
+            ]
+        )
+
         citizen_report = CitizenReport.objects.filter(
             id=data.get("citizen_report_id")
         ).first()
+
+        tasks = CaseUserTask.objects.filter(
+            workflow=self,
+            task_name="task_1_sia_terugkoppeling_melders",
+        )
+
+        feedback_period_exeeded = False
+        if (tasks and tasks[0].completed) or not tasks:
+            feedback_period_exeeded = (
+                self.date_modified
+                + parse_duration(settings.CITIZEN_REPORT_FEEDBACK_PERIOD)
+            ) < timezone.now()
+
+        citizen_report_reporter = ", ".join(
+            [
+                getattr(citizen_report, f)
+                for f in ["reporter_name", "reporter_phone", "reporter_email"]
+                if getattr(citizen_report, f) is not None
+            ]
+        )
         data.update(
             {
-                "feedback_period": [
-                    period for period in settings.CITIZEN_REPORT_FEEDBACK_PERIODS
-                ][0],
-                "start_time": citizen_report.date_added,
                 "names": {
-                    "value": f"{citizen_report.identification}: {citizen_report.reporter_name}, {citizen_report.reporter_phone}, {citizen_report.reporter_email}"
+                    "value": f"{citizen_report.identification}: {citizen_report_reporter}"
+                    if citizen_report_reporter
+                    else f"{citizen_report.identification}",
                 },
                 "has_summon": {"value": "true" if has_summon else "false"},
             }
         )
-        data.update(extra_data)
-        feedback_period = parse_duration(data.get("feedback_period"))
-        start_time = data.get("start_time")
 
-        feedback_period_exeeded = (start_time + feedback_period) < timezone.now()
-        print(feedback_period)
-        print(start_time)
-        print((start_time + feedback_period))
-        print(timezone.now())
-        data.pop("start_time")
         if feedback_period_exeeded or has_summon:
             return data
         return False
@@ -437,10 +436,7 @@ class CaseWorkflow(models.Model):
 
     def create_user_tasks(self, wf):
         ready_tasks = wf.get_ready_user_tasks()
-        print("create_user_tasks")
-        for task in ready_tasks:
-            print(task.task_spec.name)
-            print(datetime.datetime.fromtimestamp(task.last_state_change))
+
         task_data = [
             CaseUserTask(
                 task_id=task.id,

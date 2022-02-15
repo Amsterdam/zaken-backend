@@ -474,9 +474,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 DEFAULT_WORKFLOW_TYPE = os.getenv("DEFAULT_WORKFLOW_TYPE", "director")
 
-CITIZEN_REPORT_FEEDBACK_PERIODS = os.getenv(
-    "CITIZEN_REPORT_FEEDBACK_PERIODS", "56 days, 0:00:00|28 days, 0:00:00"
-).split("|")
+CITIZEN_REPORT_FEEDBACK_PERIOD = os.getenv(
+    "CITIZEN_REPORT_FEEDBACK_PERIOD",
+    "26 days, 0:00:00" if ENVIRONMENT == "production" else "0:05:00",
+)
 
 DEFAULT_WORKFLOW_TIMER_DURATIONS = {
     "development": timedelta(seconds=20),
@@ -525,6 +526,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "2.0.0": {},
                 "3.0.0": {},
                 "4.0.0": {},
+                "4.1.0": {},
             },
         },
         "director": {
@@ -682,6 +684,20 @@ WORKFLOW_SPEC_CONFIG = {
                     },
                 },
                 "0.3.0": {
+                    "messages": {
+                        "start_signal_process": {},
+                        "start_correspondence_process": {},
+                        "start_callbackrequest_process": {},
+                        "start_objectionfile_process": {},
+                        "start_extra_information": {},
+                        "start_nuisance_process": {},
+                        "start_casus_overleg_proces": {},
+                        "start_opstellen_digitale_analyse_proces": {},
+                        "start_aanleveren_wob_dossier": {},
+                        "start_terugkoppelen_bi": {},
+                    },
+                },
+                "0.4.0": {
                     "messages": {
                         "start_signal_process": {},
                         "start_correspondence_process": {},

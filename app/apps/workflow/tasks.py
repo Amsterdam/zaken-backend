@@ -177,7 +177,7 @@ def task_script_wait(self, workflow_id, message, extra_data={}):
     if hasattr(workflow_instance.__class__, f"handle_{message}") and callable(
         getattr(workflow_instance.__class__, f"handle_{message}")
     ):
-        data = getattr(workflow_instance, f"handle_{message}")()
+        data = getattr(workflow_instance, f"handle_{message}")(extra_data)
 
         print(data)
         if data:
