@@ -179,7 +179,6 @@ def task_script_wait(self, workflow_id, message, extra_data={}):
     ):
         data = getattr(workflow_instance, f"handle_{message}")(extra_data)
 
-        print(data)
         if data:
             task_accept_message_for_workflow.delay(workflow_instance.id, message, data)
 
