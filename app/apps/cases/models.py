@@ -4,6 +4,8 @@ from re import sub
 from apps.addresses.models import Address
 from apps.events.models import CaseEvent, ModelEventEmitter, TaskModelEventEmitter
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.utils import timezone
@@ -405,3 +407,24 @@ class CitizenReport(TaskModelEventEmitter):
         else:
             del event_values["advertisement_linklist"]
         return event_values
+
+
+class Advertisement(models.Model):
+    case = models.ForeignKey(
+        to=Case,
+        related_name="advertisements",
+        on_delete=models.CASCADE,
+    )
+    link = models.CharField(max_length=255)
+    date_added = models.DateTimeField(auto_now_add=True)
+    related_object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    related_object_id = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+    )
+    related_object = GenericForeignKey("related_object_type", "related_object_id")

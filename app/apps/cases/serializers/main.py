@@ -1,4 +1,5 @@
 from apps.cases.models import (
+    Advertisement,
     Case,
     CaseClose,
     CaseCloseReason,
@@ -10,6 +11,12 @@ from apps.cases.models import (
     Subject,
 )
 from rest_framework import serializers
+
+
+class AdvertisementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Advertisement
+        exclude = ["case"]
 
 
 class AdvertisementLinklist(serializers.Field):

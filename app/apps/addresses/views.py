@@ -2,7 +2,8 @@ import logging
 
 from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer, ResidentsSerializer
-from apps.cases.serializers import CaseSerializer
+from apps.cases.models import Advertisement
+from apps.cases.serializers import AdvertisementSerializer, CaseSerializer
 from apps.permits.mixins import PermitDetailsMixin
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -112,3 +113,22 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
             logger.error(f"Could not retrieve cases for bag id {bag_id}: {e}")
 
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        description="Gets the Advertisements associated with this address",
+        responses={status.HTTP_200_OK: AdvertisementSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="advertisements",
+        methods=["get"],
+    )
+    def advertisements(self, request, bag_id):
+        paginator = LimitOffsetPagination()
+        address = self.get_object()
+        query_set = Advertisement.objects.filter(
+            case__address=address,
+        )
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = AdvertisementSerializer(context, many=True)
+        return paginator.get_paginated_response(serializer.data)
