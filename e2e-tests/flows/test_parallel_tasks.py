@@ -52,6 +52,5 @@ class TestParallelTasks(DefaultAPITest):
             extra_events=[
                 GenericTaskEvent.type,
                 GenericTaskEvent.type,
-                GenericTaskEvent.type,
             ],
         )

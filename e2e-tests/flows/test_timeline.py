@@ -25,7 +25,6 @@ class TestTimeline(DefaultAPITest):
             test_inplannen_status(),
             test_doorgeven_status_top(),
             test_verwerken_debrief(violation=Violation.NO),
-            test_terugkoppelen_melder_1(),
             test_opstellen_verkorte_rapportage_huisbezoek(),
             test_uitzetten_vervolgstap(),
             test_afsluiten_zaak(),

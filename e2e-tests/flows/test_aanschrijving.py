@@ -23,7 +23,6 @@ class TestViolationLegalizationLetter(DefaultAPITest):
             test_doorgeven_status_top(),
             test_verwerken_debrief(violation=Violation.YES),
             ValidateOpenTasks(
-                test_terugkoppelen_melder_2(),
                 test_opstellen_rapport_van_bevindingen,
                 test_opstellen_beeldverslag,
             ),

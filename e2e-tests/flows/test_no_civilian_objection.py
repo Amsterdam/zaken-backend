@@ -25,7 +25,6 @@ class TestNoCivilianObjection(DefaultAPITest):
             test_inplannen_status(),
             test_doorgeven_status_top(),
             test_verwerken_debrief(violation=Violation.YES),
-            test_terugkoppelen_melder_2(),
             test_opstellen_beeldverslag(),
             test_opstellen_rapport_van_bevindingen(),
             test_opstellen_concept_aanschrijving(),

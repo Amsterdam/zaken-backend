@@ -3,18 +3,23 @@ import datetime
 import logging
 from string import Template
 
-from apps.cases.models import Case, CaseStateType, CaseTheme
+from apps.cases.models import Case, CaseStateType, CaseTheme, CitizenReport
+from apps.debriefings.models import Debriefing
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import cache
 from django.db import models, transaction
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.dateparse import parse_duration
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.specs.BoundaryEvent import _BoundaryEventParent
-from SpiffWorkflow.bpmn.specs.event_definitions import TimerEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions import (
+    MessageEventDefinition,
+    TimerEventDefinition,
+)
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.task import Task
@@ -25,6 +30,7 @@ from .tasks import (
     release_lock,
     task_complete_user_task_and_create_new_user_tasks,
     task_complete_worflow,
+    task_script_wait,
     task_start_subworkflow,
     task_update_workflow,
     task_wait_for_workflows_and_send_message,
@@ -58,6 +64,7 @@ class CaseWorkflow(models.Model):
     WORKFLOW_TYPE_DIGITAL_SURVEILLANCE = "digital_surveillance"
     WORKFLOW_TYPE_HOUSING_CORPORATION = "housing_corporation"
     WORKFLOW_TYPE_UNOCCUPIED = "unoccupied"
+    WORKFLOW_TYPE_CITIZEN_REPORT_FEEDBACK = "citizen_report_feedback"
     WORKFLOW_TYPES = (
         (WORKFLOW_TYPE_MAIN, WORKFLOW_TYPE_MAIN),
         (WORKFLOW_TYPE_SUB, WORKFLOW_TYPE_SUB),
@@ -72,6 +79,7 @@ class CaseWorkflow(models.Model):
         (WORKFLOW_TYPE_DIGITAL_SURVEILLANCE, WORKFLOW_TYPE_DIGITAL_SURVEILLANCE),
         (WORKFLOW_TYPE_HOUSING_CORPORATION, WORKFLOW_TYPE_HOUSING_CORPORATION),
         (WORKFLOW_TYPE_UNOCCUPIED, WORKFLOW_TYPE_UNOCCUPIED),
+        (WORKFLOW_TYPE_CITIZEN_REPORT_FEEDBACK, WORKFLOW_TYPE_CITIZEN_REPORT_FEEDBACK),
     )
 
     SUBWORKFLOWS = (
@@ -85,6 +93,7 @@ class CaseWorkflow(models.Model):
         "closing_procedure",
         "close_case",
         "unoccupied",
+        WORKFLOW_TYPE_CITIZEN_REPORT_FEEDBACK,
     )
 
     case = models.ForeignKey(
@@ -189,6 +198,9 @@ class CaseWorkflow(models.Model):
                 workflow_instance.id, message
             )
 
+        def script_wait(message, data={}):
+            task_script_wait.delay(workflow_instance.id, message, data)
+
         def start_subworkflow(subworkflow_name, data={}):
             task_start_subworkflow.delay(subworkflow_name, workflow_instance.id, data)
 
@@ -199,6 +211,7 @@ class CaseWorkflow(models.Model):
             scriptingAdditions={
                 "set_status": set_status,
                 "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
+                "script_wait": script_wait,
                 "start_subworkflow": start_subworkflow,
                 "parse_duration": parse_duration_string,
             }
@@ -208,6 +221,68 @@ class CaseWorkflow(models.Model):
     # legacy method, should be removed if all directors use version >=1.0.0
     def handle_message_catch_event_next_step(self, workflow_instance):
         return self.handle_message_wait_for_summons(workflow_instance)
+
+    def handle_citizen_report_feedback_2(self, extra_data={}):
+        return self.handle_citizen_report_feedback_1(extra_data)
+
+    def handle_citizen_report_feedback_1(self, extra_data={}):
+        data = {}
+        data.update(extra_data)
+
+        latest_debrief = (
+            Debriefing.objects.filter(
+                case=self.case,
+            )
+            .order_by("date_modified")
+            .last()
+        )
+
+        has_summon = latest_debrief and (
+            latest_debrief.violation
+            in [
+                Debriefing.VIOLATION_NO,
+                Debriefing.VIOLATION_YES,
+                Debriefing.VIOLATION_SEND_TO_OTHER_THEME,
+            ]
+        )
+
+        citizen_report = CitizenReport.objects.filter(
+            id=data.get("citizen_report_id")
+        ).first()
+
+        tasks = CaseUserTask.objects.filter(
+            workflow=self,
+            task_name="task_1_sia_terugkoppeling_melders",
+        )
+
+        feedback_period_exeeded = False
+        if (tasks and tasks[0].completed) or not tasks:
+            feedback_period_exeeded = (
+                self.date_modified
+                + parse_duration(settings.CITIZEN_REPORT_FEEDBACK_PERIOD)
+            ) < timezone.now()
+
+        citizen_report_reporter = ", ".join(
+            [
+                getattr(citizen_report, f)
+                for f in ["reporter_name", "reporter_phone", "reporter_email"]
+                if getattr(citizen_report, f) is not None
+            ]
+        )
+        data.update(
+            {
+                "names": {
+                    "value": f"{citizen_report.identification}: {citizen_report_reporter}"
+                    if citizen_report_reporter
+                    else f"{citizen_report.identification}",
+                },
+                "has_summon": {"value": "true" if has_summon else "false"},
+            }
+        )
+
+        if feedback_period_exeeded or has_summon:
+            return data
+        return False
 
     def handle_message_wait_for_summons(self, workflow_instance):
         from apps.decisions.models import Decision
@@ -563,6 +638,21 @@ class CaseWorkflow(models.Model):
         if not wf:
             return False
         waiting_tasks = wf._get_waiting_tasks()
+        for task in waiting_tasks:
+            if (
+                hasattr(task.task_spec, "event_definition")
+                and isinstance(task.task_spec.event_definition, MessageEventDefinition)
+                and wf.get_tasks_from_spec_name(
+                    f"script_{task.task_spec.event_definition.message}"
+                )
+            ):
+                script_task = wf.get_tasks_from_spec_name(
+                    f"script_{task.task_spec.event_definition.message}"
+                )[0]
+                script_task.workflow.script_engine.execute(
+                    script_task, script_task.task_spec.script, wf.last_task.data
+                )
+
         for task in waiting_tasks:
             if hasattr(task.task_spec, "event_definition") and isinstance(
                 task.task_spec.event_definition, TimerEventDefinition

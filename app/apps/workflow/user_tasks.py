@@ -84,7 +84,7 @@ class task_terugkoppelen_melder_2(user_task):
     due_date = relativedelta(days=2)
 
 
-class task_sia_terugkoppeling_melders(user_task):
+class task_sia_terugkoppeling_melders_legacy(user_task):
     """SIA terugkoppeling melder(s)"""
 
     _task_name = "Activity_19a40xb"
@@ -478,3 +478,15 @@ class task_sub_workflow_terugkoppelen_bi(user_task):
 
 class task_aanleveren_wob_dossier(user_task):
     due_date = relativedelta(days=3)
+
+
+class task_1_sia_terugkoppeling_melders(user_task):
+    due_date = relativedelta(days=2)
+
+
+class task_2_sia_terugkoppeling_melders(user_task):
+    due_date = relativedelta(days=2)
+
+
+class task_sia_terugkoppeling_melders(user_task):
+    due_date = relativedelta(days=2)
