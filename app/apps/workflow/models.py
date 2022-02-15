@@ -436,7 +436,6 @@ class CaseWorkflow(models.Model):
 
     def create_user_tasks(self, wf):
         ready_tasks = wf.get_ready_user_tasks()
-
         task_data = [
             CaseUserTask(
                 task_id=task.id,
