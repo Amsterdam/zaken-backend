@@ -503,6 +503,7 @@ def ff_workflow(
         scriptingAdditions={
             "set_status": lambda *args: None,
             "wait_for_workflows_and_send_message": lambda *args: None,
+            "script_wait": lambda *args: None,
             "start_subworkflow": lambda *args: None,
             "parse_duration": lambda *args: None,
         }
@@ -598,6 +599,7 @@ def ff_to_subworkflow(subworkflow, spec, message_name, data):
         scriptingAdditions={
             "set_status": lambda *args: None,
             "wait_for_workflows_and_send_message": lambda *args: None,
+            "script_wait": lambda *args: None,
             "start_subworkflow": lambda *args: None,
             "parse_duration": lambda *args: None,
         }
@@ -988,6 +990,9 @@ def workflow_spec_paths_inspect(workflow_spec_conf):
     def wait_for_workflows_and_send_message(message):
         pass
 
+    def script_wait(message, data={}):
+        pass
+
     def start_subworkflow(subflow, data={}):
         pass
 
@@ -998,6 +1003,7 @@ def workflow_spec_paths_inspect(workflow_spec_conf):
         scriptingAdditions={
             "set_status": set_status,
             "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
+            "script_wait": script_wait,
             "start_subworkflow": start_subworkflow,
             "parse_duration": parse_duration_string,
         }
