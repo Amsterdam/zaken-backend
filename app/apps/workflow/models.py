@@ -527,7 +527,7 @@ class CaseWorkflow(models.Model):
 
         state = self.get_serializer().serialize_workflow(wf, include_spec=False)
         self.serialized_workflow_state = state
-        print("!!!!! SAVE")
+
         self.save()
 
         if completed:
@@ -653,16 +653,6 @@ class CaseWorkflow(models.Model):
                 script_task.workflow.script_engine.execute(
                     script_task, script_task.task_spec.script, wf.last_task.data
                 )
-
-        # if self.workflow_type == "citizen_report_feedback" \
-        #     and [wt.task_spec.name for wt in waiting_tasks if wt.task_spec.name in ["message_wait_before_citizen_report_feedback_1", "message_wait_before_citizen_report_feedback_2"]]:
-        #     script_task = wf.get_tasks_from_spec_name("script_wait_before_citizen_report_feedback")
-        #     print("has_a_timer_event_fired")
-        #     print(script_task)
-        #     if script_task:
-        #         script_task = script_task[0]
-        #         print(script_task.task_spec.script)
-        #         script_task.workflow.script_engine.execute(script_task, script_task.task_spec.script, script_task.data)
 
         for task in waiting_tasks:
             if hasattr(task.task_spec, "event_definition") and isinstance(
