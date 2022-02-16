@@ -148,7 +148,10 @@ class CaseUserTaskViewSet(
 ):
     permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseUserTaskSerializer
-    queryset = CaseUserTask.objects.all()
+    queryset = CaseUserTask.objects.filter(
+        completed=False,
+        case__end_date__isnull=True,
+    )
     http_method_names = ["patch", "get"]
 
     filter_backends = (
