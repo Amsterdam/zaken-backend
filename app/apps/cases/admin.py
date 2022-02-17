@@ -1,4 +1,5 @@
 from apps.cases.models import (
+    Advertisement,
     Case,
     CaseClose,
     CaseCloseReason,
@@ -214,3 +215,14 @@ class CaseCloseAdmin(admin.ModelAdmin):
     search_fields = ("case__id",)
     list_editable = ("reason",)
     list_filter = ("reason",)
+
+
+@admin.register(Advertisement)
+class AdvertisementAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "case",
+        "link",
+        "related_object",
+    )
+    search_fields = ("case__id",)

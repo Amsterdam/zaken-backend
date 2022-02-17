@@ -4,7 +4,7 @@ from re import sub
 from apps.addresses.models import Address
 from apps.events.models import CaseEvent, ModelEventEmitter, TaskModelEventEmitter
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
@@ -121,6 +121,11 @@ class Case(ModelEventEmitter):
     )
     last_updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+    advertisements = GenericRelation(
+        "Advertisement",
+        object_id_field="related_object_id",
+        content_type_field="related_object_type",
+    )
 
     def __get_event_values__(self):
         reason = self.reason.name
@@ -150,6 +155,10 @@ class Case(ModelEventEmitter):
                 event_values.update(
                     {"advertisement_linklist": citizen_report.advertisement_linklist}
                 )
+        elif self.advertisements:
+            event_values.update(
+                {"advertisement_linklist": [a.link for a in self.advertisements]}
+            )
 
         if reason == "Project":
             event_values.update({"project": self.project.name})
@@ -388,6 +397,11 @@ class CitizenReport(TaskModelEventEmitter):
         null=True,
         blank=True,
     )
+    advertisements = GenericRelation(
+        "Advertisement",
+        object_id_field="related_object_id",
+        content_type_field="related_object_type",
+    )
     description_citizenreport = models.TextField(
         null=True,
         blank=True,
@@ -443,7 +457,7 @@ class CitizenReport(TaskModelEventEmitter):
 class Advertisement(models.Model):
     case = models.ForeignKey(
         to=Case,
-        related_name="advertisements",
+        related_name="case_advertisements",
         on_delete=models.CASCADE,
     )
     link = models.CharField(max_length=255)

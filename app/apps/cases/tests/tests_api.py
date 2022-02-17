@@ -363,12 +363,21 @@ class CaseCreatApiTest(APITestCase):
                 "theme_id": theme.pk,
                 "reason_id": reason.pk,
                 "bag_id": "foo bag ID",
-                "advertisements": [{"link": "https://www.example.com"}],
+                "citizen_reports": [
+                    {
+                        "identification": 42,
+                        "advertisement_linklist": [
+                            {"advertisement_link": "https://www.example1.com"}
+                        ],
+                    }
+                ],
+                "advertisements": [{"link": "https://www.example2.com"}],
             },
             format="json",
         )
+
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(Advertisement.objects.count(), 1)
+        self.assertEquals(Advertisement.objects.count(), 2)
         self.assertEquals(Case.objects.count(), 1)
 
     def test_authenticated_post_create_fail_wrong_theme(self):

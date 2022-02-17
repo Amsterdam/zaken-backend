@@ -19,6 +19,15 @@ class AdvertisementSerializer(serializers.ModelSerializer):
         exclude = ["case"]
 
 
+class AdvertisementCitizenReportSerializer(serializers.ModelSerializer):
+    advertisement_link = serializers.CharField(source="link")
+
+    class Meta:
+        model = Advertisement
+        # exclude = ["case"]
+        fields = "__all__"
+
+
 class AdvertisementLinklist(serializers.Field):
     def to_representation(self, value):
         return value
@@ -29,19 +38,40 @@ class AdvertisementLinklist(serializers.Field):
         ]
 
 
-class CitizenReportCaseSerializer(serializers.ModelSerializer):
+class CitizenReportBaseSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    advertisement_linklist = AdvertisementLinklist(required=False)
+    advertisement_linklist = serializers.ListSerializer(child=serializers.DictField())
 
+    def create(self, validated_data):
+        advertisement_linklist = validated_data.pop("advertisement_linklist", [])
+        instance = super().create(validated_data)
+        advertisements = [
+            Advertisement(
+                **{
+                    **{
+                        "case": instance.case,
+                        "related_object": instance,
+                        "link": a.pop("advertisement_link", None),
+                    }
+                }
+            )
+            for a in advertisement_linklist
+        ]
+        Advertisement.objects.bulk_create(advertisements)
+        return instance
+
+    class Meta:
+        model = CitizenReport
+        fields = "__all__"
+
+
+class CitizenReportCaseSerializer(CitizenReportBaseSerializer):
     class Meta:
         model = CitizenReport
         exclude = ["case"]
 
 
-class CitizenReportSerializer(serializers.ModelSerializer):
-    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    advertisement_linklist = AdvertisementLinklist(required=False)
-
+class CitizenReportSerializer(CitizenReportBaseSerializer):
     class Meta:
         model = CitizenReport
         fields = "__all__"
