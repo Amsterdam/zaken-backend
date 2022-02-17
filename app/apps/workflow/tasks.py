@@ -115,11 +115,33 @@ def task_create_citizen_report_worflow_for_case(self, citizen_report_id, data={}
     from apps.workflow.models import CaseWorkflow
 
     citizen_report = CitizenReport.objects.get(id=citizen_report_id)
+
+    periods_setting = next(
+        iter(
+            [
+                periods_setting
+                for periods_setting in settings.CITIZEN_REPORT_FEEDBACK_PERIODS
+                if citizen_report.case.theme.id in periods_setting.get("themes", [])
+            ]
+        ),
+        {
+            "periods": [
+                settings.CITIZEN_REPORT_FEEDBACK_DEFAULT_FIRST_PERIOD,
+                settings.CITIZEN_REPORT_FEEDBACK_DEFAULT_SECOND_PERIOD,
+            ]
+        },
+    )
     data.update(
         {
-            "citizen_report_id": citizen_report_id,
+            "names": {"value": citizen_report.get_status_information()},
+            "force_citizen_report_feedback": {
+                "value": citizen_report.case.force_citizen_report_feedback()
+            },
+            "CITIZEN_REPORT_FEEDBACK_FIRST_PERIOD": periods_setting.get("periods")[0],
+            "CITIZEN_REPORT_FEEDBACK_SECOND_PERIOD": periods_setting.get("periods")[1],
         }
     )
+
     with transaction.atomic():
         workflow_instance = CaseWorkflow.objects.create(
             case=citizen_report.case,

@@ -62,7 +62,7 @@ class test_afwachten_intern_onderzoek(GenericUserTask, task_afwachten_intern_ond
 class test_opstellen_beeldverslag(GenericUserTask, task_opstellen_beeldverslag):
     @staticmethod
     def get_steps():
-        return [*test_terugkoppelen_melder_2.get_steps(), __class__()]
+        return [*test_verwerken_debrief.get_steps(violation=Violation.YES), __class__()]
 
 
 class test_opstellen_rapport_van_bevindingen(
@@ -70,7 +70,7 @@ class test_opstellen_rapport_van_bevindingen(
 ):
     @staticmethod
     def get_steps():
-        return [*test_terugkoppelen_melder_2.get_steps(), __class__()]
+        return [*test_verwerken_debrief.get_steps(violation=Violation.YES), __class__()]
 
 
 class test_opstellen_verkorte_rapportage_huisbezoek(
@@ -78,7 +78,4 @@ class test_opstellen_verkorte_rapportage_huisbezoek(
 ):
     @staticmethod
     def get_steps():
-        return [
-            *test_terugkoppelen_melder_1.get_steps(),
-            __class__(),
-        ]
+        return [*test_verwerken_debrief.get_steps(violation=Violation.NO), __class__()]

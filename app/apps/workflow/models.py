@@ -3,8 +3,7 @@ import datetime
 import logging
 from string import Template
 
-from apps.cases.models import Case, CaseStateType, CaseTheme, CitizenReport
-from apps.debriefings.models import Debriefing
+from apps.cases.models import Case, CaseStateType, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -222,65 +221,53 @@ class CaseWorkflow(models.Model):
     def handle_message_catch_event_next_step(self, workflow_instance):
         return self.handle_message_wait_for_summons(workflow_instance)
 
+    def handle_citizen_report_feedback_3(self, extra_data={}):
+        data = {}
+        data.update(extra_data)
+
+        force_citizen_report_feedback = bool(
+            data.get("force_citizen_report_feedback", {}).get("value")
+        )
+
+        task_completed = data.get("2_feedback", {}).get("value") is True
+
+        if force_citizen_report_feedback or task_completed:
+            return data
+        return False
+
     def handle_citizen_report_feedback_2(self, extra_data={}):
-        return self.handle_citizen_report_feedback_1(extra_data)
+        data = {}
+        data.update(extra_data)
+
+        feedback_period_exeeded = False
+
+        if data.get("1_feedback", {}).get("value") is True:
+            feedback_period_exeeded = (
+                self.date_modified
+                + parse_duration(data.get("CITIZEN_REPORT_FEEDBACK_SECOND_PERIOD"))
+            ) < timezone.now()
+
+        force_citizen_report_feedback = bool(
+            data.get("force_citizen_report_feedback", {}).get("value")
+        )
+
+        if feedback_period_exeeded or force_citizen_report_feedback:
+            return data
+        return False
 
     def handle_citizen_report_feedback_1(self, extra_data={}):
         data = {}
         data.update(extra_data)
 
-        latest_debrief = (
-            Debriefing.objects.filter(
-                case=self.case,
-            )
-            .order_by("date_modified")
-            .last()
+        feedback_period_exeeded = (
+            self.date_modified
+            + parse_duration(data.get("CITIZEN_REPORT_FEEDBACK_FIRST_PERIOD"))
+        ) < timezone.now()
+
+        force_citizen_report_feedback = bool(
+            data.get("force_citizen_report_feedback", {}).get("value")
         )
-
-        has_summon = latest_debrief and (
-            latest_debrief.violation
-            in [
-                Debriefing.VIOLATION_NO,
-                Debriefing.VIOLATION_YES,
-                Debriefing.VIOLATION_SEND_TO_OTHER_THEME,
-            ]
-        )
-
-        citizen_report = CitizenReport.objects.filter(
-            id=data.get("citizen_report_id")
-        ).first()
-
-        tasks = CaseUserTask.objects.filter(
-            workflow=self,
-            task_name="task_1_sia_terugkoppeling_melders",
-        )
-
-        feedback_period_exeeded = False
-        if (tasks and tasks[0].completed) or not tasks:
-            feedback_period_exeeded = (
-                self.date_modified
-                + parse_duration(settings.CITIZEN_REPORT_FEEDBACK_PERIOD)
-            ) < timezone.now()
-
-        citizen_report_reporter = ", ".join(
-            [
-                getattr(citizen_report, f)
-                for f in ["reporter_name", "reporter_phone", "reporter_email"]
-                if getattr(citizen_report, f) is not None
-            ]
-        )
-        data.update(
-            {
-                "names": {
-                    "value": f"{citizen_report.identification}: {citizen_report_reporter}"
-                    if citizen_report_reporter
-                    else f"{citizen_report.identification}",
-                },
-                "has_summon": {"value": "true" if has_summon else "false"},
-            }
-        )
-
-        if feedback_period_exeeded or has_summon:
+        if feedback_period_exeeded or force_citizen_report_feedback:
             return data
         return False
 
@@ -408,6 +395,20 @@ class CaseWorkflow(models.Model):
 
         wf = self._update_workflow(wf)
         self._update_db(wf)
+
+    def update_workflow_data(self, data={}):
+        wf = self.get_or_restore_workflow_state()
+        if not wf:
+            return False
+        wf.last_task.update_data(data)
+        for t in wf.last_task.children:
+            t.update_data(data)
+        self._execute_scripts_if_needed(wf)
+        serialize_wf = self.get_serializer().serialize_workflow(wf, include_spec=False)
+        self.serialized_workflow_state = serialize_wf
+
+        self.save()
+        task_update_workflow.delay(self.id)
 
     def get_data(self):
         """
@@ -638,6 +639,24 @@ class CaseWorkflow(models.Model):
         if not wf:
             return False
         waiting_tasks = wf._get_waiting_tasks()
+
+        self._execute_scripts_if_needed(wf)
+
+        for task in waiting_tasks:
+            if hasattr(task.task_spec, "event_definition") and isinstance(
+                task.task_spec.event_definition, TimerEventDefinition
+            ):
+                event_definition = task.task_spec.event_definition
+                has_fired = event_definition.has_fired(task)
+                if has_fired:
+                    logger.info(
+                        f"TimerEventDefinition for task '{task.task_spec.name}' has expired. Workflow with id '{self.id}', needs an update"
+                    )
+                    return True
+        return False
+
+    def _execute_scripts_if_needed(self, wf):
+        waiting_tasks = wf._get_waiting_tasks()
         for task in waiting_tasks:
             if (
                 hasattr(task.task_spec, "event_definition")
@@ -652,19 +671,7 @@ class CaseWorkflow(models.Model):
                 script_task.workflow.script_engine.execute(
                     script_task, script_task.task_spec.script, wf.last_task.data
                 )
-
-        for task in waiting_tasks:
-            if hasattr(task.task_spec, "event_definition") and isinstance(
-                task.task_spec.event_definition, TimerEventDefinition
-            ):
-                event_definition = task.task_spec.event_definition
-                has_fired = event_definition.has_fired(task)
-                if has_fired:
-                    logger.info(
-                        f"TimerEventDefinition for task '{task.task_spec.name}' has expired. Workflow with id '{self.id}', needs an update"
-                    )
-                    return True
-        return False
+        return wf
 
     def _update_workflow(self, wf):
         wf.refresh_waiting_tasks()
