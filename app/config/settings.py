@@ -471,12 +471,26 @@ VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER = os.getenv(
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-
 DEFAULT_WORKFLOW_TYPE = os.getenv("DEFAULT_WORKFLOW_TYPE", "director")
 
-CITIZEN_REPORT_FEEDBACK_PERIOD = os.getenv(
-    "CITIZEN_REPORT_FEEDBACK_PERIOD",
-    "26 days, 0:00:00" if ENVIRONMENT == "production" else "0:05:00",
+CITIZEN_REPORT_FEEDBACK_DEFAULT_FIRST_PERIOD = (
+    "54 days, 0:00:00"
+    if ENVIRONMENT == "production"
+    else os.getenv("CITIZEN_REPORT_FEEDBACK_DEFAULT_FIRST_PERIOD", "0:10:00")
+)
+CITIZEN_REPORT_FEEDBACK_DEFAULT_SECOND_PERIOD = (
+    "26 days, 0:00:00"
+    if ENVIRONMENT == "production"
+    else os.getenv("CITIZEN_REPORT_FEEDBACK_DEFAULT_SECOND_PERIOD", "0:05:00")
+)
+CITIZEN_REPORT_FEEDBACK_PERIODS = (
+    {
+        "themes": (2,),
+        "periods": (
+            CITIZEN_REPORT_FEEDBACK_DEFAULT_SECOND_PERIOD,
+            CITIZEN_REPORT_FEEDBACK_DEFAULT_SECOND_PERIOD,
+        ),
+    },
 )
 
 DEFAULT_WORKFLOW_TIMER_DURATIONS = {
@@ -764,7 +778,9 @@ WORKFLOW_SPEC_CONFIG = {
             },
         },
         "citizen_report_feedback": {
-            "initial_data": {},
+            "initial_data": {
+                "force_citizen_report_feedback": {"value": False},
+            },
             "versions": {
                 "0.1.0": {},
             },

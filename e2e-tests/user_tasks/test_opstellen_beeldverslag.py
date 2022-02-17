@@ -14,12 +14,9 @@ class task_opstellen_beeldverslag_test(DefaultAPITest):
         self.get_case().run_steps(
             *test_verwerken_debrief.get_steps(violation=Violation.YES),
             ValidateOpenTasks(
-                test_terugkoppelen_melder_2,
                 test_opstellen_beeldverslag,
                 test_opstellen_rapport_van_bevindingen,
             ),
             test_opstellen_beeldverslag(),
-            ValidateOpenTasks(
-                test_terugkoppelen_melder_2, test_opstellen_rapport_van_bevindingen
-            ),
+            ValidateOpenTasks(test_opstellen_rapport_van_bevindingen),
         )

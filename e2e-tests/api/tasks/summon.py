@@ -53,8 +53,7 @@ class test_opstellen_concept_aanschrijving(
         description="Concept aanschrijving toelichting",
     ):
         return [
-            *test_terugkoppelen_melder_2.get_steps(),
-            test_opstellen_beeldverslag(),
+            *test_opstellen_beeldverslag.get_steps(),
             test_opstellen_rapport_van_bevindingen(),
             __class__(
                 type_concept_summon=type_concept_summon,

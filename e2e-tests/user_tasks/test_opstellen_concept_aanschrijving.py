@@ -14,8 +14,7 @@ from api.validators import ValidateOpenTasks
 class task_opstellen_concept_aanschrijving(DefaultAPITest):
     def test_renounce(self):
         self.get_case().run_steps(
-            *test_terugkoppelen_melder_2.get_steps(),
-            test_opstellen_beeldverslag(),
+            *test_opstellen_beeldverslag.get_steps(),
             test_opstellen_rapport_van_bevindingen(),
             test_opstellen_concept_aanschrijving(
                 type_concept_summon=TypeConceptSummon.RENOUNCE_SUMMON
@@ -25,8 +24,7 @@ class task_opstellen_concept_aanschrijving(DefaultAPITest):
 
     def test_other(self):
         self.get_case().run_steps(
-            *test_terugkoppelen_melder_2.get_steps(),
-            test_opstellen_beeldverslag(),
+            *test_opstellen_beeldverslag.get_steps(),
             test_opstellen_rapport_van_bevindingen(),
             test_opstellen_concept_aanschrijving(
                 type_concept_summon=TypeConceptSummon.OTHER_SUMMON

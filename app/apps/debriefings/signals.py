@@ -1,3 +1,4 @@
+from apps.cases.tasks import task_update_citizen_report_feedback_workflows
 from apps.debriefings.models import Debriefing
 from apps.workflow.models import CaseWorkflow
 from django.db.models.signals import post_save
@@ -16,4 +17,10 @@ def complete_task_create_debrief(sender, instance, created, **kwargs):
                     "value": instance.violation,
                 }
             },
+        )
+        task_update_citizen_report_feedback_workflows.delay(
+            case_id=instance.case.id,
+            force_citizen_report_feedback=instance.case.force_citizen_report_feedback(
+                debrief_instance=instance,
+            ),
         )

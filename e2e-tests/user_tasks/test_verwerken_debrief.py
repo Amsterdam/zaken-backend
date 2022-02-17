@@ -24,7 +24,6 @@ class task_verwerken_debrief_test(DefaultAPITest):
             test_verwerken_debrief(violation=Violation.SEND_TO_OTHER_THEME),
             ValidateOpenTasks(
                 test_opstellen_verkorte_rapportage_huisbezoek,
-                test_terugkoppelen_melder_1,
             ),
         )
 
@@ -34,7 +33,6 @@ class task_verwerken_debrief_test(DefaultAPITest):
             test_verwerken_debrief(violation=Violation.NO),
             ValidateOpenTasks(
                 test_opstellen_verkorte_rapportage_huisbezoek,
-                test_terugkoppelen_melder_1,
             ),
         )
 
@@ -43,7 +41,6 @@ class task_verwerken_debrief_test(DefaultAPITest):
             *test_doorgeven_status_top.get_steps(),
             test_verwerken_debrief(violation=Violation.YES),
             ValidateOpenTasks(
-                test_terugkoppelen_melder_2,
                 test_opstellen_beeldverslag,
                 test_opstellen_rapport_van_bevindingen,
             ),

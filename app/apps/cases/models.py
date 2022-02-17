@@ -172,6 +172,22 @@ class Case(ModelEventEmitter):
             tasks__completed=False, case_state_type__isnull=False
         )
 
+    def force_citizen_report_feedback(self, debrief_instance=None) -> bool:
+        from apps.debriefings.models import Debriefing
+
+        if debrief_instance is None:
+            debrief_instance = self.debriefings.order_by("date_modified").last()
+
+        return bool(
+            debrief_instance
+            and debrief_instance.violation
+            in [
+                Debriefing.VIOLATION_NO,
+                Debriefing.VIOLATION_YES,
+                Debriefing.VIOLATION_SEND_TO_OTHER_THEME,
+            ]
+        )
+
     def get_schedules(self):
         qs = self.schedules.all().order_by("-date_added")
         if qs:
@@ -379,6 +395,21 @@ class CitizenReport(TaskModelEventEmitter):
     nuisance = models.BooleanField(default=False)
     date_added = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+
+    def get_status_information(self):
+        reporter = ", ".join(
+            [
+                str(getattr(self, f))
+                for f in [
+                    "identification",
+                    "reporter_name",
+                    "reporter_phone",
+                    "reporter_email",
+                ]
+                if getattr(self, f) is not None
+            ]
+        )
+        return f"SIA-nummer: {reporter}"
 
     def __str__(self):
         return f"{self.date_added} - {self.case.identification} - {self.identification}"
