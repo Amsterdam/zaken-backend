@@ -121,10 +121,11 @@ class Case(ModelEventEmitter):
     )
     last_updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
-    advertisements = GenericRelation(
+    case_created_advertisements = GenericRelation(
         "Advertisement",
         object_id_field="related_object_id",
         content_type_field="related_object_type",
+        related_query_name="cases",
     )
 
     def __get_event_values__(self):
@@ -155,9 +156,13 @@ class Case(ModelEventEmitter):
                 event_values.update(
                     {"advertisement_linklist": citizen_report.advertisement_linklist}
                 )
-        elif self.advertisements:
+        elif self.case_created_advertisements.all():
             event_values.update(
-                {"advertisement_linklist": [a.link for a in self.advertisements]}
+                {
+                    "advertisement_linklist": [
+                        a.link for a in self.case_created_advertisements.all()
+                    ]
+                }
             )
 
         if reason == "Project":
@@ -397,10 +402,11 @@ class CitizenReport(TaskModelEventEmitter):
         null=True,
         blank=True,
     )
-    advertisements = GenericRelation(
+    related_advertisements = GenericRelation(
         "Advertisement",
         object_id_field="related_object_id",
         content_type_field="related_object_type",
+        related_query_name="advertisements_citizen_reports",
     )
     description_citizenreport = models.TextField(
         null=True,
@@ -433,6 +439,7 @@ class CitizenReport(TaskModelEventEmitter):
             author = self.author.full_name
         else:
             author = "Medewerker onbekend"
+
         event_values = {
             "identification": self.identification,
             "reporter_name": self.reporter_name,
@@ -443,21 +450,31 @@ class CitizenReport(TaskModelEventEmitter):
             "nuisance": self.nuisance,
             "author": author,
         }
+
         if self.case_user_task_id != "-1":
+            # standalone report (legacy)
             event_values.update(
                 {
                     "date_added": self.date_added,
                 }
             )
         else:
+            # report not created with case create
             del event_values["advertisement_linklist"]
+            event_values.update(
+                {
+                    "advertisement_linklist": [
+                        a.link for a in self.related_advertisements.all()
+                    ]
+                }
+            )
         return event_values
 
 
 class Advertisement(models.Model):
     case = models.ForeignKey(
         to=Case,
-        related_name="case_advertisements",
+        related_name="advertisements",
         on_delete=models.CASCADE,
     )
     link = models.CharField(max_length=255)
