@@ -42,6 +42,11 @@ class CaseFilter(filters.FilterSet):
     state_types = filters.ModelMultipleChoiceFilter(
         queryset=CaseStateType.objects.all(), method="get_state_types"
     )
+    state_types__name = filters.ModelMultipleChoiceFilter(
+        queryset=CaseStateType.objects.all(),
+        method="get_state_types",
+        to_field_name="name",
+    )
     ton_ids = CharArrayFilter(field_name="ton_ids", lookup_expr="contains")
     street_name = filters.CharFilter(method="get_fuzy_street_name")
     number = filters.CharFilter(method="get_number")
@@ -103,6 +108,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("state_types__name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("ton_ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
