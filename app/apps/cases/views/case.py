@@ -1,4 +1,4 @@
-from apps.cases.models import Case, CaseStateType, CitizenReport
+from apps.cases.models import Case, CaseStateType
 from apps.cases.serializers import (
     AdvertisementSerializer,
     CaseSerializer,
@@ -256,10 +256,7 @@ class CaseViewSet(
             context={"request": request},
         )
         if serializer.is_valid():
-            data = serializer.validated_data
-
-            citizen_report = CitizenReport(**data)
-            citizen_report.save()
+            serializer.create(serializer.validated_data)
             return Response(
                 data="CitizenReport added",
                 status=status.HTTP_200_OK,

@@ -16,20 +16,16 @@ from rest_framework import serializers
 class AdvertisementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Advertisement
-        exclude = ("case",)
-
-
-class AdvertisementLinklist(serializers.Field):
-    def to_representation(self, value):
-        return value
-
-    def to_internal_value(self, data):
-        return [li.get("link") for li in data if li.get("link")]
+        exclude = (
+            "case",
+            "related_object_type",
+            "related_object_id",
+        )
 
 
 class CitizenReportBaseSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    advertisements = AdvertisementLinklist(required=False)
+    advertisements = AdvertisementSerializer(many=True, required=False)
 
     def create(self, validated_data):
         advertisements = validated_data.pop("advertisements", [])
@@ -39,7 +35,7 @@ class CitizenReportBaseSerializer(serializers.ModelSerializer):
                 **{
                     "case": instance.case,
                     "related_object": instance,
-                    "link": a,
+                    "link": a.get("link"),
                 }
             )
             for a in advertisements
