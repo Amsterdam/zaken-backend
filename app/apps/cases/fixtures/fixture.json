@@ -574,7 +574,7 @@
     "model": "cases.subject",
     "pk": 14,
     "fields": {
-      "name": "Meer dan het toegestane aantal huishoudens",
+      "name": "Omzetting naar maximaal 4 kamer",
       "theme": 3
     }
   },
@@ -582,7 +582,7 @@
     "model": "cases.subject",
     "pk": 15,
     "fields": {
-      "name": "Kortdurend verblijf",
+      "name": "Woningonttrekking kortdurend verblijf ",
       "theme": 3
     }
   },
@@ -590,7 +590,7 @@
     "model": "cases.subject",
     "pk": 16,
     "fields": {
-      "name": "Crimineel gebruik",
+      "name": "Omzetting naar vijf kamers of meer",
       "theme": 3
     }
   },
@@ -598,7 +598,7 @@
     "model": "cases.subject",
     "pk": 17,
     "fields": {
-      "name": "Hennep",
+      "name": "Woningonttrekking prostitutie",
       "theme": 3
     }
   },
