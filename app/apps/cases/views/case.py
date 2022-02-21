@@ -73,6 +73,8 @@ class CaseFilter(filters.FilterSet):
     def get_state_types(self, queryset, name, value):
         if value:
             return queryset.filter(
+                workflows__completed=False,
+                workflows__case_state_type__isnull=False,
                 workflows__case_state_type__in=value,
             ).distinct()
         return queryset
