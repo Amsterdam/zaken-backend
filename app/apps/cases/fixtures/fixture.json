@@ -160,8 +160,8 @@
     "model": "cases.casereason",
     "pk": 19,
     "fields": {
-      "name": "Pied-à-Terre melding",
-      "theme": 5
+      "name": "Ilprowo",
+      "theme": 4
     }
   },
   {
@@ -360,15 +360,6 @@
       "name": "Resultaat na handhaving/hercontrole",
       "case_theme": 5,
       "result": true
-    }
-  },
-  {
-    "model": "cases.caseclosereason",
-    "pk": 37,
-    "fields": {
-      "name": "Anders, vermeld in toelichting",
-      "case_theme": 5,
-      "result": false
     }
   },
   {
@@ -583,7 +574,7 @@
     "model": "cases.subject",
     "pk": 14,
     "fields": {
-      "name": "Meer dan het toegestane aantal huishoudens",
+      "name": "Omzetting naar maximaal 4 kamers",
       "theme": 3
     }
   },
@@ -591,7 +582,7 @@
     "model": "cases.subject",
     "pk": 15,
     "fields": {
-      "name": "Kortdurend verblijf",
+      "name": "Woningonttrekking kortdurend verblijf",
       "theme": 3
     }
   },
@@ -599,7 +590,7 @@
     "model": "cases.subject",
     "pk": 16,
     "fields": {
-      "name": "Crimineel gebruik",
+      "name": "Omzetting naar vijf kamers of meer",
       "theme": 3
     }
   },
@@ -607,7 +598,7 @@
     "model": "cases.subject",
     "pk": 17,
     "fields": {
-      "name": "Hennep",
+      "name": "Woningonttrekking prostitutie",
       "theme": 3
     }
   },
@@ -647,8 +638,80 @@
     "model": "cases.subject",
     "pk": 22,
     "fields": {
-      "name": "Leegstand",
+      "name": "Professionele eigenaar",
       "theme": 5
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 23,
+    "fields": {
+      "name": "Leegstand niet gemeld",
+      "theme": 5
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 24,
+    "fields": {
+      "name": "Geen melding na voordracht",
+      "theme": 5
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 25,
+    "fields": {
+      "name": "Eigenaar werkt niet mee aan overleg",
+      "theme": 5
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 26,
+    "fields": {
+      "name": "Geen legalisatie(vergunning) aangevraagd",
+      "theme": 5
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 27,
+    "fields": {
+      "name": "Administratieve leegstand",
+      "theme": 5
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 28,
+    "fields": {
+      "name": "Feitelijke leegstand",
+      "theme": 5
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 29,
+    "fields": {
+      "name": "Nog niet bekend",
+      "theme": 5
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 30,
+    "fields": {
+      "name": "Prositutie",
+      "theme": 4
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 31,
+    "fields": {
+      "name": "Zelfstandige B&B",
+      "theme": 2
     }
   }
 ]
