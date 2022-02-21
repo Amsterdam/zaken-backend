@@ -1,6 +1,7 @@
 from apps.addresses.models import Address
 from apps.addresses.serializers import AddressSerializer
 from apps.cases.models import (
+    Advertisement,
     Case,
     CaseClose,
     CaseCloseReason,
@@ -124,6 +125,21 @@ class CaseSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
         source="case_citizen_reports", many=True, required=False
     )
     advertisements = AdvertisementSerializer(many=True, required=False)
+
+    def create(self, validated_data):
+        case = super().create(validated_data)
+
+        advertisements = []
+        for a in case.advertisements.filter(
+            related_object_id__isnull=True,
+        ):
+            a.related_object = case
+            advertisements.append(a)
+        Advertisement.objects.bulk_update(
+            advertisements, ["related_object_type", "related_object_id"]
+        )
+
+        return case
 
     class Meta:
         model = Case

@@ -1,6 +1,13 @@
 import datetime
 
-from apps.cases.models import Advertisement, Case, CaseReason, CaseStateType, CaseTheme
+from apps.cases.models import (
+    Advertisement,
+    Case,
+    CaseReason,
+    CaseStateType,
+    CaseTheme,
+    CitizenReport,
+)
 from apps.summons.models import SummonType
 from apps.workflow.models import CaseWorkflow
 from django.core import management
@@ -363,13 +370,26 @@ class CaseCreatApiTest(APITestCase):
                 "theme_id": theme.pk,
                 "reason_id": reason.pk,
                 "bag_id": "foo bag ID",
-                "advertisements": [{"link": "https://www.example.com"}],
+                "citizen_reports": [
+                    {
+                        "identification": 42,
+                        "advertisements": [{"link": "https://www.example1.com"}],
+                    }
+                ],
+                "advertisements": [{"link": "https://www.example2.com"}],
             },
             format="json",
         )
+        cases = Case.objects.all()
+        citizen_reports = CitizenReport.objects.all()
+        advertisements = Advertisement.objects.all()
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(Advertisement.objects.count(), 1)
-        self.assertEquals(Case.objects.count(), 1)
+        self.assertEquals(advertisements.count(), 2)
+        self.assertEquals(cases.count(), 1)
+        self.assertEquals(citizen_reports.count(), 1)
+        self.assertEquals(cases[0].advertisements.count(), 2)
+        self.assertEquals(cases[0].case_created_advertisements.count(), 1)
+        self.assertEquals(citizen_reports[0].related_advertisements.count(), 1)
 
     def test_authenticated_post_create_fail_wrong_theme(self):
         """ Should not be able to create a case if a wrong theme ID is given """

@@ -16,7 +16,7 @@ from rest_framework import serializers
 class AdvertisementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Advertisement
-        exclude = ["case"]
+        exclude = ("case",)
 
 
 class AdvertisementLinklist(serializers.Field):
@@ -24,24 +24,41 @@ class AdvertisementLinklist(serializers.Field):
         return value
 
     def to_internal_value(self, data):
-        return [
-            li.get("advertisement_link") for li in data if li.get("advertisement_link")
-        ]
+        return [li.get("link") for li in data if li.get("link")]
 
 
-class CitizenReportCaseSerializer(serializers.ModelSerializer):
+class CitizenReportBaseSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    advertisement_linklist = AdvertisementLinklist(required=False)
+    advertisements = AdvertisementLinklist(required=False)
 
+    def create(self, validated_data):
+        advertisements = validated_data.pop("advertisements", [])
+        instance = super().create(validated_data)
+        advertisements = [
+            Advertisement(
+                **{
+                    "case": instance.case,
+                    "related_object": instance,
+                    "link": a,
+                }
+            )
+            for a in advertisements
+        ]
+        Advertisement.objects.bulk_create(advertisements)
+        return instance
+
+    class Meta:
+        model = CitizenReport
+        fields = "__all__"
+
+
+class CitizenReportCaseSerializer(CitizenReportBaseSerializer):
     class Meta:
         model = CitizenReport
         exclude = ["case"]
 
 
-class CitizenReportSerializer(serializers.ModelSerializer):
-    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    advertisement_linklist = AdvertisementLinklist(required=False)
-
+class CitizenReportSerializer(CitizenReportBaseSerializer):
     class Meta:
         model = CitizenReport
         fields = "__all__"

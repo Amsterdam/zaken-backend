@@ -4,7 +4,7 @@ from re import sub
 from apps.addresses.models import Address
 from apps.events.models import CaseEvent, ModelEventEmitter, TaskModelEventEmitter
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
@@ -121,6 +121,12 @@ class Case(ModelEventEmitter):
     )
     last_updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+    case_created_advertisements = GenericRelation(
+        "Advertisement",
+        object_id_field="related_object_id",
+        content_type_field="related_object_type",
+        related_query_name="cases",
+    )
 
     def __get_event_values__(self):
         reason = self.reason.name
@@ -150,6 +156,14 @@ class Case(ModelEventEmitter):
                 event_values.update(
                     {"advertisement_linklist": citizen_report.advertisement_linklist}
                 )
+        elif self.case_created_advertisements.all():
+            event_values.update(
+                {
+                    "advertisement_linklist": [
+                        a.link for a in self.case_created_advertisements.all()
+                    ]
+                }
+            )
 
         if reason == "Project":
             event_values.update({"project": self.project.name})
@@ -388,6 +402,12 @@ class CitizenReport(TaskModelEventEmitter):
         null=True,
         blank=True,
     )
+    related_advertisements = GenericRelation(
+        "Advertisement",
+        object_id_field="related_object_id",
+        content_type_field="related_object_type",
+        related_query_name="advertisements_citizen_reports",
+    )
     description_citizenreport = models.TextField(
         null=True,
         blank=True,
@@ -419,6 +439,7 @@ class CitizenReport(TaskModelEventEmitter):
             author = self.author.full_name
         else:
             author = "Medewerker onbekend"
+
         event_values = {
             "identification": self.identification,
             "reporter_name": self.reporter_name,
@@ -429,14 +450,24 @@ class CitizenReport(TaskModelEventEmitter):
             "nuisance": self.nuisance,
             "author": author,
         }
+
         if self.case_user_task_id != "-1":
+            # standalone report (legacy)
             event_values.update(
                 {
                     "date_added": self.date_added,
                 }
             )
         else:
+            # report not created with case create
             del event_values["advertisement_linklist"]
+            event_values.update(
+                {
+                    "advertisement_linklist": [
+                        a.link for a in self.related_advertisements.all()
+                    ]
+                }
+            )
         return event_values
 
 
