@@ -1,9 +1,8 @@
 import logging
 import sys
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 from dateutil.relativedelta import relativedelta
-from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +103,11 @@ class task_doorgeven_status_top(user_task):
         latest_schedule = case_user_task.case.schedules.order_by("date_modified").last()
         if latest_schedule and latest_schedule.visit_from_datetime:
             extra_days = timedelta(
-                days=(latest_schedule.visit_from_datetime - timezone.now()).days + 1
+                days=(
+                    latest_schedule.visit_from_datetime
+                    - datetime.now(timezone(timedelta(hours=0)))
+                ).days
+                + 1
             )
             return due_date + extra_days
         return due_date
