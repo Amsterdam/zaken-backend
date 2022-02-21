@@ -1,4 +1,5 @@
 import uuid
+from itertools import chain
 from re import sub
 
 from apps.addresses.models import Address
@@ -435,6 +436,8 @@ class CitizenReport(TaskModelEventEmitter):
         return f"{self.date_added} - {self.case.identification} - {self.identification}"
 
     def __get_event_values__(self):
+        advertisement_linklist = self.advertisement_linklist
+
         if self.author:
             author = self.author.full_name
         else:
@@ -445,29 +448,35 @@ class CitizenReport(TaskModelEventEmitter):
             "reporter_name": self.reporter_name,
             "reporter_phone": self.reporter_phone,
             "reporter_email": self.reporter_email,
-            "advertisement_linklist": self.advertisement_linklist,
             "description_citizenreport": self.description_citizenreport,
             "nuisance": self.nuisance,
             "author": author,
         }
 
         if self.case_user_task_id != "-1":
-            # standalone report (legacy)
+            # report not created with case create
             event_values.update(
                 {
                     "date_added": self.date_added,
                 }
             )
         else:
-            # report not created with case create
-            del event_values["advertisement_linklist"]
-            event_values.update(
-                {
-                    "advertisement_linklist": [
-                        a.link for a in self.related_advertisements.all()
-                    ]
-                }
+            advertisement_linklist = []
+
+        advertisement_linklist = list(
+            chain(
+                *[
+                    [a.link for a in self.related_advertisements.all()],
+                    advertisement_linklist,
+                ]
             )
+        )
+        event_values.update(
+            {
+                "advertisement_linklist": advertisement_linklist,
+            }
+        )
+
         return event_values
 
 
