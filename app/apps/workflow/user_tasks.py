@@ -1,5 +1,6 @@
 import logging
 import sys
+from datetime import datetime, timedelta, timezone
 
 from dateutil.relativedelta import relativedelta
 
@@ -95,7 +96,23 @@ class task_doorgeven_status_top(user_task):
     """Doorgeven ${status_name} TOP"""
 
     _task_name = "task_create_visit"
-    due_date = relativedelta(months=+2)
+
+    due_date = relativedelta(months=2)
+
+    @classmethod
+    def get_due_date(cls, case_user_task):
+        due_date = super().get_due_date(case_user_task)
+        latest_schedule = case_user_task.case.schedules.order_by("date_modified").last()
+        if latest_schedule and latest_schedule.visit_from_datetime:
+            extra_days = timedelta(
+                days=(
+                    latest_schedule.visit_from_datetime
+                    - datetime.now(timezone(timedelta(hours=0)))
+                ).days
+                + 1
+            )
+            return due_date + extra_days
+        return due_date
 
 
 class task_verwerken_debrief(user_task):
