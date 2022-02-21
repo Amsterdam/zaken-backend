@@ -97,9 +97,11 @@ class task_doorgeven_status_top(user_task):
 
     _task_name = "task_create_visit"
 
+    due_date = relativedelta(months=2)
+
     @classmethod
     def get_due_date(cls, case_user_task):
-        due_date = relativedelta(months=2)
+        due_date = super().get_due_date(case_user_task)
         latest_schedule = case_user_task.case.schedules.order_by("date_modified").last()
         if latest_schedule and latest_schedule.visit_from_datetime:
             extra_days = timedelta(
