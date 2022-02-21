@@ -574,7 +574,7 @@
     "model": "cases.subject",
     "pk": 14,
     "fields": {
-      "name": "Omzetting naar maximaal 4 kamer",
+      "name": "Omzetting naar maximaal 4 kamers",
       "theme": 3
     }
   },
@@ -582,7 +582,7 @@
     "model": "cases.subject",
     "pk": 15,
     "fields": {
-      "name": "Woningonttrekking kortdurend verblijf ",
+      "name": "Woningonttrekking kortdurend verblijf",
       "theme": 3
     }
   },
@@ -704,6 +704,14 @@
     "fields": {
       "name": "Prositutie",
       "theme": 4
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 31,
+    "fields": {
+      "name": "Zelfstandige B&B",
+      "theme": 2
     }
   }
 ]
