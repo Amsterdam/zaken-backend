@@ -80,7 +80,7 @@ class CaseUserTaskFilter(filters.FilterSet):
     def get_suffix(self, queryset, name, value):
         return queryset.filter(
             Q(case__address__suffix__iexact=value)
-            | Q(case__address_suffix_letter__iexact=value)
+            | Q(case__address__suffix_letter__iexact=value)
         )
 
     def get_open_cases(self, queryset, name, value):
@@ -94,6 +94,8 @@ class CaseUserTaskFilter(filters.FilterSet):
     def get_state_types(self, queryset, name, value):
         if value:
             return queryset.filter(
+                case__workflows__completed=False,
+                case__workflows__case_state_type__isnull=False,
                 case__workflows__case_state_type__in=value,
             ).distinct()
         return queryset
