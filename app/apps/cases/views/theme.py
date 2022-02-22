@@ -1,4 +1,4 @@
-from apps.cases.models import CaseTheme
+from apps.cases.models import CaseStateType, CaseTheme
 from apps.cases.serializers import (
     CaseCloseReasonSerializer,
     CaseCloseResultSerializer,
@@ -109,12 +109,11 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
     )
     def state_types(self, request, pk):
         paginator = LimitOffsetPagination()
-        theme = self.get_object()
-        query_set = theme.state_types.all()
+
+        query_set = CaseStateType.objects.all()
+
         if request.GET.get("role") == "toezichthouder":
-            query_set = query_set.filter(
-                id__in=theme.case_state_types_top.values_list("id", flat=True)
-            )
+            query_set = query_set.filter(name__in=["Huisbezoek", "Hercontrole"])
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = CaseStateTypeSerializer(context, many=True)
