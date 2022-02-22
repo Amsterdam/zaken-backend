@@ -99,9 +99,12 @@ class SummonedPerson(models.Model):
             PERSON_ROLE_HEIR,
         ]
     )
-    first_name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255, null=True, blank=True)
     preposition = models.CharField(max_length=255, null=True, blank=True)
-    last_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255, null=True, blank=True)
+    entity_name = models.CharField(max_length=255, null=True, blank=True)
+    function = models.CharField(max_length=255, null=True, blank=True)
+
     person_role = models.CharField(
         max_length=255,
         choices=PERSON_ROLE,
