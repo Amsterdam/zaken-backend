@@ -533,6 +533,13 @@ WORKFLOW_SPEC_CONFIG = {
         "debrief": {
             "initial_data": {
                 "reason": {"value": "default"},
+                "task_opsturen_rapport_naar_corporatie_timer_duration": timedelta(
+                    days=42
+                ),
+                "task_monitoren_terugkoppeling_corporatie_timer_duration": timedelta(
+                    days=42
+                ),
+                "theme": {"value": "default"},
             },
             "versions": {
                 "0.1.0": {},
@@ -541,6 +548,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "3.0.0": {},
                 "4.0.0": {},
                 "4.1.0": {},
+                "5.0.0": {},
             },
         },
         "director": {
@@ -659,12 +667,56 @@ WORKFLOW_SPEC_CONFIG = {
                         },
                     },
                 },
+                "5.0.0": {
+                    "messages": {
+                        "main_process": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "default"},
+                                "debrief_next_step": {"value": "default"},
+                                "summon_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
+                                "housing_corporation_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
+                                "leegstandsmelding_eigenaar": {"value": "default"},
+                            },
+                        },
+                        "aanschrijving_toevoegen": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "default"},
+                                "debrief_next_step": {"value": "default"},
+                                "summon_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
+                                "housing_corporation_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
+                                "leegstandsmelding_eigenaar": {"value": "default"},
+                            },
+                        },
+                    },
+                },
             },
         },
         "housing_corporation": {
-            "initial_data": {},
+            "initial_data": {
+                "task_doorzetten_adres_naar_corporatie_timer_duration": timedelta(
+                    days=10
+                ),
+                "task_afwachten_resultaat_timer_duration": timedelta(days=122),
+                "task_monitoren_input_corporatie_timer_duration": timedelta(days=84),
+            },
             "versions": {
-                "0.1.0": {},
+                "5.0.0": {},
             },
         },
         "renounce_decision": {
