@@ -539,6 +539,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "task_monitoren_terugkoppeling_corporatie_timer_duration": timedelta(
                     days=42
                 ),
+                "theme": {"value": "default"},
             },
             "versions": {
                 "0.1.0": {},
