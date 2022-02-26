@@ -187,21 +187,34 @@ class Case(ModelEventEmitter):
             tasks__completed=False, case_state_type__isnull=False
         )
 
-    def force_citizen_report_feedback(self, debrief_instance=None) -> bool:
+    def force_citizen_report_feedback(self, instance=None) -> bool:
+        from apps.cases.tasks import task_update_citizen_report_feedback_workflows
         from apps.debriefings.models import Debriefing
+        from apps.workflow.models import CaseUserTask, GenericCompletedTask
 
-        if debrief_instance is None:
-            debrief_instance = self.debriefings.order_by("date_modified").last()
+        force = False
+        if instance is None:
+            instance = self.debriefings.order_by("date_modified").last()
 
-        return bool(
-            debrief_instance
-            and debrief_instance.violation
-            in [
-                Debriefing.VIOLATION_NO,
-                Debriefing.VIOLATION_YES,
-                Debriefing.VIOLATION_SEND_TO_OTHER_THEME,
-            ]
-        )
+        if isinstance(instance, CaseUserTask):
+            if instance.task_name == "task_verwerken_reactie_corporatie":
+                force = True
+        elif isinstance(instance, GenericCompletedTask):
+            task = CaseUserTask.objects.filter(id=instance.case_user_task_id).first()
+            if task and task.task_name == "task_verwerken_reactie_corporatie":
+                force = True
+        elif isinstance(instance, Debriefing):
+            force = bool(
+                instance.violation
+                in [
+                    Debriefing.VIOLATION_NO,
+                    Debriefing.VIOLATION_YES,
+                    Debriefing.VIOLATION_SEND_TO_OTHER_THEME,
+                ]
+            )
+        if force:
+            task_update_citizen_report_feedback_workflows.delay(self.id, force)
+        return force
 
     def get_schedules(self):
         qs = self.schedules.all().order_by("-date_added")

@@ -152,3 +152,4 @@ def complete_generic_user_task_and_create_new_user_tasks(
         data = copy.deepcopy(instance.variables)
         data.pop("mapped_form_data")
         CaseWorkflow.complete_user_task(task.id, data)
+        instance.case.force_citizen_report_feedback(task)

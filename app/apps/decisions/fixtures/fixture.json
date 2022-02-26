@@ -209,5 +209,25 @@
       "workflow_option": "leegstandsbeschikking",
       "is_sanction": false
     }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 30,
+    "fields": {
+      "theme": 6,
+      "name": "Boete",
+      "workflow_option": "boete",
+      "is_sanction": true
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 31,
+    "fields": {
+      "theme": 6,
+      "name": "Last onder dwangsom",
+      "workflow_option": "last_onder_dwangsom",
+      "is_sanction": false
+    }
   }
 ]

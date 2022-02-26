@@ -29,6 +29,14 @@
     }
   },
   {
+    "model": "cases.casetheme",
+    "pk": 6,
+    "fields": {
+      "name": "Onderhuur",
+      "sensitive": false
+    }
+  },
+  {
     "model": "cases.casereason",
     "pk": 2,
     "fields": {
@@ -162,6 +170,22 @@
     "fields": {
       "name": "Ilprowo",
       "theme": 4
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 20,
+    "fields": {
+      "name": "Project",
+      "theme": 6
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 21,
+    "fields": {
+      "name": "SIA melding",
+      "theme": 6
     }
   },
   {
@@ -360,6 +384,15 @@
       "name": "Resultaat na handhaving/hercontrole",
       "case_theme": 5,
       "result": true
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 37,
+    "fields": {
+      "name": "Geen woonfraude",
+      "case_theme": 6,
+      "result": false
     }
   },
   {
@@ -712,6 +745,14 @@
     "fields": {
       "name": "Zelfstandige B&B",
       "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 32,
+    "fields": {
+      "name": "Onderhuur",
+      "theme": 6
     }
   },
   {
