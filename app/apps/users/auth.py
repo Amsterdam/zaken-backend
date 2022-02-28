@@ -17,7 +17,16 @@ class AppsOIDCAuthenticationBackend(OIDCAuthenticationBackend):
         user_info = super().get_userinfo(access_token, id_token, payload)
 
         # make sure email is lower case
-        user_info["email"] = user_info.get("email", "").lower()
+        LOGGER.info("OIDCAuthenticationBackend: get_userinfo")
+        LOGGER.info(user_info.get("email", ""))
+        nonce = self.get_nonce(payload)
+        LOGGER.info(nonce)
+        access_info = self.verify_token(access_token, nonce=nonce)
+        LOGGER.info(access_info)
+        groups = self.get_groups(access_info)
+        LOGGER.info(groups)
+
+        # user_info["email"] = user_info.get("email", "").lower()
 
         return user_info
 
@@ -27,7 +36,9 @@ class AppsOIDCAuthenticationBackend(OIDCAuthenticationBackend):
         if not email:
             return self.UserModel.objects.none()
 
-        users = self.UserModel.objects.filter(email__exact=email)
+        users = self.UserModel.objects.filter(email__iexact=email)
+        LOGGER.info("OIDCAuthenticationBackend: filter_users_by_claims")
+        LOGGER.info(users)
         return users
 
 
@@ -35,7 +46,7 @@ if settings.LOCAL_DEVELOPMENT_AUTHENTICATION:
     AuthenticationBackend = DevelopmentAuthenticationBackend
     AuthenticationClass = JWTAuthentication
 else:
-    AuthenticationBackend = OIDCAuthenticationBackend
+    AuthenticationBackend = AppsOIDCAuthenticationBackend  # OIDCAuthenticationBackend
     AuthenticationClass = OIDCAuthentication
 
 
