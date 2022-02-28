@@ -360,8 +360,8 @@
             <camunda:validation>
               <camunda:constraint name="required" />
             </camunda:validation>
-            <camunda:value id="yes_civilian_permit_granted" name="Ja, vergunning verleend" />
-            <camunda:value id="no_civilian_permit_granted" name="Nee, vergunning niet verleend" />
+            <camunda:value id="yes_permit" name="Ja, vergunning verleend" />
+            <camunda:value id="no_permit" name="Nee, vergunning niet verleend" />
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
@@ -493,10 +493,10 @@
       <bpmn:outgoing>Flow_18vst05</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1igavhi" name="Ja, vergunning verleend" sourceRef="Gateway_14b0omd" targetRef="Gateway_0zrx2ej">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit == 'yes_civilian_permit_granted'</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit == 'yes_permit'</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_18vst05" name="Nee, geen vergunning verleend" sourceRef="Gateway_14b0omd" targetRef="service_script_next_step_summon">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit == 'no_civilian_permit_granted'</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit == 'no_permit'</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
