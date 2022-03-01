@@ -61,7 +61,7 @@ class CaseFilter(filters.FilterSet):
 
     def get_suffix(self, queryset, name, value):
         return queryset.filter(
-            Q(address__suffix__iexact=value) | Q(address_suffix_letter__iexact=value)
+            Q(address__suffix__iexact=value) | Q(address__suffix_letter__iexact=value)
         )
 
     def get_open_cases(self, queryset, name, value):

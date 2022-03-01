@@ -10,6 +10,7 @@ from apps.cases.models import (
     Subject,
 )
 from apps.cases.serializers.case import BaseCaseSerializer
+from django.core.cache import cache
 from rest_framework import serializers
 
 
@@ -38,10 +39,17 @@ class LegacyCaseCreateSerializer(BaseCaseSerializer):
 
     def create(self, validated_data):
         status_name = validated_data.pop("status_name", None)
-        case = super().create(validated_data, commit=False)
-        if status_name:
-            case.status_name = status_name
-        case.save()
+        cached_legacy_bwv_case_key = (
+            f'legacy_bwv_case_id_{validated_data.get("legacy_bwv_case_id")}_create_data'
+        )
+        cache.set(
+            cached_legacy_bwv_case_key,
+            {
+                "status_name": status_name,
+            },
+            60 * 60,
+        )
+        case = super().create(validated_data)
         return case
 
 
