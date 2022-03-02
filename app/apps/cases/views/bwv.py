@@ -56,8 +56,15 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
 
     reason_translate = {
         "melding": "SIA melding",
+        "sia_melding": "SIA melding",
         "project": "Project",
         "digitaal_toezicht": "Digitaal toezicht",
+        "melding_eigenaar": "Leegstandsmelding eigenaar",
+        "melding_bi": "BI melding",
+        "eigen_onderzoek": "Eigen onderzoek",
+        "politie_(SBA2.0)": "Politie (SBA 2.0)",
+        "doorzon": "Doorzon",
+        "ilprowo": "Ilprowo",
     }
     label_translate = {
         "HM_DATE_CREATED": "Datum aangemaakt",

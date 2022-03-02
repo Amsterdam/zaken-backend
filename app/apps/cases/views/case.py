@@ -19,7 +19,6 @@ from apps.workflow.serializers import (
     StartWorkflowSerializer,
     WorkflowOptionSerializer,
 )
-from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
@@ -28,7 +27,6 @@ from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 
 
@@ -61,7 +59,7 @@ class CaseFilter(filters.FilterSet):
 
     def get_suffix(self, queryset, name, value):
         return queryset.filter(
-            Q(address__suffix__iexact=value) | Q(address_suffix_letter__iexact=value)
+            Q(address__suffix__iexact=value) | Q(address__suffix_letter__iexact=value)
         )
 
     def get_open_cases(self, queryset, name, value):
@@ -134,14 +132,6 @@ class CaseViewSet(
     ordering_fields = "__all_related__"
     filterset_class = CaseFilter
     pagination_class = StandardResultsSetPagination
-
-    def get_permissions(self):
-        if self.action == "create" and self.request.method not in SAFE_METHODS:
-            if self.request.data.get("reason_id") in settings.DIGITAL_SURVEILLANCE_IDS:
-                self.permission_classes.append(CanCreateDigitalSurveillanceCase)
-            else:
-                self.permission_classes.append(CanCreateCase)
-        return super(CaseViewSet, self).get_permissions()
 
     def get_queryset(self):
         queryset = super().get_queryset()
