@@ -146,6 +146,42 @@ class SummonCreateAPITest(APITestCase):
             SummonedPerson.objects.get(id=persons[0]["id"]).preposition, None
         )
 
+    def test_authenticated_post_creates_persons_with_legal_entity(self):
+        """
+        A SummonedPerson can also be the board of a legal entity.
+        In this case there is no first and last name,
+        but only a entity_name, function and role.
+        """
+        self.assertEquals(SummonedPerson.objects.count(), 0)
+
+        case = baker.make(Case)
+        summon_type = baker.make(SummonType, theme=case.theme)
+        function_name = "Bestuur"
+
+        data = {
+            "description": "foo_description",
+            "case": case.id,
+            "type": summon_type.id,
+            "case_user_task_id": 42,
+            "persons": [
+                {
+                    "function": function_name,
+                    "enitity_name": "Bedrijfsnaam B.V.",
+                    "person_role": "PERSON_ROLE_OWNER",
+                },
+            ],
+        }
+
+        url = reverse("summons-list")
+        client = get_authenticated_client()
+        response = client.post(url, data, format="json")
+
+        persons = response.json()["persons"]
+
+        self.assertEquals(
+            SummonedPerson.objects.get(id=persons[0]["id"]).function, function_name
+        )
+
     def test_authenticated_post_create_hidden_author(self):
         """
         The current user should be set implicitly as author

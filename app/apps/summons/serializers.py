@@ -13,6 +13,8 @@ class SummonedPersonSerializer(serializers.ModelSerializer):
             "last_name",
             "person_role",
             "summon",
+            "entity_name",
+            "function",
         )
         read_only_fields = ("summon",)
 

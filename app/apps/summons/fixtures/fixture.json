@@ -241,5 +241,23 @@
       "workflow_option": "leegstandsbrief",
       "name": "Leegstandsbrief"
     }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 41,
+    "fields": {
+      "theme": 6,
+      "workflow_option": "aanschrijvingen",
+      "name": "Vooraankondiging dwangsom"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 42,
+    "fields": {
+      "theme": 6,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen boete"
+    }
   }
 ]

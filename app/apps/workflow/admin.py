@@ -1,3 +1,4 @@
+from apps.cases.models import CaseStateType, CaseTheme
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
@@ -18,11 +19,15 @@ def force_update_workflows(modeladmin, request, queryset):
 
 @admin.action(description="Update_case_state_type_for_workflows")
 def update_case_state_type_for_workflows(modeladmin, request, queryset):
-    for workflow in queryset.filter(completed=False, tasks__completed=False):
-        case_state = workflow.case_states.all().order_by("id").last()
-        if case_state:
-            workflow.case_state_type = case_state.status
-            workflow.save()
+    theme = CaseTheme.objects.get(id=2)
+    for workflow in queryset.filter(case_state_type__isnull=False,).exclude(
+        case__theme=theme,
+    ):
+        case_state_type, _ = CaseStateType.objects.get_or_create(
+            name=workflow.case_state_type.name, theme=theme
+        )
+        workflow.case_state_type = case_state_type
+        workflow.save()
 
 
 @admin.action(description="Migrate to latest")
