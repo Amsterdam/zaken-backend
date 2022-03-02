@@ -493,10 +493,10 @@
       <bpmn:outgoing>Flow_18vst05</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1igavhi" name="Ja, vergunning verleend" sourceRef="Gateway_14b0omd" targetRef="Gateway_0zrx2ej">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit == 'yes_permit'</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit.value == 'yes_permit'</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_18vst05" name="Nee, geen vergunning verleend" sourceRef="Gateway_14b0omd" targetRef="service_script_next_step_summon">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit == 'no_permit'</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit.value == 'no_permit'</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
@@ -518,6 +518,21 @@
       <bpmndi:BPMNShape id="Lane_1szfa18_di" bpmnElement="lane_projecthandhaver_1szfa18" isHorizontal="true">
         <dc:Bounds x="190" y="600" width="4090" height="810" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_18vst05_di" bpmnElement="Flow_18vst05">
+        <di:waypoint x="2410" y="854" />
+        <di:waypoint x="2410" y="950" />
+        <di:waypoint x="3950" y="950" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2422" y="870" width="55" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1igavhi_di" bpmnElement="Flow_1igavhi">
+        <di:waypoint x="2435" y="829" />
+        <di:waypoint x="2735" y="829" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2549" y="796" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1ejttzw_di" bpmnElement="Flow_1ejttzw">
         <di:waypoint x="1270" y="685" />
         <di:waypoint x="1270" y="340" />
@@ -840,21 +855,6 @@
       <bpmndi:BPMNEdge id="Flow_1detbpm_di" bpmnElement="Flow_1detbpm">
         <di:waypoint x="1160" y="710" />
         <di:waypoint x="1245" y="710" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1igavhi_di" bpmnElement="Flow_1igavhi">
-        <di:waypoint x="2435" y="829" />
-        <di:waypoint x="2735" y="829" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2549" y="796" width="73" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_18vst05_di" bpmnElement="Flow_18vst05">
-        <di:waypoint x="2410" y="854" />
-        <di:waypoint x="2410" y="950" />
-        <di:waypoint x="3950" y="950" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2422" y="870" width="55" height="40" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Gateway_1t6r1v4_di" bpmnElement="gateway_which_type_of_summon" isMarkerVisible="true">
         <dc:Bounds x="1245" y="685" width="50" height="50" />

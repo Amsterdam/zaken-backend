@@ -198,7 +198,7 @@ class test_monitoren_vergunningsprocedure(
     GenericUserTask, task_monitoren_vergunningsprocedure
 ):
     def __init__(self):
-        super().__init__(civilian_has_gotten_permit={"value": True})
+        super().__init__(civilian_has_gotten_permit={"value": HasPermit.YES})
 
     @staticmethod
     def get_steps(has_permit=True):
