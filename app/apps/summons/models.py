@@ -46,7 +46,7 @@ class Summon(TaskModelEventEmitter):
                     "preposition": person.preposition,
                     "last_name": person.last_name,
                     "person_role": person.person_role,
-                    "entitiy_name": person.entity_name,
+                    "entity_name": person.entity_name,
                     "function": person.function,
                 }
             )
