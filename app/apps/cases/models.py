@@ -157,7 +157,8 @@ class Case(ModelEventEmitter):
                 event_values.update(
                     {"advertisement_linklist": citizen_report.advertisement_linklist}
                 )
-        elif self.case_created_advertisements.all():
+
+        if self.case_created_advertisements.all():
             event_values.update(
                 {
                     "advertisement_linklist": [
@@ -462,9 +463,14 @@ class CitizenReport(TaskModelEventEmitter):
             "reporter_phone": self.reporter_phone,
             "reporter_email": self.reporter_email,
             "description_citizenreport": self.description_citizenreport,
-            "nuisance": self.nuisance,
             "author": author,
         }
+        if self.case.theme.id == 2:
+            event_values.update(
+                {
+                    "nuisance": self.nuisance,
+                }
+            )
 
         if self.case_user_task_id != "-1":
             # report not created with case create
