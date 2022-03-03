@@ -70,15 +70,12 @@ class Summon(TaskModelEventEmitter):
         return f"{self.id} Summon - {self.type} - Case {self.case.id}"
 
     def complete_task(self):
+        names = ", ".join([person.__str__() for person in self.persons.all()])
         CaseWorkflow.complete_user_task(
             self.case_user_task_id,
             {
                 "type_aanschrijving": {"value": self.type.workflow_option},
-                "names": {
-                    "value": ", ".join(
-                        [person.__str__() for person in self.persons.all()]
-                    )
-                },
+                "names": {"value": f"{names}: {self.type.name}"},
                 "summon_id": {"value": self.id},
             },
         )

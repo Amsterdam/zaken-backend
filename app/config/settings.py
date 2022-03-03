@@ -709,11 +709,11 @@ WORKFLOW_SPEC_CONFIG = {
         },
         "housing_corporation": {
             "initial_data": {
-                "task_doorzetten_adres_naar_corporatie_timer_duration": timedelta(
-                    days=10
+                "task_monitoren_reactie_corporatie_timer_duration": timedelta(days=10),
+                "task_afwachten_reactie_corporatie_timer_duration": timedelta(days=122),
+                "task_afwachten_overgaan_tot_handhaven_timer_duration": timedelta(
+                    days=84
                 ),
-                "task_afwachten_resultaat_timer_duration": timedelta(days=122),
-                "task_monitoren_input_corporatie_timer_duration": timedelta(days=84),
             },
             "versions": {
                 "5.0.0": {},

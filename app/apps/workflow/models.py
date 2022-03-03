@@ -325,6 +325,7 @@ class CaseWorkflow(models.Model):
                     .count()
                 },
                 "next_step": {"value": "default"},
+                "names": {"value": ""},
             }
 
             next_step_visit = [
@@ -336,6 +337,7 @@ class CaseWorkflow(models.Model):
                 extra_data.update(
                     {
                         "next_step": {"value": "visit"},
+                        "summon_next_step": {"value": "default"},
                     }
                 )
 
@@ -509,7 +511,6 @@ class CaseWorkflow(models.Model):
             )
         else:
             logger.info(f"COMPLETE TASK NOT FOUND: {task_id}")
-
         # changes the workflow
         wf = self._update_workflow(wf)
 
