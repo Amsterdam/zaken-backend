@@ -40,7 +40,6 @@
         <bpmn:flowNodeRef>Gateway_1vqjm4z</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_kwaliteitscheck_rapportages</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_02pcs11</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>task_bevindingen_versturen_naar_bi</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_18zh2q9</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_opsturen_rapport_naar_corporatie</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1k2xysk</bpmn:flowNodeRef>
@@ -48,6 +47,7 @@
         <bpmn:flowNodeRef>Gateway_09iad1n</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_afwachten_overgaan_tot_handhaven</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>event_timer_afwachten_overgaan_tot_handhaven</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_bevindingen_versturen_naar_bi</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:exclusiveGateway id="gateway_is_debrief_violation" name="Is er een overtreding gepleegd?" default="Flow_10inq1c">
@@ -282,10 +282,6 @@
     <bpmn:sequenceFlow id="Flow_0p6gzks" sourceRef="Gateway_09iad1n" targetRef="service_script_set_summon" />
     <bpmn:sequenceFlow id="Flow_1ojbz76" sourceRef="Gateway_1k2xysk" targetRef="task_afwachten_overgaan_tot_handhaven" />
     <bpmn:sequenceFlow id="Flow_060qz1n" sourceRef="Gateway_18zh2q9" targetRef="task_opsturen_rapport_naar_corporatie" />
-    <bpmn:task id="task_bevindingen_versturen_naar_bi" name="Bevindingen versturen naar BI">
-      <bpmn:incoming>Flow_05nivae</bpmn:incoming>
-      <bpmn:outgoing>Flow_0zdm1xx</bpmn:outgoing>
-    </bpmn:task>
     <bpmn:parallelGateway id="Gateway_18zh2q9">
       <bpmn:incoming>Flow_1c5as05</bpmn:incoming>
       <bpmn:outgoing>Flow_060qz1n</bpmn:outgoing>
@@ -332,6 +328,10 @@
     <bpmn:sequenceFlow id="Flow_17mde14" sourceRef="task_afwachten_overgaan_tot_handhaven" targetRef="Gateway_09iad1n">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:userTask id="task_bevindingen_versturen_naar_bi" name="Bevindingen versturen naar BI">
+      <bpmn:incoming>Flow_05nivae</bpmn:incoming>
+      <bpmn:outgoing>Flow_0zdm1xx</bpmn:outgoing>
+    </bpmn:userTask>
   </bpmn:process>
   <bpmn:signal id="Signal_039rhog" name="S" />
   <bpmn:message id="Message_1x25hwu" name="inform_civilian" />
@@ -697,9 +697,6 @@
       <bpmndi:BPMNShape id="Gateway_0gkciwn_di" bpmnElement="Gateway_0gkciwn" isMarkerVisible="true">
         <dc:Bounds x="1285" y="1125" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_16chl8y_di" bpmnElement="task_bevindingen_versturen_naar_bi">
-        <dc:Bounds x="1010" y="460" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1r26uii_di" bpmnElement="Gateway_18zh2q9">
         <dc:Bounds x="875" y="625" width="50" height="50" />
       </bpmndi:BPMNShape>
@@ -717,6 +714,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_08kc4oc_di" bpmnElement="task_afwachten_overgaan_tot_handhaven">
         <dc:Bounds x="1330" y="460" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ruf7b0_di" bpmnElement="task_bevindingen_versturen_naar_bi">
+        <dc:Bounds x="1010" y="460" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1k45pi7_di" bpmnElement="event_timer_afwachten_overgaan_tot_handhaven">
         <dc:Bounds x="1362" y="442" width="36" height="36" />
