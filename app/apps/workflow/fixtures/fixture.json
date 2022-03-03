@@ -368,5 +368,105 @@
       "message_name": "start_aanleveren_wob_dossier",
       "to_directing_proccess": false
     }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 50,
+    "fields": {
+      "theme": 6,
+      "name": "WOB verzoek",
+      "message_name": "start_aanleveren_wob_dossier",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 51,
+    "fields": {
+      "theme": 6,
+      "name": "Terugkoppeling BI",
+      "message_name": "start_terugkoppelen_bi",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 52,
+    "fields": {
+      "theme": 6,
+      "name": "Aanleveren bezwaardossier",
+      "message_name": "start_objectionfile_process",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 53,
+    "fields": {
+      "theme": 6,
+      "name": "Terugbelverzoek",
+      "message_name": "start_callbackrequest_process",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 54,
+    "fields": {
+      "theme": 6,
+      "name": "Nieuwe melding",
+      "message_name": "start_signal_process",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 55,
+    "fields": {
+      "theme": 6,
+      "name": "Correspondentie",
+      "message_name": "start_correspondence_process",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 56,
+    "fields": {
+      "theme": 6,
+      "name": "Extra aanschrijving",
+      "message_name": "aanschrijving_toevoegen",
+      "to_directing_proccess": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 57,
+    "fields": {
+      "theme": 6,
+      "name": "Extra informatie",
+      "message_name": "start_extra_information",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 58,
+    "fields": {
+      "theme": 6,
+      "name": "Casus overleg",
+      "message_name": "start_casus_overleg_proces",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 59,
+    "fields": {
+      "theme": 5,
+      "name": "Casus overleg",
+      "message_name": "start_casus_overleg_proces",
+      "to_directing_proccess": false
+    }
   }
 ]

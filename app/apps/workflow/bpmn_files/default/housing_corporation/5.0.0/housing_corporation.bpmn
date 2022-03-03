@@ -83,7 +83,7 @@
     <bpmn:userTask id="task_verwerken_reactie_corporatie" name="Verwerken reactie corporatie" camunda:formKey="form_verwerken_reactie_coporatie">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="reactie_corporatie" type="enum">
+          <camunda:formField id="reactie_corporatie" label="Wat is de conclusie?" type="enum">
             <camunda:value id="officiele_waarschuwing" name="Officiële waarschuwing" />
             <camunda:value id="ontbinding_contract" name="Ontbinding contract" />
             <camunda:value id="inschrijving_woonfraude" name="Inschrijving woonfraude" />

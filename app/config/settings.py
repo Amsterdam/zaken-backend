@@ -539,6 +539,9 @@ WORKFLOW_SPEC_CONFIG = {
                 "task_monitoren_terugkoppeling_corporatie_timer_duration": timedelta(
                     days=42
                 ),
+                "task_afwachten_overgaan_tot_handhaven_timer_duration": timedelta(
+                    days=42
+                ),
                 "theme": {"value": "default"},
             },
             "versions": {
@@ -711,9 +714,7 @@ WORKFLOW_SPEC_CONFIG = {
             "initial_data": {
                 "task_monitoren_reactie_corporatie_timer_duration": timedelta(days=10),
                 "task_afwachten_reactie_corporatie_timer_duration": timedelta(days=122),
-                "task_afwachten_overgaan_tot_handhaven_timer_duration": timedelta(
-                    days=84
-                ),
+                "task_monitoren_input_corporatie_timer_duration": timedelta(days=84),
             },
             "versions": {
                 "5.0.0": {},
