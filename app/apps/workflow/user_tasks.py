@@ -563,7 +563,3 @@ class task_opsturen_naar_corporatie(user_task):
 
 class task_verwerken_resultaat_corporatie(user_task):
     due_date = relativedelta(days=2)
-
-
-class task_bevindingen_versturen_naar_bi(user_task):
-    due_date = relativedelta(days=2)
