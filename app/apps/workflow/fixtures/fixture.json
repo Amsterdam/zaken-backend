@@ -468,5 +468,15 @@
       "message_name": "start_casus_overleg_proces",
       "to_directing_proccess": false
     }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 60,
+    "fields": {
+      "theme": 6,
+      "name": "Uitkomst corportatie",
+      "message_name": "start_uitkomst_corporatie_proces",
+      "to_directing_proccess": false
+    }
   }
 ]
