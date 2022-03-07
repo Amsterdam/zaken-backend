@@ -510,7 +510,7 @@ class task_sia_terugkoppeling_melders(user_task):
 
 
 class task_doorzetten_adres_naar_corporatie(user_task):
-    due_date = relativedelta(days=10)
+    due_date = relativedelta(days=7)
 
 
 class task_monitoren_reactie_corporatie(user_task):
@@ -522,7 +522,7 @@ class task_contacteren_corporatie_bezoek(user_task):
 
 
 class task_verwerken_reactie_corporatie_bezoek(user_task):
-    due_date = relativedelta(days=2)
+    due_date = relativedelta(days=7)
 
 
 class task_afwachten_reactie_corporatie(user_task):
@@ -530,7 +530,7 @@ class task_afwachten_reactie_corporatie(user_task):
 
 
 class task_verwerken_reactie_corporatie(user_task):
-    due_date = relativedelta(days=2)
+    due_date = relativedelta(days=7)
 
 
 class task_contacteren_corporatie(user_task):
@@ -542,15 +542,15 @@ class task_monitoren_input_corporatie(user_task):
 
 
 class task_melder_contact_verlenging_termijn(user_task):
-    due_date = relativedelta(days=2)
+    due_date = relativedelta(days=14)
 
 
 class task_kwaliteitscheck_rapportages(user_task):
-    due_date = relativedelta(days=2)
+    due_date = relativedelta(days=14)
 
 
 class task_opsturen_rapport_naar_corporatie(user_task):
-    due_date = relativedelta(days=2)
+    due_date = relativedelta(days=14)
 
 
 class task_afwachten_overgaan_tot_handhaven(user_task):
@@ -558,8 +558,8 @@ class task_afwachten_overgaan_tot_handhaven(user_task):
 
 
 class task_opsturen_naar_corporatie(user_task):
-    due_date = relativedelta(days=2)
+    due_date = relativedelta(days=1)
 
 
 class task_verwerken_resultaat_corporatie(user_task):
-    due_date = relativedelta(days=2)
+    due_date = relativedelta(days=84)
