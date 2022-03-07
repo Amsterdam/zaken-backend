@@ -104,8 +104,15 @@ class Case(ModelEventEmitter):
         max_length=255, null=True, blank=True, unique=True
     )
     directing_process = models.CharField(max_length=255, null=True, blank=True)
-    camunda_ids = ArrayField(
-        models.CharField(max_length=255), default=list, null=True, blank=True
+    previous_case = models.ForeignKey(
+        to="cases.Case",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+    mma_number = models.PositiveIntegerField(
+        null=True,
+        blank=True,
     )
     theme = models.ForeignKey(to=CaseTheme, on_delete=models.PROTECT)
     author = models.ForeignKey(

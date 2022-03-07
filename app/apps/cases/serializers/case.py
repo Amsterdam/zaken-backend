@@ -31,7 +31,6 @@ class BaseCaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Case
         exclude = (
-            "camunda_ids",
             "directing_process",
             "identification",
             "is_legacy_bwv",
@@ -143,7 +142,6 @@ class CaseSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
     class Meta:
         model = Case
         exclude = (
-            "camunda_ids",
             "directing_process",
             "identification",
             "is_legacy_bwv",
