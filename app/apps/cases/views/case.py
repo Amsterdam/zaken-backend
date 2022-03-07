@@ -1,4 +1,4 @@
-from apps.cases.models import Case, CaseStateType
+from apps.cases.models import Case, CaseProject, CaseStateType
 from apps.cases.serializers import (
     AdvertisementSerializer,
     CaseSerializer,
@@ -45,6 +45,9 @@ class CaseFilter(filters.FilterSet):
         method="get_state_types",
         to_field_name="name",
     )
+    project = filters.ModelMultipleChoiceFilter(
+        queryset=CaseProject.objects.all(), method="get_project"
+    )
     ton_ids = CharArrayFilter(field_name="ton_ids", lookup_expr="contains")
     street_name = filters.CharFilter(method="get_fuzy_street_name")
     number = filters.CharFilter(method="get_number")
@@ -75,6 +78,13 @@ class CaseFilter(filters.FilterSet):
                 workflows__case_state_type__isnull=False,
                 workflows__case_state_type__in=value,
             ).distinct()
+        return queryset
+
+    def get_project(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                project__in=value,
+            )
         return queryset
 
     class Meta:
@@ -108,6 +118,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("project", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("state_types__name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),
