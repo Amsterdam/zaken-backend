@@ -1,4 +1,7 @@
-from apps.cases.models import Case, CaseProject, CaseStateType
+import operator
+from functools import reduce
+
+from apps.cases.models import Case, CaseProject, CaseReason, CaseStateType
 from apps.cases.serializers import (
     AdvertisementSerializer,
     CaseSerializer,
@@ -8,6 +11,7 @@ from apps.cases.serializers import (
 from apps.events.mixins import CaseEventsMixin
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
+from apps.schedules.models import DaySegment, Schedule, WeekSegment
 from apps.users.permissions import (
     CanCreateCase,
     CanCreateDigitalSurveillanceCase,
@@ -19,7 +23,8 @@ from apps.workflow.serializers import (
     StartWorkflowSerializer,
     WorkflowOptionSerializer,
 )
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
+from django.forms.fields import CharField, MultipleChoiceField
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
@@ -28,6 +33,26 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
+
+
+class MultipleValueField(MultipleChoiceField):
+    def __init__(self, *args, field_class, **kwargs):
+        self.inner_field = field_class()
+        super().__init__(*args, **kwargs)
+
+    def valid_value(self, value):
+        return self.inner_field.validate(value)
+
+    def clean(self, values):
+        return values and [self.inner_field.clean(value) for value in values]
+
+
+class MultipleValueFilter(filters.Filter):
+    field_class = MultipleValueField
+
+    def __init__(self, *args, field_class, **kwargs):
+        kwargs.setdefault("lookup_expr", "in")
+        super().__init__(*args, field_class=field_class, **kwargs)
 
 
 class CharArrayFilter(filters.BaseCSVFilter, filters.CharFilter):
@@ -40,6 +65,17 @@ class CaseFilter(filters.FilterSet):
     state_types = filters.ModelMultipleChoiceFilter(
         queryset=CaseStateType.objects.all(), method="get_state_types"
     )
+    schedule_day_segment = filters.ModelMultipleChoiceFilter(
+        queryset=DaySegment.objects.all(),
+        method="get_schedule_day_segment",
+    )
+    schedule_week_segment = filters.ModelMultipleChoiceFilter(
+        queryset=WeekSegment.objects.all(),
+        method="get_schedule_week_segment",
+    )
+    schedule_visit_from = filters.DateTimeFilter(
+        method="get_schedule_visit_from",
+    )
     state_types__name = filters.ModelMultipleChoiceFilter(
         queryset=CaseStateType.objects.all(),
         method="get_state_types",
@@ -48,11 +84,51 @@ class CaseFilter(filters.FilterSet):
     project = filters.ModelMultipleChoiceFilter(
         queryset=CaseProject.objects.all(), method="get_project"
     )
+    reason = filters.ModelMultipleChoiceFilter(
+        queryset=CaseReason.objects.all(), method="get_reason"
+    )
     ton_ids = CharArrayFilter(field_name="ton_ids", lookup_expr="contains")
     street_name = filters.CharFilter(method="get_fuzy_street_name")
     number = filters.CharFilter(method="get_number")
     suffix = filters.CharFilter(method="get_suffix")
     postal_code = filters.CharFilter(method="get_postal_code")
+    postal_code_range = MultipleValueFilter(
+        field_class=CharField, method="get_postal_code_range"
+    )
+
+    def get_annotated_qs_by_schedule_type(self, queryset, type, value):
+        last_schedule = Schedule.objects.filter(case=OuterRef("pk")).order_by(
+            "-date_modified"
+        )
+        return queryset.annotate(
+            last_schedule_field=Subquery(last_schedule.values(type)[:1])
+        )
+
+    def get_schedule_day_segment(self, queryset, name, value):
+        if value:
+            queryset = self.get_annotated_qs_by_schedule_type(
+                queryset, "day_segment", value
+            )
+            return queryset.filter(last_schedule_field__in=value)
+        return queryset
+
+    def get_schedule_week_segment(self, queryset, name, value):
+        if value:
+            queryset = self.get_annotated_qs_by_schedule_type(
+                queryset, "week_segment", value
+            )
+            return queryset.filter(last_schedule_field__in=value)
+        return queryset
+
+    def get_schedule_visit_from(self, queryset, name, value):
+        if value:
+            queryset = self.get_annotated_qs_by_schedule_type(
+                queryset, "visit_from_datetime", value
+            )
+            return queryset.filter(
+                Q(last_schedule_field__lte=value) | Q(last_schedule_field__isnull=True)
+            )
+        return queryset
 
     def get_fuzy_street_name(self, queryset, name, value):
         return queryset.filter(address__street_name__trigram_similar=value)
@@ -71,6 +147,20 @@ class CaseFilter(filters.FilterSet):
     def get_postal_code(self, queryset, name, value):
         return queryset.filter(address__postal_code__iexact=value.replace(" ", ""))
 
+    def get_postal_code_range(self, queryset, name, value):
+        postal_code_numbers = [v.split("-") for v in value if len(v.split("-")) == 2]
+        postal_code_numbers = [
+            str(p)
+            for v in postal_code_numbers
+            if int(v[0]) <= int(v[1])
+            for p in range(int(v[0]), int(v[1]) + 1)
+        ]
+        postal_code_numbers = list(set(postal_code_numbers))
+        postal_code_numbers = (
+            Q(address__postal_code__icontains=str(p)) for p in postal_code_numbers
+        )
+        return queryset.filter(reduce(operator.or_, postal_code_numbers))
+
     def get_state_types(self, queryset, name, value):
         if value:
             return queryset.filter(
@@ -84,6 +174,13 @@ class CaseFilter(filters.FilterSet):
         if value:
             return queryset.filter(
                 project__in=value,
+            )
+        return queryset
+
+    def get_reason(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                reason__in=value,
             )
         return queryset
 
@@ -118,6 +215,16 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter(
+            "schedule_day_segment", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
+        ),
+        OpenApiParameter(
+            "schedule_week_segment", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
+        ),
+        OpenApiParameter(
+            "schedule_visit_from", OpenApiTypes.DATE, OpenApiParameter.QUERY
+        ),
+        OpenApiParameter("postal_code_range", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("project", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("state_types__name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
@@ -151,6 +258,16 @@ class CaseViewSet(
         ):
             queryset = queryset.exclude(sensitive=True)
         return queryset
+
+    @action(
+        detail=False,
+        methods=["get"],
+    )
+    def count(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        count = queryset.count()
+        content = {"count": count}
+        return Response(content)
 
     @extend_schema(
         description="Get tasks for this Case",
