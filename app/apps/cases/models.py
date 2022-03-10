@@ -154,6 +154,7 @@ class Case(ModelEventEmitter):
             "author": author,
             "subjects": map(lambda subject: subject.name, self.subjects.all()),
             "mma_number": self.mma_number,
+            "previous_case": self.previous_case.id,
         }
 
         # TODO better way for db reason with python logic
