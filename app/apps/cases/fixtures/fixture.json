@@ -459,7 +459,7 @@
     "model": "cases.caseclosereason",
     "pk": 42,
     "fields": {
-      "name": "Resultaat na hercontrole",
+      "name": "Resultaat na handhaving/hercontrole",
       "case_theme": 6,
       "result": true
     }
@@ -557,6 +557,14 @@
     "pk": 15,
     "fields": {
       "name": "Regulier bewoond",
+      "case_theme": 6
+    }
+  },
+  {
+    "model": "cases.casecloseresult",
+    "pk": 16,
+    "fields": {
+      "name": "Gelegaliseerd",
       "case_theme": 6
     }
   },

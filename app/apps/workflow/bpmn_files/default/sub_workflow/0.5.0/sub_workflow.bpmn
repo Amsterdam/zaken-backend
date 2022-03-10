@@ -371,7 +371,15 @@
       <bpmn:outgoing>Flow_0tzw9jf</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0aoz8us" messageRef="Message_1d7st8j" />
     </bpmn:startEvent>
-    <bpmn:userTask id="task_verwerken_uitkomst_corporatie" name="Verwerken uitkomst corporatie" camunda:candidateGroups="Projecthandhaver">
+    <bpmn:userTask id="task_verwerken_uitkomst_corporatie" name="Verwerken uitkomst corporatie" camunda:formKey="form_verwerken_uitkomst_corporatie" camunda:candidateGroups="Projecthandhaver">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="parallel_workflow_uitkomst_corporatie" label="Wat is de uitkomst van de corporatie?" type="enum">
+            <camunda:value id="officiele_waarschuwing" name="Officiële waarschuwing" />
+            <camunda:value id="ontbinding_contract_hoofdhuurder" name="Ontbinding contract hoofdhuurder" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_1uk9vd0</bpmn:incoming>
       <bpmn:outgoing>Flow_09ggopg</bpmn:outgoing>
     </bpmn:userTask>

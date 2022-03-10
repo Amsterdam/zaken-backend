@@ -26,6 +26,7 @@ def parse_task_spec_form(form):
     trans_types = {
         "enum": "select",
         "boolean": "checkbox",
+        "string": "text",
     }
     fields = [
         {
@@ -38,7 +39,9 @@ def parse_task_spec_form(form):
                 for o in f.__dict__.get("options", [])
             ],
             "name": f.id,
-            "type": trans_types.get(f.type, "text"),
+            "type": "multiselect"
+            if bool([v.name for v in f.validation if v.name == "multiple"])
+            else trans_types.get(f.type, "text"),
             "required": not bool(
                 [v.name for v in f.validation if v.name == "optional"]
             ),
@@ -61,6 +64,13 @@ def map_variables_on_task_spec_form(variables, task_spec_form):
                 "label": form.get(k, {}).get("label", v.get("value")),
                 "value": v.get("value")
                 if not form.get(k, {}).get("options")
+                else [
+                    dict((o.get("value"), o) for o in form.get(k, {}).get("options"))
+                    .get(vv, {})
+                    .get("label", vv)
+                    for vv in v.get("value")
+                ]
+                if isinstance(v.get("value"), list)
                 else dict((o.get("value"), o) for o in form.get(k, {}).get("options"))
                 .get(v.get("value"), {})
                 .get("label", v.get("value")),

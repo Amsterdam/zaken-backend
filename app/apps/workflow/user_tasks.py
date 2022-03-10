@@ -513,31 +513,31 @@ class task_doorzetten_adres_naar_corporatie(user_task):
     due_date = relativedelta(days=7)
 
 
-class task_monitoren_reactie_corporatie(user_task):
+class task_monitoren_reactie_corporatie_voor_huisbezoek(user_task):
     pass
 
 
-class task_contacteren_corporatie_bezoek(user_task):
+class task_contacteren_corporatie_voor_huisbezoek(user_task):
     due_date = relativedelta(days=2)
 
 
-class task_verwerken_reactie_corporatie_bezoek(user_task):
-    due_date = relativedelta(days=7)
-
-
-class task_afwachten_reactie_corporatie(user_task):
+class task_monitoren_reactie_corporatie_na_huisbezoek_1(user_task):
     pass
+
+
+class task_verwerken_constatering_corporatie(user_task):
+    due_date = relativedelta(days=7)
 
 
 class task_verwerken_reactie_corporatie(user_task):
     due_date = relativedelta(days=7)
 
 
-class task_contacteren_corporatie(user_task):
+class task_contacteren_corporatie_na_huisbezoek(user_task):
     due_date = relativedelta(days=2)
 
 
-class task_monitoren_input_corporatie(user_task):
+class task_monitoren_reactie_corporatie_na_huisbezoek_2(user_task):
     pass
 
 
@@ -545,11 +545,11 @@ class task_melder_contact_verlenging_termijn(user_task):
     due_date = relativedelta(days=14)
 
 
-class task_kwaliteitscheck_rapportages(user_task):
+class task_kwaliteitscheck_rapporten(user_task):
     due_date = relativedelta(days=14)
 
 
-class task_opsturen_rapport_naar_corporatie(user_task):
+class task_opsturen_rapport_naar_corporatie_overtreding(user_task):
     due_date = relativedelta(days=14)
 
 
@@ -557,7 +557,7 @@ class task_afwachten_overgaan_tot_handhaven(user_task):
     pass
 
 
-class task_opsturen_naar_corporatie(user_task):
+class task_opsturen_rapport_naar_corporatie(user_task):
     due_date = relativedelta(days=1)
 
 
