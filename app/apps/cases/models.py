@@ -198,18 +198,14 @@ class Case(ModelEventEmitter):
     def force_citizen_report_feedback(self, instance=None) -> bool:
         from apps.cases.tasks import task_update_citizen_report_feedback_workflows
         from apps.debriefings.models import Debriefing
-        from apps.workflow.models import CaseUserTask, GenericCompletedTask
+        from apps.workflow.models import CaseUserTask
 
         force = False
         if instance is None:
             instance = self.debriefings.order_by("date_modified").last()
 
         if isinstance(instance, CaseUserTask):
-            if instance.task_name == "task_verwerken_reactie_corporatie":
-                force = True
-        elif isinstance(instance, GenericCompletedTask):
-            task = CaseUserTask.objects.filter(id=instance.case_user_task_id).first()
-            if task and task.task_name == "task_verwerken_reactie_corporatie":
+            if instance.task_name == "task_set_next_step":
                 force = True
         elif isinstance(instance, Debriefing):
             force = bool(
