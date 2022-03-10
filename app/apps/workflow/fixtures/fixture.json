@@ -474,7 +474,7 @@
     "pk": 60,
     "fields": {
       "theme": 6,
-      "name": "Uitkomst corportatie",
+      "name": "Uitkomst corporatie",
       "message_name": "start_uitkomst_corporatie_proces",
       "to_directing_proccess": false
     }

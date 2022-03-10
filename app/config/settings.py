@@ -533,12 +533,6 @@ WORKFLOW_SPEC_CONFIG = {
         "debrief": {
             "initial_data": {
                 "reason": {"value": "default"},
-                "task_opsturen_rapport_naar_corporatie_timer_duration": timedelta(
-                    days=42
-                ),
-                "task_monitoren_terugkoppeling_corporatie_timer_duration": timedelta(
-                    days=42
-                ),
                 "task_afwachten_overgaan_tot_handhaven_timer_duration": timedelta(
                     days=42
                 ),
@@ -712,9 +706,15 @@ WORKFLOW_SPEC_CONFIG = {
         },
         "housing_corporation": {
             "initial_data": {
-                "task_monitoren_reactie_corporatie_timer_duration": timedelta(days=10),
-                "task_afwachten_reactie_corporatie_timer_duration": timedelta(days=56),
-                "task_monitoren_input_corporatie_timer_duration": timedelta(days=84),
+                "task_monitoren_reactie_corporatie_voor_huisbezoek_timer_duration": timedelta(
+                    days=14
+                ),
+                "task_monitoren_reactie_corporatie_na_huisbezoek_1_timer_duration": timedelta(
+                    days=56
+                ),
+                "task_monitoren_reactie_corporatie_na_huisbezoek_2_timer_duration": timedelta(
+                    days=84
+                ),
             },
             "versions": {
                 "5.0.0": {},
