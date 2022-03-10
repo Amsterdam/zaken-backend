@@ -72,6 +72,12 @@ def case_user_task_pre_save(sender, instance, **kwargs):
             )
 
 
+@receiver(post_save, sender=CaseUserTask, dispatch_uid="case_user_task_post_save")
+def case_user_task_post_save(sender, instance, created, **kwargs):
+    if created:
+        instance.case.force_citizen_report_feedback(instance)
+
+
 @receiver(pre_save, sender=CaseWorkflow, dispatch_uid="case_workflow_pre_save")
 def case_workflow_pre_save(sender, instance, **kwargs):
     if kwargs.get("raw"):
@@ -152,4 +158,3 @@ def complete_generic_user_task_and_create_new_user_tasks(
         data = copy.deepcopy(instance.variables)
         data.pop("mapped_form_data")
         CaseWorkflow.complete_user_task(task.id, data)
-        instance.case.force_citizen_report_feedback(task)
