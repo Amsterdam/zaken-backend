@@ -709,10 +709,10 @@ WORKFLOW_SPEC_CONFIG = {
                 "task_monitoren_reactie_corporatie_voor_huisbezoek_timer_duration": timedelta(
                     days=14
                 ),
-                "task_monitoren_reactie_corporatie_na_huisbezoek_1_timer_duration": timedelta(
+                "task_afwachten_besluit_corporatie_na_huisbezoek_1_timer_duration": timedelta(
                     days=56
                 ),
-                "task_monitoren_reactie_corporatie_na_huisbezoek_2_timer_duration": timedelta(
+                "task_afwachten_besluit_corporatie_na_huisbezoek_2_timer_duration": timedelta(
                     days=84
                 ),
             },

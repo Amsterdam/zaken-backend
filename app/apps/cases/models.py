@@ -1,6 +1,7 @@
 import uuid
 from itertools import chain
 from re import sub
+from time import sleep
 
 from apps.addresses.models import Address
 from apps.events.models import CaseEvent, ModelEventEmitter, TaskModelEventEmitter
@@ -218,6 +219,7 @@ class Case(ModelEventEmitter):
             )
         if force:
             task_update_citizen_report_feedback_workflows.delay(self.id, force)
+            sleep(1)
         return force
 
     def get_schedules(self):
