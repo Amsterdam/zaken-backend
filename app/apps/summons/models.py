@@ -118,7 +118,18 @@ class SummonedPerson(models.Model):
     )
 
     def __str__(self):
-        if self.preposition:
-            return f"{self.first_name} {self.preposition} {self.last_name}"
+        def remove_falsy(li: list):
+            return [e for e in li if e]
 
-        return f"{self.first_name} {self.last_name}"
+        entity_and_function = ",".join(remove_falsy([self.entity_name, self.function]))
+        name = " ".join(
+            remove_falsy(
+                [
+                    self.first_name,
+                    self.preposition,
+                    self.last_name,
+                ]
+            )
+        )
+        role = f" ({self.person_role})" if self.person_role else ""
+        return ",".join(remove_falsy([name, entity_and_function])) + role
