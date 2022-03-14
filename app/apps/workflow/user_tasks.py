@@ -521,7 +521,7 @@ class task_contacteren_corporatie_voor_huisbezoek(user_task):
     due_date = relativedelta(days=2)
 
 
-class task_monitoren_reactie_corporatie_na_huisbezoek_1(user_task):
+class task_afwachten_besluit_corporatie_na_huisbezoek_1(user_task):
     pass
 
 
@@ -537,7 +537,7 @@ class task_contacteren_corporatie_na_huisbezoek(user_task):
     due_date = relativedelta(days=2)
 
 
-class task_monitoren_reactie_corporatie_na_huisbezoek_2(user_task):
+class task_afwachten_besluit_corporatie_na_huisbezoek_2(user_task):
     pass
 
 
