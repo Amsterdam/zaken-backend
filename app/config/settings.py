@@ -837,7 +837,9 @@ WORKFLOW_SPEC_CONFIG = {
             },
         },
         "visit": {
-            "initial_data": {},
+            "initial_data": {
+                "bepalen_processtap": {"value": "default"},
+            },
             "versions": {
                 "0.1.0": {},
                 "0.2.0": {},
