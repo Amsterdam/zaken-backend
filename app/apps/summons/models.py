@@ -83,21 +83,14 @@ class Summon(TaskModelEventEmitter):
 
 
 class SummonedPerson(models.Model):
-    PERSON_ROLE_OWNER = "PERSON_ROLE_OWNER"
-    PERSON_ROLE_RESIDENT = "PERSON_ROLE_RESIDENT"
-    PERSON_ROLE_MIDDLEMAN = "PERSON_ROLE_MIDDLEMAN"
-    PERSON_ROLE_PLATFORM = "PERSON_ROLE_PLATFORM"
-    PERSON_ROLE_HEIR = "PERSON_ROLE_HEIR"
-    PERSON_ROLE = tuple(
-        (role, role)
-        for role in [
-            PERSON_ROLE_OWNER,
-            PERSON_ROLE_RESIDENT,
-            PERSON_ROLE_MIDDLEMAN,
-            PERSON_ROLE_PLATFORM,
-            PERSON_ROLE_HEIR,
-        ]
-    )
+    PERSON_ROLE_MAPPING = {
+        "PERSON_ROLE_OWNER": "Eigenaar",
+        "PERSON_ROLE_RESIDENT": "Bewoner",
+        "PERSON_ROLE_MIDDLEMAN": "Tussenpersoon",
+        "PERSON_ROLE_PLATFORM": "Platform",
+        "PERSON_ROLE_HEIR": "Erfgenaam",
+    }
+    PERSON_ROLE = tuple((role, role) for role in PERSON_ROLE_MAPPING.keys())
     first_name = models.CharField(max_length=255, null=True, blank=True)
     preposition = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
@@ -131,5 +124,9 @@ class SummonedPerson(models.Model):
                 ]
             )
         )
-        role = f" ({self.person_role})" if self.person_role else ""
-        return ",".join(remove_falsy([name, entity_and_function])) + role
+        role = (
+            f" ({self.PERSON_ROLE_MAPPING[self.person_role]})"
+            if self.person_role
+            else ""
+        )
+        return ", ".join(remove_falsy([name, entity_and_function])) + role
