@@ -114,7 +114,7 @@ class SummonedPerson(models.Model):
         def remove_falsy(li: list):
             return [e for e in li if e]
 
-        entity_and_function = ",".join(remove_falsy([self.entity_name, self.function]))
+        entity_and_function = ", ".join(remove_falsy([self.entity_name, self.function]))
         name = " ".join(
             remove_falsy(
                 [
