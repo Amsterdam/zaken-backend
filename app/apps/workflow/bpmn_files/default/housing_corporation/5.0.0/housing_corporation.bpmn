@@ -31,10 +31,7 @@
         <bpmn:flowNodeRef>Gateway_0kr3sgh</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1x7xgjp</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0s1f81q</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>event_timer_afwachten_besluit_corporatie_na_huisbezoek_1</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>event_timer_afwachten_besluit_corporatie_na_huisbezoek_2</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_monitoren_reactie_corporatie_voor_huisbezoek</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>event_timer_monitoren_reactie_corporatie_voor_huisbezoek</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>end_housing_corporation</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0sz7vpd</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_housing_corporation_next_step_close_case</bpmn:flowNodeRef>
@@ -43,6 +40,9 @@
         <bpmn:flowNodeRef>Gateway_0vk1sha</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_02qx0ws</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_verwerken_constatering_corporatie</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>event_timer_monitoren_reactie_corporatie_voor_huisbezoek</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>event_timer_afwachten_besluit_corporatie_na_huisbezoek_2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>event_timer_afwachten_besluit_corporatie_na_huisbezoek_1</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:exclusiveGateway id="Gateway_0orgca0" default="Flow_182viso">
@@ -78,7 +78,7 @@
           <camunda:formField id="reactie_ontvangen_na_huisbezoek" label="Is er een reactie ontvangen?" type="enum">
             <camunda:value id="woonfraude" name="Ja, woonfraude" />
             <camunda:value id="geen_woonfraude" name="Ja, geen woonfraude" />
-            <camunda:value id="geen_reactie" name="Nee, geen reactie" />
+            <camunda:value id="geen_reactie" name="Nee, nog geen uitkomst" />
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
@@ -89,72 +89,6 @@
       <bpmn:incoming>Flow_0d7mcmg</bpmn:incoming>
       <bpmn:outgoing>Flow_1c6bg2m</bpmn:outgoing>
       <bpmn:outgoing>Flow_0j5d6gq</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:parallelGateway id="Gateway_09j9exh">
-      <bpmn:incoming>Flow_1irdbnt</bpmn:incoming>
-      <bpmn:outgoing>Flow_1hqfxff</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0b0q3n1</bpmn:outgoing>
-    </bpmn:parallelGateway>
-    <bpmn:userTask id="task_afwachten_besluit_corporatie_na_huisbezoek_2" name="Afwachten besluit corporatie" camunda:formKey="form_monitoren_reactie_corporatie_na_huisbezoek_2">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="reactie_ontvangen_na_huisbezoek" label="Is er een reactie ontvangen?" type="enum">
-            <camunda:value id="woonfraude" name="Ja, woonfraude" />
-            <camunda:value id="geen_woonfraude" name="Ja, geen woonfraude" />
-          </camunda:formField>
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_18c7kgj</bpmn:incoming>
-      <bpmn:outgoing>Flow_12as5u4</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:userTask id="task_melder_contact_verlenging_termijn" name="Melder contact verlenging termijn" camunda:formKey="form">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="task_melder_contact_verlenging_termijn_completed" label="Ja, deze taak is afgerond" type="boolean" />
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0b0q3n1</bpmn:incoming>
-      <bpmn:outgoing>Flow_19k0y0c</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:exclusiveGateway id="Gateway_0mg3exo">
-      <bpmn:incoming>Flow_12as5u4</bpmn:incoming>
-      <bpmn:incoming>Flow_0r8m4qp</bpmn:incoming>
-      <bpmn:outgoing>Flow_09zia4s</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:scriptTask id="Activity_0tqrae8" name="delete reactie_ontvangen_na_huisbezoek">
-      <bpmn:incoming>Flow_19k0y0c</bpmn:incoming>
-      <bpmn:outgoing>Flow_1fi9i2l</bpmn:outgoing>
-      <bpmn:script>vars().pop("reactie_ontvangen_na_huisbezoek", None)</bpmn:script>
-    </bpmn:scriptTask>
-    <bpmn:parallelGateway id="Gateway_0fp3izl">
-      <bpmn:incoming>Flow_1fi9i2l</bpmn:incoming>
-      <bpmn:incoming>Flow_18zf0re</bpmn:incoming>
-      <bpmn:outgoing>Flow_0hs9qw0</bpmn:outgoing>
-    </bpmn:parallelGateway>
-    <bpmn:exclusiveGateway id="Gateway_125xtca" default="Flow_1irdbnt">
-      <bpmn:incoming>Flow_1c6bg2m</bpmn:incoming>
-      <bpmn:outgoing>Flow_1irdbnt</bpmn:outgoing>
-      <bpmn:outgoing>Flow_06sdcsw</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:exclusiveGateway id="Gateway_0c3juz0">
-      <bpmn:incoming>Flow_1hqfxff</bpmn:incoming>
-      <bpmn:incoming>Flow_06sdcsw</bpmn:incoming>
-      <bpmn:outgoing>Flow_18c7kgj</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:exclusiveGateway id="Gateway_1f2mwdz" default="Flow_18zf0re">
-      <bpmn:incoming>Flow_09zia4s</bpmn:incoming>
-      <bpmn:outgoing>Flow_18zf0re</bpmn:outgoing>
-      <bpmn:outgoing>Flow_13qs0sz</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:exclusiveGateway id="Gateway_1mc6m1d">
-      <bpmn:incoming>Flow_0hs9qw0</bpmn:incoming>
-      <bpmn:incoming>Flow_13qs0sz</bpmn:incoming>
-      <bpmn:outgoing>Flow_1bqawvu</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:exclusiveGateway id="Gateway_0tov9p7" default="Flow_1ooi2iu">
-      <bpmn:incoming>Flow_1bqawvu</bpmn:incoming>
-      <bpmn:outgoing>Flow_1ooi2iu</bpmn:outgoing>
-      <bpmn:outgoing>Flow_12oxnd5</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:startEvent id="start_housing_corporation">
       <bpmn:outgoing>Flow_1l76fkr</bpmn:outgoing>
@@ -203,12 +137,6 @@
         <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">parse_duration(task_afwachten_besluit_corporatie_na_huisbezoek_1_timer_duration)</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
-    <bpmn:boundaryEvent id="event_timer_afwachten_besluit_corporatie_na_huisbezoek_2" attachedToRef="task_afwachten_besluit_corporatie_na_huisbezoek_2">
-      <bpmn:outgoing>Flow_0r8m4qp</bpmn:outgoing>
-      <bpmn:timerEventDefinition id="TimerEventDefinition_1rfg5x1">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">parse_duration(task_afwachten_besluit_corporatie_na_huisbezoek_2_timer_duration)</bpmn:timeDuration>
-      </bpmn:timerEventDefinition>
-    </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="Flow_0j5d6gq" sourceRef="Gateway_0fxi98t" targetRef="Gateway_0vk1sha" />
     <bpmn:sequenceFlow id="Flow_1c6bg2m" sourceRef="Gateway_0fxi98t" targetRef="Gateway_125xtca">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reactie_ontvangen_na_huisbezoek.value == "geen_reactie"</bpmn:conditionExpression>
@@ -230,26 +158,6 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reactie_ontvangen_voor_huisbezoek.value == "corporatie_gaat_lopen"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_182viso" sourceRef="Gateway_0orgca0" targetRef="service_housing_corporation_next_step_visit" />
-    <bpmn:sequenceFlow id="Flow_1hqfxff" sourceRef="Gateway_09j9exh" targetRef="Gateway_0c3juz0" />
-    <bpmn:sequenceFlow id="Flow_0b0q3n1" sourceRef="Gateway_09j9exh" targetRef="task_melder_contact_verlenging_termijn" />
-    <bpmn:sequenceFlow id="Flow_0hs9qw0" sourceRef="Gateway_0fp3izl" targetRef="Gateway_1mc6m1d" />
-    <bpmn:sequenceFlow id="Flow_12as5u4" sourceRef="task_afwachten_besluit_corporatie_na_huisbezoek_2" targetRef="Gateway_0mg3exo">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" />
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_19k0y0c" sourceRef="task_melder_contact_verlenging_termijn" targetRef="Activity_0tqrae8" />
-    <bpmn:sequenceFlow id="Flow_09zia4s" sourceRef="Gateway_0mg3exo" targetRef="Gateway_1f2mwdz" />
-    <bpmn:sequenceFlow id="Flow_1fi9i2l" sourceRef="Activity_0tqrae8" targetRef="Gateway_0fp3izl" />
-    <bpmn:sequenceFlow id="Flow_0r8m4qp" sourceRef="event_timer_afwachten_besluit_corporatie_na_huisbezoek_2" targetRef="Gateway_0mg3exo" />
-    <bpmn:sequenceFlow id="Flow_1irdbnt" sourceRef="Gateway_125xtca" targetRef="Gateway_09j9exh" />
-    <bpmn:sequenceFlow id="Flow_18c7kgj" sourceRef="Gateway_0c3juz0" targetRef="task_afwachten_besluit_corporatie_na_huisbezoek_2" />
-    <bpmn:sequenceFlow id="Flow_18zf0re" sourceRef="Gateway_1f2mwdz" targetRef="Gateway_0fp3izl" />
-    <bpmn:sequenceFlow id="Flow_1bqawvu" sourceRef="Gateway_1mc6m1d" targetRef="Gateway_0tov9p7" />
-    <bpmn:sequenceFlow id="Flow_06sdcsw" sourceRef="Gateway_125xtca" targetRef="Gateway_0c3juz0">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">vars().get("task_melder_contact_verlenging_termijn_completed", {}).get("value", False)</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_13qs0sz" sourceRef="Gateway_1f2mwdz" targetRef="Gateway_1mc6m1d">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python ">vars().get("task_melder_contact_verlenging_termijn_completed", {}).get("value", False)</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_03venu5" sourceRef="Gateway_0s1f81q" targetRef="Gateway_0orgca0" />
     <bpmn:sequenceFlow id="Flow_1l76fkr" sourceRef="start_housing_corporation" targetRef="service_status_afstemmen_corporatie" />
     <bpmn:sequenceFlow id="Flow_1c36m7z" sourceRef="service_status_afstemmen_corporatie" targetRef="task_doorzetten_adres_naar_corporatie" />
@@ -347,6 +255,98 @@
       <bpmn:incoming>Flow_0kyzj1m</bpmn:incoming>
       <bpmn:outgoing>Flow_02qqxu0</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1bqawvu" sourceRef="Gateway_1mc6m1d" targetRef="Gateway_0tov9p7" />
+    <bpmn:sequenceFlow id="Flow_13qs0sz" sourceRef="Gateway_1f2mwdz" targetRef="Gateway_1mc6m1d">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python ">vars().get("task_melder_contact_verlenging_termijn_completed", {}).get("value", False) or reason.get("value") != "reason_sia_melding"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_18c7kgj" sourceRef="Gateway_0c3juz0" targetRef="task_afwachten_besluit_corporatie_na_huisbezoek_2" />
+    <bpmn:sequenceFlow id="Flow_06sdcsw" sourceRef="Gateway_125xtca" targetRef="Gateway_0c3juz0">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">vars().get("task_melder_contact_verlenging_termijn_completed", {}).get("value", False) or reason.get("value") != "reason_sia_melding"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0hs9qw0" sourceRef="Gateway_0fp3izl" targetRef="Gateway_1mc6m1d" />
+    <bpmn:sequenceFlow id="Flow_18zf0re" sourceRef="Gateway_1f2mwdz" targetRef="Gateway_0fp3izl" />
+    <bpmn:sequenceFlow id="Flow_1fi9i2l" sourceRef="Activity_0tqrae8" targetRef="Gateway_0fp3izl" />
+    <bpmn:sequenceFlow id="Flow_09zia4s" sourceRef="Gateway_0mg3exo" targetRef="Gateway_1f2mwdz" />
+    <bpmn:sequenceFlow id="Flow_0r8m4qp" sourceRef="event_timer_afwachten_besluit_corporatie_na_huisbezoek_2" targetRef="Gateway_0mg3exo" />
+    <bpmn:sequenceFlow id="Flow_12as5u4" sourceRef="task_afwachten_besluit_corporatie_na_huisbezoek_2" targetRef="Gateway_0mg3exo">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" />
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_19k0y0c" sourceRef="task_melder_contact_verlenging_termijn" targetRef="Activity_0tqrae8" />
+    <bpmn:sequenceFlow id="Flow_0b0q3n1" sourceRef="Gateway_09j9exh" targetRef="task_melder_contact_verlenging_termijn" />
+    <bpmn:sequenceFlow id="Flow_1hqfxff" sourceRef="Gateway_09j9exh" targetRef="Gateway_0c3juz0" />
+    <bpmn:sequenceFlow id="Flow_1irdbnt" sourceRef="Gateway_125xtca" targetRef="Gateway_09j9exh" />
+    <bpmn:boundaryEvent id="event_timer_afwachten_besluit_corporatie_na_huisbezoek_2" attachedToRef="task_afwachten_besluit_corporatie_na_huisbezoek_2">
+      <bpmn:outgoing>Flow_0r8m4qp</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_1rfg5x1">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">parse_duration(task_afwachten_besluit_corporatie_na_huisbezoek_2_timer_duration)</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:userTask id="task_afwachten_besluit_corporatie_na_huisbezoek_2" name="Afwachten besluit corporatie" camunda:formKey="form_monitoren_reactie_corporatie_na_huisbezoek_2">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="reactie_ontvangen_na_huisbezoek" label="Is er een reactie ontvangen?" type="enum">
+            <camunda:value id="woonfraude" name="Ja, woonfraude" />
+            <camunda:value id="geen_woonfraude" name="Ja, geen woonfraude" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_18c7kgj</bpmn:incoming>
+      <bpmn:outgoing>Flow_12as5u4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_0tov9p7" default="Flow_1ooi2iu">
+      <bpmn:incoming>Flow_1bqawvu</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ooi2iu</bpmn:outgoing>
+      <bpmn:outgoing>Flow_12oxnd5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_1mc6m1d">
+      <bpmn:incoming>Flow_0hs9qw0</bpmn:incoming>
+      <bpmn:incoming>Flow_13qs0sz</bpmn:incoming>
+      <bpmn:outgoing>Flow_1bqawvu</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_1f2mwdz" default="Flow_18zf0re">
+      <bpmn:incoming>Flow_09zia4s</bpmn:incoming>
+      <bpmn:outgoing>Flow_18zf0re</bpmn:outgoing>
+      <bpmn:outgoing>Flow_13qs0sz</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_0c3juz0">
+      <bpmn:incoming>Flow_1hqfxff</bpmn:incoming>
+      <bpmn:incoming>Flow_06sdcsw</bpmn:incoming>
+      <bpmn:outgoing>Flow_18c7kgj</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_125xtca" default="Flow_1irdbnt">
+      <bpmn:incoming>Flow_1c6bg2m</bpmn:incoming>
+      <bpmn:outgoing>Flow_1irdbnt</bpmn:outgoing>
+      <bpmn:outgoing>Flow_06sdcsw</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:parallelGateway id="Gateway_0fp3izl">
+      <bpmn:incoming>Flow_1fi9i2l</bpmn:incoming>
+      <bpmn:incoming>Flow_18zf0re</bpmn:incoming>
+      <bpmn:outgoing>Flow_0hs9qw0</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:scriptTask id="Activity_0tqrae8" name="delete reactie_ontvangen_na_huisbezoek">
+      <bpmn:incoming>Flow_19k0y0c</bpmn:incoming>
+      <bpmn:outgoing>Flow_1fi9i2l</bpmn:outgoing>
+      <bpmn:script>vars().pop("reactie_ontvangen_na_huisbezoek", None)</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="Gateway_0mg3exo">
+      <bpmn:incoming>Flow_12as5u4</bpmn:incoming>
+      <bpmn:incoming>Flow_0r8m4qp</bpmn:incoming>
+      <bpmn:outgoing>Flow_09zia4s</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="task_melder_contact_verlenging_termijn" name="Contacteren melder verlenging termijn" camunda:formKey="form">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="task_melder_contact_verlenging_termijn_completed" label="Ja, deze taak is afgerond" type="boolean" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0b0q3n1</bpmn:incoming>
+      <bpmn:outgoing>Flow_19k0y0c</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:parallelGateway id="Gateway_09j9exh">
+      <bpmn:incoming>Flow_1irdbnt</bpmn:incoming>
+      <bpmn:outgoing>Flow_1hqfxff</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0b0q3n1</bpmn:outgoing>
+    </bpmn:parallelGateway>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0d17nif">
@@ -359,6 +359,69 @@
       <bpmndi:BPMNShape id="Lane_1x1hv6r_di" bpmnElement="Lane_1x1hv6r" isHorizontal="true">
         <dc:Bounds x="190" y="80" width="2700" height="120" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1irdbnt_di" bpmnElement="Flow_1irdbnt">
+        <di:waypoint x="1320" y="1045" />
+        <di:waypoint x="1320" y="1085" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1hqfxff_di" bpmnElement="Flow_1hqfxff">
+        <di:waypoint x="1345" y="1110" />
+        <di:waypoint x="1415" y="1110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0b0q3n1_di" bpmnElement="Flow_0b0q3n1">
+        <di:waypoint x="1320" y="1135" />
+        <di:waypoint x="1320" y="1250" />
+        <di:waypoint x="1530" y="1250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19k0y0c_di" bpmnElement="Flow_19k0y0c">
+        <di:waypoint x="1630" y="1250" />
+        <di:waypoint x="1690" y="1250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12as5u4_di" bpmnElement="Flow_12as5u4">
+        <di:waypoint x="1630" y="1110" />
+        <di:waypoint x="1715" y="1110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0r8m4qp_di" bpmnElement="Flow_0r8m4qp">
+        <di:waypoint x="1630" y="1052" />
+        <di:waypoint x="1630" y="1020" />
+        <di:waypoint x="1740" y="1020" />
+        <di:waypoint x="1740" y="1085" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09zia4s_di" bpmnElement="Flow_09zia4s">
+        <di:waypoint x="1765" y="1110" />
+        <di:waypoint x="1825" y="1110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1fi9i2l_di" bpmnElement="Flow_1fi9i2l">
+        <di:waypoint x="1790" y="1250" />
+        <di:waypoint x="1980" y="1250" />
+        <di:waypoint x="1980" y="1135" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18zf0re_di" bpmnElement="Flow_18zf0re">
+        <di:waypoint x="1875" y="1110" />
+        <di:waypoint x="1955" y="1110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0hs9qw0_di" bpmnElement="Flow_0hs9qw0">
+        <di:waypoint x="2005" y="1110" />
+        <di:waypoint x="2075" y="1110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06sdcsw_di" bpmnElement="Flow_06sdcsw">
+        <di:waypoint x="1345" y="1020" />
+        <di:waypoint x="1440" y="1020" />
+        <di:waypoint x="1440" y="1085" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18c7kgj_di" bpmnElement="Flow_18c7kgj">
+        <di:waypoint x="1465" y="1110" />
+        <di:waypoint x="1530" y="1110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13qs0sz_di" bpmnElement="Flow_13qs0sz">
+        <di:waypoint x="1850" y="1085" />
+        <di:waypoint x="1850" y="1020" />
+        <di:waypoint x="2100" y="1020" />
+        <di:waypoint x="2100" y="1085" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bqawvu_di" bpmnElement="Flow_1bqawvu">
+        <di:waypoint x="2125" y="1110" />
+        <di:waypoint x="2185" y="1110" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1dchak4_di" bpmnElement="Flow_1dchak4">
         <di:waypoint x="1465" y="590" />
         <di:waypoint x="1735" y="590" />
@@ -435,69 +498,6 @@
       <bpmndi:BPMNEdge id="Flow_03venu5_di" bpmnElement="Flow_03venu5">
         <di:waypoint x="1005" y="331" />
         <di:waypoint x="1245" y="331" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_13qs0sz_di" bpmnElement="Flow_13qs0sz">
-        <di:waypoint x="1850" y="1085" />
-        <di:waypoint x="1850" y="1020" />
-        <di:waypoint x="2100" y="1020" />
-        <di:waypoint x="2100" y="1085" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_06sdcsw_di" bpmnElement="Flow_06sdcsw">
-        <di:waypoint x="1345" y="1020" />
-        <di:waypoint x="1440" y="1020" />
-        <di:waypoint x="1440" y="1085" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1bqawvu_di" bpmnElement="Flow_1bqawvu">
-        <di:waypoint x="2125" y="1110" />
-        <di:waypoint x="2185" y="1110" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_18zf0re_di" bpmnElement="Flow_18zf0re">
-        <di:waypoint x="1875" y="1110" />
-        <di:waypoint x="1955" y="1110" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_18c7kgj_di" bpmnElement="Flow_18c7kgj">
-        <di:waypoint x="1465" y="1110" />
-        <di:waypoint x="1530" y="1110" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1irdbnt_di" bpmnElement="Flow_1irdbnt">
-        <di:waypoint x="1320" y="1045" />
-        <di:waypoint x="1320" y="1085" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0r8m4qp_di" bpmnElement="Flow_0r8m4qp">
-        <di:waypoint x="1630" y="1052" />
-        <di:waypoint x="1630" y="1020" />
-        <di:waypoint x="1740" y="1020" />
-        <di:waypoint x="1740" y="1085" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1fi9i2l_di" bpmnElement="Flow_1fi9i2l">
-        <di:waypoint x="1790" y="1250" />
-        <di:waypoint x="1980" y="1250" />
-        <di:waypoint x="1980" y="1135" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_09zia4s_di" bpmnElement="Flow_09zia4s">
-        <di:waypoint x="1765" y="1110" />
-        <di:waypoint x="1825" y="1110" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_19k0y0c_di" bpmnElement="Flow_19k0y0c">
-        <di:waypoint x="1630" y="1250" />
-        <di:waypoint x="1690" y="1250" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_12as5u4_di" bpmnElement="Flow_12as5u4">
-        <di:waypoint x="1630" y="1110" />
-        <di:waypoint x="1715" y="1110" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0hs9qw0_di" bpmnElement="Flow_0hs9qw0">
-        <di:waypoint x="2005" y="1110" />
-        <di:waypoint x="2075" y="1110" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0b0q3n1_di" bpmnElement="Flow_0b0q3n1">
-        <di:waypoint x="1320" y="1135" />
-        <di:waypoint x="1320" y="1250" />
-        <di:waypoint x="1530" y="1250" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1hqfxff_di" bpmnElement="Flow_1hqfxff">
-        <di:waypoint x="1345" y="1110" />
-        <di:waypoint x="1415" y="1110" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_182viso_di" bpmnElement="Flow_182viso">
         <di:waypoint x="1295" y="331" />
@@ -580,39 +580,6 @@
       <bpmndi:BPMNShape id="Gateway_0fxi98t_di" bpmnElement="Gateway_0fxi98t" isMarkerVisible="true">
         <dc:Bounds x="1295" y="905" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0sfwgov_di" bpmnElement="Gateway_09j9exh">
-        <dc:Bounds x="1295" y="1085" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0rsf7mw_di" bpmnElement="task_afwachten_besluit_corporatie_na_huisbezoek_2">
-        <dc:Bounds x="1530" y="1070" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_15sbtoh_di" bpmnElement="task_melder_contact_verlenging_termijn">
-        <dc:Bounds x="1530" y="1210" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0mg3exo_di" bpmnElement="Gateway_0mg3exo" isMarkerVisible="true">
-        <dc:Bounds x="1715" y="1085" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0tqrae8_di" bpmnElement="Activity_0tqrae8">
-        <dc:Bounds x="1690" y="1210" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1ku9x3z_di" bpmnElement="Gateway_0fp3izl">
-        <dc:Bounds x="1955" y="1085" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_125xtca_di" bpmnElement="Gateway_125xtca" isMarkerVisible="true">
-        <dc:Bounds x="1295" y="995" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0c3juz0_di" bpmnElement="Gateway_0c3juz0" isMarkerVisible="true">
-        <dc:Bounds x="1415" y="1085" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1f2mwdz_di" bpmnElement="Gateway_1f2mwdz" isMarkerVisible="true">
-        <dc:Bounds x="1825" y="1085" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1mc6m1d_di" bpmnElement="Gateway_1mc6m1d" isMarkerVisible="true">
-        <dc:Bounds x="2075" y="1085" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0tov9p7_di" bpmnElement="Gateway_0tov9p7" isMarkerVisible="true">
-        <dc:Bounds x="2185" y="1085" width="50" height="50" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0gebmr6_di" bpmnElement="start_housing_corporation">
         <dc:Bounds x="262" y="313" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -667,11 +634,44 @@
       <bpmndi:BPMNShape id="Activity_1v7z7qj_di" bpmnElement="task_verwerken_constatering_corporatie">
         <dc:Bounds x="1550" y="460" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_137y4t6_di" bpmnElement="event_timer_monitoren_reactie_corporatie_voor_huisbezoek">
-        <dc:Bounds x="832" y="353" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_0rsf7mw_di" bpmnElement="task_afwachten_besluit_corporatie_na_huisbezoek_2">
+        <dc:Bounds x="1530" y="1070" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0tov9p7_di" bpmnElement="Gateway_0tov9p7" isMarkerVisible="true">
+        <dc:Bounds x="2185" y="1085" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1mc6m1d_di" bpmnElement="Gateway_1mc6m1d" isMarkerVisible="true">
+        <dc:Bounds x="2075" y="1085" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1f2mwdz_di" bpmnElement="Gateway_1f2mwdz" isMarkerVisible="true">
+        <dc:Bounds x="1825" y="1085" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0c3juz0_di" bpmnElement="Gateway_0c3juz0" isMarkerVisible="true">
+        <dc:Bounds x="1415" y="1085" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_125xtca_di" bpmnElement="Gateway_125xtca" isMarkerVisible="true">
+        <dc:Bounds x="1295" y="995" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1ku9x3z_di" bpmnElement="Gateway_0fp3izl">
+        <dc:Bounds x="1955" y="1085" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0tqrae8_di" bpmnElement="Activity_0tqrae8">
+        <dc:Bounds x="1690" y="1210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0mg3exo_di" bpmnElement="Gateway_0mg3exo" isMarkerVisible="true">
+        <dc:Bounds x="1715" y="1085" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_15sbtoh_di" bpmnElement="task_melder_contact_verlenging_termijn">
+        <dc:Bounds x="1530" y="1210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0sfwgov_di" bpmnElement="Gateway_09j9exh">
+        <dc:Bounds x="1295" y="1085" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1sjxta1_di" bpmnElement="event_timer_afwachten_besluit_corporatie_na_huisbezoek_2">
         <dc:Bounds x="1612" y="1052" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_137y4t6_di" bpmnElement="event_timer_monitoren_reactie_corporatie_voor_huisbezoek">
+        <dc:Bounds x="832" y="353" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1uqgs8d_di" bpmnElement="event_timer_afwachten_besluit_corporatie_na_huisbezoek_1">
         <dc:Bounds x="1302" y="612" width="36" height="36" />
