@@ -97,9 +97,6 @@ def case_workflow_pre_save(sender, instance, **kwargs):
         if instance.main_workflow:
             instance.data.update(
                 {
-                    "bepalen_processtap": {
-                        "value": "ja" if theme == "ondermijning" else "default",
-                    },
                     "leegstandsmelding_eigenaar": {
                         "value": "ja"
                         if reason == "leegstandsmelding_eigenaar"

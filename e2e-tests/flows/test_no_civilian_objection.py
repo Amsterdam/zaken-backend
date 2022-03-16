@@ -13,7 +13,11 @@ from api.tasks.summon import (
     test_opstellen_concept_aanschrijving,
     test_verwerk_aanschrijving,
 )
-from api.tasks.visit import test_doorgeven_status_top, test_inplannen_status
+from api.tasks.visit import (
+    test_bepalen_processtap_standaard,
+    test_doorgeven_status_top,
+    test_inplannen_status,
+)
 from api.test import DefaultAPITest
 from api.timers import WaitForTimer
 from api.validators import ValidateOpenTasks
@@ -22,6 +26,7 @@ from api.validators import ValidateOpenTasks
 class TestNoCivilianObjection(DefaultAPITest):
     def test(self):
         self.get_case().run_steps(
+            test_bepalen_processtap_standaard(),
             test_inplannen_status(),
             test_doorgeven_status_top(),
             test_verwerken_debrief(violation=Violation.YES),

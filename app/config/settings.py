@@ -580,18 +580,18 @@ WORKFLOW_SPEC_CONFIG = {
                             "initial_data": {
                                 "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
                                 "authorization": {"value": "No"},
+                                "bepalen_processtap": {"value": "ja"},
                                 "reason": {"value": "default"},
                                 "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "default"},
                             },
                         },
                         "aanschrijving_toevoegen": {
                             "initial_data": {
                                 "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
                                 "authorization": {"value": "No"},
+                                "bepalen_processtap": {"value": "ja"},
                                 "reason": {"value": "default"},
                                 "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "default"},
                             },
                         },
                     },
@@ -604,7 +604,7 @@ WORKFLOW_SPEC_CONFIG = {
                                 "authorization": {"value": "No"},
                                 "reason": {"value": "default"},
                                 "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "default"},
+                                "bepalen_processtap": {"value": "ja"},
                                 "debrief_next_step": {"value": "default"},
                                 "visit_next_step": {"value": "default"},
                                 "monitoren_reactie_platform_duration": timedelta(
@@ -618,7 +618,7 @@ WORKFLOW_SPEC_CONFIG = {
                                 "authorization": {"value": "No"},
                                 "reason": {"value": "default"},
                                 "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "default"},
+                                "bepalen_processtap": {"value": "ja"},
                                 "debrief_next_step": {"value": "default"},
                                 "visit_next_step": {"value": "default"},
                                 "monitoren_reactie_platform_duration": timedelta(
@@ -636,7 +636,7 @@ WORKFLOW_SPEC_CONFIG = {
                                 "authorization": {"value": "No"},
                                 "reason": {"value": "default"},
                                 "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "default"},
+                                "bepalen_processtap": {"value": "ja"},
                                 "debrief_next_step": {"value": "default"},
                                 "summon_next_step": {"value": "default"},
                                 "visit_next_step": {"value": "default"},
@@ -652,7 +652,7 @@ WORKFLOW_SPEC_CONFIG = {
                                 "authorization": {"value": "No"},
                                 "reason": {"value": "default"},
                                 "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "default"},
+                                "bepalen_processtap": {"value": "ja"},
                                 "debrief_next_step": {"value": "default"},
                                 "summon_next_step": {"value": "default"},
                                 "visit_next_step": {"value": "default"},
@@ -672,7 +672,7 @@ WORKFLOW_SPEC_CONFIG = {
                                 "authorization": {"value": "No"},
                                 "reason": {"value": "default"},
                                 "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "default"},
+                                "bepalen_processtap": {"value": "ja"},
                                 "debrief_next_step": {"value": "default"},
                                 "summon_next_step": {"value": "default"},
                                 "visit_next_step": {"value": "default"},
@@ -689,7 +689,45 @@ WORKFLOW_SPEC_CONFIG = {
                                 "authorization": {"value": "No"},
                                 "reason": {"value": "default"},
                                 "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "default"},
+                                "bepalen_processtap": {"value": "ja"},
+                                "debrief_next_step": {"value": "default"},
+                                "summon_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
+                                "housing_corporation_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
+                                "leegstandsmelding_eigenaar": {"value": "default"},
+                            },
+                        },
+                    },
+                },
+                "5.1.0": {
+                    "messages": {
+                        "main_process": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "ja"},
+                                "debrief_next_step": {"value": "default"},
+                                "summon_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
+                                "housing_corporation_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
+                                "leegstandsmelding_eigenaar": {"value": "default"},
+                            },
+                        },
+                        "aanschrijving_toevoegen": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "ja"},
                                 "debrief_next_step": {"value": "default"},
                                 "summon_next_step": {"value": "default"},
                                 "visit_next_step": {"value": "default"},
@@ -846,6 +884,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "0.3.0": {},
                 "0.4.0": {},
                 "0.5.0": {},
+                "0.6.0": {},
             },
         },
         "citizen_report_feedback": {
