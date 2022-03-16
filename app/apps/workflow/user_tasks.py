@@ -548,7 +548,7 @@ class task_afwachten_besluit_corporatie_na_huisbezoek_2(user_task):
 
 
 class task_melder_contact_verlenging_termijn(user_task):
-    due_date = relativedelta(days=14)
+    due_date = relativedelta(days=3)
 
 
 class task_kwaliteitscheck_rapporten(user_task):
