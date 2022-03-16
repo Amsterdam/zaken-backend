@@ -53,14 +53,16 @@ class TestSubjects(DefaultAPITest):
 
         subjects = self.client.call("get", f"/cases/{case.data['id']}/")["subjects"]
         case.data["subjects"] = subjects
-
+        print(*test_afsluiten_zaak.get_steps())
+        test_afsluiten_zaak_steps = [*test_afsluiten_zaak.get_steps()]
+        test_afsluiten_zaak_steps.pop(0)
         # Check if the subjects are updated and keep their value after close case
         case.run_steps(
             ValidateSubjects(updated_subject_ids),
             test_bepalen_processtap(
                 visit_next_step=VisitNextStep.VISIT_WITHOUT_AUTHORIZATION
             ),
-            *test_afsluiten_zaak.get_steps(),
+            *test_afsluiten_zaak_steps,
             ValidateSubjects(updated_subject_ids),
         )
 

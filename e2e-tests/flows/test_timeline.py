@@ -5,7 +5,11 @@ from api.tasks.debrief import (
     test_terugkoppelen_melder_1,
     test_verwerken_debrief,
 )
-from api.tasks.visit import test_doorgeven_status_top, test_inplannen_status
+from api.tasks.visit import (
+    test_bepalen_processtap_standaard,
+    test_doorgeven_status_top,
+    test_inplannen_status,
+)
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
 
@@ -14,14 +18,17 @@ class TestTimeline(DefaultAPITest):
     def test_no_identification(self):
         case = self.get_case()
         case.run_steps(
-            test_inplannen_status(), ValidateOpenTasks(test_doorgeven_status_top)
+            test_bepalen_processtap_standaard(),
+            test_inplannen_status(),
+            ValidateOpenTasks(test_doorgeven_status_top),
         )
         events = self.client.get_case_events(case.data["id"])
-        self.assertEqual(2, len(case.timeline), len(events))
-        self.assertEqual(2, len(events))
+        self.assertEqual(3, len(case.timeline), len(events))
+        self.assertEqual(3, len(events))
 
     def test_home_visit_report(self):
         self.get_case().run_steps(
+            test_bepalen_processtap_standaard(),
             test_inplannen_status(),
             test_doorgeven_status_top(),
             test_verwerken_debrief(violation=Violation.NO),
@@ -40,11 +47,13 @@ class TestTimelineWithIdentification(DefaultAPITest):
     def test(self):
         case = self.get_case()
         case.run_steps(
-            test_inplannen_status(), ValidateOpenTasks(test_doorgeven_status_top)
+            test_bepalen_processtap_standaard(),
+            test_inplannen_status(),
+            ValidateOpenTasks(test_doorgeven_status_top),
         )
         events = self.client.get_case_events(case.data["id"])
         self.assertEqual(
             len(case.timeline),
             len(events),
         )
-        self.assertEqual(3, len(events))
+        self.assertEqual(4, len(events))

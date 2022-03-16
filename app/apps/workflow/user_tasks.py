@@ -53,6 +53,12 @@ class task_bepalen_processtap(user_task):
     due_date = relativedelta(days=2)
 
 
+class task_bepalen_processtap_standaard(user_task):
+    """Bepalen processtap"""
+
+    due_date = relativedelta(days=2)
+
+
 class task_aanvragen_machtiging(user_task):
     """Aanvragen machtiging"""
 

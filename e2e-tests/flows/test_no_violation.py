@@ -5,7 +5,11 @@ from api.tasks.debrief import (
     test_terugkoppelen_melder_1,
     test_verwerken_debrief,
 )
-from api.tasks.visit import test_doorgeven_status_top, test_inplannen_status
+from api.tasks.visit import (
+    test_bepalen_processtap_standaard,
+    test_doorgeven_status_top,
+    test_inplannen_status,
+)
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
 
@@ -13,6 +17,7 @@ from api.validators import ValidateOpenTasks
 class TestNoViolation(DefaultAPITest):
     def test(self):
         self.get_case().run_steps(
+            test_bepalen_processtap_standaard(),
             test_inplannen_status(),
             test_doorgeven_status_top(),
             test_verwerken_debrief(violation=Violation.NO),

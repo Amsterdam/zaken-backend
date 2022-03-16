@@ -60,6 +60,7 @@ class Case:
                 due_date.year, due_date.month, due_date.day, tzinfo=pytz.UTC
             )
 
+            print(user_task["task_name"])
             logger.info(
                 f"Compare user_task's due_date '{due_date}' with expected '{expected}' (based on {task.due_date})"
             )

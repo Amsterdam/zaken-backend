@@ -15,6 +15,7 @@ from api.tasks import AbstractUserTask, GenericUserTask
 from api.user_tasks import (
     task_aanvragen_machtiging,
     task_bepalen_processtap,
+    task_bepalen_processtap_standaard,
     task_doorgeven_status_top,
     task_inplannen_status,
     task_monitoren_binnenkomen_machtiging,
@@ -25,6 +26,18 @@ logger = logging.getLogger(__name__)
 
 class test_bepalen_processtap(GenericUserTask, task_bepalen_processtap):
     def __init__(self, visit_next_step=VisitNextStep.NO_VISIT):
+        super().__init__(visit_next_step={"value": visit_next_step})
+
+    @staticmethod
+    def get_steps():
+        # No preceiding step, case was just created
+        return [__class__()]
+
+
+class test_bepalen_processtap_standaard(
+    GenericUserTask, task_bepalen_processtap_standaard
+):
+    def __init__(self, visit_next_step=VisitNextStep.VISIT_WITHOUT_AUTHORIZATION):
         super().__init__(visit_next_step={"value": visit_next_step})
 
     @staticmethod
@@ -75,7 +88,10 @@ class test_inplannen_status(AbstractUserTask, task_inplannen_status):
     @staticmethod
     def get_steps():
         # No preceiding step, case was just created
-        return [__class__()]
+        return [
+            *test_bepalen_processtap_standaard.get_steps(),
+            __class__(),
+        ]
 
     def get_post_data(self, case, task):
         return super().get_post_data(case, task) | {
