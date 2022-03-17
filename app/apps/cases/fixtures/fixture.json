@@ -213,6 +213,14 @@
     }
   },
   {
+    "model": "cases.casereason",
+    "pk": 25,
+    "fields": {
+      "name": "RIEC (Regionale Informatie en Expertise Centrum)",
+      "theme": 6
+    }
+  },
+  {
     "model": "cases.caseclosereason",
     "pk": 15,
     "fields": {
@@ -895,6 +903,30 @@
     "fields": {
       "name": "Kamerverhuur zonder toestemming corporatie",
       "theme": 6
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 39,
+    "fields": {
+      "name": "Pied-à-terre",
+      "theme": 5
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 40,
+    "fields": {
+      "name": "Ontbreken short stay vergunning",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 41,
+    "fields": {
+      "name": "Minder dan 7 nachten",
+      "theme": 2
     }
   },
   {
