@@ -9,6 +9,7 @@ from rest_framework.fields import empty
 from rest_framework.settings import api_settings
 
 from .models import GenericCompletedTask, WorkflowOption
+from .user_tasks import get_task_by_name
 
 
 class GenericFormFieldOptionSerializer(serializers.Serializer):
@@ -61,8 +62,15 @@ class CaseUserTaskBaseSerializer(serializers.ModelSerializer):
 
 class CaseUserTaskWorkdflowSerializer(CaseUserTaskBaseSerializer):
     case_user_task_id = serializers.CharField(source="id")
-    form = GenericFormFieldSerializer(many=True)
+    form = serializers.SerializerMethodField()
     form_variables = serializers.DictField(source="get_form_variables")
+
+    @extend_schema_field(GenericFormFieldSerializer(many=True))
+    def get_form(self, obj):
+        user_task_type = get_task_by_name(obj.task_name)
+        user_task_instance = user_task_type(obj)
+        form_instance = user_task_instance.get_form()
+        return form_instance.form
 
     class Meta:
         model = CaseUserTask
@@ -197,7 +205,9 @@ class GenericCompletedTaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GenericCompletedTask
-        fields = "__all__"
+        exclude = [
+            "task_name",
+        ]
 
 
 class WorkflowOptionSerializer(serializers.ModelSerializer):
