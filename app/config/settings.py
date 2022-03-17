@@ -7,6 +7,9 @@ from celery.schedules import crontab
 from keycloak_oidc.default_settings import *  # noqa
 from sentry_sdk.integrations.django import DjangoIntegration
 
+from dotenv import load_dotenv
+load_dotenv()
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
@@ -55,6 +58,7 @@ INSTALLED_APPS = (
     "django_celery_beat",
     "django_celery_results",
     "zgw_consumers",
+    "privates",
     "axes",
     # Health checks. (Expand when more services become available)
     "health_check",
@@ -74,6 +78,7 @@ INSTALLED_APPS = (
     "apps.events",
     "apps.health",
     "apps.support",
+    "apps.openzaak",
     "apps.summons",
     "apps.schedules",
     "apps.workflow",
@@ -128,6 +133,7 @@ STATIC_ROOT = os.path.normpath(join(os.path.dirname(BASE_DIR), "static"))
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.normpath(join(os.path.dirname(BASE_DIR), "media"))
+PRIVATE_MEDIA_ROOT = os.path.normpath(join(os.path.dirname(BASE_DIR), "private_media"))
 
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
@@ -470,6 +476,12 @@ VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER = os.getenv(
 )
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+DEFAULT_RSIN = 130365312
+OPENZAAK_ENABLED = os.getenv("OPENZAAK_ENABLED")
+OPENZAAK_CATALOGI_URL = os.getenv("OPENZAAK_CATALOGI_URL")
+OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE = os.getenv("OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE")
+HOST = os.getenv("HOST")
 
 DEFAULT_WORKFLOW_TYPE = os.getenv("DEFAULT_WORKFLOW_TYPE", "director")
 
@@ -897,3 +909,7 @@ WORKFLOW_SPEC_CONFIG = {
         },
     },
 }
+
+ZGW_CONSUMERS_TEST_SCHEMA_DIRS = [
+    os.path.normpath(join(BASE_DIR, "apps", "openzaak", "tests", "files"))
+]
