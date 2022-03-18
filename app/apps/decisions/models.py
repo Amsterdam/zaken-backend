@@ -59,3 +59,9 @@ class Decision(TaskModelEventEmitter):
             "sanction_amount": self.sanction_amount,
             "sanction_id": self.sanction_id,
         }
+
+    def __str__(self):
+        sanction = (
+            f"{self.sanction_id}|{self.sanction_amount}" if self.sanction_id else ""
+        )
+        return f"{self.date_added.strftime('%d %m %Y')}: {self.decision_type.name}, {self.author} {sanction}"

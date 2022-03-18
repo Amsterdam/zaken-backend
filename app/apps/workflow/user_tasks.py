@@ -12,15 +12,16 @@ DEFAULT_USER_TASK_DUE_DATE = relativedelta(weeks=1)
 
 
 class BpmnField:
-    def __init__(self, label, options, name, type, required, tooltip, _user_task):
-        if not isinstance(_user_task, user_task):
+    def __init__(self, _user_task, **kwargs):
+        args = ["label", "name", "options", "type", "required", "tooltip"]
+        if not isinstance(_user_task, user_task) and not kwargs.keys() in args:
             raise Exception
-        self.label = label
-        self.options = options
-        self.name = name
-        self.type = type
-        self.required = required
-        self.tooltip = tooltip
+        self.label = kwargs.get("label")
+        self.options = kwargs.get("options")
+        self.name = kwargs.get("name")
+        self.type = kwargs.get("type")
+        self.required = kwargs.get("required")
+        self.tooltip = kwargs.get("tooltip")
         self.user_task = _user_task
 
     def get_value(self, k):
@@ -55,7 +56,7 @@ class BpmnForm:
             form = self.user_task.form
         elif form and isinstance(form, list):
             form = [
-                BpmnField(**field, _user_task=self.user_task).asdict for field in form
+                BpmnField(_user_task=self.user_task, **field).asdict for field in form
             ]
         return form
 
@@ -639,4 +640,65 @@ class task_verwerken_uitkomst_corporatie(user_task):
 
 
 class task_opvoeren_uitkomst_corporatie(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_close_case_concept(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_opstellen_intrekkingen(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_nakijken_intrekkingen(user_task):
+    due_date = relativedelta(days=2)
+
+
+class task_verwerken_op_opsturen_van_besluit(user_task):
+    due_date = relativedelta(days=1)
+
+    @property
+    def form(self):
+        print(self.case_user_task.case.decisions.all().order_by("date_added"))
+        decisions = self.case_user_task.case.decisions.all().order_by("date_added")
+        if not decisions:
+            return [
+                {
+                    "label": "Er zijn geen besluiten in te trekken.",
+                    "name": "geen_besluiten",
+                }
+            ]
+        return [
+            {
+                "label": "Welk besluit(en) wil je intrekken?",
+                "name": "besluiten_intrekken",
+                "options": [{"label": t.__str__(), "value": t.id} for t in decisions],
+                "type": "multiselect",
+            },
+            {
+                "label": "Toelichting",
+                "name": "toelichting",
+                "options": [],
+                "type": "text",
+            },
+        ]
+
+    def mapped_form_data(self, data):
+        decisions = self.case_user_task.case.decisions.all().order_by("date_added")
+        return {
+            "besluiten_intrekken": {
+                "label": "Ongetrokken besluiten",
+                "value": list(
+                    t.__str__()
+                    for t in decisions.filter(
+                        id__in=data.get("besluiten_intrekken", {}).get("value", []),
+                    )
+                ),
+            },
+            "toelichting": data.get("toelichting", ""),
+        }
+
+
+class task_intrekken_vorderingen(user_task):
     due_date = relativedelta(days=1)
