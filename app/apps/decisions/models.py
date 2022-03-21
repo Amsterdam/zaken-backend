@@ -43,6 +43,7 @@ class Decision(TaskModelEventEmitter):
     )
     date_added = models.DateTimeField(auto_now_add=True)
     sanction_id = models.CharField(max_length=20, blank=True, null=True)
+    nuisance_detected = models.BooleanField(default=False)
 
     def __get_event_values__(self):
         if self.summon:
