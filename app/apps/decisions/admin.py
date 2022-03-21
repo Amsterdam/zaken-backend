@@ -13,6 +13,7 @@ class DecisionAdmin(admin.ModelAdmin):
         "sanction_id",
         "sanction_amount",
         "case_user_task_id",
+        "active",
     )
     list_filter = ("date_added",)
     date_hierarchy = "date_added"

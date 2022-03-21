@@ -685,18 +685,32 @@ class task_verwerken_op_opsturen_van_besluit(user_task):
         ]
 
     def mapped_form_data(self, data):
-        decisions = self.case_user_task.case.decisions.all().order_by("date_added")
+        from apps.decisions.models import Decision
+
+        decisions = (
+            self.case_user_task.case.decisions.all()
+            .order_by("date_added")
+            .filter(
+                id__in=data.get("besluiten_intrekken", {}).get("value", []),
+            )
+        )
+        for d in decisions:
+            d.active = False
+        Decision.objects.bulk_update(
+            decisions,
+            [
+                "active",
+            ],
+        )
         return {
             "besluiten_intrekken": {
                 "label": "Ongetrokken besluiten",
-                "value": list(
-                    t.__str__()
-                    for t in decisions.filter(
-                        id__in=data.get("besluiten_intrekken", {}).get("value", []),
-                    )
-                ),
+                "value": list(t.__str__() for t in decisions),
             },
-            "toelichting": data.get("toelichting", ""),
+            "toelichting": {
+                "value": data.get("toelichting", {}).get("value"),
+                "label": "Toelichting",
+            },
         }
 
 
