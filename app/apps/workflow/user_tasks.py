@@ -4,8 +4,6 @@ from datetime import datetime, timedelta, timezone
 
 from dateutil.relativedelta import relativedelta
 
-from .models import CaseUserTask
-
 logger = logging.getLogger(__name__)
 
 DEFAULT_USER_TASK_DUE_DATE = relativedelta(weeks=1)
@@ -81,6 +79,8 @@ class user_task:
     case_user_task = None
 
     def __init__(self, case_user_task_instance):
+        from .models import CaseUserTask
+
         if not isinstance(case_user_task_instance, CaseUserTask):
             raise Exception
         self.case_user_task = case_user_task_instance
