@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 class DebriefingCreateSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    nuisance_detected = serializers.BooleanField(required=False)
 
     class Meta:
         model = Debriefing
