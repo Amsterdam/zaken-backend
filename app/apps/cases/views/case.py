@@ -130,6 +130,14 @@ class CaseFilter(filters.FilterSet):
             )
         return queryset
 
+    def get_schedule_priority(self, queryset, name, value):
+        if value:
+            queryset = self.get_annotated_qs_by_schedule_type(
+                queryset, "priority", value
+            )
+            return queryset.filter(last_schedule_field__in=value)
+        return queryset
+
     def get_fuzy_street_name(self, queryset, name, value):
         return queryset.filter(address__street_name__trigram_similar=value)
 
@@ -230,6 +238,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("ton_ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("priority", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
     ]
 )
 class CaseViewSet(
