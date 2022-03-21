@@ -49,6 +49,7 @@ class Debriefing(TaskModelEventEmitter):
     )
     violation_result = models.JSONField(null=True, blank=True)
     feedback = models.TextField(null=False, blank=False)
+    nuisance_detected = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.case.id} Case - Debriefing {self.id}"
