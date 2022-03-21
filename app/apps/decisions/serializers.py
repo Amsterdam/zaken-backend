@@ -21,6 +21,7 @@ class DecisionTypeNameSerializer(serializers.ModelSerializer):
 
 class DecisionSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    nuisance_detected = serializers.BooleanField(required=False)
 
     def create(self, validated_data):
         """
