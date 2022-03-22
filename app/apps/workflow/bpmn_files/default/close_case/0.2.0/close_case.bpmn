@@ -18,7 +18,6 @@
         <bpmn:flowNodeRef>gateway_hercontrole_of_afsluiten</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_set_next_step</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_status_afsluiten_zaak</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Gateway_0b058yx</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_opstellen_intrekkingen</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_verwerken_en_opsturen_van_besluit</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_intrekken_vorderingen</bpmn:flowNodeRef>
@@ -35,7 +34,7 @@
       <bpmn:outgoing>Flow_1s97xge</bpmn:outgoing>
       <bpmn:script>set_status("Vervolgstap")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:sequenceFlow id="Flow_00aal58" name="next_step.value == &#34;hercontrole&#34;" sourceRef="gateway_hercontrole_of_afsluiten" targetRef="Gateway_0b058yx">
+    <bpmn:sequenceFlow id="Flow_00aal58" name="next_step.value == &#34;hercontrole&#34;" sourceRef="gateway_hercontrole_of_afsluiten" targetRef="end_04zl50i">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "hercontrole"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1s97xge" sourceRef="service_status_vervolgstap" targetRef="task_set_next_step" />
@@ -73,13 +72,7 @@
       <bpmn:outgoing>Flow_1vtkvzt</bpmn:outgoing>
       <bpmn:outgoing>Flow_0we5ak7</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:exclusiveGateway id="Gateway_0b058yx">
-      <bpmn:incoming>Flow_00aal58</bpmn:incoming>
-      <bpmn:incoming>Flow_1k06j81</bpmn:incoming>
-      <bpmn:outgoing>Flow_0yz5y0g</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0dcdsq9" sourceRef="task_close_case" targetRef="end_04zl50i" />
-    <bpmn:sequenceFlow id="Flow_0yz5y0g" sourceRef="Gateway_0b058yx" targetRef="Gateway_1bwuvvm" />
     <bpmn:sequenceFlow id="Flow_1vtkvzt" sourceRef="Gateway_1cn2wvo" targetRef="Gateway_1bwuvvm" />
     <bpmn:sequenceFlow id="Flow_0we5ak7" name="sluiten_zaak_keuze == intrekken_besluiten" sourceRef="Gateway_1cn2wvo" targetRef="task_opstellen_intrekkingen">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">sluiten_zaak_keuze.value == "intrekken_besluiten"</bpmn:conditionExpression>
@@ -87,7 +80,7 @@
     <bpmn:sequenceFlow id="Flow_0ueodq6" sourceRef="task_opstellen_intrekkingen" targetRef="task_nakijken_intrekkingen" />
     <bpmn:sequenceFlow id="Flow_0exgj0g" sourceRef="task_nakijken_intrekkingen" targetRef="task_verwerken_en_opsturen_van_besluit" />
     <bpmn:sequenceFlow id="Flow_0p39b0h" sourceRef="task_verwerken_en_opsturen_van_besluit" targetRef="task_intrekken_vorderingen" />
-    <bpmn:sequenceFlow id="Flow_1k06j81" sourceRef="task_intrekken_vorderingen" targetRef="Gateway_0b058yx" />
+    <bpmn:sequenceFlow id="Flow_1k06j81" sourceRef="task_intrekken_vorderingen" targetRef="Gateway_1bwuvvm" />
     <bpmn:userTask id="task_close_case_concept" name="Afsluiten zaak" camunda:formKey="form_close_case_concept">
       <bpmn:extensionElements>
         <camunda:formData>
@@ -119,7 +112,7 @@
     <bpmn:sequenceFlow id="Flow_0bqr79n" sourceRef="Gateway_1bwuvvm" targetRef="task_close_case" />
     <bpmn:exclusiveGateway id="Gateway_1bwuvvm">
       <bpmn:incoming>Flow_1vtkvzt</bpmn:incoming>
-      <bpmn:incoming>Flow_0yz5y0g</bpmn:incoming>
+      <bpmn:incoming>Flow_1k06j81</bpmn:incoming>
       <bpmn:outgoing>Flow_0bqr79n</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:userTask id="task_close_case" name="Boek resultaat en afsluiten zaak" camunda:formKey="form" camunda:candidateGroups="Projectmedewerker">
@@ -137,6 +130,7 @@
     </bpmn:userTask>
     <bpmn:endEvent id="end_04zl50i">
       <bpmn:incoming>Flow_0dcdsq9</bpmn:incoming>
+      <bpmn:incoming>Flow_00aal58</bpmn:incoming>
     </bpmn:endEvent>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -156,10 +150,10 @@
       <bpmndi:BPMNEdge id="Flow_00aal58_di" bpmnElement="Flow_00aal58">
         <di:waypoint x="720" y="345" />
         <di:waypoint x="720" y="110" />
-        <di:waypoint x="1394" y="110" />
-        <di:waypoint x="1394" y="345" />
+        <di:waypoint x="1650" y="110" />
+        <di:waypoint x="1650" y="522" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1018" y="81" width="79" height="27" />
+          <dc:Bounds x="1146" y="81" width="79" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1s97xge_di" bpmnElement="Flow_1s97xge">
@@ -193,10 +187,6 @@
         <di:waypoint x="1570" y="540" />
         <di:waypoint x="1632" y="540" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0yz5y0g_di" bpmnElement="Flow_0yz5y0g">
-        <di:waypoint x="1394" y="395" />
-        <di:waypoint x="1394" y="515" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1vtkvzt_di" bpmnElement="Flow_1vtkvzt">
         <di:waypoint x="1025" y="540" />
         <di:waypoint x="1369" y="540" />
@@ -223,7 +213,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1k06j81_di" bpmnElement="Flow_1k06j81">
         <di:waypoint x="1330" y="370" />
-        <di:waypoint x="1369" y="370" />
+        <di:waypoint x="1394" y="370" />
+        <di:waypoint x="1394" y="515" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0bqr79n_di" bpmnElement="Flow_0bqr79n">
         <di:waypoint x="1419" y="540" />
@@ -249,9 +240,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1cn2wvo_di" bpmnElement="Gateway_1cn2wvo" isMarkerVisible="true">
         <dc:Bounds x="975" y="515" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0b058yx_di" bpmnElement="Gateway_0b058yx" isMarkerVisible="true">
-        <dc:Bounds x="1369" y="345" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0s0qblx_di" bpmnElement="task_close_case_concept">
         <dc:Bounds x="810" y="500" width="100" height="80" />

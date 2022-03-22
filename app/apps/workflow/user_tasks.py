@@ -660,7 +660,6 @@ class task_verwerken_op_opsturen_van_besluit(user_task):
 
     @property
     def form(self):
-        print(self.case_user_task.case.decisions.all().order_by("date_added"))
         decisions = self.case_user_task.case.decisions.all().order_by("date_added")
         if not decisions:
             return [
