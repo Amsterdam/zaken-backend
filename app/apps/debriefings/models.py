@@ -60,6 +60,7 @@ class Debriefing(TaskModelEventEmitter):
             "date_added": self.date_added,
             "violation": self.violation,
             "feedback": self.feedback,
+            "nuisance_detected": self.nuisance_detected,
         }
         if isinstance(self.violation_result, dict):
             event_values.update(**self.violation_result)
