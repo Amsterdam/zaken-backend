@@ -1,3 +1,4 @@
+from apps.addresses.models import HousingCorporation
 from apps.cases.models import (
     Case,
     CaseClose,
@@ -20,6 +21,12 @@ class LegacyCaseCreateSerializer(BaseCaseSerializer):
         many=False, required=False, queryset=CaseProject.objects.all()
     )
     bag_id = serializers.CharField(required=True, write_only=True)
+    housing_corporation = serializers.PrimaryKeyRelatedField(
+        required=False,
+        allow_null=True,
+        queryset=HousingCorporation.objects.all(),
+        write_only=True,
+    )
 
     class Meta:
         model = Case
@@ -35,6 +42,7 @@ class LegacyCaseCreateSerializer(BaseCaseSerializer):
             "status_name",
             "project",
             "bag_id",
+            "housing_corporation",
         )
 
     def create(self, validated_data):
@@ -46,6 +54,9 @@ class LegacyCaseCreateSerializer(BaseCaseSerializer):
             cached_legacy_bwv_case_key,
             {
                 "status_name": status_name,
+                "debrief_next_step": {"value": "summon"},
+                "summon_next_step": {"value": "decision"},
+                "jump_to": "decision",
             },
             60 * 60,
         )
@@ -182,6 +193,9 @@ class BWVMeldingenSerializer(serializers.Serializer):
 class BWVCaseImportValidSerializer(serializers.Serializer):
     geschiedenis = serializers.DictField(default={})
     meldingen = serializers.DictField(default={})
+    housing_corporation = serializers.CharField(
+        allow_null=True, allow_blank=True, required=False
+    )
     legacy_bwv_case_id = serializers.CharField()
     is_legacy_bwv = serializers.BooleanField(default=True)
     ADS_NR_VRA = serializers.CharField(

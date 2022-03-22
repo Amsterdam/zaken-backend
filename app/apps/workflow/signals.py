@@ -4,7 +4,7 @@ import datetime
 import pytz
 from apps.events.models import TaskModelEventEmitter
 from apps.workflow.models import CaseUserTask, CaseWorkflow, GenericCompletedTask
-from apps.workflow.tasks import task_start_worflow
+from apps.workflow.tasks import task_reset_subworkflow, task_start_worflow
 from django.core.cache import cache
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
@@ -138,6 +138,8 @@ def start_workflow(sender, instance, created, **kwargs):
         return
     if created:
         task_start_worflow(instance.id)
+        if instance.data.get("jump_to"):
+            task_reset_subworkflow.delay(instance.id, instance.data.get("jump_to"))
 
 
 @receiver(

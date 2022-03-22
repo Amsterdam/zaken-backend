@@ -42,6 +42,16 @@ class ImportBWVCaseDataForm(forms.Form):
         to_field_name="pk",
         required=True,
     )
+    subworkflow = forms.ChoiceField(
+        choices=(
+            ("visit", "visit"),
+            ("debrief", "debrief"),
+            ("summon", "summon"),
+            ("decision", "decision"),
+        ),
+        label="Kies in welke fase deze zaken moeten starten",
+        required=False,
+    )
 
     def clean_json_data(self):
         data = self.cleaned_data["json_data"]

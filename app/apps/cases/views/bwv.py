@@ -5,6 +5,7 @@ import os
 from collections import OrderedDict
 
 import requests
+from apps.addresses.models import HousingCorporation
 from apps.cases.forms import ImportBWVCaseDataForm
 from apps.cases.models import Case, CaseProject, CaseReason, CaseTheme
 from apps.cases.serializers import (
@@ -155,6 +156,16 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                         }
                     )
         return data, errors
+
+    def add_housing_corporation(self, data, *args, **kwargs):
+        for d in data:
+            housing_corporation = HousingCorporation.objects.filter(
+                bwv_name=d.get("housing_corporation")
+            ).first()
+            d["housing_corporation"] = (
+                housing_corporation.id if housing_corporation else None
+            )
+        return data
 
     def add_theme(self, data, *args, **kwargs):
         theme = CaseTheme.objects.get(id=kwargs.get("theme"))
@@ -499,6 +510,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         data, missing_themes, used_theme_instances = self.add_theme(
             data, *args, **kwargs
         )
+        data = self.add_housing_corporation(data, *args, **kwargs)
         data = self.add_status_name(data, *args, **kwargs)
         data = self._add_bwv_meldingen(data)
         data = self._add_bwv_status(data)
