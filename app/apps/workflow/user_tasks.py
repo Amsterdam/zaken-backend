@@ -65,10 +65,11 @@ def get_task_by_name(task_name):
         filter(lambda class_name: class_name[:5] == "task_", dir(current_module))
     )
 
-    for user_task in user_tasks:
-        cls = getattr(current_module, user_task)
+    for ut in user_tasks:
+        cls = getattr(current_module, ut)
         if cls.get_task_name() == task_name:
             return cls
+    return user_task
 
 
 class user_task:
