@@ -1089,6 +1089,9 @@ class GenericCompletedTask(TaskModelEventEmitter):
         on_delete=models.CASCADE,
     )
     date_added = models.DateTimeField(auto_now_add=True)
+    task_name = models.CharField(
+        max_length=255,
+    )
     description = models.TextField()
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,

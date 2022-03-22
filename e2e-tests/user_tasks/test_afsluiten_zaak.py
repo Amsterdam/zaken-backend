@@ -1,5 +1,9 @@
 from api.config import DecisionType, NextStep
-from api.tasks.close_case import test_afsluiten_zaak, test_uitzetten_vervolgstap
+from api.tasks.close_case import (
+    test_afsluiten_zaak,
+    test_close_case_concept,
+    test_uitzetten_vervolgstap,
+)
 from api.tasks.decision import (
     test_versturen_invordering_belastingen,
     test_verwerken_definitieve_besluit,
@@ -27,11 +31,12 @@ class TestAfsluitenZaak(DefaultAPITest):
         self.get_case().run_steps(
             *test_uitzetten_vervolgstap.get_steps(next_step=NextStep.CLOSE),
         )
-        ValidateOpenTasks(test_afsluiten_zaak)
+        ValidateOpenTasks(test_close_case_concept)
 
     def test_sluiten(self):
         self.get_case().run_steps(
             *test_uitzetten_vervolgstap.get_steps(next_step=NextStep.CLOSE),
+            test_close_case_concept(),
             test_afsluiten_zaak(),
         )
         ValidateNoOpenTasks()

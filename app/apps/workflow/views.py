@@ -199,12 +199,20 @@ class GenericCompletedTaskViewSet(viewsets.ViewSet):
             task = CaseUserTask.objects.get(
                 id=data["case_user_task_id"], completed=False
             )
-            variables["mapped_form_data"] = map_variables_on_task_spec_form(
-                variables, task.form
-            )
+            from .user_tasks import get_task_by_name
+
+            user_task_type = get_task_by_name(task.task_name)
+            user_task = user_task_type(task)
+            if user_task and user_task.mapped_form_data(variables):
+                variables["mapped_form_data"] = user_task.mapped_form_data(variables)
+            else:
+                variables["mapped_form_data"] = map_variables_on_task_spec_form(
+                    variables, task.form
+                )
             data.update(
                 {
                     "description": task.name,
+                    "task_name": task.task_name,
                     "variables": variables,
                 }
             )

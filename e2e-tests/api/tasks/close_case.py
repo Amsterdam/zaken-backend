@@ -4,7 +4,11 @@ from api import events
 from api.config import CloseReason, NextStep
 from api.tasks import AbstractUserTask, GenericUserTask
 from api.tasks.debrief import test_opstellen_verkorte_rapportage_huisbezoek
-from api.user_tasks import task_afsluiten_zaak, task_uitzetten_vervolgstap
+from api.user_tasks import (
+    task_afsluiten_zaak,
+    task_close_case_concept,
+    task_uitzetten_vervolgstap,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +22,18 @@ class test_uitzetten_vervolgstap(GenericUserTask, task_uitzetten_vervolgstap):
         return [
             *test_opstellen_verkorte_rapportage_huisbezoek.get_steps(),  # shortest path
             __class__(next_step=next_step),
+        ]
+
+
+class test_close_case_concept(GenericUserTask, task_close_case_concept):
+    def __init__(self, sluiten_zaak_keuze="direct_resultaat_boeken"):
+        super().__init__(sluiten_zaak_keuze={"value": sluiten_zaak_keuze})
+
+    @staticmethod
+    def get_steps(sluiten_zaak_keuze="direct_resultaat_boeken"):
+        return [
+            *test_uitzetten_vervolgstap.get_steps(),  # shortest path
+            __class__(sluiten_zaak_keuze=sluiten_zaak_keuze),
         ]
 
 
