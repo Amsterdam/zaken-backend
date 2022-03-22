@@ -2,6 +2,14 @@ from django.db import models
 from utils.api_queries_bag import do_bag_search_id
 
 
+class HousingCorporation(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    bwv_name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Address(models.Model):
     bag_id = models.CharField(max_length=255, null=False, unique=True)
     street_name = models.CharField(max_length=255, null=True, blank=True)
@@ -11,6 +19,12 @@ class Address(models.Model):
     postal_code = models.CharField(max_length=7, null=True, blank=True)
     lat = models.FloatField(null=True, blank=True)
     lng = models.FloatField(null=True, blank=True)
+    housing_corporation = models.ForeignKey(
+        to=HousingCorporation,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
 
     @property
     def full_address(self):

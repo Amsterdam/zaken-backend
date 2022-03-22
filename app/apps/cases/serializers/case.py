@@ -1,4 +1,4 @@
-from apps.addresses.models import Address
+from apps.addresses.models import Address, HousingCorporation
 from apps.addresses.serializers import AddressSerializer
 from apps.cases.models import (
     Advertisement,
@@ -71,7 +71,15 @@ class BaseCaseSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         bag_id = validated_data.pop("bag_id")
+        housing_corporation = validated_data.pop("housing_corporation", None)
         address = Address.get(bag_id)
+        if housing_corporation and not address.housing_corporation:
+            address.housing_corporation = housing_corporation
+            address.save()
+        elif housing_corporation and address.housing_corporation != housing_corporation:
+            raise Exception(
+                f"You can not change the housing_corporation for a existing address: {address.housing_corporation}, new {housing_corporation}"
+            )
 
         case = super().create(validated_data)
 
@@ -123,6 +131,11 @@ class CaseSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
         source="case_citizen_reports", many=True, required=False
     )
     advertisements = AdvertisementSerializer(many=True, required=False)
+    housing_corporation = serializers.PrimaryKeyRelatedField(
+        required=False,
+        queryset=HousingCorporation.objects.all(),
+        write_only=True,
+    )
 
     def create(self, validated_data):
         case = super().create(validated_data)

@@ -17,6 +17,7 @@ class AddressSerializer(serializers.ModelSerializer):
             "lat",
             "lng",
             "full_address",
+            "housing_corporation",
         )
         read_only_fields = (
             "id",
@@ -28,6 +29,7 @@ class AddressSerializer(serializers.ModelSerializer):
             "lat",
             "lng",
             "full_address",
+            "housing_corporation",
         )
         extra_kwargs = {"bag_id": {"validators": []}}
 
