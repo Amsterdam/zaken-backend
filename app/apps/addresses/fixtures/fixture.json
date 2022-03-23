@@ -18,7 +18,7 @@
     "model": "addresses.housingcorporation",
     "pk": 3,
     "fields": {
-      "name": "Stadsgenoot",
+      "name": "Stadgenoot",
       "bwv_name": "stadsgenoot"
     }
   },
@@ -42,16 +42,8 @@
     "model": "addresses.housingcorporation",
     "pk": 6,
     "fields": {
-      "name": "DUWO",
-      "bwv_name": "duwo"
-    }
-  },
-  {
-    "model": "addresses.housingcorporation",
-    "pk": 7,
-    "fields": {
-      "name": "Alliantie",
-      "bwv_name": "alliantie"
+      "name": "de Alliantie",
+      "bwv_name": "de_alliantie"
     }
   }
 ]

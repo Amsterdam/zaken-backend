@@ -633,7 +633,7 @@ class task_opsturen_rapport_naar_corporatie(user_task):
 
 
 class task_verwerken_resultaat_corporatie(user_task):
-    due_date = relativedelta(days=84)
+    due_date = relativedelta(days=90)
 
 
 class task_verwerken_uitkomst_corporatie(user_task):
@@ -641,7 +641,7 @@ class task_verwerken_uitkomst_corporatie(user_task):
 
 
 class task_ontvangen_reactie_corporatie(user_task):
-    due_date = relativedelta(days=1)
+    due_date = relativedelta(days=90)
 
 
 class task_close_case_concept(user_task):
@@ -679,7 +679,7 @@ class task_verwerken_en_opsturen_besluit(user_task):
                 "type": "multiselect",
             },
             {
-                "label": "Toelichting",
+                "label": "Toelichting (niet verplicht)",
                 "name": "toelichting",
                 "options": [],
                 "type": "text",
@@ -706,7 +706,7 @@ class task_verwerken_en_opsturen_besluit(user_task):
         )
         return {
             "besluiten_intrekken": {
-                "label": "Ongetrokken besluiten",
+                "label": "Ingetrokken besluit(en)",
                 "value": list(t.__str__() for t in decisions),
             },
             "toelichting": {
