@@ -62,7 +62,10 @@ class Decision(TaskModelEventEmitter):
         }
 
     def __str__(self):
+        names = ", ".join([person.__str__() for person in self.summon.persons.all()])
         sanction = (
-            f"{self.sanction_id}|{self.sanction_amount}" if self.sanction_id else ""
+            f", {self.sanction_id}, € {'{:,}'.format(int(self.sanction_amount)).replace(',', '.')}"
+            if self.sanction_id
+            else ""
         )
-        return f"{self.date_added.strftime('%d %m %Y')}: {self.decision_type.name}, {self.author} {sanction}"
+        return f"{self.date_added.strftime('%d-%m-%Y')}: {self.decision_type.name}, {names}{sanction}"
