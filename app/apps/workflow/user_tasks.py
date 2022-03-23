@@ -656,12 +656,14 @@ class task_nakijken_intrekkingen(user_task):
     due_date = relativedelta(days=2)
 
 
-class task_verwerken_op_opsturen_van_besluit(user_task):
+class task_verwerken_en_opsturen_besluit(user_task):
     due_date = relativedelta(days=1)
 
     @property
     def form(self):
-        decisions = self.case_user_task.case.decisions.all().order_by("date_added")
+        decisions = self.case_user_task.case.decisions.exclude(
+            decision_type__workflow_option="no_decision"
+        ).order_by("date_added")
         if not decisions:
             return [
                 {

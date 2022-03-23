@@ -274,7 +274,6 @@ class CaseWorkflow(models.Model):
         return False
 
     def handle_message_wait_for_summons(self, workflow_instance):
-        from apps.decisions.models import Decision
 
         message = "message_wait_for_summons"
 
@@ -320,9 +319,9 @@ class CaseWorkflow(models.Model):
                 },
                 "all_summons": all_summons,
                 "decision_count": {
-                    "value": Decision.objects.filter(case=main_workflow.case)
-                    .exclude(decision_type__workflow_option="no_decision")
-                    .count()
+                    "value": main_workflow.case.decisions.exclude(
+                        decision_type__workflow_option="no_decision"
+                    ).count()
                 },
                 "next_step": {"value": "default"},
                 "names": {"value": ""},
