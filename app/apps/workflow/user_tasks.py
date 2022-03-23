@@ -640,7 +640,7 @@ class task_verwerken_uitkomst_corporatie(user_task):
     due_date = relativedelta(days=56)
 
 
-class task_opvoeren_uitkomst_corporatie(user_task):
+class task_ontvangen_reactie_corporatie(user_task):
     due_date = relativedelta(days=1)
 
 

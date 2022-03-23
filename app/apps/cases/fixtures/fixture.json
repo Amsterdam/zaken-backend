@@ -837,7 +837,7 @@
     "model": "cases.subject",
     "pk": 30,
     "fields": {
-      "name": "Prositutie",
+      "name": "Prostitutie",
       "theme": 4
     }
   },
