@@ -73,7 +73,7 @@ class CaseFilter(filters.FilterSet):
         queryset=WeekSegment.objects.all(),
         method="get_schedule_week_segment",
     )
-    schedule_priority = filters.ModelMultipleChoiceFilter(
+    priority = filters.ModelMultipleChoiceFilter(
         queryset=WeekSegment.objects.all(),
         method="get_schedule_priority",
     )
