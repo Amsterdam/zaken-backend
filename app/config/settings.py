@@ -510,7 +510,7 @@ WORKFLOW_SPEC_CONFIG = {
             "versions": {"0.1.0": {}},
         },
         "close_case": {
-            "initial_data": {},
+            "initial_data": {"decision_count": {"value": 0}},
             "versions": {
                 "0.1.0": {},
                 "0.2.0": {},
