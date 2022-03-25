@@ -633,7 +633,7 @@ class task_opsturen_rapport_naar_corporatie(user_task):
 
 
 class task_verwerken_resultaat_corporatie(user_task):
-    due_date = relativedelta(days=90)
+    due_date = relativedelta(days=2)
 
 
 class task_verwerken_uitkomst_corporatie(user_task):
