@@ -5,6 +5,7 @@ import os
 from collections import OrderedDict
 
 import requests
+from apps.addresses.models import HousingCorporation
 from apps.cases.forms import ImportBWVCaseDataForm
 from apps.cases.models import Case, CaseProject, CaseReason, CaseTheme
 from apps.cases.serializers import (
@@ -57,11 +58,13 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
     reason_translate = {
         "melding": "SIA melding",
         "sia_melding": "SIA melding",
+        "sia": "SIA melding",
         "project": "Project",
         "digitaal_toezicht": "Digitaal toezicht",
         "melding_eigenaar": "Leegstandsmelding eigenaar",
         "melding_bi": "BI melding",
         "eigen_onderzoek": "Eigen onderzoek",
+        "corporatie_melding": "Corporatie melding",
         "politie_(SBA2.0)": "Politie (SBA 2.0)",
         "doorzon": "Doorzon",
         "ilprowo": "Ilprowo",
@@ -156,6 +159,16 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     )
         return data, errors
 
+    def add_housing_corporation(self, data, *args, **kwargs):
+        for d in data:
+            housing_corporation = HousingCorporation.objects.filter(
+                bwv_name__icontains=d.get("housing_corporation")
+            ).first()
+            d["housing_corporation"] = (
+                housing_corporation.id if housing_corporation else None
+            )
+        return data
+
     def add_theme(self, data, *args, **kwargs):
         theme = CaseTheme.objects.get(id=kwargs.get("theme"))
         used_theme_instances = {
@@ -219,6 +232,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
             d_clone = dict(d)
             instance = self._get_object(d.get("legacy_bwv_case_id"))
 
+            d["subworkflow"] = kwargs.get("subworkflow")
             if d["reason"] == melding.id:
                 del d["project"]
 
@@ -350,6 +364,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
             "ADS_HSTV": "toev",
             "CASE_REASON": "reason",
             "WV_BEH_CD_OMSCHRIJVING": "project",
+            "ADS_WOCO": "housing_corporation",
         }
 
         def to_int(v):
@@ -499,6 +514,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         data, missing_themes, used_theme_instances = self.add_theme(
             data, *args, **kwargs
         )
+        data = self.add_housing_corporation(data, *args, **kwargs)
         data = self.add_status_name(data, *args, **kwargs)
         data = self._add_bwv_meldingen(data)
         data = self._add_bwv_status(data)
@@ -575,6 +591,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     "reason",
                     "theme",
                     "status_name",
+                    "subworkflow",
                 ]
             )
             kwargs.update(form_data)

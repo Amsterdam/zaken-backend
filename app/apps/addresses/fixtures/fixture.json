@@ -3,7 +3,7 @@
     "pk": 1,
     "fields": {
       "name": "Lieven de Key",
-      "bwv_name": "lieven_de_key"
+      "bwv_name": "lieven_de_key,Woonstichting De Key"
     }
   },
   {
@@ -11,7 +11,7 @@
     "pk": 2,
     "fields": {
       "name": "Eigen Haard",
-      "bwv_name": "eigen_haard"
+      "bwv_name": "Eigen Haard"
     }
   },
   {
@@ -19,7 +19,7 @@
     "pk": 3,
     "fields": {
       "name": "Stadgenoot",
-      "bwv_name": "stadsgenoot"
+      "bwv_name": "Stadgenoot"
     }
   },
   {
@@ -27,7 +27,7 @@
     "pk": 4,
     "fields": {
       "name": "Ymere",
-      "bwv_name": "ymere"
+      "bwv_name": "Ymere,Ymere West,Ymere Oost,Ymere Centrum,Ymere Noord"
     }
   },
   {
@@ -35,7 +35,7 @@
     "pk": 5,
     "fields": {
       "name": "Rochdale",
-      "bwv_name": "rochdale"
+      "bwv_name": "rochdale,Wst Rochdale"
     }
   },
   {
@@ -43,7 +43,7 @@
     "pk": 6,
     "fields": {
       "name": "de Alliantie",
-      "bwv_name": "de_alliantie"
+      "bwv_name": "De Alliantie"
     }
   }
 ]

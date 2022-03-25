@@ -364,17 +364,25 @@ class CaseWorkflow(models.Model):
             initial_data.update(data)
         initial_data.update(self.data)
 
-        wf = self._initial_data(wf, initial_data)
+        success = False
+        jump_to = initial_data.pop("jump_to", None)
+        if jump_to:
+            result = self.reset_subworkflow(jump_to, test=False)
+            success = result.get("success")
 
-        wf = self._update_workflow(wf)
+        if not success:
+            wf = self._initial_data(wf, initial_data)
 
-        if self.workflow_message_name:
-            wf.message(
-                self.workflow_message_name, self.workflow_message_name, "message_name"
-            )
             wf = self._update_workflow(wf)
 
-        self._update_db(wf)
+            if self.workflow_message_name:
+                wf.message(
+                    self.workflow_message_name,
+                    self.workflow_message_name,
+                    "message_name",
+                )
+                wf = self._update_workflow(wf)
+            self._update_db(wf)
 
     def accept_message(self, message_name, extra_data):
         """
@@ -529,7 +537,7 @@ class CaseWorkflow(models.Model):
 
         state = self.get_serializer().serialize_workflow(wf, include_spec=False)
         self.serialized_workflow_state = state
-
+        self.started = True
         self.save()
 
         if completed:
@@ -688,10 +696,10 @@ class CaseWorkflow(models.Model):
 
     def reset_subworkflow(self, subworkflow, test=True):
         wf = self.get_or_restore_workflow_state()
-        if not wf:
-            original_data = self.data
-        else:
+        if hasattr(wf, "last_task") and wf.last_task:
             original_data = copy.deepcopy(wf.last_task.data)
+        else:
+            original_data = self.data
 
         latest_theme_name, latest_version = get_latest_version_from_config(
             self.workflow_theme_name, self.workflow_type
@@ -708,14 +716,14 @@ class CaseWorkflow(models.Model):
             self.workflow_message_name,
         )
         initial_data.update(original_data)
+        initial_data.pop("jump_to", None)
 
         wf_spec_latest = get_workflow_spec(latest_path, self.workflow_type)
-
         if (
             not self.workflow_type == CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
             or subworkflow not in self.SUBWORKFLOWS
         ):
-            return False
+            return {"success": False}
 
         workflow_result, success = ff_to_subworkflow(
             subworkflow, wf_spec_latest, self.workflow_message_name, initial_data

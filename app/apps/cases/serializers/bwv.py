@@ -1,3 +1,4 @@
+from apps.addresses.models import HousingCorporation
 from apps.cases.models import (
     Case,
     CaseClose,
@@ -20,6 +21,18 @@ class LegacyCaseCreateSerializer(BaseCaseSerializer):
         many=False, required=False, queryset=CaseProject.objects.all()
     )
     bag_id = serializers.CharField(required=True, write_only=True)
+    housing_corporation = serializers.PrimaryKeyRelatedField(
+        required=False,
+        allow_null=True,
+        queryset=HousingCorporation.objects.all(),
+        write_only=True,
+    )
+    subworkflow = serializers.CharField(
+        required=False,
+        write_only=True,
+        allow_null=True,
+        allow_blank=True,
+    )
 
     class Meta:
         model = Case
@@ -35,18 +48,41 @@ class LegacyCaseCreateSerializer(BaseCaseSerializer):
             "status_name",
             "project",
             "bag_id",
+            "housing_corporation",
+            "subworkflow",
         )
 
     def create(self, validated_data):
         status_name = validated_data.pop("status_name", None)
+        subworkflow = validated_data.pop("subworkflow", None)
         cached_legacy_bwv_case_key = (
             f'legacy_bwv_case_id_{validated_data.get("legacy_bwv_case_id")}_create_data'
         )
+        data = {
+            "status_name": status_name,
+        }
+        if subworkflow:
+            data.update(
+                {
+                    "jump_to": subworkflow,
+                }
+            )
+            if subworkflow == "summon":
+                data.update(
+                    {
+                        "debrief_next_step": {"value": "summon"},
+                    }
+                )
+            if subworkflow == "decision":
+                data.update(
+                    {
+                        "debrief_next_step": {"value": "summon"},
+                        "summon_next_step": {"value": "decision"},
+                    }
+                )
         cache.set(
             cached_legacy_bwv_case_key,
-            {
-                "status_name": status_name,
-            },
+            data,
             60 * 60,
         )
         case = super().create(validated_data)
@@ -182,6 +218,7 @@ class BWVMeldingenSerializer(serializers.Serializer):
 class BWVCaseImportValidSerializer(serializers.Serializer):
     geschiedenis = serializers.DictField(default={})
     meldingen = serializers.DictField(default={})
+    ADS_WOCO = serializers.CharField(allow_null=True, allow_blank=True, required=False)
     legacy_bwv_case_id = serializers.CharField()
     is_legacy_bwv = serializers.BooleanField(default=True)
     ADS_NR_VRA = serializers.CharField(

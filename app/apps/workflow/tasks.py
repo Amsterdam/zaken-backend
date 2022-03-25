@@ -1,4 +1,5 @@
 import copy
+from time import sleep
 
 import celery
 from apps.cases.models import Case, CitizenReport
@@ -163,6 +164,20 @@ def task_start_worflow(self, worklow_id):
             return f"task_start_worflow: workflow id '{worklow_id}', started"
 
     raise Exception(f"task_start_worflow: workflow id '{worklow_id}', is busy")
+
+
+@shared_task(bind=True, base=BaseTaskWithRetry)
+def task_reset_subworkflow(self, worklow_id, subworkflow):
+    from apps.workflow.models import CaseWorkflow
+
+    workflow_instance = CaseWorkflow.objects.get(id=worklow_id)
+    if workflow_instance.get_lock():
+        with transaction.atomic():
+            sleep(2)
+            workflow_instance.reset_subworkflow(subworkflow, test=False)
+            return f"task_reset_subworkflow: workflow id '{worklow_id}', started"
+
+    raise Exception(f"task_reset_subworkflow: workflow id '{worklow_id}', is busy")
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
