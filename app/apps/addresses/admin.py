@@ -24,3 +24,4 @@ class AddressAdmin(admin.ModelAdmin):
         "housing_corporation",
     )
     list_editable = ("housing_corporation",)
+    list_filter = ("housing_corporation",)

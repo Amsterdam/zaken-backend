@@ -42,13 +42,15 @@ class ImportBWVCaseDataForm(forms.Form):
         to_field_name="pk",
         required=True,
     )
+    SUBWORKFLOWS_CHOICES = (
+        ("", " - begin taak van het gekozen thema - "),
+        ("visit", "visit (taak: Bepalen processtap)"),
+        ("debrief", "debrief (taak: Verwerken debrief)"),
+        ("summon", "summon (taak: Opstellen concept aanschrijving)"),
+        ("decision", "decision (taak: Opstellen concept besluit)"),
+    )
     subworkflow = forms.ChoiceField(
-        choices=(
-            ("visit", "visit"),
-            ("debrief", "debrief"),
-            ("summon", "summon"),
-            ("decision", "decision"),
-        ),
+        choices=SUBWORKFLOWS_CHOICES,
         label="Kies in welke fase deze zaken moeten starten",
         required=False,
     )

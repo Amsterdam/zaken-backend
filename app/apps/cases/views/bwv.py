@@ -58,11 +58,13 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
     reason_translate = {
         "melding": "SIA melding",
         "sia_melding": "SIA melding",
+        "sia": "SIA melding",
         "project": "Project",
         "digitaal_toezicht": "Digitaal toezicht",
         "melding_eigenaar": "Leegstandsmelding eigenaar",
         "melding_bi": "BI melding",
         "eigen_onderzoek": "Eigen onderzoek",
+        "corporatie_melding": "Corporatie melding",
         "politie_(SBA2.0)": "Politie (SBA 2.0)",
         "doorzon": "Doorzon",
         "ilprowo": "Ilprowo",
@@ -160,7 +162,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
     def add_housing_corporation(self, data, *args, **kwargs):
         for d in data:
             housing_corporation = HousingCorporation.objects.filter(
-                bwv_name=d.get("housing_corporation")
+                bwv_name__icontains=d.get("housing_corporation")
             ).first()
             d["housing_corporation"] = (
                 housing_corporation.id if housing_corporation else None
@@ -230,6 +232,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
             d_clone = dict(d)
             instance = self._get_object(d.get("legacy_bwv_case_id"))
 
+            d["subworkflow"] = kwargs.get("subworkflow")
             if d["reason"] == melding.id:
                 del d["project"]
 
@@ -361,6 +364,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
             "ADS_HSTV": "toev",
             "CASE_REASON": "reason",
             "WV_BEH_CD_OMSCHRIJVING": "project",
+            "ADS_WOCO": "housing_corporation",
         }
 
         def to_int(v):
@@ -587,6 +591,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     "reason",
                     "theme",
                     "status_name",
+                    "subworkflow",
                 ]
             )
             kwargs.update(form_data)
