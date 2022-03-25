@@ -161,8 +161,13 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
 
     def add_housing_corporation(self, data, *args, **kwargs):
         for d in data:
+            existing_corpo = (
+                d.get("housing_corporation")
+                if d.get("housing_corporation") is not None
+                else "thisisnocorporation"
+            )
             housing_corporation = HousingCorporation.objects.filter(
-                bwv_name__icontains=d.get("housing_corporation")
+                bwv_name__icontains=existing_corpo
             ).first()
             d["housing_corporation"] = (
                 housing_corporation.id if housing_corporation else None
