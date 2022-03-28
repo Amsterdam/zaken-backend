@@ -170,7 +170,9 @@ class CaseFilter(filters.FilterSet):
         )
 
     def get_housing_corporation(self, queryset, name, value):
-        return queryset.filter(address__housing_corporation__in=value)
+        if value:
+            return queryset.filter(address__housing_corporation__in=value)
+        return queryset
 
     def get_open_cases(self, queryset, name, value):
         return queryset.filter(end_date__isnull=value)
