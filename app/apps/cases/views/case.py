@@ -151,12 +151,10 @@ class CaseFilter(filters.FilterSet):
         return queryset
 
     def get_schedule_housing_corporation_combiteam(self, queryset, name, value):
-        if value:
-            queryset = self.get_annotated_qs_by_schedule_type(
-                queryset, "housing_corporation_combiteam", value
-            )
-            return queryset.filter(last_schedule_field=value)
-        return queryset
+        queryset = self.get_annotated_qs_by_schedule_type(
+            queryset, "housing_corporation_combiteam", value
+        )
+        return queryset.filter(last_schedule_field=value)
 
     def get_fuzy_street_name(self, queryset, name, value):
         return queryset.filter(address__street_name__trigram_similar=value)

@@ -95,4 +95,5 @@ class Schedule(TaskModelEventEmitter):
             "description": self.description,
             "author": self.author.__str__(),
             "visit_from_datetime": self.visit_from_datetime,
+            "housing_corporation_combiteam": self.housing_corporation_combiteam,
         }
