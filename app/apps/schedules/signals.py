@@ -22,9 +22,14 @@ def pre_save_schedule(sender, instance, **kwargs):
             instance.case.project
             and instance.case.project.name
             in [
-                "Combi_ZKL_Doorpak",
-                "Combi Doorpak",
                 "Combi BI Doorpak",
+                "Combi BI Melding",
+                "Combi Doorpak",
+                "Combi Melding",
+                "Combi Overbewoning",
+                "Combi_ZKL_Doorpak",
+                "Combi_ZKL_Melding",
+                "ZKL Combi OenA",
             ]
         )
         instance.housing_corporation_combiteam = (

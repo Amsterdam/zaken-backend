@@ -73,6 +73,7 @@ class CaseAdmin(admin.ModelAdmin):
         "id",
         "theme",
         "reason",
+        "project",
         "identification",
         "start_date",
         "end_date",
@@ -82,7 +83,15 @@ class CaseAdmin(admin.ModelAdmin):
         "is_legacy_camunda",
         "author",
     )
-    list_filter = ("theme", "is_legacy_bwv", "is_legacy_camunda", "project", "subjects")
+    list_filter = (
+        "theme",
+        "reason",
+        "is_legacy_bwv",
+        "is_legacy_camunda",
+        "project",
+        "subjects",
+        "address__housing_corporation",
+    )
     search_fields = ("id", "legacy_bwv_case_id")
     actions = [
         create_main_worflow_for_case,
@@ -90,7 +99,6 @@ class CaseAdmin(admin.ModelAdmin):
         camunda_case_try_to_complete_task_create_visit,
         camunda_case_try_to_complete_task_create_debrief,
     ]
-    list_editable = ("theme", "reason")
 
 
 @admin.register(CaseTheme)
