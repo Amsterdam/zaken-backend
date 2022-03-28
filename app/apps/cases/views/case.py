@@ -73,6 +73,10 @@ class CaseFilter(filters.FilterSet):
         queryset=WeekSegment.objects.all(),
         method="get_schedule_week_segment",
     )
+    priority = filters.ModelMultipleChoiceFilter(
+        queryset=WeekSegment.objects.all(),
+        method="get_schedule_priority",
+    )
     schedule_visit_from = filters.DateTimeFilter(
         method="get_schedule_visit_from",
     )
@@ -128,6 +132,14 @@ class CaseFilter(filters.FilterSet):
             return queryset.filter(
                 Q(last_schedule_field__lte=value) | Q(last_schedule_field__isnull=True)
             )
+        return queryset
+
+    def get_schedule_priority(self, queryset, name, value):
+        if value:
+            queryset = self.get_annotated_qs_by_schedule_type(
+                queryset, "priority", value
+            )
+            return queryset.filter(last_schedule_field__in=value)
         return queryset
 
     def get_fuzy_street_name(self, queryset, name, value):
@@ -230,6 +242,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("ton_ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("priority", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
     ]
 )
 class CaseViewSet(
