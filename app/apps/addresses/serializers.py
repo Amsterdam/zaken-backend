@@ -1,5 +1,11 @@
-from apps.addresses.models import Address
+from apps.addresses.models import Address, HousingCorporation
 from rest_framework import serializers
+
+
+class HousingCorporationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HousingCorporation
+        exclude = ("bwv_name",)
 
 
 class AddressSerializer(serializers.ModelSerializer):
