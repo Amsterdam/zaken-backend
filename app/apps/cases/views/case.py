@@ -1,6 +1,7 @@
 import operator
 from functools import reduce
 
+from apps.addresses.models import HousingCorporation
 from apps.cases.models import Case, CaseProject, CaseReason, CaseStateType
 from apps.cases.serializers import (
     AdvertisementSerializer,
@@ -11,7 +12,7 @@ from apps.cases.serializers import (
 from apps.events.mixins import CaseEventsMixin
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
-from apps.schedules.models import DaySegment, Schedule, WeekSegment
+from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
 from apps.users.permissions import (
     CanCreateCase,
     CanCreateDigitalSurveillanceCase,
@@ -74,11 +75,14 @@ class CaseFilter(filters.FilterSet):
         method="get_schedule_week_segment",
     )
     priority = filters.ModelMultipleChoiceFilter(
-        queryset=WeekSegment.objects.all(),
+        queryset=Priority.objects.all(),
         method="get_schedule_priority",
     )
     schedule_visit_from = filters.DateTimeFilter(
         method="get_schedule_visit_from",
+    )
+    schedule_housing_corporation_combiteam = filters.BooleanFilter(
+        method="get_schedule_housing_corporation_combiteam"
     )
     state_types__name = filters.ModelMultipleChoiceFilter(
         queryset=CaseStateType.objects.all(),
@@ -94,6 +98,10 @@ class CaseFilter(filters.FilterSet):
     ton_ids = CharArrayFilter(field_name="ton_ids", lookup_expr="contains")
     street_name = filters.CharFilter(method="get_fuzy_street_name")
     number = filters.CharFilter(method="get_number")
+    housing_corporation = filters.ModelMultipleChoiceFilter(
+        queryset=HousingCorporation.objects.all(),
+        method="get_housing_corporation",
+    )
     suffix = filters.CharFilter(method="get_suffix")
     postal_code = filters.CharFilter(method="get_postal_code")
     postal_code_range = MultipleValueFilter(
@@ -142,6 +150,14 @@ class CaseFilter(filters.FilterSet):
             return queryset.filter(last_schedule_field__in=value)
         return queryset
 
+    def get_schedule_housing_corporation_combiteam(self, queryset, name, value):
+        if value:
+            queryset = self.get_annotated_qs_by_schedule_type(
+                queryset, "housing_corporation_combiteam", value
+            )
+            return queryset.filter(last_schedule_field=value)
+        return queryset
+
     def get_fuzy_street_name(self, queryset, name, value):
         return queryset.filter(address__street_name__trigram_similar=value)
 
@@ -152,6 +168,11 @@ class CaseFilter(filters.FilterSet):
         return queryset.filter(
             Q(address__suffix__iexact=value) | Q(address__suffix_letter__iexact=value)
         )
+
+    def get_housing_corporation(self, queryset, name, value):
+        if value:
+            return queryset.filter(address__housing_corporation__in=value)
+        return queryset
 
     def get_open_cases(self, queryset, name, value):
         return queryset.filter(end_date__isnull=value)
@@ -235,6 +256,11 @@ class StandardResultsSetPagination(EmptyPagination):
         ),
         OpenApiParameter(
             "schedule_visit_from", OpenApiTypes.DATE, OpenApiParameter.QUERY
+        ),
+        OpenApiParameter(
+            "schedule_housing_corporation_combiteam",
+            OpenApiTypes.BOOL,
+            OpenApiParameter.QUERY,
         ),
         OpenApiParameter("postal_code_range", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("project", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
