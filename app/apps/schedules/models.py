@@ -81,6 +81,9 @@ class Schedule(TaskModelEventEmitter):
         null=True,
         blank=True,
     )
+    housing_corporation_combiteam = models.BooleanField(
+        default=False,
+    )
 
     def __get_event_values__(self):
         return {
