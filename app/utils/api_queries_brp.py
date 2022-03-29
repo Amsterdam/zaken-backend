@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_brp_by_bag_id(request, bag_id):
-    """ Returns BRP data by bag_"""
+    """Returns BRP data by bag_"""
 
     queryParams = {
         "verblijfplaats__nummeraanduidingIdentificatie": f"{bag_id}",
@@ -17,7 +17,7 @@ def get_brp_by_bag_id(request, bag_id):
 
 
 def get_brp_by_address(request, postal_code, number, suffix, suffix_letter):
-    """ Returns BRP data by address info"""
+    """Returns BRP data by address info"""
 
     queryParams = {
         "verblijfplaats__postcode": postal_code,
@@ -29,7 +29,7 @@ def get_brp_by_address(request, postal_code, number, suffix, suffix_letter):
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
 def get_brp(request, queryParams):
-    """ Returns BRP data"""
+    """Returns BRP data"""
 
     if settings.ENVIRONMENT == "production":
         return get_mock_brp()

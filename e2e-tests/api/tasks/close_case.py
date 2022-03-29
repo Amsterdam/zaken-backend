@@ -5,7 +5,7 @@ from api.config import CloseReason, NextStep
 from api.tasks import AbstractUserTask, GenericUserTask
 from api.tasks.debrief import test_opstellen_verkorte_rapportage_huisbezoek
 from api.user_tasks import (
-    task_afsluiten_zaak,
+    task_close_case,
     task_close_case_concept,
     task_uitzetten_vervolgstap,
 )
@@ -37,7 +37,7 @@ class test_close_case_concept(GenericUserTask, task_close_case_concept):
         ]
 
 
-class test_afsluiten_zaak(AbstractUserTask, task_afsluiten_zaak):
+class test_close_case(AbstractUserTask, task_close_case):
     event = events.CloseEvent
     endpoint = "case-close"
 

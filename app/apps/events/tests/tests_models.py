@@ -13,7 +13,7 @@ from app.utils.unittest_helpers import (
 
 class CaseEventTest(CaseEventEmitterTestCase):
     def test_case_creates_events(self):
-        """ Creating a new EventEmitter should also create corresponding event"""
+        """Creating a new EventEmitter should also create corresponding event"""
         self.assertEqual(0, CaseEvent.objects.count())
 
         self.create_case()
@@ -21,7 +21,7 @@ class CaseEventTest(CaseEventEmitterTestCase):
         self.assertEqual(1, CaseEvent.objects.count())
 
     def test_event_emitter_creates_events(self):
-        """ Creating a new EventEmitter should also create corresponding event"""
+        """Creating a new EventEmitter should also create corresponding event"""
         self.assertEqual(0, CaseEvent.objects.count())
 
         case = self.create_case()
@@ -31,7 +31,7 @@ class CaseEventTest(CaseEventEmitterTestCase):
         self.assertEqual(2, CaseEvent.objects.count())
 
     def test_bad_event_emitter(self):
-        """ A subclassed EventEmitter that is not configured properly should throw an error"""
+        """A subclassed EventEmitter that is not configured properly should throw an error"""
         self.assertEqual(0, CaseEvent.objects.count())
 
         with self.assertRaises(Exception):

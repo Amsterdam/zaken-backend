@@ -1,5 +1,5 @@
 from api.config import DecisionType, NextStep
-from api.tasks.close_case import test_afsluiten_zaak, test_uitzetten_vervolgstap
+from api.tasks.close_case import test_close_case_concept, test_uitzetten_vervolgstap
 from api.tasks.decision import test_verwerken_definitieve_besluit
 from api.tasks.visit import test_inplannen_status
 from api.test import DefaultAPITest
@@ -13,7 +13,7 @@ class task_uitzetten_vervolgstap_test(DefaultAPITest):
                 type=DecisionType.Vakantieverhuur.BURDEN_UNDER_PENALTY
             ),
             test_uitzetten_vervolgstap(next_step=NextStep.CLOSE),
-            ValidateOpenTasks(test_afsluiten_zaak),
+            ValidateOpenTasks(test_close_case_concept),
         )
 
     def test_recheck(self):

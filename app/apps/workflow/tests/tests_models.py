@@ -12,7 +12,7 @@ class WorkflowModelTest(TestCase):
         management.call_command("flush", verbosity=0, interactive=False)
 
     def test_can_create_workflow(self):
-        """ Tests CaseWorkflow object creation """
+        """Tests CaseWorkflow object creation"""
 
         self.assertEquals(CaseWorkflow.objects.count(), 0)
         theme = baker.make(CaseTheme, name=settings.DEFAULT_THEME)
@@ -26,7 +26,7 @@ class WorkflowModelTest(TestCase):
         self.assertEquals(CaseWorkflow.objects.count(), 1)
 
     def test_can_get_workflow_spec(self):
-        """ Tests can get workflow spec """
+        """Tests can get workflow spec"""
 
         theme = baker.make(CaseTheme, name=settings.DEFAULT_THEME)
         case = baker.make(Case, theme=theme)

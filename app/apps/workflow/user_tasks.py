@@ -451,33 +451,19 @@ class task_aanleveren_bezwaardossier(user_task):
     due_date = relativedelta(weeks=1)
 
 
-class task_verwerken_extra_informatie(user_task):
+class task_add_extra_information(user_task):
     """Verwerken extra informatie"""
 
-    _task_name = "task_add_extra_information"
 
-
-class task_afsluiten_zaak(user_task):
+class task_close_case(user_task):
     """Afsluiten zaak"""
 
-    _task_name = "task_close_case"
-
-    @staticmethod
-    def get_due_date(case_user_task):
-        from apps.decisions.models import Decision
-
-        non_renounced_decisions = Decision.objects.filter(
-            case=case_user_task.case
-        ).exclude(decision_type__workflow_option="no_decision")
-
-        return (
-            relativedelta(months=13)
-            if non_renounced_decisions.count()
-            else relativedelta(weeks=1)
-        )
+    due_date = relativedelta(weeks=1)
 
 
 class task_afwachten_casus_overleg(user_task):
+    """Afwachten casus overleg"""
+
     _task_name = "task_afwachten_casus_overleg"
     due_date = relativedelta(weeks=1)
 
@@ -648,7 +634,19 @@ class task_ontvangen_reactie_corporatie(user_task):
 
 
 class task_close_case_concept(user_task):
-    due_date = relativedelta(days=1)
+    @staticmethod
+    def get_due_date(case_user_task):
+        from apps.decisions.models import Decision
+
+        non_renounced_decisions = Decision.objects.filter(
+            case=case_user_task.case
+        ).exclude(decision_type__workflow_option="no_decision")
+
+        return (
+            relativedelta(months=13)
+            if non_renounced_decisions.count()
+            else relativedelta(weeks=1)
+        )
 
 
 class task_opstellen_intrekkingen(user_task):

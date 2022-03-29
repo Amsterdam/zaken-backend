@@ -292,7 +292,7 @@ class CaseListApiTest(APITestCase):
         self.assertEqual(len(results), 1)
 
     def test_filter_status_different_states(self):
-        """ Each case has a different state type, should only return one case """
+        """Each case has a different state type, should only return one case"""
         state_type_a = baker.make(CaseStateType)
         THEME_A = "thame_a"
         theme_a = baker.make(CaseTheme, name=THEME_A)
@@ -392,7 +392,7 @@ class CaseCreatApiTest(APITestCase):
         self.assertEquals(citizen_reports[0].related_advertisements.count(), 1)
 
     def test_authenticated_post_create_fail_wrong_theme(self):
-        """ Should not be able to create a case if a wrong theme ID is given """
+        """Should not be able to create a case if a wrong theme ID is given"""
         theme = baker.make(CaseTheme)
         reason = baker.make(CaseReason, theme=theme)
 
@@ -413,7 +413,7 @@ class CaseCreatApiTest(APITestCase):
         self.assertEquals(Case.objects.count(), 0)
 
     def test_authenticated_post_create_fail_wrong_reason(self):
-        """ Should not be able to create a case if a wrong theme ID is given """
+        """Should not be able to create a case if a wrong theme ID is given"""
         theme = baker.make(CaseTheme)
 
         url = reverse("cases-list")
@@ -433,7 +433,7 @@ class CaseCreatApiTest(APITestCase):
         self.assertEquals(Case.objects.count(), 0)
 
     def test_authenticated_post_create_wrong_theme_reason_relation(self):
-        """ Request should fail if the CaseReason is not one of the given themes CaseReasons """
+        """Request should fail if the CaseReason is not one of the given themes CaseReasons"""
         self.assertEquals(Case.objects.count(), 0)
 
         theme_a = baker.make(CaseTheme)
