@@ -478,5 +478,55 @@
       "message_name": "start_uitkomst_corporatie_proces",
       "to_directing_proccess": false
     }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 61,
+    "fields": {
+      "theme": 2,
+      "name": "Rapport bewoner(s)",
+      "message_name": "start_rapport_bewoners",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 62,
+    "fields": {
+      "theme": 3,
+      "name": "Rapport bewoner(s)",
+      "message_name": "start_rapport_bewoners",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 63,
+    "fields": {
+      "theme": 4,
+      "name": "Rapport bewoner(s)",
+      "message_name": "start_rapport_bewoners",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 64,
+    "fields": {
+      "theme": 5,
+      "name": "Rapport bewoner(s)",
+      "message_name": "start_rapport_bewoners",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 65,
+    "fields": {
+      "theme": 6,
+      "name": "Rapport bewoner(s)",
+      "message_name": "start_rapport_bewoners",
+      "to_directing_proccess": false
+    }
   }
 ]
