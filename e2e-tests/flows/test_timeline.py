@@ -1,5 +1,5 @@
 from api.config import Violation
-from api.tasks.close_case import test_afsluiten_zaak, test_uitzetten_vervolgstap
+from api.tasks.close_case import test_close_case, test_uitzetten_vervolgstap
 from api.tasks.debrief import (
     test_opstellen_verkorte_rapportage_huisbezoek,
     test_terugkoppelen_melder_1,
@@ -34,7 +34,7 @@ class TestTimeline(DefaultAPITest):
             test_verwerken_debrief(violation=Violation.NO),
             test_opstellen_verkorte_rapportage_huisbezoek(),
             test_uitzetten_vervolgstap(),
-            test_afsluiten_zaak(),
+            test_close_case(),
         )
 
 

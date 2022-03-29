@@ -1,5 +1,5 @@
 from api.config import Reason, Subject, Theme, VisitNextStep
-from api.tasks.close_case import test_afsluiten_zaak
+from api.tasks.close_case import test_close_case
 from api.tasks.visit import test_bepalen_processtap
 from api.test import DefaultAPITest
 from api.validators import Validator
@@ -53,16 +53,16 @@ class TestSubjects(DefaultAPITest):
 
         subjects = self.client.call("get", f"/cases/{case.data['id']}/")["subjects"]
         case.data["subjects"] = subjects
-        print(*test_afsluiten_zaak.get_steps())
-        test_afsluiten_zaak_steps = [*test_afsluiten_zaak.get_steps()]
-        test_afsluiten_zaak_steps.pop(0)
+        print(*test_close_case.get_steps())
+        test_close_case_steps = [*test_close_case.get_steps()]
+        test_close_case_steps.pop(0)
         # Check if the subjects are updated and keep their value after close case
         case.run_steps(
             ValidateSubjects(updated_subject_ids),
             test_bepalen_processtap(
                 visit_next_step=VisitNextStep.VISIT_WITHOUT_AUTHORIZATION
             ),
-            *test_afsluiten_zaak_steps,
+            *test_close_case_steps,
             ValidateSubjects(updated_subject_ids),
         )
 
