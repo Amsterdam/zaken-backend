@@ -97,6 +97,9 @@ class user_task:
     def get_form(self):
         return BpmnForm(self)
 
+    def get_data(self):
+        return {}
+
     def mapped_form_data(self, data):
         return {}
 
@@ -685,6 +688,17 @@ class task_verwerken_en_opsturen_besluit(user_task):
                 "type": "text",
             },
         ]
+
+    def get_data(self):
+        decisions = list(
+            self.case_user_task.case.decisions.filter(
+                sanction_id__isnull=False,
+                active=False,
+            ).values_list("id", flat=True)
+        )
+        return {
+            "ingetrokken_sancties": decisions,
+        }
 
     def mapped_form_data(self, data):
         from apps.decisions.models import Decision
