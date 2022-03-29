@@ -351,7 +351,7 @@ class DecosJoinRequest:
             return get_decos_join_mock_folder_fields()
 
     def get_decos_entry_by_bag_id(self, bag_id, dt):
-        """ Get simple view of the important permits"""
+        """Get simple view of the important permits"""
 
         response = {}
 

@@ -11,7 +11,7 @@ class AddressModelTest(TestCase):
         management.call_command("flush", verbosity=0, interactive=False)
 
     def test_can_create_address(self):
-        """ Tests CaseStateType object creation """
+        """Tests CaseStateType object creation"""
         self.assertEquals(Address.objects.count(), 0)
 
         baker.make(Address)

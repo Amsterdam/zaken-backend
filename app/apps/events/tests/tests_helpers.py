@@ -18,7 +18,7 @@ class CaseEventEmitterTestCase(APITestCase):
     @classmethod
     def setUpClass(cls):
         class SubclassEventEmitter(ModelEventEmitter):
-            """ An example EventEmitter subclass used for test purposes"""
+            """An example EventEmitter subclass used for test purposes"""
 
             EVENT_TYPE = CaseEvent.TYPE_DEBRIEFING
             case = models.ForeignKey(to=Case, null=False, on_delete=models.CASCADE)
@@ -27,7 +27,7 @@ class CaseEventEmitterTestCase(APITestCase):
                 return {"foo_text": "hello", "foo_number": 1}
 
         class SubclassEmptyEventEmitter(ModelEventEmitter):
-            """ An faulty example of an EventEmitter subclass used for test purposes"""
+            """An faulty example of an EventEmitter subclass used for test purposes"""
 
             EVENT_TYPE = None
             case = None

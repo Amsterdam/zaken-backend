@@ -462,6 +462,8 @@ class task_close_case(user_task):
 
 
 class task_afwachten_casus_overleg(user_task):
+    """Afwachten casus overleg"""
+
     _task_name = "task_afwachten_casus_overleg"
     due_date = relativedelta(weeks=1)
 
