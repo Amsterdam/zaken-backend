@@ -730,3 +730,7 @@ class task_verwerken_en_opsturen_besluit(user_task):
 
 class task_intrekken_vorderingen(user_task):
     due_date = relativedelta(days=1)
+
+
+class task_rapport_bewoners(user_task):
+    due_date = relativedelta(days=2)
