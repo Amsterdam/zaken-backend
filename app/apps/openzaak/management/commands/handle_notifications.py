@@ -1,28 +1,27 @@
-import logging
 import json
-from datetime import timedelta, datetime
-from collections import namedtuple
+import logging
 import resource
+from collections import namedtuple
+from datetime import datetime, timedelta
 
+from apps.cases.models import (
+    Case,
+    CaseDocument,
+    CaseReason,
+    CaseState,
+    CaseStateType,
+    CaseTheme,
+)
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from apps.cases.models import (
-    CaseStateType,
-    CaseTheme,
-    Case,
-    CaseState,
-    CaseReason,
-    CaseDocument,
-)
-
-from ...models import Notification
 from ...helpers import (
+    get_document,
     get_open_zaak_case,
     get_open_zaak_case_document_connection,
     get_open_zaak_case_state,
-    get_document,
 )
+from ...models import Notification
 
 logger = logging.getLogger(__name__)
 

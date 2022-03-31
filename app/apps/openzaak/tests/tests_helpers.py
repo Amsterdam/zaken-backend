@@ -3,26 +3,25 @@ from apps.cases.models import Case, CaseDocument, CaseState, CaseTheme
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models import signals
 from django.test import TestCase
-
 from model_bakery import baker
 from zgw_consumers.test import mock_service_oas_get
 
-from ..signals import create_open_zaak_case
 from ..helpers import (
     connect_case_and_document,
     create_document,
     create_open_zaak_case,
     create_open_zaak_case_state,
-    get_open_zaak_case,
-    get_open_zaak_case_state,
-    update_open_zaak_case,
-    get_document,
-    update_document,
     delete_document,
     get_case_types,
+    get_document,
     get_document_types,
+    get_open_zaak_case,
     get_open_zaak_case_document_connection,
+    get_open_zaak_case_state,
+    update_document,
+    update_open_zaak_case,
 )
+from ..signals import create_open_zaak_case
 from .utils import OpenZaakBaseMixin
 
 

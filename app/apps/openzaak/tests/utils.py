@@ -2,7 +2,6 @@ from typing import Any, Dict, List
 
 from django.conf import settings
 from django.db.models import signals
-
 from model_bakery import baker
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service

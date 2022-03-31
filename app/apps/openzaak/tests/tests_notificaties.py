@@ -1,18 +1,16 @@
 from datetime import timedelta
 
 import requests_mock
-from apps.cases.models import Case, CaseDocument, CaseState, CaseTheme, CaseStateType
+from apps.cases.models import Case, CaseDocument, CaseState, CaseStateType, CaseTheme
+from apps.openzaak.models import Notification
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
 from django.core.management import call_command
+from django.test import TestCase
 from django.utils import timezone
-
-from model_bakery import baker
 from freezegun import freeze_time
+from model_bakery import baker
 from requests.exceptions import HTTPError
 from zgw_consumers.test import mock_service_oas_get
-
-from apps.openzaak.models import Notification
 
 from .utils import OpenZaakBaseMixin
 

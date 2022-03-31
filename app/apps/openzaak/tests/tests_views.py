@@ -1,8 +1,6 @@
-from django.urls import reverse
-
-from django_webtest import WebTest
-
 from apps.openzaak.models import Notification
+from django.urls import reverse
+from django_webtest import WebTest
 
 
 class ViewTests(WebTest):
