@@ -32,6 +32,7 @@ class Visit(TaskModelEventEmitter):
     )
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     notes = models.TextField(null=True, blank=True)
+    completed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-start_time"]

@@ -14,13 +14,7 @@ def add_case_user_task_id_to_visit(sender, instance, **kwargs):
             completed=False,
         ).first()
         if task:
-            type_instance = Visit.objects.filter(case_user_task_id=str(task.id))
-            if type_instance:
-                raise Exception(
-                    f"TaskModelEventEmitter of type '{instance.__class__.__name__}', with '{instance.case_user_task_id}', already exists"
-                )
-            else:
-                instance.case_user_task_id = str(task.id)
+            instance.case_user_task_id = str(task.id)
         else:
             raise Exception("No task found")
 
@@ -29,7 +23,7 @@ def add_case_user_task_id_to_visit(sender, instance, **kwargs):
 def complete_task_create_visit(sender, instance, created, **kwargs):
     if kwargs.get("raw"):
         return
-    if instance.case_user_task_id != "-1" and created:
+    if instance.case_user_task_id != "-1" and created and instance.completed:
         CaseWorkflow.complete_user_task(
             instance.case_user_task_id,
             {
