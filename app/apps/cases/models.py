@@ -29,6 +29,10 @@ def snake_case(s):
 
 class CaseTheme(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    case_type_url = models.URLField(
+        null=True,
+        help_text="This is the case type that can be found in openzaak. This way all the case types can be linked within the systems.",
+    )
     case_state_types_top = models.ManyToManyField(
         to="CaseStateType",
         blank=True,
@@ -136,6 +140,12 @@ class Case(ModelEventEmitter):
         content_type_field="related_object_type",
         related_query_name="cases",
     )
+    case_url = models.URLField(
+        null=True,
+        blank=True,
+        help_text="This is the case that can be found in openzaak.",
+    )
+    case_deleted = models.BooleanField(default=False, blank=True, help_text="This field determines if the case is deleted in openzaak.")
 
     def __get_event_values__(self):
         reason = self.reason.name
@@ -272,12 +282,26 @@ class Case(ModelEventEmitter):
         ordering = ["-start_date"]
 
 
+class CaseDocument(models.Model):
+    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    document_url = models.URLField()
+    document_content = models.URLField()
+    connected = models.BooleanField(default=False, blank=True)
+
+    def __str__(self):
+        return f"Document van {self.case.identification}"
+
+
 class CaseStateType(models.Model):
     name = models.CharField(max_length=255)
     theme = models.ForeignKey(
         to=CaseTheme,
         related_name="state_types",
         on_delete=models.CASCADE,
+    )
+    state_type_url = models.URLField(
+        null=True,
+        help_text="This is the state type that can be found in openzaak. This way all the state types can be linked within the systems.",
     )
 
     def __str__(self):
@@ -304,6 +328,8 @@ class CaseState(models.Model):
         null=True,
         blank=True,
     )
+    system_build = models.BooleanField(default=False, blank=True)
+    set_in_open_zaak = models.BooleanField(default=False, blank=True)
 
     def get_information(self):
         # TODO: replaces information field, so remove field

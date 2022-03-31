@@ -5,11 +5,12 @@ from datetime import datetime, timezone
 
 from apps.debriefings.models import Debriefing
 from apps.debriefings.tests.tests_helpers import DebriefingTestMixin
+from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from django.test import TestCase
 from freezegun import freeze_time
 
 
-class DebriefingModelTest(TestCase, DebriefingTestMixin):
+class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
     def test_can_create_debrief(self):
         self.assertEqual(Debriefing.objects.count(), 0)
         self.create_debriefing()

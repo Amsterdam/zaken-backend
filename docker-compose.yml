@@ -16,7 +16,7 @@ services:
       - zaak-redis
     env_file:
       - .env
-    command: bash -c "/app/wait-for.sh zaak-redis:6379 && /app/wait-for.sh database:5432 && /app/deploy/docker-entrypoint.development.sh"
+    command: bash -c "/app/wait-for.sh zaak-redis:6379 && /app/wait-for.sh database:5432 && /app/deploy/docker-entrypoint.sh"
     volumes:
       - ./app:/app
     stdin_open: true

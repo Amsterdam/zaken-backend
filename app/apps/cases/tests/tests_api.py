@@ -8,6 +8,7 @@ from apps.cases.models import (
     CaseTheme,
     CitizenReport,
 )
+from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from apps.summons.models import SummonType
 from apps.workflow.models import CaseWorkflow
 from django.core import management
@@ -22,9 +23,10 @@ from utils.unittest_helpers import (
 )
 
 
-class CaseThemeApiTest(APITestCase):
+class CaseThemeApiTest(ZakenBackendTestMixin, APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
 
     def test_unauthenticated_get(self):
         url = reverse("themes-list")
@@ -59,9 +61,10 @@ class CaseThemeApiTest(APITestCase):
         self.assertEquals(len(data["results"]), 2)
 
 
-class CaseThemeReasonApiTest(APITestCase):
+class CaseThemeReasonApiTest(ZakenBackendTestMixin, APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
 
     def test_unauthenticated_get(self):
         url = reverse("themes-reasons", kwargs={"pk": 1})
@@ -108,9 +111,10 @@ class CaseThemeReasonApiTest(APITestCase):
         self.assertEqual(len(data["results"]), 2)
 
 
-class CaseListApiTest(APITestCase):
+class CaseListApiTest(ZakenBackendTestMixin, APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
 
     def test_unauthenticated_get(self):
         url = reverse("cases-list")
@@ -317,9 +321,10 @@ class CaseListApiTest(APITestCase):
         self.assertEqual(len(results), 1)
 
 
-class CaseCreatApiTest(APITestCase):
+class CaseCreatApiTest(ZakenBackendTestMixin, APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
 
     def test_unauthenticated_post(self):
         url = reverse("cases-list")
@@ -486,9 +491,10 @@ class CaseCreatApiTest(APITestCase):
         self.assertEquals(case.author, test_user)
 
 
-class CaseThemeSummonTypeApiTest(APITestCase):
+class CaseThemeSummonTypeApiTest(ZakenBackendTestMixin, APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
 
     def test_unauthenticated_get(self):
         url = reverse("themes-summon-types", kwargs={"pk": 1})

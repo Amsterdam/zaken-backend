@@ -1,4 +1,4 @@
-FROM openzaak/open-notificaties:1.2.3
+FROM openzaak/open-notificaties:1.3.0
 
 USER root
 

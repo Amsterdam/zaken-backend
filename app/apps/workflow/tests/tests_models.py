@@ -1,4 +1,5 @@
 from apps.cases.models import Case, CaseTheme
+from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from apps.workflow.models import CaseWorkflow
 from django.conf import settings
 from django.core import management
@@ -7,9 +8,10 @@ from model_bakery import baker
 from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnProcessSpec
 
 
-class WorkflowModelTest(TestCase):
+class WorkflowModelTest(ZakenBackendTestMixin, TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
 
     def test_can_create_workflow(self):
         """Tests CaseWorkflow object creation"""

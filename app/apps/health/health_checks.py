@@ -1,6 +1,7 @@
 import logging
 
 import requests
+from requests.exceptions import HTTPError
 from config.celery import debug_task
 from django.conf import settings
 from health_check.backends import BaseHealthCheckBackend
@@ -23,12 +24,16 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
     api_url = None
     verbose_name = None
 
+    def get_api_url(self):
+        return self.api_url
+
     def check_status(self):
         """Check service by opening and closing a broker channel."""
         logger.info("Checking status of API url...")
+        api_url = self.get_api_url()
+        assert api_url, "The given api_url should be set"
         try:
-            assert self.api_url, "The given api_url should be set"
-            response = requests.get(self.api_url, timeout=3)
+            response = requests.get(api_url, timeout=3)
             response.raise_for_status()
         except AssertionError as e:
             logger.error(e)
@@ -42,6 +47,9 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
                 ServiceUnavailable("Unable to connect to API: Connection was refused."),
                 e,
             )
+        except HTTPError as e:
+            logger.error(e)
+            self.add_error(ServiceUnavailable(f"Service not found. {api_url}"))
         except BaseException as e:
             logger.error(e)
             self.add_error(ServiceUnavailable("Unknown error"), e)
@@ -110,6 +118,48 @@ class KeycloakCheck(APIServiceCheckBackend):
     critical_service = True
     api_url = settings.OIDC_OP_JWKS_ENDPOINT
     verbose_name = "Keycloak"
+
+
+class ZakenEndpointCheck(APIServiceCheckBackend):
+    """
+    Endpoint for checking Keycloak
+    """
+    critical_service = True
+    verbose_name = "Zaken endpoint (OpenZaak)"
+
+    def get_api_url(self):
+        from zgw_consumers.models import Service
+        from zgw_consumers.constants import APITypes
+        zaken_service = Service.objects.filter(api_type=APITypes.zrc).get()
+        return zaken_service.api_root
+
+
+class DocumentenEndpointCheck(APIServiceCheckBackend):
+    """
+    Endpoint for checking Keycloak
+    """
+    critical_service = True
+    verbose_name = "DocumentenEndpoint (Alfresco)"
+
+    def get_api_url(self):
+        from zgw_consumers.models import Service
+        from zgw_consumers.constants import APITypes
+        documenten_service = Service.objects.filter(api_type=APITypes.drc).get()
+        return documenten_service.api_root
+
+
+class CatalogiEndpointCheck(APIServiceCheckBackend):
+    """
+    Endpoint for checking Keycloak
+    """
+    critical_service = True
+    verbose_name = "CatalogiEndpoint"
+
+    def get_api_url(self):
+        from zgw_consumers.models import Service
+        from zgw_consumers.constants import APITypes
+        catalogi_service = Service.objects.filter(api_type=APITypes.ztc).get()
+        return catalogi_service.api_root
 
 
 class VakantieVerhuurRegistratieCheck(BaseHealthCheckBackend):
