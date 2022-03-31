@@ -102,14 +102,6 @@
   },
   {
     "model": "cases.casereason",
-    "pk": 11,
-    "fields": {
-      "name": "Ander team",
-      "theme": 4
-    }
-  },
-  {
-    "model": "cases.casereason",
     "pk": 12,
     "fields": {
       "name": "Digitaal toezicht",
