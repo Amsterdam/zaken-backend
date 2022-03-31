@@ -7,10 +7,22 @@ import resource
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from apps.cases.models import CaseStateType, CaseTheme, Case, CaseState, CaseReason, CaseDocument
+from apps.cases.models import (
+    CaseStateType,
+    CaseTheme,
+    Case,
+    CaseState,
+    CaseReason,
+    CaseDocument,
+)
 
 from ...models import Notification
-from ...helpers import get_open_zaak_case, get_open_zaak_case_document_connection, get_open_zaak_case_state, get_document
+from ...helpers import (
+    get_open_zaak_case,
+    get_open_zaak_case_document_connection,
+    get_open_zaak_case_state,
+    get_document,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -62,13 +74,17 @@ class Command(BaseCommand):
         case = Case.objects.filter(case_url=hoofd_object).first()
 
         if not case:
-            return self.set_processed(notification) # Stopping cause we don't know the case
+            return self.set_processed(
+                notification
+            )  # Stopping cause we don't know the case
 
         if action == "create":
             zaakinformatieobject = get_open_zaak_case_document_connection(resource_url)
             document_url = zaakinformatieobject.get("informatieobject")
 
-            case_document = CaseDocument.objects.filter(case=case, document_url=document_url).first()
+            case_document = CaseDocument.objects.filter(
+                case=case, document_url=document_url
+            ).first()
             if case_document:
                 case_document.connected = True
                 case_document.save()
@@ -98,7 +114,9 @@ class Command(BaseCommand):
         if resource == "status":
             return self.process_status(notification, action, resource_url, hoofd_object)
         if resource == "zaakinformatieobject":
-            return self.process_case_document(notification, action, resource_url, hoofd_object)
+            return self.process_case_document(
+                notification, action, resource_url, hoofd_object
+            )
         assert False, "Nothing to process"
 
     def set_processed(self, notification):

@@ -13,6 +13,7 @@ def load_response(file_name):
         ).read()
     )
 
+
 create_case_failure = load_response("create_case_failure.json")
 create_document_failure = load_response("create_document_failure.json")
 connect_case_and_document_failure = load_response(

@@ -34,8 +34,16 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         m.post(f"{self.ZAKEN_ROOT}zaken", json=self.zaak, status_code=201)
         m.put(self.ZAAK_URL, json=self.zaak, status_code=200)
         m.post(f"{self.ZAKEN_ROOT}statussen", json=self.status, status_code=201)
-        m.post(f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten", json=self.document, status_code=201)
-        m.post(f"{self.ZAKEN_ROOT}zaakinformatieobjecten", json=self.zaakinformatieobject, status_code=201)
+        m.post(
+            f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten",
+            json=self.document,
+            status_code=201,
+        )
+        m.post(
+            f"{self.ZAKEN_ROOT}zaakinformatieobjecten",
+            json=self.zaakinformatieobject,
+            status_code=201,
+        )
 
         theme = baker.make(CaseTheme, case_type_url=self.ZAAK_TYPE_URL)
         case = baker.make(Case, theme=theme)
@@ -77,7 +85,11 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
         m.post(f"{self.ZAKEN_ROOT}zaken", json=self.zaak, status_code=201)
         m.put(self.ZAAK_URL, json=self.zaak, status_code=200)
-        m.post(f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten", json=self.fout, status_code=400)
+        m.post(
+            f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten",
+            json=self.fout,
+            status_code=400,
+        )
         theme = baker.make(CaseTheme, case_type_url=self.ZAAK_TYPE_URL)
         case = baker.make(Case, theme=theme)
         create_open_zaak_case(case)
@@ -92,8 +104,14 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
         m.post(f"{self.ZAKEN_ROOT}zaken", json=self.zaak, status_code=201)
         m.put(self.ZAAK_URL, json=self.zaak, status_code=200)
-        m.post(f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten", json=self.document, status_code=201)
-        m.post(f"{self.ZAKEN_ROOT}zaakinformatieobjecten", json=self.fout, status_code=400)
+        m.post(
+            f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten",
+            json=self.document,
+            status_code=201,
+        )
+        m.post(
+            f"{self.ZAKEN_ROOT}zaakinformatieobjecten", json=self.fout, status_code=400
+        )
 
         theme = baker.make(CaseTheme, case_type_url=self.ZAAK_TYPE_URL)
         case = baker.make(Case, theme=theme)

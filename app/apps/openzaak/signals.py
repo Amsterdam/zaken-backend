@@ -7,7 +7,7 @@ from apps.openzaak.helpers import (
     connect_case_and_document,
     create_open_zaak_case,
     create_open_zaak_case_state,
-    update_open_zaak_case
+    update_open_zaak_case,
 )
 from django.db.models.signals import post_save
 from django.dispatch import receiver

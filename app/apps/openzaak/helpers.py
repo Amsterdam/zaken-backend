@@ -42,6 +42,7 @@ def _build_zaak_body(instance):
         "einddatum": _parse_date(instance.end_date),
     }
 
+
 def _build_document_body(file, title, language, lock=None):
     file.seek(0)
     content = file.read()
@@ -109,11 +110,15 @@ def create_open_zaak_case(instance):
 
 def get_open_zaak_case(case_url):
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    response = zrc_client.retrieve("zaken", url=case_url, request_kwargs={
-        "headers": {
-            "Accept-Crs": "EPSG:4326",
-        }
-    })
+    response = zrc_client.retrieve(
+        "zaken",
+        url=case_url,
+        request_kwargs={
+            "headers": {
+                "Accept-Crs": "EPSG:4326",
+            }
+        },
+    )
     return factory(Zaak, response)
 
 
@@ -146,11 +151,15 @@ def create_open_zaak_case_state(instance):
 
 def get_open_zaak_case_state(case_state_url):
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    response = zrc_client.retrieve("status", url=case_state_url, request_kwargs={
-        "headers": {
-            "Accept-Crs": "EPSG:4326",
-        }
-    })
+    response = zrc_client.retrieve(
+        "status",
+        url=case_state_url,
+        request_kwargs={
+            "headers": {
+                "Accept-Crs": "EPSG:4326",
+            }
+        },
+    )
     return factory(Status, response)
 
 
@@ -171,22 +180,42 @@ def create_document(instance, file, title, language="nld"):
 
 def get_document(document_url):
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
-    response = drc_client.retrieve("zaakinformatieobject", url=document_url, request_kwargs={
-        "headers": {
-            "Accept-Crs": "EPSG:4326",
-        }
-    })
+    response = drc_client.retrieve(
+        "zaakinformatieobject",
+        url=document_url,
+        request_kwargs={
+            "headers": {
+                "Accept-Crs": "EPSG:4326",
+            }
+        },
+    )
     return factory(Document, response)
 
 
 def update_document(case_document, file, title, language="nld"):
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
-    lock = drc_client.request(f"{case_document.document_url}/lock", "enkelvoudiginformatieobject_lock", method="POST", json=None, expected_status=200, request_kwargs={})
+    lock = drc_client.request(
+        f"{case_document.document_url}/lock",
+        "enkelvoudiginformatieobject_lock",
+        method="POST",
+        json=None,
+        expected_status=200,
+        request_kwargs={},
+    )
 
     document_body = _build_document_body(file, title, language, lock=lock)
-    response = drc_client.update("zaakinformatieobject", url=case_document.document_url, data=document_body)
+    response = drc_client.update(
+        "zaakinformatieobject", url=case_document.document_url, data=document_body
+    )
 
-    unlock = drc_client.request(f"{case_document.document_url}/unlock", "enkelvoudiginformatieobject_lock", method="POST", json={"lock": lock}, expected_status=204, request_kwargs={})
+    unlock = drc_client.request(
+        f"{case_document.document_url}/unlock",
+        "enkelvoudiginformatieobject_lock",
+        method="POST",
+        json={"lock": lock},
+        expected_status=204,
+        request_kwargs={},
+    )
     return factory(Document, response)
 
 
@@ -212,9 +241,13 @@ def connect_case_and_document(casedocument):
 
 def get_open_zaak_case_document_connection(case_document_connection_url):
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    response = zrc_client.retrieve("zaakinformatieobject", url=case_document_connection_url, request_kwargs={
-        "headers": {
-            "Accept-Crs": "EPSG:4326",
-        }
-    })
+    response = zrc_client.retrieve(
+        "zaakinformatieobject",
+        url=case_document_connection_url,
+        request_kwargs={
+            "headers": {
+                "Accept-Crs": "EPSG:4326",
+            }
+        },
+    )
     return response

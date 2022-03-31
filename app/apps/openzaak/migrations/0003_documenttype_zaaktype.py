@@ -6,26 +6,42 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('openzaak', '0002_notification_created_at'),
+        ("openzaak", "0002_notification_created_at"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='DocumentType',
+            name="DocumentType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('omschrijving', models.CharField(default='', max_length=80)),
-                ('url', models.URLField()),
-                ('active', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("omschrijving", models.CharField(default="", max_length=80)),
+                ("url", models.URLField()),
+                ("active", models.BooleanField(default=True)),
             ],
         ),
         migrations.CreateModel(
-            name='ZaakType',
+            name="ZaakType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('omschrijving', models.CharField(default='', max_length=80)),
-                ('url', models.URLField()),
-                ('active', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("omschrijving", models.CharField(default="", max_length=80)),
+                ("url", models.URLField()),
+                ("active", models.BooleanField(default=True)),
             ],
         ),
     ]

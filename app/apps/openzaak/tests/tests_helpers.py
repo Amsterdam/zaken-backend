@@ -38,7 +38,11 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
     @requests_mock.Mocker()
     def test_get_document_types(self, m):
         mock_service_oas_get(m, self.CATALOGI_ROOT, "ztc")
-        m.get(f"{self.CATALOGI_ROOT}informatieobjecttypen", json=self.informatieobjecttypen, status_code=200)
+        m.get(
+            f"{self.CATALOGI_ROOT}informatieobjecttypen",
+            json=self.informatieobjecttypen,
+            status_code=200,
+        )
         cases_response = get_document_types()
         self.assertEqual(cases_response.get("count"), 2)
         self.assertIsNotNone(cases_response.get("results"))
@@ -87,8 +91,14 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
     @requests_mock.Mocker()
     def test_create_document(self, m):
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
-        m.post(f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten", json=self.document, status_code=201)
-        uploaded_file = SimpleUploadedFile("file.txt", b"file_content", content_type="text/plain")
+        m.post(
+            f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten",
+            json=self.document,
+            status_code=201,
+        )
+        uploaded_file = SimpleUploadedFile(
+            "file.txt", b"file_content", content_type="text/plain"
+        )
         theme = baker.make(CaseTheme, case_type_url=self.ZAAK_TYPE_URL)
         case = baker.make(Case, theme=theme)
         case_document = create_document(case, uploaded_file, "document name")
@@ -98,7 +108,9 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
     def test_get_document(self, m):
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
         m.get(self.DOCUMENT_URL, json=self.document, status_code=200)
-        uploaded_file = SimpleUploadedFile("file.txt", b"file_content", content_type="text/plain")
+        uploaded_file = SimpleUploadedFile(
+            "file.txt", b"file_content", content_type="text/plain"
+        )
         theme = baker.make(CaseTheme, case_type_url=self.ZAAK_TYPE_URL)
         case = baker.make(Case, theme=theme)
         document = baker.make(CaseDocument, case=case, document_url=self.DOCUMENT_URL)
@@ -108,21 +120,29 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
     @requests_mock.Mocker()
     def test_update_document(self, m):
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
-        m.post(f"{self.DOCUMENT_URL}/lock", json={"lock": "lock_string"}, status_code=200)
+        m.post(
+            f"{self.DOCUMENT_URL}/lock", json={"lock": "lock_string"}, status_code=200
+        )
         m.put(self.DOCUMENT_URL, json=self.document, status_code=200)
         m.post(f"{self.DOCUMENT_URL}/unlock", json=None, status_code=204)
-        uploaded_file = SimpleUploadedFile("file.txt", b"file_content", content_type="text/plain")
+        uploaded_file = SimpleUploadedFile(
+            "file.txt", b"file_content", content_type="text/plain"
+        )
         theme = baker.make(CaseTheme, case_type_url=self.ZAAK_TYPE_URL)
         case = baker.make(Case, theme=theme)
         document = baker.make(CaseDocument, case=case, document_url=self.DOCUMENT_URL)
-        case_document = update_document(document, uploaded_file, "document new document name")
+        case_document = update_document(
+            document, uploaded_file, "document new document name"
+        )
         self.assertEqual(case_document.url, self.DOCUMENT_URL)
 
     @requests_mock.Mocker()
     def test_delete_document(self, m):
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
         m.delete(self.DOCUMENT_URL, json=None, status_code=204)
-        uploaded_file = SimpleUploadedFile("file.txt", b"file_content", content_type="text/plain")
+        uploaded_file = SimpleUploadedFile(
+            "file.txt", b"file_content", content_type="text/plain"
+        )
         theme = baker.make(CaseTheme, case_type_url=self.ZAAK_TYPE_URL)
         case = baker.make(Case, theme=theme)
         document = baker.make(CaseDocument, case=case, document_url=self.DOCUMENT_URL)
@@ -131,7 +151,11 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
     @requests_mock.Mocker()
     def test_connect_case_and_document(self, m):
         mock_service_oas_get(m, self.ZAKEN_ROOT, "zrc")
-        m.post("https://zaken.nl/api/v1/zaakinformatieobjecten", json=self.zaakinformatieobject, status_code=201)
+        m.post(
+            "https://zaken.nl/api/v1/zaakinformatieobjecten",
+            json=self.zaakinformatieobject,
+            status_code=201,
+        )
         case_document = baker.make(CaseDocument, document_url=self.DOCUMENT_URL)
         self.assertFalse(case_document.connected)
         connect_case_and_document(case_document)
@@ -142,5 +166,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
     def test_get_open_zaak_case_document_connection(self, m):
         mock_service_oas_get(m, self.ZAKEN_ROOT, "zrc")
         m.get(self.ZAAKINFORMATIEOBJECT_URL, json=self.zaakinformatieobject)
-        case_document = get_open_zaak_case_document_connection(self.ZAAKINFORMATIEOBJECT_URL)
-        self.assertEqual(case_document.get('informatieobject'), self.DOCUMENT_URL)
+        case_document = get_open_zaak_case_document_connection(
+            self.ZAAKINFORMATIEOBJECT_URL
+        )
+        self.assertEqual(case_document.get("informatieobject"), self.DOCUMENT_URL)

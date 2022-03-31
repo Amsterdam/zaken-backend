@@ -4,7 +4,7 @@ from django.conf import settings
 
 class OpenzaakConfig(AppConfig):
     name = "apps.openzaak"
-    verbose_name = 'Openzaak'
+    verbose_name = "Openzaak"
     app_label = "openzaak"
 
     def ready(self):
