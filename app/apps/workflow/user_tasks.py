@@ -103,6 +103,9 @@ class user_task:
     def mapped_form_data(self, data):
         return {}
 
+    def instance_created(self):
+        return
+
 
 class task_inplannen_status(user_task):
     """
@@ -229,6 +232,15 @@ class task_opstellen_concept_aanschrijving(user_task):
 
     _task_name = "task_create_concept_summons"
     due_date = relativedelta(weeks=2)
+
+    def instance_created(self):
+        from apps.cases.models import CaseState
+
+        CaseState.objects.get_or_create(
+            case=self.case_user_task.case,
+            status=CaseState.CaseStateChoice.HANDHAVING,
+        )
+        return
 
 
 class task_nakijken_aanschrijving(user_task):

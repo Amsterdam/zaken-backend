@@ -21,17 +21,6 @@ class CaseStateStypeModelTest(TestCase):
 
         self.assertEquals(CaseStateType.objects.count(), 1)
 
-    def test_create_duplicate_state_type_fails(self):
-        """Should fail if a duplicate name is used"""
-
-        NAME = "Foo"
-        THEME_NAME = "Bar"
-        case_theme = baker.make(CaseTheme, name=THEME_NAME)
-        baker.make(CaseStateType, name=NAME, theme=case_theme)
-
-        with self.assertRaises(Exception):
-            baker.make(CaseStateType, name=NAME, theme=case_theme)
-
 
 class CaseStateModelTest(TestCase):
     def setUp(self):

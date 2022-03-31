@@ -75,6 +75,9 @@ def case_user_task_pre_save(sender, instance, **kwargs):
 @receiver(post_save, sender=CaseUserTask, dispatch_uid="case_user_task_post_save")
 def case_user_task_post_save(sender, instance, created, **kwargs):
     if created:
+        user_task_type = get_task_by_name(instance.task_name)
+        user_task_instance = user_task_type(instance)
+        user_task_instance.instance_created()
         instance.case.force_citizen_report_feedback(instance)
 
 

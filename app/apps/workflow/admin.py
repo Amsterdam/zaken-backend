@@ -1,4 +1,3 @@
-from apps.cases.models import CaseStateType, CaseTheme
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
@@ -15,19 +14,6 @@ from .tasks import task_update_workflow
 def force_update_workflows(modeladmin, request, queryset):
     for workflow in queryset.all():
         task_update_workflow.delay(workflow.id)
-
-
-@admin.action(description="Update_case_state_type_for_workflows")
-def update_case_state_type_for_workflows(modeladmin, request, queryset):
-    theme = CaseTheme.objects.get(id=2)
-    for workflow in queryset.filter(case_state_type__isnull=False,).exclude(
-        case__theme=theme,
-    ):
-        case_state_type, _ = CaseStateType.objects.get_or_create(
-            name=workflow.case_state_type.name, theme=theme
-        )
-        workflow.case_state_type = case_state_type
-        workflow.save()
 
 
 @admin.action(description="Migrate to latest")
@@ -96,7 +82,6 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
 
     actions = (
         migrate_worflows_to_latest,
-        update_case_state_type_for_workflows,
         force_update_workflows,
     )
 
@@ -291,4 +276,4 @@ class GenericCompletedTaskAdmin(admin.ModelAdmin):
         "case_user_task_id",
     )
     search_fields = ("case__id",)
-    list_filter = ("description",)
+    list_filter = ("description", "task_name")

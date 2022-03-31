@@ -1,9 +1,10 @@
-from apps.cases.models import CaseStateType
+from apps.cases.models import Case, CaseProject, CaseReason, CaseStateType
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
 from apps.users.permissions import rest_permission_classes_for_top
 from apps.workflow.serializers import (
     CaseUserTaskSerializer,
+    GenericCompletedTaskCreateSerializer,
     GenericCompletedTaskSerializer,
 )
 from apps.workflow.utils import map_variables_on_task_spec_form
@@ -173,9 +174,81 @@ class CaseUserTaskViewSet(
         return queryset
 
 
-class GenericCompletedTaskViewSet(viewsets.ViewSet):
+class GenericCompletedTaskFilter(filters.FilterSet):
+    task_name = filters.CharFilter(field_name="task_name")
+    description = filters.CharFilter(field_name="description")
+    from_date_added = filters.DateFilter(field_name="date_added", lookup_expr="gte")
+    to_date_added = filters.DateFilter(field_name="date_added", lookup_expr="lt")
+    open_cases = filters.BooleanFilter(method="get_open_cases")
+    case = filters.ModelMultipleChoiceFilter(
+        queryset=Case.objects.all(), method="get_case"
+    )
+    case__project = filters.ModelMultipleChoiceFilter(
+        queryset=CaseProject.objects.all(), method="get_project"
+    )
+    case__reason = filters.ModelMultipleChoiceFilter(
+        queryset=CaseReason.objects.all(), method="get_reason"
+    )
+
+    def get_open_cases(self, queryset, name, value):
+        return queryset.filter(case__end_date__isnull=value)
+
+    def get_case(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                case__in=value,
+            )
+        return queryset
+
+    def get_project(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                case__project__in=value,
+            )
+        return queryset
+
+    def get_reason(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                case__reason__in=value,
+            )
+        return queryset
+
+    class Meta:
+        model = GenericCompletedTask
+        fields = [
+            "case",
+            "task_name",
+            "description",
+        ]
+
+
+class StandardResultsSetPagination(EmptyPagination):
+    page_size = 100
+    page_size_query_param = "page_size"
+    max_page_size = 1000
+
+
+@extend_schema(
+    parameters=[
+        OpenApiParameter("task_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("description", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("from_date_added", OpenApiTypes.DATE, OpenApiParameter.QUERY),
+        OpenApiParameter("to_date_added", OpenApiTypes.DATE, OpenApiParameter.QUERY),
+        OpenApiParameter("case", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("case__theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("case__reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+    ]
+)
+class GenericCompletedTaskViewSet(
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     serializer_class = GenericCompletedTaskSerializer
     queryset = GenericCompletedTask.objects.all()
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = GenericCompletedTaskFilter
+    pagination_class = StandardResultsSetPagination
 
     @extend_schema(
         description="Complete GenericCompletedTask",
@@ -185,12 +258,14 @@ class GenericCompletedTaskViewSet(viewsets.ViewSet):
         detail=False,
         url_path="complete",
         methods=["post"],
-        serializer_class=GenericCompletedTaskSerializer,
+        serializer_class=GenericCompletedTaskCreateSerializer,
     )
     def complete_task(self, request):
         context = {"request": self.request}
 
-        serializer = GenericCompletedTaskSerializer(data=request.data, context=context)
+        serializer = GenericCompletedTaskCreateSerializer(
+            data=request.data, context=context
+        )
 
         if serializer.is_valid():
             data = serializer.validated_data
