@@ -9,5 +9,4 @@ __pycache__/
 
 app/.env
 app/.coverage
-app/apps/openzaak/tests/alfresco.py
 private_media/

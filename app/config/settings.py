@@ -134,6 +134,7 @@ STATIC_ROOT = os.path.normpath(join(os.path.dirname(BASE_DIR), "static"))
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.normpath(join(os.path.dirname(BASE_DIR), "media"))
 
+# Make sure that the folder is inside of the .gitignore file
 PRIVATE_MEDIA_ROOT = os.path.normpath(join(os.path.dirname(BASE_DIR), "private_media"))
 
 STATICFILES_FINDERS = (
