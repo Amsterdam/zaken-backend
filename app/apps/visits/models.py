@@ -32,6 +32,7 @@ class Visit(TaskModelEventEmitter):
     )
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     notes = models.TextField(null=True, blank=True)
+    top_visit_id = models.PositiveBigIntegerField()
     completed = models.BooleanField(default=False)
 
     class Meta:
