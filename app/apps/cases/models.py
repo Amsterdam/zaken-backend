@@ -220,18 +220,6 @@ class Case(ModelEventEmitter):
             qs = [qs.first()]
         return qs
 
-    def set_state(self, state_name, workflow, *args, **kwargs):
-        state_type, _ = CaseStateType.objects.get_or_create(
-            name=state_name, theme=self.theme
-        )
-        state = CaseState.objects.create(
-            case=self,
-            status=state_type,
-            workflow=workflow,
-        )
-
-        return state
-
     def save(self, *args, **kwargs):
         if not self.start_date:
             self.start_date = timezone.now().date()
