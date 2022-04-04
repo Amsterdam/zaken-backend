@@ -1,4 +1,4 @@
-from apps.cases.models import CaseStateType, CaseTheme
+from apps.cases.models import CaseTheme
 from apps.cases.serializers import (
     CaseCloseReasonSerializer,
     CaseCloseResultSerializer,
@@ -13,7 +13,6 @@ from apps.decisions.serializers import DecisionTypeSerializer
 from apps.schedules.serializers import ThemeScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.permissions import rest_permission_classes_for_top
-from apps.workflow.serializers import CaseStateTypeSerializer
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -97,28 +96,6 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
         theme = self.get_object()
         serializer = ThemeScheduleTypesSerializer(theme)
         return Response(serializer.data)
-
-    @extend_schema(
-        description="Gets the CaseStateTypes associated with the given theme",
-        responses={status.HTTP_200_OK: CaseStateTypeSerializer(many=True)},
-    )
-    @action(
-        detail=True,
-        url_path="state-types",
-        methods=["get"],
-    )
-    def state_types(self, request, pk):
-        paginator = LimitOffsetPagination()
-
-        query_set = CaseStateType.objects.all()
-
-        if request.GET.get("role") == "toezichthouder":
-            query_set = query_set.filter(name__in=["Huisbezoek", "Hercontrole"])
-
-        context = paginator.paginate_queryset(query_set, request)
-        serializer = CaseStateTypeSerializer(context, many=True)
-
-        return paginator.get_paginated_response(serializer.data)
 
     @extend_schema(
         description="Gets the ViolationTypes",

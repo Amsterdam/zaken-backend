@@ -116,13 +116,10 @@ class CaseStateAdmin(admin.ModelAdmin):
         "id",
         "case",
         "status",
-        "start_date",
-        "end_date",
-        "case_process_id",
+        "created",
     )
-    list_filter = ("status", "end_date")
+    list_filter = ("status",)
     search_fields = ("case__id",)
-    list_editable = ("status",)
 
 
 @admin.register(CaseStateType)
@@ -130,9 +127,7 @@ class CaseStateTypeAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "name",
-        "theme",
     )
-    list_filter = ("theme",)
 
 
 @admin.register(CitizenReport)

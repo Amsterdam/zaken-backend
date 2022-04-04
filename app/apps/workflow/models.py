@@ -180,10 +180,8 @@ class CaseWorkflow(models.Model):
         return spec
 
     def set_case_state_type(self, state_name):
-        # temp fix to fase out themes for CaseStateType
-        theme = CaseTheme.objects.get(id=2)
         self.case_state_type, _ = CaseStateType.objects.get_or_create(
-            name=state_name, theme=theme
+            name=state_name,
         )
         self.save()
 
