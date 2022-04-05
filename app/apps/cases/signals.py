@@ -56,5 +56,4 @@ def close_case(sender, instance, created, **kwargs):
             case=instance.case,
             status=CaseState.CaseStateChoice.AFGESLOTEN,
         )
-        CaseWorkflow.complete_user_task(instance.case_user_task_id, {})
         task_close_case.delay(instance.case.id)
