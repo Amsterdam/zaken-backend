@@ -528,5 +528,55 @@
       "message_name": "start_rapport_bewoners",
       "to_directing_proccess": false
     }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 66,
+    "fields": {
+      "theme": 2,
+      "name": "Afsluiten zaak",
+      "message_name": "start_afsluiten_zaak",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 67,
+    "fields": {
+      "theme": 3,
+      "name": "Afsluiten zaak",
+      "message_name": "start_afsluiten_zaak",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 68,
+    "fields": {
+      "theme": 4,
+      "name": "Afsluiten zaak",
+      "message_name": "start_afsluiten_zaak",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 69,
+    "fields": {
+      "theme": 5,
+      "name": "Afsluiten zaak",
+      "message_name": "start_afsluiten_zaak",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 70,
+    "fields": {
+      "theme": 6,
+      "name": "Afsluiten zaak",
+      "message_name": "start_afsluiten_zaak",
+      "to_directing_proccess": false
+    }
   }
 ]

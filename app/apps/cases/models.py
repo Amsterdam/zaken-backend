@@ -232,13 +232,9 @@ class Case(ModelEventEmitter):
         super().save(*args, **kwargs)
 
     def close_case(self):
-        # close all states just in case
+        # delete all processes and tasks
         with transaction.atomic():
-            self.workflows.filter(
-                completed=False,
-                main_workflow=False,
-            ).update(completed=True)
-
+            self.workflows.all().delete()
             self.end_date = timezone.now().date()
             self.save()
 
