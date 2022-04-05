@@ -22,7 +22,10 @@ def get_brp_by_address(request, postal_code, number, suffix, suffix_letter):
     queryParams = {
         "verblijfplaats__postcode": postal_code,
         "verblijfplaats__huisnummer": number,
-        "verblijfplaats__huisnummertoevoeging": f"{suffix} {suffix_letter}".strip(),
+        "verblijfplaats__huisletter": suffix_letter,
+        "verblijfplaats__huisnummertoevoeging": suffix,
+        "inclusiefoverledenpersonen": "true",
+        "expand": "partners,ouders,kinderen",
     }
     return get_brp(request, queryParams)
 
@@ -57,6 +60,7 @@ def get_brp(request, queryParams):
             "datum_begin_relatie_verblijfadres": p.get("verblijfplaats", {})
             .get("datumAanvangAdreshouding", {})
             .get("datum"),
+            "ingeschrevenpersoon_raw": p,
         }
         for p in response.json().get("_embedded", {}).get("ingeschrevenpersonen", [])
     ]
