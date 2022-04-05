@@ -213,6 +213,46 @@
     }
   },
   {
+    "model": "cases.casereason",
+    "pk": 26,
+    "fields": {
+      "name": "Handhavingsverzoek",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 27,
+    "fields": {
+      "name": "Handhavingsverzoek",
+      "theme": 3
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 28,
+    "fields": {
+      "name": "Handhavingsverzoek",
+      "theme": 4
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 28,
+    "fields": {
+      "name": "Handhavingsverzoek",
+      "theme": 5
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 28,
+    "fields": {
+      "name": "Handhavingsverzoek",
+      "theme": 6
+    }
+  },
+  {
     "model": "cases.caseclosereason",
     "pk": 15,
     "fields": {
