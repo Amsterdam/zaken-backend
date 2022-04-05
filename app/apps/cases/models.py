@@ -29,10 +29,6 @@ def snake_case(s):
 
 class CaseTheme(models.Model):
     name = models.CharField(max_length=255, unique=True)
-    case_state_types_top = models.ManyToManyField(
-        to="CaseStateType",
-        blank=True,
-    )
     sensitive = models.BooleanField(default=False)
 
     @property
@@ -85,10 +81,6 @@ class Subject(models.Model):
 
 class Case(ModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CASE
-    # RESULT_NOT_COMPLETED = "ACTIVE"
-    # RESULT_ACHIEVED = "RESULT"
-    # RESULT_MISSED
-    # RESULTS = ()
 
     identification = models.CharField(
         max_length=255, null=True, blank=True, unique=True
@@ -189,9 +181,7 @@ class Case(ModelEventEmitter):
         return str(uuid.uuid4())
 
     def __str__(self):
-        if self.identification:
-            return f"{self.id} Case - {self.identification}"
-        return f"{self.id} Case"
+        return f"Case: {self.id}"
 
     def get_current_states(self):
         return self.workflows.filter(
@@ -230,18 +220,6 @@ class Case(ModelEventEmitter):
             qs = [qs.first()]
         return qs
 
-    def set_state(self, state_name, workflow, *args, **kwargs):
-        state_type, _ = CaseStateType.objects.get_or_create(
-            name=state_name, theme=self.theme
-        )
-        state = CaseState.objects.create(
-            case=self,
-            status=state_type,
-            workflow=workflow,
-        )
-
-        return state
-
     def save(self, *args, **kwargs):
         if not self.start_date:
             self.start_date = timezone.now().date()
@@ -254,17 +232,9 @@ class Case(ModelEventEmitter):
         super().save(*args, **kwargs)
 
     def close_case(self):
-        # close all states just in case
+        # delete all processes and tasks
         with transaction.atomic():
-            for state in self.case_states.filter(end_date__isnull=True):
-                state.end_date = timezone.now().date()
-                state.save()
-
-            self.workflows.filter(
-                completed=False,
-                main_workflow=False,
-            ).update(completed=True)
-
+            self.workflows.all().delete()
             self.end_date = timezone.now().date()
             self.save()
 
@@ -274,70 +244,32 @@ class Case(ModelEventEmitter):
 
 class CaseStateType(models.Model):
     name = models.CharField(max_length=255)
-    theme = models.ForeignKey(
-        to=CaseTheme,
-        related_name="state_types",
-        on_delete=models.CASCADE,
-    )
 
     def __str__(self):
-        return f"{self.name} - {self.theme}"
-
-    class Meta:
-        unique_together = [["name", "theme"]]
+        return f"{self.name}"
 
 
 class CaseState(models.Model):
-    case = models.ForeignKey(Case, related_name="case_states", on_delete=models.CASCADE)
-    status = models.ForeignKey(CaseStateType, on_delete=models.PROTECT)
-    start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
-    users = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name="case_states", related_query_name="users"
-    )
-    information = models.CharField(max_length=255, null=True, blank=True)
-    case_process_id = models.CharField(max_length=255, null=True, default="")
-    workflow = models.ForeignKey(
-        "workflow.CaseWorkflow",
-        on_delete=models.CASCADE,
-        related_name="case_states",
-        null=True,
-        blank=True,
-    )
+    class CaseStateChoice(models.TextChoices):
+        TOEZICHT = "TOEZICHT", "Toezicht"
+        HANDHAVING = "HANDHAVING", "Handhaving"
+        AFGESLOTEN = "AFGESLOTEN", "Afgesloten"
 
-    def get_information(self):
-        # TODO: replaces information field, so remove field
-        if self.workflow:
-            return self.workflow.get_data().get("names", {}).get("value", "")
-        return ""
+    case = models.ForeignKey(Case, related_name="case_states", on_delete=models.CASCADE)
+    status = models.CharField(
+        max_length=50,
+        choices=CaseStateChoice.choices,
+        default=CaseStateChoice.TOEZICHT,
+    )
+    created = models.DateTimeField(
+        auto_now_add=True,
+    )
 
     def __str__(self):
-        return f"{self.start_date} - {self.end_date} - {self.case.identification} - {self.status.name}"
-
-    def get_tasks(self):
-        from apps.workflow.models import CaseUserTask
-
-        return (
-            self.workflow.tasks.filter(completed=False)
-            if self.workflow
-            else CaseUserTask.objects.none()
-        )
-
-    def end_state(self):
-        if not self.end_date:
-            self.end_date = timezone.now().date()
-
-        else:
-            raise AttributeError("End date is already set")
-
-    def save(self, *args, **kwargs):
-        if not self.start_date:
-            self.start_date = timezone.now()
-
-        return super().save(*args, **kwargs)
+        return f"{self.status} - {self.case}"
 
     class Meta:
-        ordering = ["start_date"]
+        ordering = ["created"]
 
 
 class CaseProcessInstance(models.Model):

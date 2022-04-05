@@ -965,16 +965,14 @@
     "model": "cases.casestatetype",
     "pk": 235,
     "fields": {
-      "name": "Huisbezoek",
-      "theme": 2
+      "name": "Huisbezoek"
     }
   },
   {
     "model": "cases.casestatetype",
     "pk": 236,
     "fields": {
-      "name": "Hercontrole",
-      "theme": 2
+      "name": "Hercontrole"
     }
   }
 ]
