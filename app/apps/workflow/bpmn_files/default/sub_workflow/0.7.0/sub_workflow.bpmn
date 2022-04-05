@@ -42,18 +42,18 @@
         <bpmn:flowNodeRef>service_status_rapport_bewoners</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1cotvbr</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0t99d9n</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>start_controleren_handhavingsverzoek</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_status_controleren_handhavingsverzoek</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>end_controleren_juistheid_aanvraag</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>task_controleren_juistheid_aanvraag</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>start_ingebrekestelling</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>service_status_ingebrekestelling</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>end_controleren_of_gemeente_in_gebreke_is</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>task_controleren_of_gemeente_in_gebreke_is</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>start_controleren_handhavingsverzoek</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>start_uit_termijn_lopen</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>service_status_uit_termijn_lopen</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>end_opsturen_verlenging_beslistermijn</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_controleren_juistheid_aanvraag</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_controleren_of_gemeente_in_gebreke_is</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_opsturen_verlenging_beslistermijn</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_0j1c5c5</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1b0ead4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_075kgpa</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_status_ingebrekestelling</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_status_uit_termijn_lopen</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="lane_projectmedewerker_1bcs10e" name="Projectmedewerker">
         <bpmn:flowNodeRef>end_0q70hru</bpmn:flowNodeRef>
@@ -70,6 +70,12 @@
         <bpmn:flowNodeRef>end_terugkoppelen_bi</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_status_terugkoppelen_bi</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_sub_workflow_terugkoppelen_bi</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_projectmedewerker" name="Projectmedewerker">
+        <bpmn:flowNodeRef>start_afsluiten_zaak</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_afsluiten_zaak</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1a9iu2s</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_close_case</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:sequenceFlow id="Flow_1hqevbd" sourceRef="service_status_terugbelverzoek" targetRef="task_callback_request" />
@@ -343,6 +349,65 @@
       <bpmn:incoming>Flow_1kz95i3</bpmn:incoming>
       <bpmn:outgoing>Flow_14ot4wv</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:startEvent id="start_rapport_bewoners" name="Start rapport bewoner(s)" camunda:formKey="start_bezwaardossier">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="zaken_access_token" type="string" />
+          <camunda:formField id="case_identification" type="string" />
+          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+          <camunda:formField id="case_process_id" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_01tzgt8</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_010eyp7" messageRef="Message_1d7st8j" />
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="service_status_rapport_bewoners" name="Bijwerken status: Rapport bewoner(s)">
+      <bpmn:incoming>Flow_01tzgt8</bpmn:incoming>
+      <bpmn:outgoing>Flow_1w72eb6</bpmn:outgoing>
+      <bpmn:script>set_status("Rapport bewoner(s)")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="Event_1cotvbr">
+      <bpmn:incoming>Flow_15sazwc</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_01tzgt8" sourceRef="start_rapport_bewoners" targetRef="service_status_rapport_bewoners" />
+    <bpmn:sequenceFlow id="Flow_1w72eb6" sourceRef="service_status_rapport_bewoners" targetRef="Activity_0t99d9n" />
+    <bpmn:userTask id="Activity_0t99d9n" name="Versturen rapport bewoner(s)" camunda:candidateGroups="Projecthandhaver">
+      <bpmn:incoming>Flow_1w72eb6</bpmn:incoming>
+      <bpmn:outgoing>Flow_15sazwc</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_15sazwc" sourceRef="Activity_0t99d9n" targetRef="Event_1cotvbr" />
+    <bpmn:startEvent id="start_afsluiten_zaak" name="Start afsluiten zaak" camunda:formKey="start_bezwaardossier">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="zaken_access_token" type="string" />
+          <camunda:formField id="case_identification" type="string" />
+          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
+          <camunda:formField id="case_process_id" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_1b83l5q</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0nn5rko" messageRef="Message_0nxj9e8" />
+    </bpmn:startEvent>
+    <bpmn:endEvent id="end_afsluiten_zaak">
+      <bpmn:incoming>Flow_1vy94j9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="Activity_1a9iu2s" name="Bijwerken status: Afsluiten zaak">
+      <bpmn:incoming>Flow_1b83l5q</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ggc19w</bpmn:outgoing>
+      <bpmn:script>set_status("Afsluiten zaak")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="task_close_case" name="Boek resultaat en afsluiten zaak" camunda:formKey="from_sub_workflow_terugkoppelen_bi" camunda:candidateGroups="Toezichthouder">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="sub_workflow_terugkoppelen_bi_toelichting" label="Toelichting" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ggc19w</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vy94j9</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1b83l5q" sourceRef="start_afsluiten_zaak" targetRef="Activity_1a9iu2s" />
+    <bpmn:sequenceFlow id="Flow_1vy94j9" sourceRef="task_close_case" targetRef="end_afsluiten_zaak" />
+    <bpmn:sequenceFlow id="Flow_1ggc19w" sourceRef="Activity_1a9iu2s" targetRef="task_close_case" />
     <bpmn:userTask id="task_sub_workflow_opstellen_digitale_analyse" name="Opstellen digitale analyse" camunda:candidateGroups="Toezichthouder">
       <bpmn:incoming>Flow_1ddhrnp</bpmn:incoming>
       <bpmn:outgoing>Flow_1byn9r2</bpmn:outgoing>
@@ -402,22 +467,12 @@
     <bpmn:sequenceFlow id="Flow_0ch6ryy" sourceRef="start_terugkoppelen_bi" targetRef="service_status_terugkoppelen_bi" />
     <bpmn:sequenceFlow id="Flow_12wg609" sourceRef="task_sub_workflow_terugkoppelen_bi" targetRef="end_terugkoppelen_bi" />
     <bpmn:sequenceFlow id="Flow_0y6wjdz" sourceRef="service_status_terugkoppelen_bi" targetRef="task_sub_workflow_terugkoppelen_bi" />
-    <bpmn:sequenceFlow id="Flow_15sazwc" sourceRef="Activity_0t99d9n" targetRef="Event_1cotvbr" />
-    <bpmn:sequenceFlow id="Flow_1w72eb6" sourceRef="service_status_rapport_bewoners" targetRef="Activity_0t99d9n" />
-    <bpmn:sequenceFlow id="Flow_01tzgt8" sourceRef="start_rapport_bewoners" targetRef="service_status_rapport_bewoners" />
-    <bpmn:userTask id="Activity_0t99d9n" name="Versturen rapport bewoner(s)" camunda:candidateGroups="Projecthandhaver">
-      <bpmn:incoming>Flow_1w72eb6</bpmn:incoming>
-      <bpmn:outgoing>Flow_15sazwc</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:endEvent id="Event_1cotvbr">
-      <bpmn:incoming>Flow_15sazwc</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:scriptTask id="service_status_rapport_bewoners" name="Bijwerken status: Rapport bewoner(s)">
-      <bpmn:incoming>Flow_01tzgt8</bpmn:incoming>
-      <bpmn:outgoing>Flow_1w72eb6</bpmn:outgoing>
-      <bpmn:script>set_status("Rapport bewoner(s)")</bpmn:script>
+    <bpmn:scriptTask id="service_status_controleren_handhavingsverzoek" name="Bijwerken status: Controleren handhavingsverzoek">
+      <bpmn:incoming>Flow_1vgj6r9</bpmn:incoming>
+      <bpmn:outgoing>Flow_00t4jix</bpmn:outgoing>
+      <bpmn:script>set_status("Controleren handhavingsverzoek")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:startEvent id="start_rapport_bewoners" name="Start rapport bewoner(s)" camunda:formKey="start_bezwaardossier">
+    <bpmn:startEvent id="start_ingebrekestelling" name="Start ingebrekestelling" camunda:formKey="start_bezwaardossier">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="zaken_access_token" type="string" />
@@ -426,8 +481,8 @@
           <camunda:formField id="case_process_id" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
-      <bpmn:outgoing>Flow_01tzgt8</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_010eyp7" messageRef="Message_1d7st8j" />
+      <bpmn:outgoing>Flow_181qwlq</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1irmimw" messageRef="Message_1gqon4c" />
     </bpmn:startEvent>
     <bpmn:startEvent id="start_controleren_handhavingsverzoek" name="Start controleren handhavingsverzoek" camunda:formKey="start_bezwaardossier">
       <bpmn:extensionElements>
@@ -438,51 +493,9 @@
           <camunda:formField id="case_process_id" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
-      <bpmn:outgoing>Flow_1vpp05n</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1wwf3dh" messageRef="Message_0jvro3i" />
+      <bpmn:outgoing>Flow_1vgj6r9</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_16ahaa0" messageRef="Message_0vd1rp1" />
     </bpmn:startEvent>
-    <bpmn:scriptTask id="service_status_controleren_handhavingsverzoek" name="Bijwerken status: Controleren handhavingsverzoek">
-      <bpmn:incoming>Flow_1vpp05n</bpmn:incoming>
-      <bpmn:outgoing>Flow_02z3i9q</bpmn:outgoing>
-      <bpmn:script>set_status("Controleren handhavingsverzoek")</bpmn:script>
-    </bpmn:scriptTask>
-    <bpmn:endEvent id="end_controleren_juistheid_aanvraag">
-      <bpmn:incoming>Flow_0wmouf7</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:userTask id="task_controleren_juistheid_aanvraag" name="Controleren juistheid aanvraag" camunda:candidateGroups="Projecthandhaver">
-      <bpmn:incoming>Flow_02z3i9q</bpmn:incoming>
-      <bpmn:outgoing>Flow_0wmouf7</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_1vpp05n" sourceRef="start_controleren_handhavingsverzoek" targetRef="service_status_controleren_handhavingsverzoek" />
-    <bpmn:sequenceFlow id="Flow_02z3i9q" sourceRef="service_status_controleren_handhavingsverzoek" targetRef="task_controleren_juistheid_aanvraag" />
-    <bpmn:sequenceFlow id="Flow_0wmouf7" sourceRef="task_controleren_juistheid_aanvraag" targetRef="end_controleren_juistheid_aanvraag" />
-    <bpmn:startEvent id="start_ingebrekestelling" name="Start ingebrekestelling" camunda:formKey="start_bezwaardossier">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="zaken_access_token" type="string" />
-          <camunda:formField id="case_identification" type="string" />
-          <camunda:formField id="endpoint" type="string" defaultValue="https://api.wonen.zaken.amsterdam.nl" />
-          <camunda:formField id="case_process_id" type="string" />
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:outgoing>Flow_0hgac89</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_13nj4vl" messageRef="Message_0u8onrp" />
-    </bpmn:startEvent>
-    <bpmn:scriptTask id="service_status_ingebrekestelling" name="Bijwerken status: Ingebrekestelling">
-      <bpmn:incoming>Flow_0hgac89</bpmn:incoming>
-      <bpmn:outgoing>Flow_0cpqt9d</bpmn:outgoing>
-      <bpmn:script>set_status("Ingebrekestelling")</bpmn:script>
-    </bpmn:scriptTask>
-    <bpmn:endEvent id="end_controleren_of_gemeente_in_gebreke_is">
-      <bpmn:incoming>Flow_1pyhbhe</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:userTask id="task_controleren_of_gemeente_in_gebreke_is" name="Controleren of gemeente in gebreke is" camunda:candidateGroups="Projecthandhaver">
-      <bpmn:incoming>Flow_0cpqt9d</bpmn:incoming>
-      <bpmn:outgoing>Flow_1pyhbhe</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_0hgac89" sourceRef="start_ingebrekestelling" targetRef="service_status_ingebrekestelling" />
-    <bpmn:sequenceFlow id="Flow_0cpqt9d" sourceRef="service_status_ingebrekestelling" targetRef="task_controleren_of_gemeente_in_gebreke_is" />
-    <bpmn:sequenceFlow id="Flow_1pyhbhe" sourceRef="task_controleren_of_gemeente_in_gebreke_is" targetRef="end_controleren_of_gemeente_in_gebreke_is" />
     <bpmn:startEvent id="start_uit_termijn_lopen" name="Start uit termijn lopen" camunda:formKey="start_bezwaardossier">
       <bpmn:extensionElements>
         <camunda:formData>
@@ -492,24 +505,49 @@
           <camunda:formField id="case_process_id" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
-      <bpmn:outgoing>Flow_0qynrj4</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1qxr383" messageRef="Message_1cf6cd8" />
+      <bpmn:outgoing>Flow_0bscbwu</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0gls6nk" messageRef="Message_0ngiud6" />
     </bpmn:startEvent>
+    <bpmn:userTask id="task_controleren_juistheid_aanvraag" name="Controleren juistheid aanvraag" camunda:candidateGroups="Projecthandhaver">
+      <bpmn:incoming>Flow_00t4jix</bpmn:incoming>
+      <bpmn:outgoing>Flow_1e20ecg</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_controleren_of_gemeente_in_gebreke_is" name="Controleren of gemeente in gebreke is" camunda:candidateGroups="Projecthandhaver">
+      <bpmn:incoming>Flow_0klerhw</bpmn:incoming>
+      <bpmn:outgoing>Flow_14x8s9f</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_opsturen_verlenging_beslistermijn" name="Opsturen verlenging beslistermijn" camunda:candidateGroups="Projecthandhaver">
+      <bpmn:incoming>Flow_1pxurcs</bpmn:incoming>
+      <bpmn:outgoing>Flow_0if9y59</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_0j1c5c5">
+      <bpmn:incoming>Flow_1e20ecg</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="Event_1b0ead4">
+      <bpmn:incoming>Flow_14x8s9f</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="Event_075kgpa">
+      <bpmn:incoming>Flow_0if9y59</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="service_status_ingebrekestelling" name="Bijwerken status: Ingebrekestelling">
+      <bpmn:incoming>Flow_181qwlq</bpmn:incoming>
+      <bpmn:outgoing>Flow_0klerhw</bpmn:outgoing>
+      <bpmn:script>set_status("Ingebrekestelling")</bpmn:script>
+    </bpmn:scriptTask>
     <bpmn:scriptTask id="service_status_uit_termijn_lopen" name="Bijwerken status: Uit termijn lopen">
-      <bpmn:incoming>Flow_0qynrj4</bpmn:incoming>
-      <bpmn:outgoing>Flow_1gz7xpc</bpmn:outgoing>
+      <bpmn:incoming>Flow_0bscbwu</bpmn:incoming>
+      <bpmn:outgoing>Flow_1pxurcs</bpmn:outgoing>
       <bpmn:script>set_status("Uit termijn lopen")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:endEvent id="end_opsturen_verlenging_beslistermijn">
-      <bpmn:incoming>Flow_1jkpmi3</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:userTask id="task_opsturen_verlenging_beslistermijn" name="Opsturen verlenging beslistermijn" camunda:candidateGroups="Projecthandhaver">
-      <bpmn:incoming>Flow_1gz7xpc</bpmn:incoming>
-      <bpmn:outgoing>Flow_1jkpmi3</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_0qynrj4" sourceRef="start_uit_termijn_lopen" targetRef="service_status_uit_termijn_lopen" />
-    <bpmn:sequenceFlow id="Flow_1gz7xpc" sourceRef="service_status_uit_termijn_lopen" targetRef="task_opsturen_verlenging_beslistermijn" />
-    <bpmn:sequenceFlow id="Flow_1jkpmi3" sourceRef="task_opsturen_verlenging_beslistermijn" targetRef="end_opsturen_verlenging_beslistermijn" />
+    <bpmn:sequenceFlow id="Flow_1vgj6r9" sourceRef="start_controleren_handhavingsverzoek" targetRef="service_status_controleren_handhavingsverzoek" />
+    <bpmn:sequenceFlow id="Flow_00t4jix" sourceRef="service_status_controleren_handhavingsverzoek" targetRef="task_controleren_juistheid_aanvraag" />
+    <bpmn:sequenceFlow id="Flow_181qwlq" sourceRef="start_ingebrekestelling" targetRef="service_status_ingebrekestelling" />
+    <bpmn:sequenceFlow id="Flow_0bscbwu" sourceRef="start_uit_termijn_lopen" targetRef="service_status_uit_termijn_lopen" />
+    <bpmn:sequenceFlow id="Flow_1e20ecg" sourceRef="task_controleren_juistheid_aanvraag" targetRef="Event_0j1c5c5" />
+    <bpmn:sequenceFlow id="Flow_0klerhw" sourceRef="service_status_ingebrekestelling" targetRef="task_controleren_of_gemeente_in_gebreke_is" />
+    <bpmn:sequenceFlow id="Flow_14x8s9f" sourceRef="task_controleren_of_gemeente_in_gebreke_is" targetRef="Event_1b0ead4" />
+    <bpmn:sequenceFlow id="Flow_1pxurcs" sourceRef="service_status_uit_termijn_lopen" targetRef="task_opsturen_verlenging_beslistermijn" />
+    <bpmn:sequenceFlow id="Flow_0if9y59" sourceRef="task_opsturen_verlenging_beslistermijn" targetRef="Event_075kgpa" />
   </bpmn:process>
   <bpmn:message id="Message_0f7jpp5" name="start_signal_process" />
   <bpmn:message id="Message_1wpao9m" name="start_correspondence_process" />
@@ -523,23 +561,99 @@
   <bpmn:message id="Message_1gqgo8j" name="start_aanleveren_wob_dossier" />
   <bpmn:message id="Message_1d7st8j" name="start_rapport_bewoners" />
   <bpmn:message id="Message_0fmi0w1" name="start_uitkomst_corporatie_proces" />
-  <bpmn:message id="Message_0u8onrp" name="start_ingebrekestelling" />
-  <bpmn:message id="Message_0jvro3i" name="start_controleren_handhavingsverzoek" />
-  <bpmn:message id="Message_1cf6cd8" name="start_uit_termijn_lopen" />
+  <bpmn:message id="Message_0nxj9e8" name="start_afsluiten_zaak" />
+  <bpmn:message id="Message_1gqon4c" name="start_ingebrekestelling" />
+  <bpmn:message id="Message_0vd1rp1" name="start_controleren_handhavingsverzoek" />
+  <bpmn:message id="Message_0ngiud6" name="start_uit_termijn_lopen" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1nd8xuu">
       <bpmndi:BPMNShape id="Participant_03i0kl2_di" bpmnElement="Participant_03i0kl2" isHorizontal="true">
-        <dc:Bounds x="160" y="120" width="820" height="1950" />
+        <dc:Bounds x="160" y="120" width="820" height="2260" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1v42aia_di" bpmnElement="lane_projectmedewerker" isHorizontal="true">
+        <dc:Bounds x="190" y="2150" width="790" height="230" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1vyowd9_di" bpmnElement="lane_toezichthouder" isHorizontal="true">
-        <dc:Bounds x="190" y="1780" width="790" height="290" />
+        <dc:Bounds x="190" y="1860" width="790" height="290" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1bcs10e_di" bpmnElement="lane_projectmedewerker_1bcs10e" isHorizontal="true">
         <dc:Bounds x="190" y="120" width="790" height="120" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_13qot1b_di" bpmnElement="lane_projecthandhaver_13qot1b" isHorizontal="true">
-        <dc:Bounds x="190" y="240" width="790" height="1540" />
+        <dc:Bounds x="190" y="240" width="790" height="1620" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0if9y59_di" bpmnElement="Flow_0if9y59">
+        <di:waypoint x="680" y="1710" />
+        <di:waypoint x="902" y="1710" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pxurcs_di" bpmnElement="Flow_1pxurcs">
+        <di:waypoint x="511" y="1710" />
+        <di:waypoint x="580" y="1710" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14x8s9f_di" bpmnElement="Flow_14x8s9f">
+        <di:waypoint x="680" y="1600" />
+        <di:waypoint x="902" y="1600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0klerhw_di" bpmnElement="Flow_0klerhw">
+        <di:waypoint x="511" y="1600" />
+        <di:waypoint x="580" y="1600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1e20ecg_di" bpmnElement="Flow_1e20ecg">
+        <di:waypoint x="680" y="1490" />
+        <di:waypoint x="902" y="1490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bscbwu_di" bpmnElement="Flow_0bscbwu">
+        <di:waypoint x="338" y="1710" />
+        <di:waypoint x="411" y="1710" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_181qwlq_di" bpmnElement="Flow_181qwlq">
+        <di:waypoint x="338" y="1600" />
+        <di:waypoint x="411" y="1600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00t4jix_di" bpmnElement="Flow_00t4jix">
+        <di:waypoint x="511" y="1490" />
+        <di:waypoint x="580" y="1490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vgj6r9_di" bpmnElement="Flow_1vgj6r9">
+        <di:waypoint x="338" y="1490" />
+        <di:waypoint x="411" y="1490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0y6wjdz_di" bpmnElement="Flow_0y6wjdz">
+        <di:waypoint x="511" y="2070" />
+        <di:waypoint x="580" y="2070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12wg609_di" bpmnElement="Flow_12wg609">
+        <di:waypoint x="680" y="2070" />
+        <di:waypoint x="902" y="2070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ch6ryy_di" bpmnElement="Flow_0ch6ryy">
+        <di:waypoint x="338" y="2070" />
+        <di:waypoint x="411" y="2070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ccbixy_di" bpmnElement="Flow_1ccbixy">
+        <di:waypoint x="338" y="1940" />
+        <di:waypoint x="411" y="1940" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1byn9r2_di" bpmnElement="Flow_1byn9r2">
+        <di:waypoint x="680" y="1940" />
+        <di:waypoint x="902" y="1940" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ddhrnp_di" bpmnElement="Flow_1ddhrnp">
+        <di:waypoint x="511" y="1940" />
+        <di:waypoint x="580" y="1940" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ggc19w_di" bpmnElement="Flow_1ggc19w">
+        <di:waypoint x="511" y="2270" />
+        <di:waypoint x="580" y="2270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vy94j9_di" bpmnElement="Flow_1vy94j9">
+        <di:waypoint x="680" y="2270" />
+        <di:waypoint x="902" y="2270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1b83l5q_di" bpmnElement="Flow_1b83l5q">
+        <di:waypoint x="338" y="2270" />
+        <di:waypoint x="411" y="2270" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_15sazwc_di" bpmnElement="Flow_15sazwc">
         <di:waypoint x="680" y="1370" />
         <di:waypoint x="902" y="1370" />
@@ -659,66 +773,6 @@
       <bpmndi:BPMNEdge id="Flow_1hqevbd_di" bpmnElement="Flow_1hqevbd">
         <di:waypoint x="511" y="460" />
         <di:waypoint x="580" y="460" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1ddhrnp_di" bpmnElement="Flow_1ddhrnp">
-        <di:waypoint x="511" y="1850" />
-        <di:waypoint x="580" y="1850" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1byn9r2_di" bpmnElement="Flow_1byn9r2">
-        <di:waypoint x="680" y="1850" />
-        <di:waypoint x="902" y="1850" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1ccbixy_di" bpmnElement="Flow_1ccbixy">
-        <di:waypoint x="338" y="1850" />
-        <di:waypoint x="411" y="1850" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0ch6ryy_di" bpmnElement="Flow_0ch6ryy">
-        <di:waypoint x="338" y="1980" />
-        <di:waypoint x="411" y="1980" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_12wg609_di" bpmnElement="Flow_12wg609">
-        <di:waypoint x="680" y="1980" />
-        <di:waypoint x="902" y="1980" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0y6wjdz_di" bpmnElement="Flow_0y6wjdz">
-        <di:waypoint x="511" y="1980" />
-        <di:waypoint x="580" y="1980" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1vpp05n_di" bpmnElement="Flow_1vpp05n">
-        <di:waypoint x="338" y="1480" />
-        <di:waypoint x="411" y="1480" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_02z3i9q_di" bpmnElement="Flow_02z3i9q">
-        <di:waypoint x="511" y="1480" />
-        <di:waypoint x="580" y="1480" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0wmouf7_di" bpmnElement="Flow_0wmouf7">
-        <di:waypoint x="680" y="1480" />
-        <di:waypoint x="902" y="1480" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0hgac89_di" bpmnElement="Flow_0hgac89">
-        <di:waypoint x="338" y="1590" />
-        <di:waypoint x="411" y="1590" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0cpqt9d_di" bpmnElement="Flow_0cpqt9d">
-        <di:waypoint x="511" y="1590" />
-        <di:waypoint x="580" y="1590" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1pyhbhe_di" bpmnElement="Flow_1pyhbhe">
-        <di:waypoint x="680" y="1590" />
-        <di:waypoint x="902" y="1590" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0qynrj4_di" bpmnElement="Flow_0qynrj4">
-        <di:waypoint x="338" y="1700" />
-        <di:waypoint x="411" y="1700" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1gz7xpc_di" bpmnElement="Flow_1gz7xpc">
-        <di:waypoint x="511" y="1700" />
-        <di:waypoint x="580" y="1700" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1jkpmi3_di" bpmnElement="Flow_1jkpmi3">
-        <di:waypoint x="680" y="1700" />
-        <di:waypoint x="902" y="1700" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_1cmmgsu_di" bpmnElement="task_verwerken_uitkomst_corporatie">
         <dc:Bounds x="580" y="1210" width="100" height="80" />
@@ -870,80 +924,95 @@
       <bpmndi:BPMNShape id="Activity_0t99d9n_di" bpmnElement="Activity_0t99d9n">
         <dc:Bounds x="580" y="1330" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0sx7lsl_di" bpmnElement="start_afsluiten_zaak">
+        <dc:Bounds x="302" y="2252" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="285" y="2295" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1q5dnur_di" bpmnElement="end_afsluiten_zaak">
+        <dc:Bounds x="902" y="2252" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1a9iu2s_di" bpmnElement="Activity_1a9iu2s">
+        <dc:Bounds x="411" y="2230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1akhmb5_di" bpmnElement="task_close_case">
+        <dc:Bounds x="580" y="2230" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_00xq7vx_di" bpmnElement="task_sub_workflow_opstellen_digitale_analyse">
-        <dc:Bounds x="580" y="1810" width="100" height="80" />
+        <dc:Bounds x="580" y="1900" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0nrae8q_di" bpmnElement="start_opstellen_digitale_analyse_proces">
-        <dc:Bounds x="302" y="1832" width="36" height="36" />
+        <dc:Bounds x="302" y="1922" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="286" y="1875" width="76" height="40" />
+          <dc:Bounds x="286" y="1965" width="76" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1my9xv5_di" bpmnElement="end_opstellen_digitale_analyse_proces">
-        <dc:Bounds x="902" y="1832" width="36" height="36" />
+        <dc:Bounds x="902" y="1922" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_133lgts_di" bpmnElement="service_status_digitale_analyse">
-        <dc:Bounds x="411" y="1810" width="100" height="80" />
+        <dc:Bounds x="411" y="1900" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1cncg4r_di" bpmnElement="start_terugkoppelen_bi">
-        <dc:Bounds x="302" y="1962" width="36" height="36" />
+        <dc:Bounds x="302" y="2052" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="283" y="2005" width="70" height="40" />
+          <dc:Bounds x="283" y="2095" width="70" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0cr38xc_di" bpmnElement="end_terugkoppelen_bi">
-        <dc:Bounds x="902" y="1962" width="36" height="36" />
+        <dc:Bounds x="902" y="2052" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_00fcvxn_di" bpmnElement="service_status_terugkoppelen_bi">
-        <dc:Bounds x="411" y="1940" width="100" height="80" />
+        <dc:Bounds x="411" y="2030" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_08b94zt_di" bpmnElement="task_sub_workflow_terugkoppelen_bi">
-        <dc:Bounds x="580" y="1940" width="100" height="80" />
+        <dc:Bounds x="580" y="2030" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1vfx69j_di" bpmnElement="start_controleren_handhavingsverzoek">
-        <dc:Bounds x="302" y="1462" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_1po3wg1_di" bpmnElement="service_status_controleren_handhavingsverzoek">
+        <dc:Bounds x="411" y="1450" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0xfnm6a_di" bpmnElement="start_ingebrekestelling">
+        <dc:Bounds x="302" y="1582" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="280" y="1505" width="84" height="40" />
+          <dc:Bounds x="281" y="1625" width="83" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0qmprwb_di" bpmnElement="service_status_controleren_handhavingsverzoek">
-        <dc:Bounds x="411" y="1440" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_14jhlij_di" bpmnElement="end_controleren_juistheid_aanvraag">
-        <dc:Bounds x="902" y="1462" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0z45vbx_di" bpmnElement="task_controleren_juistheid_aanvraag">
-        <dc:Bounds x="580" y="1440" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0kdgqdw_di" bpmnElement="start_ingebrekestelling">
-        <dc:Bounds x="302" y="1572" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_1qohajh_di" bpmnElement="start_controleren_handhavingsverzoek">
+        <dc:Bounds x="302" y="1472" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="281" y="1615" width="83" height="27" />
+          <dc:Bounds x="280" y="1515" width="84" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_053bm5z_di" bpmnElement="service_status_ingebrekestelling">
-        <dc:Bounds x="411" y="1550" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1swvbg2_di" bpmnElement="end_controleren_of_gemeente_in_gebreke_is">
-        <dc:Bounds x="902" y="1572" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1n7nczz_di" bpmnElement="task_controleren_of_gemeente_in_gebreke_is">
-        <dc:Bounds x="580" y="1550" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1aud4ej_di" bpmnElement="start_uit_termijn_lopen">
-        <dc:Bounds x="302" y="1682" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_1u6v583_di" bpmnElement="start_uit_termijn_lopen">
+        <dc:Bounds x="302" y="1692" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="285" y="1725" width="74" height="27" />
+          <dc:Bounds x="285" y="1735" width="74" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1fm3y35_di" bpmnElement="service_status_uit_termijn_lopen">
-        <dc:Bounds x="411" y="1660" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_0m8kfc1_di" bpmnElement="task_controleren_juistheid_aanvraag">
+        <dc:Bounds x="580" y="1450" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0wz458h_di" bpmnElement="end_opsturen_verlenging_beslistermijn">
-        <dc:Bounds x="902" y="1682" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_0glhsbl_di" bpmnElement="task_controleren_of_gemeente_in_gebreke_is">
+        <dc:Bounds x="580" y="1560" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1a7s7n5_di" bpmnElement="task_opsturen_verlenging_beslistermijn">
-        <dc:Bounds x="580" y="1660" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_0ns3e3o_di" bpmnElement="task_opsturen_verlenging_beslistermijn">
+        <dc:Bounds x="580" y="1670" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0j1c5c5_di" bpmnElement="Event_0j1c5c5">
+        <dc:Bounds x="902" y="1472" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1b0ead4_di" bpmnElement="Event_1b0ead4">
+        <dc:Bounds x="902" y="1582" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_075kgpa_di" bpmnElement="Event_075kgpa">
+        <dc:Bounds x="902" y="1692" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1b7xd83_di" bpmnElement="service_status_ingebrekestelling">
+        <dc:Bounds x="411" y="1560" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1fs5kvi_di" bpmnElement="service_status_uit_termijn_lopen">
+        <dc:Bounds x="411" y="1670" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
