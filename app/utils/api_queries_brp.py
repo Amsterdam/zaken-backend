@@ -64,6 +64,7 @@ def get_brp(request, queryParams):
         }
         for p in response.json().get("_embedded", {}).get("ingeschrevenpersonen", [])
     ]
+    return response.json()
     return {
         "message": "real data",
         "results": results,

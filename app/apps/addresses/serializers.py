@@ -51,4 +51,5 @@ class ResidentSerializer(serializers.Serializer):
 
 
 class ResidentsSerializer(serializers.Serializer):
-    results = ResidentSerializer(required=True, many=True)
+    _links = serializers.DictField()
+    _embedded = serializers.DictField()
