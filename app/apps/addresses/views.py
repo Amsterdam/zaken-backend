@@ -9,6 +9,7 @@ from apps.addresses.serializers import (
 from apps.cases.models import Advertisement
 from apps.cases.serializers import AdvertisementSerializer, CaseSerializer
 from apps.permits.mixins import PermitDetailsMixin
+from apps.users import permissions
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
@@ -42,6 +43,7 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
         methods=["get"],
         serializer_class=ResidentsSerializer,
         url_path="residents",
+        permission_classes=[permissions.CanAccessBRP],
     )
     def residents_by_bag_id(self, request, bag_id):
         address = self.queryset.filter(bag_id=bag_id).first()
