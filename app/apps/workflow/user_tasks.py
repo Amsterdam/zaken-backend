@@ -746,3 +746,104 @@ class task_intrekken_vorderingen(user_task):
 
 class task_rapport_bewoners(user_task):
     due_date = relativedelta(days=2)
+
+
+# handhavingsverzoek
+class task_controleren_of_gemeente_in_gebreke_is(user_task):
+    due_date = relativedelta(days=2)
+
+
+class task_opstellen_brief_ongeldige_ingebrekestelling(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_nakijken_brief_ongeldige_ingebrekestelling(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_verturen_brief_ongeldige_ingebrekestelling(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_opsturen_verlenging_beslistermijn(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_nakijken_verlenging_beslistermijn(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_verwerken_verlenging_beslistermijn(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_controleren_juistheid_aanvraag(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_afwijzen(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_juist_nakijken_afwijzing(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_juist_verwerken_afwijzing(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_opstellen_buiten_behandeling_laten(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_nakijken_buiten_behandeling_laten(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_verwerken_buiten_behandeling_laten(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_opstellen_ontvangstbevestiging(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_nakijken_ontvangstbevestiging(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_verwerken_ontvangstbevestiging(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_aangeven_uitkomst_debrief(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_opstellen_afwijzing(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_onjuist_nakijken_afwijzing(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_verwerken_afwijzing(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_aangeven_uitkomst(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_opstellen_besluit_afwijzing(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_nakijken_besluit_afwijzing(user_task):
+    due_date = relativedelta(days=1)
+
+
+class task_handhavingsverzoek_verwerken_besluit_afwijzing(user_task):
+    due_date = relativedelta(days=1)
