@@ -128,6 +128,7 @@ class Case(ModelEventEmitter):
         content_type_field="related_object_type",
         related_query_name="cases",
     )
+    is_enforcement_request = models.BooleanField(default=False)
 
     def __get_event_values__(self):
         reason = self.reason.name

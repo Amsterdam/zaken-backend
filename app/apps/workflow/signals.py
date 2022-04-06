@@ -126,6 +126,13 @@ def case_workflow_pre_save(sender, instance, **kwargs):
             if existing_main_workflows
             else None
         )
+        if (
+            instance.workflow_message_name == "start_handhavingsverzoek"
+            and instance.workflow_type == "sub_workflow"
+            and not instance.case.is_enforcement_request
+        ):
+            instance.case.is_enforcement_request = True
+            instance.case.save()
 
         (
             instance.workflow_theme_name,

@@ -22,11 +22,21 @@ def get_brp_by_address(request, postal_code, number, suffix, suffix_letter):
     queryParams = {
         "verblijfplaats__postcode": postal_code,
         "verblijfplaats__huisnummer": number,
-        "verblijfplaats__huisletter": suffix_letter,
-        "verblijfplaats__huisnummertoevoeging": suffix,
         "inclusiefoverledenpersonen": "true",
         "expand": "partners,ouders,kinderen",
     }
+    if suffix_letter:
+        queryParams.update(
+            {
+                "verblijfplaats__huisletter": suffix_letter,
+            }
+        )
+    if suffix:
+        queryParams.update(
+            {
+                "verblijfplaats__huisnummertoevoeging": suffix,
+            }
+        )
     return get_brp(request, queryParams)
 
 
