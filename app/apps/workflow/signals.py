@@ -107,6 +107,12 @@ def case_workflow_pre_save(sender, instance, **kwargs):
                     },
                 }
             )
+            if reason == "handhavingsverzoek":
+                CaseWorkflow.objects.create(
+                    case=instance.case,
+                    workflow_type="sub_workflow",
+                    workflow_message_name="start_handhavingsverzoek",
+                )
         if instance.workflow_type == CaseWorkflow.WORKFLOW_TYPE_DIRECTOR:
             instance.data.update(
                 {
