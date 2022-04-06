@@ -239,5 +239,55 @@
       "workflow_option": "no_decision",
       "is_sanction": false
     }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 33,
+    "fields": {
+      "theme": 2,
+      "name": "Besluit toewijzing handhavingsvezoek",
+      "workflow_option": "besluit_toewijzing_handhavingsvezoek",
+      "is_sanction": false
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 34,
+    "fields": {
+      "theme": 3,
+      "name": "Besluit toewijzing handhavingsvezoek",
+      "workflow_option": "besluit_toewijzing_handhavingsvezoek",
+      "is_sanction": false
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 35,
+    "fields": {
+      "theme": 4,
+      "name": "Besluit toewijzing handhavingsvezoek",
+      "workflow_option": "besluit_toewijzing_handhavingsvezoek",
+      "is_sanction": false
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 36,
+    "fields": {
+      "theme": 5,
+      "name": "Besluit toewijzing handhavingsvezoek",
+      "workflow_option": "besluit_toewijzing_handhavingsvezoek",
+      "is_sanction": false
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 37,
+    "fields": {
+      "theme": 6,
+      "name": "Besluit toewijzing handhavingsvezoek",
+      "workflow_option": "besluit_toewijzing_handhavingsvezoek",
+      "is_sanction": false
+    }
   }
 ]
