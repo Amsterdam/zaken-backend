@@ -47,28 +47,8 @@ def get_brp(request, queryParams):
             "Authorization": request.headers.get("Authorization"),
         },
     )
-    response.raise_for_status()
 
-    results = [
-        {
-            "geboortedatum": p.get("geboorte", {}).get("datum", {}).get("datum"),
-            "geslachtsaanduiding": p.get("geslachtsaanduiding", ""),
-            "geslachtsnaam": p.get("naam", {}).get("geslachtsnaam"),
-            "voorletters": p.get("naam", {}).get("voorletters"),
-            "voornamen": p.get("naam", {}).get("voornamen"),
-            "voorvoegsel_geslachtsnaam": p.get("naam", {}).get("voorvoegsel"),
-            "datum_begin_relatie_verblijfadres": p.get("verblijfplaats", {})
-            .get("datumAanvangAdreshouding", {})
-            .get("datum"),
-            "ingeschrevenpersoon_raw": p,
-        }
-        for p in response.json().get("_embedded", {}).get("ingeschrevenpersonen", [])
-    ]
-    return response.json()
-    return {
-        "message": "real data",
-        "results": results,
-    }
+    return response.json(), response.status_code
 
 
 def get_mock_brp():
