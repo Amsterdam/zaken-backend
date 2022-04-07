@@ -69,11 +69,11 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
 
         if address:
             try:
-                brp_data = get_brp_by_address(request, **address)
+                brp_data, status_code = get_brp_by_address(request, **address)
                 serialized_residents = ResidentsSerializer(data=brp_data)
                 serialized_residents.is_valid()
 
-                return Response(serialized_residents.data)
+                return Response(serialized_residents.data, status=status_code)
 
             except Exception as e:
                 logger.error(f"Could not retrieve residents for bag id {bag_id}: {e}")
