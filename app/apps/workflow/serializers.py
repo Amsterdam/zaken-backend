@@ -185,12 +185,6 @@ class CaseWorkflowSerializer(serializers.ModelSerializer):
 
 
 class GenericCompletedTaskSerializer(serializers.ModelSerializer):
-    # author = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    # case_user_task_id = serializers.CharField()
-    # case = serializers.PrimaryKeyRelatedField(queryset=Case.objects.all())
-    # variables = serializers.JSONField()
-    # description = serializers.CharField(required=False)
-
     class Meta:
         model = GenericCompletedTask
         fields = "__all__"
@@ -201,11 +195,11 @@ class GenericCompletedTaskCreateSerializer(serializers.ModelSerializer):
     case_user_task_id = serializers.CharField()
     case = serializers.PrimaryKeyRelatedField(queryset=Case.objects.all())
     variables = serializers.JSONField()
+    description = serializers.CharField(required=False)
 
     class Meta:
         model = GenericCompletedTask
         exclude = [
-            "description",
             "task_name",
         ]
 

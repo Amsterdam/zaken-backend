@@ -17,7 +17,7 @@ from apps.users.models import User
 from apps.visits.models import Visit
 from apps.visits.serializers import VisitSerializer
 from apps.workflow.models import GenericCompletedTask
-from apps.workflow.serializers import GenericCompletedTaskSerializer
+from apps.workflow.serializers import GenericCompletedTaskCreateSerializer
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -333,7 +333,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                     description=e.get("description"),
                 )
             ]
-            events_serializer = GenericCompletedTaskSerializer(
+            events_serializer = GenericCompletedTaskCreateSerializer(
                 data=without_existing_events,
                 context={"request": self.request},
                 many=True,
@@ -355,7 +355,9 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
                         pass
                     e.save()
             else:
-                logger.info(f"GenericCompletedTaskSerializer errors: case '{case}'")
+                logger.info(
+                    f"GenericCompletedTaskCreateSerializer errors: case '{case}'"
+                )
                 logger.info(events_serializer.errors)
         return errors, result_data
 
