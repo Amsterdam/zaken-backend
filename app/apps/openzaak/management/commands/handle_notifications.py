@@ -4,6 +4,8 @@ import resource
 from collections import namedtuple
 from datetime import datetime, timedelta
 
+from django.conf import settings
+
 from apps.cases.models import (
     Case,
     CaseDocument,
@@ -46,28 +48,31 @@ class Command(BaseCommand):
         self.set_processed(notification)
 
     def process_status(self, notification, action, resource_url, hoofd_object):
-        # Do not process the status Since it should not be supported yet.
-        return self.set_processed(notification)
-        # # Resource should be a case
-        # case = Case.objects.filter(case_url=hoofd_object).first()
+        # Resource should be a case
+        case = Case.objects.filter(case_url=hoofd_object).first()
 
-        # if not case:
-        #     return self.set_processed(notification) # Stopping cause we don't know the case
+        if not case:
+            return self.set_processed(notification) # Stopping cause we don't know the case
 
-        # if action == "create":
-        #     status = get_open_zaak_case_state(resource_url)
-        #     case_state_type = CaseStateType.objects.filter(state_type_url=status.statustype).first()
-        #     if not case_state_type:
-        #         return self.set_processed(notification) # Stopping cause we don't know the state type
+        if action == "create":
+            status = get_open_zaak_case_state(resource_url)
 
-        #     CaseState.objects.create(
-        #         case=case,
-        #         status=case_state_type,
-        #         start_date=status.datum_status_gezet,
-        #         information=status.statustoelichting,
-        #         system_build=True,
-        #     )
-        # return self.set_processed(notification) # Stopping cause we don't know the state type
+            if status.statustype == settings.OPENZAAK_CASETYPEURL_HANDHAVING:
+                state = CaseState.CaseStateChoice.HANDHAVING
+            elif status.statustype == settings.OPENZAAK_CASETYPEURL_AFGESLOTEN:
+                state = CaseState.CaseStateChoice.AFGESLOTEN
+            elif status.statustype == settings.OPENZAAK_CASETYPEURL_TOEZICHT:
+                state = CaseState.CaseStateChoice.TOEZICHT
+            else:
+                return self.set_processed(notification)
+
+            CaseState.objects.create(
+                case=case,
+                status=state,
+                created=status.datum_status_gezet,
+                system_build=True,
+            )
+        return self.set_processed(notification) # Stopping cause we don't know the state type
 
     def process_case_document(self, notification, action, resource_url, hoofd_object):
         case = Case.objects.filter(case_url=hoofd_object).first()

@@ -6,7 +6,7 @@ Based on: https://github.com/VNG-Realisatie/zaken-api/blob/stable/1.0.x/src/noti
 import hashlib
 from datetime import date, datetime
 
-from apps.cases.models import CaseDocument
+from apps.cases.models import CaseDocument, CaseState
 from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext as _
@@ -133,14 +133,21 @@ def create_open_zaak_case_state(instance):
     In here we expect a case state instance
     """
     now = timezone.now()
-    with_time = datetime.combine(instance.start_date, now.time())
+    with_time = datetime.combine(instance.created, now.time())
+
+    state_type_url = settings.OPENZAAK_CASETYPEURL_DEFAULT
+    if instance.status == CaseState.CaseStateChoice.TOEZICHT and settings.OPENZAAK_CASETYPEURL_TOEZICHT:
+        state_type_url = settings.OPENZAAK_CASETYPEURL_TOEZICHT
+    if instance.status == CaseState.CaseStateChoice.HANDHAVING and settings.OPENZAAK_CASETYPEURL_HANDHAVING:
+        state_type_url = settings.OPENZAAK_CASETYPEURL_HANDHAVING
+    if instance.status == CaseState.CaseStateChoice.AFGESLOTEN and settings.OPENZAAK_CASETYPEURL_AFGESLOTEN:
+        state_type_url = settings.OPENZAAK_CASETYPEURL_AFGESLOTEN
+
     status_body = {
         "zaak": instance.case.case_url,
-        "statustype": instance.status.state_type_url,
+        "statustype": state_type_url,
         "datumStatusGezet": with_time.isoformat(),
-        "statustoelichting": instance.information
-        if instance.information
-        else _("Status aangepast in AZA"),
+        "statustoelichting": _("Status aangepast in AZA"),
     }
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("status", status_body)

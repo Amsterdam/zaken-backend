@@ -30,19 +30,17 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
             logger.error(e)
 
 
-# Status is implemented on the AZA side
-# @receiver(post_save, sender=CaseState)
-# def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
-#     if (
-#         instance.case.case_url
-#         and instance.status.state_type_url
-#         and not instance.set_in_open_zaak
-#         and not instance.system_build
-#     ):
-#         try:
-#             create_open_zaak_case_state(instance)
-#         except ClientError as e:
-#             logger.error(e)
+@receiver(post_save, sender=CaseState)
+def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
+    if (
+        instance.case.case_url
+        and not instance.set_in_open_zaak
+        and not instance.system_build
+    ):
+        try:
+            create_open_zaak_case_state(instance)
+        except ClientError as e:
+            logger.error(e)
 
 
 @receiver(post_save, sender=CaseDocument)

@@ -51,12 +51,11 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         case.refresh_from_db()
         self.assertEqual(case.case_url, self.ZAAK_URL)
 
-        state_type = baker.make(CaseStateType, state_type_url=self.ZAAK_TYPE_URL)
-
         # State is not implemented yet.
-        # case_state = baker.make(CaseState, case=case, status=state_type)
-        # case_state.refresh_from_db()
-        # self.assertTrue(case_state.set_in_open_zaak)
+        case_state = baker.make(CaseState, case=case)
+        create_open_zaak_case_state(case_state)
+        case_state.refresh_from_db()
+        self.assertTrue(case_state.set_in_open_zaak)
 
         # Try uploading the document.
         file = SimpleUploadedFile(name="test_file.txt", content=b"Test")

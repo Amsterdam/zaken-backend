@@ -272,6 +272,7 @@ class CaseStateType(models.Model):
 
 class CaseState(models.Model):
     class CaseStateChoice(models.TextChoices):
+        # For new statusses there should be created a new setting.
         TOEZICHT = "TOEZICHT", "Toezicht"
         HANDHAVING = "HANDHAVING", "Handhaving"
         AFGESLOTEN = "AFGESLOTEN", "Afgesloten"
@@ -282,9 +283,7 @@ class CaseState(models.Model):
         choices=CaseStateChoice.choices,
         default=CaseStateChoice.TOEZICHT,
     )
-    created = models.DateTimeField(
-        auto_now_add=True,
-    )
+    created = models.DateTimeField(auto_now_add=True)
     system_build = models.BooleanField(default=False, blank=True)
     set_in_open_zaak = models.BooleanField(default=False, blank=True)
 
