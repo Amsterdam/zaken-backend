@@ -33,7 +33,7 @@ class CaseStateTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CaseStateType
-        exclude = ("theme",)
+        fields = "__all__"
 
 
 class CaseUserTaskBaseSerializer(serializers.ModelSerializer):
@@ -185,27 +185,27 @@ class CaseWorkflowSerializer(serializers.ModelSerializer):
 
 
 class GenericCompletedTaskSerializer(serializers.ModelSerializer):
-    """
-    Used to complete a GenericCompletedTask.
+    # author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    # case_user_task_id = serializers.CharField()
+    # case = serializers.PrimaryKeyRelatedField(queryset=Case.objects.all())
+    # variables = serializers.JSONField()
+    # description = serializers.CharField(required=False)
 
-    variables example
-    {
-        "a_field": {
-            "value": true,
-            "label": "Label for a field"
-        }
-    }
-    """
+    class Meta:
+        model = GenericCompletedTask
+        fields = "__all__"
 
+
+class GenericCompletedTaskCreateSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     case_user_task_id = serializers.CharField()
     case = serializers.PrimaryKeyRelatedField(queryset=Case.objects.all())
     variables = serializers.JSONField()
-    description = serializers.CharField(required=False)
 
     class Meta:
         model = GenericCompletedTask
         exclude = [
+            "description",
             "task_name",
         ]
 

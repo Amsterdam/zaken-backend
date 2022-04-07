@@ -25,6 +25,15 @@ custom_permissions = [
 ]
 
 
+class CanAccessBRP(BasePermission):
+    """
+    Custom permission to only allow users with access_personal_data_register permissions
+    """
+
+    def has_permission(self, request, view):
+        return request.user.has_perm("users.access_personal_data_register")
+
+
 class CanCreateCase(BasePermission):
     """
     Custom permission to only allow users with create-case permissions

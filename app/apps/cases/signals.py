@@ -1,6 +1,6 @@
 import logging
 
-from apps.cases.models import Case, CaseClose, CitizenReport
+from apps.cases.models import Case, CaseClose, CaseState, CitizenReport
 from apps.cases.tasks import task_close_case
 from apps.workflow.models import CaseWorkflow
 from apps.workflow.tasks import task_create_citizen_report_worflow_for_case
@@ -27,6 +27,8 @@ def start_workflow_for_case(sender, instance, created, **kwargs):
         return
     data = {}
     if created:
+        CaseState.objects.get_or_create(case=instance)
+
         cached_legacy_bwv_case_key = (
             f"legacy_bwv_case_id_{instance.legacy_bwv_case_id}_create_data"
         )
@@ -50,5 +52,8 @@ def close_case(sender, instance, created, **kwargs):
     if kwargs.get("raw"):
         return
     if instance.case_user_task_id != "-1" and created:
-        CaseWorkflow.complete_user_task(instance.case_user_task_id, {})
+        CaseState.objects.get_or_create(
+            case=instance.case,
+            status=CaseState.CaseStateChoice.AFGESLOTEN,
+        )
         task_close_case.delay(instance.case.id)

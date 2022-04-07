@@ -63,6 +63,9 @@ class CharArrayFilter(filters.BaseCSVFilter, filters.CharFilter):
 class CaseFilter(filters.FilterSet):
     from_start_date = filters.DateFilter(field_name="start_date", lookup_expr="gte")
     open_cases = filters.BooleanFilter(method="get_open_cases")
+    is_enforcement_request = filters.BooleanFilter(
+        method="get_enforcement_request_cases"
+    )
     state_types = filters.ModelMultipleChoiceFilter(
         queryset=CaseStateType.objects.all(), method="get_state_types"
     )
@@ -175,6 +178,9 @@ class CaseFilter(filters.FilterSet):
     def get_open_cases(self, queryset, name, value):
         return queryset.filter(end_date__isnull=value)
 
+    def get_enforcement_request_cases(self, queryset, name, value):
+        return queryset.filter(is_enforcement_request=value)
+
     def get_postal_code(self, queryset, name, value):
         return queryset.filter(address__postal_code__iexact=value.replace(" ", ""))
 
@@ -245,6 +251,9 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
+        OpenApiParameter(
+            "is_enforcement_request", OpenApiTypes.BOOL, OpenApiParameter.QUERY
+        ),
         OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter(
             "schedule_day_segment", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
