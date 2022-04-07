@@ -54,6 +54,9 @@ class CaseUserTaskFilter(filters.FilterSet):
     reason = filters.CharFilter(field_name="case__reason")
     sensitive = filters.BooleanFilter(field_name="case__sensitive")
     open_cases = filters.BooleanFilter(method="get_open_cases")
+    is_enforcement_request = filters.BooleanFilter(
+        method="get_enforcement_request_cases"
+    )
     state_types = filters.ModelMultipleChoiceFilter(
         queryset=CaseStateType.objects.all(), method="get_state_types"
     )
@@ -91,6 +94,9 @@ class CaseUserTaskFilter(filters.FilterSet):
         return queryset.filter(
             case__address__postal_code__iexact=value.replace(" ", "")
         )
+
+    def get_enforcement_request_cases(self, queryset, name, value):
+        return queryset.filter(case__is_enforcement_request=value)
 
     def get_state_types(self, queryset, name, value):
         if value:
@@ -142,6 +148,9 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("role", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("due_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
         OpenApiParameter("owner", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter(
+            "is_enforcement_request", OpenApiTypes.BOOL, OpenApiParameter.QUERY
+        ),
     ]
 )
 class CaseUserTaskViewSet(
