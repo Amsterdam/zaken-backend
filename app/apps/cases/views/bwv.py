@@ -68,6 +68,7 @@ class ImportBWVCaseDataView(UserPassesTestMixin, FormView):
         "politie_(SBA2.0)": "Politie (SBA 2.0)",
         "doorzon": "Doorzon",
         "ilprowo": "Ilprowo",
+        "mma": "MMA",
     }
     label_translate = {
         "HM_DATE_CREATED": "Datum aangemaakt",
