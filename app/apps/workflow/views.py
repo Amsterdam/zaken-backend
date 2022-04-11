@@ -161,10 +161,7 @@ class CaseUserTaskViewSet(
 ):
     permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseUserTaskSerializer
-    queryset = CaseUserTask.objects.filter(
-        completed=False,
-        case__end_date__isnull=True,
-    )
+    queryset = CaseUserTask.objects.all()
     http_method_names = ["patch", "get"]
 
     filter_backends = (
@@ -194,9 +191,7 @@ class CaseUserTaskViewSet(
     )
     def task_names(self, request):
         queryset = self.filter_queryset(self.get_queryset())
-        queryset = queryset.filter(
-            completed=False,
-        ).distinct("task_name")
+        queryset = queryset.distinct("task_name")
         serializer = CaseUserTaskTaskNameSerializer(queryset, many=True)
         return Response(serializer.data)
 
