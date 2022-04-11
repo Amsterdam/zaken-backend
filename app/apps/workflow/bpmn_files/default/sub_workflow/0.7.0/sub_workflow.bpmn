@@ -476,7 +476,12 @@
       <bpmn:incoming>Flow_12ekkya</bpmn:incoming>
       <bpmn:outgoing>Flow_1k34o9j</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_handhavingsverzoek_verwerken_ontvangstbevestiging" name="Verwerken ontvangstbevestiging">
+    <bpmn:userTask id="task_handhavingsverzoek_verwerken_ontvangstbevestiging" name="Verwerken ontvangstbevestiging" camunda:formKey="form_handhavingsverzoek_verwerken_ontvangstbevestiging">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="toelichting_termijn" label="Wat is de termijn?" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_1k34o9j</bpmn:incoming>
       <bpmn:outgoing>Flow_0vjdsxk</bpmn:outgoing>
     </bpmn:userTask>
@@ -785,7 +790,12 @@
       <bpmn:incoming>Flow_0wpzudu</bpmn:incoming>
       <bpmn:outgoing>Flow_1i4rpcn</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_verwerken_verlenging_beslistermijn" name="Verwerken verlenging beslistermijn">
+    <bpmn:userTask id="task_verwerken_verlenging_beslistermijn" name="Verwerken verlenging beslistermijn" camunda:formKey="task_verwerken_verlenging_beslistermijn">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="toelichting_nieuwe_termijn" label="Wat is de nieuwe termijn?" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_1i4rpcn</bpmn:incoming>
       <bpmn:outgoing>Flow_05mxb5c</bpmn:outgoing>
     </bpmn:userTask>
