@@ -4,6 +4,7 @@ from apps.main.pagination import EmptyPagination
 from apps.users.permissions import rest_permission_classes_for_top
 from apps.workflow.serializers import (
     CaseUserTaskSerializer,
+    CaseUserTaskTaskNameSerializer,
     GenericCompletedTaskCreateSerializer,
     GenericCompletedTaskSerializer,
 )
@@ -160,10 +161,7 @@ class CaseUserTaskViewSet(
 ):
     permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseUserTaskSerializer
-    queryset = CaseUserTask.objects.filter(
-        completed=False,
-        case__end_date__isnull=True,
-    )
+    queryset = CaseUserTask.objects.all()
     http_method_names = ["patch", "get"]
 
     filter_backends = (
@@ -181,6 +179,21 @@ class CaseUserTaskViewSet(
         ):
             queryset = queryset.exclude(case__sensitive=True)
         return queryset
+
+    @extend_schema(
+        description="Gets all task names",
+        responses={status.HTTP_200_OK: CaseUserTaskTaskNameSerializer(many=True)},
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="task-names",
+    )
+    def task_names(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset = queryset.distinct("task_name")
+        serializer = CaseUserTaskTaskNameSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class GenericCompletedTaskFilter(filters.FilterSet):
