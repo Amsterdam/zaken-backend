@@ -114,6 +114,15 @@ class CaseUserTaskSerializer(CaseUserTaskBaseSerializer):
         )
 
 
+class CaseUserTaskByTaskNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseUserTask
+        fields = (
+            "task_name",
+            "name",
+        )
+
+
 class CaseWorkflowCaseDetailSerializer(serializers.ModelSerializer):
     status_name = serializers.CharField(source="case_state_type.name", read_only=True)
     status = serializers.IntegerField(source="case_state_type.id", read_only=True)
