@@ -114,7 +114,7 @@ class CaseUserTaskSerializer(CaseUserTaskBaseSerializer):
         )
 
 
-class CaseUserTaskByTaskNameSerializer(serializers.ModelSerializer):
+class CaseUserTaskTaskNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseUserTask
         fields = (
