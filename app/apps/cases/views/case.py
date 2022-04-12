@@ -276,6 +276,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("ton_ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("priority", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("name", OpenApiTypes.STR, OpenApiParameter.QUERY),
     ]
 )
 class CaseViewSet(
