@@ -125,6 +125,7 @@ class CaseUserTaskFilter(filters.FilterSet):
             "completed",
             "role",
             "owner",
+            "name",
         ]
 
 
@@ -153,6 +154,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter(
             "is_enforcement_request", OpenApiTypes.BOOL, OpenApiParameter.QUERY
         ),
+        OpenApiParameter("name", OpenApiTypes.STR, OpenApiParameter.QUERY),
     ]
 )
 class CaseUserTaskViewSet(
