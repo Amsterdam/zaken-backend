@@ -21,15 +21,19 @@ from django.dispatch import receiver
 
 @receiver(post_save, sender=Visit, dispatch_uid="complete_task_create_visit")
 def complete_task_create_visit(sender, instance, created, **kwargs):
+    print("complete_task_create_visit: completed")
     if kwargs.get("raw"):
         return
-    if instance.completed and instance.case_user_task_id != "-1":
+    if instance.completed:
         task = instance.case.tasks.filter(
             task_name="task_create_visit",
             completed=False,
             id=int(instance.case_user_task_id),
         ).first()
         if task:
+            print("HAS TASK")
+            print(instance)
+            print(task)
             CaseWorkflow.complete_user_task(
                 instance.case_user_task_id,
                 {
