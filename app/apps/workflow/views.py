@@ -69,6 +69,7 @@ class CaseUserTaskFilter(filters.FilterSet):
     completed = filters.BooleanFilter()
     role = filters.CharFilter(method="get_role")
     theme = filters.CharFilter(field_name="case__theme__name")
+    name = filters.CharFilter(field_name="name")
 
     def get_role(self, queryset, name, value):
         return queryset.filter(roles__contains=[value])
@@ -124,6 +125,7 @@ class CaseUserTaskFilter(filters.FilterSet):
             "completed",
             "role",
             "owner",
+            "name",
         ]
 
 
@@ -152,6 +154,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter(
             "is_enforcement_request", OpenApiTypes.BOOL, OpenApiParameter.QUERY
         ),
+        OpenApiParameter("name", OpenApiTypes.STR, OpenApiParameter.QUERY),
     ]
 )
 class CaseUserTaskViewSet(
