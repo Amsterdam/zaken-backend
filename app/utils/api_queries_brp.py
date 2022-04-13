@@ -44,9 +44,6 @@ def get_brp_by_address(request, postal_code, number, suffix, suffix_letter):
 def get_brp(request, queryParams):
     """Returns BRP data"""
 
-    if settings.ENVIRONMENT == "production":
-        return get_mock_brp()
-
     url = f"{settings.BRP_API_URL}"
 
     response = requests.get(
