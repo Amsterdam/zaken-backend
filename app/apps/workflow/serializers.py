@@ -118,7 +118,6 @@ class CaseUserTaskTaskNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseUserTask
         fields = (
-            "task_name",
             "name",
             "roles",
         )

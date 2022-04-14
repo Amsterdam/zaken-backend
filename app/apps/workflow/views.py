@@ -194,7 +194,7 @@ class CaseUserTaskViewSet(
     )
     def task_names(self, request):
         queryset = self.filter_queryset(self.get_queryset())
-        queryset = queryset.distinct("task_name")
+        queryset = queryset.distinct("name").order_by("name")
         serializer = CaseUserTaskTaskNameSerializer(queryset, many=True)
         return Response(serializer.data)
 
