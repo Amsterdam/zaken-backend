@@ -120,6 +120,7 @@ class CaseUserTaskTaskNameSerializer(serializers.ModelSerializer):
         fields = (
             "task_name",
             "name",
+            "roles",
         )
 
 
