@@ -285,9 +285,14 @@ BELASTING_API_URL = os.getenv(
 )
 BELASTING_API_ACCESS_TOKEN = os.getenv("BELASTING_API_ACCESS_TOKEN", None)
 
-BRP_API_URL = os.getenv(
-    "BRP_API_URL",
-    "https://acc.api.secure.amsterdam.nl/gob_stuf/brp/ingeschrevenpersonen",
+BRP_API_URL = "/".join(
+    [
+        os.getenv(
+            "BRP_API_URL",
+            "https://acc.hc.data.amsterdam.nl/brp",
+        ),
+        "ingeschrevenpersonen",
+    ]
 )
 
 # Secret keys which can be used to access certain parts of the API
