@@ -29,7 +29,11 @@ def event_emitter_pre_save(instance, **kwargs):
         type_instance = instance.__class__.objects.filter(
             case_user_task_id=instance.case_user_task_id
         )
-        if type_instance:
+        tasks = instance.case.tasks.filter(
+            id=int(instance.case_user_task_id),
+            completed=True,
+        )
+        if type_instance and tasks:
             raise Exception(
                 f"TaskModelEventEmitter of type '{instance.__class__.__name__}', with '{instance.case_user_task_id}', already exists"
             )
