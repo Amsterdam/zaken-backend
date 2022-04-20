@@ -73,6 +73,10 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
                 serialized_residents = ResidentsSerializer(data=brp_data)
                 serialized_residents.is_valid()
 
+                if status_code == 403:
+                    return Response(
+                        {"message": "Je hebt geen rechten voor MKS"}, status=403
+                    )
                 return Response(serialized_residents.data, status=status_code)
 
             except Exception as e:
