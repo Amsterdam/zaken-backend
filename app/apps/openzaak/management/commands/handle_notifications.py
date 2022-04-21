@@ -41,15 +41,12 @@ class Command(BaseCommand):
     def process_status(self, notification, action, resource_url, hoofd_object):
         # Resource should be a case
         case = Case.objects.filter(case_url=hoofd_object).first()
-
         if not case:
             return self.set_processed(
                 notification
             )  # Stopping cause we don't know the case
-
         if action == "create":
             status = get_open_zaak_case_state(resource_url)
-
             if status.statustype == settings.OPENZAAK_CASETYPEURL_HANDHAVING:
                 state = CaseState.CaseStateChoice.HANDHAVING
             elif status.statustype == settings.OPENZAAK_CASETYPEURL_AFGESLOTEN:
@@ -126,7 +123,6 @@ class Command(BaseCommand):
         data = notification.data
         if isinstance(data, str):
             data = json.loads(data)
-        print(data)
         object_data = namedtuple("NotificationData", data.keys())(*data.values())
 
         if object_data.kanaal == "zaken":

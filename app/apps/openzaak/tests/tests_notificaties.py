@@ -2,7 +2,7 @@ import requests_mock
 from apps.cases.models import Case, CaseDocument, CaseState
 from apps.openzaak.models import Notification
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from freezegun import freeze_time
 from model_bakery import baker
 from zgw_consumers.test import mock_service_oas_get
@@ -135,6 +135,9 @@ class OpenZaakNotificatieTests(OpenZaakBaseMixin, TestCase):
         self.assertTrue(notification.processed)
 
     # State is not implemented yet.
+    @override_settings(
+        OPENZAAK_CASETYPEURL_TOEZICHT="https://localhost:8000/catalogi/api/v1/statustypen/a5628108-456f-4459-9c9c-4be8c9f67f13"
+    )
     @requests_mock.Mocker()
     def test_handle_status_create_notification(self, m):
         mock_service_oas_get(m, self.ZAKEN_ROOT, "zrc")
