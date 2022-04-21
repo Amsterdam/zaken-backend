@@ -136,11 +136,20 @@ def create_open_zaak_case_state(instance):
     with_time = datetime.combine(instance.created, now.time())
 
     state_type_url = settings.OPENZAAK_CASETYPEURL_DEFAULT
-    if instance.status == CaseState.CaseStateChoice.TOEZICHT and settings.OPENZAAK_CASETYPEURL_TOEZICHT:
+    if (
+        instance.status == CaseState.CaseStateChoice.TOEZICHT
+        and settings.OPENZAAK_CASETYPEURL_TOEZICHT
+    ):
         state_type_url = settings.OPENZAAK_CASETYPEURL_TOEZICHT
-    if instance.status == CaseState.CaseStateChoice.HANDHAVING and settings.OPENZAAK_CASETYPEURL_HANDHAVING:
+    if (
+        instance.status == CaseState.CaseStateChoice.HANDHAVING
+        and settings.OPENZAAK_CASETYPEURL_HANDHAVING
+    ):
         state_type_url = settings.OPENZAAK_CASETYPEURL_HANDHAVING
-    if instance.status == CaseState.CaseStateChoice.AFGESLOTEN and settings.OPENZAAK_CASETYPEURL_AFGESLOTEN:
+    if (
+        instance.status == CaseState.CaseStateChoice.AFGESLOTEN
+        and settings.OPENZAAK_CASETYPEURL_AFGESLOTEN
+    ):
         state_type_url = settings.OPENZAAK_CASETYPEURL_AFGESLOTEN
 
     status_body = {
@@ -215,7 +224,7 @@ def update_document(case_document, file, title, language="nld"):
         "zaakinformatieobject", url=case_document.document_url, data=document_body
     )
 
-    unlock = drc_client.request(
+    drc_client.request(
         f"{case_document.document_url}/unlock",
         "enkelvoudiginformatieobject_lock",
         method="POST",

@@ -1,7 +1,6 @@
 import requests_mock
 from apps.cases.models import Case, CaseDocument, CaseState, CaseTheme
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.db.models import signals
 from django.test import TestCase
 from model_bakery import baker
 from zgw_consumers.test import mock_service_oas_get
@@ -21,7 +20,6 @@ from ..helpers import (
     update_document,
     update_open_zaak_case,
 )
-from ..signals import create_open_zaak_case
 from .utils import OpenZaakBaseMixin
 
 
@@ -107,12 +105,10 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
     def test_get_document(self, m):
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
         m.get(self.DOCUMENT_URL, json=self.document, status_code=200)
-        uploaded_file = SimpleUploadedFile(
-            "file.txt", b"file_content", content_type="text/plain"
-        )
+        SimpleUploadedFile("file.txt", b"file_content", content_type="text/plain")
         theme = baker.make(CaseTheme, case_type_url=self.ZAAK_TYPE_URL)
         case = baker.make(Case, theme=theme)
-        document = baker.make(CaseDocument, case=case, document_url=self.DOCUMENT_URL)
+        baker.make(CaseDocument, case=case, document_url=self.DOCUMENT_URL)
         case_document = get_document(self.DOCUMENT_URL)
         self.assertEqual(case_document.url, self.DOCUMENT_URL)
 
@@ -139,9 +135,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
     def test_delete_document(self, m):
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
         m.delete(self.DOCUMENT_URL, json=None, status_code=204)
-        uploaded_file = SimpleUploadedFile(
-            "file.txt", b"file_content", content_type="text/plain"
-        )
+        SimpleUploadedFile("file.txt", b"file_content", content_type="text/plain")
         theme = baker.make(CaseTheme, case_type_url=self.ZAAK_TYPE_URL)
         case = baker.make(Case, theme=theme)
         document = baker.make(CaseDocument, case=case, document_url=self.DOCUMENT_URL)

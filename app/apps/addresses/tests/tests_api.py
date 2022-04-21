@@ -1,15 +1,13 @@
 import datetime
 
-from django.core import management
-from django.urls import reverse
-
-from model_bakery import baker
-from rest_framework import status
-from rest_framework.test import APITestCase
-
 from apps.addresses.models import Address
 from apps.cases.models import Case
 from apps.openzaak.tests.utils import ZakenBackendTestMixin
+from django.core import management
+from django.urls import reverse
+from model_bakery import baker
+from rest_framework import status
+from rest_framework.test import APITestCase
 
 from app.utils.unittest_helpers import (
     get_authenticated_client,

@@ -1,15 +1,10 @@
-from datetime import timedelta
-
 import requests_mock
-from apps.cases.models import Case, CaseDocument, CaseState, CaseStateType, CaseTheme
+from apps.cases.models import Case, CaseDocument, CaseState
 from apps.openzaak.models import Notification
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.test import TestCase
-from django.utils import timezone
 from freezegun import freeze_time
 from model_bakery import baker
-from requests.exceptions import HTTPError
 from zgw_consumers.test import mock_service_oas_get
 
 from .utils import OpenZaakBaseMixin
@@ -107,8 +102,8 @@ class OpenZaakNotificatieTests(OpenZaakBaseMixin, TestCase):
         m.get(self.ZAAK_URL, json=self.zaak, status_code=200)
 
         case = baker.make(Case, case_url=self.ZAAK_URL)
-        old_description = case.description
-        old_start_date = case.start_date
+        case.description
+        case.start_date
         notificatie_body = self._build_notification(
             main_url=self.ZAAK_URL,
             resource_url=self.ZAAK_URL,
@@ -149,9 +144,13 @@ class OpenZaakNotificatieTests(OpenZaakBaseMixin, TestCase):
         m.get(self.STATUS_URL, json=self.status, status_code=200)
 
         baker.make(Case, case_url=self.ZAAK_URL)
-        notificatie_body = self._build_notification(main_url=self.ZAAK_URL, resource_url=self.STATUS_URL, resource="status")
+        notificatie_body = self._build_notification(
+            main_url=self.ZAAK_URL, resource_url=self.STATUS_URL, resource="status"
+        )
         with freeze_time("2022-02-02"):
-            notification = baker.make(Notification, data=notificatie_body, processed=False)
+            notification = baker.make(
+                Notification, data=notificatie_body, processed=False
+            )
         call_command("handle_notifications")
         notification.refresh_from_db()
         self.assertTrue(notification.processed)
@@ -166,18 +165,26 @@ class OpenZaakNotificatieTests(OpenZaakBaseMixin, TestCase):
         m.get(self.STATUS_URL, json=self.status, status_code=200)
 
         baker.make(Case, case_url=self.ZAAK_URL)
-        notificatie_body = self._build_notification(main_url=self.ZAAK_URL, resource_url=self.STATUS_URL, resource="status")
+        notificatie_body = self._build_notification(
+            main_url=self.ZAAK_URL, resource_url=self.STATUS_URL, resource="status"
+        )
         with freeze_time("2022-02-02"):
-            notification = baker.make(Notification, data=notificatie_body, processed=False)
+            notification = baker.make(
+                Notification, data=notificatie_body, processed=False
+            )
         call_command("handle_notifications")
         notification.refresh_from_db()
         self.assertTrue(notification.processed)
 
     @requests_mock.Mocker()
     def test_handle_status_create_notification_no_case(self, m):
-        notificatie_body = self._build_notification(main_url=self.ZAAK_URL, resource_url=self.STATUS_URL, resource="status")
+        notificatie_body = self._build_notification(
+            main_url=self.ZAAK_URL, resource_url=self.STATUS_URL, resource="status"
+        )
         with freeze_time("2022-02-02"):
-            notification = baker.make(Notification, data=notificatie_body, processed=False)
+            notification = baker.make(
+                Notification, data=notificatie_body, processed=False
+            )
         call_command("handle_notifications")
         notification.refresh_from_db()
         self.assertTrue(notification.processed)

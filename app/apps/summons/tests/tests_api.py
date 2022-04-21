@@ -1,12 +1,11 @@
 from apps.cases.models import Case
+from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from apps.summons.models import Summon, SummonedPerson, SummonType
 from django.core import management
 from django.urls import reverse
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.test import APITestCase
-
-from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from utils.unittest_helpers import (
     get_authenticated_client,
     get_test_user,

@@ -138,7 +138,11 @@ class Case(ModelEventEmitter):
         blank=True,
         help_text="This is the case that can be found in openzaak.",
     )
-    case_deleted = models.BooleanField(default=False, blank=True, help_text="This field determines if the case is deleted in openzaak.")
+    case_deleted = models.BooleanField(
+        default=False,
+        blank=True,
+        help_text="This field determines if the case is deleted in openzaak.",
+    )
 
     def __get_event_values__(self):
         reason = self.reason.name

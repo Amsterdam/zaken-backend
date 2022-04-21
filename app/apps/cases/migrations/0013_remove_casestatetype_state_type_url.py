@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0012_merge_20220407_1013'),
+        ("cases", "0012_merge_20220407_1013"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='casestatetype',
-            name='state_type_url',
+            model_name="casestatetype",
+            name="state_type_url",
         ),
     ]

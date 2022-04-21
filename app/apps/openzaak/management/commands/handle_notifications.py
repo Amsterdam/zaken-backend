@@ -1,10 +1,7 @@
 import json
 import logging
-import resource
 from collections import namedtuple
-from datetime import datetime, timedelta
-
-from django.conf import settings
+from datetime import timedelta
 
 from apps.cases.models import (
     Case,
@@ -14,6 +11,7 @@ from apps.cases.models import (
     CaseStateType,
     CaseTheme,
 )
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
@@ -52,7 +50,9 @@ class Command(BaseCommand):
         case = Case.objects.filter(case_url=hoofd_object).first()
 
         if not case:
-            return self.set_processed(notification) # Stopping cause we don't know the case
+            return self.set_processed(
+                notification
+            )  # Stopping cause we don't know the case
 
         if action == "create":
             status = get_open_zaak_case_state(resource_url)
@@ -72,7 +72,9 @@ class Command(BaseCommand):
                 created=status.datum_status_gezet,
                 system_build=True,
             )
-        return self.set_processed(notification) # Stopping cause we don't know the state type
+        return self.set_processed(
+            notification
+        )  # Stopping cause we don't know the state type
 
     def process_case_document(self, notification, action, resource_url, hoofd_object):
         case = Case.objects.filter(case_url=hoofd_object).first()

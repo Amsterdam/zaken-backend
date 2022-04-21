@@ -9,13 +9,13 @@ class HealthConfig(AppConfig):
         from .health_checks import (
             BAGServiceCheck,
             BelastingDienstCheck,
+            CatalogiEndpointCheck,
             CeleryExecuteTask,
             DecosJoinCheck,
+            DocumentenEndpointCheck,
             KeycloakCheck,
             VakantieVerhuurRegistratieCheck,
             ZakenEndpointCheck,
-            DocumentenEndpointCheck,
-            CatalogiEndpointCheck,
         )
 
         plugin_dir.register(BAGServiceCheck)

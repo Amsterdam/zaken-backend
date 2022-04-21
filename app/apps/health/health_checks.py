@@ -1,11 +1,11 @@
 import logging
 
 import requests
-from requests.exceptions import HTTPError
 from config.celery import debug_task
 from django.conf import settings
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import ServiceUnavailable
+from requests.exceptions import HTTPError
 from utils.api_queries_vakantieverhuur_registraties import (
     get_bag_vakantieverhuur_registrations,
     get_bsn_vakantieverhuur_registrations,
@@ -124,12 +124,14 @@ class ZakenEndpointCheck(APIServiceCheckBackend):
     """
     Endpoint for checking Keycloak
     """
+
     critical_service = True
     verbose_name = "Zaken endpoint (OpenZaak)"
 
     def get_api_url(self):
-        from zgw_consumers.models import Service
         from zgw_consumers.constants import APITypes
+        from zgw_consumers.models import Service
+
         zaken_service = Service.objects.filter(api_type=APITypes.zrc).get()
         return zaken_service.api_root
 
@@ -138,12 +140,14 @@ class DocumentenEndpointCheck(APIServiceCheckBackend):
     """
     Endpoint for checking Keycloak
     """
+
     critical_service = True
     verbose_name = "DocumentenEndpoint (Alfresco)"
 
     def get_api_url(self):
-        from zgw_consumers.models import Service
         from zgw_consumers.constants import APITypes
+        from zgw_consumers.models import Service
+
         documenten_service = Service.objects.filter(api_type=APITypes.drc).get()
         return documenten_service.api_root
 
@@ -152,12 +156,14 @@ class CatalogiEndpointCheck(APIServiceCheckBackend):
     """
     Endpoint for checking Keycloak
     """
+
     critical_service = True
     verbose_name = "CatalogiEndpoint"
 
     def get_api_url(self):
-        from zgw_consumers.models import Service
         from zgw_consumers.constants import APITypes
+        from zgw_consumers.models import Service
+
         catalogi_service = Service.objects.filter(api_type=APITypes.ztc).get()
         return catalogi_service.api_root
 
