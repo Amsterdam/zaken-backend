@@ -84,6 +84,9 @@ class CaseFilter(filters.FilterSet):
     schedule_visit_from = filters.DateTimeFilter(
         method="get_schedule_visit_from",
     )
+    schedule_from_date_added = filters.DateTimeFilter(
+        method="get_schedule_from_date_added",
+    )
     schedule_housing_corporation_combiteam = filters.BooleanFilter(
         method="get_schedule_housing_corporation_combiteam"
     )
@@ -143,6 +146,14 @@ class CaseFilter(filters.FilterSet):
             return queryset.filter(
                 Q(last_schedule_field__lte=value) | Q(last_schedule_field__isnull=True)
             )
+        return queryset
+
+    def get_schedule_from_date_added(self, queryset, name, value):
+        if value:
+            queryset = self.get_annotated_qs_by_schedule_type(
+                queryset, "date_added", value
+            )
+            return queryset.filter(last_schedule_field__gte=value)
         return queryset
 
     def get_schedule_priority(self, queryset, name, value):
@@ -263,6 +274,9 @@ class StandardResultsSetPagination(EmptyPagination):
         ),
         OpenApiParameter(
             "schedule_visit_from", OpenApiTypes.DATE, OpenApiParameter.QUERY
+        ),
+        OpenApiParameter(
+            "schedule_from_date_added", OpenApiTypes.DATE, OpenApiParameter.QUERY
         ),
         OpenApiParameter(
             "schedule_housing_corporation_combiteam",
