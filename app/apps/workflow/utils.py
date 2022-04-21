@@ -5,6 +5,7 @@ import json
 import logging
 import os
 
+from apps.events.models import TaskModelEventEmitter
 from deepdiff import DeepDiff
 from django.conf import settings
 from prettyprinter import pprint
@@ -20,6 +21,27 @@ from SpiffWorkflow.specs.StartTask import StartTask
 from SpiffWorkflow.task import Task
 
 logger = logging.getLogger(__name__)
+
+
+def complete_uncompleted_task_for_event_emitters(event_emmitter, data={}):
+    from .models import CaseWorkflow
+
+    if not issubclass(event_emmitter.__class__, TaskModelEventEmitter):
+        logger.error(
+            f"Not an event emitter: emitter type: {event_emmitter.__class__.__name__}, emitter id: {event_emmitter.id}"
+        )
+        return
+    task = event_emmitter.case.tasks.filter(
+        id=int(event_emmitter.case_user_task_id),
+        completed=False,
+    ).first()
+    if not task:
+        logger.error(
+            f"Task not found or completed: task_id: {event_emmitter.case_user_task_id}, emitter type: {event_emmitter.__class__.__name__}, emitter id: {event_emmitter.id}"
+        )
+        return
+
+    CaseWorkflow.complete_user_task(event_emmitter.case_user_task_id, {})
 
 
 def parse_task_spec_form(form):
