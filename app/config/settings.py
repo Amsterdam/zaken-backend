@@ -4,10 +4,10 @@ from os.path import join
 
 import sentry_sdk
 from celery.schedules import crontab
+from dotenv import load_dotenv
 from keycloak_oidc.default_settings import *  # noqa
 from sentry_sdk.integrations.django import DjangoIntegration
 
-from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -293,9 +293,14 @@ BELASTING_API_URL = os.getenv(
 )
 BELASTING_API_ACCESS_TOKEN = os.getenv("BELASTING_API_ACCESS_TOKEN", None)
 
-BRP_API_URL = os.getenv(
-    "BRP_API_URL",
-    "https://acc.api.secure.amsterdam.nl/gob_stuf/brp/ingeschrevenpersonen",
+BRP_API_URL = "/".join(
+    [
+        os.getenv(
+            "BRP_API_URL",
+            "https://acc.hc.data.amsterdam.nl/brp",
+        ),
+        "ingeschrevenpersonen",
+    ]
 )
 
 # Secret keys which can be used to access certain parts of the API
@@ -482,7 +487,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 DEFAULT_RSIN = os.getenv("DEFAULT_RSIN", 130365312)
 OPENZAAK_ENABLED = os.getenv("OPENZAAK_ENABLED")
 OPENZAAK_CATALOGI_URL = os.getenv("OPENZAAK_CATALOGI_URL")
-OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE = os.getenv("OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE")
+OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE = os.getenv(
+    "OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE"
+)
 OPENZAAK_CASETYPEURL_TOEZICHT = os.getenv("OPENZAAK_CASETYPE_TOEZICHT")
 OPENZAAK_CASETYPEURL_HANDHAVING = os.getenv("OPENZAAK_CASETYPE_HANDHAVING")
 OPENZAAK_CASETYPEURL_AFGESLOTEN = os.getenv("OPENZAAK_CASETYPE_AFGESLOTEN")
@@ -528,16 +535,21 @@ WORKFLOW_SPEC_CONFIG = {
             "versions": {"0.1.0": {}},
         },
         "close_case": {
-            "initial_data": {"decision_count": {"value": 0}},
+            "initial_data": {
+                "decision_count": {"value": 0},
+                "reason": {"value": "default"},
+            },
             "versions": {
                 "0.1.0": {},
                 "0.2.0": {},
+                "6.0.0": {},
             },
         },
         "decision": {
             "initial_data": {},
             "versions": {
                 "0.1.0": {},
+                "0.2.0": {},
             },
         },
         "digital_surveillance": {
@@ -723,6 +735,44 @@ WORKFLOW_SPEC_CONFIG = {
                     },
                 },
                 "5.1.0": {
+                    "messages": {
+                        "main_process": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "ja"},
+                                "debrief_next_step": {"value": "default"},
+                                "summon_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
+                                "housing_corporation_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
+                                "leegstandsmelding_eigenaar": {"value": "default"},
+                            },
+                        },
+                        "aanschrijving_toevoegen": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "ja"},
+                                "debrief_next_step": {"value": "default"},
+                                "summon_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
+                                "housing_corporation_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
+                                "leegstandsmelding_eigenaar": {"value": "default"},
+                            },
+                        },
+                    },
+                },
+                "6.0.0": {
                     "messages": {
                         "main_process": {
                             "initial_data": {

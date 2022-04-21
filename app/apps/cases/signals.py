@@ -17,6 +17,9 @@ def case_pre_save(sender, instance, **kwargs):
         return
     if not instance.id:
         instance.sensitive = instance.theme.sensitive
+        instance.is_enforcement_request = bool(
+            instance.reason.snake_case_name == "handhavingsverzoek"
+        )
 
 
 @receiver(post_save, sender=Case, dispatch_uid="start_workflow_for_case")

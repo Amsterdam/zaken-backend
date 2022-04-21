@@ -251,7 +251,7 @@ class CaseTaskAdmin(admin.ModelAdmin):
         "owner",
     )
     search_fields = ("case__id",)
-    list_filter = ("task_name", "name")
+    list_filter = ("completed", "task_name", "name")
 
 
 @admin.register(WorkflowOption)

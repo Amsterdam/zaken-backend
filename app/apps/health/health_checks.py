@@ -73,6 +73,16 @@ class BAGServiceCheck(APIServiceCheckBackend):
     verbose_name = "BAG API Endpoint"
 
 
+class BRPServiceCheck(APIServiceCheckBackend):
+    """
+    Endpoint for checking the BRP Service API Endpoint
+    """
+
+    critical_service = True
+    api_url = settings.BRP_API_URL
+    verbose_name = "BRP API Endpoint"
+
+
 class CeleryExecuteTask(BaseHealthCheckBackend):
     def check_status(self):
         result = debug_task.apply_async(ignore_result=False)

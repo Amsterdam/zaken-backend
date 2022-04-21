@@ -4,6 +4,7 @@ from apps.main.pagination import EmptyPagination
 from apps.users.permissions import rest_permission_classes_for_top
 from apps.workflow.serializers import (
     CaseUserTaskSerializer,
+    CaseUserTaskTaskNameSerializer,
     GenericCompletedTaskCreateSerializer,
     GenericCompletedTaskSerializer,
 )
@@ -54,6 +55,9 @@ class CaseUserTaskFilter(filters.FilterSet):
     reason = filters.CharFilter(field_name="case__reason")
     sensitive = filters.BooleanFilter(field_name="case__sensitive")
     open_cases = filters.BooleanFilter(method="get_open_cases")
+    is_enforcement_request = filters.BooleanFilter(
+        method="get_enforcement_request_cases"
+    )
     state_types = filters.ModelMultipleChoiceFilter(
         queryset=CaseStateType.objects.all(), method="get_state_types"
     )
@@ -65,6 +69,7 @@ class CaseUserTaskFilter(filters.FilterSet):
     completed = filters.BooleanFilter()
     role = filters.CharFilter(method="get_role")
     theme = filters.CharFilter(field_name="case__theme__name")
+    name = filters.CharFilter(field_name="name")
 
     def get_role(self, queryset, name, value):
         return queryset.filter(roles__contains=[value])
@@ -92,6 +97,9 @@ class CaseUserTaskFilter(filters.FilterSet):
             case__address__postal_code__iexact=value.replace(" ", "")
         )
 
+    def get_enforcement_request_cases(self, queryset, name, value):
+        return queryset.filter(case__is_enforcement_request=value)
+
     def get_state_types(self, queryset, name, value):
         if value:
             return queryset.filter(
@@ -117,6 +125,7 @@ class CaseUserTaskFilter(filters.FilterSet):
             "completed",
             "role",
             "owner",
+            "name",
         ]
 
 
@@ -142,6 +151,10 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("role", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("due_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
         OpenApiParameter("owner", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter(
+            "is_enforcement_request", OpenApiTypes.BOOL, OpenApiParameter.QUERY
+        ),
+        OpenApiParameter("name", OpenApiTypes.STR, OpenApiParameter.QUERY),
     ]
 )
 class CaseUserTaskViewSet(
@@ -151,10 +164,7 @@ class CaseUserTaskViewSet(
 ):
     permission_classes = rest_permission_classes_for_top()
     serializer_class = CaseUserTaskSerializer
-    queryset = CaseUserTask.objects.filter(
-        completed=False,
-        case__end_date__isnull=True,
-    )
+    queryset = CaseUserTask.objects.all()
     http_method_names = ["patch", "get"]
 
     filter_backends = (
@@ -172,6 +182,21 @@ class CaseUserTaskViewSet(
         ):
             queryset = queryset.exclude(case__sensitive=True)
         return queryset
+
+    @extend_schema(
+        description="Gets all task names",
+        responses={status.HTTP_200_OK: CaseUserTaskTaskNameSerializer(many=True)},
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="task-names",
+    )
+    def task_names(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset = queryset.distinct("name").order_by("name")
+        serializer = CaseUserTaskTaskNameSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class GenericCompletedTaskFilter(filters.FilterSet):

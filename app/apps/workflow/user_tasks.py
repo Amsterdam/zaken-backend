@@ -847,3 +847,15 @@ class task_handhavingsverzoek_nakijken_besluit_afwijzing(user_task):
 
 class task_handhavingsverzoek_verwerken_besluit_afwijzing(user_task):
     due_date = relativedelta(days=1)
+
+
+class task_set_next_step_digital_surveillance(user_task):
+    due_date = relativedelta(weeks=2)
+
+
+class task_uitvoeren_digitale_hercontrole(user_task):
+    due_date = relativedelta(weeks=1)
+
+
+class task_opstellen_verslag_digitale_hercontrole(user_task):
+    due_date = relativedelta(days=3)
