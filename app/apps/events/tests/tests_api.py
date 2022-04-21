@@ -1,15 +1,15 @@
 from apps.events.tests.tests_helpers import CaseEventEmitterTestCase
+from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from django.urls import reverse
 from rest_framework import status
 
 from app.utils.unittest_helpers import (
     get_authenticated_client,
-    get_test_user,
     get_unauthenticated_client,
 )
 
 
-class CaseEventGetDetailAPITest(CaseEventEmitterTestCase):
+class CaseEventGetDetailAPITest(ZakenBackendTestMixin, CaseEventEmitterTestCase):
     def test_unauthenticated_get(self):
         url = reverse("cases-detail", kwargs={"pk": 1})
         # TODO: find out how to do this with url reversal instead

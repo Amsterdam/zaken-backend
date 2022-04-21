@@ -3,13 +3,9 @@ from apps.addresses.serializers import AddressSerializer
 from apps.cases.models import (
     Advertisement,
     Case,
-    CaseClose,
-    CaseCloseReason,
-    CaseCloseResult,
     CaseProject,
     CaseReason,
     CaseTheme,
-    CitizenReport,
     Subject,
 )
 from apps.cases.serializers.main import (
@@ -18,7 +14,6 @@ from apps.cases.serializers.main import (
     CaseReasonSerializer,
     CaseThemeSerializer,
     CitizenReportCaseSerializer,
-    CitizenReportSerializer,
     SubjectSerializer,
 )
 from apps.schedules.serializers import ScheduleSerializer

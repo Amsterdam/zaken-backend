@@ -2,6 +2,7 @@
 Tests for Debriefing models
 """
 from apps.cases.models import Case
+from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from apps.schedules.models import Action, DaySegment, Priority, Schedule, WeekSegment
 from django.core import management
 from django.urls import reverse
@@ -11,14 +12,14 @@ from rest_framework.test import APITestCase
 
 from app.utils.unittest_helpers import (
     get_authenticated_client,
-    get_test_user,
     get_unauthenticated_client,
 )
 
 
-class ScheduleCreateAPITest(APITestCase):
+class ScheduleCreateAPITest(ZakenBackendTestMixin, APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
 
     def test_unauthenticated_post(self):
         url = reverse("schedules-list")

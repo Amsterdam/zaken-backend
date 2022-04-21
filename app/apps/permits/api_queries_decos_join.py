@@ -8,7 +8,6 @@ from apps.permits.mocks import (
     get_decos_join_mock_object_fields,
 )
 from apps.permits.serializers import (
-    DecosJoinFolderFieldsResponseSerializer,
     DecosVakantieverhuurReportSerializer,
     PermitSerializer,
 )

@@ -1,4 +1,5 @@
 from apps.cases.models import Case, CaseTheme
+from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from apps.visits.models import Visit
 from apps.workflow.models import CaseUserTask, CaseWorkflow
 from django.conf import settings
@@ -11,16 +12,16 @@ from rest_framework.test import APITestCase
 from utils.unittest_helpers import (
     get_authenticated_client,
     get_authenticated_with_token_client,
-    get_test_user,
     get_unauthenticated_client,
 )
 
 User = get_user_model()
 
 
-class VisitApiTest(APITestCase):
+class VisitApiTest(ZakenBackendTestMixin, APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
 
     def test_unauthenticated_get(self):
         url = reverse("visits-list")

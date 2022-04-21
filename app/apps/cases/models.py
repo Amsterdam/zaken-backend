@@ -29,6 +29,10 @@ def snake_case(s):
 
 class CaseTheme(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    case_type_url = models.URLField(
+        null=True,
+        help_text="This is the case type that can be found in openzaak. This way all the case types can be linked within the systems.",
+    )
     sensitive = models.BooleanField(default=False)
 
     @property
@@ -129,6 +133,16 @@ class Case(ModelEventEmitter):
         related_query_name="cases",
     )
     is_enforcement_request = models.BooleanField(default=False)
+    case_url = models.URLField(
+        null=True,
+        blank=True,
+        help_text="This is the case that can be found in openzaak.",
+    )
+    case_deleted = models.BooleanField(
+        default=False,
+        blank=True,
+        help_text="This field determines if the case is deleted in openzaak.",
+    )
 
     def __get_event_values__(self):
         reason = self.reason.name
@@ -243,6 +257,16 @@ class Case(ModelEventEmitter):
         ordering = ["-start_date"]
 
 
+class CaseDocument(models.Model):
+    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    document_url = models.URLField()
+    document_content = models.URLField()
+    connected = models.BooleanField(default=False, blank=True)
+
+    def __str__(self):
+        return f"Document van {self.case.identification}"
+
+
 class CaseStateType(models.Model):
     name = models.CharField(max_length=255)
 
@@ -252,6 +276,7 @@ class CaseStateType(models.Model):
 
 class CaseState(models.Model):
     class CaseStateChoice(models.TextChoices):
+        # For new statusses there should be created a new setting.
         TOEZICHT = "TOEZICHT", "Toezicht"
         HANDHAVING = "HANDHAVING", "Handhaving"
         AFGESLOTEN = "AFGESLOTEN", "Afgesloten"
@@ -262,9 +287,9 @@ class CaseState(models.Model):
         choices=CaseStateChoice.choices,
         default=CaseStateChoice.TOEZICHT,
     )
-    created = models.DateTimeField(
-        auto_now_add=True,
-    )
+    created = models.DateTimeField(auto_now_add=True)
+    system_build = models.BooleanField(default=False, blank=True)
+    set_in_open_zaak = models.BooleanField(default=False, blank=True)
 
     def __str__(self):
         return f"{self.status} - {self.case}"

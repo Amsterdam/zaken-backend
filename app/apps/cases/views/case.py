@@ -13,11 +13,7 @@ from apps.events.mixins import CaseEventsMixin
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
 from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
-from apps.users.permissions import (
-    CanCreateCase,
-    CanCreateDigitalSurveillanceCase,
-    rest_permission_classes_for_top,
-)
+from apps.users.permissions import rest_permission_classes_for_top
 from apps.workflow.models import CaseWorkflow, WorkflowOption
 from apps.workflow.serializers import (
     CaseWorkflowSerializer,

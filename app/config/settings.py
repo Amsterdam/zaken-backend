@@ -4,8 +4,11 @@ from os.path import join
 
 import sentry_sdk
 from celery.schedules import crontab
+from dotenv import load_dotenv
 from keycloak_oidc.default_settings import *  # noqa
 from sentry_sdk.integrations.django import DjangoIntegration
+
+load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
@@ -55,6 +58,7 @@ INSTALLED_APPS = (
     "django_celery_beat",
     "django_celery_results",
     "zgw_consumers",
+    "privates",
     "axes",
     # Health checks. (Expand when more services become available)
     "health_check",
@@ -73,6 +77,7 @@ INSTALLED_APPS = (
     "apps.visits",
     "apps.events",
     "apps.health",
+    "apps.openzaak",
     "apps.support",
     "apps.summons",
     "apps.schedules",
@@ -128,6 +133,9 @@ STATIC_ROOT = os.path.normpath(join(os.path.dirname(BASE_DIR), "static"))
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.normpath(join(os.path.dirname(BASE_DIR), "media"))
+
+# Make sure that the folder is inside of the .gitignore file
+PRIVATE_MEDIA_ROOT = os.path.normpath(join(os.path.dirname(BASE_DIR), "private_media"))
 
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
@@ -475,6 +483,18 @@ VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER = os.getenv(
 )
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+DEFAULT_RSIN = os.getenv("DEFAULT_RSIN", 130365312)
+OPENZAAK_ENABLED = os.getenv("OPENZAAK_ENABLED")
+OPENZAAK_CATALOGI_URL = os.getenv("OPENZAAK_CATALOGI_URL")
+OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE = os.getenv(
+    "OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE"
+)
+OPENZAAK_CASETYPEURL_TOEZICHT = os.getenv("OPENZAAK_CASETYPE_TOEZICHT")
+OPENZAAK_CASETYPEURL_HANDHAVING = os.getenv("OPENZAAK_CASETYPE_HANDHAVING")
+OPENZAAK_CASETYPEURL_AFGESLOTEN = os.getenv("OPENZAAK_CASETYPE_AFGESLOTEN")
+OPENZAAK_CASETYPEURL_DEFAULT = os.getenv("OPENZAAK_CASETYPE_DEFAULT")
+HOST = os.getenv("HOST")
 
 DEFAULT_WORKFLOW_TYPE = os.getenv("DEFAULT_WORKFLOW_TYPE", "director")
 
@@ -980,3 +1000,11 @@ WORKFLOW_SPEC_CONFIG = {
         },
     },
 }
+
+ZGW_CONSUMERS_TEST_SCHEMA_DIRS = [
+    os.path.normpath(join(BASE_DIR, "apps", "openzaak", "tests", "files"))
+]
+TEST_ZAKEN_ROOT = "https://zaken.nl/api/v1/"
+TEST_DOCUMENTEN_ROOT = "https://documenten.nl/api/v1/"
+TEST_CATALOGI_ROOT = "https://localhost:8000/catalogi/api/v1/"
+TEST_NOTIFICATION_ROOT = "https://notification.nl/api/v1/"

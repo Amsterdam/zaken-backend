@@ -2,6 +2,7 @@ from datetime import date
 from uuid import UUID
 
 from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTheme
+from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from django.core import management
 from django.test import TestCase
 from django.utils import timezone
@@ -9,9 +10,10 @@ from freezegun import freeze_time
 from model_bakery import baker
 
 
-class CaseStateStypeModelTest(TestCase):
+class CaseStateStypeModelTest(ZakenBackendTestMixin, TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
 
     def test_can_create_state_type(self):
         """Tests CaseStateType object creation"""
@@ -22,9 +24,10 @@ class CaseStateStypeModelTest(TestCase):
         self.assertEquals(CaseStateType.objects.count(), 1)
 
 
-class CaseStateModelTest(TestCase):
+class CaseStateModelTest(ZakenBackendTestMixin, TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
 
     @freeze_time("2021-12-25")
     def test_set_start_date(self):
@@ -34,9 +37,10 @@ class CaseStateModelTest(TestCase):
         self.assertEquals(case_state.created, mock_date)
 
 
-class CaseThemeModelTest(TestCase):
+class CaseThemeModelTest(ZakenBackendTestMixin, TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
 
     def test_can_create_theme(self):
         """Tests ThemeModel object creation"""
@@ -47,9 +51,10 @@ class CaseThemeModelTest(TestCase):
         self.assertEquals(CaseTheme.objects.count(), 1)
 
 
-class CaseReasonModelTest(TestCase):
+class CaseReasonModelTest(ZakenBackendTestMixin, TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
 
     def test_can_create_reason(self):
         """Tests CaseReason object creation"""
@@ -67,9 +72,10 @@ class CaseReasonModelTest(TestCase):
         self.assertEquals(theme.reasons.count(), 2)
 
 
-class CaseModelTest(TestCase):
+class CaseModelTest(ZakenBackendTestMixin, TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
 
     def test_can_create_case(self):
         """A case can be created"""

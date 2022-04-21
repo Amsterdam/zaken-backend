@@ -6,3 +6,7 @@ __pycache__/
 .env.local
 !**/src/main/**/build/
 !**/src/test/**/build/
+
+app/.env
+app/.coverage
+private_media/

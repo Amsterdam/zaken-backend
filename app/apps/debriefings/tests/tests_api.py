@@ -3,18 +3,18 @@ Tests for Debriefing models
 """
 from apps.debriefings.models import Debriefing
 from apps.debriefings.tests.tests_helpers import DebriefingTestMixin
+from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from app.utils.unittest_helpers import (
     get_authenticated_client,
-    get_test_user,
     get_unauthenticated_client,
 )
 
 
-class DebriefingCreateAPITest(APITestCase, DebriefingTestMixin):
+class DebriefingCreateAPITest(ZakenBackendTestMixin, APITestCase, DebriefingTestMixin):
     def test_unauthenticated_post(self):
         url = reverse("debriefings-list")
         client = get_unauthenticated_client()

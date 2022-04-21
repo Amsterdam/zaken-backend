@@ -2,6 +2,7 @@ import datetime
 
 from apps.addresses.models import Address
 from apps.cases.models import Case
+from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from django.core import management
 from django.urls import reverse
 from model_bakery import baker
@@ -10,14 +11,14 @@ from rest_framework.test import APITestCase
 
 from app.utils.unittest_helpers import (
     get_authenticated_client,
-    get_test_user,
     get_unauthenticated_client,
 )
 
 
-class AddressCasesApiTest(APITestCase):
+class AddressCasesApiTest(ZakenBackendTestMixin, APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
 
     def test_unauthenticated_get(self):
         url = reverse("addresses-cases", kwargs={"bag_id": "foo"})

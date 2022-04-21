@@ -10,6 +10,7 @@ from apps.debriefings.views import DebriefingViewSet
 from apps.decisions.views import DecisionViewSet
 from apps.fines.views import FinesViewSet
 from apps.gateway.push.views import PushViewSet
+from apps.openzaak.views import ReceiveNotificationView
 from apps.schedules.views import ScheduleViewSet
 from apps.summons.views import SummonViewSet
 from apps.support.views import SupportContactView
@@ -76,6 +77,12 @@ urlpatterns = [
         "api/v1/is-authorized/",
         IsAuthorizedView.as_view(),
         name="is-authorized",
+    ),
+    # Endpoint to receive the notification
+    path(
+        "api/v1/openzaak/callbacks",
+        ReceiveNotificationView.as_view(),
+        name="notification-callback",
     ),
     path("data-model/", include("django_spaghetti.urls")),
     url("health/", include("health_check.urls")),

@@ -4,6 +4,7 @@ from apps.cases.models import (
     CaseClose,
     CaseCloseReason,
     CaseCloseResult,
+    CaseDocument,
     CaseProject,
     CaseReason,
     CaseState,
@@ -64,6 +65,11 @@ def camunda_case_try_to_complete_task_create_visit(modeladmin, request, queryset
 def camunda_case_try_to_complete_task_create_debrief(modeladmin, request, queryset):
     for case in queryset.filter(is_legacy_camunda=True, end_date__isnull=True):
         task_task_create_debrief.delay(case.id)
+
+
+@admin.register(CaseDocument)
+class CaseDocumentAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(Case)

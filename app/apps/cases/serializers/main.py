@@ -1,6 +1,5 @@
 from apps.cases.models import (
     Advertisement,
-    Case,
     CaseClose,
     CaseCloseReason,
     CaseCloseResult,

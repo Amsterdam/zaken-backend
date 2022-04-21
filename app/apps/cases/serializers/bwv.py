@@ -1,15 +1,5 @@
 from apps.addresses.models import HousingCorporation
-from apps.cases.models import (
-    Case,
-    CaseClose,
-    CaseCloseReason,
-    CaseCloseResult,
-    CaseProject,
-    CaseReason,
-    CaseTheme,
-    CitizenReport,
-    Subject,
-)
+from apps.cases.models import Case, CaseProject
 from apps.cases.serializers.case import BaseCaseSerializer
 from django.core.cache import cache
 from rest_framework import serializers
