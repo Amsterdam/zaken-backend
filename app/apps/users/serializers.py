@@ -37,6 +37,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(required=False)
     full_name = serializers.CharField(required=False)
     permissions = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
 
     @extend_schema_field(serializers.MultipleChoiceField(choices=custom_permissions))
     def get_permissions(self, object):
@@ -50,6 +51,25 @@ class UserDetailSerializer(serializers.ModelSerializer):
                     if p
                 ]
             )
+        )
+
+    @extend_schema_field(serializers.CharField(required=False))
+    def get_role(self, object):
+        valid_roles = (
+            "Handhavingsjurist",
+            "Projecthandhaver",
+            "Projectmedewerker",
+            "Toezichthouder",
+        )
+        return next(
+            iter(
+                [
+                    v.display_name
+                    for v in object.groups.all()
+                    if v.display_name in valid_roles
+                ]
+            ),
+            None,
         )
 
     class Meta:
