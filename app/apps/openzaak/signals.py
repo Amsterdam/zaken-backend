@@ -1,6 +1,4 @@
-import json
 import logging
-import sys
 
 from apps.cases.models import Case, CaseDocument, CaseState
 from apps.openzaak.helpers import (
