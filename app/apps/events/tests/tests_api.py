@@ -5,7 +5,6 @@ from rest_framework import status
 
 from app.utils.unittest_helpers import (
     get_authenticated_client,
-    get_test_user,
     get_unauthenticated_client,
 )
 

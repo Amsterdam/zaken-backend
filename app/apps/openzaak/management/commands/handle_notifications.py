@@ -3,14 +3,7 @@ import logging
 from collections import namedtuple
 from datetime import timedelta
 
-from apps.cases.models import (
-    Case,
-    CaseDocument,
-    CaseReason,
-    CaseState,
-    CaseStateType,
-    CaseTheme,
-)
+from apps.cases.models import Case, CaseDocument, CaseState, CaseTheme
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import timezone

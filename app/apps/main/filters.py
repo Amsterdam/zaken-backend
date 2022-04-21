@@ -1,15 +1,5 @@
 from typing import List, Tuple
 
-from apps.cases.serializers import (
-    CaseSerializer,
-    CitizenReportSerializer,
-    SubjectSerializer,
-)
-from apps.workflow.serializers import (
-    CaseWorkflowSerializer,
-    StartWorkflowSerializer,
-    WorkflowOptionSerializer,
-)
 from django.db import models
 from rest_framework import filters as rest_filters
 

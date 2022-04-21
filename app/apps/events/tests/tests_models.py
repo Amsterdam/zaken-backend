@@ -5,12 +5,6 @@ from apps.events.models import CaseEvent
 from apps.events.tests.tests_helpers import CaseEventEmitterTestCase
 from apps.openzaak.tests.utils import ZakenBackendTestMixin
 
-from app.utils.unittest_helpers import (
-    get_authenticated_client,
-    get_test_user,
-    get_unauthenticated_client,
-)
-
 
 class CaseEventTest(ZakenBackendTestMixin, CaseEventEmitterTestCase):
     def test_case_creates_events(self):

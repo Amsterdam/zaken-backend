@@ -35,7 +35,6 @@ from .tasks import (
     task_wait_for_workflows_and_send_message,
 )
 from .utils import (
-    compare_workflow_specs_by_task_specs,
     ff_to_subworkflow,
     ff_workflow,
     get_initial_data_from_config,
@@ -43,7 +42,6 @@ from .utils import (
     get_workflow_path,
     get_workflow_spec,
     parse_task_spec_form,
-    workflow_health_check,
 )
 
 logger = logging.getLogger(__name__)

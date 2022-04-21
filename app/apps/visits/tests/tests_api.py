@@ -12,7 +12,6 @@ from rest_framework.test import APITestCase
 from utils.unittest_helpers import (
     get_authenticated_client,
     get_authenticated_with_token_client,
-    get_test_user,
     get_unauthenticated_client,
 )
 

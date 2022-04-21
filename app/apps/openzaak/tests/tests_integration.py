@@ -1,7 +1,6 @@
 import requests_mock
-from apps.cases.models import Case, CaseDocument, CaseState, CaseStateType, CaseTheme
+from apps.cases.models import Case, CaseDocument, CaseState, CaseTheme
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.db.models import signals
 from django.test import TestCase
 from model_bakery import baker
 from zds_client.client import ClientError
@@ -12,15 +11,6 @@ from ..helpers import (
     create_document,
     create_open_zaak_case,
     create_open_zaak_case_state,
-    delete_document,
-    get_case_types,
-    get_document,
-    get_document_types,
-    get_open_zaak_case,
-    get_open_zaak_case_document_connection,
-    get_open_zaak_case_state,
-    update_document,
-    update_open_zaak_case,
 )
 from .utils import OpenZaakBaseMixin
 

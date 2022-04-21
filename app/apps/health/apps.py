@@ -15,7 +15,6 @@ class HealthConfig(AppConfig):
             DecosJoinCheck,
             DocumentenEndpointCheck,
             KeycloakCheck,
-            VakantieVerhuurRegistratieCheck,
             ZakenEndpointCheck,
         )
 

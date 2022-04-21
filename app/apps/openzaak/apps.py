@@ -9,8 +9,4 @@ class OpenzaakConfig(AppConfig):
 
     def ready(self):
         if settings.OPENZAAK_ENABLED:
-            from .signals import (
-                create_case_document_instance_in_openzaak,
-                create_case_instance_in_openzaak,
-                create_case_state_instance_in_openzaak,
-            )
+            pass

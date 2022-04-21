@@ -21,11 +21,15 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
             create_open_zaak_case(instance)
         except ClientError as e:
             logger.error(e)
+        except Exception as e:
+            logger.exception(e)
     else:
         try:
             update_open_zaak_case(instance)
         except ClientError as e:
             logger.error(e)
+        except Exception as e:
+            logger.exception(e)
 
 
 @receiver(post_save, sender=CaseState)
@@ -39,6 +43,8 @@ def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
             create_open_zaak_case_state(instance)
         except ClientError as e:
             logger.error(e)
+        except Exception as e:
+            logger.exception(e)
 
 
 @receiver(post_save, sender=CaseDocument)
@@ -48,3 +54,5 @@ def create_case_document_instance_in_openzaak(sender, instance, created, **kwarg
             connect_case_and_document(instance)
         except ClientError as e:
             logger.error(e)
+        except Exception as e:
+            logger.exception(e)
