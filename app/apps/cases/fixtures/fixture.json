@@ -253,6 +253,30 @@
     }
   },
   {
+    "model": "cases.casereason",
+    "pk": 31,
+    "fields": {
+      "name": "Eigen onderzoek",
+      "theme": 2
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 32,
+    "fields": {
+      "name": "Eigen onderzoek",
+      "theme": 3
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 33,
+    "fields": {
+      "name": "Eigen onderzoek",
+      "theme": 5
+    }
+  },
+  {
     "model": "cases.caseclosereason",
     "pk": 15,
     "fields": {
