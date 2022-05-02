@@ -15,6 +15,7 @@ class VisitSerializer(serializers.ModelSerializer):
         many=True,
         required=False,
     )
+    completed = serializers.BooleanField(default=False)
 
     def get_authors(self, validated_data):
         authors_data = validated_data.pop("authors")
@@ -40,7 +41,7 @@ class VisitSerializer(serializers.ModelSerializer):
         ).first()
         if task:
             visit, created = Visit.objects.update_or_create(
-                case=validated_data.get("case"),
+                case=case,
                 case_user_task_id=str(task.id),
                 top_visit_id=validated_data.get("top_visit_id"),
                 defaults=validated_data,
