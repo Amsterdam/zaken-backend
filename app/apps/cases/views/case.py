@@ -13,7 +13,10 @@ from apps.events.mixins import CaseEventsMixin
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
 from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
-from apps.users.permissions import rest_permission_classes_for_top
+from apps.users.permissions import (
+    CanAccessSensitiveCases,
+    rest_permission_classes_for_top,
+)
 from apps.workflow.models import CaseWorkflow, WorkflowOption
 from apps.workflow.serializers import (
     CaseWorkflowSerializer,
@@ -296,7 +299,7 @@ class CaseViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
-    permission_classes = rest_permission_classes_for_top()
+    permission_classes = rest_permission_classes_for_top() + [CanAccessSensitiveCases]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
     filter_backends = (
@@ -309,8 +312,10 @@ class CaseViewSet(
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        if hasattr(self.request, "user") and not self.request.user.has_perm(
-            "users.access_sensitive_dossiers"
+        if (
+            self.action in ("list",)
+            and hasattr(self.request, "user")
+            and not self.request.user.has_perm("users.access_sensitive_dossiers")
         ):
             queryset = queryset.exclude(sensitive=True)
         return queryset

@@ -1,3 +1,4 @@
+from apps.cases.models import Case
 from apps.users.auth_apps import TonKeyAuth, TopKeyAuth
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework.permissions import BasePermission
@@ -68,6 +69,31 @@ class CanCloseCase(BasePermission):
 
     def has_permission(self, request, view):
         return request.user.has_perm("users.close_case")
+
+
+class CanAccessSensitiveCases(BasePermission):
+    """
+    Custom permission to only allow users with access_sensitive_dossiers permissions on sensitive cases
+    """
+
+    def has_permission(self, request, view):
+        return True
+
+    def has_object_permission(self, request, view, obj):
+
+        if issubclass(obj.__class__, Case) and not obj.sensitive:
+            return True
+        elif (
+            hasattr(obj, "case")
+            and hasattr(obj.case, "sensitive")
+            and not obj.case.sensitive
+        ):
+            return True
+
+        if request.user.has_perm("users.access_sensitive_dossiers"):
+            return True
+
+        return False
 
 
 def rest_permission_classes_for_top():
