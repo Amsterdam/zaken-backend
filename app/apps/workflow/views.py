@@ -1,7 +1,10 @@
 from apps.cases.models import Case, CaseProject, CaseReason, CaseStateType
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
-from apps.users.permissions import rest_permission_classes_for_top
+from apps.users.permissions import (
+    CanAccessSensitiveCases,
+    rest_permission_classes_for_top,
+)
 from apps.workflow.serializers import (
     CaseUserTaskSerializer,
     CaseUserTaskTaskNameSerializer,
@@ -162,7 +165,7 @@ class CaseUserTaskViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
-    permission_classes = rest_permission_classes_for_top()
+    permission_classes = rest_permission_classes_for_top() + [CanAccessSensitiveCases]
     serializer_class = CaseUserTaskSerializer
     queryset = CaseUserTask.objects.all()
     http_method_names = ["patch", "get"]
@@ -177,8 +180,10 @@ class CaseUserTaskViewSet(
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        if hasattr(self.request, "user") and not self.request.user.has_perm(
-            "users.access_sensitive_dossiers"
+        if (
+            self.action in ("list",)
+            and hasattr(self.request, "user")
+            and not self.request.user.has_perm("users.access_sensitive_dossiers")
         ):
             queryset = queryset.exclude(case__sensitive=True)
         return queryset
