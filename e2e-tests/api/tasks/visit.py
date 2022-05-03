@@ -109,12 +109,16 @@ class test_doorgeven_status_top(AbstractUserTask, task_doorgeven_status_top):
         start_time=None,
         situation=Situations.ACCESS_GRANTED,
         can_next_visit_go_ahead=False,
+        top_visit_id=42,
+        completed=True,
     ):
         super().__init__(
             authors=authors,
             start_time=start_time if start_time else str(datetime.datetime.now()),
             situation=situation,
             can_next_visit_go_ahead=can_next_visit_go_ahead,
+            top_visit_id=top_visit_id,
+            completed=completed,
         )
 
     @staticmethod

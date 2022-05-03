@@ -3,6 +3,7 @@ import datetime
 
 import pytz
 from apps.events.models import TaskModelEventEmitter
+from apps.visits.models import Visit
 from apps.workflow.models import CaseUserTask, CaseWorkflow, GenericCompletedTask
 from apps.workflow.tasks import task_start_worflow
 from django.core.cache import cache
@@ -22,6 +23,7 @@ def event_emitter_pre_save(instance, **kwargs):
     if (
         issubclass(instance.__class__, TaskModelEventEmitter)
         and not instance.id
+        and not isinstance(instance, Visit)
         and hasattr(instance, "case_user_task_id")
         and instance.case_user_task_id
         and instance.case_user_task_id != "-1"

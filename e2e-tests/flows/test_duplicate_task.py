@@ -71,6 +71,8 @@ class TestDuplicateTaskExecution(DefaultAPITest):
             "start_time": str(datetime.datetime.now()),
             "situation": Situations.ACCESS_GRANTED,
             "can_next_visit_go_ahead": False,
+            "top_visit_id": 42,
+            "completed": True,
         }
 
         self.client.call(
