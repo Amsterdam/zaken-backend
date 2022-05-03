@@ -108,6 +108,7 @@ class VisitApiTest(ZakenBackendTestMixin, APITestCase):
             "start_time": "2021-03-31T17:17:52.126Z",
             "case": case.id,
             "task": "42",
+            "top_visit_id": 42,
         }
         response = client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -139,6 +140,7 @@ class VisitApiTest(ZakenBackendTestMixin, APITestCase):
             "start_time": "2021-03-31T17:17:52.126Z",
             "case": case.id,
             "task": "42",
+            "top_visit_id": 42,
         }
 
         response = client.post(url, data=data, format="json")
@@ -169,6 +171,7 @@ class VisitApiTest(ZakenBackendTestMixin, APITestCase):
             "start_time": "2021-03-31T17:17:52.126Z",
             "case": case.id,
             "task": "42",
+            "top_visit_id": 42,
         }
 
         response = client.post(url, data=data, format="json")
