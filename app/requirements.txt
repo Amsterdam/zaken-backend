@@ -36,7 +36,7 @@ djangorestframework==3.12.4
 djangorestframework-simplejwt==4.8.0
 drf-spectacular==0.17.2
 drf-writable-nested==0.6.3
-spiffworkflow @ git+https://github.com/mguikema/spiffworkflow.git
+spiffworkflow==1.1.0
 Faker==8.13.2
 freezegun==1.1.0
 deepdiff
