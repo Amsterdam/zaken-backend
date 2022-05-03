@@ -3,7 +3,7 @@
     "pk": 2,
     "fields": {
       "theme": 2,
-      "name": "Nieuwe melding",
+      "name": "Nieuwe SIA melding",
       "message_name": "start_signal_process",
       "to_directing_proccess": false
     }
@@ -103,7 +103,7 @@
     "pk": 22,
     "fields": {
       "theme": 3,
-      "name": "Nieuwe melding",
+      "name": "Nieuwe SIA melding",
       "message_name": "start_signal_process",
       "to_directing_proccess": false
     }
@@ -163,7 +163,7 @@
     "pk": 29,
     "fields": {
       "theme": 4,
-      "name": "Nieuwe melding",
+      "name": "Nieuwe SIA melding",
       "message_name": "start_signal_process",
       "to_directing_proccess": false
     }
@@ -264,7 +264,7 @@
     "pk": 39,
     "fields": {
       "theme": 5,
-      "name": "Nieuwe melding",
+      "name": "Nieuwe SIA melding",
       "message_name": "start_signal_process",
       "to_directing_proccess": false
     }
@@ -414,7 +414,7 @@
     "pk": 54,
     "fields": {
       "theme": 6,
-      "name": "Nieuwe melding",
+      "name": "Nieuwe SIA melding",
       "message_name": "start_signal_process",
       "to_directing_proccess": false
     }
@@ -726,6 +726,26 @@
       "theme": 6,
       "name": "Ingebrekestelling",
       "message_name": "start_ingebrekestelling",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 86,
+    "fields": {
+      "theme": 4,
+      "name": "Nieuwe MMA melding",
+      "message_name": "start_mma_signal_process",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 87,
+    "fields": {
+      "theme": 4,
+      "name": "Nieuwe Doorzon melding",
+      "message_name": "start_doorzon_signal_process",
       "to_directing_proccess": false
     }
   }

@@ -49,6 +49,7 @@ def parse_task_spec_form(form):
         "enum": "select",
         "boolean": "checkbox",
         "string": "text",
+        "long": "number",
     }
     fields = [
         {
