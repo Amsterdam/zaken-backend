@@ -6,7 +6,7 @@ Based on: https://github.com/VNG-Realisatie/zaken-api/blob/stable/1.0.x/src/noti
 import hashlib
 from datetime import date, datetime
 
-from apps.cases.models import CaseDocument, CaseState
+from apps.cases.models import CaseDocument
 from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext as _
@@ -31,10 +31,13 @@ def _parse_date(date):
 
 def _build_zaak_body(instance):
     today = date.today()
+    casetheme_url = settings.OPENZAAK_CASETHEME_URLS.get(
+        instance.theme.id, settings.OPENZAAK_CASETHEME_URL_DEFAULT
+    )
     return {
         "identificatie": f"{instance.id}{instance.identification}",
         "toelichting": instance.description or "Zaak aangemaakt via AZA",
-        "zaaktype": instance.theme.case_type_url,
+        "zaaktype": casetheme_url,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "verantwoordelijkeOrganisatie": settings.DEFAULT_RSIN,
         "registratiedatum": _parse_date(today),
@@ -46,7 +49,7 @@ def _build_zaak_body(instance):
 def _build_document_body(file, title, language, lock=None):
     file.seek(0)
     content = file.read()
-    string_content = content.decode("utf-8")
+    string_content = content.decode("utf-8", errors="ignore")
 
     document_body = {
         "bronorganisatie": settings.DEFAULT_RSIN,
@@ -135,26 +138,13 @@ def create_open_zaak_case_state(instance):
     now = timezone.now()
     with_time = datetime.combine(instance.created, now.time())
 
-    state_type_url = settings.OPENZAAK_CASETYPEURL_DEFAULT
-    if (
-        instance.status == CaseState.CaseStateChoice.TOEZICHT
-        and settings.OPENZAAK_CASETYPEURL_TOEZICHT
-    ):
-        state_type_url = settings.OPENZAAK_CASETYPEURL_TOEZICHT
-    if (
-        instance.status == CaseState.CaseStateChoice.HANDHAVING
-        and settings.OPENZAAK_CASETYPEURL_HANDHAVING
-    ):
-        state_type_url = settings.OPENZAAK_CASETYPEURL_HANDHAVING
-    if (
-        instance.status == CaseState.CaseStateChoice.AFGESLOTEN
-        and settings.OPENZAAK_CASETYPEURL_AFGESLOTEN
-    ):
-        state_type_url = settings.OPENZAAK_CASETYPEURL_AFGESLOTEN
+    state_url = settings.OPENZAAK_CASESTATE_URLS.get(
+        instance.status, settings.OPENZAAK_CASESTATE_URL_DEFAULT
+    )
 
     status_body = {
         "zaak": instance.case.case_url,
-        "statustype": state_type_url,
+        "statustype": state_url,
         "datumStatusGezet": with_time.isoformat(),
         "statustoelichting": _("Status aangepast in AZA"),
     }

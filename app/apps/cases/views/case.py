@@ -5,6 +5,8 @@ from apps.addresses.models import HousingCorporation
 from apps.cases.models import Case, CaseProject, CaseReason, CaseStateType
 from apps.cases.serializers import (
     AdvertisementSerializer,
+    CaseDocumentSerializer,
+    CaseDocumentUploadSerializer,
     CaseSerializer,
     CitizenReportSerializer,
     SubjectSerializer,
@@ -12,6 +14,7 @@ from apps.cases.serializers import (
 from apps.events.mixins import CaseEventsMixin
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
+from apps.openzaak.helpers import create_document
 from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
 from apps.users.permissions import (
     CanAccessSensitiveCases,
@@ -469,3 +472,43 @@ class CaseViewSet(
         context = paginator.paginate_queryset(query_set, request)
         serializer = AdvertisementSerializer(context, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the CaseDocument instances associated with this case",
+        responses={status.HTTP_200_OK: CaseDocumentSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="documents",
+        methods=["get"],
+    )
+    def documents(self, request, pk):
+        paginator = LimitOffsetPagination()
+        case = self.get_object()
+        query_set = case.casedocument_set.all()
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = CaseDocumentSerializer(context, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Add CaseDocument instances and associate it with this case",
+        responses={status.HTTP_200_OK: CaseDocumentSerializer()},
+        request=CaseDocumentUploadSerializer(),
+    )
+    @action(
+        detail=True,
+        url_path="documents",
+        methods=["post"],
+    )
+    def add_document(self, request, pk):
+        case = self.get_object()
+        print(request.FILES.get("file_uploaded"))
+        file_uploaded = request.FILES.get("file_uploaded")
+        content_type = file_uploaded.content_type
+        print(content_type)
+        response = create_document(case, file_uploaded, "Mijn docje")
+        print(response)
+        serialized = CaseDocumentSerializer(response)
+        print(serialized)
+        print(serialized.data)
+        return Response(serialized.data)

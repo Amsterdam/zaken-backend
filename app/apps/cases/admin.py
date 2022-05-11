@@ -86,7 +86,7 @@ class CaseAdmin(admin.ModelAdmin):
         "address",
         "legacy_bwv_case_id",
         "is_legacy_bwv",
-        "is_legacy_camunda",
+        "case_url",
         "author",
     )
     list_filter = (
@@ -123,6 +123,7 @@ class CaseStateAdmin(admin.ModelAdmin):
         "case",
         "status",
         "created",
+        "set_in_open_zaak",
     )
     list_filter = ("status",)
     search_fields = ("case__id",)
