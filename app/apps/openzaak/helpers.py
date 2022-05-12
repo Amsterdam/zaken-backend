@@ -3,9 +3,13 @@ These are all helpers that are needed to send, request, update and delete the ne
 Based on: https://github.com/VNG-Realisatie/zaken-api/blob/stable/1.0.x/src/notificaties.md
 """
 
+import base64
 import hashlib
+import pathlib
+import uuid
 from datetime import date, datetime
 
+import requests
 from apps.cases.models import CaseDocument
 from django.conf import settings
 from django.utils import timezone
@@ -49,26 +53,19 @@ def _build_zaak_body(instance):
 def _build_document_body(file, title, language, lock=None):
     file.seek(0)
     content = file.read()
-    string_content = content.decode("utf-8", errors="ignore")
+    string_content = base64.b64encode(content).decode("utf-8")
 
     document_body = {
+        "identificatie": uuid.uuid4().hex,
+        "formaat": pathlib.Path(file.name).suffix,
+        "informatieobjecttype": settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "creatiedatum": _parse_date(date.today()),
         "titel": title,
         "auteur": settings.DEFAULT_RSIN,
         "taal": language,
         "bestandsnaam": file.name,
-        "formaat": file.size,
         "inhoud": string_content,
-        "informatieobjecttype": settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE,
-        "ontvangstdatum": _parse_date(date.today()),
-        "verzenddatum": _parse_date(date.today()),
-        "ondertekening": {"soort": "analoog", "datum": _parse_date(date.today())},
-        "integriteit": {
-            "algoritme": "sha_3",
-            "waarde": _get_file_hash(content),
-            "datum": _parse_date(date.today()),
-        },
     }
     if lock:
         document_body["lock"] = lock
@@ -189,13 +186,18 @@ def get_document(document_url):
     response = drc_client.retrieve(
         "zaakinformatieobject",
         url=document_url,
-        request_kwargs={
-            "headers": {
-                "Accept-Crs": "EPSG:4326",
-            }
-        },
     )
     return factory(Document, response)
+
+
+def get_document_inhoud(document_inhoud_url):
+    client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
+    response = requests.get(
+        document_inhoud_url,
+        headers=client.auth.credentials(),
+    )
+    response.raise_for_status()
+    return response.content
 
 
 def update_document(case_document, file, title, language="nld"):
