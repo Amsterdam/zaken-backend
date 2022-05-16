@@ -191,7 +191,11 @@ class CaseDocumentSerializer(serializers.ModelSerializer):
 
 
 class CaseDocumentUploadSerializer(serializers.Serializer):
-    file_uploaded = serializers.FileField()
+    file = serializers.FileField()
+    title = serializers.CharField(required=False)
+    documenttype_url = serializers.URLField(required=False)
 
-    class Meta:
-        fields = ["file_uploaded"]
+
+class DocumentTypeSerializer(serializers.Serializer):
+    omschrijving = serializers.CharField()
+    url = serializers.URLField()

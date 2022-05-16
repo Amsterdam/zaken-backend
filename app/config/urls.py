@@ -4,6 +4,7 @@ from apps.cases.views import (
     CaseDocumentViewSet,
     CaseThemeViewSet,
     CaseViewSet,
+    DocumentTypeViewSet,
     ImportBWVCaseDataView,
     download_data,
 )
@@ -35,6 +36,7 @@ router = DefaultRouter()
 router.register(r"addresses", AddressViewSet, basename="addresses")
 router.register(r"cases", CaseViewSet, basename="cases")
 router.register(r"documents", CaseDocumentViewSet, basename="documents")
+router.register(r"documents-types", DocumentTypeViewSet, basename="documents-types")
 router.register(r"tasks", CaseUserTaskViewSet, basename="tasks")
 router.register(r"themes", CaseThemeViewSet, basename="themes")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")

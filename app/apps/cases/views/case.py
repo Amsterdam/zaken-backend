@@ -11,12 +11,18 @@ from apps.cases.serializers import (
     CaseDocumentUploadSerializer,
     CaseSerializer,
     CitizenReportSerializer,
+    DocumentTypeSerializer,
     SubjectSerializer,
 )
 from apps.events.mixins import CaseEventsMixin
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
-from apps.openzaak.helpers import create_document, get_document, get_document_inhoud
+from apps.openzaak.helpers import (
+    create_document,
+    get_document,
+    get_document_inhoud,
+    get_document_types,
+)
 from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
 from apps.users.permissions import (
     CanAccessSensitiveCases,
@@ -502,11 +508,12 @@ class CaseViewSet(
         detail=True,
         url_path="documents/create",
         methods=["post"],
+        serializer_class=CaseDocumentUploadSerializer,
     )
     def add_document(self, request, pk):
         case = self.get_object()
-        file_uploaded = request.FILES.get("file_uploaded")
-        response = create_document(case, file_uploaded, "Mijn docje")
+        file_uploaded = request.FILES.get("file")
+        response = create_document(case, file_uploaded, request.data.get("title"))
         serialized = CaseDocumentSerializer(response)
         return Response(serialized.data)
 
@@ -534,3 +541,12 @@ class CaseDocumentViewSet(
         response["Content-Length"] = document.bestandsomvang
         response["Last-Modified"] = document.creatiedatum
         return response
+
+
+class DocumentTypeViewSet(viewsets.ViewSet):
+    def list(self, request):
+        document_types = get_document_types()
+        serializer = DocumentTypeSerializer(
+            document_types.get("results", []), many=True
+        )
+        return Response(serializer.data)
