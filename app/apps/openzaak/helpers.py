@@ -19,6 +19,7 @@ from zgw_consumers.api_models.documenten import Document
 from zgw_consumers.api_models.zaken import Status, Zaak
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
+from zgw_consumers.service import get_paginated_results
 
 
 def _get_file_hash(content):
@@ -35,8 +36,11 @@ def _parse_date(date):
 
 def _build_zaak_body(instance):
     today = date.today()
-    casetheme_url = settings.OPENZAAK_CASETHEME_URLS.get(
-        instance.theme.id, settings.OPENZAAK_CASETHEME_URL_DEFAULT
+
+    case_types = get_case_types(instance.theme.name)
+    casetheme_url = next(
+        iter([ct.get("url") for ct in case_types]),
+        settings.OPENZAAK_DEFAULT_ZAAKTYPE_URL,
     )
     return {
         "identificatie": f"{instance.id}{instance.identification}",
@@ -58,7 +62,7 @@ def _build_document_body(file, language, title=None, lock=None):
     document_body = {
         "identificatie": uuid.uuid4().hex,
         "formaat": pathlib.Path(file.name).suffix,
-        "informatieobjecttype": settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE,
+        "informatieobjecttype": settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "creatiedatum": _parse_date(date.today()),
         "titel": title,
@@ -73,7 +77,7 @@ def _build_document_body(file, language, title=None, lock=None):
     return document_body
 
 
-def get_case_types():
+def get_case_types(identificatie=None):
     ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
 
     params = {
@@ -81,22 +85,25 @@ def get_case_types():
         "status": "definitief",  # Options: "alles", "definitief", "concept"
         # "page": 1
     }
+    if identificatie:
+        params.update({"identificatie": identificatie})
 
-    response = ztc_client.list("zaaktype", query_param=params)
-    return response
+    return get_paginated_results(ztc_client, "zaaktype", query_params=params)
 
 
-def get_document_types():
+def get_document_types(identificatie=None):
     ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
-
     params = {
         "catalogus": settings.OPENZAAK_CATALOGI_URL,
         "status": "definitief",  # Options: "alles", "definitief", "concept"
         # "page": 1
     }
+    if identificatie:
+        params.update({"identificatie": identificatie})
 
-    response = ztc_client.list("informatieobjecttype", query_param=params)
-    return response
+    return get_paginated_results(
+        ztc_client, "informatieobjecttype", query_params=params
+    )
 
 
 def create_open_zaak_case(instance):
