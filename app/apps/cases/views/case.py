@@ -19,6 +19,7 @@ from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
 from apps.openzaak.helpers import (
     create_document,
+    get_case_types,
     get_document,
     get_document_inhoud,
     get_document_types,
@@ -546,7 +547,5 @@ class CaseDocumentViewSet(
 class DocumentTypeViewSet(viewsets.ViewSet):
     def list(self, request):
         document_types = get_document_types()
-        serializer = DocumentTypeSerializer(
-            document_types.get("results", []), many=True
-        )
+        serializer = DocumentTypeSerializer(document_types, many=True)
         return Response(serializer.data)

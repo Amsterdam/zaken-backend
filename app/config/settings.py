@@ -486,7 +486,18 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 DEFAULT_RSIN = os.getenv("DEFAULT_RSIN", 130365312)
 OPENZAAK_ENABLED = os.getenv("OPENZAAK_ENABLED")
-OPENZAAK_CATALOGI_URL = os.getenv("OPENZAAK_CATALOGI_URL")
+OPENZAAK_CATALOGI_URL = os.getenv(
+    "OPENZAAK_CATALOGI_URL",
+    "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/catalogussen/fe6b2aaf-9ec3-4430-ac88-486fd68194b7",
+)
+OPENZAAK_DEFAULT_ZAAKTYPE_URL = os.getenv(
+    "OPENZAAK_DEFAULT_ZAAKTYPE_URL",
+    "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/zaaktypen/04312652-d416-4461-ba7e-10a86c019407",
+)
+OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL = os.getenv(
+    "OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL",
+    "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/informatieobjecttypen/de2f0944-b722-4075-8a68-01f30782f331",
+)
 OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE = os.getenv(
     "OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE"
 )
