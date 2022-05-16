@@ -50,7 +50,7 @@ def _build_zaak_body(instance):
     }
 
 
-def _build_document_body(file, title, language, lock=None):
+def _build_document_body(file, language, title=None, lock=None):
     file.seek(0)
     content = file.read()
     string_content = base64.b64encode(content).decode("utf-8")
@@ -166,11 +166,11 @@ def get_open_zaak_case_state(case_state_url):
     return factory(Status, response)
 
 
-def create_document(instance, file, title, language="nld"):
+def create_document(instance, file, language="nld", title=None):
     """
     In here we expect a case instance
     """
-    document_body = _build_document_body(file, title, language)
+    document_body = _build_document_body(file, language, title)
 
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
     response = drc_client.create("enkelvoudiginformatieobject", document_body)
