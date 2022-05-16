@@ -1,10 +1,14 @@
+import io
+import mimetypes
 import operator
 from functools import reduce
 
 from apps.addresses.models import HousingCorporation
-from apps.cases.models import Case, CaseProject, CaseReason, CaseStateType
+from apps.cases.models import Case, CaseDocument, CaseProject, CaseReason, CaseStateType
 from apps.cases.serializers import (
     AdvertisementSerializer,
+    CaseDocumentSerializer,
+    CaseDocumentUploadSerializer,
     CaseSerializer,
     CitizenReportSerializer,
     SubjectSerializer,
@@ -12,6 +16,7 @@ from apps.cases.serializers import (
 from apps.events.mixins import CaseEventsMixin
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
+from apps.openzaak.helpers import create_document, get_document, get_document_inhoud
 from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
 from apps.users.permissions import (
     CanAccessSensitiveCases,
@@ -25,6 +30,7 @@ from apps.workflow.serializers import (
 )
 from django.db.models import OuterRef, Q, Subquery
 from django.forms.fields import CharField, MultipleChoiceField
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
@@ -469,3 +475,62 @@ class CaseViewSet(
         context = paginator.paginate_queryset(query_set, request)
         serializer = AdvertisementSerializer(context, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the CaseDocument instances associated with this case",
+        responses={status.HTTP_200_OK: CaseDocumentSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="documents",
+        methods=["get"],
+    )
+    def documents(self, request, pk):
+        paginator = LimitOffsetPagination()
+        case = self.get_object()
+        query_set = case.casedocument_set.all()
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = CaseDocumentSerializer(context, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Add CaseDocument instances and associate it with this case",
+        responses={status.HTTP_200_OK: CaseDocumentSerializer()},
+        request=CaseDocumentUploadSerializer(),
+    )
+    @action(
+        detail=True,
+        url_path="documents/create",
+        methods=["post"],
+    )
+    def add_document(self, request, pk):
+        case = self.get_object()
+        file_uploaded = request.FILES.get("file_uploaded")
+        response = create_document(case, file_uploaded, "Mijn docje")
+        serialized = CaseDocumentSerializer(response)
+        return Response(serialized.data)
+
+
+class CaseDocumentViewSet(
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    permission_classes = [CanAccessSensitiveCases]
+    serializer_class = CaseDocumentSerializer
+    queryset = CaseDocument.objects.all()
+    pagination_class = StandardResultsSetPagination
+
+    def retrieve(self, request, *args, **kwargs):
+        casedocument = self.get_object()
+        document = get_document(casedocument.document_url)
+        print(document)
+        content = get_document_inhoud(casedocument.document_content)
+
+        response = FileResponse(io.BytesIO(content))
+        response[
+            "Content-Disposition"
+        ] = f"attachment; filename={document.bestandsnaam}"
+        response["Content-Type"] = mimetypes.types_map[document.formaat]
+        response["Content-Length"] = document.bestandsomvang
+        response["Last-Modified"] = document.creatiedatum
+        return response

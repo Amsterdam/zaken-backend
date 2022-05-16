@@ -3,10 +3,14 @@ These are all helpers that are needed to send, request, update and delete the ne
 Based on: https://github.com/VNG-Realisatie/zaken-api/blob/stable/1.0.x/src/notificaties.md
 """
 
+import base64
 import hashlib
+import pathlib
+import uuid
 from datetime import date, datetime
 
-from apps.cases.models import CaseDocument, CaseState
+import requests
+from apps.cases.models import CaseDocument
 from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext as _
@@ -31,10 +35,13 @@ def _parse_date(date):
 
 def _build_zaak_body(instance):
     today = date.today()
+    casetheme_url = settings.OPENZAAK_CASETHEME_URLS.get(
+        instance.theme.id, settings.OPENZAAK_CASETHEME_URL_DEFAULT
+    )
     return {
         "identificatie": f"{instance.id}{instance.identification}",
         "toelichting": instance.description or "Zaak aangemaakt via AZA",
-        "zaaktype": instance.theme.case_type_url,
+        "zaaktype": casetheme_url,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "verantwoordelijkeOrganisatie": settings.DEFAULT_RSIN,
         "registratiedatum": _parse_date(today),
@@ -46,26 +53,19 @@ def _build_zaak_body(instance):
 def _build_document_body(file, title, language, lock=None):
     file.seek(0)
     content = file.read()
-    string_content = content.decode("utf-8")
+    string_content = base64.b64encode(content).decode("utf-8")
 
     document_body = {
+        "identificatie": uuid.uuid4().hex,
+        "formaat": pathlib.Path(file.name).suffix,
+        "informatieobjecttype": settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "creatiedatum": _parse_date(date.today()),
         "titel": title,
         "auteur": settings.DEFAULT_RSIN,
         "taal": language,
         "bestandsnaam": file.name,
-        "formaat": file.size,
         "inhoud": string_content,
-        "informatieobjecttype": settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE,
-        "ontvangstdatum": _parse_date(date.today()),
-        "verzenddatum": _parse_date(date.today()),
-        "ondertekening": {"soort": "analoog", "datum": _parse_date(date.today())},
-        "integriteit": {
-            "algoritme": "sha_3",
-            "waarde": _get_file_hash(content),
-            "datum": _parse_date(date.today()),
-        },
     }
     if lock:
         document_body["lock"] = lock
@@ -135,26 +135,13 @@ def create_open_zaak_case_state(instance):
     now = timezone.now()
     with_time = datetime.combine(instance.created, now.time())
 
-    state_type_url = settings.OPENZAAK_CASETYPEURL_DEFAULT
-    if (
-        instance.status == CaseState.CaseStateChoice.TOEZICHT
-        and settings.OPENZAAK_CASETYPEURL_TOEZICHT
-    ):
-        state_type_url = settings.OPENZAAK_CASETYPEURL_TOEZICHT
-    if (
-        instance.status == CaseState.CaseStateChoice.HANDHAVING
-        and settings.OPENZAAK_CASETYPEURL_HANDHAVING
-    ):
-        state_type_url = settings.OPENZAAK_CASETYPEURL_HANDHAVING
-    if (
-        instance.status == CaseState.CaseStateChoice.AFGESLOTEN
-        and settings.OPENZAAK_CASETYPEURL_AFGESLOTEN
-    ):
-        state_type_url = settings.OPENZAAK_CASETYPEURL_AFGESLOTEN
+    state_url = settings.OPENZAAK_CASESTATE_URLS.get(
+        instance.status, settings.OPENZAAK_CASESTATE_URL_DEFAULT
+    )
 
     status_body = {
         "zaak": instance.case.case_url,
-        "statustype": state_type_url,
+        "statustype": state_url,
         "datumStatusGezet": with_time.isoformat(),
         "statustoelichting": _("Status aangepast in AZA"),
     }
@@ -199,13 +186,18 @@ def get_document(document_url):
     response = drc_client.retrieve(
         "zaakinformatieobject",
         url=document_url,
-        request_kwargs={
-            "headers": {
-                "Accept-Crs": "EPSG:4326",
-            }
-        },
     )
     return factory(Document, response)
+
+
+def get_document_inhoud(document_inhoud_url):
+    client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
+    response = requests.get(
+        document_inhoud_url,
+        headers=client.auth.credentials(),
+    )
+    response.raise_for_status()
+    return response.content
 
 
 def update_document(case_document, file, title, language="nld"):

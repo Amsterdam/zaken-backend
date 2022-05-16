@@ -1,6 +1,7 @@
 from apps.addresses.views import AddressViewSet
 from apps.cases.views import (
     CaseCloseViewSet,
+    CaseDocumentViewSet,
     CaseThemeViewSet,
     CaseViewSet,
     ImportBWVCaseDataView,
@@ -33,6 +34,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register(r"addresses", AddressViewSet, basename="addresses")
 router.register(r"cases", CaseViewSet, basename="cases")
+router.register(r"documents", CaseDocumentViewSet, basename="documents")
 router.register(r"tasks", CaseUserTaskViewSet, basename="tasks")
 router.register(r"themes", CaseThemeViewSet, basename="themes")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")

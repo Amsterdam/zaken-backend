@@ -40,7 +40,8 @@ def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
         and not instance.system_build
     ):
         try:
-            create_open_zaak_case_state(instance)
+            pass
+            # create_open_zaak_case_state(instance)
         except ClientError as e:
             logger.error(e)
         except Exception as e:

@@ -9,4 +9,4 @@ class OpenzaakConfig(AppConfig):
 
     def ready(self):
         if settings.OPENZAAK_ENABLED:
-            pass
+            import apps.openzaak.signals  # noqa

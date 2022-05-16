@@ -3,6 +3,7 @@ from apps.addresses.serializers import AddressSerializer
 from apps.cases.models import (
     Advertisement,
     Case,
+    CaseDocument,
     CaseProject,
     CaseReason,
     CaseTheme,
@@ -181,3 +182,16 @@ class CaseDetailSerializer(CaseSerializer):
             "last_updated",
             "created",
         )
+
+
+class CaseDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseDocument
+        fields = "__all__"
+
+
+class CaseDocumentUploadSerializer(serializers.Serializer):
+    file_uploaded = serializers.FileField()
+
+    class Meta:
+        fields = ["file_uploaded"]
