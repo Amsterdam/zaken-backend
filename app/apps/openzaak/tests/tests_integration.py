@@ -20,6 +20,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
     def test_uploads_success(self, m):
         mock_service_oas_get(m, self.ZAKEN_ROOT, "zrc")
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
+        m.get(f"{self.CATALOGI_ROOT}zaaktypen", json=self.zaaktypen, status_code=200)
         m.post(f"{self.ZAKEN_ROOT}zaken", json=self.zaak, status_code=201)
         m.put(self.ZAAK_URL, json=self.zaak, status_code=200)
         m.post(f"{self.ZAKEN_ROOT}statussen", json=self.status, status_code=201)
@@ -34,7 +35,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
             status_code=201,
         )
 
-        theme = baker.make(CaseTheme, case_type_url=self.ZAAK_TYPE_URL)
+        theme = baker.make(CaseTheme, name="mock_name")
         case = baker.make(Case, theme=theme)
         create_open_zaak_case(case)
         # Making sure that the case_url is set
@@ -49,7 +50,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
 
         # Try uploading the document.
         file = SimpleUploadedFile(name="test_file.txt", content=b"Test")
-        create_document(case, file, "This is the title", language="nld")
+        create_document(case, file, language="nld", title="This is the title")
         self.assertEquals(CaseDocument.objects.count(), 1)
         document = CaseDocument.objects.first()
         connect_case_and_document(document)
@@ -59,8 +60,10 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
     @requests_mock.Mocker()
     def test_create_case_failure(self, m):
         mock_service_oas_get(m, self.ZAKEN_ROOT, "zrc")
+        m.get(f"{self.CATALOGI_ROOT}zaaktypen", json=self.zaaktypen, status_code=200)
         m.post(f"{self.ZAKEN_ROOT}zaken", json=self.fout, status_code=400)
-        theme = baker.make(CaseTheme, case_type_url=self.ZAAK_TYPE_URL)
+        m.get(f"{self.CATALOGI_ROOT}zaaktypen", json=self.zaaktypen, status_code=200)
+        theme = baker.make(CaseTheme, name="mock_name")
         case = baker.make(Case, theme=theme)
         with self.assertRaises(ClientError):
             create_open_zaak_case(case)
@@ -71,6 +74,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
     def test_create_document_failure(self, m):
         mock_service_oas_get(m, self.ZAKEN_ROOT, "zrc")
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
+        m.get(f"{self.CATALOGI_ROOT}zaaktypen", json=self.zaaktypen, status_code=200)
         m.post(f"{self.ZAKEN_ROOT}zaken", json=self.zaak, status_code=201)
         m.put(self.ZAAK_URL, json=self.zaak, status_code=200)
         m.post(
@@ -78,18 +82,19 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
             json=self.fout,
             status_code=400,
         )
-        theme = baker.make(CaseTheme, case_type_url=self.ZAAK_TYPE_URL)
+        theme = baker.make(CaseTheme, name="mock_name")
         case = baker.make(Case, theme=theme)
         create_open_zaak_case(case)
         file = SimpleUploadedFile(name="test_file.txt", content=b"Test")
         with self.assertRaises(ClientError):
-            create_document(case, file, "This is the title", language="nld")
+            create_document(case, file, language="nld", title="This is the title")
         self.assertEquals(CaseDocument.objects.count(), 0)
 
     @requests_mock.Mocker()
     def test_fail_connection(self, m):
         mock_service_oas_get(m, self.ZAKEN_ROOT, "zrc")
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
+        m.get(f"{self.CATALOGI_ROOT}zaaktypen", json=self.zaaktypen, status_code=200)
         m.post(f"{self.ZAKEN_ROOT}zaken", json=self.zaak, status_code=201)
         m.put(self.ZAAK_URL, json=self.zaak, status_code=200)
         m.post(
@@ -101,7 +106,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
             f"{self.ZAKEN_ROOT}zaakinformatieobjecten", json=self.fout, status_code=400
         )
 
-        theme = baker.make(CaseTheme, case_type_url=self.ZAAK_TYPE_URL)
+        theme = baker.make(CaseTheme, name="mock_name")
         case = baker.make(Case, theme=theme)
         create_open_zaak_case(case)
 
@@ -111,7 +116,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
 
         # Try uploading the document.
         file = SimpleUploadedFile(name="test_file.txt", content=b"Test")
-        create_document(case, file, "This is the title", language="nld")
+        create_document(case, file, language="nld", title="This is the title")
         self.assertEquals(CaseDocument.objects.count(), 1)
         document = CaseDocument.objects.first()
         self.assertFalse(document.connected)
