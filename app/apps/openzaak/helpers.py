@@ -54,15 +54,21 @@ def _build_zaak_body(instance):
     }
 
 
-def _build_document_body(file, language, title=None, lock=None):
+def _build_document_body(
+    file,
+    language,
+    title=None,
+    lock=None,
+    informatieobjecttype=settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL,
+):
     file.seek(0)
     content = file.read()
     string_content = base64.b64encode(content).decode("utf-8")
-
+    title = title if title else file.name
     document_body = {
         "identificatie": uuid.uuid4().hex,
         "formaat": pathlib.Path(file.name).suffix,
-        "informatieobjecttype": settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL,
+        "informatieobjecttype": informatieobjecttype,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "creatiedatum": _parse_date(date.today()),
         "titel": title,
@@ -173,11 +179,13 @@ def get_open_zaak_case_state(case_state_url):
     return factory(Status, response)
 
 
-def create_document(instance, file, language="nld", title=None):
+def create_document(
+    instance, file, language="nld", title=None, informatieobjecttype=None
+):
     """
     In here we expect a case instance
     """
-    document_body = _build_document_body(file, language, title)
+    document_body = _build_document_body(file, language, title, informatieobjecttype)
 
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
     response = drc_client.create("enkelvoudiginformatieobject", document_body)

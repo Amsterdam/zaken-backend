@@ -514,7 +514,12 @@ class CaseViewSet(
     def add_document(self, request, pk):
         case = self.get_object()
         file_uploaded = request.FILES.get("file")
-        response = create_document(case, file_uploaded, request.data.get("title"))
+        response = create_document(
+            case,
+            file_uploaded,
+            request.data.get("title"),
+            request.data.get("documenttype_url"),
+        )
         serialized = CaseDocumentSerializer(response)
         return Response(serialized.data)
 
