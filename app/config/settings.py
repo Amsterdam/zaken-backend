@@ -492,11 +492,11 @@ OPENZAAK_CATALOGI_URL = os.getenv(
 )
 OPENZAAK_DEFAULT_ZAAKTYPE_URL = os.getenv(
     "OPENZAAK_DEFAULT_ZAAKTYPE_URL",
-    "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/zaaktypen/04312652-d416-4461-ba7e-10a86c019407",
+    "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/zaaktypen/87b054f4-7514-4776-bdad-b90cc58c6cb7",
 )
 OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL = os.getenv(
     "OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL",
-    "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/informatieobjecttypen/de2f0944-b722-4075-8a68-01f30782f331",
+    "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/informatieobjecttypen/655ed6b3-2ee8-475d-8e40-7de76a2454f7",
 )
 OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE = os.getenv(
     "OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE"
