@@ -48,6 +48,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
     def test_create_open_zaak_case(self, m):
         mock_service_oas_get(m, self.ZAKEN_ROOT, "zrc")
         m.get(f"{self.CATALOGI_ROOT}zaaktypen", json=self.zaaktypen, status_code=200)
+        m.get(f"{self.CATALOGI_ROOT}schema/openapi.yaml?v=3", status_code=200)
         m.post(f"{self.ZAKEN_ROOT}zaken", json=self.zaak, status_code=201)
         theme = baker.make(CaseTheme, name="mock_name")
         case = baker.make(Case, theme=theme)
