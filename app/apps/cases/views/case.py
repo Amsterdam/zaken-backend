@@ -517,6 +517,7 @@ class CaseViewSet(
         response = create_document(
             case,
             file_uploaded,
+            "nld",
             request.data.get("title"),
             request.data.get("documenttype_url"),
         )
