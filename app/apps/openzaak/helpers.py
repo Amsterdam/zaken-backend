@@ -15,6 +15,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from zgw_consumers.api_models.base import factory
+from zgw_consumers.api_models.catalogi import ZaakType
 from zgw_consumers.api_models.documenten import Document
 from zgw_consumers.api_models.zaken import Status, Zaak
 from zgw_consumers.constants import APITypes
@@ -58,13 +59,18 @@ def _build_document_body(
     file,
     language,
     title=None,
+    informatieobjecttype=None,
     lock=None,
-    informatieobjecttype=settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL,
 ):
     file.seek(0)
     content = file.read()
     string_content = base64.b64encode(content).decode("utf-8")
     title = title if title else file.name
+    informatieobjecttype = (
+        informatieobjecttype
+        if informatieobjecttype
+        else settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL
+    )
     document_body = {
         "identificatie": uuid.uuid4().hex,
         "formaat": pathlib.Path(file.name).suffix,
@@ -95,6 +101,16 @@ def get_case_types(identificatie=None):
         params.update({"identificatie": identificatie})
 
     return get_paginated_results(ztc_client, "zaaktype", query_params=params)
+
+
+def get_zaaktype(zaaktype_url):
+    ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
+
+    response = ztc_client.retrieve(
+        "zaaktype",
+        url=zaaktype_url,
+    )
+    return factory(ZaakType, response)
 
 
 def get_document_types(identificatie=None):
@@ -215,7 +231,9 @@ def get_document_inhoud(document_inhoud_url):
     return response.content
 
 
-def update_document(case_document, file, title, language="nld"):
+def update_document(
+    case_document, file, language="nld", title=None, informatieobjecttype=None
+):
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
     lock = drc_client.request(
         f"{case_document.document_url}/lock",
@@ -226,7 +244,9 @@ def update_document(case_document, file, title, language="nld"):
         request_kwargs={},
     )
 
-    document_body = _build_document_body(file, title, language, lock=lock)
+    document_body = _build_document_body(
+        file, language, title, informatieobjecttype, lock=lock
+    )
     response = drc_client.update(
         "zaakinformatieobject", url=case_document.document_url, data=document_body
     )

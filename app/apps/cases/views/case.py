@@ -23,6 +23,8 @@ from apps.openzaak.helpers import (
     get_document,
     get_document_inhoud,
     get_document_types,
+    get_open_zaak_case,
+    get_zaaktype,
 )
 from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
 from apps.users.permissions import (
@@ -482,6 +484,27 @@ class CaseViewSet(
         context = paginator.paginate_queryset(query_set, request)
         serializer = AdvertisementSerializer(context, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the DocumentType instances associated with this case",
+        responses={status.HTTP_200_OK: DocumentTypeSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="document-types",
+        methods=["get"],
+    )
+    def documents_types(self, request, pk):
+        case = self.get_object()
+        case_meta = get_open_zaak_case(case.case_url)
+        zaaktype_meta = get_zaaktype(case_meta.zaaktype)
+        document_types = [
+            dt
+            for dt in get_document_types()
+            if dt.get("url") in zaaktype_meta.informatieobjecttypen
+        ]
+        serializer = DocumentTypeSerializer(document_types, many=True)
+        return Response(serializer.data)
 
     @extend_schema(
         description="Gets the CaseDocument instances associated with this case",
