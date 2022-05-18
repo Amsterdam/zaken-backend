@@ -19,12 +19,14 @@ from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
 from apps.openzaak.helpers import (
     create_document,
+    get_case_type,
     get_case_types,
     get_document,
     get_document_inhoud,
     get_document_types,
+    get_documents_from_case,
+    get_documents_meta,
     get_open_zaak_case,
-    get_zaaktype,
 )
 from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
 from apps.users.permissions import (
@@ -44,7 +46,7 @@ from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import mixins, status, viewsets
+from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
@@ -497,7 +499,7 @@ class CaseViewSet(
     def documents_types(self, request, pk):
         case = self.get_object()
         case_meta = get_open_zaak_case(case.case_url)
-        zaaktype_meta = get_zaaktype(case_meta.zaaktype)
+        zaaktype_meta = get_case_type(case_meta.zaaktype)
         document_types = [
             dt
             for dt in get_document_types()
@@ -508,20 +510,27 @@ class CaseViewSet(
 
     @extend_schema(
         description="Gets the CaseDocument instances associated with this case",
-        responses={status.HTTP_200_OK: CaseDocumentSerializer(many=True)},
+        responses={
+            status.HTTP_200_OK: serializers.ListSerializer(
+                child=serializers.DictField()
+            )
+        },
     )
     @action(
         detail=True,
         url_path="documents",
         methods=["get"],
+        serializer_class=serializers.ListSerializer(child=serializers.DictField()),
     )
     def documents(self, request, pk):
         paginator = LimitOffsetPagination()
         case = self.get_object()
-        query_set = case.casedocument_set.all()
-        context = paginator.paginate_queryset(query_set, request)
-        serializer = CaseDocumentSerializer(context, many=True)
-        return paginator.get_paginated_response(serializer.data)
+        document_urls = case.casedocument_set.all().values_list(
+            "document_url", flat=True
+        )
+        documents = get_documents_meta(document_urls)
+        context = paginator.paginate_queryset(documents, request)
+        return paginator.get_paginated_response(context)
 
     @extend_schema(
         description="Add CaseDocument instances and associate it with this case",

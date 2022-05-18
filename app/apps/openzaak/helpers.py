@@ -8,6 +8,7 @@ import hashlib
 import pathlib
 import uuid
 from datetime import date, datetime
+from typing import List
 
 import requests
 from apps.cases.models import CaseDocument
@@ -18,6 +19,7 @@ from zgw_consumers.api_models.base import factory
 from zgw_consumers.api_models.catalogi import ZaakType
 from zgw_consumers.api_models.documenten import Document
 from zgw_consumers.api_models.zaken import Status, Zaak
+from zgw_consumers.concurrent import parallel
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 from zgw_consumers.service import get_paginated_results
@@ -103,7 +105,7 @@ def get_case_types(identificatie=None):
     return get_paginated_results(ztc_client, "zaaktype", query_params=params)
 
 
-def get_zaaktype(zaaktype_url):
+def get_case_type(zaaktype_url):
     ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
 
     response = ztc_client.retrieve(
@@ -219,6 +221,23 @@ def get_document(document_url):
         url=document_url,
     )
     return factory(Document, response)
+
+
+def get_documents_from_case(case_url):
+    zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
+    zios: List[dict] = zrc_client.list("zaakinformatieobject", {"zaak": case_url})
+    return zios
+
+
+def get_documents_meta(document_urls):
+    drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
+    with parallel() as executor:
+        _documents = executor.map(
+            lambda url: drc_client.retrieve("enkelvoudiginformatieobject", url=url),
+            document_urls,
+        )
+    documents: List[dict] = list(_documents)
+    return documents
 
 
 def get_document_inhoud(document_inhoud_url):
