@@ -594,10 +594,10 @@ class CaseDocumentViewSet(
         response = FileResponse(io.BytesIO(content))
         response[
             "Content-Disposition"
-        ] = f"attachment; filename={document.bestandsnaam}"
-        response["Content-Type"] = mimetypes.types_map[document.formaat]
-        response["Content-Length"] = document.bestandsomvang
-        response["Last-Modified"] = document.creatiedatum
+        ] = f"attachment; filename={document.get('bestandsnaam')}"
+        response["Content-Type"] = mimetypes.types_map[document.get("formaat")]
+        response["Content-Length"] = document.get("bestandsomvang")
+        response["Last-Modified"] = document.get("creatiedatum")
         return response
 
 
