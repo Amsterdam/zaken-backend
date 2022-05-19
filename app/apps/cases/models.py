@@ -261,6 +261,7 @@ class CaseDocument(models.Model):
     case = models.ForeignKey(Case, on_delete=models.CASCADE)
     document_url = models.URLField()
     document_content = models.URLField()
+    case_document_connection_url = models.URLField(default=False, blank=True)
     connected = models.BooleanField(default=False, blank=True)
 
     def __str__(self):
