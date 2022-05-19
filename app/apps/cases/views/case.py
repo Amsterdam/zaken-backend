@@ -526,10 +526,12 @@ class CaseViewSet(
     def documents(self, request, pk):
         paginator = LimitOffsetPagination()
         case = self.get_object()
-        document_urls = case.casedocument_set.all().values_list(
-            "document_url", flat=True
-        )
-        documents = get_documents_meta(document_urls)
+        document_urls = case.casedocument_set.all().values("document_url", "id")
+        documents_ids = {d.get("document_url"): d.get("id") for d in document_urls}
+        documents = get_documents_meta([d.get("document_url") for d in document_urls])
+
+        # adds CaseDocument ids to documents from zgw-consumer
+        documents = [{**d, "id": documents_ids.get(d.get("url"))} for d in documents]
         context = paginator.paginate_queryset(documents, request)
         return paginator.get_paginated_response(context)
 
@@ -570,6 +572,7 @@ class CaseDocumentViewSet(
     def retrieve(self, request, *args, **kwargs):
         casedocument = self.get_object()
         document = get_document(casedocument.document_url)
+        document.update({"id": casedocument.id})
         print(document)
         return Response(document)
 
