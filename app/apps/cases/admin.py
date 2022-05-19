@@ -69,7 +69,13 @@ def camunda_case_try_to_complete_task_create_debrief(modeladmin, request, querys
 
 @admin.register(CaseDocument)
 class CaseDocumentAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        "id",
+        "case",
+        "document_url",
+        "connected",
+    )
+    search_fields = ("case__id",)
 
 
 @admin.register(Case)
