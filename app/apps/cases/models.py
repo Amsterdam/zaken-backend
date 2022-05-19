@@ -264,7 +264,7 @@ class CaseDocument(models.Model):
     connected = models.BooleanField(default=False, blank=True)
 
     def __str__(self):
-        return f"Document van {self.case.identification}"
+        return f"Document van {self.case}"
 
 
 class CaseStateType(models.Model):
