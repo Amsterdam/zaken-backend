@@ -47,8 +47,9 @@ from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, serializers, status, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, parser_classes
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 
 
@@ -537,6 +538,7 @@ class CaseViewSet(
         responses={status.HTTP_200_OK: CaseDocumentSerializer()},
         request=CaseDocumentUploadSerializer(),
     )
+    @parser_classes([JSONParser, FormParser, MultiPartParser])
     @action(
         detail=True,
         url_path="documents/create",
@@ -550,7 +552,6 @@ class CaseViewSet(
             case,
             file_uploaded,
             "nld",
-            request.data.get("title"),
             request.data.get("documenttype_url"),
         )
         serialized = CaseDocumentSerializer(response)
@@ -570,6 +571,16 @@ class CaseDocumentViewSet(
         casedocument = self.get_object()
         document = get_document(casedocument.document_url)
         print(document)
+        return Response(document)
+
+    @action(
+        detail=True,
+        url_path="download",
+        methods=["get"],
+    )
+    def download(self, request, pk):
+        casedocument = self.get_object()
+        document = get_document(casedocument.document_url)
         content = get_document_inhoud(casedocument.document_content)
 
         response = FileResponse(io.BytesIO(content))

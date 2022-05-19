@@ -192,7 +192,6 @@ class CaseDocumentSerializer(serializers.ModelSerializer):
 
 class CaseDocumentUploadSerializer(serializers.Serializer):
     file = serializers.FileField()
-    title = serializers.CharField(required=False)
     documenttype_url = serializers.URLField(required=False)
 
 
