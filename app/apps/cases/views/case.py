@@ -19,12 +19,12 @@ from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
 from apps.openzaak.helpers import (
     create_document,
+    delete_document,
     get_case_type,
     get_case_types,
     get_document,
     get_document_inhoud,
     get_document_types,
-    get_documents_from_case,
     get_documents_meta,
     get_open_zaak_case,
 )
@@ -562,6 +562,7 @@ class CaseViewSet(
 
 class CaseDocumentViewSet(
     mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     permission_classes = [CanAccessSensitiveCases]
@@ -573,8 +574,12 @@ class CaseDocumentViewSet(
         casedocument = self.get_object()
         document = get_document(casedocument.document_url)
         document.update({"id": casedocument.id})
-        print(document)
         return Response(document)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        delete_document(instance)
+        return super().destroy(request, *args, **kwargs)
 
     @action(
         detail=True,
