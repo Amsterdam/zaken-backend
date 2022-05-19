@@ -216,7 +216,7 @@ def get_document(document_url):
         "zaakinformatieobject",
         url=document_url,
     )
-    return factory(Document, response)
+    return response
 
 
 def get_documents_from_case(case_url):
@@ -227,9 +227,17 @@ def get_documents_from_case(case_url):
 
 def get_documents_meta(document_urls):
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
+
+    def get_data_from_client(url):
+        try:
+            document = drc_client.retrieve("enkelvoudiginformatieobject", url=url)
+        except Exception as e:
+            document = {"error": str(e)}
+        return document
+
     with parallel() as executor:
         _documents = executor.map(
-            lambda url: drc_client.retrieve("enkelvoudiginformatieobject", url=url),
+            lambda url: get_data_from_client(url),
             document_urls,
         )
     documents: List[dict] = list(_documents)
