@@ -109,7 +109,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         )
         theme = baker.make(CaseTheme, name="mock_name")
         case = baker.make(Case, theme=theme)
-        case_document = create_document(case, uploaded_file, "document name")
+        case_document = create_document(case, uploaded_file)
         self.assertEqual(case_document.document_url, self.DOCUMENT_URL)
 
     @requests_mock.Mocker()
@@ -137,9 +137,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         theme = baker.make(CaseTheme, name="mock_name")
         case = baker.make(Case, theme=theme)
         document = baker.make(CaseDocument, case=case, document_url=self.DOCUMENT_URL)
-        case_document = update_document(
-            document, uploaded_file, "document new document name"
-        )
+        case_document = update_document(document, uploaded_file)
         self.assertEqual(case_document.url, self.DOCUMENT_URL)
 
     @requests_mock.Mocker()

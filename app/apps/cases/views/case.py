@@ -552,7 +552,6 @@ class CaseViewSet(
             case,
             file_uploaded,
             "nld",
-            request.data.get("title"),
             request.data.get("documenttype_url"),
         )
         serialized = CaseDocumentSerializer(response)

@@ -60,14 +60,12 @@ def _build_zaak_body(instance):
 def _build_document_body(
     file,
     language,
-    title=None,
     informatieobjecttype=None,
     lock=None,
 ):
     file.seek(0)
     content = file.read()
     string_content = base64.b64encode(content).decode("utf-8")
-    title = title if title else file.name
     informatieobjecttype = (
         informatieobjecttype
         if informatieobjecttype
@@ -79,7 +77,7 @@ def _build_document_body(
         "informatieobjecttype": informatieobjecttype,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "creatiedatum": _parse_date(date.today()),
-        "titel": title,
+        "titel": file.name[:200],
         "auteur": settings.DEFAULT_RSIN,
         "taal": language,
         "bestandsnaam": file.name,
@@ -197,13 +195,11 @@ def get_open_zaak_case_state(case_state_url):
     return factory(Status, response)
 
 
-def create_document(
-    instance, file, language="nld", title=None, informatieobjecttype=None
-):
+def create_document(instance, file, language="nld", informatieobjecttype=None):
     """
     In here we expect a case instance
     """
-    document_body = _build_document_body(file, language, title, informatieobjecttype)
+    document_body = _build_document_body(file, language, informatieobjecttype)
 
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
     response = drc_client.create("enkelvoudiginformatieobject", document_body)
@@ -250,9 +246,7 @@ def get_document_inhoud(document_inhoud_url):
     return response.content
 
 
-def update_document(
-    case_document, file, language="nld", title=None, informatieobjecttype=None
-):
+def update_document(case_document, file, language="nld", informatieobjecttype=None):
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
     lock = drc_client.request(
         f"{case_document.document_url}/lock",
@@ -264,7 +258,7 @@ def update_document(
     )
 
     document_body = _build_document_body(
-        file, language, title, informatieobjecttype, lock=lock
+        file, language, informatieobjecttype, lock=lock
     )
     response = drc_client.update(
         "zaakinformatieobject", url=case_document.document_url, data=document_body
