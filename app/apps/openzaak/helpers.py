@@ -285,6 +285,9 @@ def update_document(case_document, file, language="nld", informatieobjecttype=No
 
 def delete_document(case_document):
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
+    drc_client.delete(
+        "zaakinformatieobject", url=case_document.case_document_connection_url
+    )
     drc_client.delete("zaakinformatieobject", url=case_document.document_url)
 
 
@@ -298,7 +301,10 @@ def connect_case_and_document(casedocument):
     }
 
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    zrc_client.create("zaakinformatieobject", casedocument_body)
+    case_document_connection = zrc_client.create(
+        "zaakinformatieobject", casedocument_body
+    )
+    casedocument.case_document_connection_url = case_document_connection.get("url")
     casedocument.connected = True
     casedocument.save()
 
@@ -308,10 +314,5 @@ def get_open_zaak_case_document_connection(case_document_connection_url):
     response = zrc_client.retrieve(
         "zaakinformatieobject",
         url=case_document_connection_url,
-        request_kwargs={
-            "headers": {
-                "Accept-Crs": "EPSG:4326",
-            }
-        },
     )
     return response
