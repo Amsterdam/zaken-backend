@@ -1,5 +1,8 @@
 import datetime
+import io
+import os
 
+import requests_mock
 from apps.cases.models import (
     Advertisement,
     Case,
@@ -8,7 +11,7 @@ from apps.cases.models import (
     CaseTheme,
     CitizenReport,
 )
-from apps.openzaak.tests.utils import ZakenBackendTestMixin
+from apps.openzaak.tests.utils import OpenZaakBaseMixin, ZakenBackendTestMixin
 from apps.summons.models import SummonType
 from apps.workflow.models import CaseWorkflow
 from django.core import management
@@ -21,6 +24,7 @@ from utils.unittest_helpers import (
     get_test_user,
     get_unauthenticated_client,
 )
+from zgw_consumers.test import mock_service_oas_get
 
 
 class CaseThemeApiTest(ZakenBackendTestMixin, APITestCase):
@@ -319,6 +323,114 @@ class CaseListApiTest(ZakenBackendTestMixin, APITestCase):
 
         results = response.data["results"]
         self.assertEqual(len(results), 1)
+
+
+class CaseDocumentApiTest(OpenZaakBaseMixin, APITestCase):
+    def setUp(self):
+        management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
+
+    def test_get_case_no_documents(self):
+        url = reverse("cases-documents", kwargs={"pk": 1})
+
+        client = get_authenticated_client()
+        THEME_A = "thame_a"
+        theme_a = baker.make(CaseTheme, name=THEME_A)
+        baker.make(Case, theme=theme_a, id=1)
+
+        response = client.get(url, {})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data.get("results")), 0)
+
+    @requests_mock.Mocker()
+    def test_case_create_document(self, m):
+        url = reverse("cases-documents-create", kwargs={"pk": 1})
+        url_documents = reverse("cases-documents", kwargs={"pk": 1})
+        client = get_authenticated_client()
+        THEME_A = "thame_a"
+        theme_a = baker.make(CaseTheme, name=THEME_A)
+        case = baker.make(Case, theme=theme_a, id=1)
+        mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
+        m.post(
+            f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten",
+            json=self.document,
+            status_code=201,
+        )
+        base_dir = os.path.dirname(os.path.realpath(__file__))
+        with open(f"{base_dir}/files/file.txt", "rb") as fp:
+            fio = io.FileIO(fp.fileno())
+            fio.name = "file.txt"
+            response = client.post(
+                url,
+                {
+                    "file": fio,
+                    "documenttype_url": "",
+                },
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("id"), 1)
+        self.assertEqual(case.casedocument_set.all().count(), 1)
+
+        response_documents = client.get(url_documents, {})
+        self.assertEqual(response_documents.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response_documents.data.get("results")), 1)
+
+    @requests_mock.Mocker()
+    def test_case_delete_document(self, m):
+        client = get_authenticated_client()
+        CASE_ID = 1
+        url = reverse("cases-documents-create", kwargs={"pk": CASE_ID})
+        url_documents = reverse("cases-documents", kwargs={"pk": CASE_ID})
+        url_detail_document = reverse("documents-detail", kwargs={"pk": 1})
+
+        THEME_A = "thame_a"
+        theme_a = baker.make(CaseTheme, name=THEME_A)
+        case = baker.make(Case, theme=theme_a, id=1, case_url=self.ZAAK_URL)
+        mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
+
+        m.post(
+            f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten",
+            json=self.document,
+            status_code=201,
+        )
+        base_dir = os.path.dirname(os.path.realpath(__file__))
+        file_path = f"{base_dir}/files/file.txt"
+        with open(file_path, "rb") as fp:
+            fio = io.FileIO(fp.fileno())
+            fio.name = "file.txt"
+            client.post(
+                url,
+                {
+                    "file": fio,
+                    "documenttype_url": f"{self.CATALOGI_ROOT}informatieobjecttypen/a5628108-456f-4459-9c9c-4be8c9f67f13",
+                },
+            )
+        fp.close()
+        with open(file_path, "rb") as fp2:
+            fio2 = io.FileIO(fp2.fileno())
+            fio2.name = "file2.txt"
+            client.post(
+                url,
+                {
+                    "file": fio2,
+                    "documenttype_url": f"{self.CATALOGI_ROOT}informatieobjecttypen/a5628108-456f-4459-9c9c-4be8c9f67f13",
+                },
+            )
+        fp2.close()
+
+        casedocument = case.casedocument_set.all().get(id=1)
+        m.delete(f"{self.DOCUMENTEN_ROOT}False", json=None, status_code=204)
+        m.delete(casedocument.document_url, json=None, status_code=204)
+
+        response_detroy_document = client.delete(url_detail_document, {})
+        self.assertEqual(
+            response_detroy_document.status_code, status.HTTP_204_NO_CONTENT
+        )
+
+        response_documents = client.get(url_documents, {})
+        self.assertEqual(response_documents.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response_documents.data.get("results")), 1)
 
 
 class CaseCreatApiTest(ZakenBackendTestMixin, APITestCase):
