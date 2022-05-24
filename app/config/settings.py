@@ -1060,5 +1060,5 @@ ZGW_CONSUMERS_TEST_SCHEMA_DIRS = [
 ]
 TEST_ZAKEN_ROOT = "https://zaken.nl/api/v1/"
 TEST_DOCUMENTEN_ROOT = "https://documenten.nl/api/v1/"
-TEST_CATALOGI_ROOT = "https://localhost:8000/catalogi/api/v1/"
+TEST_CATALOGI_ROOT = "https://catalogi.nl/api/v1/"
 TEST_NOTIFICATION_ROOT = "https://notification.nl/api/v1/"
