@@ -347,7 +347,7 @@ class CaseDocumentApiTest(OpenZaakBaseMixin, APITestCase):
         url = reverse("cases-documents-create", kwargs={"pk": 1})
         url_documents = reverse("cases-documents", kwargs={"pk": 1})
         client = get_authenticated_client()
-        THEME_A = "thame_a"
+        THEME_A = "theme_a"
         theme_a = baker.make(CaseTheme, name=THEME_A)
         case = baker.make(Case, theme=theme_a, id=1)
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
