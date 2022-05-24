@@ -58,6 +58,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
 
     @requests_mock.Mocker()
     def test_create_open_zaak_case(self, m):
+        mock_service_oas_get(m, self.CATALOGI_ROOT, "ztc")
         mock_service_oas_get(
             m,
             self.ZAKEN_ROOT,
