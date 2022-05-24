@@ -284,7 +284,7 @@ class CaseListApiTest(ZakenBackendTestMixin, APITestCase):
         """
         state_type_a = baker.make(CaseStateType)
         state_type_b = baker.make(CaseStateType)
-        THEME_A = "thame_a"
+        THEME_A = "theme_a"
         theme_a = baker.make(CaseTheme, name=THEME_A)
         case = baker.make(Case, theme=theme_a)
         baker.make(CaseWorkflow, case_state_type=state_type_a, case=case)
@@ -302,7 +302,7 @@ class CaseListApiTest(ZakenBackendTestMixin, APITestCase):
     def test_filter_status_different_states(self):
         """Each case has a different state type, should only return one case"""
         state_type_a = baker.make(CaseStateType)
-        THEME_A = "thame_a"
+        THEME_A = "theme_a"
         theme_a = baker.make(CaseTheme, name=THEME_A)
         case = baker.make(Case, theme=theme_a)
         case_workflow = baker.make(
@@ -334,7 +334,7 @@ class CaseDocumentApiTest(OpenZaakBaseMixin, APITestCase):
         url = reverse("cases-documents", kwargs={"pk": 1})
 
         client = get_authenticated_client()
-        THEME_A = "thame_a"
+        THEME_A = "theme_a"
         theme_a = baker.make(CaseTheme, name=THEME_A)
         baker.make(Case, theme=theme_a, id=1)
 
@@ -384,7 +384,7 @@ class CaseDocumentApiTest(OpenZaakBaseMixin, APITestCase):
         url_documents = reverse("cases-documents", kwargs={"pk": CASE_ID})
         url_detail_document = reverse("documents-detail", kwargs={"pk": 1})
 
-        THEME_A = "thame_a"
+        THEME_A = "theme_a"
         theme_a = baker.make(CaseTheme, name=THEME_A)
         case = baker.make(Case, theme=theme_a, id=1, case_url=self.ZAAK_URL)
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
