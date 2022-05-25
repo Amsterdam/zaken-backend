@@ -262,7 +262,9 @@ class WorkflowOptionAdmin(admin.ModelAdmin):
         "message_name",
         "to_directing_proccess",
         "theme",
+        "enabled_on_case_closed",
     )
+    list_filter = ("theme",)
 
 
 @admin.register(GenericCompletedTask)

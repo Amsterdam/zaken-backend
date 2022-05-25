@@ -13,9 +13,10 @@ from apps.cases.models import (
 )
 from apps.openzaak.tests.utils import OpenZaakBaseMixin, ZakenBackendTestMixin
 from apps.summons.models import SummonType
-from apps.workflow.models import CaseWorkflow
+from apps.workflow.models import CaseWorkflow, WorkflowOption
 from django.core import management
 from django.urls import reverse
+from django.utils import timezone
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -308,7 +309,7 @@ class CaseListApiTest(ZakenBackendTestMixin, APITestCase):
         case_workflow = baker.make(
             CaseWorkflow,
             id=42,
-            created=datetime.datetime.now(),
+            created=timezone.now(),
             case=case,
             _quantity=10,
             case_state_type=state_type_a,
@@ -596,8 +597,6 @@ class CaseCreatApiTest(ZakenBackendTestMixin, APITestCase):
         )
 
         test_user = get_test_user()
-        print("test_authenticated_post_create_author")
-        print(response.data)
         case = Case.objects.get(id=response.data["id"])
 
         self.assertEquals(case.author, test_user)
@@ -651,3 +650,25 @@ class CaseThemeSummonTypeApiTest(ZakenBackendTestMixin, APITestCase):
         data = response.json()
 
         self.assertEqual(len(data["results"]), 2)
+
+
+class CaseWorkflowOptionsApiTest(ZakenBackendTestMixin, APITestCase):
+    def test_case_options(self):
+        theme = baker.make(CaseTheme)
+        baker.make(WorkflowOption, theme=theme, enabled_on_case_closed=False)
+        baker.make(WorkflowOption, theme=theme, enabled_on_case_closed=True)
+        baker.make(Case, id=1, theme=theme)
+        url = reverse("cases-processes", kwargs={"pk": 1})
+        client = get_authenticated_client()
+        response = client.get(url)
+        self.assertEqual(len(response.data), 2)
+
+    def test_case_closed_options(self):
+        theme = baker.make(CaseTheme)
+        baker.make(WorkflowOption, theme=theme, enabled_on_case_closed=False)
+        baker.make(WorkflowOption, theme=theme, enabled_on_case_closed=True)
+        baker.make(Case, id=1, theme=theme, end_date=datetime.datetime.now())
+        url = reverse("cases-processes", kwargs={"pk": 1})
+        client = get_authenticated_client()
+        response = client.get(url)
+        self.assertEqual(len(response.data), 1)

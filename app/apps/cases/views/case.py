@@ -392,6 +392,7 @@ class CaseViewSet(
     @action(
         detail=True,
         url_path="processes",
+        url_name="processes",
         methods=["get"],
         serializer_class=WorkflowOptionSerializer,
     )
@@ -403,8 +404,17 @@ class CaseViewSet(
         (for example not show the summon/aanschrijving process when we are in visit state)
         """
         case = get_object_or_404(Case, pk=pk)
+        options = WorkflowOption.objects.filter(
+            theme=case.theme,
+        )
+        if case.end_date:
+            options = options.filter(
+                enabled_on_case_closed=True,
+            )
+
         serializer = WorkflowOptionSerializer(
-            WorkflowOption.objects.filter(theme=case.theme), many=True
+            options,
+            many=True,
         )
         return Response(serializer.data)
 
