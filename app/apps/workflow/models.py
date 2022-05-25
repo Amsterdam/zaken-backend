@@ -1076,6 +1076,7 @@ class WorkflowOption(models.Model):
         related_name="workflow_options",
         on_delete=models.CASCADE,
     )
+    enabled_on_case_closed = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} - {self.message_name}"
