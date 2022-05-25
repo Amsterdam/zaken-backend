@@ -65,6 +65,10 @@ class OpenZaakBaseMixin(ZakenBackendTestMixin):
         )
         self.ZAAKINFORMATIEOBJECT_URL = f"{self.ZAKEN_ROOT}zaakinformatieobject/4891f0a6-eb17-4477-a060-268c33f5ce57"
         self.DOCUMENT_URL = f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten/7f77b2a1-2fb5-4e41-b75f-daac19017c1a"
+        self.DOCUMENT2_URL = f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten/434f98c4-b2c7-4e25-a5c7-f64319d1555f"
+        self.DOCUMENT_DOWNLOAD_URL = f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten/7f77b2a1-2fb5-4e41-b75f-daac19017c1a/download?v=3"
+        self.ZAAK_DOCUMENT_URL = f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten/ce9a3565-3bb6-4c4b-a720-d27e555bddbd"
+        self.ZAAK_DOCUMENT2_URL = f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten/bc1da31a-e4f6-4c60-a04f-1bb40ad39a49"
 
         self.nrc_service = baker.make(
             Service,
@@ -78,6 +82,33 @@ class OpenZaakBaseMixin(ZakenBackendTestMixin):
         self.zaak_type = generate_oas_component(
             "ztc",
             "schemas/InformatieObjectType",
+            identificatie="861ec2b4-daf9-4709-9cc0-06476e647269",
+            omschrijving_generiek="mock",
+            doel="mock",
+            aanleiding="mock",
+            toelichting="mock",
+            indicatie_intern_of_extern="intern",
+            handeling_initiator="mock",
+            onderwerp="mock",
+            handeling_behandelaar="mock",
+            doorlooptijd="P6Y5M4DT3H2M1S",
+            servicenorm="P6Y5M4DT3H2M1S",
+            opschorting_en_aanhouding_mogelijk=False,
+            verlenging_mogelijk=False,
+            verlengingstermijn="P6Y5M4DT3H2M1S",
+            trefwoorden=[],
+            publicatie_indicatie="mock",
+            publicatietekst="mock",
+            verantwoordingsrelatie=[],
+            producten_of_diensten=[],
+            statustypen=[],
+            resultaattypen=[],
+            eigenschappen=[],
+            informatieobjecttypen=[],
+            roltypen=[],
+            deelzaaktypen=[],
+            versiedatum="2013-01-12",
+            besluittypen=[],
         )
         self.zaak_type2 = generate_oas_component(
             "ztc",
@@ -117,10 +148,16 @@ class OpenZaakBaseMixin(ZakenBackendTestMixin):
             "drc",
             "schemas/EnkelvoudigInformatieObject",
             url=self.DOCUMENT_URL,
+            case_document_connection_url=self.ZAAK_DOCUMENT_URL,
+            inhoud=f"{self.DOCUMENT_URL}/download?v=3",
         )
 
         self.zaakinformatieobject = generate_oas_component(
-            "zrc", "schemas/ZaakInformatieObject", informatieobject=self.DOCUMENT_URL
+            "zrc",
+            "schemas/ZaakInformatieObject",
+            informatieobject=self.DOCUMENT_URL,
+            zaak=self.ZAAK_URL,
+            url=self.ZAAKINFORMATIEOBJECT_URL,
         )
 
         self.fout = generate_oas_component(

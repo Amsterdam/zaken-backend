@@ -520,6 +520,7 @@ class CaseViewSet(
     @action(
         detail=True,
         url_path="documents",
+        url_name="documents",
         methods=["get"],
         serializer_class=serializers.ListSerializer(child=serializers.DictField()),
     )
@@ -544,6 +545,7 @@ class CaseViewSet(
     @action(
         detail=True,
         url_path="documents/create",
+        url_name="documents-create",
         methods=["post"],
         serializer_class=CaseDocumentUploadSerializer,
     )

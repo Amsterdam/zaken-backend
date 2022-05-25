@@ -135,6 +135,7 @@ def create_open_zaak_case(instance):
     result = factory(Zaak, response)
     instance.case_url = result.url
     instance.save()
+    return instance
 
 
 def get_open_zaak_case(case_url):
@@ -186,11 +187,6 @@ def get_open_zaak_case_state(case_state_url):
     response = zrc_client.retrieve(
         "status",
         url=case_state_url,
-        request_kwargs={
-            "headers": {
-                "Accept-Crs": "EPSG:4326",
-            }
-        },
     )
     return factory(Status, response)
 
@@ -217,12 +213,6 @@ def get_document(document_url):
         url=document_url,
     )
     return response
-
-
-def get_documents_from_case(case_url):
-    zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    zios: List[dict] = zrc_client.list("zaakinformatieobject", {"zaak": case_url})
-    return zios
 
 
 def get_documents_meta(document_urls):
@@ -314,5 +304,10 @@ def get_open_zaak_case_document_connection(case_document_connection_url):
     response = zrc_client.retrieve(
         "zaakinformatieobject",
         url=case_document_connection_url,
+        request_kwargs={
+            "headers": {
+                "Accept-Crs": "EPSG:4326",
+            }
+        },
     )
     return response

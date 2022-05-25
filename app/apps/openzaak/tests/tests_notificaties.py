@@ -136,7 +136,7 @@ class OpenZaakNotificatieTests(OpenZaakBaseMixin, TestCase):
 
     # State is not implemented yet.
     @override_settings(
-        OPENZAAK_CASETYPEURL_TOEZICHT="https://localhost:8000/catalogi/api/v1/statustypen/a5628108-456f-4459-9c9c-4be8c9f67f13"
+        OPENZAAK_CASETYPEURL_TOEZICHT="https://catalogi.nl/api/v1/statustypen/a5628108-456f-4459-9c9c-4be8c9f67f13"
     )
     @requests_mock.Mocker()
     def test_handle_status_create_notification(self, m):

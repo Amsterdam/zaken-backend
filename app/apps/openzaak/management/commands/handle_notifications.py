@@ -89,7 +89,7 @@ class Command(BaseCommand):
                 CaseDocument.objects.create(
                     case=case,
                     document_url=document_url,
-                    document_content=document.inhoud,
+                    document_content=document.get("inhoud"),
                     connected=True,
                 )
         self.set_processed(notification)
