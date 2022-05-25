@@ -117,9 +117,9 @@
         <bpmn:flowNodeRef>service_status_uit_termijn_lopen</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_verwerken_verlenging_beslistermijn</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>start_lod_verzoek_tot_opheffing</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_11bu3hl</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_status_lod_verzoek_tot_opheffing</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>end_lod_verzoek_tot_opheffing</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_02bvi4c</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_lod_opheffen</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:userTask id="task_verwerken_uitkomst_corporatie" name="Verwerken uitkomst corporatie" camunda:formKey="form_verwerken_uitkomst_corporatie" camunda:candidateGroups="Projecthandhaver">
@@ -892,7 +892,7 @@
       <bpmn:outgoing>Flow_018zo5f</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_04381kd" messageRef="Message_09d9s3a" />
     </bpmn:startEvent>
-    <bpmn:scriptTask id="Activity_11bu3hl" name="Bijwerken status: LOD verzoek tot intrekking">
+    <bpmn:scriptTask id="service_status_lod_verzoek_tot_opheffing" name="Bijwerken status: LOD verzoek tot intrekking">
       <bpmn:incoming>Flow_018zo5f</bpmn:incoming>
       <bpmn:outgoing>Flow_0i0ns5h</bpmn:outgoing>
       <bpmn:script>set_status("LOD verzoek tot opheffing")</bpmn:script>
@@ -900,13 +900,13 @@
     <bpmn:endEvent id="end_lod_verzoek_tot_opheffing">
       <bpmn:incoming>Flow_14tllld</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:userTask id="Activity_02bvi4c" name="LOD opheffen" camunda:candidateGroups="Projecthandhaver">
+    <bpmn:userTask id="task_lod_opheffen" name="LOD opheffen" camunda:candidateGroups="Projecthandhaver">
       <bpmn:incoming>Flow_0i0ns5h</bpmn:incoming>
       <bpmn:outgoing>Flow_14tllld</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_018zo5f" sourceRef="start_lod_verzoek_tot_opheffing" targetRef="Activity_11bu3hl" />
-    <bpmn:sequenceFlow id="Flow_0i0ns5h" sourceRef="Activity_11bu3hl" targetRef="Activity_02bvi4c" />
-    <bpmn:sequenceFlow id="Flow_14tllld" sourceRef="Activity_02bvi4c" targetRef="end_lod_verzoek_tot_opheffing" />
+    <bpmn:sequenceFlow id="Flow_018zo5f" sourceRef="start_lod_verzoek_tot_opheffing" targetRef="service_status_lod_verzoek_tot_opheffing" />
+    <bpmn:sequenceFlow id="Flow_0i0ns5h" sourceRef="service_status_lod_verzoek_tot_opheffing" targetRef="task_lod_opheffen" />
+    <bpmn:sequenceFlow id="Flow_14tllld" sourceRef="task_lod_opheffen" targetRef="end_lod_verzoek_tot_opheffing" />
   </bpmn:process>
   <bpmn:message id="Message_0f7jpp5" name="start_signal_process" />
   <bpmn:message id="Message_1wpao9m" name="start_correspondence_process" />
@@ -1709,13 +1709,13 @@
           <dc:Bounds x="297" y="1755" width="54" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_11bu3hl_di" bpmnElement="Activity_11bu3hl">
+      <bpmndi:BPMNShape id="Activity_11bu3hl_di" bpmnElement="service_status_lod_verzoek_tot_opheffing">
         <dc:Bounds x="411" y="1690" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0t7q23o_di" bpmnElement="end_lod_verzoek_tot_opheffing">
         <dc:Bounds x="902" y="1712" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_02bvi4c_di" bpmnElement="Activity_02bvi4c">
+      <bpmndi:BPMNShape id="Activity_02bvi4c_di" bpmnElement="task_lod_opheffen">
         <dc:Bounds x="580" y="1690" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>

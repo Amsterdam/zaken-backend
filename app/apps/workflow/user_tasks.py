@@ -748,6 +748,10 @@ class task_rapport_bewoners(user_task):
     due_date = relativedelta(days=2)
 
 
+class task_lod_opheffen(user_task):
+    due_date = relativedelta(days=2)
+
+
 # handhavingsverzoek
 class task_controleren_of_gemeente_in_gebreke_is(user_task):
     due_date = relativedelta(days=2)
