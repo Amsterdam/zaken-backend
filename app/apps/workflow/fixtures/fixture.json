@@ -754,8 +754,8 @@
     "pk": 88,
     "fields": {
       "theme": 2,
-      "name": "LOD verzoek tot intrekking",
-      "message_name": "start_lod_verzoek_tot_intrekking",
+      "name": "LOD verzoek tot opheffing",
+      "message_name": "start_lod_verzoek_tot_opheffing",
       "to_directing_proccess": false
     }
   },
@@ -764,8 +764,8 @@
     "pk": 89,
     "fields": {
       "theme": 3,
-      "name": "LOD verzoek tot intrekking",
-      "message_name": "start_lod_verzoek_tot_intrekking",
+      "name": "LOD verzoek tot opheffing",
+      "message_name": "start_lod_verzoek_tot_opheffing",
       "to_directing_proccess": false
     }
   },
@@ -774,8 +774,8 @@
     "pk": 90,
     "fields": {
       "theme": 4,
-      "name": "LOD verzoek tot intrekking",
-      "message_name": "start_lod_verzoek_tot_intrekking",
+      "name": "LOD verzoek tot opheffing",
+      "message_name": "start_lod_verzoek_tot_opheffing",
       "to_directing_proccess": false
     }
   },
@@ -784,8 +784,8 @@
     "pk": 91,
     "fields": {
       "theme": 5,
-      "name": "LOD verzoek tot intrekking",
-      "message_name": "start_lod_verzoek_tot_intrekking",
+      "name": "LOD verzoek tot opheffing",
+      "message_name": "start_lod_verzoek_tot_opheffing",
       "to_directing_proccess": false
     }
   },
@@ -794,8 +794,8 @@
     "pk": 92,
     "fields": {
       "theme": 6,
-      "name": "LOD verzoek tot intrekking",
-      "message_name": "start_lod_verzoek_tot_intrekking",
+      "name": "LOD verzoek tot opheffing",
+      "message_name": "start_lod_verzoek_tot_opheffing",
       "to_directing_proccess": false
     }
   }

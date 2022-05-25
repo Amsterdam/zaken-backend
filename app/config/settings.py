@@ -1004,7 +1004,7 @@ WORKFLOW_SPEC_CONFIG = {
                         "start_rapport_bewoners": {},
                         "start_afsluiten_zaak": {},
                         "start_mma_signal_process": {},
-                        "start_lod_verzoek_tot_intrekking": {},
+                        "start_lod_verzoek_tot_opheffing": {},
                     },
                 },
             },
