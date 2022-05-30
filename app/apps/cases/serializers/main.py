@@ -59,6 +59,20 @@ class CitizenReportSerializer(CitizenReportBaseSerializer):
         fields = "__all__"
 
 
+class CitizenReportAnonomizedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CitizenReport
+        fields = (
+            "id",
+            "case_user_task_id",
+            "identification",
+            "advertisement_linklist",
+            "nuisance",
+            "date_added",
+            "case",
+        )
+
+
 class CaseThemeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseTheme

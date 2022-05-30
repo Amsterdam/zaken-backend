@@ -1,7 +1,11 @@
 import logging
 
-from apps.decisions.models import Decision
-from apps.decisions.serializers import DecisionSanctionSerializer, DecisionSerializer
+from apps.decisions.models import Decision, DecisionType
+from apps.decisions.serializers import (
+    DecisionSanctionSerializer,
+    DecisionSerializer,
+    DecisionTypeSerializer,
+)
 from apps.users.permissions import CanPerformTask, rest_permission_classes_for_top
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
@@ -52,3 +56,8 @@ class DecisionViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
             many=True,
         )
         return Response(serializer.data)
+
+
+class DecisionTypeViewSet(GenericViewSet, ListModelMixin):
+    serializer_class = DecisionTypeSerializer
+    queryset = DecisionType.objects.all()
