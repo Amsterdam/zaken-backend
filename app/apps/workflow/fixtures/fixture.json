@@ -25,7 +25,8 @@
       "theme": 2,
       "name": "Correspondentie",
       "message_name": "start_correspondence_process",
-      "to_directing_proccess": false
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
     }
   },
   {
@@ -75,7 +76,8 @@
       "theme": 3,
       "name": "Correspondentie",
       "message_name": "start_correspondence_process",
-      "to_directing_proccess": false
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
     }
   },
   {
@@ -135,7 +137,8 @@
       "theme": 4,
       "name": "Correspondentie",
       "message_name": "start_correspondence_process",
-      "to_directing_proccess": false
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
     }
   },
   {
@@ -236,7 +239,8 @@
       "theme": 5,
       "name": "Correspondentie",
       "message_name": "start_correspondence_process",
-      "to_directing_proccess": false
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
     }
   },
   {
@@ -426,7 +430,8 @@
       "theme": 6,
       "name": "Correspondentie",
       "message_name": "start_correspondence_process",
-      "to_directing_proccess": false
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
     }
   },
   {
@@ -756,7 +761,8 @@
       "theme": 2,
       "name": "LOD verzoek tot opheffing",
       "message_name": "start_lod_verzoek_tot_opheffing",
-      "to_directing_proccess": false
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
     }
   },
   {
@@ -766,7 +772,8 @@
       "theme": 3,
       "name": "LOD verzoek tot opheffing",
       "message_name": "start_lod_verzoek_tot_opheffing",
-      "to_directing_proccess": false
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
     }
   },
   {
@@ -776,7 +783,8 @@
       "theme": 4,
       "name": "LOD verzoek tot opheffing",
       "message_name": "start_lod_verzoek_tot_opheffing",
-      "to_directing_proccess": false
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
     }
   },
   {
@@ -786,7 +794,8 @@
       "theme": 5,
       "name": "LOD verzoek tot opheffing",
       "message_name": "start_lod_verzoek_tot_opheffing",
-      "to_directing_proccess": false
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
     }
   },
   {
@@ -796,7 +805,8 @@
       "theme": 6,
       "name": "LOD verzoek tot opheffing",
       "message_name": "start_lod_verzoek_tot_opheffing",
-      "to_directing_proccess": false
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
     }
   }
 ]
