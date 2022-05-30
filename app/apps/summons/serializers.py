@@ -19,6 +19,17 @@ class SummonedPersonSerializer(serializers.ModelSerializer):
         read_only_fields = ("summon",)
 
 
+class SummonedPersonAnonomizedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SummonedPerson
+        fields = (
+            "id",
+            "person_role",
+            "summon",
+        )
+        read_only_fields = ("summon",)
+
+
 class SummonSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     type = serializers.PrimaryKeyRelatedField(

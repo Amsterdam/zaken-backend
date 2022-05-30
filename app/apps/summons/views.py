@@ -1,7 +1,11 @@
 import logging
 
-from apps.summons.models import Summon
-from apps.summons.serializers import SummonSerializer
+from apps.summons.models import Summon, SummonedPerson, SummonType
+from apps.summons.serializers import (
+    SummonedPersonAnonomizedSerializer,
+    SummonSerializer,
+    SummonTypeSerializer,
+)
 from apps.users.permissions import CanPerformTask, rest_permission_classes_for_top
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
@@ -22,3 +26,13 @@ class SummonViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
         if self.request.method not in SAFE_METHODS:
             self.permission_classes.append(CanPerformTask)
         return super(SummonViewSet, self).get_permissions()
+
+
+class SummonTypeViewSet(GenericViewSet, ListModelMixin):
+    serializer_class = SummonTypeSerializer
+    queryset = SummonType.objects.all()
+
+
+class SummonedPersonViewSet(GenericViewSet, ListModelMixin):
+    serializer_class = SummonedPersonAnonomizedSerializer
+    queryset = SummonedPerson.objects.all()
