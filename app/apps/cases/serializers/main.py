@@ -5,6 +5,7 @@ from apps.cases.models import (
     CaseCloseResult,
     CaseProject,
     CaseReason,
+    CaseState,
     CaseTheme,
     CitizenReport,
     Subject,
@@ -140,3 +141,12 @@ class CaseCloseSerializer(serializers.ModelSerializer):
             data["result"] = None
 
         return data
+
+
+class CaseStateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseState
+        exclude = (
+            "system_build",
+            "set_in_open_zaak",
+        )

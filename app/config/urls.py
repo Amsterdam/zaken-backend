@@ -4,6 +4,7 @@ from apps.cases.views import (
     CaseCloseResultViewSet,
     CaseCloseViewSet,
     CaseDocumentViewSet,
+    CaseStateViewSet,
     CaseThemeViewSet,
     CaseViewSet,
     CitizenReportViewSet,
@@ -70,6 +71,7 @@ router.register(
 )
 router.register(r"schedule-priorities", PriorityViewSet, basename="schedule-priorities")
 router.register(r"case-close", CaseCloseViewSet, basename="case-closing")
+router.register(r"case-states", CaseStateViewSet, basename="case-states")
 router.register(
     r"case-close-results", CaseCloseResultViewSet, basename="case-close-results"
 )
