@@ -1,5 +1,4 @@
 import io
-import mimetypes
 import operator
 from functools import reduce
 
@@ -7,6 +6,7 @@ from apps.addresses.models import HousingCorporation
 from apps.cases.models import Case, CaseDocument, CaseProject, CaseReason, CaseStateType
 from apps.cases.serializers import (
     AdvertisementSerializer,
+    CaseDetailSerializer,
     CaseDocumentSerializer,
     CaseDocumentUploadSerializer,
     CaseSerializer,
@@ -51,6 +51,7 @@ from rest_framework.decorators import action, parser_classes
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
+from utils.mimetypes import get_mimetype
 
 
 class MultipleValueField(MultipleChoiceField):
@@ -327,6 +328,11 @@ class CaseViewSet(
     ordering_fields = "__all_related__"
     filterset_class = CaseFilter
     pagination_class = StandardResultsSetPagination
+
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return CaseDetailSerializer
+        return super().get_serializer_class()
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -607,7 +613,7 @@ class CaseDocumentViewSet(
         response[
             "Content-Disposition"
         ] = f"attachment; filename={document.get('bestandsnaam')}"
-        response["Content-Type"] = mimetypes.types_map[document.get("formaat")]
+        response["Content-Type"] = get_mimetype(document.get("formaat"))
         response["Content-Length"] = document.get("bestandsomvang")
         response["Last-Modified"] = document.get("creatiedatum")
         return response
