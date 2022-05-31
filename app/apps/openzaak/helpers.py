@@ -47,7 +47,7 @@ def _build_zaak_body(instance):
     )
     return {
         "identificatie": f"{instance.id}{instance.identification}",
-        "toelichting": instance.description[:1000] or "Zaak aangemaakt via AZA",
+        "toelichting": (instance.description or "Zaak aangemaakt via AZA")[:1000],
         "zaaktype": casetheme_url,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "verantwoordelijkeOrganisatie": settings.DEFAULT_RSIN,
