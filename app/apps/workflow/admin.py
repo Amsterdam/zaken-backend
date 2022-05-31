@@ -16,6 +16,13 @@ def force_update_workflows(modeladmin, request, queryset):
         task_update_workflow.delay(workflow.id)
 
 
+@admin.action(description="Remove workflows for closed cases")
+def remove_workflows_for_closed_cases(modeladmin, request, queryset):
+    queryset.filter(
+        case__end_date__isnull=False,
+    ).delete()
+
+
 @admin.action(description="Migrate to latest")
 def migrate_worflows_to_latest(modeladmin, request, queryset):
     results = []
@@ -83,6 +90,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
     actions = (
         migrate_worflows_to_latest,
         force_update_workflows,
+        remove_workflows_for_closed_cases,
     )
 
     def issues(self, obj):

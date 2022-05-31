@@ -6,6 +6,7 @@ from apps.cases.models import (
     CaseDocument,
     CaseProject,
     CaseReason,
+    CaseState,
     CaseTheme,
     Subject,
 )
@@ -19,6 +20,7 @@ from apps.cases.serializers.main import (
 )
 from apps.schedules.serializers import ScheduleSerializer
 from apps.workflow.serializers import CaseWorkflowCaseDetailSerializer
+from drf_spectacular.utils import extend_schema_field
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from rest_framework import serializers
 
@@ -160,27 +162,26 @@ class CaseSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
 
 
 class CaseDetailSerializer(CaseSerializer):
-    reason = serializers.PrimaryKeyRelatedField(
-        many=False, required=True, queryset=CaseReason.objects.all()
-    )
-    project = serializers.PrimaryKeyRelatedField(
-        many=False, required=False, queryset=CaseProject.objects.all()
-    )
+    state = serializers.SerializerMethodField()
+
+    @extend_schema_field(serializers.CharField)
+    def get_state(self, obj):
+        casestates = obj.case_states.all().first()
+        if casestates:
+            return casestates.status
+        # TODO below should not be happening in the future
+        if obj.end_date:
+            return CaseState.CaseStateChoice.AFGESLOTEN
+        return CaseState.CaseStateChoice.HANDHAVING
 
     class Meta:
         model = Case
-        fields = (
-            "id",
-            "address",
-            "theme",
-            "reason",
-            "description",
-            "author",
-            "project",
-            "ton_ids",
-            "subjects",
-            "last_updated",
-            "created",
+        exclude = (
+            "directing_process",
+            "identification",
+            "is_legacy_bwv",
+            "is_legacy_camunda",
+            "legacy_bwv_case_id",
         )
 
 
