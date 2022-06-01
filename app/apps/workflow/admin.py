@@ -76,6 +76,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
     )
 
     list_filter = (
+        "case__end_date",
         "completed",
         "case_state_type",
         "main_workflow",
