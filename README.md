@@ -17,8 +17,13 @@ First, make sure you have built the project and executed the database migrations
 ```
 docker network create top_and_zaak_backend_bridge
 docker network create zaken_network
-docker-compose build
-docker-compose run --rm zaak-gateway python manage.py migrate
+docker compose build
+```
+
+Start AZA backend:
+
+```
+docker compose up
 ```
 
 To create all necessary credentials run the following command:
@@ -34,12 +39,6 @@ email: admin@admin.com
 password: admin
 ```
 
-Start AZA backend:
-
-```
-docker-compose up
-```
-
 Visit the Admin at http://localhost:8080/admin/
 
 Check the health page to see if all services are up and running:
@@ -47,16 +46,18 @@ http://localhost:8080/health
 
 ## Running tests
 
+Set LOCAL_DEVELOPMENT_AUTHENTICATION environment variable to True (default)
+
 Run unit tests locally with:
 
 ```
-docker-compose run --rm zaak-gateway python manage.py test
+docker compose run --rm zaak-gateway python manage.py test
 ```
 
 To run tests for a specific module, add a path:
 
 ```
-docker-compose run --rm zaak-gateway python manage.py test ./apps/cases/tests
+docker compose run --rm zaak-gateway python manage.py test apps/cases
 ```
 
 ## Accessing the API documentation
@@ -72,6 +73,16 @@ Click on the 'Authorize' button in the top right corner of the page, and enter t
 This allows you to execute the API endpoints in the page.
 By default, the `local.user@dev.com` user doesn't have any roles assigned.
 From the [admin interface](http://localhost:8080/admin/) you can either assign roles or make the user superuser.
+
+## Enabling local development environment variables
+
+Create a `.env.local` file, on the root of your project, and override the variables you need locally
+
+Start your project with the newly created environment variables, like so:
+
+```
+docker compose -f docker-compose.yml -f docker-compose.local.yml up
+```
 
 ## Enabling Keycloak authentication for a locally run zaken-frontend
 
