@@ -3,7 +3,7 @@ import random
 from string import Template
 
 from apps.addresses.models import Address
-from apps.cases.models import Case, CaseClose, CaseState, CitizenReport
+from apps.cases.models import Advertisement, Case, CaseClose, CitizenReport
 from apps.debriefings.models import Debriefing
 from apps.decisions.models import Decision
 from apps.schedules.models import Schedule
@@ -181,6 +181,11 @@ def get_building_number():
     return fake.building_number()
 
 
+def get_url():
+    fake = Faker()
+    return fake.url()
+
+
 def get_postal_code():
     fake = Faker()
     postal_codes = range(1000, 1109)
@@ -231,9 +236,9 @@ def get_default_anonymizer():
             },
         ),
         (
-            CaseState,
+            Advertisement,
             {
-                "information": get_sentence,
+                "link": get_url,
             },
         ),
         (
@@ -283,6 +288,7 @@ def get_default_anonymizer():
             {
                 "first_name": get_first_name,
                 "last_name": get_last_name,
+                "entity_name": get_last_name,
                 "preposition": "",
             },
         ),
