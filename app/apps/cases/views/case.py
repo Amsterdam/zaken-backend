@@ -33,7 +33,7 @@ from apps.users.permissions import (
     CanAccessSensitiveCases,
     rest_permission_classes_for_top,
 )
-from apps.workflow.models import CaseWorkflow, WorkflowOption
+from apps.workflow.models import CaseUserTask, CaseWorkflow, WorkflowOption
 from apps.workflow.serializers import (
     CaseWorkflowSerializer,
     StartWorkflowSerializer,
@@ -112,6 +112,11 @@ class CaseFilter(filters.FilterSet):
         queryset=CaseStateType.objects.all(),
         method="get_state_types",
         to_field_name="name",
+    )
+    task = filters.ModelMultipleChoiceFilter(
+        queryset=CaseUserTask.objects.filter(completed=False),
+        method="get_task",
+        to_field_name="task_name",
     )
     project = filters.ModelMultipleChoiceFilter(
         queryset=CaseProject.objects.all(), method="get_project"
@@ -236,6 +241,14 @@ class CaseFilter(filters.FilterSet):
             ).distinct()
         return queryset
 
+    def get_task(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                workflows__completed=False,
+                workflows__tasks__in=value,
+            )
+        return queryset
+
     def get_project(self, queryset, name, value):
         if value:
             return queryset.filter(
@@ -306,6 +319,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("state_types__name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("task", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("ton_ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("priority", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
     ]
