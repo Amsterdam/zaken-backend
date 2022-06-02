@@ -166,7 +166,7 @@ class CaseDetailSerializer(CaseSerializer):
 
     @extend_schema_field(serializers.CharField)
     def get_state(self, obj):
-        casestates = obj.case_states.all().first()
+        casestates = obj.case_states.all().last()
         if casestates:
             return casestates.status
         # TODO below should not be happening in the future
