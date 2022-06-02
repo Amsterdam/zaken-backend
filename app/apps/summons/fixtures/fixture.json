@@ -259,5 +259,41 @@
       "workflow_option": "aanschrijvingen",
       "name": "Voornemen boete"
     }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 43,
+    "fields": {
+      "theme": 7,
+      "workflow_option": "legalisatie-brief",
+      "name": "Legalisatiebrief"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 44,
+    "fields": {
+      "theme": 7,
+      "workflow_option": "aanschrijvingen",
+      "name": "Vooraankondiging dwangsom"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 45,
+    "fields": {
+      "theme": 7,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen boete"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 46,
+    "fields": {
+      "theme": 7,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen invordering dwangsom"
+    }
   }
 ]
