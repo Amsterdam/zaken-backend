@@ -37,6 +37,14 @@
     }
   },
   {
+    "model": "cases.casetheme",
+    "pk": 7,
+    "fields": {
+      "name": "Opkoopbescherming",
+      "sensitive": false
+    }
+  },
+  {
     "model": "cases.casereason",
     "pk": 2,
     "fields": {
@@ -274,6 +282,30 @@
     "fields": {
       "name": "Eigen onderzoek",
       "theme": 5
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 34,
+    "fields": {
+      "name": "SIA melding",
+      "theme": 7
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 35,
+    "fields": {
+      "name": "Digitaal onderzoek",
+      "theme": 7
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 36,
+    "fields": {
+      "name": "Vergunning",
+      "theme": 7
     }
   },
   {
@@ -529,6 +561,69 @@
     }
   },
   {
+    "model": "cases.caseclosereason",
+    "pk": 43,
+    "fields": {
+      "name": "Resultaat na hercontrole",
+      "case_theme": 7,
+      "result": true
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 44,
+    "fields": {
+      "name": "Vergund bewoond",
+      "case_theme": 7,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 45,
+    "fields": {
+      "name": "Reguliere bewoning",
+      "case_theme": 7,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 46,
+    "fields": {
+      "name": "Doorgezet naar ander thema",
+      "case_theme": 7,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 47,
+    "fields": {
+      "name": "Gelegaliseerd",
+      "case_theme": 7,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 48,
+    "fields": {
+      "name": "Onvoldoende bewijs",
+      "case_theme": 7,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 49,
+    "fields": {
+      "name": "Toekenning vergunning",
+      "case_theme": 7,
+      "result": false
+    }
+  },
+  {
     "model": "cases.casecloseresult",
     "pk": 4,
     "fields": {
@@ -630,6 +725,22 @@
     "fields": {
       "name": "Gelegaliseerd",
       "case_theme": 6
+    }
+  },
+  {
+    "model": "cases.casecloseresult",
+    "pk": 17,
+    "fields": {
+      "name": "Gelegaliseerd",
+      "case_theme": 7
+    }
+  },
+  {
+    "model": "cases.casecloseresult",
+    "pk": 18,
+    "fields": {
+      "name": "Regulier bewoond",
+      "case_theme": 7
     }
   },
 
@@ -983,6 +1094,46 @@
     "fields": {
       "name": "Minder dan 7 nachten",
       "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 42,
+    "fields": {
+      "name": "Rechtmatige bewoning",
+      "theme": 7
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 43,
+    "fields": {
+      "name": "Overtreding verhuurverbod",
+      "theme": 7
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 44,
+    "fields": {
+      "name": "Rechtmatige bewoning middels een verhuurvergunning of ontheffing",
+      "theme": 7
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 45,
+    "fields": {
+      "name": "Leegstand",
+      "theme": 7
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 46,
+    "fields": {
+      "name": "Kamerverhuur",
+      "theme": 7
     }
   },
   {
