@@ -113,7 +113,7 @@ class VakantieverhuurReports:
         start_year = sorted(self.days, key=lambda d: d[1])[0][1].year
         for year in range(start_year, this_year + 1):
             year_reports = self.get_set_by_year(year, today)
-            if year_reports.get("reports"):
+            if year_reports.get("reports") or year == this_year:
                 years.append(year_reports)
         return years
 
