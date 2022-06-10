@@ -197,6 +197,8 @@ def create_document(instance, file, language="nld", informatieobjecttype=None):
     """
     document_body = _build_document_body(file, language, informatieobjecttype)
 
+    document_body["titel"] = "MY TITLE"
+
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
     response = drc_client.create("enkelvoudiginformatieobject", document_body)
     result = factory(Document, response)
