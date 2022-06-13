@@ -40,6 +40,29 @@ class AddressSerializer(serializers.ModelSerializer):
         extra_kwargs = {"bag_id": {"validators": []}}
 
 
+class AddressTinySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = (
+            "street_name",
+            "number",
+            "suffix_letter",
+            "suffix",
+            "postal_code",
+            "lat",
+            "lng",
+        )
+        read_only_fields = (
+            "street_name",
+            "number",
+            "suffix_letter",
+            "suffix",
+            "postal_code",
+            "lat",
+            "lng",
+        )
+
+
 class ResidentSerializer(serializers.Serializer):
     geboortedatum = serializers.DateTimeField(required=True)
     geslachtsaanduiding = serializers.ChoiceField(choices=("M", "V", "X"))

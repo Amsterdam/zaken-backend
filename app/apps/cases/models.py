@@ -198,6 +198,13 @@ class Case(ModelEventEmitter):
     def __str__(self):
         return f"Case: {self.id}"
 
+    def get_workflows(self):
+        return (
+            self.workflows.all()
+            .filter(tasks__isnull=False, tasks__completed=False)
+            .distinct()
+        )
+
     def get_current_states(self):
         return self.workflows.filter(
             tasks__completed=False, case_state_type__isnull=False

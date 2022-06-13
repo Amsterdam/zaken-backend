@@ -29,11 +29,9 @@ class GenericFormFieldSerializer(serializers.Serializer):
 
 
 class CaseStateTypeSerializer(serializers.ModelSerializer):
-    status_name = serializers.CharField(source="name", read_only=True)
-
     class Meta:
         model = CaseStateType
-        fields = "__all__"
+        fields = ("name",)
 
 
 class CaseUserTaskBaseSerializer(serializers.ModelSerializer):
@@ -125,8 +123,8 @@ class CaseUserTaskTaskNameSerializer(serializers.ModelSerializer):
 
 class CaseWorkflowCaseDetailSerializer(serializers.ModelSerializer):
     status_name = serializers.CharField(source="case_state_type.name", read_only=True)
-    status = serializers.IntegerField(source="case_state_type.id", read_only=True)
-    start_date = serializers.DateTimeField(source="date_modified", read_only=True)
+    # status = serializers.IntegerField(source="case_state_type.id", read_only=True)
+    # start_date = serializers.DateTimeField(source="date_modified", read_only=True)
 
     class Meta:
         model = CaseWorkflow
@@ -149,8 +147,35 @@ class CaseWorkflowCaseDetailSerializer(serializers.ModelSerializer):
         )
 
 
-class CaseWorkflowSerializer(serializers.ModelSerializer):
+class CaseWorkflowBaseSerializer(serializers.ModelSerializer):
     state = serializers.SerializerMethodField()
+
+    @extend_schema_field(CaseStateTypeSerializer)
+    def get_state(self, obj):
+        return CaseStateTypeSerializer(obj.case_state_type).data
+
+    class Meta:
+        model = CaseWorkflow
+        exclude = [
+            "id",
+            "case",
+            "created",
+            "started",
+            "serialized_workflow_state",
+            "main_workflow",
+            "workflow_type",
+            "workflow_version",
+            "workflow_theme_name",
+            "completed",
+            "parent_workflow",
+            "data",
+            "workflow_message_name",
+            "case_state_type",
+            "date_modified",
+        ]
+
+
+class CaseWorkflowSerializer(CaseWorkflowBaseSerializer):
     tasks = serializers.SerializerMethodField()
     information = serializers.SerializerMethodField()
 
@@ -167,10 +192,6 @@ class CaseWorkflowSerializer(serializers.ModelSerializer):
             many=True,
             context=self.context,
         ).data
-
-    @extend_schema_field(CaseStateTypeSerializer)
-    def get_state(self, obj):
-        return CaseStateTypeSerializer(obj.case_state_type).data
 
     class Meta:
         model = CaseWorkflow

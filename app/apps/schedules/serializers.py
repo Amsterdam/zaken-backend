@@ -24,18 +24,37 @@ class DaySegmentSerializer(serializers.ModelSerializer):
 class PrioritySerializer(serializers.ModelSerializer):
     class Meta:
         model = Priority
-        fields = ["id", "name", "weight"]
+        fields = ("id", "name", "weight")
+
+
+class PriorityTinySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Priority
+        fields = ("weight",)
 
 
 class ScheduleSerializer(serializers.ModelSerializer):
-    action = ActionSerializer(required=True)
-    week_segment = WeekSegmentSerializer(required=True)
-    day_segment = DaySegmentSerializer(required=True)
-    priority = PrioritySerializer(required=True)
+    # action = ActionSerializer(required=True)
+    # week_segment = WeekSegmentSerializer(required=True)
+    # day_segment = DaySegmentSerializer(required=True)
+    priority = PriorityTinySerializer(required=True)
 
     class Meta:
         model = Schedule
-        fields = "__all__"
+        exclude = (
+            "action",
+            "author",
+            "case",
+            "case_user_task_id",
+            "date_added",
+            "date_modified",
+            "day_segment",
+            "description",
+            "housing_corporation_combiteam",
+            "id",
+            "visit_from_datetime",
+            "week_segment",
+        )
 
 
 class ScheduleCreateSerializer(serializers.ModelSerializer):
