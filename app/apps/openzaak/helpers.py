@@ -199,9 +199,6 @@ def create_document(instance, file, language="nld", informatieobjecttype=None):
     In here we expect a case instance
     """
     document_body = _build_document_body(file, language, informatieobjecttype)
-    logger.info(document_body)
-    document_body["titel"] = "MY TITLE"
-    logger.info(document_body)
 
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
     response = drc_client.create("enkelvoudiginformatieobject", document_body)
