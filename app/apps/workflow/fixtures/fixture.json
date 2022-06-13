@@ -808,5 +808,160 @@
       "to_directing_proccess": false,
       "enabled_on_case_closed": true
     }
+  },
+
+
+
+  {
+    "model": "workflow.workflowoption",
+    "pk": 93,
+    "fields": {
+      "theme": 7,
+      "name": "Correspondentie",
+      "message_name": "start_correspondence_process",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 94,
+    "fields": {
+      "theme": 7,
+      "name": "Extra aanschrijving",
+      "message_name": "aanschrijving_toevoegen",
+      "to_directing_proccess": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 95,
+    "fields": {
+      "theme": 7,
+      "name": "Extra informatie",
+      "message_name": "start_extra_information",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 96,
+    "fields": {
+      "theme": 7,
+      "name": "Nieuwe SIA melding",
+      "message_name": "start_signal_process",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 97,
+    "fields": {
+      "theme": 7,
+      "name": "Terugbelverzoek",
+      "message_name": "start_callbackrequest_process",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 98,
+    "fields": {
+      "theme": 7,
+      "name": "Aanleveren bezwaardossier",
+      "message_name": "start_objectionfile_process",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 99,
+    "fields": {
+      "theme": 7,
+      "name": "Casus overleg",
+      "message_name": "start_casus_overleg_proces",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 100,
+    "fields": {
+      "theme": 7,
+      "name": "Terugkoppeling BI",
+      "message_name": "start_terugkoppelen_bi",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 101,
+    "fields": {
+      "theme": 7,
+      "name": "WOB verzoek",
+      "message_name": "start_aanleveren_wob_dossier",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 102,
+    "fields": {
+      "theme": 7,
+      "name": "Rapport bewoner(s)",
+      "message_name": "start_rapport_bewoners",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 103,
+    "fields": {
+      "theme": 7,
+      "name": "Afsluiten zaak",
+      "message_name": "start_afsluiten_zaak",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 104,
+    "fields": {
+      "theme": 7,
+      "name": "Handhavingsverzoek",
+      "message_name": "start_handhavingsverzoek",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 105,
+    "fields": {
+      "theme": 7,
+      "name": "Uit termijn lopen",
+      "message_name": "start_uit_termijn_lopen",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 106,
+    "fields": {
+      "theme": 7,
+      "name": "Ingebrekestelling",
+      "message_name": "start_ingebrekestelling",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 107,
+    "fields": {
+      "theme": 7,
+      "name": "LOD verzoek tot opheffing",
+      "message_name": "start_lod_verzoek_tot_opheffing",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
   }
 ]

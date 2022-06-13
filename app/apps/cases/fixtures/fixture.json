@@ -309,6 +309,14 @@
     }
   },
   {
+    "model": "cases.casereason",
+    "pk": 37,
+    "fields": {
+      "name": "Ilprowo",
+      "theme": 3
+    }
+  },
+  {
     "model": "cases.caseclosereason",
     "pk": 15,
     "fields": {
