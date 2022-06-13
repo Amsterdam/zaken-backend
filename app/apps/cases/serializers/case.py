@@ -19,7 +19,11 @@ from apps.cases.serializers.main import (
     SubjectSerializer,
 )
 from apps.schedules.serializers import ScheduleSerializer
-from apps.workflow.serializers import CaseWorkflowCaseDetailSerializer
+from apps.workflow.models import CaseWorkflow
+from apps.workflow.serializers import (
+    CaseWorkflowCaseDetailSerializer,
+    CaseWorkflowSerializer,
+)
 from drf_spectacular.utils import extend_schema_field
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from rest_framework import serializers
@@ -163,6 +167,7 @@ class CaseSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
 
 class CaseDetailSerializer(CaseSerializer):
     state = serializers.SerializerMethodField()
+    workflows = serializers.SerializerMethodField()
 
     @extend_schema_field(serializers.CharField)
     def get_state(self, obj):
@@ -173,6 +178,14 @@ class CaseDetailSerializer(CaseSerializer):
         if obj.end_date:
             return CaseState.CaseStateChoice.AFGESLOTEN
         return CaseState.CaseStateChoice.HANDHAVING
+
+    @extend_schema_field(CaseWorkflowSerializer(many=True))
+    def get_workflows(self, obj):
+        queryset = CaseWorkflow.objects.filter(
+            case=obj, tasks__isnull=False, tasks__completed=False
+        ).distinct()
+        serializer = CaseWorkflowSerializer(queryset, many=True)
+        return serializer.data
 
     class Meta:
         model = Case
