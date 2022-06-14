@@ -4,7 +4,6 @@ from apps.cases.models import Case, CaseClose, CaseState, CitizenReport
 from apps.cases.tasks import task_close_case
 from apps.workflow.models import CaseWorkflow
 from apps.workflow.tasks import task_create_citizen_report_worflow_for_case
-from django.core.cache import cache
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
@@ -31,12 +30,6 @@ def start_workflow_for_case(sender, instance, created, **kwargs):
     data = {}
     if created:
         CaseState.objects.get_or_create(case=instance)
-
-        cached_legacy_bwv_case_key = (
-            f"legacy_bwv_case_id_{instance.legacy_bwv_case_id}_create_data"
-        )
-        cached_legacy_bwv_case = cache.get(cached_legacy_bwv_case_key, {})
-        data.update(cached_legacy_bwv_case)
         task_create_main_worflow_for_case.delay(case_id=instance.id, data=data)
 
 
