@@ -205,11 +205,6 @@ class Case(ModelEventEmitter):
             .distinct()
         )
 
-    def get_current_states(self):
-        return self.workflows.filter(
-            tasks__completed=False, case_state_type__isnull=False
-        )
-
     def force_citizen_report_feedback(self, instance=None) -> bool:
         from apps.cases.tasks import task_update_citizen_report_feedback_workflows
         from apps.debriefings.models import Debriefing

@@ -93,24 +93,12 @@ class BaseCaseSerializer(serializers.ModelSerializer):
 
 class CaseSerializer(serializers.ModelSerializer):
     address = AddressTinySerializer(read_only=True)
-    current_states = CaseWorkflowCaseDetailSerializer(
-        source="get_current_states",
-        many=True,
-        read_only=True,
-    )
     reason = CaseReasonSerializer(read_only=True)
     schedules = ScheduleSerializer(source="get_schedules", many=True, read_only=True)
     workflows = CaseWorkflowBaseSerializer(
         source="get_workflows", many=True, read_only=True
     )
-
-    # @extend_schema_field(CaseWorkflowSerializer(many=True))
-    # def get_workflows(self, obj):
-    #     queryset = CaseWorkflow.objects.filter(
-    #         case=obj, tasks__isnull=False, tasks__completed=False
-    #     ).distinct()
-    #     serializer = CaseWorkflowSerializer(queryset, many=True)
-    #     return serializer.data
+    theme = CaseThemeSerializer(read_only=True)
 
     class Meta:
         model = Case
@@ -132,7 +120,7 @@ class CaseSerializer(serializers.ModelSerializer):
             "author",
             "created",
             "subjects",
-            "theme",
+            # "theme",
         )
 
 
@@ -142,11 +130,6 @@ class CaseCreateSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
     )
     address = AddressSerializer(read_only=True)
     bag_id = serializers.CharField(required=True, write_only=True)
-    current_states = CaseWorkflowCaseDetailSerializer(
-        source="get_current_states",
-        many=True,
-        read_only=True,
-    )
     theme = CaseThemeSerializer(read_only=True)
     theme_id = serializers.PrimaryKeyRelatedField(
         source="theme", queryset=CaseTheme.objects.all(), write_only=True
@@ -217,11 +200,6 @@ class CaseDetailSerializer(serializers.ModelSerializer):
     )
     subjects = SubjectSerializer(many=True, read_only=True)
     project = CaseProjectSerializer(read_only=True)
-    current_states = CaseWorkflowCaseDetailSerializer(
-        source="get_current_states",
-        many=True,
-        read_only=True,
-    )
     theme = CaseThemeSerializer(read_only=True)
     reason = CaseReasonSerializer(read_only=True)
 
