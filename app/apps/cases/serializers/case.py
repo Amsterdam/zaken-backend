@@ -24,7 +24,6 @@ from apps.workflow.serializers import (
     CaseWorkflowCaseDetailSerializer,
     CaseWorkflowSerializer,
 )
-from drf_spectacular.utils import extend_schema_field
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from rest_framework import serializers
 
@@ -99,6 +98,7 @@ class CaseSerializer(serializers.ModelSerializer):
         source="get_workflows", many=True, read_only=True
     )
     theme = CaseThemeSerializer(read_only=True)
+    advertisements = AdvertisementSerializer(many=True, required=False)
 
     class Meta:
         model = Case
@@ -120,7 +120,6 @@ class CaseSerializer(serializers.ModelSerializer):
             "author",
             "created",
             "subjects",
-            # "theme",
         )
 
 
@@ -165,6 +164,10 @@ class CaseCreateSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
         queryset=HousingCorporation.objects.all(),
         write_only=True,
     )
+    state = serializers.CharField(source="get_state")
+    workflows = CaseWorkflowSerializer(
+        source="get_workflows", many=True, read_only=True
+    )
 
     def create(self, validated_data):
         case = super().create(validated_data)
@@ -194,7 +197,7 @@ class CaseCreateSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
 
 class CaseDetailSerializer(serializers.ModelSerializer):
     address = AddressSerializer(read_only=True)
-    state = serializers.SerializerMethodField()
+    state = serializers.CharField(source="get_state")
     workflows = CaseWorkflowSerializer(
         source="get_workflows", many=True, read_only=True
     )
@@ -202,16 +205,7 @@ class CaseDetailSerializer(serializers.ModelSerializer):
     project = CaseProjectSerializer(read_only=True)
     theme = CaseThemeSerializer(read_only=True)
     reason = CaseReasonSerializer(read_only=True)
-
-    @extend_schema_field(serializers.CharField)
-    def get_state(self, obj):
-        casestates = obj.case_states.all().last()
-        if casestates:
-            return casestates.status
-        # TODO below should not be happening in the future
-        if obj.end_date:
-            return CaseState.CaseStateChoice.AFGESLOTEN
-        return CaseState.CaseStateChoice.HANDHAVING
+    advertisements = AdvertisementSerializer(many=True, required=False)
 
     class Meta:
         model = Case

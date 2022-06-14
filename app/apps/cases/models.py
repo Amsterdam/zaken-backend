@@ -205,6 +205,15 @@ class Case(ModelEventEmitter):
             .distinct()
         )
 
+    def get_state(self):
+        casestates = self.case_states.all().last()
+        if casestates:
+            return casestates.status
+        # TODO below should not be happening in the future
+        if self.end_date:
+            return CaseState.CaseStateChoice.AFGESLOTEN
+        return CaseState.CaseStateChoice.HANDHAVING
+
     def force_citizen_report_feedback(self, instance=None) -> bool:
         from apps.cases.tasks import task_update_citizen_report_feedback_workflows
         from apps.debriefings.models import Debriefing
