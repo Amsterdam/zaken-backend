@@ -1,5 +1,5 @@
 from apps.addresses.models import Address, HousingCorporation
-from apps.addresses.serializers import AddressSerializer
+from apps.addresses.serializers import AddressSerializer, AddressTinySerializer
 from apps.cases.models import (
     Advertisement,
     Case,
@@ -19,12 +19,11 @@ from apps.cases.serializers.main import (
     SubjectSerializer,
 )
 from apps.schedules.serializers import ScheduleSerializer
-from apps.workflow.models import CaseWorkflow
 from apps.workflow.serializers import (
+    CaseWorkflowBaseSerializer,
     CaseWorkflowCaseDetailSerializer,
     CaseWorkflowSerializer,
 )
-from drf_spectacular.utils import extend_schema_field
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from rest_framework import serializers
 
@@ -91,17 +90,45 @@ class BaseCaseSerializer(serializers.ModelSerializer):
         return case
 
 
-class CaseSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
+class CaseSerializer(serializers.ModelSerializer):
+    address = AddressTinySerializer(read_only=True)
+    reason = CaseReasonSerializer(read_only=True)
+    schedules = ScheduleSerializer(source="get_schedules", many=True, read_only=True)
+    workflows = CaseWorkflowBaseSerializer(
+        source="get_workflows", many=True, read_only=True
+    )
+    theme = CaseThemeSerializer(read_only=True)
+    advertisements = AdvertisementSerializer(many=True, required=False)
+
+    class Meta:
+        model = Case
+        exclude = (
+            "directing_process",
+            "identification",
+            "is_legacy_bwv",
+            "is_legacy_camunda",
+            "legacy_bwv_case_id",
+            "is_enforcement_request",
+            "mma_number",
+            "previous_case",
+            "ton_ids",
+            "description",
+            "case_url",
+            "case_deleted",
+            "project",
+            "sensitive",
+            "author",
+            "created",
+            "subjects",
+        )
+
+
+class CaseCreateSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
     author = serializers.HiddenField(
         default=serializers.CurrentUserDefault(), write_only=True
     )
     address = AddressSerializer(read_only=True)
     bag_id = serializers.CharField(required=True, write_only=True)
-    current_states = CaseWorkflowCaseDetailSerializer(
-        source="get_current_states",
-        many=True,
-        read_only=True,
-    )
     theme = CaseThemeSerializer(read_only=True)
     theme_id = serializers.PrimaryKeyRelatedField(
         source="theme", queryset=CaseTheme.objects.all(), write_only=True
@@ -113,7 +140,6 @@ class CaseSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
         queryset=CaseReason.objects.all(),
         write_only=True,
     )
-    schedules = ScheduleSerializer(source="get_schedules", many=True, read_only=True)
     project = CaseProjectSerializer(read_only=True)
     project_id = serializers.PrimaryKeyRelatedField(
         source="project",
@@ -137,6 +163,10 @@ class CaseSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
         required=False,
         queryset=HousingCorporation.objects.all(),
         write_only=True,
+    )
+    state = serializers.CharField(source="get_state", read_only=True)
+    workflows = CaseWorkflowSerializer(
+        source="get_workflows", many=True, read_only=True
     )
 
     def create(self, validated_data):
@@ -165,27 +195,17 @@ class CaseSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
         )
 
 
-class CaseDetailSerializer(CaseSerializer):
-    state = serializers.SerializerMethodField()
-    workflows = serializers.SerializerMethodField()
-
-    @extend_schema_field(serializers.CharField)
-    def get_state(self, obj):
-        casestates = obj.case_states.all().last()
-        if casestates:
-            return casestates.status
-        # TODO below should not be happening in the future
-        if obj.end_date:
-            return CaseState.CaseStateChoice.AFGESLOTEN
-        return CaseState.CaseStateChoice.HANDHAVING
-
-    @extend_schema_field(CaseWorkflowSerializer(many=True))
-    def get_workflows(self, obj):
-        queryset = CaseWorkflow.objects.filter(
-            case=obj, tasks__isnull=False, tasks__completed=False
-        ).distinct()
-        serializer = CaseWorkflowSerializer(queryset, many=True)
-        return serializer.data
+class CaseDetailSerializer(serializers.ModelSerializer):
+    address = AddressSerializer(read_only=True)
+    state = serializers.CharField(source="get_state", read_only=True)
+    workflows = CaseWorkflowSerializer(
+        source="get_workflows", many=True, read_only=True
+    )
+    subjects = SubjectSerializer(many=True, read_only=True)
+    project = CaseProjectSerializer(read_only=True)
+    theme = CaseThemeSerializer(read_only=True)
+    reason = CaseReasonSerializer(read_only=True)
+    advertisements = AdvertisementSerializer(many=True, required=False, read_only=True)
 
     class Meta:
         model = Case
@@ -195,6 +215,10 @@ class CaseDetailSerializer(CaseSerializer):
             "is_legacy_bwv",
             "is_legacy_camunda",
             "legacy_bwv_case_id",
+            "case_url",
+            "case_deleted",
+            "author",
+            "created",
         )
 
 

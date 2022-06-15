@@ -198,10 +198,21 @@ class Case(ModelEventEmitter):
     def __str__(self):
         return f"Case: {self.id}"
 
-    def get_current_states(self):
-        return self.workflows.filter(
-            tasks__completed=False, case_state_type__isnull=False
+    def get_workflows(self):
+        return (
+            self.workflows.all()
+            .filter(tasks__isnull=False, tasks__completed=False)
+            .distinct()
         )
+
+    def get_state(self):
+        casestates = self.case_states.all().last()
+        if casestates:
+            return casestates.status
+        # TODO below should not be happening in the future
+        if self.end_date:
+            return CaseState.CaseStateChoice.AFGESLOTEN
+        return CaseState.CaseStateChoice.HANDHAVING
 
     def force_citizen_report_feedback(self, instance=None) -> bool:
         from apps.cases.tasks import task_update_citizen_report_feedback_workflows

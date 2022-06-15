@@ -77,25 +77,31 @@ class CitizenReportAnonomizedSerializer(serializers.ModelSerializer):
 class CaseThemeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseTheme
-        fields = "__all__"
+        exclude = (
+            "case_type_url",
+            "sensitive",
+        )
 
 
 class CaseReasonSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseReason
-        fields = "__all__"
+        exclude = ("theme",)
 
 
 class CaseProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseProject
-        fields = "__all__"
+        exclude = (
+            "theme",
+            "active",
+        )
 
 
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
-        fields = "__all__"
+        exclude = ("theme",)
 
 
 class CaseCloseReasonSerializer(serializers.ModelSerializer):

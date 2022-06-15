@@ -6,6 +6,7 @@ from apps.addresses.models import HousingCorporation
 from apps.cases.models import Case, CaseDocument, CaseProject, CaseReason, CaseStateType
 from apps.cases.serializers import (
     AdvertisementSerializer,
+    CaseCreateSerializer,
     CaseDetailSerializer,
     CaseDocumentSerializer,
     CaseDocumentUploadSerializer,
@@ -346,6 +347,8 @@ class CaseViewSet(
     def get_serializer_class(self):
         if self.action == "retrieve":
             return CaseDetailSerializer
+        if self.action in ("create", "update", "partial_update"):
+            return CaseCreateSerializer
         return super().get_serializer_class()
 
     def get_queryset(self):
