@@ -6,18 +6,18 @@ from api.tasks import AbstractUserTask, GenericUserTask
 from api.tasks.visit import test_doorgeven_status_top
 from api.user_tasks import (
     task_afwachten_intern_onderzoek,
+    task_create_debrief,
     task_opstellen_beeldverslag,
     task_opstellen_rapport_van_bevindingen,
     task_opstellen_verkorte_rapportage_huisbezoek,
     task_terugkoppelen_melder_1,
     task_terugkoppelen_melder_2,
-    task_verwerken_debrief,
 )
 
 logger = logging.getLogger(__name__)
 
 
-class test_verwerken_debrief(AbstractUserTask, task_verwerken_debrief):
+class test_verwerken_debrief(AbstractUserTask, task_create_debrief):
     event = events.DebriefingEvent
     endpoint = "debriefings"
 
