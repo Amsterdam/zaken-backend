@@ -164,7 +164,7 @@ class CaseCreateSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
         queryset=HousingCorporation.objects.all(),
         write_only=True,
     )
-    state = serializers.CharField(source="get_state")
+    state = serializers.CharField(source="get_state", read_only=True)
     workflows = CaseWorkflowSerializer(
         source="get_workflows", many=True, read_only=True
     )
@@ -197,7 +197,7 @@ class CaseCreateSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
 
 class CaseDetailSerializer(serializers.ModelSerializer):
     address = AddressSerializer(read_only=True)
-    state = serializers.CharField(source="get_state")
+    state = serializers.CharField(source="get_state", read_only=True)
     workflows = CaseWorkflowSerializer(
         source="get_workflows", many=True, read_only=True
     )
@@ -205,7 +205,7 @@ class CaseDetailSerializer(serializers.ModelSerializer):
     project = CaseProjectSerializer(read_only=True)
     theme = CaseThemeSerializer(read_only=True)
     reason = CaseReasonSerializer(read_only=True)
-    advertisements = AdvertisementSerializer(many=True, required=False)
+    advertisements = AdvertisementSerializer(many=True, required=False, read_only=True)
 
     class Meta:
         model = Case

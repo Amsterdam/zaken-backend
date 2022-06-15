@@ -347,7 +347,7 @@ class CaseViewSet(
     def get_serializer_class(self):
         if self.action == "retrieve":
             return CaseDetailSerializer
-        if self.action == "create":
+        if self.action in ("create", "update", "partial_update"):
             return CaseCreateSerializer
         return super().get_serializer_class()
 
