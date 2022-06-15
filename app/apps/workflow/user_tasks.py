@@ -192,10 +192,15 @@ class task_doorgeven_status_top(user_task):
         return due_date
 
 
-class task_verwerken_debrief(user_task):
+class task_create_debrief(user_task):
     """Verwerken debrief"""
 
-    _task_name = "task_create_debrief"
+    due_date = relativedelta(days=1)
+
+
+class task_create_debrief_leegstand(user_task):
+    """Verwerken debrief"""
+
     due_date = relativedelta(days=1)
 
 
