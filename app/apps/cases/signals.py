@@ -1,7 +1,6 @@
 import logging
 
 from apps.cases.models import Case, CaseClose, CaseState, CitizenReport
-from apps.cases.tasks import task_close_case
 from apps.workflow.models import CaseWorkflow
 from apps.workflow.tasks import task_create_citizen_report_worflow_for_case
 from django.db.models.signals import post_save, pre_save
@@ -52,4 +51,4 @@ def close_case(sender, instance, created, **kwargs):
             case=instance.case,
             status=CaseState.CaseStateChoice.AFGESLOTEN,
         )
-        task_close_case.delay(instance.case.id)
+        instance.case.close_case()
