@@ -372,11 +372,11 @@ class CaseViewSet(
         return Response(content)
 
     @extend_schema(
-        description="Get tasks for this Case",
+        description="Get workflows for this Case",
         responses={status.HTTP_200_OK: CaseWorkflowSerializer(many=True)},
     )
-    @action(detail=True, methods=["get"], url_path="tasks")
-    def get_tasks(self, request, pk):
+    @action(detail=True, methods=["get"], url_path="workflows")
+    def get_workflows(self, request, pk):
         case = self.get_object()
         request.user
         queryset = CaseWorkflow.objects.filter(
