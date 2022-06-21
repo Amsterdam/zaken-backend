@@ -13,12 +13,7 @@ from apps.cases.models import (
     CitizenReport,
     Subject,
 )
-from apps.workflow.tasks import (
-    task_create_main_worflow_for_case,
-    task_task_create_debrief,
-    task_task_create_schedule,
-    task_task_create_visit,
-)
+from apps.workflow.tasks import task_create_main_worflow_for_case
 from django import forms
 from django.contrib import admin
 
@@ -47,24 +42,6 @@ class CaseAdminForm(forms.ModelForm):
 def create_main_worflow_for_case(modeladmin, request, queryset):
     for case in queryset.filter(is_legacy_camunda=True, end_date__isnull=True):
         task_create_main_worflow_for_case.delay(case.id)
-
-
-@admin.action(description="Migrate camunda case: try to complete task_create_schedule")
-def camunda_case_try_to_complete_task_create_schedule(modeladmin, request, queryset):
-    for case in queryset.filter(is_legacy_camunda=True, end_date__isnull=True):
-        task_task_create_schedule.delay(case.id)
-
-
-@admin.action(description="Migrate camunda case: try to complete task_create_visit")
-def camunda_case_try_to_complete_task_create_visit(modeladmin, request, queryset):
-    for case in queryset.filter(is_legacy_camunda=True, end_date__isnull=True):
-        task_task_create_visit.delay(case.id)
-
-
-@admin.action(description="Migrate camunda case: try to complete task_create_debrief")
-def camunda_case_try_to_complete_task_create_debrief(modeladmin, request, queryset):
-    for case in queryset.filter(is_legacy_camunda=True, end_date__isnull=True):
-        task_task_create_debrief.delay(case.id)
 
 
 @admin.register(CaseDocument)
@@ -107,9 +84,6 @@ class CaseAdmin(admin.ModelAdmin):
     search_fields = ("id", "legacy_bwv_case_id")
     actions = [
         create_main_worflow_for_case,
-        camunda_case_try_to_complete_task_create_schedule,
-        camunda_case_try_to_complete_task_create_visit,
-        camunda_case_try_to_complete_task_create_debrief,
     ]
 
 

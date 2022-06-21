@@ -78,6 +78,7 @@ class Summon(TaskModelEventEmitter):
                 "names": {"value": f"{names}: {self.type.name}"},
                 "summon_id": {"value": self.id},
             },
+            wait=True,
         )
         return True
 

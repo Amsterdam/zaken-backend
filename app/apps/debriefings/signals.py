@@ -16,5 +16,6 @@ def complete_task_create_debrief(sender, instance, created, **kwargs):
                     "value": instance.violation,
                 }
             },
+            wait=True,
         )
         instance.case.force_citizen_report_feedback(instance)
