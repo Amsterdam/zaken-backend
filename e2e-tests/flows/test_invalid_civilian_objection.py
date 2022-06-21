@@ -1,10 +1,10 @@
 from api.config import DecisionType, ObjectionValid, SummonType, Violation
 from api.tasks.close_case import test_uitzetten_vervolgstap
 from api.tasks.debrief import (
+    test_create_debrief,
     test_opstellen_beeldverslag,
     test_opstellen_rapport_van_bevindingen,
     test_terugkoppelen_melder_2,
-    test_verwerken_debrief,
 )
 from api.tasks.decision import (
     test_beoordelen_zienswijze,
@@ -34,7 +34,7 @@ class TestInvalidCivilianObjection(DefaultAPITest):
             test_bepalen_processtap_standaard(),
             test_inplannen_status(),
             test_doorgeven_status_top(),
-            test_verwerken_debrief(violation=Violation.YES),
+            test_create_debrief(violation=Violation.YES),
             test_opstellen_beeldverslag(),
             test_opstellen_rapport_van_bevindingen(),
             test_opstellen_concept_aanschrijving(),

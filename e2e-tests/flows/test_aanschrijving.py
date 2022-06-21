@@ -1,9 +1,9 @@
 from api.config import SummonType, Violation
 from api.tasks.debrief import (
+    test_create_debrief,
     test_opstellen_beeldverslag,
     test_opstellen_rapport_van_bevindingen,
     test_terugkoppelen_melder_2,
-    test_verwerken_debrief,
 )
 from api.tasks.summon import (
     test_monitoren_binnenkomen_vergunningaanvraag,
@@ -26,7 +26,7 @@ class TestViolationLegalizationLetter(DefaultAPITest):
             test_bepalen_processtap_standaard(),
             test_inplannen_status(),
             test_doorgeven_status_top(),
-            test_verwerken_debrief(violation=Violation.YES),
+            test_create_debrief(violation=Violation.YES),
             ValidateOpenTasks(
                 test_opstellen_rapport_van_bevindingen,
                 test_opstellen_beeldverslag,
