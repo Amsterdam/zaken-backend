@@ -52,7 +52,7 @@ class Client:
         )
 
     def get_case_tasks(self, case_id):
-        response = self.call("get", f"/cases/{case_id}/tasks/")
+        response = self.call("get", f"/cases/{case_id}/workflows/")
         lists = map(lambda x: x["tasks"], response["results"])
         flat_list = list(chain.from_iterable(lists))
 

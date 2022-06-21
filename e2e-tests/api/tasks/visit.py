@@ -49,10 +49,10 @@ class test_bepalen_processtap_standaard(
 class test_aanvragen_machtiging(GenericUserTask, task_aanvragen_machtiging):
     @staticmethod
     def get_steps():
-        from api.tasks.debrief import test_verwerken_debrief
+        from api.tasks.debrief import test_create_debrief
 
         return [
-            *test_verwerken_debrief.get_steps(
+            *test_create_debrief.get_steps(
                 violation=Violation.ADDITIONAL_VISIT_WITH_AUTHORIZATION
             ),
             __class__(),

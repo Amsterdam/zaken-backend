@@ -17,12 +17,12 @@ from api.user_tasks import (
 logger = logging.getLogger(__name__)
 
 
-class test_verwerken_debrief(AbstractUserTask, task_create_debrief):
+class test_create_debrief(AbstractUserTask, task_create_debrief):
     event = events.DebriefingEvent
     endpoint = "debriefings"
 
     def __init__(self, violation=Violation.NO, feedback="Some feedback"):
-        super(test_verwerken_debrief, self).__init__(
+        super(test_create_debrief, self).__init__(
             violation=violation, feedback=feedback
         )
 
@@ -39,20 +39,20 @@ class test_verwerken_debrief(AbstractUserTask, task_create_debrief):
 class test_terugkoppelen_melder_1(GenericUserTask, task_terugkoppelen_melder_1):
     @staticmethod
     def get_steps():
-        return [*test_verwerken_debrief.get_steps(violation=Violation.NO), __class__()]
+        return [*test_create_debrief.get_steps(violation=Violation.NO), __class__()]
 
 
 class test_terugkoppelen_melder_2(GenericUserTask, task_terugkoppelen_melder_2):
     @staticmethod
     def get_steps():
-        return [*test_verwerken_debrief.get_steps(violation=Violation.YES), __class__()]
+        return [*test_create_debrief.get_steps(violation=Violation.YES), __class__()]
 
 
 class test_afwachten_intern_onderzoek(GenericUserTask, task_afwachten_intern_onderzoek):
     @staticmethod
     def get_steps():
         return [
-            *test_verwerken_debrief.get_steps(
+            *test_create_debrief.get_steps(
                 violation=Violation.ADDITIONAL_RESEARCH_REQUIRED
             ),
             __class__(),
@@ -62,7 +62,7 @@ class test_afwachten_intern_onderzoek(GenericUserTask, task_afwachten_intern_ond
 class test_opstellen_beeldverslag(GenericUserTask, task_opstellen_beeldverslag):
     @staticmethod
     def get_steps():
-        return [*test_verwerken_debrief.get_steps(violation=Violation.YES), __class__()]
+        return [*test_create_debrief.get_steps(violation=Violation.YES), __class__()]
 
 
 class test_opstellen_rapport_van_bevindingen(
@@ -70,7 +70,7 @@ class test_opstellen_rapport_van_bevindingen(
 ):
     @staticmethod
     def get_steps():
-        return [*test_verwerken_debrief.get_steps(violation=Violation.YES), __class__()]
+        return [*test_create_debrief.get_steps(violation=Violation.YES), __class__()]
 
 
 class test_opstellen_verkorte_rapportage_huisbezoek(
@@ -78,4 +78,4 @@ class test_opstellen_verkorte_rapportage_huisbezoek(
 ):
     @staticmethod
     def get_steps():
-        return [*test_verwerken_debrief.get_steps(violation=Violation.NO), __class__()]
+        return [*test_create_debrief.get_steps(violation=Violation.NO), __class__()]

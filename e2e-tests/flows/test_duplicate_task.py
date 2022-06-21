@@ -3,7 +3,7 @@ import logging
 
 from api.config import Situations, Violation
 from api.tasks import GenericUserTask
-from api.tasks.debrief import test_afwachten_intern_onderzoek, test_verwerken_debrief
+from api.tasks.debrief import test_afwachten_intern_onderzoek, test_create_debrief
 from api.tasks.visit import test_doorgeven_status_top, test_inplannen_status
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
@@ -22,7 +22,7 @@ class TestDuplicateTaskExecution(DefaultAPITest):
     def test_generic_task(self):
         case = self.get_case()
         case.run_steps(
-            *test_verwerken_debrief.get_steps(
+            *test_create_debrief.get_steps(
                 violation=Violation.ADDITIONAL_RESEARCH_REQUIRED
             ),
             ValidateOpenTasks(test_afwachten_intern_onderzoek),

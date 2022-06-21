@@ -1,5 +1,5 @@
 from api.config import Reason, Theme, VisitNextStep
-from api.tasks.debrief import test_verwerken_debrief
+from api.tasks.debrief import test_create_debrief
 from api.tasks.visit import (
     test_aanvragen_machtiging,
     test_bepalen_processtap,
@@ -16,7 +16,7 @@ class task_bepalen_processtap(DefaultAPITest):
     def test_no_visit(self):
         self.get_case().run_steps(
             test_bepalen_processtap(visit_next_step=VisitNextStep.NO_VISIT),
-            ValidateOpenTasks(test_verwerken_debrief),
+            ValidateOpenTasks(test_create_debrief),
         )
 
     def test_with_authorization(self):

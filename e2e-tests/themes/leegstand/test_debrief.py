@@ -1,9 +1,9 @@
 from api.config import Violation
 from api.tasks.debrief import (
+    test_create_debrief,
     test_opstellen_beeldverslag,
     test_opstellen_rapport_van_bevindingen,
     test_terugkoppelen_melder_2,
-    test_verwerken_debrief,
 )
 from api.tasks.summon import (
     test_monitoren_binnenkomen_vergunningaanvraag,
@@ -30,7 +30,7 @@ class TestLeegstandViolationYes(DefaultAPITest):
         self.get_case().run_steps(
             test_inplannen_status(),
             test_doorgeven_status_top(),
-            test_verwerken_debrief(violation=Violation.YES),
+            test_create_debrief(violation=Violation.YES),
             ValidateOpenTasks(
                 test_opstellen_rapport_van_bevindingen,
                 test_opstellen_beeldverslag,
@@ -54,6 +54,6 @@ class TestLeegstandViolationLikelyInhabited(DefaultAPITest):
         self.get_case().run_steps(
             test_inplannen_status(),
             test_doorgeven_status_top(),
-            test_verwerken_debrief(violation=Violation.LIKELY_INHABITED),
+            test_create_debrief(violation=Violation.LIKELY_INHABITED),
             ValidateOpenTasks(test_opstellen_aanschrijving_eigenaar),
         )

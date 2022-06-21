@@ -1,5 +1,5 @@
 from api.config import Situations
-from api.tasks.debrief import test_verwerken_debrief
+from api.tasks.debrief import test_create_debrief
 from api.tasks.visit import test_doorgeven_status_top, test_inplannen_status
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
@@ -23,7 +23,7 @@ class task_doorgeven_status_top_test(DefaultAPITest):
                 situation=Situations.NOBODY_PRESENT,
                 can_next_visit_go_ahead=False,
             ),
-            ValidateOpenTasks(test_verwerken_debrief),
+            ValidateOpenTasks(test_create_debrief),
         )
 
     def test_no_cooperation(self):
@@ -33,7 +33,7 @@ class task_doorgeven_status_top_test(DefaultAPITest):
                 situation=Situations.NO_COOPERATION,
                 can_next_visit_go_ahead=False,
             ),
-            ValidateOpenTasks(test_verwerken_debrief),
+            ValidateOpenTasks(test_create_debrief),
         )
 
     def test_access_granted(self):
@@ -42,5 +42,5 @@ class task_doorgeven_status_top_test(DefaultAPITest):
             test_doorgeven_status_top(
                 situation=Situations.ACCESS_GRANTED,
             ),
-            ValidateOpenTasks(test_verwerken_debrief),
+            ValidateOpenTasks(test_create_debrief),
         )
