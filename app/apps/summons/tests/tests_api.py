@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from apps.cases.models import Case
 from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from apps.summons.models import Summon, SummonedPerson, SummonType
@@ -30,8 +32,11 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
         response = client.post(url, {})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_authenticated_post_create(self):
+    @patch("apps.workflow.models.CaseWorkflow.complete_user_task")
+    def test_authenticated_post_create(self, mock):
         self.assertEquals(Summon.objects.count(), 0)
+
+        mock.return_value = True
 
         case = baker.make(Case)
         summon_type = baker.make(SummonType, theme=case.theme)
@@ -56,8 +61,11 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Summon.objects.count(), 1)
 
-    def test_authenticated_post_creates_persons(self):
+    @patch("apps.workflow.models.CaseWorkflow.complete_user_task")
+    def test_authenticated_post_creates_persons(self, mock):
         self.assertEquals(SummonedPerson.objects.count(), 0)
+
+        mock.return_value = True
 
         case = baker.make(Case)
         summon_type = baker.make(SummonType, theme=case.theme)
@@ -82,11 +90,14 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(SummonedPerson.objects.count(), 1)
 
-    def test_authenticated_post_creates_persons_with_preposition(self):
+    @patch("apps.workflow.models.CaseWorkflow.complete_user_task")
+    def test_authenticated_post_creates_persons_with_preposition(self, mock):
         """
         SummonedPersons can be created with a preposition
         """
         self.assertEquals(SummonedPerson.objects.count(), 0)
+
+        mock.return_value = True
 
         case = baker.make(Case)
         summon_type = baker.make(SummonType, theme=case.theme)
@@ -115,11 +126,14 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
             SummonedPerson.objects.get(id=persons[0]["id"]).preposition, PREPOSITION
         )
 
-    def test_authenticated_post_creates_persons_without_preposition(self):
+    @patch("apps.workflow.models.CaseWorkflow.complete_user_task")
+    def test_authenticated_post_creates_persons_without_preposition(self, mock):
         """
         SummonedPersons can be created without a preposition
         """
         self.assertEquals(SummonedPerson.objects.count(), 0)
+
+        mock.return_value = True
 
         case = baker.make(Case)
         summon_type = baker.make(SummonType, theme=case.theme)
@@ -147,13 +161,16 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
             SummonedPerson.objects.get(id=persons[0]["id"]).preposition, None
         )
 
-    def test_authenticated_post_creates_persons_with_legal_entity(self):
+    @patch("apps.workflow.models.CaseWorkflow.complete_user_task")
+    def test_authenticated_post_creates_persons_with_legal_entity(self, mock):
         """
         A SummonedPerson can also be the board of a legal entity.
         In this case there is no first and last name,
         but only a entity_name, function and role.
         """
         self.assertEquals(SummonedPerson.objects.count(), 0)
+
+        mock.return_value = True
 
         case = baker.make(Case)
         summon_type = baker.make(SummonType, theme=case.theme)
@@ -183,11 +200,14 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
             SummonedPerson.objects.get(id=persons[0]["id"]).function, function_name
         )
 
-    def test_authenticated_post_create_hidden_author(self):
+    @patch("apps.workflow.models.CaseWorkflow.complete_user_task")
+    def test_authenticated_post_create_hidden_author(self, mock):
         """
         The current user should be set implicitly as author
         """
         self.assertEquals(SummonedPerson.objects.count(), 0)
+
+        mock.return_value = True
 
         case = baker.make(Case)
         summon_type = baker.make(SummonType, theme=case.theme)
