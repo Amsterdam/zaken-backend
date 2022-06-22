@@ -384,6 +384,7 @@ class DecosJoinRequest:
 
         response_decos_obj = self.get_decos_object_with_bag_id(bag_id)
 
+        response_decos_folder = {}
         if response_decos_obj:
             response_decos_folder = self._get_decos_folder(response_decos_obj)
             if response_decos_folder:
@@ -440,6 +441,7 @@ class DecosJoinRequest:
                 "vakantieverhuur_reports": vakantieverhuur_reports.all_years(
                     datetime.today()
                 ),
+                "decos_folders": response_decos_folder,
             }
         )
 

@@ -157,3 +157,4 @@ class DecosSerializer(serializers.Serializer):
         many=True,
         allow_null=True,
     )
+    decos_folders = serializers.DictField(allow_null=True)
