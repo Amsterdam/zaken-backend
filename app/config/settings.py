@@ -173,6 +173,7 @@ REST_FRAMEWORK = {
         "apps.users.auth.AuthenticationClass",
         "rest_framework.authentication.TokenAuthentication",
     ),
+    "EXCEPTION_HANDLER": "utils.exceptions.custom_exception_handler",
 }
 
 SPECTACULAR_SETTINGS = {
@@ -452,6 +453,8 @@ CACHES = {
         "LOCATION": REDIS_URL,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "SOCKET_CONNECT_TIMEOUT": 5,
+            "SOCKET_TIMEOUT": 5,
         },
     }
 }

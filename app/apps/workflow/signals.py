@@ -11,6 +11,7 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from utils.exceptions import EventEmitterExistsError
 
 from .user_tasks import DEFAULT_USER_TASK_DUE_DATE, get_task_by_name
 from .utils import get_latest_version_from_config
@@ -18,11 +19,14 @@ from .utils import get_latest_version_from_config
 
 @receiver(pre_save, dispatch_uid="event_emitter_pre_save")
 def event_emitter_pre_save(instance, **kwargs):
+    if not issubclass(instance.__class__, TaskModelEventEmitter):
+        return
     if kwargs.get("raw"):
         return
+    cache.set("connection", "test")
+
     if (
-        issubclass(instance.__class__, TaskModelEventEmitter)
-        and not instance.id
+        not instance.id
         and not isinstance(instance, Visit)
         and hasattr(instance, "case_user_task_id")
         and instance.case_user_task_id
@@ -32,8 +36,8 @@ def event_emitter_pre_save(instance, **kwargs):
             case_user_task_id=instance.case_user_task_id
         )
         if type_instance:
-            raise Exception(
-                f"TaskModelEventEmitter of type '{instance.__class__.__name__}', with '{instance.case_user_task_id}', already exists"
+            raise EventEmitterExistsError(
+                f"TaskModelEventEmitter of type '{instance.__class__.__name__}', with id '{instance.case_user_task_id}', already exists"
             )
 
 

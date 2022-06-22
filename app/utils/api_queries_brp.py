@@ -3,6 +3,7 @@ import logging
 import requests
 from django.conf import settings
 from tenacity import after_log, retry, stop_after_attempt
+from utils.exceptions import MKSPermissionsError
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,8 @@ def get_brp(request, queryParams):
             "Authorization": request.headers.get("Authorization"),
         },
     )
+    if response.status_code == 403:
+        raise MKSPermissionsError()
 
     return response.json(), response.status_code
 
