@@ -53,7 +53,6 @@ class TestSubjects(DefaultAPITest):
 
         subjects = self.client.call("get", f"/cases/{case.data['id']}/")["subjects"]
         case.data["subjects"] = subjects
-        print(*test_close_case.get_steps())
         test_close_case_steps = [*test_close_case.get_steps()]
         test_close_case_steps.pop(0)
         # Check if the subjects are updated and keep their value after close case

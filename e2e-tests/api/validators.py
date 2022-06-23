@@ -23,7 +23,6 @@ class ValidateOpenTasks(Validator):
                 map(lambda task: task.get_task_name(), tasks),
             )
         )
-        print(self.tasks)
         self.tasks.sort()
 
     def is_ready(self, client, case: Case):
