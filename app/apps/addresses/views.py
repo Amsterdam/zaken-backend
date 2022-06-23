@@ -68,21 +68,10 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
             }
 
         if address:
-            try:
-                brp_data, status_code = get_brp_by_address(request, **address)
-                serialized_residents = ResidentsSerializer(data=brp_data)
-                serialized_residents.is_valid()
-
-                if status_code == 403:
-                    return Response(
-                        {"message": "Je hebt geen rechten voor MKS"}, status=403
-                    )
-                return Response(serialized_residents.data, status=status_code)
-
-            except Exception as e:
-                logger.error(f"Could not retrieve residents for bag id {bag_id}: {e}")
-
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            brp_data, status_code = get_brp_by_address(request, **address)
+            serialized_residents = ResidentsSerializer(data=brp_data)
+            serialized_residents.is_valid(raise_exception=True)
+            return Response(serialized_residents.data, status=status_code)
 
         return Response({"error": "not found"}, status=status.HTTP_404_NOT_FOUND)
 
