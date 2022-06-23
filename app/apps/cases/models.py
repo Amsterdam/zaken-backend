@@ -424,7 +424,7 @@ class CitizenReport(TaskModelEventEmitter):
         return f"SIA-nummer: {reporter}"
 
     def __str__(self):
-        return f"{self.date_added} - {self.case.identification} - {self.identification}"
+        return f"CitizenReport: {self.date_added} - {self.case}"
 
     def __get_event_values__(self):
         advertisement_linklist = self.advertisement_linklist
