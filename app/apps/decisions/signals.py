@@ -33,4 +33,4 @@ def update_decision_with_summon(sender, instance, created, **kwargs):
                     "names": {"value": f"{names}: {instance.decision_type.name}"},
                 }
             )
-        CaseWorkflow.complete_user_task(task.id, data)
+        CaseWorkflow.complete_user_task(task.id, data, wait=True)

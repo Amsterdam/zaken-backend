@@ -175,4 +175,4 @@ def complete_generic_user_task_and_create_new_user_tasks(
         user_task_type = get_task_by_name(task.task_name)
         user_task_instance = user_task_type(task)
         data.update(user_task_instance.get_data())
-        CaseWorkflow.complete_user_task(task.id, data)
+        CaseWorkflow.complete_user_task(task.id, data, wait=True)

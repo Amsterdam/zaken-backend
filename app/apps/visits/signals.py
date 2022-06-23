@@ -23,4 +23,5 @@ def complete_task_create_visit(sender, instance, created, **kwargs):
                         "value": instance.can_next_visit_go_ahead
                     },
                 },
+                wait=True,
             )

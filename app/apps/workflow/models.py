@@ -486,8 +486,10 @@ class CaseWorkflow(models.Model):
         return task
 
     @staticmethod
-    def complete_user_task(id, data):
-        task_complete_user_task_and_create_new_user_tasks.delay(id, data)
+    def complete_user_task(id, data, wait=False):
+        task = task_complete_user_task_and_create_new_user_tasks.delay(id, data)
+        if wait:
+            task.wait(timeout=None, interval=0.5)
 
     def check_for_issues(self):
         wf = self.get_or_restore_workflow_state()
