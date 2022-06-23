@@ -71,5 +71,4 @@ class TestAfsluitenZaak(DefaultAPITest):
         )
         due_date = get_due_date(self, case)
         expected = midnight() + relativedelta(weeks=1)
-        # print(f"midnight: {midnight()}, expected: {expected}, due_date: {due_date}")
         self.assertEqual(expected.timestamp(), due_date.timestamp())
