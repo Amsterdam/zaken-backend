@@ -141,6 +141,7 @@ class VakantieverhuurReportSerializer(serializers.Serializer):
     report_date = serializers.DateTimeField()
     check_in_date = serializers.DateTimeField()
     check_out_date = serializers.DateTimeField()
+    days_count_per_year = serializers.DictField()
 
 
 class VakantieverhuurReportInformationSerializer(serializers.Serializer):
