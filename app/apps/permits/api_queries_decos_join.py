@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 import requests
 from apps.permits.mocks import (
-    get_decos_join_mock_folder_fields,
+    get_decos_join_mock_folder_fields_address_a,
     get_decos_join_mock_object_fields,
 )
 from apps.permits.serializers import (
@@ -25,7 +25,7 @@ class VakantieverhuurReports:
 
     def add_raw_data(self, data):
         if settings.USE_DECOS_MOCK_DATA:
-            data = get_decos_join_mock_folder_fields().get("content", [])
+            data = get_decos_join_mock_folder_fields_address_a().get("content", [])
         if not self.report_id or not self.cancellation_id:
             return
         data = [
@@ -110,7 +110,7 @@ class VakantieverhuurReports:
             for d_set in self.days
             if d_set[0][0].year == year or (d_set[0][-1] + day).year == year
         ]
-        reports.reverse()
+        reports.sort(key=lambda item: item.get("report_date"), reverse=True)
         o.update(self._rented(year, today))
         o.update(
             {
@@ -365,7 +365,7 @@ class DecosJoinRequest:
                 return response_decos_folder
             return False
         else:
-            return get_decos_join_mock_folder_fields()
+            return get_decos_join_mock_folder_fields_address_a()
 
     def get_decos_entry_by_bag_id(self, bag_id, dt):
         """Get simple view of the important permits"""
