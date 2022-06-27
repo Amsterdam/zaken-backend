@@ -339,7 +339,10 @@ class DecosJoinRequest:
             return get_decos_join_mock_object_fields()
 
     def get_folders_with_object_id(self, object_id):
-        url = settings.DECOS_JOIN_API + f"items/{object_id}/FOLDERS/"
+        url = (
+            settings.DECOS_JOIN_API
+            + f"items/{object_id}/FOLDERS/?properties=false&fetchParents=false&oDataQuery.top=100"
+        )
 
         return self._process_request_to_decos_join(url)
 
