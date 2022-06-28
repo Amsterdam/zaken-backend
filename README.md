@@ -81,7 +81,7 @@ Create a `.env.local` file, on the root of your project, and override the variab
 Start your project with the newly created environment variables, like so:
 
 ```
-docker compose -f docker-compose.yml -f docker-compose.local.yml up
+docker compose --env-file .env.local up
 ```
 
 ## Enabling Keycloak authentication for a locally run zaken-frontend
