@@ -430,12 +430,14 @@ class VakantieverhuurReportsTest(TestCase):
                     "report_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_in_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_out_date": datetime.datetime(2020, 7, 29, 0, 0),
+                    "days_count_per_year": {2020: 3},
                 },
                 {
                     "is_cancellation": False,
                     "report_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_in_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_out_date": datetime.datetime(2020, 7, 29, 0, 0),
+                    "days_count_per_year": {2020: 3},
                 },
             ],
         }
@@ -498,24 +500,28 @@ class VakantieverhuurReportsTest(TestCase):
                     "report_date": datetime.datetime(2019, 12, 29, 0, 0),
                     "check_in_date": datetime.datetime(2019, 12, 29, 0, 0),
                     "check_out_date": datetime.datetime(2020, 1, 2, 0, 0),
+                    "days_count_per_year": {2019: 3, 2020: 1},
                 },
                 {
                     "is_cancellation": False,
                     "report_date": datetime.datetime(2020, 7, 27, 0, 0),
                     "check_in_date": datetime.datetime(2020, 7, 27, 0, 0),
                     "check_out_date": datetime.datetime(2020, 7, 30, 0, 0),
+                    "days_count_per_year": {2020: 3},
                 },
                 {
                     "is_cancellation": True,
                     "report_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_in_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_out_date": datetime.datetime(2020, 7, 29, 0, 0),
+                    "days_count_per_year": {2020: 3},
                 },
                 {
                     "is_cancellation": False,
                     "report_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_in_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_out_date": datetime.datetime(2020, 7, 29, 0, 0),
+                    "days_count_per_year": {2020: 3},
                 },
             ],
         }
