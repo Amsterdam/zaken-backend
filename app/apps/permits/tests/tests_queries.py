@@ -403,7 +403,7 @@ class VakantieverhuurReportsTest(TestCase):
                 "is_cancellation": True,
             },
             {
-                "document_date": "2020-07-26T00:00:00",
+                "document_date": "2020-07-25T00:00:00",
                 "date6": "2020-07-26T00:00:00",
                 "date7": "2020-07-29T00:00:00",
                 "sequence": 1.0,
@@ -434,14 +434,13 @@ class VakantieverhuurReportsTest(TestCase):
                 },
                 {
                     "is_cancellation": False,
-                    "report_date": datetime.datetime(2020, 7, 26, 0, 0),
+                    "report_date": datetime.datetime(2020, 7, 25, 0, 0),
                     "check_in_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_out_date": datetime.datetime(2020, 7, 29, 0, 0),
                     "days_count_per_year": {2020: 3},
                 },
             ],
         }
-
         self.assertEqual(succeeded, True)
         self.assertEqual(data, expected_result)
         self.assertEqual(serializer.is_valid(), True)
@@ -460,7 +459,7 @@ class VakantieverhuurReportsTest(TestCase):
                 "is_cancellation": True,
             },
             {
-                "document_date": "2020-07-26T00:00:00",
+                "document_date": "2020-07-25T00:00:00",
                 "date6": "2020-07-26T00:00:00",
                 "date7": "2020-07-29T00:00:00",
                 "sequence": 1.0,
@@ -497,13 +496,6 @@ class VakantieverhuurReportsTest(TestCase):
             "reports": [
                 {
                     "is_cancellation": False,
-                    "report_date": datetime.datetime(2019, 12, 29, 0, 0),
-                    "check_in_date": datetime.datetime(2019, 12, 29, 0, 0),
-                    "check_out_date": datetime.datetime(2020, 1, 2, 0, 0),
-                    "days_count_per_year": {2019: 3, 2020: 1},
-                },
-                {
-                    "is_cancellation": False,
                     "report_date": datetime.datetime(2020, 7, 27, 0, 0),
                     "check_in_date": datetime.datetime(2020, 7, 27, 0, 0),
                     "check_out_date": datetime.datetime(2020, 7, 30, 0, 0),
@@ -518,10 +510,17 @@ class VakantieverhuurReportsTest(TestCase):
                 },
                 {
                     "is_cancellation": False,
-                    "report_date": datetime.datetime(2020, 7, 26, 0, 0),
+                    "report_date": datetime.datetime(2020, 7, 25, 0, 0),
                     "check_in_date": datetime.datetime(2020, 7, 26, 0, 0),
                     "check_out_date": datetime.datetime(2020, 7, 29, 0, 0),
                     "days_count_per_year": {2020: 3},
+                },
+                {
+                    "is_cancellation": False,
+                    "report_date": datetime.datetime(2019, 12, 29, 0, 0),
+                    "check_in_date": datetime.datetime(2019, 12, 29, 0, 0),
+                    "check_out_date": datetime.datetime(2020, 1, 2, 0, 0),
+                    "days_count_per_year": {2019: 3, 2020: 1},
                 },
             ],
         }
@@ -629,7 +628,8 @@ class DecosJoinRequestTest(TestCase):
         mock_process_request_to_decos_join.assert_called()
 
         mock_process_request_to_decos_join.assert_called_with(
-            settings.DECOS_JOIN_API + "items/42/FOLDERS/"
+            settings.DECOS_JOIN_API
+            + "items/42/FOLDERS/?properties=false&fetchParents=false&oDataQuery.top=100"
         )
 
     def test_get_decos_folder_fail(self):
