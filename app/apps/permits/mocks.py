@@ -457,6 +457,32 @@ def get_decos_join_mock_folder_fields_address_a():
                 ],
             },
             {
+                "key": "4747CF6FF9FC48BB864DD3E8C5C09AF0",
+                "fields": {
+                    "text45": "Vakantieverhuur",
+                    "mark": "Z/22/2044002",
+                    "subject1": "Melding Duckstadstraat 34 2 - J Duck",
+                    "document_date": "2022-05-25T00:00:00",
+                    "processed": False,
+                    "sequence": 34.0,
+                    "company": "Duck",
+                    "firstname": "Zuid",
+                    "num22": 2022.0,
+                    "text6": "Duckstadstraat 34 2 1074BT Amsterdam",
+                    "date6": "2022-05-26T00:00:00",
+                    "date7": "2022-05-28T00:00:00",
+                    "itemtype_key": "FOLDER",
+                    "parentKey": "F86015A1A927451082A9E2F2023EF8F7",
+                    "itemrel_key": "A7707AE630984C98949B6447376F54B4",
+                },
+                "links": [
+                    {
+                        "rel": "self",
+                        "href": "https://decosdvl.amsterdam.nl/decosweb/aspx/api/v1/items/4747CF6FF9FC48BB864DD3E8C5C09AF0",
+                    }
+                ],
+            },
+            {
                 "key": "4B448FBC1A5A4195832CD38162425C57",
                 "fields": {
                     "text45": "Vakantieverhuur",
