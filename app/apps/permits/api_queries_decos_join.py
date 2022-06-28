@@ -81,6 +81,18 @@ class VakantieverhuurReports:
         if report_set[0]:
             self.days.append(report_set)
 
+    def get_days_count_per_year(self, check_in_date, check_out_date):
+        years = {}
+        day = timedelta(days=1)
+        current_date = check_in_date
+        while current_date < check_out_date:
+            if not years.get(current_date.year):
+                years[current_date.year] = 0
+            years[current_date.year] += 1
+
+            current_date += day
+        return years
+
     def get_set_by_year(self, year, today):
         o = {}
         day = timedelta(days=1)
@@ -91,6 +103,9 @@ class VakantieverhuurReports:
                 "report_date": d_set[1],
                 "check_in_date": d_set[0][0],
                 "check_out_date": d_set[0][-1] + day,
+                "days_count_per_year": self.get_days_count_per_year(
+                    d_set[0][0], d_set[0][-1] + day
+                ),
             }
             for d_set in self.days
             if d_set[0][0].year == year or (d_set[0][-1] + day).year == year
