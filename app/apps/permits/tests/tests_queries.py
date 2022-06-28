@@ -441,7 +441,6 @@ class VakantieverhuurReportsTest(TestCase):
                 },
             ],
         }
-        print(data)
         self.assertEqual(succeeded, True)
         self.assertEqual(data, expected_result)
         self.assertEqual(serializer.is_valid(), True)
@@ -643,8 +642,7 @@ class DecosJoinRequestTest(TestCase):
         decos_request = DecosJoinRequest()
 
         folder_result = decos_request._get_decos_folder(MOCK_DECOS_OBJECT)
-        print("test_get_decos_folder_fail")
-        print(folder_result)
+
         self.assertEqual(folder_result, False)
 
     @patch(
