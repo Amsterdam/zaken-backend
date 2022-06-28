@@ -1,3 +1,5 @@
+from datetime import date
+
 from apps.cases.models import (
     Advertisement,
     Case,
@@ -16,6 +18,7 @@ from apps.cases.models import (
 from apps.workflow.tasks import task_create_main_worflow_for_case
 from django import forms
 from django.contrib import admin
+from django.contrib.contenttypes.models import ContentType
 
 
 class LabelThemeModelChoiceField(forms.ModelChoiceField):
@@ -42,6 +45,56 @@ class CaseAdminForm(forms.ModelForm):
 def create_main_worflow_for_case(modeladmin, request, queryset):
     for case in queryset.filter(is_legacy_camunda=True, end_date__isnull=True):
         task_create_main_worflow_for_case.delay(case.id)
+
+
+@admin.action(
+    description="Migrate advertisement_linklist items to Advertisement instance"
+)
+def migrate_advertisement_linklist_items(modeladmin, request, queryset):
+    queryset = queryset.filter(advertisement_linklist__len__gt=0).order_by(
+        "-date_added"
+    )
+    for citizen_report in queryset:
+        for link in citizen_report.advertisement_linklist:
+            if (
+                citizen_report.case.reason.name == "SIA melding"
+                and date(
+                    year=citizen_report.date_added.year,
+                    month=citizen_report.date_added.month,
+                    day=citizen_report.date_added.day,
+                )
+                == citizen_report.case.start_date
+            ):
+                related_object = citizen_report.case
+            else:
+                related_object = citizen_report
+            related_object_type = ContentType.objects.get_for_model(related_object)
+            if Advertisement.objects.filter(
+                case=citizen_report.case,
+                link=link,
+                related_object_id=related_object.id,
+                related_object_type=related_object_type,
+                date_added=citizen_report.date_added,
+            ):
+                continue
+            advertisement_instance = Advertisement(
+                case=citizen_report.case,
+                link=link,
+                related_object=related_object,
+            )
+            advertisement_instance.save()
+            advertisement_instance.date_added = citizen_report.date_added
+            advertisement_instance.save()
+
+
+@admin.action(description="Remove advertisement_linklist items")
+def remove_advertisement_linklist_items(modeladmin, request, queryset):
+    queryset = queryset.filter(advertisement_linklist__len__gt=0).order_by(
+        "-date_added"
+    )
+    for citizen_report in queryset:
+        citizen_report.advertisement_linklist = []
+        citizen_report.save()
 
 
 @admin.register(CaseDocument)
@@ -121,6 +174,7 @@ class CaseStateTypeAdmin(admin.ModelAdmin):
 class CitizenReportAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "case",
         "identification",
         "reporter_name",
         "reporter_phone",
@@ -130,8 +184,13 @@ class CitizenReportAdmin(admin.ModelAdmin):
         "author",
         "date_added",
         "case_user_task_id",
+        "advertisement_linklist",
     )
     search_fields = ("case__id",)
+    actions = (
+        migrate_advertisement_linklist_items,
+        remove_advertisement_linklist_items,
+    )
 
 
 @admin.register(CaseReason)
