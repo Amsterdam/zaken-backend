@@ -1,5 +1,12 @@
 from django.db import models
-from utils.api_queries_bag import do_bag_search_id
+from utils.api_queries_bag import do_bag_search_id, get_bag_data
+
+
+class District(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class HousingCorporation(models.Model):
@@ -19,6 +26,12 @@ class Address(models.Model):
     postal_code = models.CharField(max_length=7, null=True, blank=True)
     lat = models.FloatField(null=True, blank=True)
     lng = models.FloatField(null=True, blank=True)
+    district = models.ForeignKey(
+        to=District,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
     housing_corporation = models.ForeignKey(
         to=HousingCorporation,
         on_delete=models.SET_NULL,
@@ -49,6 +62,8 @@ class Address(models.Model):
         return Address.objects.get_or_create(bag_id=bag_id)[0]
 
     def save(self, *args, **kwargs):
+        from utils.exceptions import DistrictNotFoundError
+
         try:
             bag_data = do_bag_search_id(self.bag_id)
             result = bag_data.get("results", [])
@@ -69,4 +84,15 @@ class Address(models.Model):
                 self.lng = centroid[0]
                 self.lat = centroid[1]
 
+            verblijfsobject_url = result.get("_links", {}).get("self", {}).get("href")
+            verblijfsobject = verblijfsobject_url and get_bag_data(verblijfsobject_url)
+            district_name = verblijfsobject and verblijfsobject.get(
+                "_stadsdeel", {}
+            ).get("naam")
+            if district_name:
+                self.district = District.objects.get_or_create(name=district_name)[0]
+            else:
+                raise DistrictNotFoundError(
+                    f"verblijfsobject_url: {verblijfsobject_url}, verblijfsobject: {verblijfsobject}"
+                )
         return super().save(*args, **kwargs)
