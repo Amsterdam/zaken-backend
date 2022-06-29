@@ -16,7 +16,7 @@ from django.db.models import Q
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import mixins, status, viewsets
+from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -56,6 +56,7 @@ class CaseUserTaskFilter(filters.FilterSet):
     )
     start_date = filters.DateFilter(field_name="case__start_date")
     reason = filters.CharFilter(field_name="case__reason")
+    reason_name = filters.CharFilter(field_name="case__reason__name")
     sensitive = filters.BooleanFilter(field_name="case__sensitive")
     open_cases = filters.BooleanFilter(method="get_open_cases")
     is_enforcement_request = filters.BooleanFilter(
@@ -144,6 +145,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("from_start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
         OpenApiParameter("theme", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("reason_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
@@ -201,6 +203,29 @@ class CaseUserTaskViewSet(
         queryset = self.filter_queryset(self.get_queryset())
         queryset = queryset.distinct("name").order_by("name")
         serializer = CaseUserTaskTaskNameSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @extend_schema(
+        description="Gets all reason names",
+        responses={
+            status.HTTP_200_OK: serializers.ListSerializer(
+                child=serializers.CharField()
+            )
+        },
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="reason-names",
+    )
+    def reason_names(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset = (
+            queryset.distinct("case__reason__name")
+            .order_by("case__reason__name")
+            .values_list("case__reason__name", flat=True)
+        )
+        serializer = serializers.ListSerializer(queryset, child=serializers.CharField())
         return Response(serializer.data)
 
 
