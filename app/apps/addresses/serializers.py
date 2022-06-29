@@ -1,4 +1,4 @@
-from apps.addresses.models import Address, HousingCorporation
+from apps.addresses.models import Address, District, HousingCorporation
 from rest_framework import serializers
 
 
@@ -8,7 +8,15 @@ class HousingCorporationSerializer(serializers.ModelSerializer):
         exclude = ("bwv_name",)
 
 
+class DistrictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = District
+        fields = "__all__"
+
+
 class AddressSerializer(serializers.ModelSerializer):
+    district = DistrictSerializer()
+
     class Meta:
         model = Address
         fields = (
@@ -23,6 +31,7 @@ class AddressSerializer(serializers.ModelSerializer):
             "lat",
             "lng",
             "full_address",
+            "district",
             "housing_corporation",
         )
         read_only_fields = (
@@ -35,12 +44,15 @@ class AddressSerializer(serializers.ModelSerializer):
             "lat",
             "lng",
             "full_address",
+            "district",
             "housing_corporation",
         )
         extra_kwargs = {"bag_id": {"validators": []}}
 
 
 class AddressTinySerializer(serializers.ModelSerializer):
+    district = DistrictSerializer()
+
     class Meta:
         model = Address
         fields = (
@@ -51,6 +63,7 @@ class AddressTinySerializer(serializers.ModelSerializer):
             "postal_code",
             "lat",
             "lng",
+            "district",
         )
         read_only_fields = (
             "street_name",
@@ -60,6 +73,7 @@ class AddressTinySerializer(serializers.ModelSerializer):
             "postal_code",
             "lat",
             "lng",
+            "district",
         )
 
 
