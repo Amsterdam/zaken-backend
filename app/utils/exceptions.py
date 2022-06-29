@@ -21,6 +21,10 @@ class MKSPermissionsError(BaseException):
     default_message = "Je hebt geen rechten voor MKS"
 
 
+class DistrictNotFoundError(Exception):
+    pass
+
+
 def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
 
@@ -34,6 +38,12 @@ def custom_exception_handler(exc, context):
         return Response(
             {"message": "Je hebt geen rechten voor MKS"},
             status=status.HTTP_403_FORBIDDEN,
+        )
+
+    if isinstance(exc, DistrictNotFoundError):
+        return Response(
+            {"message": "Het district voor dit adres is niet gevonden"},
+            status=status.HTTP_404_NOT_FOUND,
         )
 
     if isinstance(exc, RedisTimeoutError):

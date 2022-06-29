@@ -19,12 +19,12 @@ def do_bag_search_id(bag_id):
 
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def get_address_bag_data(address_uri):
+def get_bag_data(uri):
     """
     Does a BAG Query given a URI
     """
-    address_bag_data = requests.get(address_uri, timeout=0.5)
-    return address_bag_data.json()
+    bag_data = requests.get(uri, timeout=0.5)
+    return bag_data.json()
 
 
 # BWV migration queries
