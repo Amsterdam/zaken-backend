@@ -42,7 +42,7 @@ def custom_exception_handler(exc, context):
 
     if isinstance(exc, DistrictNotFoundError):
         return Response(
-            {"message": "Het district voor dit adres is niet gevonden"},
+            {"message": "Het stadsdeel voor dit adres is niet gevonden"},
             status=status.HTTP_404_NOT_FOUND,
         )
 
