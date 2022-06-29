@@ -125,6 +125,7 @@ class CaseFilter(filters.FilterSet):
     reason = filters.ModelMultipleChoiceFilter(
         queryset=CaseReason.objects.all(), method="get_reason"
     )
+    reason_name = filters.CharFilter(field_name="reason__name")
     ton_ids = CharArrayFilter(field_name="ton_ids", lookup_expr="contains")
     street_name = filters.CharFilter(method="get_fuzy_street_name")
     number = filters.CharFilter(method="get_number")
@@ -292,6 +293,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("from_start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
         OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("reason_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter(
@@ -593,6 +595,29 @@ class CaseViewSet(
         )
         serialized = CaseDocumentSerializer(response)
         return Response(serialized.data)
+
+    @extend_schema(
+        description="Gets all reason names",
+        responses={
+            status.HTTP_200_OK: serializers.ListSerializer(
+                child=serializers.CharField()
+            )
+        },
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="reason-names",
+    )
+    def reason_names(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset = (
+            queryset.distinct("reason__name")
+            .order_by("reason__name")
+            .values_list("reason__name", flat=True)
+        )
+        serializer = serializers.ListSerializer(queryset, child=serializers.CharField())
+        return Response(serializer.data)
 
 
 class CaseDocumentViewSet(
