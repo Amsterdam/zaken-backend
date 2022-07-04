@@ -1,8 +1,9 @@
 import logging
 
-from apps.addresses.models import Address, HousingCorporation
+from apps.addresses.models import Address, District, HousingCorporation
 from apps.addresses.serializers import (
     AddressSerializer,
+    DistrictSerializer,
     HousingCorporationSerializer,
     ResidentsSerializer,
 )
@@ -146,4 +147,20 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
         queryset = HousingCorporation.objects.all()
         context = paginator.paginate_queryset(queryset, request)
         serializer = HousingCorporationSerializer(context, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets all districts",
+        responses={status.HTTP_200_OK: HousingCorporationSerializer(many=True)},
+    )
+    @action(
+        detail=False,
+        url_path="districts",
+        methods=["get"],
+    )
+    def districts(self, request):
+        paginator = LimitOffsetPagination()
+        queryset = District.objects.all()
+        context = paginator.paginate_queryset(queryset, request)
+        serializer = DistrictSerializer(context, many=True)
         return paginator.get_paginated_response(serializer.data)

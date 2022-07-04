@@ -53,7 +53,7 @@ class Address(models.Model):
         if self.street_name:
             return (
                 f"{self.street_name}"
-                f" {self.number}{self.suffix_letter}{self.suffix},"
+                f" {self.number}{self.suffix_letter}-{self.suffix},"
                 f" {self.postal_code}"
             )
         return self.bag_id

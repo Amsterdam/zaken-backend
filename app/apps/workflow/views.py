@@ -1,3 +1,4 @@
+from apps.addresses.models import District
 from apps.cases.models import Case, CaseProject, CaseReason, CaseStateType
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
@@ -74,6 +75,14 @@ class CaseUserTaskFilter(filters.FilterSet):
     role = filters.CharFilter(method="get_role")
     theme = filters.CharFilter(field_name="case__theme__name")
     name = filters.CharFilter(field_name="name")
+    district = filters.ModelMultipleChoiceFilter(
+        queryset=District.objects.all(), method="get_district"
+    )
+    district_name = filters.ModelMultipleChoiceFilter(
+        queryset=District.objects.all(),
+        method="get_district",
+        to_field_name="name",
+    )
 
     def get_role(self, queryset, name, value):
         return queryset.filter(roles__contains=[value])
@@ -111,6 +120,13 @@ class CaseUserTaskFilter(filters.FilterSet):
                 case__workflows__case_state_type__isnull=False,
                 case__workflows__case_state_type__in=value,
             ).distinct()
+        return queryset
+
+    def get_district(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                case__address__district__in=value,
+            )
         return queryset
 
     class Meta:
@@ -160,6 +176,8 @@ class StandardResultsSetPagination(EmptyPagination):
             "is_enforcement_request", OpenApiTypes.BOOL, OpenApiParameter.QUERY
         ),
         OpenApiParameter("name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("district", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("district_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
     ]
 )
 class CaseUserTaskViewSet(
@@ -224,6 +242,29 @@ class CaseUserTaskViewSet(
             queryset.distinct("case__reason__name")
             .order_by("case__reason__name")
             .values_list("case__reason__name", flat=True)
+        )
+        serializer = serializers.ListSerializer(queryset, child=serializers.CharField())
+        return Response(serializer.data)
+
+    @extend_schema(
+        description="Gets all district names",
+        responses={
+            status.HTTP_200_OK: serializers.ListSerializer(
+                child=serializers.CharField()
+            )
+        },
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="district-names",
+    )
+    def district_names(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset = (
+            queryset.distinct("case__address__district__name")
+            .order_by("case__address__district__name")
+            .values_list("case__address__district__name", flat=True)
         )
         serializer = serializers.ListSerializer(queryset, child=serializers.CharField())
         return Response(serializer.data)
