@@ -3,7 +3,14 @@ import operator
 from functools import reduce
 
 from apps.addresses.models import District, HousingCorporation
-from apps.cases.models import Case, CaseDocument, CaseProject, CaseReason, CaseStateType
+from apps.cases.models import (
+    Case,
+    CaseDocument,
+    CaseProject,
+    CaseReason,
+    CaseStateType,
+    CaseTheme,
+)
 from apps.cases.serializers import (
     AdvertisementSerializer,
     CaseCreateSerializer,
@@ -119,11 +126,30 @@ class CaseFilter(filters.FilterSet):
         method="get_task",
         to_field_name="task_name",
     )
-    project = filters.ModelMultipleChoiceFilter(
-        queryset=CaseProject.objects.all(), method="get_project"
+    theme = filters.ModelMultipleChoiceFilter(
+        queryset=CaseTheme.objects.all(),
+        method="get_theme",
+    )
+    theme_name = filters.ModelMultipleChoiceFilter(
+        queryset=CaseTheme.objects.all(),
+        method="get_theme",
+        to_field_name="name",
     )
     reason = filters.ModelMultipleChoiceFilter(
         queryset=CaseReason.objects.all(), method="get_reason"
+    )
+    reason_name = filters.ModelMultipleChoiceFilter(
+        queryset=CaseReason.objects.all(),
+        method="get_reason",
+        to_field_name="name",
+    )
+    project = filters.ModelMultipleChoiceFilter(
+        queryset=CaseProject.objects.all(), method="get_project"
+    )
+    project_name = filters.ModelMultipleChoiceFilter(
+        queryset=CaseProject.objects.all(),
+        method="get_project",
+        to_field_name="name",
     )
     district = filters.ModelMultipleChoiceFilter(
         queryset=District.objects.all(), method="get_district"
@@ -133,7 +159,6 @@ class CaseFilter(filters.FilterSet):
         method="get_district",
         to_field_name="name",
     )
-    reason_name = filters.CharFilter(field_name="reason__name")
     ton_ids = CharArrayFilter(field_name="ton_ids", lookup_expr="contains")
     street_name = filters.CharFilter(method="get_fuzy_street_name")
     number = filters.CharFilter(method="get_number")
@@ -266,6 +291,13 @@ class CaseFilter(filters.FilterSet):
             )
         return queryset
 
+    def get_theme(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                theme__in=value,
+            )
+        return queryset
+
     def get_reason(self, queryset, name, value):
         if value:
             return queryset.filter(
@@ -306,9 +338,6 @@ class StandardResultsSetPagination(EmptyPagination):
     parameters=[
         OpenApiParameter("start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
         OpenApiParameter("from_start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
-        OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("reason_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter(
@@ -333,9 +362,14 @@ class StandardResultsSetPagination(EmptyPagination):
             OpenApiParameter.QUERY,
         ),
         OpenApiParameter("postal_code_range", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("theme_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("reason_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("project", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("project_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("district", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("district_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter("project", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("state_types__name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),

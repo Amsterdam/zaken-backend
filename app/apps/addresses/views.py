@@ -151,7 +151,7 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
 
     @extend_schema(
         description="Gets all districts",
-        responses={status.HTTP_200_OK: HousingCorporationSerializer(many=True)},
+        responses={status.HTTP_200_OK: DistrictSerializer(many=True)},
     )
     @action(
         detail=False,

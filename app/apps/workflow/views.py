@@ -1,5 +1,5 @@
 from apps.addresses.models import District
-from apps.cases.models import Case, CaseProject, CaseReason, CaseStateType
+from apps.cases.models import Case, CaseProject, CaseReason, CaseStateType, CaseTheme
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
 from apps.users.permissions import (
@@ -56,8 +56,6 @@ class CaseUserTaskFilter(filters.FilterSet):
         field_name="case__start_date", lookup_expr="gte"
     )
     start_date = filters.DateFilter(field_name="case__start_date")
-    reason = filters.CharFilter(field_name="case__reason")
-    reason_name = filters.CharFilter(field_name="case__reason__name")
     sensitive = filters.BooleanFilter(field_name="case__sensitive")
     open_cases = filters.BooleanFilter(method="get_open_cases")
     is_enforcement_request = filters.BooleanFilter(
@@ -73,8 +71,32 @@ class CaseUserTaskFilter(filters.FilterSet):
     postal_code = filters.CharFilter(method="get_postal_code")
     completed = filters.BooleanFilter()
     role = filters.CharFilter(method="get_role")
-    theme = filters.CharFilter(field_name="case__theme__name")
     name = filters.CharFilter(field_name="name")
+    theme = filters.ModelMultipleChoiceFilter(
+        queryset=CaseTheme.objects.all(),
+        method="get_theme",
+    )
+    theme_name = filters.ModelMultipleChoiceFilter(
+        queryset=CaseTheme.objects.all(),
+        method="get_theme",
+        to_field_name="name",
+    )
+    reason = filters.ModelMultipleChoiceFilter(
+        queryset=CaseReason.objects.all(), method="get_reason"
+    )
+    reason_name = filters.ModelMultipleChoiceFilter(
+        queryset=CaseReason.objects.all(),
+        method="get_reason",
+        to_field_name="name",
+    )
+    project = filters.ModelMultipleChoiceFilter(
+        queryset=CaseProject.objects.all(), method="get_project"
+    )
+    project_name = filters.ModelMultipleChoiceFilter(
+        queryset=CaseProject.objects.all(),
+        method="get_project",
+        to_field_name="name",
+    )
     district = filters.ModelMultipleChoiceFilter(
         queryset=District.objects.all(), method="get_district"
     )
@@ -122,6 +144,27 @@ class CaseUserTaskFilter(filters.FilterSet):
             ).distinct()
         return queryset
 
+    def get_theme(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                case__theme__in=value,
+            )
+        return queryset
+
+    def get_reason(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                case__reason__in=value,
+            )
+        return queryset
+
+    def get_project(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                case__project__in=value,
+            )
+        return queryset
+
     def get_district(self, queryset, name, value):
         if value:
             return queryset.filter(
@@ -159,9 +202,6 @@ class StandardResultsSetPagination(EmptyPagination):
     parameters=[
         OpenApiParameter("start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
         OpenApiParameter("from_start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
-        OpenApiParameter("theme", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("reason_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
@@ -176,6 +216,12 @@ class StandardResultsSetPagination(EmptyPagination):
             "is_enforcement_request", OpenApiTypes.BOOL, OpenApiParameter.QUERY
         ),
         OpenApiParameter("name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("theme_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("reason_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("project", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("project_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("district", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("district_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
     ]
