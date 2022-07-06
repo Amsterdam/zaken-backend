@@ -205,6 +205,7 @@ class CaseDetailSerializer(serializers.ModelSerializer):
     project = CaseProjectSerializer(read_only=True)
     theme = CaseThemeSerializer(read_only=True)
     reason = CaseReasonSerializer(read_only=True)
+    schedules = ScheduleSerializer(source="get_schedules", many=True, read_only=True)
     advertisements = AdvertisementSerializer(many=True, required=False, read_only=True)
 
     class Meta:
