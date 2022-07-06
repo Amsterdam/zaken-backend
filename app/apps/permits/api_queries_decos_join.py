@@ -110,7 +110,8 @@ class VakantieverhuurReports:
             for d_set in self.days
             if d_set[0][0].year == year or (d_set[0][-1] + day).year == year
         ]
-        reports.sort(key=lambda item: item.get("report_date"), reverse=True)
+        reports.sort(key=lambda item: item.get("is_cancellation"), reverse=False)
+        reports.sort(key=lambda item: item.get("check_in_date"), reverse=True)
         o.update(self._rented(year, today))
         o.update(
             {
