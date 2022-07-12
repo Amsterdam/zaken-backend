@@ -20,6 +20,7 @@ class ScheduleAdmin(admin.ModelAdmin):
         "week_segment",
         "day_segment",
         "priority",
+        "visit_from_datetime",
     )
     search_fields = ("case__id",)
 

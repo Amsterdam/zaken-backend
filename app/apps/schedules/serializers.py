@@ -33,10 +33,18 @@ class PriorityTinySerializer(serializers.ModelSerializer):
         fields = ("weight",)
 
 
+class ScheduleDataSerializer(serializers.ModelSerializer):
+    action = ActionSerializer(required=True)
+    week_segment = WeekSegmentSerializer(required=True)
+    day_segment = DaySegmentSerializer(required=True)
+    priority = PriorityTinySerializer(required=True)
+
+    class Meta:
+        model = Schedule
+        fields = "__all__"
+
+
 class ScheduleSerializer(serializers.ModelSerializer):
-    # action = ActionSerializer(required=True)
-    # week_segment = WeekSegmentSerializer(required=True)
-    # day_segment = DaySegmentSerializer(required=True)
     priority = PriorityTinySerializer(required=True)
 
     class Meta:

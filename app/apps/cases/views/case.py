@@ -14,6 +14,7 @@ from apps.cases.models import (
 from apps.cases.serializers import (
     AdvertisementSerializer,
     CaseCreateSerializer,
+    CaseDataSerializer,
     CaseDetailSerializer,
     CaseDocumentSerializer,
     CaseDocumentUploadSerializer,
@@ -423,6 +424,24 @@ class CaseViewSet(
         count = queryset.count()
         content = {"count": count}
         return Response(content)
+
+    @extend_schema(
+        description="Get all data for cases",
+        responses={status.HTTP_200_OK: CaseDataSerializer(many=True)},
+    )
+    @action(
+        detail=False,
+        url_path="data",
+        methods=["get"],
+    )
+    def get_cases_data(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        paginator = StandardResultsSetPagination()
+        context = paginator.paginate_queryset(queryset, request)
+        serializer = CaseDataSerializer(
+            context, many=True, context={"request": request}
+        )
+        return paginator.get_paginated_response(serializer.data)
 
     @extend_schema(
         description="Get workflows for this Case",
