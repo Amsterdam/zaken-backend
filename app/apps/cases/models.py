@@ -479,7 +479,7 @@ class Advertisement(models.Model):
         related_name="advertisements",
         on_delete=models.CASCADE,
     )
-    link = models.CharField(max_length=255)
+    link = models.TextField()
     date_added = models.DateTimeField(auto_now_add=True)
     related_object_type = models.ForeignKey(
         to=ContentType,
