@@ -82,6 +82,9 @@ class Subject(models.Model):
     def __str__(self):
         return f"{self.theme.name}: {self.name}"
 
+    class Meta:
+        ordering = ["name"]
+
 
 class Case(ModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CASE
@@ -100,7 +103,6 @@ class Case(ModelEventEmitter):
     legacy_bwv_case_id = models.CharField(
         max_length=255, null=True, blank=True, unique=True
     )
-    directing_process = models.CharField(max_length=255, null=True, blank=True)
     previous_case = models.ForeignKey(
         to="cases.Case",
         null=True,
@@ -285,6 +287,9 @@ class CaseStateType(models.Model):
     def __str__(self):
         return f"{self.name}"
 
+    class Meta:
+        ordering = ["name"]
+
 
 class CaseState(models.Model):
     class CaseStateChoice(models.TextChoices):
@@ -310,17 +315,6 @@ class CaseState(models.Model):
         ordering = ["created"]
 
 
-class CaseProcessInstance(models.Model):
-    case = models.ForeignKey(Case, on_delete=models.CASCADE)
-    process_id = models.CharField(max_length=255, default=uuid.uuid4, unique=True)
-    camunda_process_id = models.CharField(
-        max_length=255, unique=True, blank=True, null=True
-    )
-
-    def __str__(self):
-        return f"Case {self.case.id} - {self.process_id}"
-
-
 class CaseCloseResult(models.Model):
     """
     If a Case is closed and reason is a result
@@ -332,6 +326,9 @@ class CaseCloseResult(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.case_theme}"
+
+    class Meta:
+        ordering = ["name"]
 
 
 class CaseCloseReason(models.Model):

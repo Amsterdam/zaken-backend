@@ -15,7 +15,6 @@ from apps.cases.views import (
 from apps.debriefings.views import DebriefingViewSet
 from apps.decisions.views import DecisionTypeViewSet, DecisionViewSet
 from apps.fines.views import FinesViewSet
-from apps.gateway.push.views import PushViewSet
 from apps.openzaak.views import ReceiveNotificationView
 from apps.schedules.views import (
     ActionViewSet,
@@ -52,7 +51,6 @@ router.register(r"themes", CaseThemeViewSet, basename="themes")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")
 router.register(r"decisions", DecisionViewSet, basename="decisions")
 router.register(r"decision-types", DecisionTypeViewSet, basename="decision-types")
-router.register(r"push", PushViewSet, basename="push")
 router.register(r"support-contacts", SupportContactView, basename="support-contact")
 router.register(r"visits", VisitViewSet, basename="visits")
 router.register(r"fines", FinesViewSet, basename="fines")

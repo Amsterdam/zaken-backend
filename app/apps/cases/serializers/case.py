@@ -18,7 +18,7 @@ from apps.cases.serializers.main import (
     CitizenReportCaseSerializer,
     SubjectSerializer,
 )
-from apps.schedules.serializers import ScheduleSerializer
+from apps.schedules.serializers import ScheduleDataSerializer, ScheduleSerializer
 from apps.workflow.serializers import (
     CaseWorkflowBaseSerializer,
     CaseWorkflowCaseDetailSerializer,
@@ -32,7 +32,6 @@ class BaseCaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Case
         exclude = (
-            "directing_process",
             "identification",
             "is_legacy_bwv",
             "is_legacy_camunda",
@@ -103,7 +102,6 @@ class CaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Case
         exclude = (
-            "directing_process",
             "identification",
             "is_legacy_bwv",
             "is_legacy_camunda",
@@ -187,12 +185,29 @@ class CaseCreateSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
     class Meta:
         model = Case
         exclude = (
-            "directing_process",
             "identification",
             "is_legacy_bwv",
             "is_legacy_camunda",
             "legacy_bwv_case_id",
         )
+
+
+class CaseDataSerializer(serializers.ModelSerializer):
+    address = AddressSerializer(read_only=True)
+    state = serializers.CharField(source="get_state", read_only=True)
+    workflows = CaseWorkflowSerializer(
+        source="get_workflows", many=True, read_only=True
+    )
+    subjects = SubjectSerializer(many=True, read_only=True)
+    project = CaseProjectSerializer(read_only=True)
+    theme = CaseThemeSerializer(read_only=True)
+    reason = CaseReasonSerializer(read_only=True)
+    schedules = ScheduleDataSerializer(many=True, read_only=True)
+    advertisements = AdvertisementSerializer(many=True, required=False, read_only=True)
+
+    class Meta:
+        model = Case
+        fields = "__all__"
 
 
 class CaseDetailSerializer(serializers.ModelSerializer):
@@ -211,7 +226,6 @@ class CaseDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Case
         exclude = (
-            "directing_process",
             "identification",
             "is_legacy_bwv",
             "is_legacy_camunda",
