@@ -109,7 +109,6 @@ class CaseSerializer(serializers.ModelSerializer):
             "is_enforcement_request",
             "mma_number",
             "previous_case",
-            "ton_ids",
             "description",
             "case_url",
             "case_deleted",
