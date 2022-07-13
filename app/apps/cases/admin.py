@@ -113,6 +113,7 @@ class CaseAdmin(admin.ModelAdmin):
     form = CaseAdminForm
     list_display = (
         "id",
+        "ton_ids",
         "theme",
         "reason",
         "project",
