@@ -18,7 +18,7 @@ debugpy==1.4.1
 Django==3.2.13
 django-axes==5.32.0
 django-celery-beat==2.2.1
-django-celery-results==2.2.0
+django-celery-results==2.4.0
 django-choices==1.7.2
 django-cors-headers==3.8.0
 django-csp==3.7
