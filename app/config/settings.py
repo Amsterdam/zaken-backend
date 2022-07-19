@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 from os.path import join
+from distutils.util import strtobool
 
 import sentry_sdk
 from celery.schedules import crontab
@@ -488,7 +489,7 @@ VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER = os.getenv(
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 DEFAULT_RSIN = os.getenv("DEFAULT_RSIN", 130365312)
-OPENZAAK_ENABLED = os.getenv("OPENZAAK_ENABLED", False) == "True"
+OPENZAAK_ENABLED = strtobool(os.getenv("OPENZAAK_ENABLED", "False"))
 
 OPENZAAK_CATALOGI_URL = os.getenv(
     "OPENZAAK_CATALOGI_URL",
