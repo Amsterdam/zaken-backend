@@ -86,7 +86,7 @@ class Schedule(TaskModelEventEmitter):
     )
 
     def __get_event_values__(self):
-        return {
+        event_values = {
             "date_added": self.date_added,
             "action": self.action.name,
             "week_segment": self.week_segment.name,
@@ -95,5 +95,12 @@ class Schedule(TaskModelEventEmitter):
             "description": self.description,
             "author": self.author.__str__(),
             "visit_from_datetime": self.visit_from_datetime,
-            "housing_corporation_combiteam": self.housing_corporation_combiteam,
         }
+        # Theme ID 6 == onderhuur
+        if self.case.theme.id == 6:
+            housing_corporation_combiteam = {
+                "housing_corporation_combiteam": self.housing_corporation_combiteam
+            }
+            event_values.update(housing_corporation_combiteam)
+
+        return event_values
