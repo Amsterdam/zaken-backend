@@ -488,7 +488,8 @@ VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER = os.getenv(
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 DEFAULT_RSIN = os.getenv("DEFAULT_RSIN", 130365312)
-OPENZAAK_ENABLED = os.getenv("OPENZAAK_ENABLED")
+OPENZAAK_ENABLED = os.getenv("OPENZAAK_ENABLED", False) == "True"
+
 OPENZAAK_CATALOGI_URL = os.getenv(
     "OPENZAAK_CATALOGI_URL",
     "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/catalogussen/fe6b2aaf-9ec3-4430-ac88-486fd68194b7",
