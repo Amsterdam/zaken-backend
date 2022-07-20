@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
-from os.path import join
 from distutils.util import strtobool
+from os.path import join
 
 import sentry_sdk
 from celery.schedules import crontab
