@@ -34,7 +34,7 @@ django-spaghetti-and-meatballs==0.4.2
 django-timezone-field==4.2.1
 djangorestframework==3.12.4
 djangorestframework-simplejwt==4.8.0
-drf-spectacular==0.17.2
+drf-spectacular==0.23.0
 drf-writable-nested==0.6.3
 spiffworkflow==1.1.0
 Faker==8.13.2
