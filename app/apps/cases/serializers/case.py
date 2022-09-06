@@ -116,7 +116,6 @@ class CaseSerializer(serializers.ModelSerializer):
             "sensitive",
             "author",
             "created",
-            "subjects",
         )
 
 
