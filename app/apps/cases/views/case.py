@@ -371,6 +371,9 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("project_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("district", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("district_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter(
+            "housing_corporation", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
+        ),
         OpenApiParameter("state_types__name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),

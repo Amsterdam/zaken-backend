@@ -1,4 +1,4 @@
-from apps.addresses.models import District
+from apps.addresses.models import District, HousingCorporation
 from apps.cases.models import Case, CaseProject, CaseReason, CaseStateType, CaseTheme
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
@@ -105,6 +105,10 @@ class CaseUserTaskFilter(filters.FilterSet):
         method="get_district",
         to_field_name="name",
     )
+    housing_corporation = filters.ModelMultipleChoiceFilter(
+        queryset=HousingCorporation.objects.all(),
+        method="get_housing_corporation",
+    )
 
     def get_role(self, queryset, name, value):
         return queryset.filter(roles__contains=[value])
@@ -172,6 +176,11 @@ class CaseUserTaskFilter(filters.FilterSet):
             )
         return queryset
 
+    def get_housing_corporation(self, queryset, name, value):
+        if value:
+            return queryset.filter(case__address__housing_corporation__in=value)
+        return queryset
+
     class Meta:
         model = CaseUserTask
         fields = [
@@ -224,6 +233,9 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("project_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("district", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("district_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter(
+            "housing_corporation", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
+        ),
     ]
 )
 class CaseUserTaskViewSet(

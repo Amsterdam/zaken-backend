@@ -19,6 +19,9 @@ class HousingCorporation(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ["name"]
+
 
 class Address(models.Model):
     bag_id = models.CharField(max_length=255, null=False, unique=True)
