@@ -71,7 +71,11 @@ class CaseUserTaskFilter(filters.FilterSet):
     postal_code = filters.CharFilter(method="get_postal_code")
     completed = filters.BooleanFilter()
     role = filters.CharFilter(method="get_role")
-    name = filters.CharFilter(field_name="name")
+    name = filters.ModelMultipleChoiceFilter(
+        queryset=CaseUserTask.objects.filter(completed=False),
+        method="get_name",
+        to_field_name="name",
+    )
     theme = filters.ModelMultipleChoiceFilter(
         queryset=CaseTheme.objects.all(),
         method="get_theme",
@@ -112,6 +116,13 @@ class CaseUserTaskFilter(filters.FilterSet):
 
     def get_role(self, queryset, name, value):
         return queryset.filter(roles__contains=[value])
+
+    def get_name(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                workflow__tasks__in=value,
+            )
+        return queryset
 
     def get_ton_ids(self, queryset, name, value):
         return queryset.filter(case__ton_ids__contains=value)
