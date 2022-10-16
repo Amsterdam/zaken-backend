@@ -295,7 +295,11 @@ def delete_document(case_document):
     )
 
     # open-zaak: delete document with lock
-    drc_client.delete("enkelvoudiginformatieobject", url=case_document.document_url, data={"lock": lock})
+    drc_client.delete(
+        "enkelvoudiginformatieobject",
+        url=case_document.document_url,
+        data={"lock": lock},
+    )
 
     # open-zaak: delete document without lock
     # drc_client.delete("enkelvoudiginformatieobject", url=case_document.document_url)
