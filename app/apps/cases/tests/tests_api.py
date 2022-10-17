@@ -388,8 +388,13 @@ class CaseDocumentApiTest(OpenZaakBaseMixin, APITestCase):
         THEME_A = "theme_a"
         theme_a = baker.make(CaseTheme, name=THEME_A)
         case = baker.make(Case, theme=theme_a, id=1, case_url=self.ZAAK_URL)
+        mock_service_oas_get(m, self.ZAKEN_ROOT, "zrc")
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
-
+        m.delete(
+            self.ZAAK_DOCUMENT_URL,
+            json=None,
+            status_code=204,
+        )
         m.post(
             f"{self.DOCUMENTEN_ROOT}enkelvoudiginformatieobjecten",
             json=self.document,
@@ -421,9 +426,11 @@ class CaseDocumentApiTest(OpenZaakBaseMixin, APITestCase):
         fp2.close()
 
         casedocument = case.casedocument_set.all().get(id=1)
+        m.post(f"{self.DOCUMENT_URL}/lock", json=None, status_code=200)
+        m.delete(url_detail_document, json=None, status_code=204)
+        m.delete(f"{self.ZAKEN_ROOT}False", json=None, status_code=204)
         m.delete(f"{self.DOCUMENTEN_ROOT}False", json=None, status_code=204)
         m.delete(casedocument.document_url, json=None, status_code=204)
-
         response_detroy_document = client.delete(url_detail_document, {})
         self.assertEqual(
             response_detroy_document.status_code, status.HTTP_204_NO_CONTENT
