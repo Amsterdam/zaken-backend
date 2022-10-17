@@ -164,7 +164,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         # mock_service_oas_get(m, f"{self.DOCUMENTEN_ROOT}/lock", "drc")
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
         m.delete(
-            "https://zaken.nl/api/v1/zaakinformatieobjecten",
+            self.ZAAKINFORMATIEOBJECT_URL,
             json=None,
             status_code=204,
         )
