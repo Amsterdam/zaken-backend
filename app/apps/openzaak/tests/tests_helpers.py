@@ -161,7 +161,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
     @requests_mock.Mocker()
     def test_delete_document(self, m):
         mock_service_oas_get(m, self.ZAKEN_ROOT, "zrc")
-        mock_service_oas_get(m, f"{self.DOCUMENTEN_ROOT}/lock", "drc")
+        # mock_service_oas_get(m, f"{self.DOCUMENTEN_ROOT}/lock", "drc")
         mock_service_oas_get(m, self.DOCUMENTEN_ROOT, "drc")
         m.delete(
             "https://zaken.nl/api/v1/zaakinformatieobjecten",
