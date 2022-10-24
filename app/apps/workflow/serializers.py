@@ -95,6 +95,7 @@ class CaseAddressSerializer(serializers.ModelSerializer):
             "id",
             "address",
             "sensitive",
+            "start_date",
         )
 
 
