@@ -283,26 +283,9 @@ def delete_document(case_document):
         "zaakinformatieobject", url=case_document.case_document_connection_url
     )
 
-    # open-zaak: lock document so it can be deleted
+    # drc: delete document
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
-    lock = drc_client.request(
-        f"{case_document.document_url}/lock",
-        "enkelvoudiginformatieobject_lock",
-        method="POST",
-        json=None,
-        expected_status=200,
-        request_kwargs={},
-    )
-
-    # open-zaak: delete document with lock
-    drc_client.delete(
-        "enkelvoudiginformatieobject",
-        url=case_document.document_url,
-        data={"lock": lock},
-    )
-
-    # open-zaak: delete document without lock
-    # drc_client.delete("enkelvoudiginformatieobject", url=case_document.document_url)
+    drc_client.delete("enkelvoudiginformatieobject", url=case_document.document_url)
 
 
 def connect_case_and_document(casedocument):
