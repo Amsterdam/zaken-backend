@@ -5,13 +5,16 @@ from tenacity import after_log, retry, stop_after_attempt
 
 logger = logging.getLogger(__name__)
 
+
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
 def do_bag_search_number_designations_id(bag_id):
     """
     Search BAG using a adresseertVerblijfsobjectId
     """
     address_search = requests.get(
-        settings.BAG_API_NUMBER_DESIGNATIONS_SEARCH_URL, params={"adresseertVerblijfsobject.identificatie": bag_id}, timeout=30
+        settings.BAG_API_NUMBER_DESIGNATIONS_SEARCH_URL,
+        params={"adresseertVerblijfsobject.identificatie": bag_id},
+        timeout=30,
     )
     return address_search.json()
 

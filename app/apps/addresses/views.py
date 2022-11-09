@@ -59,12 +59,16 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
                 else:
                     result = None
 
-                address_designation_id = result.get("_links", {}).get("self", {}).get("identificatie", "")
+                address_designation_id = (
+                    result.get("_links", {}).get("self", {}).get("identificatie", "")
+                )
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         if address_designation_id:
-            brp_data, status_code = get_brp_by_number_designation_id(request, address_designation_id)
+            brp_data, status_code = get_brp_by_number_designation_id(
+                request, address_designation_id
+            )
             serialized_residents = ResidentsSerializer(data=brp_data)
             serialized_residents.is_valid(raise_exception=True)
             return Response(serialized_residents.data, status=status_code)
