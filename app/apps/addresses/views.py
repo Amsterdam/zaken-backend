@@ -19,8 +19,8 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
-from utils.api_queries_bag import do_bag_search_id
-from utils.api_queries_brp import get_brp_by_address
+from utils.api_queries_bag import do_bag_search_number_designations_id
+from utils.api_queries_brp import get_brp_by_number_designation_id
 
 logger = logging.getLogger(__name__)
 
@@ -48,28 +48,23 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
     )
     def residents_by_bag_id(self, request, bag_id):
         address = self.queryset.filter(bag_id=bag_id).first()
-        if not address:
+        address_designation_id = None
+        if address:
             try:
-                bag_data = do_bag_search_id(bag_id)
-                result = bag_data.get("results", [])[0]
-                address = {
-                    "postal_code": result.get("postcode", ""),
-                    "number": result.get("huisnummer", ""),
-                    "suffix": result.get("bag_toevoeging", ""),
-                    "suffix_letter": result.get("bag_huisletter", ""),
-                }
+                bag_data = do_bag_search_number_designations_id(bag_id)
+                results = bag_data.get("_embedded", {}).get("nummeraanduidingen", [])
+                for result in results:
+                    if result.get("huisnummer", "") == address.number:
+                        break
+                else:
+                    result = None
+
+                address_designation_id = result.get("_links", {}).get("self", {}).get("identificatie", "")
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            address = {
-                "postal_code": address.postal_code,
-                "number": address.number,
-                "suffix": address.suffix,
-                "suffix_letter": address.suffix_letter,
-            }
 
-        if address:
-            brp_data, status_code = get_brp_by_address(request, **address)
+        if address_designation_id:
+            brp_data, status_code = get_brp_by_number_designation_id(request, address_designation_id)
             serialized_residents = ResidentsSerializer(data=brp_data)
             serialized_residents.is_valid(raise_exception=True)
             return Response(serialized_residents.data, status=status_code)
