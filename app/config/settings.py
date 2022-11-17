@@ -288,8 +288,8 @@ BAG_API_SEARCH_URL = os.getenv(
     "BAG_API_SEARCH_URL", "https://api.data.amsterdam.nl/atlas/search/adres/"
 )
 # BAG Access request settings
-BAG_API_NUMBER_DESIGNATIONS_SEARCH_URL = os.getenv(
-    "BAG_API_NUMBER_DESIGNATIONS_SEARCH_URL",
+BAG_API_NUMMERAANDUIDING_SEARCH_URL = os.getenv(
+    "BAG_API_NUMMERAANDUIDING_SEARCH_URL",
     "https://api.data.amsterdam.nl/v1/bag/nummeraanduidingen/",
 )
 BELASTING_API_URL = os.getenv(

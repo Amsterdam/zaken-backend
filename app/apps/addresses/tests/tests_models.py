@@ -27,7 +27,7 @@ class AddressModelTest(TestCase):
 
         self.assertEquals(Address.objects.count(), 1)
 
-    @patch("apps.addresses.models.get_bag_data")
+    @patch("apps.addresses.models.get_bag_data_uri")
     @patch("apps.addresses.models.do_bag_search_id")
     def test_can_create_address_with_bag_result_without_verblijftobject_url(
         self, mock_do_bag_search_id, mock_get_bag_data
@@ -46,7 +46,7 @@ class AddressModelTest(TestCase):
             baker.make(Address)
         mock_do_bag_search_id.assert_called()
 
-    @patch("apps.addresses.models.get_bag_data")
+    @patch("apps.addresses.models.get_bag_data_uri")
     @patch("apps.addresses.models.do_bag_search_id")
     def test_can_create_address_with_bag_result_without_verblijftobject_stadsdeel(
         self, mock_do_bag_search_id, mock_get_bag_data
@@ -66,7 +66,7 @@ class AddressModelTest(TestCase):
             "https://api.data.amsterdam.nl/bag/v1.1/verblijfsobject/0363010001028805/"
         )
 
-    @patch("apps.addresses.models.get_bag_data")
+    @patch("apps.addresses.models.get_bag_data_uri")
     @patch("apps.addresses.models.do_bag_search_id")
     def test_can_create_address_with_bag_result(
         self, mock_do_bag_search_id, mock_get_bag_data

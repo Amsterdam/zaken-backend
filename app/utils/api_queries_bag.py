@@ -8,12 +8,12 @@ logger = logging.getLogger(__name__)
 
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def do_bag_search_number_designations_id(bag_id):
+def do_bag_search_nummeraanduiding_id(bag_id):
     """
     Search BAG using a adresseertVerblijfsobjectId
     """
     address_search = requests.get(
-        settings.BAG_API_NUMBER_DESIGNATIONS_SEARCH_URL,
+        settings.BAG_API_NUMMERAANDUIDING_SEARCH_URL,
         params={"adresseertVerblijfsobject.identificatie": bag_id},
         timeout=30,
     )
@@ -32,7 +32,7 @@ def do_bag_search_id(bag_id):
 
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def get_bag_data(uri):
+def get_bag_data_uri(uri):
     """
     Does a BAG Query given a URI
     """
