@@ -47,41 +47,33 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
         permission_classes=[permissions.CanAccessBRP],
     )
     def residents_by_bag_id(self, request, bag_id):
-        # address = self.get_queryset().filter(bag_id=bag_id).first()
-        # address = Address.get_or_create(bag_id)
-        address = Address.objects.get(bag_id=bag_id)
-        test = address.get_bag_address_data()
-        print("RESIDENTS BY BAG_ID address", address)
-        print("RESIDENTS BY BAG_ID nummeraanduiding_id", address.nummeraanduiding_id)
+        # Get address
+        try:
+            address = Address.objects.get(bag_id=bag_id)
+        except Address.DoesNotExist:
+            address = Address(bag_id=bag_id)
 
-        # address_nummeraanduiding_id = None
-        # if address:
-        #     try:
-        #         bag_data = do_bag_search_nummeraanduiding_id(bag_id)
-        #         bag_designations_results = bag_data.get("_embedded", {}).get("nummeraanduidingen", [])
+        # If no nummeraanduiding_id, get it!
+        if not address.nummeraanduiding_id:
+            try:
+                address.get_bag_address_data()
+                address.get_bag_nummeraanduiding_id()
+            except Exception:
+                return Response({"error": "Bag data could not be obtained"}, status=status.HTTP_404_NOT_FOUND)
 
-        #         found_bag_designation = next((bag_designations_result for bag_designations_result in bag_designations_results if bag_designations_result.get("huisnummer", None) == address.number), {})
+        # nummeraanduiding_id should have been retrieved, so get BRP data
+        if address.nummeraanduiding_id:
+            try:
+                brp_data, status_code = get_brp_by_nummeraanduiding_id(
+                    request, address.nummeraanduiding_id
+                )
+                serialized_residents = ResidentsSerializer(data=brp_data)
+                serialized_residents.is_valid(raise_exception=True)
+                return Response(serialized_residents.data, status=status_code)
+            except Exception:
+                return Response({"error": "BRP data could not be obtained"}, status=status.HTTP_404_NOT_FOUND)
 
-        #         address_nummeraanduiding_id = (
-        #             found_bag_designation.get("_links", {}).get("self", {}).get("identificatie", "")
-        #         )
-
-        #     except Exception as e:
-        #         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        # else:
-        #     # TODO: If no address is saved, a request should be made to retrieve this data.
-        #     return Response({"error": "no address saved in AZA DB"}, status=status.HTTP_404_NOT_FOUND)
-
-        # if address_nummeraanduiding_id:
-        #     brp_data, status_code = get_brp_by_nummeraanduiding_id(
-        #         request, address_nummeraanduiding_id
-        #     )
-        #     serialized_residents = ResidentsSerializer(data=brp_data)
-        #     serialized_residents.is_valid(raise_exception=True)
-        #     return Response(serialized_residents.data, status=status_code)
-
-        return Response({"error": "no address with designation id found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "no nummeraanduiding_id found"}, status=status.HTTP_404_NOT_FOUND)
 
     @extend_schema(
         parameters=[open_cases],

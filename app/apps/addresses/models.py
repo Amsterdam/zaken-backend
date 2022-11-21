@@ -1,5 +1,4 @@
 from django.db import models
-from utils.exceptions import DistrictNotFoundError
 from utils.api_queries_bag import do_bag_search_id, get_bag_data_uri, do_bag_search_nummeraanduiding_id
 
 
@@ -66,10 +65,13 @@ class Address(models.Model):
             )
         return self.bag_id
 
-    def get(bag_id):
+    def get_or_create(bag_id):
         return Address.objects.get_or_create(bag_id=bag_id)[0]
 
     def get_bag_address_data(self):
+        # When moving the import to the beginning of the file, a Django error follows:
+        # ImproperlyConfigured: AUTH_USER_MODEL refers to model 'users.User' that has not been installed.
+        from utils.exceptions import DistrictNotFoundError
         try:
             bag_search_response = do_bag_search_id(self.bag_id)
             bag_search_results = bag_search_response.get("results", [])
