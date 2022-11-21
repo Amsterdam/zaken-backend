@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('addresses', '0005_alter_district_options'),
+        ("addresses", "0005_alter_district_options"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='housingcorporation',
-            options={'ordering': ['name']},
+            name="housingcorporation",
+            options={"ordering": ["name"]},
         ),
         migrations.AddField(
-            model_name='address',
-            name='nummeraanduiding_id',
+            model_name="address",
+            name="nummeraanduiding_id",
             field=models.CharField(blank=True, max_length=16, null=True),
         ),
     ]

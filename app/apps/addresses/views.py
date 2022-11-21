@@ -19,7 +19,6 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
-from utils.api_queries_bag import do_bag_search_nummeraanduiding_id
 from utils.api_queries_brp import get_brp_by_nummeraanduiding_id
 
 logger = logging.getLogger(__name__)
@@ -59,7 +58,10 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
                 address.get_bag_address_data()
                 address.get_bag_nummeraanduiding_id()
             except Exception:
-                return Response({"error": "Bag data could not be obtained"}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {"error": "Bag data could not be obtained"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
 
         # nummeraanduiding_id should have been retrieved, so get BRP data
         if address.nummeraanduiding_id:
@@ -71,9 +73,14 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
                 serialized_residents.is_valid(raise_exception=True)
                 return Response(serialized_residents.data, status=status_code)
             except Exception:
-                return Response({"error": "BRP data could not be obtained"}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {"error": "BRP data could not be obtained"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
 
-        return Response({"error": "no nummeraanduiding_id found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "no nummeraanduiding_id found"}, status=status.HTTP_404_NOT_FOUND
+        )
 
     @extend_schema(
         parameters=[open_cases],

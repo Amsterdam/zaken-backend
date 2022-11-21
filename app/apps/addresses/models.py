@@ -1,5 +1,9 @@
 from django.db import models
-from utils.api_queries_bag import do_bag_search_id, get_bag_data_uri, do_bag_search_nummeraanduiding_id
+from utils.api_queries_bag import (
+    do_bag_search_id,
+    do_bag_search_nummeraanduiding_id,
+    get_bag_data_uri,
+)
 
 
 class District(models.Model):
@@ -72,6 +76,7 @@ class Address(models.Model):
         # When moving the import to the beginning of the file, a Django error follows:
         # ImproperlyConfigured: AUTH_USER_MODEL refers to model 'users.User' that has not been installed.
         from utils.exceptions import DistrictNotFoundError
+
         try:
             bag_search_response = do_bag_search_id(self.bag_id)
             bag_search_results = bag_search_response.get("results", [])
@@ -92,8 +97,12 @@ class Address(models.Model):
                 self.lng = centroid[0]
                 self.lat = centroid[1]
 
-            verblijfsobject_url = found_bag_data.get("_links", {}).get("self", {}).get("href")
-            verblijfsobject = verblijfsobject_url and get_bag_data_uri(verblijfsobject_url)
+            verblijfsobject_url = (
+                found_bag_data.get("_links", {}).get("self", {}).get("href")
+            )
+            verblijfsobject = verblijfsobject_url and get_bag_data_uri(
+                verblijfsobject_url
+            )
             district_name = verblijfsobject and verblijfsobject.get(
                 "_stadsdeel", {}
             ).get("naam")
@@ -106,17 +115,30 @@ class Address(models.Model):
 
     def get_bag_nummeraanduiding_id(self):
         try:
-            bag_search_nummeraanduiding_id_response = do_bag_search_nummeraanduiding_id(self.bag_id)
-            bag_search_nummeraanduidingen = bag_search_nummeraanduiding_id_response.get("_embedded", {}).get("nummeraanduidingen", [])
+            bag_search_nummeraanduiding_id_response = do_bag_search_nummeraanduiding_id(
+                self.bag_id
+            )
+            bag_search_nummeraanduidingen = bag_search_nummeraanduiding_id_response.get(
+                "_embedded", {}
+            ).get("nummeraanduidingen", [])
         except Exception:
             bag_search_nummeraanduidingen = []
 
         # If there are multiple results, find the result with the same house number.
         # TODO: What if Weesperzijde 112 and Weesperzijde 112A have the same bag_id?
-        found_bag_nummeraanduiding = next((bag_search_nummeraanduiding for bag_search_nummeraanduiding in bag_search_nummeraanduidingen if bag_search_nummeraanduiding.get("huisnummer", None) == self.number), {})
+        found_bag_nummeraanduiding = next(
+            (
+                bag_search_nummeraanduiding
+                for bag_search_nummeraanduiding in bag_search_nummeraanduidingen
+                if bag_search_nummeraanduiding.get("huisnummer", None) == self.number
+            ),
+            {},
+        )
 
         nummeraanduiding_id = (
-            found_bag_nummeraanduiding.get("_links", {}).get("self", {}).get("identificatie", "")
+            found_bag_nummeraanduiding.get("_links", {})
+            .get("self", {})
+            .get("identificatie", "")
         )
         if nummeraanduiding_id:
             self.nummeraanduiding_id = nummeraanduiding_id
