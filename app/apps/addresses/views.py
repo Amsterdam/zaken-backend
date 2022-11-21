@@ -19,8 +19,8 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
-from utils.api_queries_bag import do_bag_search_number_designations_id
-from utils.api_queries_brp import get_brp_by_number_designation_id
+from utils.api_queries_bag import do_bag_search_nummeraanduiding_id
+from utils.api_queries_brp import get_brp_by_nummeraanduiding_id
 
 logger = logging.getLogger(__name__)
 
@@ -47,33 +47,41 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
         permission_classes=[permissions.CanAccessBRP],
     )
     def residents_by_bag_id(self, request, bag_id):
-        address = self.queryset.filter(bag_id=bag_id).first()
-        address_designation_id = None
-        if address:
-            try:
-                bag_data = do_bag_search_number_designations_id(bag_id)
-                results = bag_data.get("_embedded", {}).get("nummeraanduidingen", [])
-                for result in results:
-                    if result.get("huisnummer", "") == address.number:
-                        break
-                else:
-                    result = None
+        # address = self.get_queryset().filter(bag_id=bag_id).first()
+        # address = Address.get_or_create(bag_id)
+        address = Address.objects.get(bag_id=bag_id)
+        test = address.get_bag_address_data()
+        print("RESIDENTS BY BAG_ID address", address)
+        print("RESIDENTS BY BAG_ID nummeraanduiding_id", address.nummeraanduiding_id)
 
-                address_designation_id = (
-                    result.get("_links", {}).get("self", {}).get("identificatie", "")
-                )
-            except Exception as e:
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        # address_nummeraanduiding_id = None
+        # if address:
+        #     try:
+        #         bag_data = do_bag_search_nummeraanduiding_id(bag_id)
+        #         bag_designations_results = bag_data.get("_embedded", {}).get("nummeraanduidingen", [])
 
-        if address_designation_id:
-            brp_data, status_code = get_brp_by_number_designation_id(
-                request, address_designation_id
-            )
-            serialized_residents = ResidentsSerializer(data=brp_data)
-            serialized_residents.is_valid(raise_exception=True)
-            return Response(serialized_residents.data, status=status_code)
+        #         found_bag_designation = next((bag_designations_result for bag_designations_result in bag_designations_results if bag_designations_result.get("huisnummer", None) == address.number), {})
 
-        return Response({"error": "not found"}, status=status.HTTP_404_NOT_FOUND)
+        #         address_nummeraanduiding_id = (
+        #             found_bag_designation.get("_links", {}).get("self", {}).get("identificatie", "")
+        #         )
+
+        #     except Exception as e:
+        #         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # else:
+        #     # TODO: If no address is saved, a request should be made to retrieve this data.
+        #     return Response({"error": "no address saved in AZA DB"}, status=status.HTTP_404_NOT_FOUND)
+
+        # if address_nummeraanduiding_id:
+        #     brp_data, status_code = get_brp_by_nummeraanduiding_id(
+        #         request, address_nummeraanduiding_id
+        #     )
+        #     serialized_residents = ResidentsSerializer(data=brp_data)
+        #     serialized_residents.is_valid(raise_exception=True)
+        #     return Response(serialized_residents.data, status=status_code)
+
+        return Response({"error": "no address with designation id found"}, status=status.HTTP_404_NOT_FOUND)
 
     @extend_schema(
         parameters=[open_cases],
