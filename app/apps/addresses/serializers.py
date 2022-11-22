@@ -52,10 +52,13 @@ class AddressSerializer(serializers.ModelSerializer):
 
 class AddressTinySerializer(serializers.ModelSerializer):
     district = DistrictSerializer()
+    housing_corporation = HousingCorporationSerializer()
 
+    # bag_id and housing_corporation are needed in /cases for reports datateam
     class Meta:
         model = Address
         fields = (
+            "bag_id",
             "street_name",
             "number",
             "suffix_letter",
@@ -64,8 +67,10 @@ class AddressTinySerializer(serializers.ModelSerializer):
             "lat",
             "lng",
             "district",
+            "housing_corporation",
         )
         read_only_fields = (
+            "bag_id",
             "street_name",
             "number",
             "suffix_letter",
@@ -74,6 +79,7 @@ class AddressTinySerializer(serializers.ModelSerializer):
             "lat",
             "lng",
             "district",
+            "housing_corporation",
         )
 
 
