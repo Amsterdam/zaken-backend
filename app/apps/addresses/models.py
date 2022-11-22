@@ -69,7 +69,7 @@ class Address(models.Model):
             )
         return self.bag_id
 
-    def get_or_create(bag_id):
+    def get_or_create_by_bag_id(bag_id):
         return Address.objects.get_or_create(bag_id=bag_id)[0]
 
     def search_and_set_bag_address_data(self):
@@ -77,12 +77,8 @@ class Address(models.Model):
         # ImproperlyConfigured: AUTH_USER_MODEL refers to model 'users.User' that has not been installed.
         from utils.exceptions import DistrictNotFoundError
 
-        bag_search_results = []
-        try:
-            bag_search_response = do_bag_search_by_bag_id(self.bag_id)
-            bag_search_results = bag_search_response.get("results", [])
-        except Exception:
-            pass
+        bag_search_response = do_bag_search_by_bag_id("test")
+        bag_search_results = bag_search_response.get("results", [])
 
         if len(bag_search_results):
             #  A BAG search will return an array with 1 result.

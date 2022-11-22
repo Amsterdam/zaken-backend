@@ -72,7 +72,7 @@ class BaseCaseSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         bag_id = validated_data.pop("bag_id")
         housing_corporation = validated_data.pop("housing_corporation", None)
-        address = Address.get_or_create(bag_id)
+        address = Address.get_or_create_by_bag_id(bag_id)
         if housing_corporation and not address.housing_corporation:
             address.housing_corporation = housing_corporation
             address.save()
