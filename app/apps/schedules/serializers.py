@@ -68,18 +68,20 @@ class ScheduleSerializer(serializers.ModelSerializer):
 class ScheduleCreateSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
+    # date_added is needed in /schedules for reports datateam
     class Meta:
         model = Schedule
         fields = (
-            "author",
             "action",
-            "week_segment",
-            "day_segment",
-            "priority",
-            "description",
+            "author",
             "case",
             "case_user_task_id",
+            "date_added",
+            "day_segment",
+            "description",
+            "priority",
             "visit_from_datetime",
+            "week_segment",
         )
         read_only_fields = ("id",)
 
