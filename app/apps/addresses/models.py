@@ -77,7 +77,7 @@ class Address(models.Model):
         # ImproperlyConfigured: AUTH_USER_MODEL refers to model 'users.User' that has not been installed.
         from utils.exceptions import DistrictNotFoundError
 
-        bag_search_response = do_bag_search_by_bag_id("test")
+        bag_search_response = do_bag_search_by_bag_id(self.bag_id)
         bag_search_results = bag_search_response.get("results", [])
 
         if len(bag_search_results):
