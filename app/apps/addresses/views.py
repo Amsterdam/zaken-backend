@@ -55,12 +55,12 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
         # If no nummeraanduiding_id, get it!
         if not address.nummeraanduiding_id:
             try:
-                address.get_bag_address_data()
-                address.get_bag_nummeraanduiding_id()
+                address.search_and_set_bag_address_data()
+                address.search_and_set_bag_nummeraanduiding_id()
             except Exception:
                 return Response(
-                    {"error": "Bag data could not be obtained"},
-                    status=status.HTTP_404_NOT_FOUND,
+                    {"error": "BAG data could not be obtained"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
         # nummeraanduiding_id should have been retrieved, so get BRP data
@@ -75,7 +75,7 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
             except Exception:
                 return Response(
                     {"error": "BRP data could not be obtained"},
-                    status=status.HTTP_404_NOT_FOUND,
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
         return Response(

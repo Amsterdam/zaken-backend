@@ -1,8 +1,8 @@
 from django.db import models
 from utils.api_queries_bag import (
-    do_bag_search_id,
-    do_bag_search_nummeraanduiding_id,
-    get_bag_data_uri,
+    do_bag_search_by_bag_id,
+    do_bag_search_nummeraanduiding_id_by_bag_id,
+    get_bag_data_by_verblijfsobject_url,
 )
 
 
@@ -72,18 +72,20 @@ class Address(models.Model):
     def get_or_create(bag_id):
         return Address.objects.get_or_create(bag_id=bag_id)[0]
 
-    def get_bag_address_data(self):
+    def search_and_set_bag_address_data(self):
         # When moving the import to the beginning of the file, a Django error follows:
         # ImproperlyConfigured: AUTH_USER_MODEL refers to model 'users.User' that has not been installed.
         from utils.exceptions import DistrictNotFoundError
 
+        bag_search_results = []
         try:
-            bag_search_response = do_bag_search_id(self.bag_id)
+            bag_search_response = do_bag_search_by_bag_id(self.bag_id)
             bag_search_results = bag_search_response.get("results", [])
         except Exception:
-            bag_search_results = []
+            pass
 
         if len(bag_search_results):
+            #  A BAG search will return an array with 1 result.
             found_bag_data = bag_search_results[0]
 
             self.postal_code = found_bag_data.get("postcode", "")
@@ -100,8 +102,9 @@ class Address(models.Model):
             verblijfsobject_url = (
                 found_bag_data.get("_links", {}).get("self", {}).get("href")
             )
-            verblijfsobject = verblijfsobject_url and get_bag_data_uri(
+            verblijfsobject = (
                 verblijfsobject_url
+                and get_bag_data_by_verblijfsobject_url(verblijfsobject_url)
             )
             district_name = verblijfsobject and verblijfsobject.get(
                 "_stadsdeel", {}
@@ -113,10 +116,10 @@ class Address(models.Model):
                     f"verblijfsobject_url: {verblijfsobject_url}, verblijfsobject: {verblijfsobject}"
                 )
 
-    def get_bag_nummeraanduiding_id(self):
+    def search_and_set_bag_nummeraanduiding_id(self):
         try:
-            bag_search_nummeraanduiding_id_response = do_bag_search_nummeraanduiding_id(
-                self.bag_id
+            bag_search_nummeraanduiding_id_response = (
+                do_bag_search_nummeraanduiding_id_by_bag_id(self.bag_id)
             )
             bag_search_nummeraanduidingen = bag_search_nummeraanduiding_id_response.get(
                 "_embedded", {}
@@ -144,7 +147,7 @@ class Address(models.Model):
             self.nummeraanduiding_id = nummeraanduiding_id
 
     def save(self, *args, **kwargs):
-        self.get_bag_address_data()
-        self.get_bag_nummeraanduiding_id()
+        self.search_and_set_bag_address_data()
+        self.search_and_set_bag_nummeraanduiding_id()
         # TODO: If self is missing address data, don't create a case.
         return super().save(*args, **kwargs)
