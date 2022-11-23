@@ -1,5 +1,9 @@
 from django.db import models
-from utils.api_queries_bag import do_bag_search_id, get_bag_data
+from utils.api_queries_bag import (
+    do_bag_search_by_bag_id,
+    do_bag_search_nummeraanduiding_id_by_bag_id,
+    get_bag_data_by_verblijfsobject_url,
+)
 
 
 class District(models.Model):
@@ -25,6 +29,7 @@ class HousingCorporation(models.Model):
 
 class Address(models.Model):
     bag_id = models.CharField(max_length=255, null=False, unique=True)
+    nummeraanduiding_id = models.CharField(max_length=16, null=True, blank=True)
     street_name = models.CharField(max_length=255, null=True, blank=True)
     number = models.IntegerField(null=True, blank=True)
     suffix_letter = models.CharField(max_length=1, null=True, blank=True)
@@ -64,34 +69,39 @@ class Address(models.Model):
             )
         return self.bag_id
 
-    def get(bag_id):
+    def get_or_create_by_bag_id(bag_id):
         return Address.objects.get_or_create(bag_id=bag_id)[0]
 
-    def save(self, *args, **kwargs):
+    def search_and_set_bag_address_data(self):
+        # When moving the import to the beginning of the file, a Django error follows:
+        # ImproperlyConfigured: AUTH_USER_MODEL refers to model 'users.User' that has not been installed.
         from utils.exceptions import DistrictNotFoundError
 
-        try:
-            bag_data = do_bag_search_id(self.bag_id)
-            result = bag_data.get("results", [])
-        except Exception:
-            result = []
+        bag_search_response = do_bag_search_by_bag_id(self.bag_id)
+        bag_search_results = bag_search_response.get("results", [])
 
-        if len(result):
-            result = result[0]
+        if len(bag_search_results):
+            #  A BAG search will return an array with 1 result.
+            found_bag_data = bag_search_results[0]
 
-            self.postal_code = result.get("postcode", "")
-            self.street_name = result.get("straatnaam", "")
-            self.number = result.get("huisnummer", "")
-            self.suffix_letter = result.get("bag_huisletter", "")
-            self.suffix = result.get("bag_toevoeging", "")
+            self.postal_code = found_bag_data.get("postcode", "")
+            self.street_name = found_bag_data.get("straatnaam", "")
+            self.number = found_bag_data.get("huisnummer", "")
+            self.suffix_letter = found_bag_data.get("bag_huisletter", "")
+            self.suffix = found_bag_data.get("bag_toevoeging", "")
 
-            centroid = result.get("centroid", None)
+            centroid = found_bag_data.get("centroid", None)
             if centroid:
                 self.lng = centroid[0]
                 self.lat = centroid[1]
 
-            verblijfsobject_url = result.get("_links", {}).get("self", {}).get("href")
-            verblijfsobject = verblijfsobject_url and get_bag_data(verblijfsobject_url)
+            verblijfsobject_url = (
+                found_bag_data.get("_links", {}).get("self", {}).get("href")
+            )
+            verblijfsobject = (
+                verblijfsobject_url
+                and get_bag_data_by_verblijfsobject_url(verblijfsobject_url)
+            )
             district_name = verblijfsobject and verblijfsobject.get(
                 "_stadsdeel", {}
             ).get("naam")
@@ -101,4 +111,39 @@ class Address(models.Model):
                 raise DistrictNotFoundError(
                     f"verblijfsobject_url: {verblijfsobject_url}, verblijfsobject: {verblijfsobject}"
                 )
+
+    def search_and_set_bag_nummeraanduiding_id(self):
+        try:
+            bag_search_nummeraanduiding_id_response = (
+                do_bag_search_nummeraanduiding_id_by_bag_id(self.bag_id)
+            )
+            bag_search_nummeraanduidingen = bag_search_nummeraanduiding_id_response.get(
+                "_embedded", {}
+            ).get("nummeraanduidingen", [])
+        except Exception:
+            bag_search_nummeraanduidingen = []
+
+        # If there are multiple results, find the result with the same house number.
+        # TODO: What if Weesperzijde 112 and Weesperzijde 112A have the same bag_id?
+        found_bag_nummeraanduiding = next(
+            (
+                bag_search_nummeraanduiding
+                for bag_search_nummeraanduiding in bag_search_nummeraanduidingen
+                if bag_search_nummeraanduiding.get("huisnummer", None) == self.number
+            ),
+            {},
+        )
+
+        nummeraanduiding_id = (
+            found_bag_nummeraanduiding.get("_links", {})
+            .get("self", {})
+            .get("identificatie", "")
+        )
+        if nummeraanduiding_id:
+            self.nummeraanduiding_id = nummeraanduiding_id
+
+    def save(self, *args, **kwargs):
+        self.search_and_set_bag_address_data()
+        self.search_and_set_bag_nummeraanduiding_id()
+        # TODO: If self is missing address data, don't create a case.
         return super().save(*args, **kwargs)

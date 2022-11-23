@@ -30,6 +30,7 @@ class AddressAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "bag_id",
+        "nummeraanduiding_id",
         "postal_code",
         "street_name",
         "number",

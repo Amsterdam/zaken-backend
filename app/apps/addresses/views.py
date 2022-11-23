@@ -19,8 +19,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
-from utils.api_queries_bag import do_bag_search_id
-from utils.api_queries_brp import get_brp_by_address
+from utils.api_queries_brp import get_brp_by_nummeraanduiding_id
 
 logger = logging.getLogger(__name__)
 
@@ -47,34 +46,41 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
         permission_classes=[permissions.CanAccessBRP],
     )
     def residents_by_bag_id(self, request, bag_id):
-        address = self.queryset.filter(bag_id=bag_id).first()
-        if not address:
+        # Get address
+        try:
+            address = Address.objects.get(bag_id=bag_id)
+        except Address.DoesNotExist:
+            address = Address(bag_id=bag_id)
+
+        # If no nummeraanduiding_id, get it!
+        if not address.nummeraanduiding_id:
             try:
-                bag_data = do_bag_search_id(bag_id)
-                result = bag_data.get("results", [])[0]
-                address = {
-                    "postal_code": result.get("postcode", ""),
-                    "number": result.get("huisnummer", ""),
-                    "suffix": result.get("bag_toevoeging", ""),
-                    "suffix_letter": result.get("bag_huisletter", ""),
-                }
-            except Exception as e:
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            address = {
-                "postal_code": address.postal_code,
-                "number": address.number,
-                "suffix": address.suffix,
-                "suffix_letter": address.suffix_letter,
-            }
+                address.search_and_set_bag_address_data()
+                address.search_and_set_bag_nummeraanduiding_id()
+            except Exception:
+                return Response(
+                    {"error": "BAG data could not be obtained"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
-        if address:
-            brp_data, status_code = get_brp_by_address(request, **address)
-            serialized_residents = ResidentsSerializer(data=brp_data)
-            serialized_residents.is_valid(raise_exception=True)
-            return Response(serialized_residents.data, status=status_code)
+        # nummeraanduiding_id should have been retrieved, so get BRP data
+        if address.nummeraanduiding_id:
+            try:
+                brp_data, status_code = get_brp_by_nummeraanduiding_id(
+                    request, address.nummeraanduiding_id
+                )
+                serialized_residents = ResidentsSerializer(data=brp_data)
+                serialized_residents.is_valid(raise_exception=True)
+                return Response(serialized_residents.data, status=status_code)
+            except Exception:
+                return Response(
+                    {"error": "BRP data could not be obtained"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
-        return Response({"error": "not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "no nummeraanduiding_id found"}, status=status.HTTP_404_NOT_FOUND
+        )
 
     @extend_schema(
         parameters=[open_cases],

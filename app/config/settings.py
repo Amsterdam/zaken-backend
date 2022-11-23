@@ -283,10 +283,14 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(seconds=0),
 }
 
-
 # BAG Access request settings
 BAG_API_SEARCH_URL = os.getenv(
     "BAG_API_SEARCH_URL", "https://api.data.amsterdam.nl/atlas/search/adres/"
+)
+# BAG Access request settings
+BAG_API_NUMMERAANDUIDING_SEARCH_URL = os.getenv(
+    "BAG_API_NUMMERAANDUIDING_SEARCH_URL",
+    "https://api.data.amsterdam.nl/v1/bag/nummeraanduidingen/",
 )
 BELASTING_API_URL = os.getenv(
     "BELASTING_API_URL",

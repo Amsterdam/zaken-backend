@@ -8,11 +8,13 @@ from utils.exceptions import MKSPermissionsError
 logger = logging.getLogger(__name__)
 
 
-def get_brp_by_bag_id(request, bag_id):
+def get_brp_by_nummeraanduiding_id(request, nummeraanduiding_id):
     """Returns BRP data by bag_"""
 
     queryParams = {
-        "verblijfplaats__nummeraanduidingIdentificatie": f"{bag_id}",
+        "verblijfplaats__identificatiecodenummeraanduiding": f"{nummeraanduiding_id}",
+        "inclusiefoverledenpersonen": "true",
+        "expand": "partners,ouders,kinderen",
     }
     return get_brp(request, queryParams)
 
