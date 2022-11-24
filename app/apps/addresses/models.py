@@ -1,6 +1,7 @@
 from django.db import models
 from utils.api_queries_bag import (
     do_bag_search_by_bag_id,
+    do_bag_search_nummeraanduiding_id_by_address,
     do_bag_search_nummeraanduiding_id_by_bag_id,
     get_bag_data_by_verblijfsobject_url,
 )
@@ -113,6 +114,7 @@ class Address(models.Model):
                 )
 
     def search_and_set_bag_nummeraanduiding_id(self):
+        bag_search_nummeraanduidingen = []
         try:
             bag_search_nummeraanduiding_id_response = (
                 do_bag_search_nummeraanduiding_id_by_bag_id(self.bag_id)
@@ -121,7 +123,25 @@ class Address(models.Model):
                 "_embedded", {}
             ).get("nummeraanduidingen", [])
         except Exception:
-            bag_search_nummeraanduidingen = []
+            pass
+
+        # If no bag_search_nummeraanduidingen is found, try to search for BAG with address params.
+        if not len(bag_search_nummeraanduidingen) and self.street_name:
+            try:
+                bag_search_nummeraanduiding_id_response = (
+                    do_bag_search_nummeraanduiding_id_by_address(self)
+                )
+                print(
+                    "bag_search_nummeraanduiding_id_response => ",
+                    bag_search_nummeraanduiding_id_response,
+                )
+                bag_search_nummeraanduidingen = (
+                    bag_search_nummeraanduiding_id_response.get("_embedded", {}).get(
+                        "nummeraanduidingen", []
+                    )
+                )
+            except Exception:
+                pass
 
         # If there are multiple results, find the result with the same house number.
         # TODO: What if Weesperzijde 112 and Weesperzijde 112A have the same bag_id?

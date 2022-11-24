@@ -10,11 +10,30 @@ logger = logging.getLogger(__name__)
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
 def do_bag_search_nummeraanduiding_id_by_bag_id(bag_id):
     """
-    Search BAG using a adresseertVerblijfsobjectId
+    Search BAG nummeraanduiding_id using an adresseertVerblijfsobjectId
     """
     address_search = requests.get(
         settings.BAG_API_NUMMERAANDUIDING_SEARCH_URL,
         params={"adresseertVerblijfsobject.identificatie": bag_id},
+        timeout=30,
+    )
+    return address_search.json()
+
+
+@retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
+def do_bag_search_nummeraanduiding_id_by_address(address):
+    """
+    Search BAG nummeraanduiding_id by using an address
+    """
+    params = {"postcode": address.postal_code, "huisnummer": address.number}
+    if address.suffix:
+        params.huisnummertoevoeging = address.suffix
+    if address.suffix_letter:
+        params.huisletter = address.suffix_letter
+
+    address_search = requests.get(
+        settings.BAG_API_NUMMERAANDUIDING_SEARCH_URL,
+        params=params,
         timeout=30,
     )
     return address_search.json()
