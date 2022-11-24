@@ -81,7 +81,7 @@ class Address(models.Model):
         bag_search_response = do_bag_search_by_bag_id(self.bag_id)
         bag_search_results = bag_search_response.get("results", [])
 
-        if len(bag_search_results):
+        if bag_search_results:
             #  A BAG search will return an array with 1 result.
             found_bag_data = bag_search_results[0]
 
@@ -115,33 +115,21 @@ class Address(models.Model):
 
     def search_and_set_bag_nummeraanduiding_id(self):
         bag_search_nummeraanduidingen = []
-        try:
+        bag_search_nummeraanduiding_id_response = (
+            do_bag_search_nummeraanduiding_id_by_bag_id(self.bag_id)
+        )
+        bag_search_nummeraanduidingen = bag_search_nummeraanduiding_id_response.get(
+            "_embedded", {}
+        ).get("nummeraanduidingen", [])
+
+        # If no bag_search_nummeraanduidingen is found, try to search for BAG with address params.
+        if not bag_search_nummeraanduidingen and self.street_name:
             bag_search_nummeraanduiding_id_response = (
-                do_bag_search_nummeraanduiding_id_by_bag_id(self.bag_id)
+                do_bag_search_nummeraanduiding_id_by_address(self)
             )
             bag_search_nummeraanduidingen = bag_search_nummeraanduiding_id_response.get(
                 "_embedded", {}
             ).get("nummeraanduidingen", [])
-        except Exception:
-            pass
-
-        # If no bag_search_nummeraanduidingen is found, try to search for BAG with address params.
-        if not len(bag_search_nummeraanduidingen) and self.street_name:
-            try:
-                bag_search_nummeraanduiding_id_response = (
-                    do_bag_search_nummeraanduiding_id_by_address(self)
-                )
-                print(
-                    "bag_search_nummeraanduiding_id_response => ",
-                    bag_search_nummeraanduiding_id_response,
-                )
-                bag_search_nummeraanduidingen = (
-                    bag_search_nummeraanduiding_id_response.get("_embedded", {}).get(
-                        "nummeraanduidingen", []
-                    )
-                )
-            except Exception:
-                pass
 
         # If there are multiple results, find the result with the same house number.
         # TODO: What if Weesperzijde 112 and Weesperzijde 112A have the same bag_id?

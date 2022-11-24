@@ -27,9 +27,9 @@ def do_bag_search_nummeraanduiding_id_by_address(address):
     """
     params = {"postcode": address.postal_code, "huisnummer": address.number}
     if address.suffix:
-        params.huisnummertoevoeging = address.suffix
+        params["huisnummertoevoeging"] = address.suffix
     if address.suffix_letter:
-        params.huisletter = address.suffix_letter
+        params["huisletter"] = address.suffix_letter
 
     address_search = requests.get(
         settings.BAG_API_NUMMERAANDUIDING_SEARCH_URL,
