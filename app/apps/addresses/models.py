@@ -1,6 +1,7 @@
 from django.db import models
 from utils.api_queries_bag import (
     do_bag_search_by_bag_id,
+    do_bag_search_nummeraanduiding_id_by_address,
     do_bag_search_nummeraanduiding_id_by_bag_id,
     get_bag_data_by_verblijfsobject_url,
 )
@@ -80,7 +81,7 @@ class Address(models.Model):
         bag_search_response = do_bag_search_by_bag_id(self.bag_id)
         bag_search_results = bag_search_response.get("results", [])
 
-        if len(bag_search_results):
+        if bag_search_results:
             #  A BAG search will return an array with 1 result.
             found_bag_data = bag_search_results[0]
 
@@ -113,15 +114,24 @@ class Address(models.Model):
                 )
 
     def search_and_set_bag_nummeraanduiding_id(self):
-        try:
+        bag_search_nummeraanduidingen = []
+        # Searching by bag_id should be performed first because it returns the fewest results.
+        # For example: A search for Weesperzijde 112 returns 14 results (112A, 112B, 112C etc).
+        bag_search_nummeraanduiding_id_response = (
+            do_bag_search_nummeraanduiding_id_by_bag_id(self.bag_id)
+        )
+        bag_search_nummeraanduidingen = bag_search_nummeraanduiding_id_response.get(
+            "_embedded", {}
+        ).get("nummeraanduidingen", [])
+
+        # If no bag_search_nummeraanduidingen is found, try to search for BAG with address params.
+        if not bag_search_nummeraanduidingen and self.street_name:
             bag_search_nummeraanduiding_id_response = (
-                do_bag_search_nummeraanduiding_id_by_bag_id(self.bag_id)
+                do_bag_search_nummeraanduiding_id_by_address(self)
             )
             bag_search_nummeraanduidingen = bag_search_nummeraanduiding_id_response.get(
                 "_embedded", {}
             ).get("nummeraanduidingen", [])
-        except Exception:
-            bag_search_nummeraanduidingen = []
 
         # If there are multiple results, find the result with the same house number.
         # TODO: What if Weesperzijde 112 and Weesperzijde 112A have the same bag_id?
