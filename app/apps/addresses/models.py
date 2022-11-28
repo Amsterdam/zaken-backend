@@ -115,6 +115,8 @@ class Address(models.Model):
 
     def search_and_set_bag_nummeraanduiding_id(self):
         bag_search_nummeraanduidingen = []
+        # Searching by bag_id should be performed first because it returns the fewest results.
+        # For example: A search for Weesperzijde 112 returns 14 results (112A, 112B, 112C etc).
         bag_search_nummeraanduiding_id_response = (
             do_bag_search_nummeraanduiding_id_by_bag_id(self.bag_id)
         )
