@@ -6,7 +6,7 @@ from django.conf import settings
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import ServiceUnavailable
 from requests.exceptions import HTTPError
-from utils.api_queries_vakantieverhuur_registraties import (
+from utils.api_queries_toeristische_verhuur import (
     get_bag_vakantieverhuur_registrations,
     get_bsn_vakantieverhuur_registrations,
     get_vakantieverhuur_registration,
