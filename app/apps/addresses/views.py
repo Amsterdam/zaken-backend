@@ -175,7 +175,23 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
 
     @extend_schema(
         description="Gets all meldingen for holiday rental",
-        # responses={status.HTTP_200_OK: MeldingenSerializer(many=True)},
+        responses={status.HTTP_200_OK: MeldingenSerializer(many=True)},
+        parameters=[
+            OpenApiParameter(
+                name="start_date",
+                type=OpenApiTypes.DATE,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                description="Shows meldingen from the given date.",
+            ),
+            OpenApiParameter(
+                name="end_date",
+                type=OpenApiTypes.DATE,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                description="Shows meldingen till the given date.",
+            ),
+        ],
     )
     @action(
         detail=True,
@@ -184,10 +200,22 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
         url_path="meldingen",
     )
     def meldingen(self, request, bag_id):
-        print("REQUEST => /meldingen ", request)
+        offset = request.GET.get("offset", 1)
+        limit = request.GET.get("limit", 1000)
+        start_date = request.GET.get("start_date")
+        end_date = request.GET.get("end_date")
+        params = {
+            "pageNumber": offset,
+            "pageSize": limit,
+        }
+        if start_date:
+            params.update({"startDatum": start_date})
+        if end_date:
+            params.update({"eindDatum": end_date})
+
         try:
             vakantieverhuur_meldingen_data, status_code = get_vakantieverhuur_meldingen(
-                bag_id
+                bag_id, query_params=params
             )
             serialized_meldingen = MeldingenSerializer(
                 data=vakantieverhuur_meldingen_data
@@ -196,6 +224,6 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
             return Response(serialized_meldingen.data, status=status_code)
         except Exception:
             return Response(
-                {"error": "Toeristiche verhuur meldingen could not be obtained"},
+                {"error": "Toeristische verhuur meldingen could not be obtained"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )

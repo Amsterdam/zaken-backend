@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def get_vakantieverhuur_meldingen(bag_id):
+def get_vakantieverhuur_meldingen(bag_id, query_params):
     """
     Get the Vakantieverhuur meldingen from the Toeristische Verhuur register
     """
@@ -17,19 +17,12 @@ def get_vakantieverhuur_meldingen(bag_id):
     }
     url = f"{settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_URL}meldingen/{bag_id}"
 
-    print("QUERY header => ", header)
-    print("QUERY url => ", url)
-    # return get_mock_data(), 200
-
     response = requests.get(
         url=url,
-        # params=queryParams,
+        params=query_params,
         headers=header,
         timeout=30,
-        # verify="/usr/local/share/ca-certificates/adp_rootca.crt",
     )
-
-    print("QUERY response => ", response)
 
     response.raise_for_status()
 
