@@ -90,7 +90,7 @@ pipeline {
 
     stage("Push and deploy acceptance images") {
       when {
-        not { buildingTag() }ß
+        not { buildingTag() }
         branch 'master'
       }
       steps {
