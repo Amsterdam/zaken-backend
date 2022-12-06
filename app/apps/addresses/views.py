@@ -5,6 +5,7 @@ from apps.addresses.serializers import (
     AddressSerializer,
     DistrictSerializer,
     HousingCorporationSerializer,
+    MeldingenSerializer,
     ResidentsSerializer,
 )
 from apps.cases.models import Advertisement
@@ -20,6 +21,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from utils.api_queries_brp import get_brp_by_nummeraanduiding_id
+from utils.api_queries_toeristische_verhuur import get_vakantieverhuur_meldingen
 
 logger = logging.getLogger(__name__)
 
@@ -170,3 +172,58 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
         context = paginator.paginate_queryset(queryset, request)
         serializer = DistrictSerializer(context, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets all meldingen for holiday rental",
+        responses={status.HTTP_200_OK: MeldingenSerializer(many=True)},
+        parameters=[
+            OpenApiParameter(
+                name="start_date",
+                type=OpenApiTypes.DATE,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                description="Shows meldingen from the given date.",
+            ),
+            OpenApiParameter(
+                name="end_date",
+                type=OpenApiTypes.DATE,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                description="Shows meldingen till the given date.",
+            ),
+        ],
+    )
+    @action(
+        detail=True,
+        methods=["get"],
+        serializer_class=MeldingenSerializer,
+        url_path="meldingen",
+    )
+    def meldingen(self, request, bag_id):
+        offset = request.GET.get("offset", 1)
+        limit = request.GET.get("limit", 1000)
+        start_date = request.GET.get("start_date")
+        end_date = request.GET.get("end_date")
+        params = {
+            "pageNumber": offset,
+            "pageSize": limit,
+        }
+        if start_date:
+            params["startDatum"] = start_date
+        if end_date:
+            params["eindDatum"] = end_date
+
+        try:
+            vakantieverhuur_meldingen_data, status_code = get_vakantieverhuur_meldingen(
+                bag_id, query_params=params
+            )
+            serialized_meldingen = MeldingenSerializer(
+                data=vakantieverhuur_meldingen_data
+            )
+            serialized_meldingen.is_valid(raise_exception=True)
+            return Response(serialized_meldingen.data, status=status_code)
+        except Exception:
+            return Response(
+                {"error": "Toeristische verhuur meldingen could not be obtained"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

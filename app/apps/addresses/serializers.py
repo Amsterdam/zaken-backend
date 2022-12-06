@@ -96,3 +96,11 @@ class ResidentSerializer(serializers.Serializer):
 class ResidentsSerializer(serializers.Serializer):
     _links = serializers.DictField()
     _embedded = serializers.DictField()
+
+
+class MeldingenSerializer(serializers.Serializer):
+    pageNumber = serializers.IntegerField()
+    pageSize = serializers.IntegerField()
+    totalPages = serializers.IntegerField()
+    totalRecords = serializers.IntegerField()
+    data = serializers.ListField(child=serializers.DictField())
