@@ -209,9 +209,9 @@ class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
             "pageSize": limit,
         }
         if start_date:
-            params.update({"startDatum": start_date})
+            params["startDatum"] = start_date
         if end_date:
-            params.update({"eindDatum": end_date})
+            params["eindDatum"] = end_date
 
         try:
             vakantieverhuur_meldingen_data, status_code = get_vakantieverhuur_meldingen(
