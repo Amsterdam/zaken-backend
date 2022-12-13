@@ -501,14 +501,17 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 DEFAULT_RSIN = os.getenv("DEFAULT_RSIN", 130365312)
 OPENZAAK_ENABLED = os.getenv("OPENZAAK_ENABLED")
+# Catalogus Ruimte en Economie WONEN
 OPENZAAK_CATALOGI_URL = os.getenv(
     "OPENZAAK_CATALOGI_URL",
     "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/catalogussen/fe6b2aaf-9ec3-4430-ac88-486fd68194b7",
 )
+# Default zaaktype is Toezicht
 OPENZAAK_DEFAULT_ZAAKTYPE_URL = os.getenv(
     "OPENZAAK_DEFAULT_ZAAKTYPE_URL",
-    "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/zaaktypen/87b054f4-7514-4776-bdad-b90cc58c6cb7",
+    "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/zaaktypen/52883e00-2b76-421a-92e3-7a2bea8ff008",
 )
+# Default is Standaard
 OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL = os.getenv(
     "OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL",
     "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/informatieobjecttypen/655ed6b3-2ee8-475d-8e40-7de76a2454f7",

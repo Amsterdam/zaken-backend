@@ -42,16 +42,16 @@ def _parse_date(date):
 
 def _build_zaak_body(instance):
     today = date.today()
-
-    case_types = get_case_types(instance.theme.name)
-    casetheme_url = next(
+    # case_types = get_case_types(instance.theme.name) Theme is not applicable
+    case_types = get_case_types()
+    case_type_url = next(
         iter([ct.get("url") for ct in case_types]),
         settings.OPENZAAK_DEFAULT_ZAAKTYPE_URL,
     )
     return {
         "identificatie": f"{instance.id}{instance.identification}",
         "toelichting": (instance.description or "Zaak aangemaakt via AZA")[:1000],
-        "zaaktype": casetheme_url,
+        "zaaktype": case_type_url,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "verantwoordelijkeOrganisatie": settings.DEFAULT_RSIN,
         "registratiedatum": _parse_date(today),
