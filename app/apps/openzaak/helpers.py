@@ -208,11 +208,16 @@ def create_document(instance, file, language="nld", informatieobjecttype=None):
     document_body = _build_document_body(file, language, informatieobjecttype)
     print("=> CREATE DOCUMENT => document_body BUILD")
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
-    print("=> CREATE DOCUMENT => DRC client CREATED TRY", document_body)
+    print("=> DOCUMENT_BODY => identificatie =>", document_body.identificatie)
+    print(
+        "=> DOCUMENT_BODY => informatieobjecttype =>",
+        document_body.informatieobjecttype,
+    )
+    print("=> DOCUMENT_BODY => bestandsnaam =>", document_body.bestandsnaam)
     try:
         response = drc_client.create("enkelvoudiginformatieobject", document_body)
     except Exception as e:
-        print("=>  CREATE DOCUMENT => DRC response FAIL", e)
+        print("=>  CREATE DOCUMENT => FAIL => DRC response", e)
 
     print("=> CREATE DOCUMENT => DRC response", response)
     result = factory(Document, response)
