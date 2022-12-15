@@ -614,9 +614,7 @@ class CaseViewSet(
             for dt in get_document_types()
             if dt.get("url") in zaaktype_meta.informatieobjecttypen
         ]
-        serializer = DocumentTypeSerializer(
-            document_types.order_by("omschrijving"), many=True
-        )
+        serializer = DocumentTypeSerializer(document_types, many=True)
         return Response(serializer.data)
 
     @extend_schema(
