@@ -2,12 +2,11 @@ import os
 from datetime import timedelta
 from os.path import join
 
-# import sentry_sdk
+import sentry_sdk
 from celery.schedules import crontab
 from dotenv import load_dotenv
 from keycloak_oidc.default_settings import *  # noqa
-
-# from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
 
 load_dotenv()
 
@@ -184,9 +183,9 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Error logging through Sentry
-# sentry_sdk.init(
-#     dsn=os.environ.get("SENTRY_DSN", ""), integrations=[DjangoIntegration()]
-# )
+sentry_sdk.init(
+    dsn=os.environ.get("SENTRY_DSN", ""), integrations=[DjangoIntegration()]
+)
 
 LOGGING = {
     "version": 1,

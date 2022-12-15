@@ -136,6 +136,8 @@ def get_document_types(identificatie=None):
 
 def create_open_zaak_case(instance):
     print("CREATE OPEN ZAAK CASE START !!!")
+    logger.info("L: CREATE OPEN ZAAK CASE START !!!")
+
     zaak_body = _build_zaak_body(instance)
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("zaak", zaak_body)
@@ -143,6 +145,7 @@ def create_open_zaak_case(instance):
     instance.case_url = result.url
     instance.save()
     print("CREATE OPEN ZAAK CASE SUCCES !!!")
+    logger.info("L: CREATE OPEN ZAAK CASE SUCCES !!!")
     return instance
 
 
@@ -204,17 +207,23 @@ def create_document(instance, file, language="nld", informatieobjecttype=None):
     In here we expect a case instance
     """
     print("CREATE DOCUMENT => ", informatieobjecttype)
+    logger.info(f"L: CREATE DOCUMENT => {informatieobjecttype}")
+    logger.info("L: CREATE OPEN ZAAK CASE SUCCES !!!")
     document_body = _build_document_body(file, language, informatieobjecttype)
     print("CREATE DOCUMENT => document_body BUILD")
+    logger.info("L: CREATE DOCUMENT => document_body BUILD")
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
     print("CREATE DOCUMENT => DRC client CREATED")
+    logger.info("L: CREATE DOCUMENT => DRC client CREATED")
     response = drc_client.create("enkelvoudiginformatieobject", document_body)
     print("CREATE DOCUMENT => DRC response", response)
+    logger.info(f"L: CREATE DOCUMENT => DRC response => {response}")
     result = factory(Document, response)
     case_document = CaseDocument.objects.create(
         case=instance, document_url=result.url, document_content=result.inhoud
     )
     print("CREATE DOCUMENT END=> ", case_document)
+    logger.info(f"L: CREATE DOCUMENT END=> {case_document}")
     return case_document
 
 
@@ -302,6 +311,7 @@ def connect_case_and_document(casedocument):
     In here we expect a casedocument instance
     """
     print("CONNECT CASE AND DOCUMENT START")
+    logger.info("L: CONNECT CASE AND DOCUMENT START")
     casedocument_body = {
         "informatieobject": casedocument.document_url,
         "zaak": casedocument.case.case_url,
@@ -309,13 +319,16 @@ def connect_case_and_document(casedocument):
 
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     print("CONNECT CASE AND DOCUMENT zrc_client.create")
+    logger.info("L: CONNECT CASE AND DOCUMENT zrc_client.create")
     case_document_connection = zrc_client.create(
         "zaakinformatieobject", casedocument_body
     )
     print("CONNECT CASE AND DOCUMENT zrc_client create RESPONSE")
+    logger.info("L: CONNECT CASE AND DOCUMENT zrc_client create RESPONSE")
     casedocument.case_document_connection_url = case_document_connection.get("url")
     casedocument.connected = True
     print("CONNECT CASE AND DOCUMENT END")
+    logger.info("L: CONNECT CASE AND DOCUMENT END")
     casedocument.save()
 
 
