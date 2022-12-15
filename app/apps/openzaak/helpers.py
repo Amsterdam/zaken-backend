@@ -51,7 +51,9 @@ def _build_zaak_body(instance):
     case_type_url = settings.OPENZAAK_DEFAULT_ZAAKTYPE_URL
     return {
         "identificatie": f"{instance.id}{instance.identification}",
-        "toelichting": (instance.description or "Zaak aangemaakt via AZA")[:1000],
+        "toelichting": (
+            instance.description or f"Zaak {instance.id} aangemaakt via AZA"
+        )[:1000],
         "zaaktype": case_type_url,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "verantwoordelijkeOrganisatie": settings.DEFAULT_RSIN,
@@ -133,12 +135,14 @@ def get_document_types(identificatie=None):
 
 
 def create_open_zaak_case(instance):
+    print("CREATE OPEN ZAAK CASE START !!!")
     zaak_body = _build_zaak_body(instance)
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("zaak", zaak_body)
     result = factory(Zaak, response)
     instance.case_url = result.url
     instance.save()
+    print("CREATE OPEN ZAAK CASE SUCCES !!!")
     return instance
 
 
@@ -199,14 +203,18 @@ def create_document(instance, file, language="nld", informatieobjecttype=None):
     """
     In here we expect a case instance
     """
+    print("CREATE DOCUMENT => ", informatieobjecttype)
     document_body = _build_document_body(file, language, informatieobjecttype)
-
+    print("CREATE DOCUMENT => document_body BUILD")
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
+    print("CREATE DOCUMENT => DRC client CREATED")
     response = drc_client.create("enkelvoudiginformatieobject", document_body)
+    print("CREATE DOCUMENT => DRC response", response)
     result = factory(Document, response)
     case_document = CaseDocument.objects.create(
         case=instance, document_url=result.url, document_content=result.inhoud
     )
+    print("CREATE DOCUMENT END=> ", case_document)
     return case_document
 
 
@@ -293,17 +301,21 @@ def connect_case_and_document(casedocument):
     """
     In here we expect a casedocument instance
     """
+    print("CONNECT CASE AND DOCUMENT START")
     casedocument_body = {
         "informatieobject": casedocument.document_url,
         "zaak": casedocument.case.case_url,
     }
 
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
+    print("CONNECT CASE AND DOCUMENT zrc_client.create")
     case_document_connection = zrc_client.create(
         "zaakinformatieobject", casedocument_body
     )
+    print("CONNECT CASE AND DOCUMENT zrc_client create RESPONSE")
     casedocument.case_document_connection_url = case_document_connection.get("url")
     casedocument.connected = True
+    print("CONNECT CASE AND DOCUMENT END")
     casedocument.save()
 
 
