@@ -83,6 +83,16 @@ class BRPServiceCheck(APIServiceCheckBackend):
     verbose_name = "BRP API Endpoint"
 
 
+class ToeristischeverhuurServiceCheck(APIServiceCheckBackend):
+    """
+    Endpoint for checking the Toeristischeverhuur.nl API Endpoint
+    """
+
+    critical_service = True
+    api_url = settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_URL
+    verbose_name = "Toeristischeverhuur.nl"
+
+
 class CeleryExecuteTask(BaseHealthCheckBackend):
     def check_status(self):
         result = debug_task.apply_async(ignore_result=False)
