@@ -210,7 +210,7 @@ def create_document(instance, file, language="nld", informatieobjecttype=None):
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
     print("=> DOCUMENT_BODY => identificatie =>", document_body.get("identificatie"))
     print(
-        "=> DOCUMENT_BODY => informatieobjecttype =>",
+        "=> DOCUMENT_BODY => informatieobjecttype => ",
         document_body.get("informatieobjecttype"),
     )
     print("=> DOCUMENT_BODY => bestandsnaam =>", document_body.get("bestandsnaam"))
