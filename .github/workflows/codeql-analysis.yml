@@ -46,7 +46,7 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f ./app/requirements.txt ];
         echo "Installing python dependencies"
-        then pip install -r --use-pep517 ./app/requirements.txt;
+        then pip install -r ./app/requirements.txt --use-pep517;
         fi
         # Set the `CODEQL-PYTHON` environment variable to the Python executable
         # that includes the dependencies
