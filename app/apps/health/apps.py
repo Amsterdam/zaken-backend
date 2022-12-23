@@ -15,6 +15,7 @@ class HealthConfig(AppConfig):
             DecosJoinCheck,
             DocumentenEndpointCheck,
             KeycloakCheck,
+            ToeristischeverhuurServiceCheck,
             ZakenEndpointCheck,
         )
 
@@ -23,6 +24,7 @@ class HealthConfig(AppConfig):
         plugin_dir.register(BelastingDienstCheck)
         plugin_dir.register(CeleryExecuteTask)
         plugin_dir.register(KeycloakCheck)
+        plugin_dir.register(ToeristischeverhuurServiceCheck)
         plugin_dir.register(ZakenEndpointCheck)
         plugin_dir.register(DocumentenEndpointCheck)
         plugin_dir.register(CatalogiEndpointCheck)

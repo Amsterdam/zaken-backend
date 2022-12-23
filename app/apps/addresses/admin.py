@@ -40,5 +40,6 @@ class AddressAdmin(admin.ModelAdmin):
         "housing_corporation",
     )
     list_editable = ("housing_corporation",)
-    list_filter = ("housing_corporation",)
+    list_filter = ("housing_corporation", "district")
+    search_fields = ("bag_id", "nummeraanduiding_id", "street_name", "postal_code")
     actions = (save_addresses,)

@@ -9,6 +9,7 @@ from requests.exceptions import HTTPError
 from utils.api_queries_toeristische_verhuur import (
     get_bag_vakantieverhuur_registrations,
     get_bsn_vakantieverhuur_registrations,
+    get_vakantieverhuur_meldingen,
     get_vakantieverhuur_registration,
 )
 
@@ -216,4 +217,34 @@ class VakantieVerhuurRegistratieCheck(BaseHealthCheckBackend):
         else:
             logger.info(
                 "Connection established. Vakantieverhuur Registratie API connection is healthy."
+            )
+
+
+class ToeristischeverhuurServiceCheck(BaseHealthCheckBackend):
+    """
+    Check if a connection can be made with the toeristischeverhuur.nl API
+    """
+
+    critical_service = True
+    verbose_name = "Toeristischeverhuur.nl"
+
+    def check_status(self):
+        params = {
+            "pageNumber": 1,
+            "pageSize": 1000,
+        }
+
+        try:
+            response = get_vakantieverhuur_meldingen(
+                settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_HEALTH_CHECK_BAG_ID,
+                query_params=params,
+            )
+            assert response, "Could not reach Toeristischeverhuur.nl"
+
+        except Exception as e:
+            logger.error(e)
+            self.add_error(ServiceUnavailable("Failed"), e)
+        else:
+            logger.info(
+                "Connection established. Toeristischeverhuur.nl API connection is healthy."
             )
