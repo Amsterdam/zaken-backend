@@ -48,6 +48,7 @@ def _build_zaak_body(instance):
     #     iter([ct.get("url") for ct in case_types]),
     #     settings.OPENZAAK_DEFAULT_ZAAKTYPE_URL,
     # )
+    # Default zaaktype is Toezicht
     case_type_url = settings.OPENZAAK_DEFAULT_ZAAKTYPE_URL
     return {
         "identificatie": f"{instance.id}{instance.identification}",
@@ -183,7 +184,8 @@ def create_open_zaak_case_resultaat(instance):
     resultaattype_url = "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/resultaattypen/9b89fc97-d415-4701-8221-946276c36669"
 
     resultaat_body = {
-        "zaak": instance.case.case_url,
+        # "zaak": instance.case.case_url,
+        "zaak": instance.case_url,
         "resultaattype": resultaattype_url,
         "toelichting": _("Resultaat gezet via AZA"),
     }
@@ -212,7 +214,8 @@ def create_open_zaak_case_status(instance):
     statustype_url = "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/statustypen/0c8778b1-339c-43fa-b3a8-d735e7de58bd"
 
     status_body = {
-        "zaak": instance.case.case_url,
+        # "zaak": instance.case.case_url,
+        "zaak": instance.case_url,
         "statustype": statustype_url,
         "datumStatusGezet": with_time.isoformat(),
         "statustoelichting": _("Status aangepast in AZA"),
