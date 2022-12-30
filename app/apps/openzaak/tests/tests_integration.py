@@ -10,7 +10,7 @@ from ..helpers import (
     connect_case_and_document,
     create_document,
     create_open_zaak_case,
-    create_open_zaak_case_state,
+    create_open_zaak_case_status,
 )
 from .utils import OpenZaakBaseMixin
 
@@ -44,7 +44,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
 
         # State is not implemented yet.
         case_state = baker.make(CaseState, case=case)
-        create_open_zaak_case_state(case_state)
+        create_open_zaak_case_status(case_state)
         case_state.refresh_from_db()
         self.assertTrue(case_state.set_in_open_zaak)
 

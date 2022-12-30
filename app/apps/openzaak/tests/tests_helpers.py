@@ -9,17 +9,17 @@ from ..helpers import (
     connect_case_and_document,
     create_document,
     create_open_zaak_case,
-    create_open_zaak_case_state,
+    create_open_zaak_case_status,
     delete_document,
-    get_case_type,
-    get_case_types,
     get_document,
     get_document_inhoud,
     get_document_types,
     get_documents_meta,
     get_open_zaak_case,
     get_open_zaak_case_document_connection,
-    get_open_zaak_case_state,
+    get_open_zaak_case_status,
+    get_zaaktype,
+    get_zaaktypen,
     update_document,
     update_open_zaak_case,
 )
@@ -31,7 +31,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
     def test_get_case_types(self, m):
         mock_service_oas_get(m, self.CATALOGI_ROOT, "ztc")
         m.get(f"{self.CATALOGI_ROOT}zaaktypen", json=self.zaaktypen, status_code=200)
-        cases_response = get_case_types()
+        cases_response = get_zaaktypen()
         self.assertEqual(len(cases_response), 2)
         self.assertIsNotNone(cases_response)
 
@@ -40,7 +40,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         mock_service_oas_get(m, self.CATALOGI_ROOT, "ztc")
         m.get(f"{self.CATALOGI_ROOT}zaaktypen", json=self.zaak_type, status_code=200)
         m.get(f"{self.ZAAK_TYPE_URL}", json=self.zaak_type, status_code=200)
-        response = get_case_type(self.ZAAK_TYPE_URL)
+        response = get_zaaktype(self.ZAAK_TYPE_URL)
         self.assertEqual(response.identificatie, "861ec2b4-daf9-4709-9cc0-06476e647269")
         self.assertIsNotNone(response)
 
@@ -94,14 +94,14 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         theme = baker.make(CaseTheme, name="mock_name")
         case = baker.make(Case, theme=theme)
         state = baker.make(CaseState, case=case)
-        create_open_zaak_case_state(state)
+        create_open_zaak_case_status(state)
 
     @requests_mock.Mocker()
     def test_get_open_zaak_case_state(self, m):
         m.get(self.STATUS_URL, json=self.status)
         theme = baker.make(CaseTheme, name="mock_name")
         baker.make(Case, theme=theme)
-        case_status = get_open_zaak_case_state(self.STATUS_URL)
+        case_status = get_open_zaak_case_status(self.STATUS_URL)
         self.assertEqual(case_status.url, self.STATUS_URL)
 
     @requests_mock.Mocker()
