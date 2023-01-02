@@ -49,7 +49,7 @@ def _build_zaak_body(
     zaaktype_url = next(iter([zt.get("url") for zt in zaaktypen]))
     print("=> _build_zaak_body zaaktype_url", zaaktype_url)
     return {
-        "identificatie": f"{instance.id}-{instance.identification}",
+        "identificatie": f"{instance.id}",
         "toelichting": (
             instance.description or f"Zaak {instance.id} aangemaakt via AZA"
         )[:1000],
