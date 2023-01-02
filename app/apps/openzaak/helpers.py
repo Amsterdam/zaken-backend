@@ -40,22 +40,20 @@ def _parse_date(date):
     return None
 
 
-def _build_zaak_body(instance):
+def _build_zaak_body(
+    instance, zaaktype_identificatie=settings.OPENZAAK_ZAAKTYPE_IDENTIFICATIE_TOEZICHT
+):
+    print("=> _build_zaak_body START")
     today = date.today()
-    # case_types = get_zaaktypen(instance.theme.name) Theme is not applicable
-    # case_types = get_zaaktypen()
-    # case_type_url = next(
-    #     iter([ct.get("url") for ct in case_types]),
-    #     settings.OPENZAAK_DEFAULT_ZAAKTYPE_URL,
-    # )
-    # Default zaaktype is Toezicht
-    case_type_url = settings.OPENZAAK_DEFAULT_ZAAKTYPE_URL
+    zaaktypen = get_zaaktypen(zaaktype_identificatie)
+    zaaktype_url = next(iter([zt.get("url") for zt in zaaktypen]))
+    print("=> _build_zaak_body zaaktype_url", zaaktype_url)
     return {
-        "identificatie": f"{instance.id}{instance.identification}",
+        "identificatie": f"{instance.id}-{instance.identification}",
         "toelichting": (
             instance.description or f"Zaak {instance.id} aangemaakt via AZA"
         )[:1000],
-        "zaaktype": case_type_url,
+        "zaaktype": zaaktype_url,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "verantwoordelijkeOrganisatie": settings.DEFAULT_RSIN,
         "registratiedatum": _parse_date(today),
@@ -146,7 +144,7 @@ def create_open_zaak_case(instance):
     instance.save()
     print("=> CREATE OPEN ZAAK CASE SUCCES !!!")
     # TEST next line
-    create_open_zaak_case_resultaat(instance)
+    # create_open_zaak_case_resultaat(instance)
 
     return instance
 
@@ -166,9 +164,12 @@ def get_open_zaak_case(case_url):
 
 
 def update_open_zaak_case(instance):
+    #  It's not possible to change the zaaktype
+    print("=> update_open_zaak_case START")
     zaak_body = _build_zaak_body(instance)
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     zrc_client.update("zaak", url=instance.case_url, data=zaak_body)
+    print("=> update_open_zaak_case SUCCES!")
 
 
 def create_open_zaak_case_resultaat(instance):
@@ -187,7 +188,7 @@ def create_open_zaak_case_resultaat(instance):
         # "zaak": instance.case.case_url,
         "zaak": instance.case_url,
         "resultaattype": resultaattype_url,
-        "toelichting": _("Resultaat gezet via AZA"),
+        "toelichting": _("Resultaat verwerkt via AZA"),
     }
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     # TODO: Check deze method! Moet het niet resultaten zijn ipv resultaat?
@@ -195,7 +196,6 @@ def create_open_zaak_case_resultaat(instance):
     print("=> create_open_zaak_case_resultaat RESPONSE", response)
     factory(Resultaat, response)
     print("=> create_open_zaak_case_resultaat SUCCES")
-    create_open_zaak_case_status(instance)
 
 
 def create_open_zaak_case_status(instance):
