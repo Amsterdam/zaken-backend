@@ -209,6 +209,7 @@ class Case(ModelEventEmitter):
 
     def get_state(self):
         casestates = self.case_states.all().last()
+        print("=> get_state models.py", casestates)
         if casestates:
             return casestates.status
         # TODO below should not be happening in the future
@@ -310,6 +311,11 @@ class CaseState(models.Model):
 
     def __str__(self):
         return f"{self.status} - {self.case}"
+
+    # Test print
+    def save(self, *args, **kwargs):
+        print("=> CaseState SAVE", self)
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ["created"]
