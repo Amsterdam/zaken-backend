@@ -209,7 +209,6 @@ class Case(ModelEventEmitter):
 
     def get_state(self):
         casestates = self.case_states.all().last()
-        print("=> get_state models.py", casestates)
         if casestates:
             return casestates.status
         # TODO below should not be happening in the future
@@ -314,7 +313,7 @@ class CaseState(models.Model):
 
     # Test print
     def save(self, *args, **kwargs):
-        print("=> CaseState SAVE", self)
+        print("=> SAVE CaseState: ", self)
         super().save(*args, **kwargs)
 
     class Meta:

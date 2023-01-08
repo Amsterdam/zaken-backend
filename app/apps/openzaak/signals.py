@@ -7,7 +7,7 @@ from apps.openzaak.helpers import (
     create_open_zaak_case_status,
     update_open_zaak_case,
 )
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from zds_client.client import ClientError
 
@@ -34,7 +34,8 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=CaseState)
 def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
-    print("=> create_case_state_instance_in_openzaak", sender)
+    logger.error("=> Logger test")
+    print("=> create_case_state_instance_in_openzaak", instance)
     if (
         instance.case.case_url
         and not instance.set_in_open_zaak
@@ -47,6 +48,11 @@ def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
             logger.error(e)
         except Exception as e:
             logger.exception(e)
+
+
+@receiver(pre_save, sender=CaseState)
+def testPreSave(sender, instance, created, **kwargs):
+    print("=> PRE SAVE SIGNAL CaseState: ", instance)
 
 
 @receiver(post_save, sender=CaseDocument)
