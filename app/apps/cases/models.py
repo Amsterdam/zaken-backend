@@ -318,7 +318,7 @@ class CaseState(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ["created"]
+        ordering = ["-created"]
 
 
 class CaseCloseResult(models.Model):
