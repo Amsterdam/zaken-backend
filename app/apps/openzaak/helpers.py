@@ -232,6 +232,10 @@ def get_open_zaak_case_status(case_status_url):
     return factory(Status, response)
 
 
+def test_case_status_in_helpers():
+    print("=> YESSSS test_case_status_in_helpers")
+
+
 def create_document(instance, file, language="nld", informatieobjecttype=None):
     """
     In here we expect a case instance
