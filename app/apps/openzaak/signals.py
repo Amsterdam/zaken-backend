@@ -34,8 +34,7 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=CaseState)
 def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
-    logger.error("=> Logger test")
-    print("=> create_case_state_instance_in_openzaak", instance)
+    print("=> create_case_state_instance_in_openzaak")
     if (
         instance.case.case_url
         and not instance.set_in_open_zaak
@@ -52,7 +51,12 @@ def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
 
 @receiver(pre_save, sender=CaseState)
 def testPreSave(sender, instance, created, **kwargs):
-    print("=> PRE SAVE SIGNAL CaseState: ", instance)
+    print("=> PRE SAVE SIGNAL CaseState")
+
+
+@receiver(post_save, sender=CaseState)
+def testSaveCaseStateChoice(sender, instance, created, **kwargs):
+    print("=> POST SAVE SIGNAL CaseState")
 
 
 @receiver(post_save, sender=CaseDocument)
