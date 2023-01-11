@@ -238,7 +238,7 @@ class task_opstellen_concept_aanschrijving(user_task):
     _task_name = "task_create_concept_summons"
     due_date = relativedelta(weeks=2)
 
-    print("=> task_opstellen_concept_aanschrijving e2e and workflow", user_task)
+    print("=> TASK: task_opstellen_concept_aanschrijving e2e and workflow", user_task)
 
     def instance_created(self):
         from apps.cases.models import CaseState

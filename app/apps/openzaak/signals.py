@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=Case)
 def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
+    print("=> SIGNAL RECEIVED: sender=Case")
     if not instance.case_url:
         try:
             create_open_zaak_case(instance)
@@ -33,10 +34,12 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
             logger.exception(e)
 
 
-@receiver(post_save, sender=CaseState)
+@receiver(
+    post_save, sender=CaseState, dispatch_uid="create_case_state_instance_in_openzaak"
+)
 def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
     test_case_status_in_helpers()
-    print("=> create_case_state_instance_in_openzaak")
+    print("=> SIGNAL RECEIVED: sender=CaseState")
     if (
         instance.case.case_url
         and not instance.set_in_open_zaak

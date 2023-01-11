@@ -6,6 +6,7 @@ Based on: https://github.com/VNG-Realisatie/zaken-api/blob/stable/1.0.x/src/noti
 import base64
 import hashlib
 import logging
+import mimetypes
 import pathlib
 import uuid
 from datetime import date, datetime
@@ -74,6 +75,9 @@ def _build_document_body(
         if informatieobjecttype
         else settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL
     )
+    print("=> DOC FILE: ", file)
+    print("=> DOC MIME TYPE: ", mimetypes.guess_type(file))
+    # Formaat is geen bestandstype. "text/plain"
     document_body = {
         "identificatie": uuid.uuid4().hex,
         "formaat": pathlib.Path(file.name).suffix,
