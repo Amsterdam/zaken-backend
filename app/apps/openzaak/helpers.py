@@ -76,7 +76,13 @@ def _build_document_body(
         else settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL
     )
     print("=> DOC FILE: ", file)
-    print("=> DOC MIME TYPE: ", mimetypes.guess_type(file))
+    print("=> pathlib.Path(file.name) :", pathlib.Path(file.name))
+    try:
+        print("Path.cwd()", pathlib.Path.cwd())
+        print("=> DOC MIME TYPE: ", mimetypes.guess_type(pathlib.Path(file.name)))
+    except Exception as e:
+        print("=> DOC DOCUMENT EXEPTION", e)
+
     # Formaat is geen bestandstype. "text/plain"
     document_body = {
         "identificatie": uuid.uuid4().hex,
