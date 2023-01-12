@@ -78,11 +78,8 @@ def _build_document_body(
     # Get mime type
     try:
         (mimeType, *_) = mimetypes.guess_type(pathlib.Path(file.name))
-    except Exception:
-        pass
-
-    if not mimeType:
-        mimeType = "text/plain"
+    except Exception as e:
+        logger.info(f"MIME-type cannot be detected: {e}")
 
     document_body = {
         "identificatie": uuid.uuid4().hex,
