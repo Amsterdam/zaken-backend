@@ -75,24 +75,15 @@ def _build_document_body(
         if informatieobjecttype
         else settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL
     )
-
-    print("=> DOC START: ")
+    # Get mime type
     try:
-        (formatType, *_) = mimetypes.guess_type(pathlib.Path(file.name))
-        print("=> DOC MIME TYPE formatType: ", formatType)
+        (mimeType, *_) = mimetypes.guess_type(pathlib.Path(file.name))
     except Exception as e:
-        print("=> Exception: ", e)
+        logger.info(f"MIME-type cannot be detected: {e}")
 
-    print("=> DOC 2: ", formatType)
-    if not formatType:
-        formatType = "text/plain"
-
-    print("=> DOC 3: ", formatType)
-
-    # Formaat is geen bestandstype. "text/plain"
     document_body = {
         "identificatie": uuid.uuid4().hex,
-        "formaat": formatType,
+        "formaat": mimeType,
         "informatieobjecttype": informatieobjecttype,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "creatiedatum": _parse_date(date.today()),
