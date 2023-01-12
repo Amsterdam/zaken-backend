@@ -78,7 +78,7 @@ def _build_document_body(
 
     print("=> DOC START: ")
     try:
-        (formatType,) = mimetypes.guess_type(pathlib.Path(file.name))
+        (formatType, *_) = mimetypes.guess_type(pathlib.Path(file.name))
         print("=> DOC MIME TYPE formatType: ", formatType)
     except Exception as e:
         print("=> Exception: ", e)
