@@ -76,15 +76,18 @@ def _build_document_body(
         else settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL
     )
 
+    print("=> DOC START: ")
     try:
         (formatType,) = mimetypes.guess_type(pathlib.Path(file.name))
-    except Exception:
-        pass
+        print("=> DOC MIME TYPE formatType: ", formatType)
+    except Exception as e:
+        print("=> Exception: ", e)
 
+    print("=> DOC 2: ", formatType)
     if not formatType:
         formatType = "text/plain"
 
-    print("=> DOC MIME TYPE formatType: ", formatType)
+    print("=> DOC 3: ", formatType)
 
     # Formaat is geen bestandstype. "text/plain"
     document_body = {
