@@ -75,11 +75,22 @@ def _build_document_body(
         if informatieobjecttype
         else settings.OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL
     )
-    print("=> DOC FILE: ", file)
+
     print("=> pathlib.Path(file.name) :", pathlib.Path(file.name))
     try:
-        print("Path.cwd()", pathlib.Path.cwd())
-        print("=> DOC MIME TYPE: ", mimetypes.guess_type(pathlib.Path(file.name)))
+        type, encoding = mimetypes.guess_type(pathlib.Path(file.name))
+        formatType, encoding = mimetypes.guess_type(pathlib.Path(file.name))
+        formatType2 = mimetypes.guess_type(pathlib.Path(file.name))
+        print("=> DOC MIME TYPE 1: ", type, encoding)
+        print("=> DOC MIME TYPE 2: ", formatType)
+        print("=> DOC MIME TYPE 3: ", formatType2)
+        print(
+            "=> DOC MIME TYPE 4: ",
+            mimetypes.guess_type(file.name),
+            "===",
+            mimetypes.guess_type(pathlib.Path(file.name)),
+        )
+
     except Exception as e:
         print("=> DOC DOCUMENT EXEPTION", e)
 
