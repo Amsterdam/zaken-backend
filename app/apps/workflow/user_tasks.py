@@ -259,10 +259,15 @@ class task_opstellen_concept_aanschrijving(user_task):
                 status=CaseState.CaseStateChoice.HANDHAVING,
             )
         except CaseState.DoesNotExist:
-            CaseState.objects.create(
+            # CaseState.objects.create(
+            #     case=self.case_user_task.case,
+            #     status=CaseState.CaseStateChoice.HANDHAVING,
+            # )
+            test = CaseState(
                 case=self.case_user_task.case,
                 status=CaseState.CaseStateChoice.HANDHAVING,
             )
+            test.save()
 
         return
 
