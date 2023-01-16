@@ -244,7 +244,7 @@ class task_opstellen_concept_aanschrijving(user_task):
     def instance_created(self):
         from apps.cases.models import CaseState
 
-        logger.info("=> LOGGER task_opstellen_concept_aanschrijving 2", user_task)
+        logger.error("=> LOGGER task_opstellen_concept_aanschrijving 2", user_task)
         print(
             "=> task_opstellen_concept_aanschrijving e2e and workflow 2.0 ", user_task
         )
