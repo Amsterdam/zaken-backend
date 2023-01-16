@@ -266,6 +266,7 @@ class task_opstellen_concept_aanschrijving(user_task):
             test = CaseState(
                 case=self.case_user_task.case,
                 status=CaseState.CaseStateChoice.HANDHAVING,
+                set_in_open_zaak=True,
             )
             test.save()
 
