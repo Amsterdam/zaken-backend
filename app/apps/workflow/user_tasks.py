@@ -249,10 +249,21 @@ class task_opstellen_concept_aanschrijving(user_task):
             "=> task_opstellen_concept_aanschrijving e2e and workflow 2.0 ", user_task
         )
 
-        CaseState.objects.get_or_create(
-            case=self.case_user_task.case,
-            status=CaseState.CaseStateChoice.HANDHAVING,
-        )
+        # CaseState.objects.get_or_create(
+        #     case=self.case_user_task.case,
+        #     status=CaseState.CaseStateChoice.HANDHAVING,
+        # )
+        try:
+            CaseState.objects.get(
+                case=self.case_user_task.case,
+                status=CaseState.CaseStateChoice.HANDHAVING,
+            )
+        except CaseState.DoesNotExist:
+            CaseState.objects.create(
+                case=self.case_user_task.case,
+                status=CaseState.CaseStateChoice.HANDHAVING,
+            )
+
         return
 
 
