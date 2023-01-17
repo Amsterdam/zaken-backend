@@ -32,11 +32,8 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
             logger.exception(e)
 
 
-@receiver(
-    post_save, sender=CaseState, dispatch_uid="create_case_state_instance_in_openzaak"
-)
+@receiver(post_save, sender=CaseState)
 def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
-    print("=> SIGNAL RECEIVED: sender=CaseState", instance)
     if (
         instance.case.case_url
         and not instance.set_in_open_zaak

@@ -20,7 +20,7 @@ from django.utils.translation import ugettext as _
 from zgw_consumers.api_models.base import factory
 from zgw_consumers.api_models.catalogi import ZaakType
 from zgw_consumers.api_models.documenten import Document
-from zgw_consumers.api_models.zaken import Resultaat, Status, Zaak
+from zgw_consumers.api_models.zaken import Status, Zaak
 from zgw_consumers.concurrent import parallel
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
@@ -163,56 +163,25 @@ def get_open_zaak_case(case_url):
 
 
 def update_open_zaak_case(instance):
-    #  It's not possible to change the zaaktype
+    #  It's not possible to change zaaktype
     zaak_body = _build_zaak_body(instance)
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     zrc_client.update("zaak", url=instance.case_url, data=zaak_body)
-
-
-def create_open_zaak_case_resultaat(instance):
-    """
-    Create resultaat in Case
-    """
-    print("=> create_open_zaak_case_resultaat START")
-    # TODO: How to get the resultaat type?
-    # resultaattype_url = settings.OPENZAAK_CASESTATE_URLS.get(
-    #     instance.status, settings.OPENZAAK_CASESTATE_URL_DEFAULT
-    # )
-    # Resultaat url met omschrijving Toezicht uitgevoerd en zaaktype Toezicht
-    resultaattype_url = "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/resultaattypen/9b89fc97-d415-4701-8221-946276c36669"
-
-    resultaat_body = {
-        # "zaak": instance.case.case_url,
-        "zaak": instance.case_url,
-        "resultaattype": resultaattype_url,
-        "toelichting": _("Resultaat verwerkt via AZA"),
-    }
-    zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    # TODO: Check deze method! Moet het niet resultaten zijn ipv resultaat?
-    response = zrc_client.create("resultaat", resultaat_body)
-    print("=> create_open_zaak_case_resultaat RESPONSE", response)
-    factory(Resultaat, response)
-    print("=> create_open_zaak_case_resultaat SUCCES")
 
 
 def create_open_zaak_case_status(instance):
     """
     In here we expect a case state instance
     """
-    print("=> create_open_zaak_case_status START")
-    # TODO: Toezicht en Handhaving zijn geen statussen maar zaaktypes.
     now = timezone.now()
     with_time = datetime.combine(instance.created, now.time())
 
-    # statustype_url = settings.OPENZAAK_CASESTATE_URLS.get(
-    #     instance.status, settings.OPENZAAK_CASESTATE_URL_DEFAULT
-    # )
-    # Dummy status met omschrijving Afsluiten en zaaktype Toezicht
-    statustype_url = "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/statustypen/0c8778b1-339c-43fa-b3a8-d735e7de58bd"
+    statustype_url = settings.OPENZAAK_CASESTATE_URLS.get(
+        instance.status, settings.OPENZAAK_CASESTATE_URL_DEFAULT
+    )
 
     status_body = {
-        # "zaak": instance.case.case_url,
-        "zaak": instance.case_url,
+        "zaak": instance.case.case_url,
         "statustype": statustype_url,
         "datumStatusGezet": with_time.isoformat(),
         "statustoelichting": _("Status aangepast in AZA"),
@@ -222,7 +191,6 @@ def create_open_zaak_case_status(instance):
     factory(Status, response)
     instance.set_in_open_zaak = True
     instance.save()
-    print("=> create_open_zaak_case_status SUCCES")
 
 
 def get_open_zaak_case_status(case_status_url):
