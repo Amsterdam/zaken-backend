@@ -212,7 +212,7 @@ def create_document(instance, file, language="nld", informatieobjecttype=None):
 
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
 
-    response = ""
+    response = None
     try:
         response = drc_client.create("enkelvoudiginformatieobject", document_body)
         print("DRC create_document succesful")
