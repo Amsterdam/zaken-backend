@@ -145,10 +145,6 @@ def create_open_zaak_case(instance):
     result = factory(Zaak, response)
     instance.case_url = result.url
     instance.save()
-    print("=> CREATE OPEN ZAAK CASE SUCCES !!!")
-    # TEST next line
-    # create_open_zaak_case_resultaat(instance)
-
     return instance
 
 
@@ -224,7 +220,6 @@ def create_open_zaak_case_status(instance):
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("status", status_body)
     factory(Status, response)
-    print("=> create_open_zaak_case_status RESPONSE", response)
     instance.set_in_open_zaak = True
     instance.save()
     print("=> create_open_zaak_case_status SUCCES")
@@ -239,35 +234,22 @@ def get_open_zaak_case_status(case_status_url):
     return factory(Status, response)
 
 
-def test_case_status_in_helpers():
-    print("=> YESSSS test_case_status_in_helpers")
-
-
 def create_document(instance, file, language="nld", informatieobjecttype=None):
     """
     In here we expect a case instance
     """
-    print("=> CREATE DOCUMENT => ", informatieobjecttype)
     document_body = _build_document_body(file, language, informatieobjecttype)
-    print("=> CREATE DOCUMENT => document_body BUILD")
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
-    print("=> DOCUMENT_BODY => identificatie =>", document_body.get("identificatie"))
-    print(
-        "=> DOCUMENT_BODY => informatieobjecttype => ",
-        document_body.get("informatieobjecttype"),
-    )
-    print("=> DOCUMENT_BODY => bestandsnaam =>", document_body.get("bestandsnaam"))
     try:
         response = drc_client.create("enkelvoudiginformatieobject", document_body)
+        print("DRC create_document succesful")
     except Exception as e:
-        print("=>  CREATE DOCUMENT => FAIL => DRC response", e)
+        print("DRC create_document error: ", e)
 
-    print("=> CREATE DOCUMENT => DRC response", response)
     result = factory(Document, response)
     case_document = CaseDocument.objects.create(
         case=instance, document_url=result.url, document_content=result.inhoud
     )
-    print("=> CREATE DOCUMENT END=> ", case_document)
     return case_document
 
 
@@ -354,21 +336,17 @@ def connect_case_and_document(casedocument):
     """
     In here we expect a casedocument instance
     """
-    print("=> CONNECT CASE AND DOCUMENT START")
     casedocument_body = {
         "informatieobject": casedocument.document_url,
         "zaak": casedocument.case.case_url,
     }
 
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    print("=> CONNECT CASE AND DOCUMENT zrc_client.create")
     case_document_connection = zrc_client.create(
         "zaakinformatieobject", casedocument_body
     )
-    print("=> CONNECT CASE AND DOCUMENT zrc_client create RESPONSE")
     casedocument.case_document_connection_url = case_document_connection.get("url")
     casedocument.connected = True
-    print("=> CONNECT CASE AND DOCUMENT END")
     casedocument.save()
 
 

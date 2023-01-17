@@ -311,12 +311,6 @@ class CaseState(models.Model):
     def __str__(self):
         return f"{self.status} - {self.case}"
 
-    # Test print
-    def save(self, *args, **kwargs):
-        print("=> SAVE CaseState: ", self, flush=True)
-        self.set_in_open_zaak = True
-        super().save(*args, **kwargs)
-
     class Meta:
         ordering = ["-created"]
 
