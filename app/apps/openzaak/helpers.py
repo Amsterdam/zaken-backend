@@ -41,18 +41,20 @@ def _parse_date(date):
     return None
 
 
-def _build_zaak_body(instance):
+def _build_zaak_body(
+    instance, zaaktype_identificatie=settings.OPENZAAK_ZAAKTYPE_IDENTIFICATIE_TOEZICHT
+):
     today = date.today()
 
-    case_types = get_case_types(instance.theme.name)
-    casetheme_url = next(
-        iter([ct.get("url") for ct in case_types]),
-        settings.OPENZAAK_DEFAULT_ZAAKTYPE_URL,
-    )
+    zaaktypen = get_zaaktypen(zaaktype_identificatie)
+    zaaktype_url = next(iter([zt.get("url") for zt in zaaktypen]))
+
     return {
-        "identificatie": f"{instance.id}{instance.identification}",
-        "toelichting": (instance.description or "Zaak aangemaakt via AZA")[:1000],
-        "zaaktype": casetheme_url,
+        "identificatie": f"{instance.id}",
+        "toelichting": (
+            instance.description or f"Zaak {instance.id} aangemaakt via AZA"
+        )[:1000],
+        "zaaktype": zaaktype_url,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "verantwoordelijkeOrganisatie": settings.DEFAULT_RSIN,
         "registratiedatum": _parse_date(today),
@@ -99,7 +101,7 @@ def _build_document_body(
     return document_body
 
 
-def get_case_types(identificatie=None):
+def get_zaaktypen(identificatie=None):
     ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
 
     params = {
@@ -113,7 +115,7 @@ def get_case_types(identificatie=None):
     return get_paginated_results(ztc_client, "zaaktype", query_params=params)
 
 
-def get_case_type(zaaktype_url):
+def get_zaaktype(zaaktype_url):
     ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
 
     response = ztc_client.retrieve(
@@ -163,25 +165,26 @@ def get_open_zaak_case(case_url):
 
 
 def update_open_zaak_case(instance):
+    #  TODO: It's not possible to change zaaktype
     zaak_body = _build_zaak_body(instance)
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     zrc_client.update("zaak", url=instance.case_url, data=zaak_body)
 
 
-def create_open_zaak_case_state(instance):
+def create_open_zaak_case_status(instance):
     """
     In here we expect a case state instance
     """
     now = timezone.now()
     with_time = datetime.combine(instance.created, now.time())
 
-    state_url = settings.OPENZAAK_CASESTATE_URLS.get(
+    statustype_url = settings.OPENZAAK_CASESTATE_URLS.get(
         instance.status, settings.OPENZAAK_CASESTATE_URL_DEFAULT
     )
 
     status_body = {
         "zaak": instance.case.case_url,
-        "statustype": state_url,
+        "statustype": statustype_url,
         "datumStatusGezet": with_time.isoformat(),
         "statustoelichting": _("Status aangepast in AZA"),
     }
@@ -192,11 +195,11 @@ def create_open_zaak_case_state(instance):
     instance.save()
 
 
-def get_open_zaak_case_state(case_state_url):
+def get_open_zaak_case_status(case_status_url):
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.retrieve(
         "status",
-        url=case_state_url,
+        url=case_status_url,
     )
     return factory(Status, response)
 
@@ -208,7 +211,13 @@ def create_document(instance, file, language="nld", informatieobjecttype=None):
     document_body = _build_document_body(file, language, informatieobjecttype)
 
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
-    response = drc_client.create("enkelvoudiginformatieobject", document_body)
+
+    try:
+        response = drc_client.create("enkelvoudiginformatieobject", document_body)
+        print("DRC create_document succesful")
+    except Exception as e:
+        print("DRC create_document error: ", e)
+
     result = factory(Document, response)
     case_document = CaseDocument.objects.create(
         case=instance, document_url=result.url, document_content=result.inhoud
