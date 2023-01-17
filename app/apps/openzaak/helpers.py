@@ -20,7 +20,7 @@ from django.utils.translation import ugettext as _
 from zgw_consumers.api_models.base import factory
 from zgw_consumers.api_models.catalogi import ZaakType
 from zgw_consumers.api_models.documenten import Document
-from zgw_consumers.api_models.zaken import Status, Zaak
+from zgw_consumers.api_models.zaken import Resultaat, Status, Zaak
 from zgw_consumers.concurrent import parallel
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
@@ -169,6 +169,49 @@ def update_open_zaak_case(instance):
     zaak_body = _build_zaak_body(instance)
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     zrc_client.update("zaak", url=instance.case_url, data=zaak_body)
+
+
+def get_resultaattypen(zaaktype_url=None):
+    ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
+
+    params = {
+        "status": "definitief",  # Options: "alles", "definitief", "concept"
+    }
+    if zaaktype_url:
+        params.update({"zaaktype": zaaktype_url})
+
+    return get_paginated_results(ztc_client, "resultaattype", query_params=params)
+
+
+def create_open_zaak_case_resultaat(
+    instance,
+    omschrijving_generiek=settings.OPENZAAK_RESULTAATTYPE_OMSCHRIJVING_GENERIEK_AFGEHANDELD,
+):
+    """
+    Create resultaat in Case
+    """
+    case_meta = get_open_zaak_case(instance.case_url)
+    resultaattypen = get_resultaattypen(case_meta.zaaktype)
+    resultaattype = next(
+        (
+            r
+            for r in resultaattypen
+            if r["omschrijvingGeneriek"] == omschrijving_generiek
+        ),
+        None,
+    )
+    if resultaattype is None:
+        print("Open-zaak error: Geen resultaattype gevonden")
+        return
+
+    resultaat_body = {
+        "zaak": instance.case_url,
+        "resultaattype": resultaattype["url"],
+        "toelichting": _("Resultaat verwerkt via AZA"),
+    }
+    zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
+    response = zrc_client.create("resultaat", resultaat_body)
+    factory(Resultaat, response)
 
 
 def create_open_zaak_case_status(instance):
