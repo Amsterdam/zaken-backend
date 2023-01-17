@@ -39,7 +39,7 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
 )
 def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
     test_case_status_in_helpers()
-    print("=> SIGNAL RECEIVED: sender=CaseState")
+    print("=> SIGNAL RECEIVED: sender=CaseState", flush=True)
     if (
         instance.case.case_url
         and not instance.set_in_open_zaak

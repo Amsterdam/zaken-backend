@@ -238,37 +238,20 @@ class task_opstellen_concept_aanschrijving(user_task):
     _task_name = "task_create_concept_summons"
     due_date = relativedelta(weeks=2)
 
-    logger.info("=> LOGGER task_opstellen_concept_aanschrijving 1", user_task)
     print("=> TASK: task_opstellen_concept_aanschrijving e2e and workflow", user_task)
 
     def instance_created(self):
         from apps.cases.models import CaseState
 
-        logger.error("=> LOGGER task_opstellen_concept_aanschrijving 2", user_task)
         print(
-            "=> task_opstellen_concept_aanschrijving e2e and workflow 2.0 ", user_task
+            "=> task_opstellen_concept_aanschrijving e2e and workflow 2.0 ",
+            user_task,
+            flush=True,
         )
-
-        # CaseState.objects.get_or_create(
-        #     case=self.case_user_task.case,
-        #     status=CaseState.CaseStateChoice.HANDHAVING,
-        # )
-        try:
-            CaseState.objects.get(
-                case=self.case_user_task.case,
-                status=CaseState.CaseStateChoice.HANDHAVING,
-            )
-        except CaseState.DoesNotExist:
-            # CaseState.objects.create(
-            #     case=self.case_user_task.case,
-            #     status=CaseState.CaseStateChoice.HANDHAVING,
-            # )
-            test = CaseState(
-                case=self.case_user_task.case,
-                status=CaseState.CaseStateChoice.HANDHAVING,
-            )
-            test.save()
-
+        CaseState.objects.get_or_create(
+            case=self.case_user_task.case,
+            status=CaseState.CaseStateChoice.HANDHAVING,
+        )
         return
 
 

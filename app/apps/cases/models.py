@@ -313,7 +313,7 @@ class CaseState(models.Model):
 
     # Test print
     def save(self, *args, **kwargs):
-        print("=> SAVE CaseState: ", self)
+        print("=> SAVE CaseState: ", self, flush=True)
         self.set_in_open_zaak = True
         super().save(*args, **kwargs)
 
