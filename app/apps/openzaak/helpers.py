@@ -171,11 +171,27 @@ def update_open_zaak_case(instance):
     zrc_client.update("zaak", url=instance.case_url, data=zaak_body)
 
 
+def get_resultaattypen(zaaktype_url=None):
+    ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
+
+    params = {
+        "status": "definitief",  # Options: "alles", "definitief", "concept"
+    }
+    if zaaktype_url:
+        params.update({"zaaktype": zaaktype_url})
+
+    return get_paginated_results(ztc_client, "resultaattype", query_params=params)
+
+
 def create_open_zaak_case_resultaat(instance):
     """
     Create resultaat in Case
     """
     print("=> create_open_zaak_case_resultaat START")
+
+    open_zaak_case = get_open_zaak_case(instance.case_url)
+    print("=> get_open_zaak_case", open_zaak_case)
+
     # TODO: How to get the resultaat type?
     # resultaattype_url = settings.OPENZAAK_CASESTATE_URLS.get(
     #     instance.status, settings.OPENZAAK_CASESTATE_URL_DEFAULT
