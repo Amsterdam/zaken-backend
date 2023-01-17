@@ -29,13 +29,13 @@ from apps.main.pagination import EmptyPagination
 from apps.openzaak.helpers import (
     create_document,
     delete_document,
-    get_case_type,
-    get_case_types,
     get_document,
     get_document_inhoud,
     get_document_types,
     get_documents_meta,
     get_open_zaak_case,
+    get_zaaktype,
+    get_zaaktypen,
 )
 from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
 from apps.users.permissions import (
@@ -608,7 +608,7 @@ class CaseViewSet(
     def documents_types(self, request, pk):
         case = self.get_object()
         case_meta = get_open_zaak_case(case.case_url)
-        zaaktype_meta = get_case_type(case_meta.zaaktype)
+        zaaktype_meta = get_zaaktype(case_meta.zaaktype)
         document_types = [
             dt
             for dt in get_document_types()

@@ -312,7 +312,7 @@ class CaseState(models.Model):
         return f"{self.status} - {self.case}"
 
     class Meta:
-        ordering = ["created"]
+        ordering = ["-created"]
 
 
 class CaseCloseResult(models.Model):
