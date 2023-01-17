@@ -209,25 +209,14 @@ def create_open_zaak_case_resultaat(
         print("Open-zaak error: Geen resultaattype gevonden")
         return
 
-    # TODO: How to get the resultaat type?
-    # resultaattype_url = settings.OPENZAAK_CASESTATE_URLS.get(
-    #     instance.status, settings.OPENZAAK_CASESTATE_URL_DEFAULT
-    # )
-    # Resultaat url met omschrijving Toezicht uitgevoerd en zaaktype Toezicht
-    # resultaattype_url = "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/resultaattypen/9b89fc97-d415-4701-8221-946276c36669"
-
     resultaat_body = {
-        # "zaak": instance.case.case_url,
         "zaak": instance.case_url,
         "resultaattype": resultaattype["url"],
         "toelichting": _("Resultaat verwerkt via AZA"),
     }
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    # TODO: Check deze method! Moet het niet resultaten zijn ipv resultaat?
     response = zrc_client.create("resultaat", resultaat_body)
-    print("=> create_open_zaak_case_resultaat RESPONSE", response)
     factory(Resultaat, response)
-    print("=> create_open_zaak_case_resultaat SUCCES")
 
 
 def create_open_zaak_case_status(instance):
