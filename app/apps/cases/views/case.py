@@ -28,13 +28,13 @@ from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
 from apps.openzaak.helpers import (
     create_document,
+    create_open_zaak_case_resultaat,
     delete_document,
     get_document,
     get_document_inhoud,
     get_document_types,
     get_documents_meta,
     get_open_zaak_case,
-    get_resultaattypen,
     get_zaaktype,
     get_zaaktypen,
 )
@@ -612,7 +612,7 @@ class CaseViewSet(
 
         print("TEST")
         try:
-            test = get_resultaattypen(case_meta.zaaktype)
+            test = create_open_zaak_case_resultaat(case)
             print("=> SUCCES: ", test)
         except Exception as e:
             print("=> FAIL: ", e)

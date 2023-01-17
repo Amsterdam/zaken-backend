@@ -183,26 +183,43 @@ def get_resultaattypen(zaaktype_url=None):
     return get_paginated_results(ztc_client, "resultaattype", query_params=params)
 
 
-def create_open_zaak_case_resultaat(instance):
+def create_open_zaak_case_resultaat(
+    instance,
+    omschrijving_generiek=settings.OPENZAAK_RESULTAATTYPE_OMSCHRIJVING_GENERIEK_AFGEHANDELD,
+):
     """
     Create resultaat in Case
     """
-    print("=> create_open_zaak_case_resultaat START")
+    print("=> RESULTAAT START")
 
-    open_zaak_case = get_open_zaak_case(instance.case_url)
-    print("=> get_open_zaak_case", open_zaak_case)
+    case_meta = get_open_zaak_case(instance.case_url)
+    print("=> RESULTAAT START case_meta", case_meta)
+    resultaattypen = get_resultaattypen(case_meta.zaaktype)
+    print("=> RESULTAAT START resultaattypen", resultaattypen)
+    resultaattype = next(
+        (
+            r
+            for r in resultaattypen
+            if r["omschrijvingGeneriek"] == omschrijving_generiek
+        ),
+        None,
+    )
+    print("=> RESULTAAT resultaattype", resultaattype)
+    if resultaattype is None:
+        print("Open-zaak error: Geen resultaattype gevonden")
+        return
 
     # TODO: How to get the resultaat type?
     # resultaattype_url = settings.OPENZAAK_CASESTATE_URLS.get(
     #     instance.status, settings.OPENZAAK_CASESTATE_URL_DEFAULT
     # )
     # Resultaat url met omschrijving Toezicht uitgevoerd en zaaktype Toezicht
-    resultaattype_url = "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/resultaattypen/9b89fc97-d415-4701-8221-946276c36669"
+    # resultaattype_url = "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/resultaattypen/9b89fc97-d415-4701-8221-946276c36669"
 
     resultaat_body = {
         # "zaak": instance.case.case_url,
         "zaak": instance.case_url,
-        "resultaattype": resultaattype_url,
+        "resultaattype": resultaattype["url"],
         "toelichting": _("Resultaat verwerkt via AZA"),
     }
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
