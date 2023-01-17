@@ -5,7 +5,6 @@ from apps.openzaak.helpers import (
     connect_case_and_document,
     create_open_zaak_case,
     create_open_zaak_case_status,
-    test_case_status_in_helpers,
     update_open_zaak_case,
 )
 from django.db.models.signals import post_save
@@ -37,7 +36,6 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
     post_save, sender=CaseState, dispatch_uid="create_case_state_instance_in_openzaak"
 )
 def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
-    test_case_status_in_helpers()
     print("=> SIGNAL RECEIVED: sender=CaseState", instance)
     if (
         instance.case.case_url
