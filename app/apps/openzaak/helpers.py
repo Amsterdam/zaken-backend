@@ -45,8 +45,10 @@ def _build_zaak_body(
     instance, zaaktype_identificatie=settings.OPENZAAK_ZAAKTYPE_IDENTIFICATIE_TOEZICHT
 ):
     today = date.today()
+
     zaaktypen = get_zaaktypen(zaaktype_identificatie)
     zaaktype_url = next(iter([zt.get("url") for zt in zaaktypen]))
+
     return {
         "identificatie": f"{instance.id}",
         "toelichting": (
@@ -163,7 +165,7 @@ def get_open_zaak_case(case_url):
 
 
 def update_open_zaak_case(instance):
-    #  It's not possible to change the zaaktype
+    #  TODO: It's not possible to change zaaktype
     zaak_body = _build_zaak_body(instance)
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     zrc_client.update("zaak", url=instance.case_url, data=zaak_body)
