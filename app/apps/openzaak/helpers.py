@@ -9,7 +9,7 @@ import logging
 import mimetypes
 import pathlib
 import uuid
-from datetime import date, datetime
+from datetime import date
 from typing import List
 
 import requests
@@ -188,7 +188,8 @@ def create_open_zaak_case_resultaat(
     omschrijving_generiek=settings.OPENZAAK_RESULTAATTYPE_OMSCHRIJVING_GENERIEK_AFGEHANDELD,
 ):
     """
-    Create resultaat in Case
+    Create resultaat in open-zaak
+    In here we expect a case instance
     """
     case_meta = get_open_zaak_case(instance.case_url)
     resultaattypen = get_resultaattypen(case_meta.zaaktype)
@@ -204,38 +205,61 @@ def create_open_zaak_case_resultaat(
         print("Open-zaak error: Geen resultaattype gevonden")
         return
 
+    omschrijving = resultaattype["omschrijving"]
+
     resultaat_body = {
         "zaak": instance.case_url,
         "resultaattype": resultaattype["url"],
-        "toelichting": _("Resultaat verwerkt via AZA"),
+        "toelichting": f"{omschrijving} in AZA",
     }
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("resultaat", resultaat_body)
     factory(Resultaat, response)
 
 
-def create_open_zaak_case_status(instance):
+def get_statustypen(zaaktype_url=None):
+    ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
+
+    params = {
+        "status": "definitief",  # Options: "alles", "definitief", "concept"
+    }
+    if zaaktype_url:
+        params.update({"zaaktype": zaaktype_url})
+
+    return get_paginated_results(ztc_client, "statustype", query_params=params)
+
+
+def create_open_zaak_case_status(
+    instance,
+    omschrijving_generiek=settings.OPENZAAK_STATUSTYPE_OMSCHRIJVING_GENERIEK_AFSLUITEN,
+):
     """
+    Create status in open-zaak
     In here we expect a case state instance
     """
-    now = timezone.now()
-    with_time = datetime.combine(instance.created, now.time())
-
-    statustype_url = settings.OPENZAAK_CASESTATE_URLS.get(
-        instance.status, settings.OPENZAAK_CASESTATE_URL_DEFAULT
+    case_meta = get_open_zaak_case(instance.case_url)
+    statustypen = get_statustypen(case_meta.zaaktype)
+    statustype = next(
+        (r for r in statustypen if r["omschrijvingGeneriek"] == omschrijving_generiek),
+        None,
     )
 
+    if statustype is None:
+        print("Open-zaak error: Geen statustype gevonden")
+        return
+
     status_body = {
-        "zaak": instance.case.case_url,
-        "statustype": statustype_url,
-        "datumStatusGezet": with_time.isoformat(),
+        # "zaak": instance.case.case_url,
+        "zaak": instance.case_url,
+        "statustype": statustype["url"],
+        "datumStatusGezet": timezone.now().isoformat(),
         "statustoelichting": _("Status aangepast in AZA"),
     }
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("status", status_body)
     factory(Status, response)
-    instance.set_in_open_zaak = True
-    instance.save()
+    # instance.set_in_open_zaak = True
+    # instance.save()
 
 
 def get_open_zaak_case_status(case_status_url):
