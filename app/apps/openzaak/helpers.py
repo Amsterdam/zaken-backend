@@ -205,10 +205,12 @@ def create_open_zaak_case_resultaat(
         print("Open-zaak error: Geen resultaattype gevonden")
         return
 
+    omschrijving = resultaattype["omschrijving"]
+
     resultaat_body = {
         "zaak": instance.case_url,
         "resultaattype": resultaattype["url"],
-        "toelichting": f"{omschrijving_generiek} in AZA",
+        "toelichting": f"{omschrijving} in AZA",
     }
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("resultaat", resultaat_body)
@@ -251,9 +253,6 @@ def create_open_zaak_case_status(
     if statustype is None:
         print("Open-zaak error: Geen statustype gevonden")
         return
-
-    # now = timezone.now()
-    # test = datetime.combine(instance.created, now.time())
 
     status_body = {
         # "zaak": instance.case.case_url,
