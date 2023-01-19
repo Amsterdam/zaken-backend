@@ -9,7 +9,7 @@ import logging
 import mimetypes
 import pathlib
 import uuid
-from datetime import date, datetime
+from datetime import date
 from typing import List
 
 import requests
@@ -208,7 +208,7 @@ def create_open_zaak_case_resultaat(
     resultaat_body = {
         "zaak": instance.case_url,
         "resultaattype": resultaattype["url"],
-        "toelichting": _("Resultaat verwerkt via AZA"),
+        "toelichting": f"{omschrijving_generiek} in AZA",
     }
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("resultaat", resultaat_body)
@@ -252,14 +252,14 @@ def create_open_zaak_case_status(
         print("Open-zaak error: Geen statustype gevonden")
         return
 
-    now = timezone.now()
-    with_time = datetime.combine(instance.created, now.time())
+    # now = timezone.now()
+    # test = datetime.combine(instance.created, now.time())
 
     status_body = {
         # "zaak": instance.case.case_url,
         "zaak": instance.case_url,
         "statustype": statustype["url"],
-        "datumStatusGezet": with_time.isoformat(),
+        "datumStatusGezet": timezone.now().isoformat(),
         "statustoelichting": _("Status aangepast in AZA"),
     }
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
