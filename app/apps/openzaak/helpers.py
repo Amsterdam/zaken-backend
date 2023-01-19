@@ -190,12 +190,8 @@ def create_open_zaak_case_resultaat(
     """
     Create resultaat in Case
     """
-    print("=> RESULTAAT START")
-
     case_meta = get_open_zaak_case(instance.case_url)
-    print("=> RESULTAAT START case_meta", case_meta)
     resultaattypen = get_resultaattypen(case_meta.zaaktype)
-    print("=> RESULTAAT START resultaattypen", resultaattypen)
     resultaattype = next(
         (
             r
@@ -204,7 +200,6 @@ def create_open_zaak_case_resultaat(
         ),
         None,
     )
-    print("=> RESULTAAT resultaattype", resultaattype)
     if resultaattype is None:
         print("Open-zaak error: Geen resultaattype gevonden")
         return
