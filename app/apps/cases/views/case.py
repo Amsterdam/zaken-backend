@@ -613,7 +613,7 @@ class CaseViewSet(
 
         print("TEST")
         try:
-            test = get_resultaattypen()
+            test = create_open_zaak_case_resultaat(case)
             print("=> SUCCES: ", test)
         except Exception as e:
             print("=> FAIL: ", e)
