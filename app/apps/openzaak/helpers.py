@@ -214,6 +214,18 @@ def create_open_zaak_case_resultaat(
     factory(Resultaat, response)
 
 
+def get_statustypen(zaaktype_url=None):
+    ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
+
+    params = {
+        "status": "definitief",  # Options: "alles", "definitief", "concept"
+    }
+    if zaaktype_url:
+        params.update({"zaaktype": zaaktype_url})
+
+    return get_paginated_results(ztc_client, "statustype", query_params=params)
+
+
 def create_open_zaak_case_status(instance):
     """
     In here we expect a case state instance

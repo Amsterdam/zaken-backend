@@ -35,6 +35,7 @@ from apps.openzaak.helpers import (
     get_document_types,
     get_documents_meta,
     get_open_zaak_case,
+    get_resultaattypen,
     get_zaaktype,
     get_zaaktypen,
 )
@@ -612,7 +613,7 @@ class CaseViewSet(
 
         print("TEST")
         try:
-            test = create_open_zaak_case_resultaat(case)
+            test = get_resultaattypen()
             print("=> SUCCES: ", test)
         except Exception as e:
             print("=> FAIL: ", e)
