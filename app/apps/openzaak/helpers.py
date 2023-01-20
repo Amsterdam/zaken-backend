@@ -237,7 +237,7 @@ def create_open_zaak_case_status(
     Create status in open-zaak
     In here we expect a case state instance
     """
-    case_meta = get_open_zaak_case(instance.case_url)
+    case_meta = get_open_zaak_case(instance.case.case_url)
     statustypen = get_statustypen(case_meta.zaaktype)
     statustype = next(
         (r for r in statustypen if r["omschrijvingGeneriek"] == omschrijving_generiek),
@@ -249,8 +249,7 @@ def create_open_zaak_case_status(
         return
 
     status_body = {
-        # "zaak": instance.case.case_url,
-        "zaak": instance.case_url,
+        "zaak": instance.case.case_url,
         "statustype": statustype["url"],
         "datumStatusGezet": timezone.now().isoformat(),
         "statustoelichting": _("Status aangepast in AZA"),
@@ -258,8 +257,8 @@ def create_open_zaak_case_status(
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("status", status_body)
     factory(Status, response)
-    # instance.set_in_open_zaak = True
-    # instance.save()
+    instance.set_in_open_zaak = True
+    instance.save()
 
 
 def get_open_zaak_case_status(case_status_url):
