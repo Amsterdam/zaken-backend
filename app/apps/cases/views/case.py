@@ -8,6 +8,7 @@ from apps.cases.models import (
     CaseDocument,
     CaseProject,
     CaseReason,
+    CaseState,
     CaseStateType,
     CaseTheme,
 )
@@ -611,7 +612,13 @@ class CaseViewSet(
         case = self.get_object()
         case_meta = get_open_zaak_case(case.case_url)
 
-        print("TEST")
+        # case = Case.objects.get(id=case_id)
+
+        try:
+            test = CaseState.objects.get(case=case)
+            print("TEST", test)
+        except Exception as e:
+            print("=> FAIL: ", e)
         # try:
         #     test = create_open_zaak_case_resultaat(case)
         #     print("=> SUCCES: ", test)

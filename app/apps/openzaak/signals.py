@@ -39,6 +39,8 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
 def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
     print("=> SIGNAL RECEIVED: sender=CaseState", instance)
     # If case state changed to Handhaving set Resultaat, Status and open a new Zaak in open-zaak
+    # TODO: Nu wordt CaseState Handhaving gezet (set_in_open_zaak=True),
+    # maar dat zou de vorige CaseState(Toezicht) moeten zijn
     if (
         instance.case.case_url
         and instance.status == CaseState.CaseStateChoice.HANDHAVING
