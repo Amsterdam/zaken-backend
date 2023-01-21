@@ -4,6 +4,7 @@ from apps.cases.models import Case, CaseDocument, CaseState
 from apps.openzaak.helpers import (
     connect_case_and_document,
     create_open_zaak_case,
+    create_open_zaak_case_resultaat,
     create_open_zaak_case_status,
     update_open_zaak_case,
 )
@@ -37,13 +38,17 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
 )
 def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
     print("=> SIGNAL RECEIVED: sender=CaseState", instance)
+    # If case state changed to Handhaving set Resultaat, Status and open a new Zaak in open-zaak
     if (
         instance.case.case_url
+        and instance.status == CaseState.CaseStateChoice.HANDHAVING
         and not instance.set_in_open_zaak
         and not instance.system_build
     ):
         try:
-            pass
+            create_open_zaak_case_resultaat(instance.case)
+            create_open_zaak_case_status(instance)
+            # pass
             # create_open_zaak_case_status(instance)
         except ClientError as e:
             logger.error(e)
