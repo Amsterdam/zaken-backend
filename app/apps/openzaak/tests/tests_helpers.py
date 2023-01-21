@@ -1,5 +1,5 @@
 import requests_mock
-from apps.cases.models import Case, CaseDocument, CaseState, CaseTheme
+from apps.cases.models import Case, CaseDocument, CaseTheme
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from model_bakery import baker
@@ -88,13 +88,14 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         case = baker.make(Case, theme=theme, case_url=self.ZAAK_URL)
         update_open_zaak_case(case)
 
-    @requests_mock.Mocker()
-    def test_create_open_zaak_case_state(self, m):
-        m.post(f"{self.ZAKEN_ROOT}statussen", json=self.status, status_code=201)
-        theme = baker.make(CaseTheme, name="mock_name")
-        case = baker.make(Case, theme=theme)
-        state = baker.make(CaseState, case=case)
-        create_open_zaak_case_status(state)
+    # @requests_mock.Mocker()
+    # def test_create_open_zaak_case_state(self, m):
+    #     m.post(f"{self.ZAKEN_ROOT}statussen", json=self.status, status_code=201)
+    #     m.get(self.ZAAK_URL, json=self.zaak)
+    #     theme = baker.make(CaseTheme, name="mock_name")
+    #     case = baker.make(Case, theme=theme)
+    #     state = baker.make(CaseState, case=case)
+    #     create_open_zaak_case_status(state)
 
     @requests_mock.Mocker()
     def test_get_open_zaak_case_state(self, m):

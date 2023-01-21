@@ -241,9 +241,7 @@ def create_open_zaak_case_status(
     Create status in open-zaak
     In here we expect a case state instance
     """
-    print("=> STATUS START")
-
-    case_meta = get_open_zaak_case(instance.case_url)
+    case_meta = get_open_zaak_case(instance.case.case_url)
     statustypen = get_statustypen(case_meta.zaaktype)
     statustype = next(
         (r for r in statustypen if r["omschrijvingGeneriek"] == omschrijving_generiek),
@@ -254,9 +252,12 @@ def create_open_zaak_case_status(
         print("Open-zaak error: Geen statustype gevonden")
         return
 
+    if statustype is None:
+        print("Open-zaak error: Geen statustype gevonden")
+        return
+
     status_body = {
-        # "zaak": instance.case.case_url,
-        "zaak": instance.case_url,
+        "zaak": instance.case.case_url,
         "statustype": statustype["url"],
         "datumStatusGezet": timezone.now().isoformat(),
         "statustoelichting": _("Status aangepast in AZA"),
