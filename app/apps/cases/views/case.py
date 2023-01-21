@@ -612,11 +612,11 @@ class CaseViewSet(
         case_meta = get_open_zaak_case(case.case_url)
 
         print("TEST")
-        try:
-            test = create_open_zaak_case_resultaat(case)
-            print("=> SUCCES: ", test)
-        except Exception as e:
-            print("=> FAIL: ", e)
+        # try:
+        #     test = create_open_zaak_case_resultaat(case)
+        #     print("=> SUCCES: ", test)
+        # except Exception as e:
+        #     print("=> FAIL: ", e)
 
         zaaktype_meta = get_zaaktype(case_meta.zaaktype)
         document_types = [
