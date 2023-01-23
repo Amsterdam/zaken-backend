@@ -61,9 +61,8 @@ def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
             previous_casestate.set_in_open_zaak = True
             previous_casestate.save()
             # Create new case in open-zaak with zaaktype HANDHAVING
-            case_instance = Case.objects.get(id=instance.case.case_id)
             create_open_zaak_case(
-                case_instance,
+                instance.case,
                 zaaktype_identificatie=settings.OPENZAAK_ZAAKTYPE_IDENTIFICATIE_HANDHAVEN,
             )
         except ClientError as e:
