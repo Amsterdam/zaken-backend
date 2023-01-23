@@ -262,8 +262,6 @@ def create_open_zaak_case_status(
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("status", status_body)
     factory(Status, response)
-    instance.set_in_open_zaak = True
-    instance.save()
     print("=> create_open_zaak_case_status SUCCES")
 
 

@@ -38,7 +38,7 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
 )
 def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
     print("=> SIGNAL RECEIVED: sender=CaseState", instance)
-    # If case state changed to Handhaving set Resultaat, Status and open a new Zaak in open-zaak
+    # If case state changed to Handhaving set Resultaat "Toezicht uitgevoerd", Status and open a new Zaak in open-zaak
     # TODO: Nu wordt CaseState Handhaving gezet (set_in_open_zaak=True),
     # maar dat zou de vorige CaseState(Toezicht) moeten zijn
     if (
@@ -48,10 +48,19 @@ def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
         and not instance.system_build
     ):
         try:
+            # Set Resultaat "Toezicht uitgevoerd"
             create_open_zaak_case_resultaat(instance.case)
+            # Set Status "Afsluiten" to close the case in open-zaak
             create_open_zaak_case_status(instance)
-            # pass
-            # create_open_zaak_case_status(instance)
+            # Get previous CaseState
+            previous_casestate = CaseState.objects.get(
+                case=instance.case, status=CaseState.CaseStateChoice.TOEZICHT
+            )
+            print("=> previous_casestate: ", previous_casestate)
+            # Update previous CaseState
+            previous_casestate.set_in_open_zaak = True
+            previous_casestate.save()
+            print("=> previous_casestate SAVED: ", previous_casestate)
         except ClientError as e:
             logger.error(e)
         except Exception as e:

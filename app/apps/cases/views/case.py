@@ -615,8 +615,9 @@ class CaseViewSet(
         # case = Case.objects.get(id=case_id)
 
         try:
-            test = CaseState.objects.get(case=case)
-            print("TEST", test)
+            print(
+                "TEST",
+            )
         except Exception as e:
             print("=> FAIL: ", e)
         # try:
