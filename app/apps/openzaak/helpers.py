@@ -140,8 +140,10 @@ def get_document_types(identificatie=None):
     )
 
 
-def create_open_zaak_case(instance):
-    zaak_body = _build_zaak_body(instance)
+def create_open_zaak_case(
+    instance, zaaktype_identificatie=settings.OPENZAAK_ZAAKTYPE_IDENTIFICATIE_TOEZICHT
+):
+    zaak_body = _build_zaak_body(instance, zaaktype_identificatie)
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("zaak", zaak_body)
     result = factory(Zaak, response)
@@ -244,11 +246,6 @@ def create_open_zaak_case_status(
         (r for r in statustypen if r["omschrijvingGeneriek"] == omschrijving_generiek),
         None,
     )
-    print("=> STATUS type:", statustype)
-    if statustype is None:
-        print("Open-zaak error: Geen statustype gevonden")
-        return
-
     if statustype is None:
         print("Open-zaak error: Geen statustype gevonden")
         return
@@ -262,7 +259,6 @@ def create_open_zaak_case_status(
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("status", status_body)
     factory(Status, response)
-    print("=> create_open_zaak_case_status SUCCES")
 
 
 def get_open_zaak_case_status(case_status_url):
