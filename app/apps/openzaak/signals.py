@@ -4,9 +4,11 @@ from apps.cases.models import Case, CaseDocument, CaseState
 from apps.openzaak.helpers import (
     connect_case_and_document,
     create_open_zaak_case,
+    create_open_zaak_case_resultaat,
     create_open_zaak_case_status,
     update_open_zaak_case,
 )
+from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from zds_client.client import ClientError
@@ -33,15 +35,33 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=CaseState)
-def create_case_state_instance_in_openzaak(sender, instance, created, **kwargs):
+def create_case_status_instance_in_openzaak(sender, instance, created, **kwargs):
+    # If the state of a case has changed from Toezicht to Handhaven,
+    # a new case must be created in open-zaak because of the limitation period.
+    # Toezicht has a limitation period of five years and Handhaven ten years.
     if (
         instance.case.case_url
+        and instance.status == CaseState.CaseStateChoice.HANDHAVING
         and not instance.set_in_open_zaak
         and not instance.system_build
     ):
         try:
-            pass
-            # create_open_zaak_case_status(instance)
+            # Set Resultaat "Toezicht uitgevoerd"
+            create_open_zaak_case_resultaat(instance.case)
+            # Set Status "Afsluiten" to close the case in open-zaak
+            create_open_zaak_case_status(instance)
+            # Get previous CaseState
+            previous_casestate = CaseState.objects.get(
+                case=instance.case, status=CaseState.CaseStateChoice.TOEZICHT
+            )
+            # Update previous CaseState
+            previous_casestate.set_in_open_zaak = True
+            previous_casestate.save()
+            # Create new case in open-zaak with zaaktype HANDHAVING
+            create_open_zaak_case(
+                instance.case,
+                zaaktype_identificatie=settings.OPENZAAK_ZAAKTYPE_IDENTIFICATIE_HANDHAVEN,
+            )
         except ClientError as e:
             logger.error(e)
         except Exception as e:

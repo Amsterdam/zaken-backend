@@ -48,9 +48,13 @@ def _build_zaak_body(
 
     zaaktypen = get_zaaktypen(zaaktype_identificatie)
     zaaktype_url = next(iter([zt.get("url") for zt in zaaktypen]))
+    zaaktype_omschrijving = next(iter([zt.get("omschrijving") for zt in zaaktypen]))
+    identificatie = f"{instance.id}-{zaaktype_omschrijving}"
+    if len(identificatie) > 40:
+        print("Open-zaak: Maximum characters for Zaak identificatie exceeded.")
 
     return {
-        "identificatie": f"{instance.id}",
+        "identificatie": identificatie,
         "toelichting": (
             instance.description or f"Zaak {instance.id} aangemaakt via AZA"
         )[:1000],
@@ -140,8 +144,10 @@ def get_document_types(identificatie=None):
     )
 
 
-def create_open_zaak_case(instance):
-    zaak_body = _build_zaak_body(instance)
+def create_open_zaak_case(
+    instance, zaaktype_identificatie=settings.OPENZAAK_ZAAKTYPE_IDENTIFICATIE_TOEZICHT
+):
+    zaak_body = _build_zaak_body(instance, zaaktype_identificatie)
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("zaak", zaak_body)
     result = factory(Zaak, response)
@@ -243,7 +249,6 @@ def create_open_zaak_case_status(
         (r for r in statustypen if r["omschrijvingGeneriek"] == omschrijving_generiek),
         None,
     )
-
     if statustype is None:
         print("Open-zaak error: Geen statustype gevonden")
         return
@@ -257,8 +262,6 @@ def create_open_zaak_case_status(
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("status", status_body)
     factory(Status, response)
-    instance.set_in_open_zaak = True
-    instance.save()
 
 
 def get_open_zaak_case_status(case_status_url):
