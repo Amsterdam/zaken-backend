@@ -50,8 +50,8 @@ def _build_zaak_body(
     zaaktype_url = next(iter([zt.get("url") for zt in zaaktypen]))
     zaaktype_omschrijving = next(iter([zt.get("omschrijving") for zt in zaaktypen]))
     identificatie = f"{instance.id}-{zaaktype_omschrijving}"
-    if len(identificatie) > 1:
-        print("Open-zaak: Maximum characters for identificatie exceeded.")
+    if len(identificatie) > 40:
+        print("Open-zaak: Maximum characters for Zaak identificatie exceeded.")
 
     return {
         "identificatie": identificatie,
