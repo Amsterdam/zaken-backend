@@ -101,13 +101,14 @@ def set_resultaat_and_close_case_instance_in_openzaak(
                 # Case has a CaseState Handhaven so set Resultaat "Handhaven uitgevoerd"
                 create_open_zaak_case_resultaat(instance.case)
 
+            # Set Status "Afsluiten" to close the case in open-zaak
+            create_open_zaak_case_status(instance)
+
         except ClientError as e:
             logger.error(e)
         except Exception as e:
             logger.exception(e)
         finally:
-            # Set Status "Afsluiten" to close the case in open-zaak
-            create_open_zaak_case_status(instance)
             # Update previous CaseState Toezicht or Handhaving
             previous_casestate_instance.set_in_open_zaak = True
             previous_casestate_instance.save()
