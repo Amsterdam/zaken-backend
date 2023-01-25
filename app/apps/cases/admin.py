@@ -157,6 +157,7 @@ class CaseStateAdmin(admin.ModelAdmin):
         "case",
         "status",
         "created",
+        "last_updated",
         "set_in_open_zaak",
     )
     list_filter = ("status",)

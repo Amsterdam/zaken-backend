@@ -305,6 +305,7 @@ class CaseState(models.Model):
         default=CaseStateChoice.TOEZICHT,
     )
     created = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
     system_build = models.BooleanField(default=False, blank=True)
     set_in_open_zaak = models.BooleanField(default=False, blank=True)
 
@@ -312,7 +313,7 @@ class CaseState(models.Model):
         return f"{self.status} - {self.case}"
 
     class Meta:
-        ordering = ["-created"]
+        ordering = ["-last_updated"]
 
 
 class CaseCloseResult(models.Model):
