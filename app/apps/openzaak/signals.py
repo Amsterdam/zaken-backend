@@ -25,19 +25,18 @@ def create_case_instance_in_openzaak(sender, instance, created, **kwargs):
             logger.error(e)
         except Exception as e:
             logger.exception(e)
-    else:
-        try:
-            update_open_zaak_case(instance)
-        except ClientError as e:
-            logger.error(e)
-        except Exception as e:
-            logger.exception(e)
 
 
-@receiver(post_save, sender=CaseState)
-def create_case_status_instance_in_openzaak(sender, instance, created, **kwargs):
+@receiver(
+    post_save,
+    sender=CaseState,
+    dispatch_uid="set_result_and_create_case_instance_in_openzaak",
+)
+def set_resultaat_and_create_case_instance_in_openzaak(
+    sender, instance, created, **kwargs
+):
     # If the state of a case has changed from Toezicht to Handhaven,
-    # a new case must be created in open-zaak because of the limitation period.
+    # a new case instance must be created in open-zaak because of the limitation period.
     # Toezicht has a limitation period of five years and Handhaven ten years.
     if (
         instance.case.case_url
@@ -51,12 +50,12 @@ def create_case_status_instance_in_openzaak(sender, instance, created, **kwargs)
             # Set Status "Afsluiten" to close the case in open-zaak
             create_open_zaak_case_status(instance)
             # Get previous CaseState
-            previous_casestate = CaseState.objects.get(
+            previous_casestate_instance = CaseState.objects.get(
                 case=instance.case, status=CaseState.CaseStateChoice.TOEZICHT
             )
             # Update previous CaseState
-            previous_casestate.set_in_open_zaak = True
-            previous_casestate.save()
+            previous_casestate_instance.set_in_open_zaak = True
+            previous_casestate_instance.save()
             # Create new case in open-zaak with zaaktype HANDHAVING
             create_open_zaak_case(
                 instance.case,
@@ -66,6 +65,57 @@ def create_case_status_instance_in_openzaak(sender, instance, created, **kwargs)
             logger.error(e)
         except Exception as e:
             logger.exception(e)
+
+
+@receiver(
+    post_save,
+    sender=CaseState,
+    dispatch_uid="set_resultaat_and_close_case_instance_in_openzaak",
+)
+def set_resultaat_and_close_case_instance_in_openzaak(
+    sender, instance, created, **kwargs
+):
+    # To close a case in open-zaak a Resultaat and Status must be created.
+    if (
+        instance.case.case_url
+        and instance.status == CaseState.CaseStateChoice.AFGESLOTEN
+        and not instance.set_in_open_zaak
+        and not instance.system_build
+    ):
+        previous_casestate_instance = CaseState.objects.filter(
+            case=instance.case, status=CaseState.CaseStateChoice.HANDHAVING
+        ).first()
+
+        try:
+            if not previous_casestate_instance:
+                # Case has NO CaseState Handhaving so set Resultaat "Toezicht afgebroken"
+                create_open_zaak_case_resultaat(
+                    instance.case,
+                    omschrijving_generiek=settings.OPENZAAK_RESULTAATTYPE_OMSCHRIJVING_GENERIEK_AFGEBROKEN,
+                )
+                # Get previous CaseState
+                previous_casestate_instance = CaseState.objects.get(
+                    case=instance.case,
+                    status=CaseState.CaseStateChoice.TOEZICHT,
+                )
+            else:
+                # Case has a CaseState Handhaving so set Resultaat "Handhaven uitgevoerd"
+                create_open_zaak_case_resultaat(instance.case)
+
+            # Set Status "Afsluiten" to close the case in open-zaak
+            create_open_zaak_case_status(instance)
+
+        except ClientError as e:
+            logger.error(e)
+        except Exception as e:
+            logger.exception(e)
+        finally:
+            # Update previous CaseState Toezicht or Handhaving
+            previous_casestate_instance.set_in_open_zaak = True
+            previous_casestate_instance.save()
+            # Update current instance of CaseState
+            instance.set_in_open_zaak = True
+            instance.save()
 
 
 @receiver(post_save, sender=CaseDocument)
