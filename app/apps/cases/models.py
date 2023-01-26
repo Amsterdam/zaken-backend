@@ -267,7 +267,7 @@ class Case(ModelEventEmitter):
             self.save()
 
     class Meta:
-        ordering = ["-start_date"]
+        ordering = ["-id"]
 
 
 class CaseDocument(models.Model):
