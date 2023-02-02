@@ -14,7 +14,7 @@ from apps.permits.mixins import PermitDetailsMixin
 from apps.users import permissions
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import status
+from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import LimitOffsetPagination
@@ -35,10 +35,24 @@ open_cases = OpenApiParameter(
 )
 
 
-class AddressViewSet(ViewSet, GenericAPIView, PermitDetailsMixin):
+class AddressViewSet(
+    ViewSet, GenericAPIView, mixins.UpdateModelMixin, PermitDetailsMixin
+):
     serializer_class = AddressSerializer
     queryset = Address.objects.all()
     lookup_field = "bag_id"
+    http_method_names = ["get", "patch"]
+
+    def update(self, request, bag_id, *args, **kwargs):
+        address_instance = Address.objects.get(bag_id=bag_id)
+        serializer = self.serializer_class(
+            instance=address_instance, data=request.data, partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(
         detail=True,
