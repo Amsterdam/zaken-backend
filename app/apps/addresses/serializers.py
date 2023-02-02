@@ -45,7 +45,6 @@ class AddressSerializer(serializers.ModelSerializer):
             "lng",
             "full_address",
             "district",
-            "housing_corporation",
         )
         extra_kwargs = {"bag_id": {"validators": []}}
 
