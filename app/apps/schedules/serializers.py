@@ -82,6 +82,7 @@ class ScheduleCreateSerializer(serializers.ModelSerializer):
             "priority",
             "visit_from_datetime",
             "week_segment",
+            "housing_corporation_combiteam",
         )
         read_only_fields = ("id",)
 
