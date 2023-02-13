@@ -64,7 +64,7 @@
     "pk": 15,
     "fields": {
       "theme": 2,
-      "name": "Meldplicht beschikking dwangsom",
+      "name": "Meldplicht beschikking boete",
       "workflow_option": "meldplicht_beschikking_boete",
       "is_sanction": true
     }
