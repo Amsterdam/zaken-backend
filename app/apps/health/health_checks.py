@@ -95,6 +95,8 @@ class BelastingDienstCheck(BaseHealthCheckBackend):
     Tests an authenticated request to the Belastingdienst endpoint
     """
 
+    verbose_name = "Belastingdienst"
+
     def check_status(self):
         from apps.fines.api_queries_belastingen import get_fines
 
