@@ -64,14 +64,34 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
         return self.__class__.__name__
 
 
-class BAGServiceCheck(APIServiceCheckBackend):
+class BAGAtlasServiceCheck(APIServiceCheckBackend):
     """
-    Endpoint for checking the BAG Service API Endpoint
+    Endpoint for checking the BAG Atlas Service API Endpoint
     """
 
     critical_service = True
     api_url = settings.BAG_API_SEARCH_URL
-    verbose_name = "BAG API Endpoint"
+    verbose_name = "BAG Atlas API"
+
+
+class BAGNummeraanduidingenServiceCheck(APIServiceCheckBackend):
+    """
+    Endpoint for checking the BAG Nummeraanduidingen Service API
+    """
+
+    critical_service = True
+    api_url = settings.BAG_API_NUMMERAANDUIDING_SEARCH_URL
+    verbose_name = "BAG Nummeraanduidingen API"
+
+
+class BAGVerblijfsobjectServiceCheck(APIServiceCheckBackend):
+    """
+    Endpoint for checking the BAG Verblijfsobject Service API Endpoint
+    """
+
+    critical_service = True
+    api_url = settings.BAG_API_VERBLIJFSOBJECT_URL
+    verbose_name = "BAG Verblijfsobject API"
 
 
 class BRPServiceCheck(APIServiceCheckBackend):
@@ -81,7 +101,7 @@ class BRPServiceCheck(APIServiceCheckBackend):
 
     critical_service = True
     api_url = settings.BRP_API_URL
-    verbose_name = "BRP API Endpoint"
+    verbose_name = "BRP API"
 
 
 class CeleryExecuteTask(BaseHealthCheckBackend):
@@ -90,12 +110,10 @@ class CeleryExecuteTask(BaseHealthCheckBackend):
         assert result, "Debug task executes successfully"
 
 
-class BelastingDienstCheck(BaseHealthCheckBackend):
+class Belastingdienst(BaseHealthCheckBackend):
     """
     Tests an authenticated request to the Belastingdienst endpoint
     """
-
-    verbose_name = "Belastingdienst"
 
     def check_status(self):
         from apps.fines.api_queries_belastingen import get_fines
@@ -133,13 +151,13 @@ class KeycloakCheck(APIServiceCheckBackend):
     verbose_name = "Keycloak"
 
 
-class ZakenEndpointCheck(APIServiceCheckBackend):
+class OpenZaakZaken(APIServiceCheckBackend):
     """
     Endpoint for checking Keycloak
     """
 
     critical_service = True
-    verbose_name = "Zaken endpoint (OpenZaak)"
+    verbose_name = "Open-zaak zaken (ZRC)"
 
     def get_api_url(self):
         from zgw_consumers.constants import APITypes
@@ -149,29 +167,13 @@ class ZakenEndpointCheck(APIServiceCheckBackend):
         return zaken_service.api_root
 
 
-class DocumentenEndpointCheck(APIServiceCheckBackend):
+class OpenZaakZakenCatalogus(APIServiceCheckBackend):
     """
     Endpoint for checking Keycloak
     """
 
     critical_service = True
-    verbose_name = "DocumentenEndpoint (Alfresco)"
-
-    def get_api_url(self):
-        from zgw_consumers.constants import APITypes
-        from zgw_consumers.models import Service
-
-        documenten_service = Service.objects.filter(api_type=APITypes.drc).get()
-        return documenten_service.api_root
-
-
-class CatalogiEndpointCheck(APIServiceCheckBackend):
-    """
-    Endpoint for checking Keycloak
-    """
-
-    critical_service = True
-    verbose_name = "CatalogiEndpoint"
+    verbose_name = "Open-zaak catalogus (ZTC)"
 
     def get_api_url(self):
         from zgw_consumers.constants import APITypes
@@ -179,6 +181,22 @@ class CatalogiEndpointCheck(APIServiceCheckBackend):
 
         catalogi_service = Service.objects.filter(api_type=APITypes.ztc).get()
         return catalogi_service.api_root
+
+
+class OpenZaakZakenAlfresco(APIServiceCheckBackend):
+    """
+    Endpoint for checking Keycloak
+    """
+
+    critical_service = True
+    verbose_name = "Open-zaak Alfresco (DRC)"
+
+    def get_api_url(self):
+        from zgw_consumers.constants import APITypes
+        from zgw_consumers.models import Service
+
+        documenten_service = Service.objects.filter(api_type=APITypes.drc).get()
+        return documenten_service.api_root
 
 
 class VakantieVerhuurRegistratieCheck(BaseHealthCheckBackend):
@@ -222,7 +240,7 @@ class VakantieVerhuurRegistratieCheck(BaseHealthCheckBackend):
             )
 
 
-class ToeristischeverhuurServiceCheck(BaseHealthCheckBackend):
+class Toeristischeverhuur(BaseHealthCheckBackend):
     """
     Check if a connection can be made with the toeristischeverhuur.nl API
     """

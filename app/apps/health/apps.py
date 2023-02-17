@@ -7,26 +7,30 @@ class HealthConfig(AppConfig):
 
     def ready(self):
         from .health_checks import (
-            BAGServiceCheck,
-            BelastingDienstCheck,
+            BAGAtlasServiceCheck,
+            BAGNummeraanduidingenServiceCheck,
+            BAGVerblijfsobjectServiceCheck,
+            Belastingdienst,
             BRPServiceCheck,
-            CatalogiEndpointCheck,
             CeleryExecuteTask,
             DecosJoinCheck,
-            DocumentenEndpointCheck,
             KeycloakCheck,
-            ToeristischeverhuurServiceCheck,
-            ZakenEndpointCheck,
+            OpenZaakZaken,
+            OpenZaakZakenAlfresco,
+            OpenZaakZakenCatalogus,
+            Toeristischeverhuur,
         )
 
-        plugin_dir.register(BAGServiceCheck)
+        plugin_dir.register(BAGAtlasServiceCheck)
+        plugin_dir.register(BAGNummeraanduidingenServiceCheck)
+        plugin_dir.register(BAGVerblijfsobjectServiceCheck)
         plugin_dir.register(BRPServiceCheck)
-        plugin_dir.register(BelastingDienstCheck)
+        plugin_dir.register(Belastingdienst)
         plugin_dir.register(CeleryExecuteTask)
         plugin_dir.register(KeycloakCheck)
-        plugin_dir.register(ToeristischeverhuurServiceCheck)
-        plugin_dir.register(ZakenEndpointCheck)
-        plugin_dir.register(DocumentenEndpointCheck)
-        plugin_dir.register(CatalogiEndpointCheck)
+        plugin_dir.register(Toeristischeverhuur)
+        plugin_dir.register(OpenZaakZaken)
+        plugin_dir.register(OpenZaakZakenAlfresco)
+        plugin_dir.register(OpenZaakZakenCatalogus)
         # plugin_dir.register(VakantieVerhuurRegistratieCheck)
         plugin_dir.register(DecosJoinCheck)
