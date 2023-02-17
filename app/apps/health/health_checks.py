@@ -34,7 +34,7 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
         api_url = self.get_api_url()
         assert api_url, "The given api_url should be set"
         try:
-            response = requests.get(api_url, timeout=3)
+            response = requests.get(api_url, timeout=6)
             response.raise_for_status()
         except AssertionError as e:
             logger.error(e)
