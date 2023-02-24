@@ -71,7 +71,7 @@ class BAGAtlasServiceCheck(APIServiceCheckBackend):
 
     critical_service = True
     api_url = settings.BAG_API_SEARCH_URL
-    verbose_name = "BAG Atlas API"
+    verbose_name = "BAG Atlas"
 
 
 class BAGNummeraanduidingenServiceCheck(APIServiceCheckBackend):
@@ -81,7 +81,7 @@ class BAGNummeraanduidingenServiceCheck(APIServiceCheckBackend):
 
     critical_service = True
     api_url = settings.BAG_API_NUMMERAANDUIDING_SEARCH_URL
-    verbose_name = "BAG Nummeraanduidingen API"
+    verbose_name = "BAG Nummeraanduidingen"
 
 
 class BAGVerblijfsobjectServiceCheck(APIServiceCheckBackend):
@@ -91,7 +91,7 @@ class BAGVerblijfsobjectServiceCheck(APIServiceCheckBackend):
 
     critical_service = True
     api_url = settings.BAG_API_VERBLIJFSOBJECT_URL
-    verbose_name = "BAG Verblijfsobject API"
+    verbose_name = "BAG Verblijfsobject"
 
 
 class BRPServiceCheck(APIServiceCheckBackend):
@@ -101,7 +101,7 @@ class BRPServiceCheck(APIServiceCheckBackend):
 
     critical_service = True
     api_url = settings.BRP_API_URL
-    verbose_name = "BRP API"
+    verbose_name = "BRP"
 
 
 class CeleryExecuteTask(BaseHealthCheckBackend):

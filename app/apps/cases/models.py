@@ -208,13 +208,12 @@ class Case(ModelEventEmitter):
         )
 
     def get_state(self):
-        casestates = self.case_states.all().last()
+        # Return last added case_state
+        casestates = self.case_states.all().order_by("last_updated").last()
         if casestates:
             return casestates.status
-        # TODO below should not be happening in the future
-        if self.end_date:
-            return CaseState.CaseStateChoice.AFGESLOTEN
-        return CaseState.CaseStateChoice.HANDHAVING
+        else:
+            return CaseState.CaseStateChoice.TOEZICHT
 
     def force_citizen_report_feedback(self, instance=None) -> bool:
         from apps.cases.tasks import task_update_citizen_report_feedback_workflows
