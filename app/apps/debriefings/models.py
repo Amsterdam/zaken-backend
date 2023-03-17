@@ -18,16 +18,16 @@ class Debriefing(TaskModelEventEmitter):
     VIOLATION_LIKELY_INHABITED = "LIKELY_INHABITED"
 
     VIOLATION_CHOICES = [
-        (VIOLATION_NO, "No"),
-        (VIOLATION_YES, "Yes"),
-        (VIOLATION_ADDITIONAL_RESEARCH_REQUIRED, "Additional research required"),
-        (VIOLATION_ADDITIONAL_VISIT_REQUIRED, "Nieuw huisbezoek nodig"),
+        (VIOLATION_NO, "Geen overtreding"),
+        (VIOLATION_YES, "Overtreding"),
+        (VIOLATION_ADDITIONAL_RESEARCH_REQUIRED, "Nader intern onderzoek nodig"),
+        (VIOLATION_ADDITIONAL_VISIT_REQUIRED, "Aanvullend bezoek nodig"),
         (
             VIOLATION_ADDITIONAL_VISIT_WITH_AUTHORIZATION,
-            "Nieuw huisbezoek inclusief machtingaanvraag",
+            "Machtiging benodigd",
         ),
-        (VIOLATION_SEND_TO_OTHER_THEME, "Naar ander team"),
-        (VIOLATION_LIKELY_INHABITED, "Vermoeden bewoning"),
+        (VIOLATION_SEND_TO_OTHER_THEME, "Naar ander thema"),
+        (VIOLATION_LIKELY_INHABITED, "Vermoeden bewoning/leegstand"),
     ]
 
     case = models.ForeignKey(
@@ -66,3 +66,14 @@ class Debriefing(TaskModelEventEmitter):
             event_values.update(**self.violation_result)
 
         return event_values
+
+    def get_violation_choices_by_theme(theme_id):
+        # VIOLATION_LIKELY_INHABITED is unavailable for other themes than Leegstand.
+        if theme_id == 5:
+            return Debriefing.VIOLATION_CHOICES
+        else:
+            return [
+                vc
+                for vc in Debriefing.VIOLATION_CHOICES
+                if vc[0] != Debriefing.VIOLATION_LIKELY_INHABITED
+            ]

@@ -108,10 +108,11 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
     )
     def violation_types(self, request, pk):
         paginator = LimitOffsetPagination()
-        types = [{"key": t[0]} for t in Debriefing.VIOLATION_CHOICES]
+        theme = self.get_object()
+        violation_choices = Debriefing.get_violation_choices_by_theme(theme.id)
+        types = [{"key": key, "value": value} for key, value in violation_choices]
         context = paginator.paginate_queryset(types, request)
         serializer = ViolationTypeSerializer(context, many=True)
-
         return paginator.get_paginated_response(serializer.data)
 
     @extend_schema(

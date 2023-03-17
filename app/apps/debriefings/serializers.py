@@ -23,3 +23,4 @@ class DebriefingCreateSerializer(serializers.ModelSerializer):
 
 class ViolationTypeSerializer(serializers.Serializer):
     key = serializers.CharField()
+    value = serializers.CharField()
