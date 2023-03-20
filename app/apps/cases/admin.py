@@ -113,29 +113,29 @@ class CaseAdmin(admin.ModelAdmin):
     form = CaseAdminForm
     list_display = (
         "id",
-        "ton_ids",
+        "address",
         "theme",
-        "reason",
-        "project",
-        "identification",
         "start_date",
         "end_date",
-        "address",
-        "legacy_bwv_case_id",
         "is_legacy_bwv",
-        "case_url",
-        "author",
     )
     list_filter = (
         "theme",
-        "reason",
+        "start_date",
+        "end_date",
+        "address__housing_corporation",
         "is_legacy_bwv",
         "is_legacy_camunda",
+        "reason",
         "project",
         "subjects",
-        "address__housing_corporation",
     )
-    search_fields = ("id", "legacy_bwv_case_id")
+    search_fields = (
+        "id",
+        "legacy_bwv_case_id",
+        "address__street_name",
+        "address__postal_code",
+    )
     actions = [
         create_main_worflow_for_case,
     ]
@@ -160,7 +160,12 @@ class CaseStateAdmin(admin.ModelAdmin):
         "last_updated",
         "set_in_open_zaak",
     )
-    list_filter = ("status",)
+    list_filter = (
+        "status",
+        "set_in_open_zaak",
+        "created",
+        "last_updated",
+    )
     search_fields = ("case__id",)
 
 
@@ -170,6 +175,7 @@ class CaseStateTypeAdmin(admin.ModelAdmin):
         "id",
         "name",
     )
+    search_fields = ("name",)
 
 
 @admin.register(CitizenReport)
@@ -203,6 +209,7 @@ class CaseReasonAdmin(admin.ModelAdmin):
         "theme",
     )
     list_filter = ("theme",)
+    search_fields = ("name",)
 
 
 @admin.register(CaseProject)
@@ -213,8 +220,12 @@ class CaseProjectAdmin(admin.ModelAdmin):
         "theme",
         "active",
     )
-    list_filter = ("theme",)
+    list_filter = (
+        "theme",
+        "active",
+    )
     list_editable = ("active",)
+    search_fields = ("name",)
 
 
 @admin.register(Subject)
@@ -224,10 +235,8 @@ class SubjectAdmin(admin.ModelAdmin):
         "name",
         "theme",
     )
-    list_filter = (
-        "theme",
-        "name",
-    )
+    list_filter = ("theme",)
+    search_fields = ("name",)
 
 
 @admin.register(CaseCloseReason)

@@ -13,5 +13,9 @@ admin.site.register(
         "type",
         "date_created",
     ),
-    list_filter=("date_created", "type", "emitter_id"),
+    list_filter=(
+        "date_created",
+        "type",
+    ),
+    search_fields=("emitter_id",),
 )

@@ -25,6 +25,8 @@ class ScheduleAdmin(admin.ModelAdmin):
     search_fields = ("case__id",)
 
     list_filter = (
+        "date_added",
+        "case__theme",
         "action",
         "week_segment",
         "day_segment",
@@ -50,7 +52,10 @@ class DaySegmentAdmin(admin.ModelAdmin):
         "name",
         "theme",
     )
-    list_filter = ("theme",)
+    list_filter = (
+        "theme",
+        "name",
+    )
 
 
 @admin.register(Priority)
@@ -61,7 +66,10 @@ class PriorityAdmin(admin.ModelAdmin):
         "weight",
         "theme",
     )
-    list_filter = ("theme",)
+    list_filter = (
+        "theme",
+        "name",
+    )
 
 
 @admin.register(WeekSegment)
@@ -71,4 +79,7 @@ class WeekSegmentAdmin(admin.ModelAdmin):
         "name",
         "theme",
     )
-    list_filter = ("theme",)
+    list_filter = (
+        "theme",
+        "name",
+    )

@@ -40,6 +40,14 @@ class DecisionTypeAdmin(admin.ModelAdmin):
         "is_sanction",
         "theme",
     )
+    search_fields = (
+        "name",
+        "workflow_option",
+    )
+    list_filter = (
+        "theme",
+        "is_sanction",
+    )
 
 
 admin.site.register(Decision, DecisionAdmin)

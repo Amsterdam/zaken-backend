@@ -78,8 +78,8 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
     list_filter = (
         "case__end_date",
         "completed",
-        "case_state_type",
         "main_workflow",
+        "case_state_type",
         "workflow_type",
         "workflow_version",
         "workflow_theme_name",
@@ -252,15 +252,19 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
 class CaseTaskAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "task_id",
+        "case",
         "name",
         "task_name",
         "completed",
         "workflow",
         "owner",
     )
-    search_fields = ("case__id",)
-    list_filter = ("completed", "task_name", "name")
+    search_fields = (
+        "case__id",
+        "name",
+        "task_name",
+    )
+    list_filter = ("completed", "name")
 
 
 @admin.register(WorkflowOption)
@@ -269,11 +273,15 @@ class WorkflowOptionAdmin(admin.ModelAdmin):
         "id",
         "name",
         "message_name",
+        "theme",
         "to_directing_proccess",
+        "enabled_on_case_closed",
+    )
+    search_fields = ("name",)
+    list_filter = (
         "theme",
         "enabled_on_case_closed",
     )
-    list_filter = ("theme",)
 
 
 @admin.register(GenericCompletedTask)
@@ -286,5 +294,12 @@ class GenericCompletedTaskAdmin(admin.ModelAdmin):
         "author",
         "case_user_task_id",
     )
-    search_fields = ("case__id",)
-    list_filter = ("description", "task_name")
+    search_fields = (
+        "case__id",
+        "description",
+    )
+    list_filter = (
+        "date_added",
+        "description",
+        "task_name",
+    )
