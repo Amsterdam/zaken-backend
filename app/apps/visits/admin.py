@@ -14,4 +14,8 @@ class VisitAdmin(admin.ModelAdmin):
         "case_user_task_id",
         "start_time",
     )
+    list_filter = (
+        "start_time",
+        "case__theme",
+    )
     search_fields = ("case__id",)

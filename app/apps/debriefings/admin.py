@@ -14,4 +14,5 @@ admin.site.register(
         "case_user_task_id",
     ),
     search_fields=("case__id",),
+    list_filter=("date_added",),
 )
