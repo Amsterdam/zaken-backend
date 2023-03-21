@@ -1,9 +1,9 @@
 def get_decos_join_mock_object_fields():
     return {
-        "count": 1,
+        "count": 2,
         "content": [
             {
-                "key": "123456678901337",
+                "key": "123456789012345",
                 "fields": {
                     "subject1": "Nieuwezijds Voorburgwal 147",
                     "mark": "1000AA11-8",
@@ -37,7 +37,43 @@ def get_decos_join_mock_object_fields():
                     "itemtype_key": "COBJECT",
                     "parentKey": "90642DCCC2DB46469657C3D0DF0B1ED7",
                 },
-            }
+            },
+            {
+                "key": "111111111111",
+                "fields": {
+                    "subject1": "Weesperstraat 113",
+                    "mark": "1000AA11-8",
+                    "mailaddress": "Weesperstraat 113",
+                    "zipcode": "1012RJ",
+                    "city": "AMSTERDAM",
+                    "phone3": "0363100012167579",
+                    "text11": "",
+                    "text4": "woning",
+                    "text19": "Verblijfsobject in gebruik",
+                    "num1": 76,
+                    "text7": "1655",
+                    "text8": "Weesperstraat",
+                    "initials": "147",
+                    "phone2": "",
+                    "text3": "Central",
+                    "text16": "Stadsdeel Centrum",
+                    "text17": "Weesperzijde",
+                    "text18": "BG-terrein",
+                    "text21": "AQ02",
+                    "text20": "0363100012167579",
+                    "dfunction": "woonfunctie",
+                    "text5": "4.891727",
+                    "text6": "52.373148",
+                    "text22": "Vrijstaand gebouw",
+                    "num10": 1,
+                    "num11": 4,
+                    "text24": "Verblijfsobject",
+                    "email1": "1012RJ147",
+                    "sequence": 123456,
+                    "itemtype_key": "COBJECT",
+                    "parentKey": "90642DCCC2DB46469657C3D0DF0B1ED7",
+                },
+            },
         ],
     }
 
