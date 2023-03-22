@@ -513,7 +513,6 @@ class DecosJoinRequestTest(TestCase):
         decos_request = DecosJoinRequest()
 
         folder_result = decos_request._get_decos_folder(MOCK_DECOS_OBJECT)
-        print("===> folder_result", folder_result)
 
         self.assertEqual(folder_result, MOCK_RESULT)
 
