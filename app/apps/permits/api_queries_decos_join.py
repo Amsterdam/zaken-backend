@@ -215,23 +215,22 @@ class DecosJoinRequest:
                     obj["key"] for obj in decos_object["content"]
                 ]
             except (KeyError, IndexError):
-                list_of_decos_object_ids = False
+                list_of_decos_object_ids = []
                 response_decos_folder = False
 
-            if list_of_decos_object_ids and len(list_of_decos_object_ids) > 0:
+            if len(list_of_decos_object_ids) > 0:
                 response_decos_folder = {}
                 #  Get all folders for every id and merge them.
                 for decos_object_id in list_of_decos_object_ids:
                     folder_with_object_id = self.get_folders_with_object_id(
                         decos_object_id
                     )
-                    response_decos_folder["count"] = (
-                        response_decos_folder.get("count", 0)
-                        + folder_with_object_id["count"]
-                    )
+                    response_decos_folder["count"] = response_decos_folder.get(
+                        "count", 0
+                    ) + folder_with_object_id.get("count", 0)
                     response_decos_folder["content"] = [
                         *response_decos_folder.get("content", []),
-                        *folder_with_object_id["content"],
+                        *folder_with_object_id.get("content", []),
                     ]
 
             if response_decos_folder and response_decos_folder.get("count", 0) > 0:
