@@ -506,13 +506,14 @@ class DecosJoinRequestTest(TestCase):
         Test succeeded when trying to get folder with proper decos object
         """
 
-        MOCK_RESULT = {"count": 42}
+        MOCK_RESULT = {"count": 42, "content": []}
         MOCK_DECOS_OBJECT = {"content": [{"key": "1234"}]}
         mock_get_folders_with_object_id.return_value = MOCK_RESULT
 
         decos_request = DecosJoinRequest()
 
         folder_result = decos_request._get_decos_folder(MOCK_DECOS_OBJECT)
+        print("===> folder_result", folder_result)
 
         self.assertEqual(folder_result, MOCK_RESULT)
 
