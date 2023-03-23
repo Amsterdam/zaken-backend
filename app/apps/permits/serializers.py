@@ -128,34 +128,6 @@ class PermitSerializer(serializers.Serializer):
     details = serializers.DictField(allow_null=True)
 
 
-class DecosVakantieverhuurReportSerializer(serializers.Serializer):
-    document_date = serializers.DateTimeField(format="iso-8601")
-    date6 = serializers.DateTimeField(format="iso-8601")
-    date7 = serializers.DateTimeField(format="iso-8601")
-    sequence = serializers.FloatField()
-    is_cancellation = serializers.BooleanField()
-
-
-class VakantieverhuurReportSerializer(serializers.Serializer):
-    is_cancellation = serializers.BooleanField()
-    report_date = serializers.DateTimeField()
-    check_in_date = serializers.DateTimeField()
-    check_out_date = serializers.DateTimeField()
-    days_count_per_year = serializers.DictField()
-
-
-class VakantieverhuurReportInformationSerializer(serializers.Serializer):
-    year = serializers.IntegerField()
-    rented_days_count = serializers.IntegerField(allow_null=True)
-    planned_days_count = serializers.IntegerField(allow_null=True)
-    is_rented_today = serializers.BooleanField()
-    reports = VakantieverhuurReportSerializer(many=True)
-
-
 class DecosSerializer(serializers.Serializer):
     permits = PermitSerializer(many=True)
-    vakantieverhuur_reports = VakantieverhuurReportInformationSerializer(
-        many=True,
-        allow_null=True,
-    )
     decos_folders = serializers.DictField(allow_null=True)

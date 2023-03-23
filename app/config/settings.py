@@ -369,7 +369,6 @@ DECOS_JOIN_AUTH_BASE64 = os.getenv("DECOS_JOIN_AUTH_BASE64", None)
 DECOS_JOIN_API = os.getenv(
     "DECOS_JOIN_API", "https://decosdvl.acc.amsterdam.nl/decosweb/aspx/api/v1/"
 )
-DECOS_JOIN_AUTH_BASE64 = os.getenv("DECOS_JOIN_AUTH_BASE64", None)
 
 # Decos Join Book keys
 DECOS_JOIN_B_EN_B_VERGUNNING_ID = "D8D961993D7E478D9B644587822817B1"
