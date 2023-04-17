@@ -209,6 +209,7 @@ class DecosJoinRequest:
 
     def _get_decos_folder(self, decos_object):
         if not settings.USE_DECOS_MOCK_DATA:
+            response_decos_folder = {}
             try:
                 #  Get all Decos object id's
                 list_of_decos_object_ids = [
@@ -216,10 +217,8 @@ class DecosJoinRequest:
                 ]
             except (KeyError, IndexError):
                 list_of_decos_object_ids = []
-                response_decos_folder = False
 
             if len(list_of_decos_object_ids) > 0:
-                response_decos_folder = {}
                 #  Get all folders for every id and merge them.
                 for decos_object_id in list_of_decos_object_ids:
                     folder_with_object_id = self.get_folders_with_object_id(

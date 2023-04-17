@@ -384,10 +384,6 @@ class DecosJoinConfTest(TestCase):
 
 
 class DecosJoinRequestTest(TestCase):
-
-    MOCK_DECOS_JOIN_VAKANTIEVERHUUR_MELDINGEN_ID = "E6325A942DF440B386D8DFFEC013F795"
-    MOCK_DECOS_JOIN_VAKANTIEVERHUUR_AFMELDINGEN_ID = "F86015A1A927451082A9E2F2023EF8F7"
-
     @override_settings(DECOS_JOIN_AUTH_BASE64="12345678")
     @patch("requests.get")
     def test_process_request_to_decos_join(self, mock_requests_get):
@@ -515,29 +511,3 @@ class DecosJoinRequestTest(TestCase):
         folder_result = decos_request._get_decos_folder(MOCK_DECOS_OBJECT)
 
         self.assertEqual(folder_result, MOCK_RESULT)
-
-    @patch(
-        "apps.permits.api_queries_decos_join.settings.DECOS_JOIN_DEFAULT_PERMIT_VALID_CONF"
-    )
-    @patch(
-        "apps.permits.api_queries_decos_join.settings.DECOS_JOIN_VAKANTIEVERHUUR_MELDINGEN_ID"
-    )
-    @patch(
-        "apps.permits.api_queries_decos_join.settings.DECOS_JOIN_VAKANTIEVERHUUR_AFMELDINGEN_ID"
-    )
-    def test_expression_is_not_valid(
-        self, mock_afmelding_id, mock_melding_id, mock_conf
-    ):
-        """
-        Test failed when trying to validate data
-        """
-
-        mock_conf.return_value = (("1234", "conf_name"),)
-        mock_melding_id.return_value = self.MOCK_DECOS_JOIN_VAKANTIEVERHUUR_MELDINGEN_ID
-        mock_afmelding_id.return_value = (
-            self.MOCK_DECOS_JOIN_VAKANTIEVERHUUR_AFMELDINGEN_ID
-        )
-
-        self.assertEqual(
-            mock_afmelding_id(), self.MOCK_DECOS_JOIN_VAKANTIEVERHUUR_AFMELDINGEN_ID
-        )
