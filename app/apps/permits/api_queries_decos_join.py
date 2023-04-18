@@ -299,7 +299,51 @@ class DecosJoinRequest:
                                 if d.get("permit_type") == conf.get(
                                     DecosJoinConf.PERMIT_TYPE
                                 ):
-                                    d.update(permit_serializer.data)
+                                    permit_raw_data = d.get("raw_data", {})
+                                    # Check if there's already a permit with the same type AND raw data.
+                                    if permit_raw_data:
+                                        # Permit data found so check which one is valid now.
+                                        now = datetime.now().isoformat()
+                                        serializer_raw_data = (
+                                            permit_serializer.data.get("raw_data", {})
+                                        )
+                                        serializer_valid_from = serializer_raw_data.get(
+                                            "date6", None
+                                        )
+                                        serializer_valid_untill = (
+                                            serializer_raw_data.get("date7", None)
+                                        )
+                                        permit_valid_from = permit_raw_data.get(
+                                            "date6", None
+                                        )
+                                        permit_valid_untill = permit_raw_data.get(
+                                            "date7", None
+                                        )
+                                        is_permit_valid = (
+                                            permit_valid_from <= now
+                                            and now <= permit_valid_untill
+                                        )
+                                        is_serializer_permit_valid = (
+                                            serializer_valid_from <= now
+                                            and now <= serializer_valid_untill
+                                        )
+
+                                        if is_serializer_permit_valid:
+                                            # Serializer data is valid now so update.
+                                            d.update(permit_serializer.data)
+                                        elif (
+                                            not is_permit_valid
+                                            and serializer_valid_from > now
+                                        ):
+                                            # Serializer data and permit data are not valid so take future data.
+                                            # This does not cover a use case with both serializer data and permit data in the future.
+                                            # This is not a realistic use case because multiple future permits will not be issued.
+                                            d.update(permit_serializer.data)
+
+                                    else:
+                                        # There's NO permit with raw data so update.
+                                        d.update(permit_serializer.data)
+
                     else:
                         logger.error("DECOS JOIN parent key not found in config")
                         logger.info("book key: %s" % parent_key)

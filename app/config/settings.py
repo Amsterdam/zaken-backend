@@ -419,7 +419,7 @@ DECOS_JOIN_DEFAULT_FIELD_MAPPING = {
     "dfunction": "RESULT",
     "text45": "PERMIT_NAME",
     "text9": "PERMIT_TYPE",
-    "surname": "APPLICANT",
+    "text16": "APPLICANT",
     "text19": "HOLDER",
     "subject1": "SUBJECT",
     "text6": "ADDRESS",
