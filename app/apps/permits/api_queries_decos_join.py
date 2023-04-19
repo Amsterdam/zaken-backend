@@ -308,37 +308,43 @@ class DecosJoinRequest:
                                             permit_serializer.data.get("raw_data", {})
                                         )
                                         serializer_valid_from = serializer_raw_data.get(
-                                            "date6", None
+                                            "date6"
                                         )
                                         serializer_valid_untill = (
-                                            serializer_raw_data.get("date7", None)
+                                            serializer_raw_data.get("date7")
                                         )
-                                        permit_valid_from = permit_raw_data.get(
-                                            "date6", None
-                                        )
+                                        permit_valid_from = permit_raw_data.get("date6")
                                         permit_valid_untill = permit_raw_data.get(
-                                            "date7", None
-                                        )
-                                        is_permit_valid = (
-                                            permit_valid_from <= now
-                                            and now <= permit_valid_untill
-                                        )
-                                        is_serializer_permit_valid = (
-                                            serializer_valid_from <= now
-                                            and now <= serializer_valid_untill
+                                            "date7"
                                         )
 
-                                        if is_serializer_permit_valid:
-                                            # Serializer data is valid now so update.
-                                            d.update(permit_serializer.data)
-                                        elif (
-                                            not is_permit_valid
-                                            and serializer_valid_from > now
-                                        ):
-                                            # Serializer data and permit data are not valid so take future data.
-                                            # This does not cover a use case with both serializer data and permit data in the future.
-                                            # This is not a realistic use case because multiple future permits will not be issued.
-                                            d.update(permit_serializer.data)
+                                        # Wrap datetime validation in a try-catch to prevent breaking the code.
+                                        try:
+                                            is_permit_valid = (
+                                                permit_valid_from <= now
+                                                and now <= permit_valid_untill
+                                            )
+                                            is_serializer_permit_valid = (
+                                                serializer_valid_from <= now
+                                                and now <= serializer_valid_untill
+                                            )
+
+                                            if is_serializer_permit_valid:
+                                                # Serializer data is valid now so update.
+                                                d.update(permit_serializer.data)
+                                            elif (
+                                                not is_permit_valid
+                                                and serializer_valid_from > now
+                                            ):
+                                                # Serializer data and permit data are not valid so take future data.
+                                                # This does not cover a use case with both serializer data and permit data in the future.
+                                                # This is not a realistic use case because multiple future permits will not be issued.
+                                                d.update(permit_serializer.data)
+
+                                        except Exception as e:
+                                            logger.error(
+                                                f"Decos permits could not validate datetimes: {e}"
+                                            )
 
                                     else:
                                         # There's NO permit with raw data so update.
