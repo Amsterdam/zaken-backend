@@ -310,11 +310,11 @@ class DecosJoinRequest:
                                         serializer_valid_from = serializer_raw_data.get(
                                             "date6"
                                         )
-                                        serializer_valid_untill = (
+                                        serializer_valid_until = (
                                             serializer_raw_data.get("date7")
                                         )
                                         permit_valid_from = permit_raw_data.get("date6")
-                                        permit_valid_untill = permit_raw_data.get(
+                                        permit_valid_until = permit_raw_data.get(
                                             "date7"
                                         )
 
@@ -322,11 +322,11 @@ class DecosJoinRequest:
                                         try:
                                             is_permit_valid = (
                                                 permit_valid_from <= now
-                                                and now <= permit_valid_untill
+                                                and now <= permit_valid_until
                                             )
                                             is_serializer_permit_valid = (
                                                 serializer_valid_from <= now
-                                                and now <= serializer_valid_untill
+                                                and now <= serializer_valid_until
                                             )
 
                                             if is_serializer_permit_valid:
