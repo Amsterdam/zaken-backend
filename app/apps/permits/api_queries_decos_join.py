@@ -224,12 +224,15 @@ class DecosJoinRequest:
                     folder_with_object_id = self.get_folders_with_object_id(
                         decos_object_id
                     )
+                    object_id_folder = (
+                        folder_with_object_id if folder_with_object_id else {}
+                    )
                     response_decos_folder["count"] = response_decos_folder.get(
                         "count", 0
-                    ) + folder_with_object_id.get("count", 0)
+                    ) + object_id_folder.get("count", 0)
                     response_decos_folder["content"] = [
                         *response_decos_folder.get("content", []),
-                        *folder_with_object_id.get("content", []),
+                        *object_id_folder.get("content", []),
                     ]
 
             if response_decos_folder and response_decos_folder.get("count", 0) > 0:
