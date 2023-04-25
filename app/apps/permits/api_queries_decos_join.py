@@ -299,47 +299,58 @@ class DecosJoinRequest:
                                 if d.get("permit_type") == conf.get(
                                     DecosJoinConf.PERMIT_TYPE
                                 ):
-                                    permit_raw_data = d.get("raw_data", {})
-                                    # Check if there's already a permit with the same type AND raw data.
-                                    if permit_raw_data:
-                                        # Permit data found so check which one is valid now.
+                                    current_permit_raw_data = d.get("raw_data", {})
+                                    # Check all Decos folders. Multiple permits are possible. Which one do you want to show?
+                                    # Check if there's already a permit saved with the same permit type AND raw data. Else: save this permit.
+                                    if current_permit_raw_data:
+                                        # Current permit data found so check which one is valid now.
                                         now = datetime.now().isoformat()
-                                        serializer_raw_data = (
+                                        next_permit_raw_data = (
                                             permit_serializer.data.get("raw_data", {})
                                         )
-                                        serializer_valid_from = serializer_raw_data.get(
-                                            "date6"
+                                        next_permit_valid_from = (
+                                            next_permit_raw_data.get("date6")
                                         )
-                                        serializer_valid_until = (
-                                            serializer_raw_data.get("date7")
+                                        next_permit_valid_until = (
+                                            next_permit_raw_data.get("date7")
                                         )
-                                        permit_valid_from = permit_raw_data.get("date6")
-                                        permit_valid_until = permit_raw_data.get(
-                                            "date7"
+                                        current_permit_valid_from = (
+                                            current_permit_raw_data.get("date6")
+                                        )
+                                        current_permit_valid_until = (
+                                            current_permit_raw_data.get("date7")
                                         )
 
-                                        # Wrap datetime validation in a try-catch to prevent breaking the code.
+                                        # Wrap datetime validation in a try-catch to prevent breaking code.
                                         try:
-                                            is_permit_valid = (
-                                                permit_valid_from <= now
-                                                and now <= permit_valid_until
-                                            )
-                                            is_serializer_permit_valid = (
-                                                serializer_valid_from <= now
-                                                and now <= serializer_valid_until
+                                            # Is the current permit valid/active? => now must be between start and enddate.
+                                            is_current_permit_valid = (
+                                                current_permit_valid_from <= now
+                                                and now <= current_permit_valid_until
                                             )
 
-                                            if is_serializer_permit_valid:
-                                                # Serializer data is valid now so update.
+                                            # Is the next permit valid/active? => now must be between start and enddate.
+                                            is_next_permit_valid = (
+                                                next_permit_valid_from <= now
+                                                and now <= next_permit_valid_until
+                                            )
+
+                                            if is_next_permit_valid:
+                                                # Next permit is valid so this is the one users would like to see. Update permit data.
                                                 d.update(permit_serializer.data)
-                                            elif (
-                                                not is_permit_valid
-                                                and serializer_valid_from > now
-                                            ):
-                                                # Serializer data and permit data are not valid so take future data.
-                                                # This does not cover a use case with both serializer data and permit data in the future.
-                                                # This is not a realistic use case because multiple future permits will not be issued.
-                                                d.update(permit_serializer.data)
+                                            elif not is_current_permit_valid:
+                                                # Current permit and next permit are not valid.
+                                                if next_permit_valid_from > now:
+                                                    # There's a future permit so show this to the user.
+                                                    # This does not cover a use case with both current permit and next permit in the future.
+                                                    # This is not a realistic use case because multiple future permits will not be issued.
+                                                    d.update(permit_serializer.data)
+                                                elif (
+                                                    next_permit_valid_from
+                                                    > current_permit_valid_from
+                                                ):
+                                                    # Both permits are expired so show most recent one.
+                                                    d.update(permit_serializer.data)
 
                                         except Exception as e:
                                             logger.error(
