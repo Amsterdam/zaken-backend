@@ -1,5 +1,12 @@
 from apps.addresses.models import District, HousingCorporation
-from apps.cases.models import Case, CaseProject, CaseReason, CaseStateType, CaseTheme
+from apps.cases.models import (
+    Case,
+    CaseProject,
+    CaseReason,
+    CaseStateType,
+    CaseTheme,
+    Subject,
+)
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
 from apps.users.permissions import (
@@ -73,6 +80,15 @@ class CaseUserTaskFilter(filters.FilterSet):
     role = filters.CharFilter(method="get_role")
     name = filters.ModelMultipleChoiceFilter(
         queryset=CaseUserTask.objects.filter(completed=False),
+        to_field_name="name",
+    )
+    subject = filters.ModelMultipleChoiceFilter(
+        queryset=Subject.objects.all(),
+        method="get_subject",
+    )
+    subject_name = filters.ModelMultipleChoiceFilter(
+        queryset=Subject.objects.all(),
+        method="get_subject",
         to_field_name="name",
     )
     theme = filters.ModelMultipleChoiceFilter(
@@ -149,6 +165,13 @@ class CaseUserTaskFilter(filters.FilterSet):
                 case__workflows__case_state_type__isnull=False,
                 case__workflows__case_state_type__in=value,
             ).distinct()
+        return queryset
+
+    def get_subject(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                case__subjects__in=value,
+            )
         return queryset
 
     def get_theme(self, queryset, name, value):
@@ -228,6 +251,8 @@ class StandardResultsSetPagination(EmptyPagination):
             "is_enforcement_request", OpenApiTypes.BOOL, OpenApiParameter.QUERY
         ),
         OpenApiParameter("name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("subject", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("subject_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("theme_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
