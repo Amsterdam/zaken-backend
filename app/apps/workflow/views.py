@@ -59,29 +59,56 @@ class CharArrayFilter(filters.BaseCSVFilter, filters.CharFilter):
 
 
 class CaseUserTaskFilter(filters.FilterSet):
+    completed = filters.BooleanFilter()
+    district = filters.ModelMultipleChoiceFilter(
+        queryset=District.objects.all(), method="get_district"
+    )
+    district_name = filters.ModelMultipleChoiceFilter(
+        queryset=District.objects.all(),
+        method="get_district",
+        to_field_name="name",
+    )
     from_start_date = filters.DateFilter(
         field_name="case__start_date", lookup_expr="gte"
     )
-    start_date = filters.DateFilter(field_name="case__start_date")
-    sensitive = filters.BooleanFilter(field_name="case__sensitive")
-    open_cases = filters.BooleanFilter(method="get_open_cases")
+    housing_corporation = filters.ModelMultipleChoiceFilter(
+        queryset=HousingCorporation.objects.all(),
+        method="get_housing_corporation",
+    )
     is_enforcement_request = filters.BooleanFilter(
         method="get_enforcement_request_cases"
     )
-    state_types = filters.ModelMultipleChoiceFilter(
-        queryset=CaseStateType.objects.all(), method="get_state_types"
-    )
-    ton_ids = CharArrayFilter(method="get_ton_ids")
-    street_name = filters.CharFilter(method="get_fuzy_street_name")
-    number = filters.CharFilter(method="get_number")
-    suffix = filters.CharFilter(method="get_suffix")
-    postal_code = filters.CharFilter(method="get_postal_code")
-    completed = filters.BooleanFilter()
-    role = filters.CharFilter(method="get_role")
     name = filters.ModelMultipleChoiceFilter(
         queryset=CaseUserTask.objects.filter(completed=False),
         to_field_name="name",
     )
+    number = filters.CharFilter(method="get_number")
+    open_cases = filters.BooleanFilter(method="get_open_cases")
+    postal_code = filters.CharFilter(method="get_postal_code")
+    project = filters.ModelMultipleChoiceFilter(
+        queryset=CaseProject.objects.all(), method="get_project"
+    )
+    project_name = filters.ModelMultipleChoiceFilter(
+        queryset=CaseProject.objects.all(),
+        method="get_project",
+        to_field_name="name",
+    )
+    reason = filters.ModelMultipleChoiceFilter(
+        queryset=CaseReason.objects.all(), method="get_reason"
+    )
+    reason_name = filters.ModelMultipleChoiceFilter(
+        queryset=CaseReason.objects.all(),
+        method="get_reason",
+        to_field_name="name",
+    )
+    role = filters.CharFilter(method="get_role")
+    sensitive = filters.BooleanFilter(field_name="case__sensitive")
+    start_date = filters.DateFilter(field_name="case__start_date")
+    state_types = filters.ModelMultipleChoiceFilter(
+        queryset=CaseStateType.objects.all(), method="get_state_types"
+    )
+    street_name = filters.CharFilter(method="get_fuzy_street_name")
+    suffix = filters.CharFilter(method="get_suffix")
     subject = filters.ModelMultipleChoiceFilter(
         queryset=Subject.objects.all(),
         method="get_subject",
@@ -100,34 +127,7 @@ class CaseUserTaskFilter(filters.FilterSet):
         method="get_theme",
         to_field_name="name",
     )
-    reason = filters.ModelMultipleChoiceFilter(
-        queryset=CaseReason.objects.all(), method="get_reason"
-    )
-    reason_name = filters.ModelMultipleChoiceFilter(
-        queryset=CaseReason.objects.all(),
-        method="get_reason",
-        to_field_name="name",
-    )
-    project = filters.ModelMultipleChoiceFilter(
-        queryset=CaseProject.objects.all(), method="get_project"
-    )
-    project_name = filters.ModelMultipleChoiceFilter(
-        queryset=CaseProject.objects.all(),
-        method="get_project",
-        to_field_name="name",
-    )
-    district = filters.ModelMultipleChoiceFilter(
-        queryset=District.objects.all(), method="get_district"
-    )
-    district_name = filters.ModelMultipleChoiceFilter(
-        queryset=District.objects.all(),
-        method="get_district",
-        to_field_name="name",
-    )
-    housing_corporation = filters.ModelMultipleChoiceFilter(
-        queryset=HousingCorporation.objects.all(),
-        method="get_housing_corporation",
-    )
+    ton_ids = CharArrayFilter(method="get_ton_ids")
 
     def get_role(self, queryset, name, value):
         return queryset.filter(roles__contains=[value])
@@ -235,35 +235,35 @@ class StandardResultsSetPagination(EmptyPagination):
 
 @extend_schema(
     parameters=[
-        OpenApiParameter("start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
-        OpenApiParameter("from_start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
-        OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
-        OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
-        OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter("ton_ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("completed", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
-        OpenApiParameter("role", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("district", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("district_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("due_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
-        OpenApiParameter("owner", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("from_start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
+        OpenApiParameter(
+            "housing_corporation", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
+        ),
         OpenApiParameter(
             "is_enforcement_request", OpenApiTypes.BOOL, OpenApiParameter.QUERY
         ),
         OpenApiParameter("name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("project", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("project_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
+        OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("owner", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("reason_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("role", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
+        OpenApiParameter("start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
+        OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("subject", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("subject_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("theme_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("reason_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter("project", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("project_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter("district", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("district_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter(
-            "housing_corporation", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
-        ),
+        OpenApiParameter("ton_ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
     ]
 )
 class CaseUserTaskViewSet(
