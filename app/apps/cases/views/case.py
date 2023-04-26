@@ -10,6 +10,7 @@ from apps.cases.models import (
     CaseReason,
     CaseStateType,
     CaseTheme,
+    Subject,
 )
 from apps.cases.serializers import (
     AdvertisementSerializer,
@@ -120,6 +121,15 @@ class CaseFilter(filters.FilterSet):
     state_types__name = filters.ModelMultipleChoiceFilter(
         queryset=CaseStateType.objects.all(),
         method="get_state_types",
+        to_field_name="name",
+    )
+    subject = filters.ModelMultipleChoiceFilter(
+        queryset=Subject.objects.all(),
+        method="get_subject",
+    )
+    subject_name = filters.ModelMultipleChoiceFilter(
+        queryset=Subject.objects.all(),
+        method="get_subject",
         to_field_name="name",
     )
     task = filters.ModelMultipleChoiceFilter(
@@ -292,6 +302,13 @@ class CaseFilter(filters.FilterSet):
             )
         return queryset
 
+    def get_subject(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                subjects__in=value,
+            )
+        return queryset
+
     def get_theme(self, queryset, name, value):
         if value:
             return queryset.filter(
@@ -363,6 +380,8 @@ class StandardResultsSetPagination(EmptyPagination):
             OpenApiParameter.QUERY,
         ),
         OpenApiParameter("postal_code_range", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("subject", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter("subject_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("theme_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
