@@ -86,6 +86,17 @@ class Subject(models.Model):
         ordering = ["name"]
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=255)
+    theme = models.ForeignKey(CaseTheme, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f"{self.theme.name}: {self.name}"
+
+    class Meta:
+        ordering = ["name"]
+
+
 class Case(ModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CASE
 
@@ -123,6 +134,7 @@ class Case(ModelEventEmitter):
         to=CaseProject, null=True, blank=True, on_delete=models.PROTECT
     )
     subjects = models.ManyToManyField(Subject, related_name="cases", blank=True)
+    tag = models.ForeignKey(to=Tag, on_delete=models.PROTECT, null=True, blank=True)
     ton_ids = ArrayField(
         models.CharField(max_length=255), default=list, null=True, blank=True
     )

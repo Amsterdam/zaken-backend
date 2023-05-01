@@ -14,6 +14,7 @@ from apps.cases.models import (
     CaseTheme,
     CitizenReport,
     Subject,
+    Tag,
 )
 from apps.workflow.tasks import task_create_main_worflow_for_case
 from django import forms
@@ -129,6 +130,7 @@ class CaseAdmin(admin.ModelAdmin):
         "reason",
         "project",
         "subjects",
+        "tag",
     )
     search_fields = (
         "id",
@@ -230,6 +232,17 @@ class CaseProjectAdmin(admin.ModelAdmin):
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "theme",
+    )
+    list_filter = ("theme",)
+    search_fields = ("name",)
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "name",

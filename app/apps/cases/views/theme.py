@@ -6,6 +6,7 @@ from apps.cases.serializers import (
     CaseReasonSerializer,
     CaseThemeSerializer,
     SubjectSerializer,
+    TagSerializer,
 )
 from apps.debriefings.models import Debriefing
 from apps.debriefings.serializers import ViolationTypeSerializer
@@ -190,5 +191,24 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = SubjectSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the tags associated with the requested theme",
+        responses={status.HTTP_200_OK: TagSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="tags",
+        methods=["get"],
+    )
+    def tags(self, request, pk):
+        paginator = LimitOffsetPagination()
+        theme = self.get_object()
+        query_set = theme.tag_set.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = TagSerializer(context, many=True)
 
         return paginator.get_paginated_response(serializer.data)
