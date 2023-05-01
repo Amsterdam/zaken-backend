@@ -171,7 +171,7 @@ class CaseUserTaskFilter(filters.FilterSet):
         if value:
             return queryset.filter(
                 case__subjects__in=value,
-            )
+            ).distinct()
         return queryset
 
     def get_theme(self, queryset, name, value):
