@@ -9,6 +9,7 @@ from apps.cases.models import (
     CaseTheme,
     CitizenReport,
     Subject,
+    Tag,
 )
 from rest_framework import serializers
 
@@ -101,6 +102,12 @@ class CaseProjectSerializer(serializers.ModelSerializer):
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
+        exclude = ("theme",)
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
         exclude = ("theme",)
 
 

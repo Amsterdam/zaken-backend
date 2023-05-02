@@ -6,9 +6,9 @@ from apps.cases.models import (
     CaseDocument,
     CaseProject,
     CaseReason,
-    CaseState,
     CaseTheme,
     Subject,
+    Tag,
 )
 from apps.cases.serializers.main import (
     AdvertisementSerializer,
@@ -17,6 +17,7 @@ from apps.cases.serializers.main import (
     CaseThemeSerializer,
     CitizenReportCaseSerializer,
     SubjectSerializer,
+    TagSerializer,
 )
 from apps.schedules.serializers import ScheduleDataSerializer, ScheduleSerializer
 from apps.workflow.serializers import (
@@ -152,6 +153,14 @@ class CaseCreateSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
         queryset=Subject.objects.all(),
         source="subjects",
     )
+    tag = TagSerializer(read_only=True)
+    tag_id = serializers.PrimaryKeyRelatedField(
+        source="tag",
+        required=False,
+        queryset=Tag.objects.all(),
+        write_only=True,
+        allow_null=True,
+    )
     citizen_reports = CitizenReportCaseSerializer(
         source="case_citizen_reports", many=True, required=False
     )
@@ -216,6 +225,7 @@ class CaseDetailSerializer(serializers.ModelSerializer):
         source="get_workflows", many=True, read_only=True
     )
     subjects = SubjectSerializer(many=True, read_only=True)
+    tag = TagSerializer(read_only=True)
     project = CaseProjectSerializer(read_only=True)
     theme = CaseThemeSerializer(read_only=True)
     reason = CaseReasonSerializer(read_only=True)
