@@ -146,3 +146,90 @@ Cause: somebody tried to login with too many failed attempts. Unfortunately we h
 configured Axes properly so if one user does this, every user is locked.
 
 Resolution: SSH into the webserver and run `python manage.py axes_reset`
+
+# BPMN-Modelling
+
+Try the online modeler for BPMN-models: https://bpmn.io/. This is a lightweight version for viewing a model.
+
+## Editing models
+
+Clone the bpmn-io Github repo for editing: https://github.com/bpmn-io/bpmn-js-examples.
+
+```
+git clone git@github.com:bpmn-io/bpmn-js-examples.git
+```
+
+If you'd like to use Camunda Platform execution related properties, include the camunda-bpmn-moddle dependency which tells the modeler about camunda:XXX extension properties: https://github.com/bpmn-io/bpmn-js-examples/tree/master/properties-panel#camunda-platform
+
+Follow next steps:
+```
+cd bpmn-js-examples
+
+cd properties-panel
+
+npm install camunda-bpmn-moddle
+```
+
+Then, you need to pass the respective properties provider together with the moddle extension to the modeler:
+
+```js
+import {
+  BpmnPropertiesPanelModule,
+  BpmnPropertiesProviderModule,
+  CamundaPlatformPropertiesProviderModule
+} from 'bpmn-js-properties-panel';
+
+import CamundaBpmnModdle from 'camunda-bpmn-moddle/resources/camunda.json'
+
+const bpmnModeler = new BpmnModeler({
+  container: '#js-canvas',
+  propertiesPanel: {
+    parent: '#js-properties-panel'
+  },
+  additionalModules: [
+    BpmnPropertiesPanelModule,
+    BpmnPropertiesProviderModule,
+    CamundaPlatformPropertiesProviderModule
+  ],
+  moddleExtensions: {
+    camunda: CamundaBpmnModdle
+  }
+});
+```
+
+Finally:
+```
+npm run dev
+```
+Open `public/index.html` in your browser.
+
+## Deploy new BPMN-model
+
+- Create a new version of the model file (.bpmn) in a new directory.
+- The name of the directory should be the GLOBAL next version.
+
+    Example: `housing_corporation` has a new minor version model and the latest version was `5.0.0` but `debrief` has latest version `6.0.0`. Then the new minor version of `housing_corporation` will be `6.1.0`.
+
+```
+bpmn_models/default/
+├─ debrief/
+│  ├─ 0.1.0/
+│  ├─ 0.2.0/
+│  ├─ 6.0.0/
+├─ housing_coorporation/
+│  ├─ 5.0.0/
+│  │  ├─ housing_corporation.bpmn
+│  ├─ 6.1.0/
+│  │  ├─ housing_corporation.bpmn
+```
+
+- Add the new version to `WORKFLOW_SPEC_CONFIG` in `settings.py`:
+
+```python
+"housing_corporation": {
+    "versions": {
+        "5.0.0": {},
+        "6.1.0": {},
+    },
+}
+```
