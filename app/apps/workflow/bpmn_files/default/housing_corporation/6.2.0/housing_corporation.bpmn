@@ -100,7 +100,6 @@
           <camunda:formField id="reactie_ontvangen_voor_huisbezoek" label="Heeft de corporatie al gereageerd?" type="enum">
             <camunda:value id="wonen_gaat_lopen" name="Ja, wonen gaat lopen" />
             <camunda:value id="samen_lopen" name="Ja, samen lopen met corporatie" />
-            <camunda:value id="corporatie_gaat_lopen" name="Ja, corporatie gaat lopen" />
             <camunda:value id="direct_naar_debrief" name="Direct naar debrief" />
           </camunda:formField>
         </camunda:formData>
