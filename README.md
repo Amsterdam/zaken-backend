@@ -1,6 +1,30 @@
-# Zaken
+# Amsterdamse Zaken Administratie (AZA)
 
-Zakensysteem bedoeld voor toezichthouders en handhavers van illegaal vakantieverhuur.
+Zakensysteem voor toezichthouders en handhavers van de Gemeente Amsterdam voor de thema's vakantieverhuur, kamerverhuur, ondermijning, leegstand, onderhuur en Opkoopbescherming.
+
+- [Amsterdamse Zaken Administratie (AZA)](#amsterdamse-zaken-administratie-aza)
+  - [Prerequisites](#prerequisites)
+  - [Getting up and running (Local development only)](#getting-up-and-running-local-development-only)
+  - [Running tests](#running-tests)
+  - [Accessing the API documentation](#accessing-the-api-documentation)
+  - [Generating an access token](#generating-an-access-token)
+  - [Enabling local development environment variables](#enabling-local-development-environment-variables)
+  - [Enabling Keycloak authentication for a locally run zaken-frontend](#enabling-keycloak-authentication-for-a-locally-run-zaken-frontend)
+  - [Generating Mock Data](#generating-mock-data)
+  - [Update fixtures](#update-fixtures)
+  - [Adding pre-commit hooks](#adding-pre-commit-hooks)
+  - [Coding conventions and style](#coding-conventions-and-style)
+  - [Health check](#health-check)
+  - [Generating Model Graph](#generating-model-graph)
+- [FAQ](#faq)
+- [BPMN-Modelling](#bpmn-modelling)
+  - [Editing models](#editing-models)
+  - [NOTE: Making changes](#note-making-changes)
+  - [Deploy new BPMN-model with incremented version](#deploy-new-bpmn-model-with-incremented-version)
+
+
+
+
 
 ## Prerequisites
 
@@ -203,7 +227,24 @@ npm run dev
 ```
 Open `public/index.html` in your browser.
 
-## Deploy new BPMN-model
+## NOTE: Making changes
+
+When a new version is deployed, the already existing cases still follow the path in the started version. Only new created cases follow the path of the latest version.
+
+When is it necessary to deploy a new version?
+
+- Path changes in the model
+- Timer changes
+- ID changes
+
+When is it NOT necessary to create a new version?
+
+- Changes in form names. If you want to change the text of a form, you can do it directly in the latest version. Do not change IDs because paths can be taken based on an answer (ID).
+
+So if you think existing cases are getting stuck in the model, just create a new version.
+
+
+## Deploy new BPMN-model with incremented version
 
 - Create a new version of the model file (.bpmn) in a new directory.
 - The name of the directory should be the GLOBAL next version.
