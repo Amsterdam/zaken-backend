@@ -16,6 +16,7 @@ Zakensysteem voor toezichthouders en handhavers van de Gemeente Amsterdam voor d
   - [Coding conventions and style](#coding-conventions-and-style)
   - [Health check](#health-check)
   - [Generating Model Graph](#generating-model-graph)
+  - [Django DB migrations](#django-db-migrations)
 - [FAQ](#faq)
 - [BPMN-Modelling](#bpmn-modelling)
   - [Editing models](#editing-models)
@@ -161,6 +162,16 @@ docker-compose run --rm zaak-gateway python manage.py graph_models cases debrief
 ```
 
 Note that the apps and models should be updated whenever applications and models are added or modified.
+
+## Django DB migrations
+
+For changes to the model you have to migrate the DB.
+
+```python
+python manage.py makemigrations --name name_of_your_migration
+
+python manage.py migrate
+```
 
 # FAQ
 

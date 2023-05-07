@@ -134,7 +134,7 @@ class Case(ModelEventEmitter):
         to=CaseProject, null=True, blank=True, on_delete=models.PROTECT
     )
     subjects = models.ManyToManyField(Subject, related_name="cases", blank=True)
-    tag = models.ForeignKey(to=Tag, on_delete=models.PROTECT, null=True, blank=True)
+    tags = models.ManyToManyField(Tag, related_name="cases", blank=True)
     ton_ids = ArrayField(
         models.CharField(max_length=255), default=list, null=True, blank=True
     )
