@@ -306,7 +306,7 @@ class CaseFilter(filters.FilterSet):
         if value:
             return queryset.filter(
                 subjects__in=value,
-            )
+            ).distinct()
         return queryset
 
     def get_theme(self, queryset, name, value):
