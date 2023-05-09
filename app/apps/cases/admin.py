@@ -130,7 +130,7 @@ class CaseAdmin(admin.ModelAdmin):
         "reason",
         "project",
         "subjects",
-        "tag",
+        "tags",
     )
     search_fields = (
         "id",

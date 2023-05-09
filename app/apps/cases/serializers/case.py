@@ -147,18 +147,19 @@ class CaseCreateSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
     )
     subjects = SubjectSerializer(many=True, read_only=True)
     subject_ids = serializers.PrimaryKeyRelatedField(
+        source="subjects",
         required=False,
         many=True,
         write_only=True,
         queryset=Subject.objects.all(),
-        source="subjects",
     )
-    tag = TagSerializer(read_only=True)
-    tag_id = serializers.PrimaryKeyRelatedField(
-        source="tag",
+    tags = TagSerializer(many=True, read_only=True)
+    tag_ids = serializers.PrimaryKeyRelatedField(
+        source="tags",
         required=False,
-        queryset=Tag.objects.all(),
+        many=True,
         write_only=True,
+        queryset=Tag.objects.all(),
         allow_null=True,
     )
     citizen_reports = CitizenReportCaseSerializer(
@@ -225,7 +226,7 @@ class CaseDetailSerializer(serializers.ModelSerializer):
         source="get_workflows", many=True, read_only=True
     )
     subjects = SubjectSerializer(many=True, read_only=True)
-    tag = TagSerializer(read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
     project = CaseProjectSerializer(read_only=True)
     theme = CaseThemeSerializer(read_only=True)
     reason = CaseReasonSerializer(read_only=True)
