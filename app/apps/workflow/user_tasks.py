@@ -651,7 +651,7 @@ class task_verwerken_uitkomst_corporatie(user_task):
 
 
 class task_ontvangen_reactie_corporatie(user_task):
-    due_date = relativedelta(days=90)
+    due_date = relativedelta(months=1)
 
 
 class task_close_case_concept(user_task):
