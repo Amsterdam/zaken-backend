@@ -98,6 +98,7 @@ def _build_document_body(
         "taal": language,
         "bestandsnaam": file.name,
         "inhoud": string_content,
+        "indicatieGebruiksrecht": False,
     }
     if lock:
         document_body["lock"] = lock
