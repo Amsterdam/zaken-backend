@@ -70,6 +70,7 @@ INSTALLED_APPS = (
     "apps.users",
     "apps.cases",
     "apps.decisions",
+    "apps.quick_decisions",
     "apps.debriefings",
     "apps.permits",
     "apps.fines",
@@ -1084,6 +1085,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "3.0.0": {},
                 "4.0.0": {},
                 "4.1.0": {},
+                "6.3.0": {},
             },
         },
         "unoccupied": {
