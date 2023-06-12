@@ -385,6 +385,27 @@ class task_contacteren_stadsdeel(user_task):
     due_date = relativedelta(weeks=1)
 
 
+class task_opstellen_snel_besluit(user_task):
+    """Opstellen snel besluit"""
+
+    _task_name = "task_make_quick_decision"
+    due_date = relativedelta(weeks=2)
+
+
+class task_nakijken_snel_besluit(user_task):
+    """Nakijken snel besluit"""
+
+    _task_name = "task_check_quick_decision"
+    due_date = relativedelta(weeks=1)
+
+
+class task_verwerken_snel_besluit(user_task):
+    """Verwerken snel besluit"""
+
+    _task_name = "task_create_quick_decision"
+    due_date = relativedelta(days=2)
+
+
 class task_uitzetten_vervolgstap(user_task):
     """Uitzetten vervolgstap"""
 

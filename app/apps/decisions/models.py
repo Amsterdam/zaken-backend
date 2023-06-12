@@ -46,10 +46,9 @@ class Decision(TaskModelEventEmitter):
     active = models.BooleanField(default=True)
 
     def __get_event_values__(self):
+        persons = []
         if self.summon:
             persons = self.summon.__get_person_event_values__()
-        else:
-            persons = []
 
         return {
             "author": self.author.__str__(),

@@ -11,6 +11,7 @@ from apps.cases.serializers import (
 from apps.debriefings.models import Debriefing
 from apps.debriefings.serializers import ViolationTypeSerializer
 from apps.decisions.serializers import DecisionTypeSerializer
+from apps.quick_decisions.serializers import QuickDecisionTypeSerializer
 from apps.schedules.serializers import ThemeScheduleTypesSerializer
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.permissions import rest_permission_classes_for_top
@@ -81,6 +82,25 @@ class CaseThemeViewSet(ListAPIView, viewsets.ViewSet):
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = DecisionTypeSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Gets the QuickDecisionTypes associated with the given theme",
+        responses={status.HTTP_200_OK: QuickDecisionTypeSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="quick-decision-types",
+        methods=["get"],
+    )
+    def quick_decision_types(self, request, pk):
+        paginator = LimitOffsetPagination()
+        theme = self.get_object()
+        query_set = theme.quick_decision_types.all()
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = QuickDecisionTypeSerializer(context, many=True)
 
         return paginator.get_paginated_response(serializer.data)
 

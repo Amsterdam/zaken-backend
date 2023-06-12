@@ -22,6 +22,7 @@ Zakensysteem voor toezichthouders en handhavers van de Gemeente Amsterdam voor d
   - [Editing models](#editing-models)
   - [NOTE: Making changes](#note-making-changes)
   - [Deploy new BPMN-model with incremented version](#deploy-new-bpmn-model-with-incremented-version)
+  - [Important learnings](#important-learnings)
 
 
 
@@ -285,3 +286,10 @@ bpmn_models/default/
     },
 }
 ```
+
+Run `docker compose build` to see your changes locally. Check the admin panel to see which `case workflow` version is used.
+
+## Important learnings
+
+- Forms must be of type "Embedded or External Task Forms". If this is not possible add a `camunda:formKey="my_form_key"` to the `<bpmn:userTask/>`
+- If a User task is added to the model it must be created as a class in user_tasks.py as well. The ID of the User task must match with the _task_name of the class.

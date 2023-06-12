@@ -295,5 +295,113 @@
       "workflow_option": "aanschrijvingen",
       "name": "Voornemen invordering dwangsom"
     }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 47,
+    "fields": {
+      "theme": 2,
+      "workflow_option": "besluit",
+      "name": "Besluit"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 48,
+    "fields": {
+      "theme": 3,
+      "workflow_option": "besluit",
+      "name": "Besluit"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 49,
+    "fields": {
+      "theme": 4,
+      "workflow_option": "besluit",
+      "name": "Besluit"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 50,
+    "fields": {
+      "theme": 5,
+      "workflow_option": "besluit",
+      "name": "Besluit"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 51,
+    "fields": {
+      "theme": 6,
+      "workflow_option": "besluit",
+      "name": "Besluit"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 52,
+    "fields": {
+      "theme": 7,
+      "workflow_option": "besluit",
+      "name": "Besluit"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 53,
+    "fields": {
+      "theme": 2,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen besluit"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 54,
+    "fields": {
+      "theme": 3,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen besluit"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 55,
+    "fields": {
+      "theme": 4,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen besluit"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 56,
+    "fields": {
+      "theme": 5,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen besluit"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 57,
+    "fields": {
+      "theme": 6,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen besluit"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 58,
+    "fields": {
+      "theme": 7,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen besluit"
+    }
   }
 ]
