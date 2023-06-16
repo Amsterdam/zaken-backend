@@ -106,5 +106,59 @@
       "name": "Intrekken bestuurlijke boete",
       "workflow_option": "besluit"
     }
+  },
+  {
+    "model": "quick_decisions.quickdecisiontype",
+    "pk": 13,
+    "fields": {
+      "theme": 2,
+      "name": "Intrekken last onder dwangsom",
+      "workflow_option": "besluit"
+    }
+  },
+  {
+    "model": "quick_decisions.quickdecisiontype",
+    "pk": 14,
+    "fields": {
+      "theme": 3,
+      "name": "Intrekken last onder dwangsom",
+      "workflow_option": "besluit"
+    }
+  },
+  {
+    "model": "quick_decisions.quickdecisiontype",
+    "pk": 15,
+    "fields": {
+      "theme": 4,
+      "name": "Intrekken last onder dwangsom",
+      "workflow_option": "besluit"
+    }
+  },
+  {
+    "model": "quick_decisions.quickdecisiontype",
+    "pk": 16,
+    "fields": {
+      "theme": 5,
+      "name": "Intrekken last onder dwangsom",
+      "workflow_option": "besluit"
+    }
+  },
+  {
+    "model": "quick_decisions.quickdecisiontype",
+    "pk": 17,
+    "fields": {
+      "theme": 6,
+      "name": "Intrekken last onder dwangsom",
+      "workflow_option": "besluit"
+    }
+  },
+  {
+    "model": "quick_decisions.quickdecisiontype",
+    "pk": 18,
+    "fields": {
+      "theme": 7,
+      "name": "Intrekken last onder dwangsom",
+      "workflow_option": "besluit"
+    }
   }
 ]
