@@ -963,5 +963,27 @@
       "to_directing_proccess": false,
       "enabled_on_case_closed": true
     }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 108,
+    "fields": {
+      "theme": 8,
+      "name": "LOD verzoek tot opheffing",
+      "message_name": "start_lod_verzoek_tot_opheffing",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 109,
+    "fields": {
+      "theme": 8,
+      "name": "Correspondentie",
+      "message_name": "start_correspondence_process",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
   }
 ]

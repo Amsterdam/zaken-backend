@@ -48,6 +48,14 @@
     }
   },
   {
+    "model": "schedules.action",
+    "pk": 8,
+    "fields": {
+      "name": "Huisbezoek",
+      "theme": 8
+    }
+  },
+  {
     "model": "schedules.daysegment",
     "pk": 3,
     "fields": {
@@ -141,6 +149,22 @@
     "fields": {
       "name": "Overdag",
       "theme": 7
+    }
+  },
+  {
+    "model": "schedules.daysegment",
+    "pk": 15,
+    "fields": {
+      "name": "Avond",
+      "theme": 8
+    }
+  },
+  {
+    "model": "schedules.daysegment",
+    "pk": 16,
+    "fields": {
+      "name": "Overdag",
+      "theme": 8
     }
   },
   {
@@ -308,6 +332,33 @@
     }
   },
   {
+    "model": "schedules.priority",
+    "pk": 21,
+    "fields": {
+      "name": "Normaal",
+      "theme": 8,
+      "weight": 0.0
+    }
+  },
+  {
+    "model": "schedules.priority",
+    "pk": 22,
+    "fields": {
+      "name": "Hoog",
+      "theme": 8,
+      "weight": 0.99
+    }
+  },
+  {
+    "model": "schedules.priority",
+    "pk": 23,
+    "fields": {
+      "name": "Machtiging",
+      "theme": 8,
+      "weight": 1.0
+    }
+  },
+  {
     "model": "schedules.weeksegment",
     "pk": 3,
     "fields": {
@@ -401,6 +452,22 @@
     "fields": {
       "name": "Weekend",
       "theme": 7
+    }
+  },
+  {
+    "model": "schedules.weeksegment",
+    "pk": 15,
+    "fields": {
+      "name": "Doordeweeks",
+      "theme": 8
+    }
+  },
+  {
+    "model": "schedules.weeksegment",
+    "pk": 16,
+    "fields": {
+      "name": "Weekend",
+      "theme": 8
     }
   }
 ]

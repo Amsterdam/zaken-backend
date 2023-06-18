@@ -339,5 +339,45 @@
       "workflow_option": "besluit_toewijzing_handhavingsvezoek",
       "is_sanction": false
     }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 43,
+    "fields": {
+      "theme": 8,
+      "name": "Afzien voornemen",
+      "workflow_option": "no_decision",
+      "is_sanction": false
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 44,
+    "fields": {
+      "theme": 8,
+      "name": "Invordering dwangsom",
+      "workflow_option": "invordering_dwangsom",
+      "is_sanction": true
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 45,
+    "fields": {
+      "theme": 8,
+      "name": "Boete",
+      "workflow_option": "boete",
+      "is_sanction": true
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 46,
+    "fields": {
+      "theme": 8,
+      "name": "Last onder dwangsom",
+      "workflow_option": "last_onder_dwangsom",
+      "is_sanction": false
+    }
   }
 ]
