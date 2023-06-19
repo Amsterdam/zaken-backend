@@ -525,6 +525,13 @@ class task_oppakken_correspondentie(user_task):
     due_date = relativedelta(weeks=2)
 
 
+class task_oppakken_opheffen_openbaarmaking_namen(user_task):
+    """Opheffen openbaarmaking namen"""
+
+    _task_name = "task_opheffen_openbaarmaking_namen"
+    due_date = relativedelta(weeks=2)
+
+
 class task_oppakken_terugbelverzoek(user_task):
     """Oppakken terugbelverzoek"""
 
