@@ -45,6 +45,14 @@
     }
   },
   {
+    "model": "cases.casetheme",
+    "pk": 8,
+    "fields": {
+      "name": "Goed verhuurderschap",
+      "sensitive": false
+    }
+  },
+  {
     "model": "cases.casereason",
     "pk": 2,
     "fields": {
@@ -314,6 +322,38 @@
     "fields": {
       "name": "Ilprowo",
       "theme": 3
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 38,
+    "fields": {
+      "name": "Handhavingsverzoek",
+      "theme": 8
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 39,
+    "fields": {
+      "name": "Eigen onderzoek",
+      "theme": 8
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 40,
+    "fields": {
+      "name": "Project",
+      "theme": 8
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 41,
+    "fields": {
+      "name": "SIA melding",
+      "theme": 8
     }
   },
   {
@@ -1142,6 +1182,54 @@
     "fields": {
       "name": "Kamerverhuur",
       "theme": 7
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 53,
+    "fields": {
+      "name": "Discriminatie",
+      "theme": 8
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 54,
+    "fields": {
+      "name": "Intimidatie",
+      "theme": 8
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 55,
+    "fields": {
+      "name": "Huurcontract",
+      "theme": 8
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 56,
+    "fields": {
+      "name": "Bemiddelingskosten",
+      "theme": 8
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 57,
+    "fields": {
+      "name": "Borg",
+      "theme": 8
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 58,
+    "fields": {
+      "name": "Servicekosten",
+      "theme": 8
     }
   },
   {

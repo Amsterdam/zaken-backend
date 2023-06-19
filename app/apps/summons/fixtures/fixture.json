@@ -403,5 +403,50 @@
       "workflow_option": "aanschrijvingen",
       "name": "Voornemen besluit"
     }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 59,
+    "fields": {
+      "theme": 8,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen boete"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 60,
+    "fields": {
+      "theme": 8,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen invordering dwangsom"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 61,
+    "fields": {
+      "theme": 8,
+      "workflow_option": "aanschrijvingen",
+      "name": "Vooraankondiging dwangsom"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 62,
+    "fields": {
+      "theme": 8,
+      "workflow_option": "besluit",
+      "name": "Besluit"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 63,
+    "fields": {
+      "theme": 8,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen besluit"
+    }
   }
 ]

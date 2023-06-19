@@ -211,6 +211,56 @@ class task_afwachten_intern_onderzoek(user_task):
     due_date = relativedelta(weeks=2)
 
 
+class task_narekenen_service_kosten(user_task):
+    """Narekenen onredelijke servicekosten"""
+
+    _task_name = "task_recalulate_service_costs"
+    due_date = relativedelta(weeks=2)
+
+
+class task_verstuur_uitnodiging_gesprek(user_task):
+    """Versturen uitnodiging gesprek"""
+
+    _task_name = "task_send_conversation_invitation"
+    due_date = relativedelta(weeks=2)
+
+
+class task_uitvoeren_gesprek_verhuurder(user_task):
+    """Uitvoeren gesprek verhuurder"""
+
+    _task_name = "task_conduct_conversation_landlord"
+    due_date = relativedelta(weeks=2)
+
+
+class task_wait_for_advise_other_discipline(user_task):
+    pass
+
+
+class task_rappelleren_advies_andere_discipline(user_task):
+    """Rappelleren advies andere discipline"""
+
+    _task_name = "task_reminder_advise_other_discipline"
+    due_date = relativedelta(days=7)
+
+
+class task_opvragen_stukken(user_task):
+    """Opvragen stukken"""
+
+    _task_name = "task_request_documents"
+    due_date = relativedelta(weeks=2)
+
+
+class task_wait_for_documents(user_task):
+    pass
+
+
+class task_rappelleren_opgevraagde_stukken(user_task):
+    """Rappelleren opgevraagde stukken"""
+
+    _task_name = "task_reminder_documents"
+    due_date = relativedelta(days=7)
+
+
 class task_opstellen_verkorte_rapportage_huisbezoek(user_task):
     """Opstellen verkorte rapportage huisbezoek"""
 
@@ -887,7 +937,15 @@ class task_set_next_step_digital_surveillance(user_task):
     due_date = relativedelta(weeks=2)
 
 
+class task_set_next_step_administratieve_hercontrole(user_task):
+    due_date = relativedelta(weeks=2)
+
+
 class task_uitvoeren_digitale_hercontrole(user_task):
+    due_date = relativedelta(weeks=1)
+
+
+class task_administrative_hercontrole(user_task):
     due_date = relativedelta(weeks=1)
 
 

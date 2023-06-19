@@ -16,6 +16,10 @@ class Debriefing(TaskModelEventEmitter):
     )
     VIOLATION_SEND_TO_OTHER_THEME = "SEND_TO_OTHER_THEME"
     VIOLATION_LIKELY_INHABITED = "LIKELY_INHABITED"
+    VIOLATION_SERVICE_COSTS = "SERVICE_COSTS"
+    VIOLATION_SCHEDULE_CONVERSATION = "SCHEDULE_CONVERSATION"
+    VIOLATION_ADVICE_OTHER_DISCIPLINE = "ADVICE_OTHER_DISCIPLINE"
+    VIOLATION_REQUEST_DOCUMENTS = "REQUEST_DOCUMENTS"
 
     VIOLATION_CHOICES = [
         (VIOLATION_NO, "Geen overtreding"),
@@ -28,6 +32,10 @@ class Debriefing(TaskModelEventEmitter):
         ),
         (VIOLATION_SEND_TO_OTHER_THEME, "Naar ander thema"),
         (VIOLATION_LIKELY_INHABITED, "Vermoeden bewoning/leegstand"),
+        (VIOLATION_SERVICE_COSTS, "Narekenen onredelijke servicekosten"),
+        (VIOLATION_SCHEDULE_CONVERSATION, "Inplannen gesprek"),
+        (VIOLATION_ADVICE_OTHER_DISCIPLINE, "Afwachten advies andere discipline"),
+        (VIOLATION_REQUEST_DOCUMENTS, "Opvragen stukken"),
     ]
 
     case = models.ForeignKey(
@@ -68,12 +76,33 @@ class Debriefing(TaskModelEventEmitter):
         return event_values
 
     def get_violation_choices_by_theme(theme_id):
-        # VIOLATION_LIKELY_INHABITED is unavailable for other themes than Leegstand.
         if theme_id == 5:
-            return Debriefing.VIOLATION_CHOICES
-        else:
+            # VIOLATION_LIKELY_INHABITED is only accessible to Leegstand.
+            return [
+                vc
+                for vc in Debriefing.VIOLATION_CHOICES
+                if vc[0] != Debriefing.VIOLATION_SERVICE_COSTS
+                and vc[0] != Debriefing.VIOLATION_SCHEDULE_CONVERSATION
+                and vc[0] != Debriefing.VIOLATION_ADVICE_OTHER_DISCIPLINE
+                and vc[0] != Debriefing.VIOLATION_REQUEST_DOCUMENTS
+            ]
+        elif theme_id == 8:
+            # SERVICE_COSTS, SCHEDULE_CONVERSATION, VIOLATION_ADVICE_OTHER_DISCIPLINE,
+            # VIOLATION_REQUEST_DOCUMENTS are only accessible to Goed verhuurderschap.
             return [
                 vc
                 for vc in Debriefing.VIOLATION_CHOICES
                 if vc[0] != Debriefing.VIOLATION_LIKELY_INHABITED
+                and vc[0] != Debriefing.VIOLATION_ADDITIONAL_RESEARCH_REQUIRED
+            ]
+        else:
+            # Other themes
+            return [
+                vc
+                for vc in Debriefing.VIOLATION_CHOICES
+                if vc[0] != Debriefing.VIOLATION_LIKELY_INHABITED
+                and vc[0] != Debriefing.VIOLATION_SERVICE_COSTS
+                and vc[0] != Debriefing.VIOLATION_SCHEDULE_CONVERSATION
+                and vc[0] != Debriefing.VIOLATION_ADVICE_OTHER_DISCIPLINE
+                and vc[0] != Debriefing.VIOLATION_REQUEST_DOCUMENTS
             ]
