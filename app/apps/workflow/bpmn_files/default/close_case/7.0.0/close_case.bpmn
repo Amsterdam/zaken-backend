@@ -139,7 +139,7 @@
     <bpmn:sequenceFlow id="Flow_0e6gl5c" sourceRef="start_1qt4hub" targetRef="service_status_vervolgstap" />
     <bpmn:sequenceFlow id="Flow_1s97xge" sourceRef="service_status_vervolgstap" targetRef="Gateway_1qrgd4m" />
     <bpmn:sequenceFlow id="Flow_1exw36j" sourceRef="Gateway_1qrgd4m" targetRef="task_set_next_step" />
-    <bpmn:sequenceFlow id="Flow_0ppemzu" sourceRef="Gateway_1qrgd4m" targetRef="task_set_next_step_digital_surveillance">
+    <bpmn:sequenceFlow id="Flow_0ppemzu" name="reason.value = reason_digitaal_toezicht" sourceRef="Gateway_1qrgd4m" targetRef="task_set_next_step_digital_surveillance">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reason.value == "reason_digitaal_toezicht"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1x2e9iu" sourceRef="task_set_next_step_digital_surveillance" targetRef="Gateway_0y428mq" />
@@ -464,6 +464,9 @@
         <di:waypoint x="568" y="357" />
         <di:waypoint x="610" y="450" />
         <di:waypoint x="660" y="450" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="568" y="460" width="84" height="40" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1x2e9iu_di" bpmnElement="Flow_1x2e9iu">
         <di:waypoint x="760" y="450" />
@@ -524,7 +527,7 @@
         <di:waypoint x="560" y="560" />
         <di:waypoint x="660" y="560" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="466" y="510" width="89" height="40" />
+          <dc:Bounds x="555" y="570" width="89" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1mlcl6j_di" bpmnElement="Flow_1mlcl6j">

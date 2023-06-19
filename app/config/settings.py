@@ -623,6 +623,7 @@ WORKFLOW_SPEC_CONFIG = {
             "initial_data": {
                 "decision_count": {"value": 0},
                 "reason": {"value": "default"},
+                "theme": {"value": "default"},
             },
             "versions": {
                 "0.1.0": {},
