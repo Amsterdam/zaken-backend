@@ -1085,5 +1085,15 @@
       "message_name": "start_afsluiten_zaak",
       "to_directing_proccess": false
     }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 120,
+    "fields": {
+      "theme": 8,
+      "name": "Opheffing openbaarmaking namen",
+      "message_name": "start_verzoek_opheffing_openbaarmaking_namen",
+      "to_directing_proccess": false
+    }
   }
 ]
