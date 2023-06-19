@@ -1008,6 +1008,9 @@ def workflow_spec_path_inspect(
             ),
         }
     except Exception as e:
+        print(
+            f"ERROR: workflow_spec_path_inspect: path '{workflow_spec_path}', type '{type}', {str(e)}"
+        )
         logger.error(
             f"ERROR: workflow_spec_path_inspect: path '{workflow_spec_path}', type '{type}', {str(e)}"
         )
