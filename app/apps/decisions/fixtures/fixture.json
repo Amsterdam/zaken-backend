@@ -379,5 +379,15 @@
       "workflow_option": "last_onder_dwangsom",
       "is_sanction": false
     }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 47,
+    "fields": {
+      "theme": 8,
+      "name": "Recidive boete",
+      "workflow_option": "boete",
+      "is_sanction": true
+    }
   }
 ]
