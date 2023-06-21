@@ -302,7 +302,7 @@
     "fields": {
       "theme": 2,
       "workflow_option": "besluit",
-      "name": "Besluit"
+      "name": "Besluit (geen boete / LOD)"
     }
   },
   {
@@ -311,7 +311,7 @@
     "fields": {
       "theme": 3,
       "workflow_option": "besluit",
-      "name": "Besluit"
+      "name": "Besluit (geen boete / LOD)"
     }
   },
   {
@@ -320,7 +320,7 @@
     "fields": {
       "theme": 4,
       "workflow_option": "besluit",
-      "name": "Besluit"
+      "name": "Besluit (geen boete / LOD)"
     }
   },
   {
@@ -329,7 +329,7 @@
     "fields": {
       "theme": 5,
       "workflow_option": "besluit",
-      "name": "Besluit"
+      "name": "Besluit (geen boete / LOD)"
     }
   },
   {
@@ -338,7 +338,7 @@
     "fields": {
       "theme": 6,
       "workflow_option": "besluit",
-      "name": "Besluit"
+      "name": "Besluit (geen boete / LOD)"
     }
   },
   {
@@ -347,7 +347,7 @@
     "fields": {
       "theme": 7,
       "workflow_option": "besluit",
-      "name": "Besluit"
+      "name": "Besluit (geen boete / LOD)"
     }
   },
   {
@@ -437,7 +437,7 @@
     "fields": {
       "theme": 8,
       "workflow_option": "besluit",
-      "name": "Besluit"
+      "name": "Besluit (geen boete / LOD)"
     }
   },
   {
