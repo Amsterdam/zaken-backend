@@ -30,7 +30,6 @@
         <bpmn:flowNodeRef>service_script_next_step_visit</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_script_next_step_closing_procedure</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_12zzx0r</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>task_make_quick_decision</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_create_quick_decision</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1rmmm5s</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_status_summon</bpmn:flowNodeRef>
@@ -52,7 +51,6 @@
         <bpmn:flowNodeRef>Event_1mo05mc</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1v9wk97" name="Handhavingsjurist">
-        <bpmn:flowNodeRef>task_check_quick_decision</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_check_summons</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
@@ -424,17 +422,10 @@
       <bpmn:incoming>Flow_0fx0k7f</bpmn:incoming>
       <bpmn:incoming>Flow_01fmf92</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1abp6nw" name="type_aanschrijving = besluit" sourceRef="gateway_which_type_of_summon" targetRef="task_make_quick_decision">
+    <bpmn:sequenceFlow id="Flow_1abp6nw" name="type_aanschrijving = besluit" sourceRef="gateway_which_type_of_summon" targetRef="task_create_quick_decision">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "besluit"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:userTask id="task_make_quick_decision" name="Opstellen besluit" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
-      <bpmn:extensionElements />
-      <bpmn:incoming>Flow_1abp6nw</bpmn:incoming>
-      <bpmn:outgoing>Flow_0onc3vv</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_0onc3vv" sourceRef="task_make_quick_decision" targetRef="task_check_quick_decision" />
-    <bpmn:sequenceFlow id="Flow_16rl6jb" sourceRef="task_check_quick_decision" targetRef="task_create_quick_decision" />
-    <bpmn:userTask id="task_create_quick_decision" name="Verwerken besluit" camunda:formKey="form_create_quick_decision" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+    <bpmn:userTask id="task_create_quick_decision" name="Verwerken besluit (geen boete / LOD)" camunda:formKey="form_create_quick_decision" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="type_besluit" label="Wat voor een besluit neem je?" type="enum">
@@ -442,7 +433,7 @@
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_16rl6jb</bpmn:incoming>
+      <bpmn:incoming>Flow_1abp6nw</bpmn:incoming>
       <bpmn:outgoing>Flow_0hq2av6</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_0hq2av6" sourceRef="task_create_quick_decision" targetRef="service_script_next_step_close_case_summon" />
@@ -503,20 +494,6 @@
       <bpmn:outgoing>Flow_041q8eg</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_041q8eg" sourceRef="task_afzien_concept_aanschrijving" targetRef="gateway_afzien_concept_aanschrijvingen_opties" />
-    <bpmn:userTask id="task_check_quick_decision" name="Nakijken besluit" camunda:formKey="form_check_quick_decision" camunda:candidateGroups="Handhavingsjurist">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="besluit_nagekeken" label="Ja, deze taak is afgerond" type="boolean" />
-          <camunda:formField id="besluit_nagekeken_toelichting" label="Toelichting" type="string">
-            <camunda:validation>
-              <camunda:constraint name="optional" config="yes" />
-            </camunda:validation>
-          </camunda:formField>
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0onc3vv</bpmn:incoming>
-      <bpmn:outgoing>Flow_16rl6jb</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:exclusiveGateway id="gateway_afzien_concept_aanschrijvingen_na_check" default="Flow_0bf9aqr">
       <bpmn:incoming>Flow_0ij4o8b</bpmn:incoming>
       <bpmn:outgoing>Flow_0bf9aqr</bpmn:outgoing>
@@ -651,10 +628,6 @@
       <bpmndi:BPMNShape id="Event_12zzx0r_di" bpmnElement="Event_12zzx0r">
         <dc:Bounds x="4142" y="1402" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_18z8nt3_di" bpmnElement="task_make_quick_decision">
-        <dc:Bounds x="1700" y="1150" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0dhzem6_di" bpmnElement="task_create_quick_decision">
         <dc:Bounds x="2110" y="1150" width="100" height="80" />
         <bpmndi:BPMNLabel />
@@ -676,10 +649,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1297ogi_di" bpmnElement="task_afzien_concept_aanschrijving">
         <dc:Bounds x="810" y="670" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1neiudv_di" bpmnElement="task_check_quick_decision">
-        <dc:Bounds x="1900" y="1570" width="100" height="80" />
-        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0srdduc_di" bpmnElement="gateway_afzien_concept_aanschrijvingen_na_check" isMarkerVisible="true">
         <dc:Bounds x="835" y="835" width="50" height="50" />
@@ -1028,24 +997,12 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1abp6nw_di" bpmnElement="Flow_1abp6nw">
-        <di:waypoint x="1270" y="735" />
-        <di:waypoint x="1270" y="1190" />
-        <di:waypoint x="1700" y="1190" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1397" y="1156" width="85" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0onc3vv_di" bpmnElement="Flow_0onc3vv">
-        <di:waypoint x="1800" y="1190" />
-        <di:waypoint x="1850" y="1190" />
-        <di:waypoint x="1850" y="1610" />
-        <di:waypoint x="1900" y="1610" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_16rl6jb_di" bpmnElement="Flow_16rl6jb">
-        <di:waypoint x="2000" y="1610" />
-        <di:waypoint x="2055" y="1610" />
-        <di:waypoint x="2055" y="1190" />
+        <di:waypoint x="1272" y="733" />
+        <di:waypoint x="1310" y="1190" />
         <di:waypoint x="2110" y="1190" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1558" y="1500" width="85" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0hq2av6_di" bpmnElement="Flow_0hq2av6">
         <di:waypoint x="2210" y="1190" />

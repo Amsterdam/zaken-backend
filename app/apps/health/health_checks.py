@@ -51,6 +51,8 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
         except HTTPError as e:
             logger.error(e)
             self.add_error(ServiceUnavailable(f"Service not found. {api_url}"))
+        except TimeoutError:
+            self.add_error(ServiceUnavailable("Exceeded timeout of 6 seconds"))
         except BaseException as e:
             logger.error(e)
             self.add_error(ServiceUnavailable("Unknown error"), e)
