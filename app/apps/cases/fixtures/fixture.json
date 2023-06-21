@@ -817,6 +817,20 @@
     }
   },
   {
+    "model": "cases.casestatetype",
+    "pk": 235,
+    "fields": {
+      "name": "Huisbezoek"
+    }
+  },
+  {
+    "model": "cases.casestatetype",
+    "pk": 236,
+    "fields": {
+      "name": "Hercontrole"
+    }
+  },
+  {
     "model": "cases.subject",
     "pk": 1,
     "fields": {
@@ -1188,7 +1202,7 @@
     "model": "cases.subject",
     "pk": 53,
     "fields": {
-      "name": "Discriminatie",
+      "name": "Intimidatie",
       "theme": 8
     }
   },
@@ -1196,7 +1210,7 @@
     "model": "cases.subject",
     "pk": 54,
     "fields": {
-      "name": "Intimidatie",
+      "name": "Discriminatie",
       "theme": 8
     }
   },
@@ -1204,7 +1218,7 @@
     "model": "cases.subject",
     "pk": 55,
     "fields": {
-      "name": "Huurcontract",
+      "name": "Hoogte waarborgsom",
       "theme": 8
     }
   },
@@ -1220,7 +1234,7 @@
     "model": "cases.subject",
     "pk": 57,
     "fields": {
-      "name": "Borg",
+      "name": "Huurcontract",
       "theme": 8
     }
   },
@@ -1228,22 +1242,32 @@
     "model": "cases.subject",
     "pk": 58,
     "fields": {
-      "name": "Servicekosten",
+      "name": "Informatieverstrekkingsplicht",
       "theme": 8
     }
   },
   {
-    "model": "cases.casestatetype",
-    "pk": 235,
+    "model": "cases.subject",
+    "pk": 59,
     "fields": {
-      "name": "Huisbezoek"
+      "name": "Oneigenlijke servicekosten",
+      "theme": 8
     }
   },
   {
-    "model": "cases.casestatetype",
-    "pk": 236,
+    "model": "cases.subject",
+    "pk": 60,
     "fields": {
-      "name": "Hercontrole"
+      "name": "Arbeidsmigranten huurcontract",
+      "theme": 8
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 61,
+    "fields": {
+      "name": "Arbeidsmigranten informatieverstrekkingsplicht eigen taal",
+      "theme": 8
     }
   }
 ]
