@@ -633,10 +633,14 @@ WORKFLOW_SPEC_CONFIG = {
             },
         },
         "decision": {
-            "initial_data": {},
+            "initial_data": {
+                "theme": {"value": "default"},
+                "task_wait_response_publicate_names_timer_duration": timedelta(days=13),
+            },
             "versions": {
                 "0.1.0": {},
                 "0.2.0": {},
+                "7.0.0": {},
             },
         },
         "digital_surveillance": {
