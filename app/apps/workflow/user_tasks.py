@@ -421,6 +421,55 @@ class task_verwerken_definitieve_besluit(user_task):
     due_date = relativedelta(days=2)
 
 
+class task_versturen_invordering_belastingen_goed_verhuurderschap(user_task):
+    """Versturen invordering belastingen"""
+
+    _task_name = "task_send_tax_collection_theme_goed_verhuurderschap"
+    due_date = relativedelta(weeks=2)
+
+
+class task_besluit_openbaarmaking_namen(user_task):
+    """Besluit openbaarmaking namen"""
+
+    _task_name = "task_take_decision_publicate_names"
+    due_date = relativedelta(weeks=2)
+
+
+class task_opstellen_besluit_openbaarmaking_namen(user_task):
+    """Opstellen besluit openbaarmaking namen"""
+
+    _task_name = "task_create_decision_publicate_names"
+    due_date = relativedelta(weeks=2)
+
+
+class task_nakijken_besluit_openbaarmaking_namen(user_task):
+    """Nakijken besluit openbaarmaking namen"""
+
+    _task_name = "task_check_decision_publicate_names"
+    due_date = relativedelta(weeks=2)
+
+
+class task_verwerken_besluit_openbaarmaking_namen(user_task):
+    """Verwerken besluit openbaar-making namen"""
+
+    _task_name = "task_process_decision_publicate_names"
+    due_date = relativedelta(weeks=2)
+
+
+class task_monitoren_voorlopige_voorziening(user_task):
+    """Monitoren voorlopige voorziening"""
+
+    _task_name = "task_wait_response_publicate_names"
+    due_date = relativedelta(weeks=2)
+
+
+class task_publiceren_namen(user_task):
+    """Publiceren namen"""
+
+    _task_name = "task_publicate_names"
+    due_date = relativedelta(weeks=2)
+
+
 class task_versturen_invordering_belastingen(user_task):
     """Versturen invordering belastingen"""
 
