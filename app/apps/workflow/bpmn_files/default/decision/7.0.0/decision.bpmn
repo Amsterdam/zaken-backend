@@ -33,7 +33,6 @@
         <bpmn:flowNodeRef>task_process_decision_publicate_names</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_wait_response_publicate_names</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>event_timer_wait_response_publicate_names</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Gateway_1tsm43p</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_publicate_names</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0080oni</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_send_tax_collection</bpmn:flowNodeRef>
@@ -184,7 +183,7 @@
     <bpmn:endEvent id="end_14226b3" name="Uitzetten vervolgstap">
       <bpmn:incoming>Flow_005h6w2</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:userTask id="task_check_decision_publicate_names" name="Nakijken besluit openbaarmaking namen" camunda:candidateGroups="Handhavingsjurist" camunda:formKey="form_check_decision_publicate_names">
+    <bpmn:userTask id="task_check_decision_publicate_names" name="Nakijken besluit openbaarmaking namen" camunda:formKey="form_check_decision_publicate_names" camunda:candidateGroups="Handhavingsjurist">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="decision_publicate_names_checked" label="Ja, deze taak is afgerond" type="boolean" />
@@ -216,7 +215,7 @@
       <bpmn:incoming>Flow_1pkipw2</bpmn:incoming>
       <bpmn:outgoing>Flow_0hrysys</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_wait_response_publicate_names" name="Monitoren voorlopige voorziening" camunda:candidateGroups="Projecthandhaver" camunda:formKey="form_wait_response_publicate_names">
+    <bpmn:userTask id="task_wait_response_publicate_names" name="Monitoren voorlopige voorziening" camunda:formKey="form_wait_response_publicate_names" camunda:candidateGroups="Projecthandhaver">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="wait_injunction" label="Wil je de namen publiceren?" type="enum">
@@ -237,18 +236,14 @@
     <bpmn:sequenceFlow id="Flow_1pkipw2" sourceRef="task_check_decision_publicate_names" targetRef="task_process_decision_publicate_names" />
     <bpmn:sequenceFlow id="Flow_0hrysys" sourceRef="task_process_decision_publicate_names" targetRef="task_wait_response_publicate_names" />
     <bpmn:sequenceFlow id="Flow_0dsexg4" sourceRef="task_wait_response_publicate_names" targetRef="Gateway_0080oni">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" />
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_01df1ni" name="After 13 days" sourceRef="event_timer_wait_response_publicate_names" targetRef="Gateway_1tsm43p" />
-    <bpmn:sequenceFlow id="Flow_19ug36g" name="Withdraw publicate names" sourceRef="Gateway_0080oni" targetRef="Gateway_0bd73r1" />
+    <bpmn:sequenceFlow id="Flow_01df1ni" name="After 13 days" sourceRef="event_timer_wait_response_publicate_names" targetRef="task_publicate_names" />
+    <bpmn:sequenceFlow id="Flow_19ug36g" name="Nee, niet publiceren" sourceRef="Gateway_0080oni" targetRef="Gateway_0bd73r1" />
     <bpmn:sequenceFlow id="Flow_0qmayld" sourceRef="task_publicate_names" targetRef="Gateway_0bd73r1" />
-    <bpmn:exclusiveGateway id="Gateway_1tsm43p">
-      <bpmn:incoming>Flow_01df1ni</bpmn:incoming>
-      <bpmn:incoming>Flow_1avbdm2</bpmn:incoming>
-      <bpmn:outgoing>Flow_1vewdpd</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
     <bpmn:userTask id="task_publicate_names" name="Publiceren namen">
-      <bpmn:incoming>Flow_1vewdpd</bpmn:incoming>
+      <bpmn:incoming>Flow_1avbdm2</bpmn:incoming>
+      <bpmn:incoming>Flow_01df1ni</bpmn:incoming>
       <bpmn:outgoing>Flow_0qmayld</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:exclusiveGateway id="Gateway_0080oni" default="Flow_19ug36g">
@@ -256,10 +251,9 @@
       <bpmn:outgoing>Flow_1avbdm2</bpmn:outgoing>
       <bpmn:outgoing>Flow_19ug36g</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1avbdm2" name="Yes, publicate names" sourceRef="Gateway_0080oni" targetRef="Gateway_1tsm43p">
+    <bpmn:sequenceFlow id="Flow_1avbdm2" name="Ja, publiceer namen" sourceRef="Gateway_0080oni" targetRef="task_publicate_names">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">wait_injunction.value == "publicate"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1vewdpd" sourceRef="Gateway_1tsm43p" targetRef="task_publicate_names" />
     <bpmn:userTask id="task_send_tax_collection" name="Versturen invordering belastingen" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_19xjp0z</bpmn:incoming>
       <bpmn:outgoing>Flow_10vmiho</bpmn:outgoing>
@@ -378,9 +372,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1hjkjkz_di" bpmnElement="task_wait_response_publicate_names">
         <dc:Bounds x="1490" y="980" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1tsm43p_di" bpmnElement="Gateway_1tsm43p" isMarkerVisible="true">
-        <dc:Bounds x="1795" y="855" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0rv80na_di" bpmnElement="task_publicate_names">
         <dc:Bounds x="1770" y="720" width="100" height="80" />
@@ -563,16 +554,16 @@
       <bpmndi:BPMNEdge id="Flow_01df1ni_di" bpmnElement="Flow_01df1ni">
         <di:waypoint x="1608" y="1020" />
         <di:waypoint x="1820" y="1020" />
-        <di:waypoint x="1820" y="905" />
+        <di:waypoint x="1820" y="800" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1769" y="999" width="65" height="14" />
+          <dc:Bounds x="1717" y="999" width="65" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_19ug36g_di" bpmnElement="Flow_19ug36g">
         <di:waypoint x="1525" y="870" />
         <di:waypoint x="1385" y="770" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1399" y="826" width="81" height="27" />
+          <dc:Bounds x="1416" y="826" width="51" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0qmayld_di" bpmnElement="Flow_0qmayld">
@@ -581,14 +572,11 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1avbdm2_di" bpmnElement="Flow_1avbdm2">
         <di:waypoint x="1565" y="880" />
-        <di:waypoint x="1795" y="880" />
+        <di:waypoint x="1790" y="880" />
+        <di:waypoint x="1790" y="800" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1626" y="846" width="69" height="27" />
+          <dc:Bounds x="1660" y="846" width="63" height="27" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1vewdpd_di" bpmnElement="Flow_1vewdpd">
-        <di:waypoint x="1820" y="855" />
-        <di:waypoint x="1820" y="800" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
