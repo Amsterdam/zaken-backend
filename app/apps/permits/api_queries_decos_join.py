@@ -150,6 +150,7 @@ class DecosJoinRequest:
             request_params = {
                 "headers": headers,
                 "timeout": 30,
+                "verify": False,
             }
 
             if settings.DECOS_JOIN_AUTH_BASE64:
