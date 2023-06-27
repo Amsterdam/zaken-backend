@@ -150,7 +150,6 @@ class DecosJoinRequest:
             request_params = {
                 "headers": headers,
                 "timeout": 30,
-                "verify": False,
             }
 
             if settings.DECOS_JOIN_AUTH_BASE64:
@@ -162,7 +161,7 @@ class DecosJoinRequest:
 
             logger.info(url)
 
-            response = requests.get(url, **request_params)
+            response = requests.get(url, **request_params, verify=False)
 
             return response.json()
         except requests.exceptions.Timeout:
