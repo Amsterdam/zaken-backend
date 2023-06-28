@@ -91,10 +91,10 @@ def _build_document_body(
         "identificatie": uuid.uuid4().hex,
         "formaat": mimeType,
         "informatieobjecttype": informatieobjecttype,
-        "bronorganisatie": settings.DEFAULT_RSIN,
+        "bronorganisatie": f"{settings.DEFAULT_RSIN}",
         "creatiedatum": _parse_date(date.today()),
         "titel": file.name[:200],
-        "auteur": settings.DEFAULT_RSIN,
+        "auteur": f"{settings.DEFAULT_RSIN}",
         "taal": language,
         "bestandsnaam": file.name,
         "inhoud": string_content,
@@ -117,16 +117,29 @@ def get_zaaktypen(identificatie=None):
     if identificatie:
         params.update({"identificatie": identificatie})
 
-    return get_paginated_results(ztc_client, "zaaktype", query_params=params)
+    paginated_results = None
+    try:
+        paginated_results = get_paginated_results(
+            ztc_client, "zaaktype", query_params=params
+        )
+    except Exception as e:
+        logger.error(f"ZTC_CLIENT - Cannot fetch zaaktypen: {e}")
+
+    return paginated_results
 
 
 def get_zaaktype(zaaktype_url):
     ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
 
-    response = ztc_client.retrieve(
-        "zaaktype",
-        url=zaaktype_url,
-    )
+    response = None
+    try:
+        response = ztc_client.retrieve(
+            "zaaktype",
+            url=zaaktype_url,
+        )
+    except Exception as e:
+        logger.error(f"ZTC_CLIENT - Cannot fetch zaaktype by zaaktype_url: {e}")
+
     return factory(ZaakType, response)
 
 
@@ -140,9 +153,17 @@ def get_document_types(identificatie=None):
     if identificatie:
         params.update({"identificatie": identificatie})
 
-    return get_paginated_results(
-        ztc_client, "informatieobjecttype", query_params=params
-    )
+    paginated_results = None
+    try:
+        paginated_results = get_paginated_results(
+            ztc_client, "informatieobjecttype", query_params=params
+        )
+    except Exception as e:
+        logger.error(
+            f"ZTC_CLIENT - Cannot fetch informatieobjecttypen / document_types: {e}"
+        )
+
+    return paginated_results
 
 
 def create_open_zaak_case(
@@ -150,7 +171,13 @@ def create_open_zaak_case(
 ):
     zaak_body = _build_zaak_body(instance, zaaktype_identificatie)
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    response = zrc_client.create("zaak", zaak_body)
+
+    response = None
+    try:
+        response = zrc_client.create("zaak", zaak_body)
+    except Exception as e:
+        logger.error(f"ZRC_CLIENT - Cannot create case: {e}")
+
     result = factory(Zaak, response)
     instance.case_url = result.url
     instance.save()
@@ -159,15 +186,21 @@ def create_open_zaak_case(
 
 def get_open_zaak_case(case_url):
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    response = zrc_client.retrieve(
-        "zaken",
-        url=case_url,
-        request_kwargs={
-            "headers": {
-                "Accept-Crs": "EPSG:4326",
-            }
-        },
-    )
+
+    response = None
+    try:
+        response = zrc_client.retrieve(
+            "zaken",
+            url=case_url,
+            request_kwargs={
+                "headers": {
+                    "Accept-Crs": "EPSG:4326",
+                }
+            },
+        )
+    except Exception as e:
+        logger.error(f"ZRC_CLIENT - Cannot fetch case: {e}")
+
     return factory(Zaak, response)
 
 
@@ -187,7 +220,15 @@ def get_resultaattypen(zaaktype_url=None):
     if zaaktype_url:
         params.update({"zaaktype": zaaktype_url})
 
-    return get_paginated_results(ztc_client, "resultaattype", query_params=params)
+    paginated_results = None
+    try:
+        paginated_results = get_paginated_results(
+            ztc_client, "resultaattype", query_params=params
+        )
+    except Exception as e:
+        logger.error(f"ZTC_CLIENT - Cannot fetch resultaattype: {e}")
+
+    return paginated_results
 
 
 def create_open_zaak_case_resultaat(
@@ -209,7 +250,7 @@ def create_open_zaak_case_resultaat(
         None,
     )
     if resultaattype is None:
-        print("Open-zaak error: Geen resultaattype gevonden")
+        logger.error("Open-zaak error: No resultaattype found")
         return
 
     omschrijving = resultaattype["omschrijving"]
@@ -220,6 +261,13 @@ def create_open_zaak_case_resultaat(
         "toelichting": f"{omschrijving} in AZA",
     }
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
+
+    response = None
+    try:
+        response = zrc_client.create("resultaat", resultaat_body)
+    except Exception as e:
+        logger.error(f"ZRC_CLIENT - Cannot create resultaat: {e}")
+
     response = zrc_client.create("resultaat", resultaat_body)
     factory(Resultaat, response)
 
@@ -233,7 +281,15 @@ def get_statustypen(zaaktype_url=None):
     if zaaktype_url:
         params.update({"zaaktype": zaaktype_url})
 
-    return get_paginated_results(ztc_client, "statustype", query_params=params)
+    paginated_results = None
+    try:
+        paginated_results = get_paginated_results(
+            ztc_client, "statustype", query_params=params
+        )
+    except Exception as e:
+        logger.error(f"ZTC_CLIENT - Cannot fetch statustypen: {e}")
+
+    return paginated_results
 
 
 def create_open_zaak_case_status(
@@ -262,15 +318,27 @@ def create_open_zaak_case_status(
     }
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("status", status_body)
+
+    response = None
+    try:
+        response = zrc_client.create("status", status_body)
+    except Exception as e:
+        logger.error(f"ZRC_CLIENT - Cannot create status: {e}")
+
     factory(Status, response)
 
 
 def get_open_zaak_case_status(case_status_url):
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    response = zrc_client.retrieve(
-        "status",
-        url=case_status_url,
-    )
+    response = None
+    try:
+        response = zrc_client.retrieve(
+            "status",
+            url=case_status_url,
+        )
+    except Exception as e:
+        logger.error(f"ZRC_CLIENT - Cannot fetch case status: {e}")
+
     return factory(Status, response)
 
 
@@ -282,7 +350,11 @@ def create_document(instance, file, language="nld", informatieobjecttype=None):
 
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
 
-    response = drc_client.create("enkelvoudiginformatieobject", document_body)
+    response = None
+    try:
+        response = drc_client.create("enkelvoudiginformatieobject", document_body)
+    except Exception as e:
+        logger.error(f"DRC_CLIENT - Cannot create document: {e}")
 
     result = factory(Document, response)
     case_document = CaseDocument.objects.create(
@@ -293,10 +365,16 @@ def create_document(instance, file, language="nld", informatieobjecttype=None):
 
 def get_document(document_url):
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
-    response = drc_client.retrieve(
-        "zaakinformatieobject",
-        url=document_url,
-    )
+
+    response = None
+    try:
+        response = drc_client.retrieve(
+            "zaakinformatieobject",
+            url=document_url,
+        )
+    except Exception as e:
+        logger.error(f"DRC_CLIENT - Cannot fetch document: {e}")
+
     return response
 
 
@@ -307,6 +385,7 @@ def get_documents_meta(document_urls):
         try:
             document = drc_client.retrieve("enkelvoudiginformatieobject", url=url)
         except Exception as e:
+            logger.error(f"DRC_CLIENT - Cannot fetch document meta: {e}")
             document = {"error": str(e)}
         return document
 
@@ -321,10 +400,15 @@ def get_documents_meta(document_urls):
 
 def get_document_inhoud(document_inhoud_url):
     client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
-    response = requests.get(
-        document_inhoud_url,
-        headers=client.auth.credentials(),
-    )
+    response = None
+    try:
+        response = requests.get(
+            document_inhoud_url,
+            headers=client.auth.credentials(),
+        )
+    except Exception as e:
+        logger.error(f"DRC_CLIENT - Cannot fetch document inhoud: {e}")
+
     response.raise_for_status()
     return response.content
 
@@ -361,13 +445,20 @@ def update_document(case_document, file, language="nld", informatieobjecttype=No
 def delete_document(case_document):
     # open-zaak: delete zaak document connection
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    zrc_client.delete(
-        "zaakinformatieobject", url=case_document.case_document_connection_url
-    )
+
+    try:
+        zrc_client.delete(
+            "zaakinformatieobject", url=case_document.case_document_connection_url
+        )
+    except Exception as e:
+        logger.error(f"ZRC_CLIENT - Cannot delete zaakinformatieobject: {e}")
 
     # drc: delete document
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
-    drc_client.delete("enkelvoudiginformatieobject", url=case_document.document_url)
+    try:
+        drc_client.delete("enkelvoudiginformatieobject", url=case_document.document_url)
+    except Exception as e:
+        logger.error(f"DRC_CLIENT - Cannot delete enkelvoudiginformatieobject: {e}")
 
 
 def connect_case_and_document(casedocument):
@@ -380,9 +471,15 @@ def connect_case_and_document(casedocument):
     }
 
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    case_document_connection = zrc_client.create(
-        "zaakinformatieobject", casedocument_body
-    )
+
+    case_document_connection = None
+    try:
+        case_document_connection = zrc_client.create(
+            "zaakinformatieobject", casedocument_body
+        )
+    except Exception as e:
+        logger.error(f"ZRC_CLIENT - Cannot create zaakinformatieobject connection: {e}")
+
     casedocument.case_document_connection_url = case_document_connection.get("url")
     casedocument.connected = True
     casedocument.save()
@@ -390,13 +487,21 @@ def connect_case_and_document(casedocument):
 
 def get_open_zaak_case_document_connection(case_document_connection_url):
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    response = zrc_client.retrieve(
-        "zaakinformatieobject",
-        url=case_document_connection_url,
-        request_kwargs={
-            "headers": {
-                "Accept-Crs": "EPSG:4326",
-            }
-        },
-    )
+
+    response = None
+    try:
+        response = zrc_client.retrieve(
+            "zaakinformatieobject",
+            url=case_document_connection_url,
+            request_kwargs={
+                "headers": {
+                    "Accept-Crs": "EPSG:4326",
+                }
+            },
+        )
+    except Exception as e:
+        logger.error(
+            f"ZRC_CLIENT - Cannot fetch zaakinformatieobject with case_document_connection_url: {e}"
+        )
+
     return response

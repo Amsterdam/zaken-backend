@@ -36,7 +36,6 @@ from apps.openzaak.helpers import (
     get_documents_meta,
     get_open_zaak_case,
     get_zaaktype,
-    get_zaaktypen,
 )
 from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
 from apps.users.permissions import (
