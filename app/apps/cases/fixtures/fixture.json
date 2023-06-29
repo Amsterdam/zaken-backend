@@ -845,11 +845,6 @@
       "case_theme": 7
     }
   },
-
-
-
-
-
   {
     "model": "cases.caseproject",
     "pk": 3,
