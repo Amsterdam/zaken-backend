@@ -672,6 +672,60 @@
     }
   },
   {
+    "model": "cases.caseclosereason",
+    "pk": 50,
+    "fields": {
+      "name": "Doorgezet naar ander team",
+      "case_theme": 8,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 51,
+    "fields": {
+      "name": "Geen aanleiding adres opnieuw te bezoeken",
+      "case_theme": 8,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 52,
+    "fields": {
+      "name": "Geen woonfraude",
+      "case_theme": 8,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 53,
+    "fields": {
+      "name": "Onvoldoende bewijs",
+      "case_theme": 8,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 54,
+    "fields": {
+      "name": "Gelegaliseerd",
+      "case_theme": 8,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 55,
+    "fields": {
+      "name": "Anders, vermeld in toelichting",
+      "case_theme": 8,
+      "result": false
+    }
+  },
+  {
     "model": "cases.casecloseresult",
     "pk": 4,
     "fields": {
@@ -791,7 +845,6 @@
       "case_theme": 7
     }
   },
-
   {
     "model": "cases.caseproject",
     "pk": 3,
