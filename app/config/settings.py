@@ -505,7 +505,7 @@ VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER = os.getenv(
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-DEFAULT_RSIN = os.getenv("DEFAULT_RSIN", 130365312)
+DEFAULT_RSIN = os.getenv("DEFAULT_RSIN", "130365312")
 # Used to enable open-zaak signals
 OPENZAAK_ENABLED = os.getenv("OPENZAAK_ENABLED")
 # Catalogus Ruimte en Economie WONEN
