@@ -269,7 +269,6 @@ def create_open_zaak_case_resultaat(
     except Exception as e:
         logger.error(f"ZRC_CLIENT - Cannot create resultaat: {e}")
 
-    response = zrc_client.create("resultaat", resultaat_body)
     factory(Resultaat, response)
 
 
@@ -318,7 +317,6 @@ def create_open_zaak_case_status(
         "statustoelichting": _("Status aangepast in AZA"),
     }
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    response = zrc_client.create("status", status_body)
 
     response = None
     try:
