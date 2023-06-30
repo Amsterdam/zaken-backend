@@ -131,7 +131,7 @@ def get_zaaktypen(identificatie=None):
 def get_zaaktype(zaaktype_url):
     ztc_client = Service.objects.filter(api_type=APITypes.ztc).get().build_client()
 
-    response = {}
+    response = None
     try:
         response = ztc_client.retrieve(
             "zaaktype",
@@ -172,10 +172,11 @@ def create_open_zaak_case(
     zaak_body = _build_zaak_body(instance, zaaktype_identificatie)
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
 
-    response = {}
+    response = None
     try:
         response = zrc_client.create("zaak", zaak_body)
     except Exception as e:
+        response = e
         logger.error(f"ZRC_CLIENT - Cannot create case: {e}")
 
     result = factory(Zaak, response)
@@ -187,7 +188,7 @@ def create_open_zaak_case(
 def get_open_zaak_case(case_url):
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
 
-    response = {}
+    response = None
     try:
         response = zrc_client.retrieve(
             "zaken",
@@ -262,7 +263,7 @@ def create_open_zaak_case_resultaat(
     }
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
 
-    response = {}
+    response = None
     try:
         response = zrc_client.create("resultaat", resultaat_body)
     except Exception as e:
@@ -319,7 +320,7 @@ def create_open_zaak_case_status(
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
     response = zrc_client.create("status", status_body)
 
-    response = {}
+    response = None
     try:
         response = zrc_client.create("status", status_body)
     except Exception as e:
@@ -330,7 +331,7 @@ def create_open_zaak_case_status(
 
 def get_open_zaak_case_status(case_status_url):
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-    response = {}
+    response = None
     try:
         response = zrc_client.retrieve(
             "status",
@@ -350,10 +351,11 @@ def create_document(instance, file, language="nld", informatieobjecttype=None):
 
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
 
-    response = {}
+    response = None
     try:
         response = drc_client.create("enkelvoudiginformatieobject", document_body)
     except Exception as e:
+        response = e
         logger.error(f"DRC_CLIENT - Cannot create document: {e}")
 
     result = factory(Document, response)
@@ -366,7 +368,7 @@ def create_document(instance, file, language="nld", informatieobjecttype=None):
 def get_document(document_url):
     drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
 
-    response = {}
+    response = None
     try:
         response = drc_client.retrieve(
             "zaakinformatieobject",
@@ -400,7 +402,7 @@ def get_documents_meta(document_urls):
 
 def get_document_inhoud(document_inhoud_url):
     client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
-    response = {}
+    response = None
     try:
         response = requests.get(
             document_inhoud_url,
@@ -488,7 +490,7 @@ def connect_case_and_document(casedocument):
 def get_open_zaak_case_document_connection(case_document_connection_url):
     zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
 
-    response = {}
+    response = None
     try:
         response = zrc_client.retrieve(
             "zaakinformatieobject",
