@@ -177,6 +177,7 @@ def create_open_zaak_case(
         response = zrc_client.create("zaak", zaak_body)
     except Exception as e:
         logger.error(f"ZRC_CLIENT - Cannot create case: {e}")
+        raise e
 
     result = factory(Zaak, response)
     instance.case_url = result.url
@@ -355,6 +356,7 @@ def create_document(instance, file, language="nld", informatieobjecttype=None):
         response = drc_client.create("enkelvoudiginformatieobject", document_body)
     except Exception as e:
         logger.error(f"DRC_CLIENT - Cannot create document: {e}")
+        raise e
 
     result = factory(Document, response)
     case_document = CaseDocument.objects.create(

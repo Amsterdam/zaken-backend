@@ -161,8 +161,7 @@ class DecosJoinRequest:
 
             logger.info(url)
 
-            response = requests.get(url, **request_params, verify=False)
-            print("response.json()", response.json())
+            response = requests.get(url, **request_params)
 
             return response.json()
         except requests.exceptions.Timeout:
