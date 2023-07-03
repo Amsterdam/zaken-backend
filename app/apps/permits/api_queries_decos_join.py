@@ -150,6 +150,7 @@ class DecosJoinRequest:
             request_params = {
                 "headers": headers,
                 "timeout": 30,
+                "verify": "/usr/local/share/ca-certificates/adp_rootca.crt",
             }
 
             if settings.DECOS_JOIN_AUTH_BASE64:
@@ -162,7 +163,6 @@ class DecosJoinRequest:
             logger.info(url)
 
             response = requests.get(url, **request_params)
-            print("DECOS response  =>>", response.json())
 
             return response.json()
         except requests.exceptions.Timeout:
