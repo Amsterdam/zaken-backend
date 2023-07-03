@@ -12,7 +12,7 @@ click==8.1.2
 click-didyoumean==0.0.3
 click-plugins==1.1.1
 click-repl==0.2.0
-cryptography==36.0.2
+cryptography==41.0.1
 datapunt-keycloak-oidc @ git+https://github.com/petercuret/keycloak_oidc.git@master
 debugpy==1.4.1
 Django==3.2.13
@@ -55,7 +55,7 @@ psycopg2==2.9.1
 pycparser==2.20
 # pygraphviz==1.7
 PyJWT==2.1.0
-pyOpenSSL==20.0.1
+pyOpenSSL==23.2.0
 pyrsistent==0.18.0
 python-crontab==2.5.1
 python-dateutil==2.8.2
