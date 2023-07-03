@@ -89,10 +89,10 @@ pipeline {
     }
 
     stage("Push and deploy acceptance images") {
-      when {
-        not { buildingTag() }
-        branch 'master'
-      }
+      // when {
+      //   not { buildingTag() }
+      //   branch 'master'
+      // }
       steps {
         tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.ACCEPTANCE)
         tag_and_deploy(env.OPEN_ZAAK_IMAGE_URL, env.OPEN_ZAAK_NAME, env.ACCEPTANCE)
