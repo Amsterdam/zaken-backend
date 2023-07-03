@@ -14,6 +14,7 @@ from utils.api_queries_toeristische_verhuur import (
 )
 
 logger = logging.getLogger(__name__)
+timeout_in_sec = 6
 
 
 class APIServiceCheckBackend(BaseHealthCheckBackend):
@@ -34,7 +35,7 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
         api_url = self.get_api_url()
         assert api_url, "The given api_url should be set"
         try:
-            response = requests.get(api_url, timeout=6)
+            response = requests.get(api_url, timeout=timeout_in_sec)
             response.raise_for_status()
         except AssertionError as e:
             logger.error(e)
@@ -51,8 +52,10 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
         except HTTPError as e:
             logger.error(e)
             self.add_error(ServiceUnavailable(f"Service not found. {api_url}"))
-        except TimeoutError:
-            self.add_error(ServiceUnavailable("Exceeded timeout of 6 seconds"))
+        except requests.exceptions.Timeout:
+            self.add_error(
+                ServiceUnavailable(f"Exceeded timeout of {timeout_in_sec} seconds")
+            )
         except BaseException as e:
             logger.error(e)
             self.add_error(ServiceUnavailable("Unknown error"), e)
