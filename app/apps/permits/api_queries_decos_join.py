@@ -150,7 +150,6 @@ class DecosJoinRequest:
             request_params = {
                 "headers": headers,
                 "timeout": 30,
-                "verify": "/usr/local/share/ca-certificates/adp_rootca.crt",
             }
 
             if settings.DECOS_JOIN_AUTH_BASE64:
