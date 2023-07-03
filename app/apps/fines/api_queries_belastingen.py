@@ -21,6 +21,7 @@ def get_fines(id):
         headers=header,
         params=parameter,
         verify="/usr/local/share/ca-certificates/adp_rootca.crt",
+        timeout=6,
     )
     response.raise_for_status()
 
