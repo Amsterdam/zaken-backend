@@ -44,6 +44,6 @@ class UserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {"classes": ("wide",), "fields": ("email", "password1", "password2")}),
     )
-    list_display = ("id", "full_name", "email", "is_staff")
+    list_display = ("id", "full_name", "email", "is_staff", "last_login", "date_joined")
     search_fields = ("email",)
     ordering = ("email",)
