@@ -131,3 +131,14 @@ class PermitSerializer(serializers.Serializer):
 class DecosSerializer(serializers.Serializer):
     permits = PermitSerializer(many=True)
     decos_folders = serializers.DictField(allow_null=True)
+
+
+class PowerbrowserSerializer(serializers.Serializer):
+    baG_ID = serializers.CharField()
+    product = serializers.CharField()
+    kenmerk = serializers.CharField(allow_null=True)
+    muT_DAT = serializers.DateTimeField()
+    status = serializers.CharField()
+    resultaat = serializers.CharField(allow_null=True)
+    startdatum = serializers.DateTimeField()
+    einddatum = serializers.DateTimeField(allow_null=True)
