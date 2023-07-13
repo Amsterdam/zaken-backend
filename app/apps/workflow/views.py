@@ -25,13 +25,13 @@ from django.db.models import Q
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from packaging import version
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
 from .models import CaseUserTask, GenericCompletedTask
+from .utils import is_workflow_version_supported
 
 role_parameter = OpenApiParameter(
     name="role",
@@ -377,8 +377,8 @@ class CaseUserTaskViewSet(
         lts_workflow_version = "6.3.0"
         lts_workflow_option = "besluit"
 
-        if version.parse(current_workflow_version) >= version.parse(
-            lts_workflow_version
+        if is_workflow_version_supported(
+            current_workflow_version, lts_workflow_version
         ):
             # The version is equal to or higher than 6.3.0" so return all types for theme.
             query_set = theme.summon_types.all()
