@@ -139,8 +139,9 @@ class DecosJoinCheck(BaseHealthCheckBackend):
         from apps.permits.api_queries_decos_join import DecosJoinRequest
 
         try:
-            # The address doesn't matter, as long an authenticated request is succesful.
-            response = DecosJoinRequest().get()
+            # The address doesn't matter, as long an authenticated request is succesful. Amstel 1 ;)
+            path = "items/90642DCCC2DB46469657C3D0DF0B1ED7/COBJECTS?filter=PHONE3 eq '0363010012143319'"
+            response = DecosJoinRequest().get(path)
             assert response, "Could not reach Decos Join"
         except Exception as e:
             self.add_error(ServiceUnavailable("Failed"), e)
