@@ -31,7 +31,6 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
 from .models import CaseUserTask, GenericCompletedTask
-from .utils import is_workflow_version_supported
 
 role_parameter = OpenApiParameter(
     name="role",
@@ -370,21 +369,15 @@ class CaseUserTaskViewSet(
     def summon_types(self, request, pk):
         paginator = LimitOffsetPagination()
         caseUserTask = self.get_object()
-        current_workflow_version = caseUserTask.workflow.workflow_version
         theme = caseUserTask.case.theme
 
         # Summon types with workflow option "besluit" are only available from version "6.3.0"
-        lts_workflow_version = "6.3.0"
-        lts_workflow_option = "besluit"
-
-        if is_workflow_version_supported(
-            current_workflow_version, lts_workflow_version
-        ):
+        if caseUserTask.workflow.is_workflow_version_supported():
             # The version is equal to or higher than 6.3.0" so return all types for theme.
             query_set = theme.summon_types.all()
         else:
             # The version is lower than 6.3.0" so exclude "besluit".
-            query_set = theme.summon_types.exclude(workflow_option=lts_workflow_option)
+            query_set = theme.summon_types.exclude(workflow_option="besluit")
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = SummonTypeSerializer(context, many=True)

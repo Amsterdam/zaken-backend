@@ -12,6 +12,7 @@ from django.db import models, transaction
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_duration
+from packaging import version
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.specs.BoundaryEvent import _BoundaryEventParent
@@ -45,6 +46,9 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Summon types with workflow option "besluit" are only available from version "6.3.0"
+LTS_WORKFLOW_VERSION_SUMMON = "6.3.0"
 
 
 class CaseWorkflow(models.Model):
@@ -148,6 +152,13 @@ class CaseWorkflow(models.Model):
     )
 
     serializer = BpmnSerializer
+
+    def is_workflow_version_supported(self):
+        if self.workflow_type == CaseWorkflow.WORKFLOW_TYPE_SUMMON:
+            return version.parse(self.workflow_version) >= version.parse(
+                LTS_WORKFLOW_VERSION_SUMMON
+            )
+        return True
 
     def get_lock_id(self):
         return f"caseworkflow-lock-{self.id}"

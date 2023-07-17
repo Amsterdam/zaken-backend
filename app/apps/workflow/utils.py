@@ -8,7 +8,6 @@ import os
 from apps.events.models import TaskModelEventEmitter
 from deepdiff import DeepDiff
 from django.conf import settings
-from packaging import version
 from prettyprinter import pprint
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
@@ -22,12 +21,6 @@ from SpiffWorkflow.specs.StartTask import StartTask
 from SpiffWorkflow.task import Task
 
 logger = logging.getLogger(__name__)
-
-
-def is_workflow_version_supported(current_workflow_version, lts_workflow_version):
-    return version.parse(current_workflow_version) >= version.parse(
-        lts_workflow_version
-    )
 
 
 def complete_uncompleted_task_for_event_emitters(event_emmitter, data={}):
