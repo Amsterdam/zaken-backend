@@ -20,11 +20,7 @@ from apps.cases.serializers.main import (
     TagSerializer,
 )
 from apps.schedules.serializers import ScheduleDataSerializer, ScheduleSerializer
-from apps.workflow.serializers import (
-    CaseWorkflowBaseSerializer,
-    CaseWorkflowCaseDetailSerializer,
-    CaseWorkflowSerializer,
-)
+from apps.workflow.serializers import CaseWorkflowBaseSerializer, CaseWorkflowSerializer
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from rest_framework import serializers
 

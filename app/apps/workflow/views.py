@@ -9,6 +9,7 @@ from apps.cases.models import (
 )
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
+from apps.summons.serializers import SummonTypeSerializer
 from apps.users.permissions import (
     CanAccessSensitiveCases,
     rest_permission_classes_for_top,
@@ -26,6 +27,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
 from .models import CaseUserTask, GenericCompletedTask
@@ -354,6 +356,33 @@ class CaseUserTaskViewSet(
         )
         serializer = serializers.ListSerializer(queryset, child=serializers.CharField())
         return Response(serializer.data)
+
+    @extend_schema(
+        description="Gets the SummonTypes associated with the given  task id",
+        responses={status.HTTP_200_OK: SummonTypeSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="summon-types",
+        methods=["get"],
+    )
+    def summon_types(self, request, pk):
+        paginator = LimitOffsetPagination()
+        caseUserTask = self.get_object()
+        theme = caseUserTask.case.theme
+
+        # Summon types with workflow option "besluit" are only available from version "6.3.0"
+        if caseUserTask.workflow.is_workflow_version_supported():
+            # The version is equal to or higher than 6.3.0" so return all types for theme.
+            query_set = theme.summon_types.all()
+        else:
+            # The version is lower than 6.3.0" so exclude "besluit".
+            query_set = theme.summon_types.exclude(workflow_option="besluit")
+
+        context = paginator.paginate_queryset(query_set, request)
+        serializer = SummonTypeSerializer(context, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
 
 
 class GenericCompletedTaskFilter(filters.FilterSet):
