@@ -5,9 +5,7 @@ ENV REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
 # Setup Certificates for ADP/Motiv
 COPY certificates/adp_rootca.crt /usr/local/share/ca-certificates/adp_rootca.crt
-COPY certificates/QuoVadis_Global_SSL_ICA_G2.crt /usr/local/share/ca-certificates/extras/QuoVadis_Global_SSL_ICA_G2.crt
 RUN chmod 644 /usr/local/share/ca-certificates/adp_rootca.crt \
-    && chmod 644 /usr/local/share/ca-certificates/extras/QuoVadis_Global_SSL_ICA_G2.crt \
     && update-ca-certificates --fresh
 
 ENV PYTHONUNBUFFERED 1
