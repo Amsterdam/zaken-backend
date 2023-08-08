@@ -1102,5 +1102,15 @@
       "message_name": "start_verzoek_opheffing_openbaarmaking_namen",
       "to_directing_proccess": false
     }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 121,
+    "fields": {
+      "theme": 8,
+      "name": "Handhavingsverzoek",
+      "message_name": "start_handhavingsverzoek",
+      "to_directing_proccess": false
+    }
   }
 ]
