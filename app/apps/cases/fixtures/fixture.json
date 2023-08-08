@@ -1330,5 +1330,13 @@
       "name": "Doorzon",
       "theme": 4
     }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 63,
+    "fields": {
+      "name": "Zorgwoning",
+      "theme": 3
+    }
   }
 ]
