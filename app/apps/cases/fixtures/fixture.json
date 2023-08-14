@@ -357,6 +357,14 @@
     }
   },
   {
+    "model": "cases.casereason",
+    "pk": 42,
+    "fields": {
+      "name": "Handhavingsverzoek",
+      "theme": 7
+    }
+  },
+  {
     "model": "cases.caseclosereason",
     "pk": 15,
     "fields": {
