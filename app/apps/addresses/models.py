@@ -82,8 +82,16 @@ class Address(models.Model):
         bag_search_results = bag_search_response.get("results", [])
 
         if bag_search_results:
-            #  A BAG search will return an array with 1 result.
-            found_bag_data = bag_search_results[0]
+            # A BAG search will return an array with 1 or more results.
+            # There could be a "Nevenadres" so check addresses for "Hoofdadres".
+
+            found_address = None
+            for address in bag_search_results:
+                if address.get("type_adres") == "Hoofdadres":
+                    found_address = address
+                    break  # Found first desired object so break the loop.
+
+            found_bag_data = found_address or bag_search_results[0]
 
             self.postal_code = found_bag_data.get("postcode", "")
             self.street_name = found_bag_data.get("straatnaam", "")
