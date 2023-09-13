@@ -1,7 +1,7 @@
 from apps.cases.models import Case
 from apps.users.auth_apps import TonKeyAuth, TopKeyAuth
 from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, IsAuthenticated
 
 custom_permissions = [
     # Permissions for cases/tasks
@@ -77,7 +77,8 @@ class CanAccessSensitiveCases(BasePermission):
     """
 
     def has_permission(self, request, view):
-        return True
+        # Check if the user is authenticated using IsAuthenticated permission.
+        return IsAuthenticated().has_permission(request, view)
 
     def has_object_permission(self, request, view, obj):
 
