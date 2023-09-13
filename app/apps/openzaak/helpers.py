@@ -8,6 +8,7 @@ import hashlib
 import logging
 import mimetypes
 import pathlib
+import textwrap
 import uuid
 from datetime import date
 from typing import List
@@ -44,7 +45,7 @@ def _parse_date(date):
 def _get_description(id, zaaktype_identificatie):
     """Get the description based on the zaaktype_identificatie."""
     if zaaktype_identificatie == settings.OPENZAAK_ZAAKTYPE_IDENTIFICATIE_HANDHAVEN:
-        return f"""
+        description = f"""
         Het dossier ({id}) is nu in de handhavingsfase. Het staat nog niet vast dat gehandhaafd zal worden.
         Uit de onderzoeksresultaten kan bijvoorbeeld volgen dat de woning regulier bewoond wordt
         en dus niet gehandhaafd moet worden, dat het dossier terug moet naar de toezichtfase omdat
@@ -54,11 +55,15 @@ def _get_description(id, zaaktype_identificatie):
         feiten en omstandigheden kijken en overwegen of een handhavingsbesluit moet worden opgelegd,
         of dat daarvan moet worden afgezien.
         """
-    return f"""
-    Het dossier ({id}) is nu in de toezichtfase. Toezichthouders zullen het adres bezoeken. Houdt u er rekening mee
-    dat dit enige tijd kan duren. Het kan bijvoorbeeld voorkomen dat toezichthouders meerdere malen naar het
-    adres toe moeten voor hun onderzoek.
-    """
+    else:
+        description = f"""
+        Het dossier ({id}) is nu in de toezichtfase. Toezichthouders zullen het adres bezoeken. Houdt u er rekening mee
+        dat dit enige tijd kan duren. Het kan bijvoorbeeld voorkomen dat toezichthouders meerdere malen naar het
+        adres toe moeten voor hun onderzoek.
+        """
+
+    # Remove leading whitespace caused by indentation
+    return textwrap.dedent(description)
 
 
 def _build_zaak_body(
