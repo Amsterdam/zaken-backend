@@ -199,19 +199,16 @@ class CaseWorkflowSerializer(CaseWorkflowBaseSerializer):
         exclude = [
             "id",
             "case",
-            "created",
             "started",
             "serialized_workflow_state",
             "main_workflow",
             "workflow_type",
             "workflow_version",
             "workflow_theme_name",
-            "completed",
             "parent_workflow",
             "data",
             "workflow_message_name",
             "case_state_type",
-            "date_modified",
         ]
 
 
