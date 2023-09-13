@@ -41,6 +41,26 @@ def _parse_date(date):
     return None
 
 
+def _get_description(id, zaaktype_identificatie):
+    """Get the description based on the zaaktype_identificatie."""
+    if zaaktype_identificatie == settings.OPENZAAK_ZAAKTYPE_IDENTIFICATIE_HANDHAVEN:
+        return f"""
+        Het dossier ({id}) is nu in de handhavingsfase. Het staat nog niet vast dat gehandhaafd zal worden.
+        Uit de onderzoeksresultaten kan bijvoorbeeld volgen dat de woning regulier bewoond wordt
+        en dus niet gehandhaafd moet worden, dat het dossier terug moet naar de toezichtfase omdat
+        de woning opnieuw bezocht moet worden door de toezichthouders of dat een andere actie benodigd is.
+        Handhaving begint eerst met een aanschrijving waarin wij kenbaar maken voornemens zijn om handhavend
+        op te treden. Daarop kan een zienswijze worden ingediend. Vervolgens zullen wij nogmaals naar alle
+        feiten en omstandigheden kijken en overwegen of een handhavingsbesluit moet worden opgelegd,
+        of dat daarvan moet worden afgezien.
+        """
+    return f"""
+    Het dossier ({id}) is nu in de toezichtfase. Toezichthouders zullen het adres bezoeken. Houdt u er rekening mee
+    dat dit enige tijd kan duren. Het kan bijvoorbeeld voorkomen dat toezichthouders meerdere malen naar het
+    adres toe moeten voor hun onderzoek.
+    """
+
+
 def _build_zaak_body(
     instance, zaaktype_identificatie=settings.OPENZAAK_ZAAKTYPE_IDENTIFICATIE_TOEZICHT
 ):
@@ -52,12 +72,10 @@ def _build_zaak_body(
     identificatie = f"{instance.id}-{zaaktype_omschrijving}"
     if len(identificatie) > 40:
         print("Open-zaak: Maximum characters for Zaak identificatie exceeded.")
-
+    description = _get_description(instance.id, zaaktype_identificatie)
     return {
         "identificatie": identificatie,
-        "toelichting": (
-            instance.description or f"Zaak {instance.id} aangemaakt via AZA"
-        )[:1000],
+        "toelichting": description[:1000],
         "zaaktype": zaaktype_url,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "verantwoordelijkeOrganisatie": settings.DEFAULT_RSIN,
