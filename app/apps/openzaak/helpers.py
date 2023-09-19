@@ -8,7 +8,6 @@ import hashlib
 import logging
 import mimetypes
 import pathlib
-import textwrap
 import uuid
 from datetime import date
 from typing import List
@@ -61,9 +60,9 @@ def _get_description(id, zaaktype_identificatie):
         dat dit enige tijd kan duren. Het kan bijvoorbeeld voorkomen dat toezichthouders meerdere malen naar het
         adres toe moeten voor hun onderzoek.
         """
-
-    # Remove leading whitespace caused by indentation
-    return textwrap.dedent(description)
+    # Remove whitespace caused by indentation and create one single line.
+    single_line_string = " ".join(description.replace("\n", " ").split())
+    return single_line_string
 
 
 def _build_zaak_body(
