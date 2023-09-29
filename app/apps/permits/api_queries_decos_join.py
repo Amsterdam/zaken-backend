@@ -329,16 +329,34 @@ class DecosJoinRequest:
                                         # Wrap datetime validation in a try-catch to prevent breaking code.
                                         try:
                                             # Is the current permit valid/active? => now must be between start and enddate.
-                                            is_current_permit_valid = (
-                                                current_permit_valid_from <= now
-                                                and now <= current_permit_valid_until
-                                            )
+                                            # Check if the variables are not None before comparing.
+                                            if (
+                                                current_permit_valid_from is not None
+                                                and current_permit_valid_until
+                                                is not None
+                                            ):
+                                                is_current_permit_valid = (
+                                                    current_permit_valid_from <= now
+                                                    and now
+                                                    <= current_permit_valid_until
+                                                )
+                                            else:
+                                                # Handle the case where one or both variables are None
+                                                is_current_permit_valid = False
 
                                             # Is the next permit valid/active? => now must be between start and enddate.
-                                            is_next_permit_valid = (
-                                                next_permit_valid_from <= now
-                                                and now <= next_permit_valid_until
-                                            )
+                                            # Check if the variables are not None before comparing.
+                                            if (
+                                                next_permit_valid_from is not None
+                                                and next_permit_valid_until is not None
+                                            ):
+                                                is_next_permit_valid = (
+                                                    next_permit_valid_from <= now
+                                                    and now <= next_permit_valid_until
+                                                )
+                                            else:
+                                                # Handle the case where one or both variables are None
+                                                is_next_permit_valid = False
 
                                             if is_next_permit_valid:
                                                 # Next permit is valid so this is the one users would like to see. Update permit data.
