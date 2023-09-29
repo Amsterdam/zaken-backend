@@ -266,6 +266,8 @@ class DecosJoinRequest:
             }
             for v in decos_join_conf_object
         ]
+        # Initialize an empty list to hold new items
+        new_permits = []
 
         response_decos_obj = self.get_decos_object_with_bag_id(bag_id)
 
@@ -327,20 +329,48 @@ class DecosJoinRequest:
                                         # Wrap datetime validation in a try-catch to prevent breaking code.
                                         try:
                                             # Is the current permit valid/active? => now must be between start and enddate.
-                                            is_current_permit_valid = (
-                                                current_permit_valid_from <= now
-                                                and now <= current_permit_valid_until
-                                            )
+                                            # Check if the variables are not None before comparing.
+                                            if (
+                                                current_permit_valid_from is not None
+                                                and current_permit_valid_until
+                                                is not None
+                                            ):
+                                                is_current_permit_valid = (
+                                                    current_permit_valid_from <= now
+                                                    and now
+                                                    <= current_permit_valid_until
+                                                )
+                                            else:
+                                                # Handle the case where one or both variables are None
+                                                is_current_permit_valid = False
 
                                             # Is the next permit valid/active? => now must be between start and enddate.
-                                            is_next_permit_valid = (
-                                                next_permit_valid_from <= now
-                                                and now <= next_permit_valid_until
-                                            )
+                                            # Check if the variables are not None before comparing.
+                                            if (
+                                                next_permit_valid_from is not None
+                                                and next_permit_valid_until is not None
+                                            ):
+                                                is_next_permit_valid = (
+                                                    next_permit_valid_from <= now
+                                                    and now <= next_permit_valid_until
+                                                )
+                                            else:
+                                                # Handle the case where one or both variables are None
+                                                is_next_permit_valid = False
 
                                             if is_next_permit_valid:
                                                 # Next permit is valid so this is the one users would like to see. Update permit data.
-                                                d.update(permit_serializer.data)
+                                                if is_current_permit_valid:
+                                                    # Both current and next permits are valid.
+                                                    # Show both permits so the Toezichthouder can decide.
+                                                    # Add the next permit to the new_permits list for merging later.
+                                                    new_permits.append(
+                                                        permit_serializer.data
+                                                    )
+                                                else:
+                                                    # Only the next permit is valid, update the data.
+                                                    d.update(permit_serializer.data)
+
                                             elif not is_current_permit_valid:
                                                 # Current permit and next permit are not valid.
                                                 if next_permit_valid_from > now:
@@ -377,6 +407,9 @@ class DecosJoinRequest:
                         logger.info(
                             "Config keys: %s" % decos_join_conf_object.get_book_keys()
                         )
+
+        # Extend the original permits list with new items
+        permits.extend(new_permits)
 
         response.update(
             {
