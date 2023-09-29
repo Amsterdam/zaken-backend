@@ -266,6 +266,8 @@ class DecosJoinRequest:
             }
             for v in decos_join_conf_object
         ]
+        # Initialize an empty list to hold new items
+        new_permits = []
 
         response_decos_obj = self.get_decos_object_with_bag_id(bag_id)
 
@@ -340,7 +342,17 @@ class DecosJoinRequest:
 
                                             if is_next_permit_valid:
                                                 # Next permit is valid so this is the one users would like to see. Update permit data.
-                                                d.update(permit_serializer.data)
+                                                if is_current_permit_valid:
+                                                    # Both current and next permits are valid.
+                                                    # Show both permits so the Toezichthouder can decide.
+                                                    # Add the next permit to the new_permits list for merging later.
+                                                    new_permits.append(
+                                                        permit_serializer.data
+                                                    )
+                                                else:
+                                                    # Only the next permit is valid, update the data.
+                                                    d.update(permit_serializer.data)
+
                                             elif not is_current_permit_valid:
                                                 # Current permit and next permit are not valid.
                                                 if next_permit_valid_from > now:
@@ -377,6 +389,9 @@ class DecosJoinRequest:
                         logger.info(
                             "Config keys: %s" % decos_join_conf_object.get_book_keys()
                         )
+
+        # Extend the original permits list with new items
+        permits.extend(new_permits)
 
         response.update(
             {
