@@ -411,9 +411,12 @@ class DecosJoinRequest:
         # Extend the original permits list with new items
         permits.extend(new_permits)
 
+        # Sort the list based on the "permit_type" key
+        sorted_permits = sorted(permits, key=lambda x: x["permit_type"])
+
         response.update(
             {
-                "permits": permits,
+                "permits": sorted_permits,
                 "decos_folders": response_decos_folder,
             }
         )
