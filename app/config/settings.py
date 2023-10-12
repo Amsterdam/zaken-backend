@@ -183,9 +183,13 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "v1",
 }
 
+TAG_NAME = os.getenv("TAG_NAME", "default-release")
+
 # Error logging through Sentry
 sentry_sdk.init(
-    dsn=os.environ.get("SENTRY_DSN", ""), integrations=[DjangoIntegration()]
+    dsn=os.environ.get("SENTRY_DSN"),
+    integrations=[DjangoIntegration()],
+    release=TAG_NAME,
 )
 
 LOGGING = {

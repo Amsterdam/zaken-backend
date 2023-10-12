@@ -97,6 +97,8 @@ def _build_document_body(
 ):
     file.seek(0)
     content = file.read()
+    file_size = len(content)
+
     string_content = base64.b64encode(content).decode("utf-8")
     informatieobjecttype = (
         informatieobjecttype
@@ -105,13 +107,13 @@ def _build_document_body(
     )
     # Get mime type
     try:
-        (mimeType, *_) = mimetypes.guess_type(pathlib.Path(file.name))
+        (mime_type, *_) = mimetypes.guess_type(pathlib.Path(file.name))
     except Exception as e:
         logger.info(f"MIME-type cannot be detected: {e}")
 
     document_body = {
         "identificatie": uuid.uuid4().hex,
-        "formaat": mimeType,
+        "formaat": mime_type,
         "informatieobjecttype": informatieobjecttype,
         "bronorganisatie": settings.DEFAULT_RSIN,
         "creatiedatum": _parse_date(date.today()),
@@ -121,6 +123,7 @@ def _build_document_body(
         "bestandsnaam": file.name,
         "inhoud": string_content,
         "indicatieGebruiksrecht": False,
+        "bestandsomvang": file_size,  # total bytes as integer
     }
     if lock:
         document_body["lock"] = lock
