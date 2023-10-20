@@ -1,3 +1,5 @@
+import logging
+
 from django.db import models
 from utils.api_queries_bag import (
     do_bag_search_by_bag_id,
@@ -5,6 +7,8 @@ from utils.api_queries_bag import (
     do_bag_search_nummeraanduiding_id_by_bag_id,
     get_bag_data_by_verblijfsobject_url,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class District(models.Model):
@@ -162,6 +166,13 @@ class Address(models.Model):
 
     def save(self, *args, **kwargs):
         self.search_and_set_bag_address_data()
-        self.search_and_set_bag_nummeraanduiding_id()
+        # Prevent a nummeraanduiding_id error while creating a case.
+        try:
+            self.search_and_set_bag_nummeraanduiding_id()
+        except Exception as e:
+            logger.error(
+                f"Could not retrieve nummeraanduiding_id for bag_id:{self.bag_id}: {e}"
+            )
+
         # TODO: If self is missing address data, don't create a case.
         return super().save(*args, **kwargs)
