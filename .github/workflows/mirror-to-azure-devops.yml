@@ -1,0 +1,21 @@
+name: Mirror to Azure DevOps
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Push to Azure DevOps
+        env:
+          AZURE_DEVOPS_REPO_URL_PAT: ${{ secrets.AZURE_DEVOPS_REPO_URL_PAT }}
+        run: |
+          git remote add azure-devops $AZURE_DEVOPS_REPO_URL_PAT
+          git push azure-devops master
