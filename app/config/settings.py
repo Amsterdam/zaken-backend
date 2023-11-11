@@ -298,6 +298,11 @@ BAG_API_VERBLIJFSOBJECT_URL = os.getenv(
     "BAG_API_VERBLIJFSOBJECT_URL",
     "https://api.data.amsterdam.nl/bag/v1.1/verblijfsobject/",
 )
+# Bag_id of Amstel 1 for testing purposes.
+BAG_ID_AMSTEL_1 = os.getenv(
+    "BAG_ID_AMSTEL_1",
+    "0363010012143319",
+)
 BELASTING_API_URL = os.getenv(
     "BELASTING_API_URL",
     "https://api-acc.belastingen.centric.eu/bel/inn/afne/vora/v1/vorderingenidentificatienummer/",

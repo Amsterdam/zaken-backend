@@ -273,3 +273,20 @@ class Toeristischeverhuur(BaseHealthCheckBackend):
             logger.info(
                 "Connection established. Toeristischeverhuur.nl API connection is healthy."
             )
+
+
+class PowerBrowser(BaseHealthCheckBackend):
+    """
+    Tests an authenticated request to PowerBrowser for B&B permits
+    """
+
+    def check_status(self):
+        from apps.permits.api_queries_powerbrowser import PowerbrowserRequest
+
+        try:
+            response = PowerbrowserRequest().get_vergunningen_with_bag_id(
+                settings.BAG_ID_AMSTEL_1
+            )
+            assert response, "Could not reach PowerBrowser"
+        except Exception as e:
+            self.add_error(ServiceUnavailable("Failed"), e)
