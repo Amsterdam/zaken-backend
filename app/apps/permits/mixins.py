@@ -41,7 +41,7 @@ class PermitDetailsMixin:
     @action(
         detail=True,
         url_name="permit details PowerBrowser",
-        url_path="permitsbb",
+        url_path="permits-powerbrowser",
         permission_classes=rest_permission_classes_for_ton(),
     )
     def get_bb_permit_details(self, request, bag_id):
