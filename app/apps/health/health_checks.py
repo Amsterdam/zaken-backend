@@ -1,6 +1,7 @@
 import logging
 
 import requests
+from apps.permits.api_queries_powerbrowser import PowerbrowserRequest
 from config.celery import debug_task
 from django.conf import settings
 from health_check.backends import BaseHealthCheckBackend
@@ -281,8 +282,6 @@ class PowerBrowser(BaseHealthCheckBackend):
     """
 
     def check_status(self):
-        from apps.permits.api_queries_powerbrowser import PowerbrowserRequest
-
         try:
             response = PowerbrowserRequest().get_vergunningen_with_bag_id(
                 settings.BAG_ID_AMSTEL_1
