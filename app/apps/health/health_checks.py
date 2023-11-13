@@ -1,6 +1,7 @@
 import logging
 
 import requests
+from apps.permits.api_queries_powerbrowser import PowerbrowserRequest
 from config.celery import debug_task
 from django.conf import settings
 from health_check.backends import BaseHealthCheckBackend
@@ -274,3 +275,18 @@ class Toeristischeverhuur(BaseHealthCheckBackend):
             logger.info(
                 "Connection established. Toeristischeverhuur.nl API connection is healthy."
             )
+
+
+class PowerBrowser(BaseHealthCheckBackend):
+    """
+    Tests an authenticated request to PowerBrowser for B&B permits
+    """
+
+    def check_status(self):
+        try:
+            response = PowerbrowserRequest().get_vergunningen_with_bag_id(
+                settings.BAG_ID_AMSTEL_1
+            )
+            assert response, "Could not reach PowerBrowser"
+        except Exception as e:
+            self.add_error(ServiceUnavailable("Failed"), e)

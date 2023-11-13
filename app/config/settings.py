@@ -302,6 +302,11 @@ BAG_API_VERBLIJFSOBJECT_URL = os.getenv(
     "BAG_API_VERBLIJFSOBJECT_URL",
     "https://api.data.amsterdam.nl/bag/v1.1/verblijfsobject/",
 )
+# Bag_id of Amstel 1 for testing purposes.
+BAG_ID_AMSTEL_1 = os.getenv(
+    "BAG_ID_AMSTEL_1",
+    "0363010012143319",
+)
 BELASTING_API_URL = os.getenv(
     "BELASTING_API_URL",
     "https://api-acc.belastingen.centric.eu/bel/inn/afne/vora/v1/vorderingenidentificatienummer/",
@@ -433,6 +438,12 @@ DECOS_JOIN_DEFAULT_FIELD_MAPPING = {
 DECOS_JOIN_BOOK_UNKNOWN_BOOK = "B1FF791EA9FA44698D5ABBB1963B94EC"
 DECOS_JOIN_BOOK_KNOWN_BAG_OBJECTS = "90642DCCC2DB46469657C3D0DF0B1ED7"
 USE_DECOS_MOCK_DATA = os.getenv("USE_DECOS_MOCK_DATA", False) == "True"
+
+# Powerbrowser for permits
+POWERBROWSER_BASE_URL = os.getenv(
+    "POWERBROWSER_BASE_URL", "https://accgemeenteamsterdamvth.moverheid.nl/api/"
+)
+POWERBROWSER_API_KEY = os.getenv("POWERBROWSER_API_KEY")
 
 # TOP Connection settings
 SECRET_KEY_AZA_TOP = os.getenv("SECRET_KEY_AZA_TOP")
