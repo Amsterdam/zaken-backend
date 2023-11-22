@@ -144,3 +144,4 @@ class PowerbrowserSerializer(serializers.Serializer):
     einddatum = serializers.DateTimeField(allow_null=True)
     vergunninghouder = serializers.CharField(allow_null=True)
     initator = serializers.CharField(allow_null=True)
+    datuM_TOT = serializers.DateTimeField(allow_null=True)
