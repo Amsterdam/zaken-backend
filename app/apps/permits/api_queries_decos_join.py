@@ -276,7 +276,7 @@ class DecosJoinRequest:
                 and item.get("details")
                 and item["details"].get("DATE_VALID_UNTIL")
             ):
-                item["details"]["DATE_VALID_UNTIL"] = None
+                del item["details"]["DATE_VALID_UNTIL"]
 
     def log_error_info(self, parent_key, folder, decos_join_conf_object):
         logger.error("DECOS JOIN parent key not found in config")
