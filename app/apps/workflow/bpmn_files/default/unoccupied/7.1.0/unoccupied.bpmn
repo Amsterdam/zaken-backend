@@ -470,7 +470,7 @@
     <bpmn:scriptTask id="service_script_type_concept_aanschrijving" name="type_concept_aanschrijving = aanschrijvingen">
       <bpmn:incoming>Flow_1fkzlv4</bpmn:incoming>
       <bpmn:outgoing>Flow_0ikowfz</bpmn:outgoing>
-      <bpmn:script>type_concept_aanschrijving = {"value": "aanschrijvingen"}</bpmn:script>
+      <bpmn:script>direct_to_check_summons = {"value": "ja"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_1u042xk" name="Direct naar nakijken besluit in Decision" sourceRef="Gateway_0f1jktd" targetRef="service_script_next_step_unoccupied_decision">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_resultaat_leegstandsbeschikking.value == "direct_naar_nakijken_besluit"</bpmn:conditionExpression>

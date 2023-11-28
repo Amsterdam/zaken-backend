@@ -1201,6 +1201,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "next_step": {"value": "summon"},
                 "type_concept_aanschrijving": {"value": "default"},
                 "aanschrijving_valide": {"value": "default"},
+                "direct_to_check_summons": {"value": "No"},
             },
             "versions": {
                 "0.1.0": {},
