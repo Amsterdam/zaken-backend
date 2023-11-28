@@ -45,6 +45,7 @@ class test_opstellen_concept_aanschrijving(
         super().__init__(
             type_concept_aanschrijving={"value": type_concept_summon},
             concept_aanschrijving_toelichting={"value": description},
+            direct_to_check_summons={"value": "No"},
         )
 
     @staticmethod
