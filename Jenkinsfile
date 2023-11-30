@@ -92,7 +92,7 @@ pipeline {
     stage("Push and deploy acceptance images") {
       when {
         not { buildingTag() }
-        branch 'master'
+        // branch 'master'
       }
       steps {
         tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.ACCEPTANCE)
