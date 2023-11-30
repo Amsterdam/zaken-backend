@@ -23,9 +23,10 @@ services:
     tty: true
 
   zaak-redis:
-    image: redis
+    build: redis
     environment:
       - REDIS_PASSWORD=password
+      - REDIS_MAXMEM=100mb
     networks:
       - zaken_network
     ports:
