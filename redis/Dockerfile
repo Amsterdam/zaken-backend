@@ -1,11 +1,11 @@
 FROM redis:6.2.14-alpine3.18
 
-ENV REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
-
 # Setup Certificates for ADP/Motiv
-COPY app/certificates/adp_rootca.crt /usr/local/share/ca-certificates/adp_rootca.crt
-RUN chmod 644 /usr/local/share/ca-certificates/adp_rootca.crt \
-    && update-ca-certificates --fresh
+COPY adp_rootca.crt /usr/local/share/ca-certificates/adp_rootca.crt
+RUN cat /usr/local/share/ca-certificates/adp_rootca.crt >> /etc/ssl/cert.pem
+RUN apk update && \
+    apk add --no-cache ca-certificates && \
+    update-ca-certificates --fresh
 
 RUN apk add --no-cache gettext
 COPY redis.conf.template /usr/local/etc/redis/redis.conf.template
