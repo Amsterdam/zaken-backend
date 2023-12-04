@@ -57,6 +57,7 @@ pipeline {
     ZAKEN_SOURCE = "./app"
     ZAKEN_NAME = "zaken"
 
+    // There is no need to deploy Redis every time.
     REDIS_IMAGE_URL = "${DOCKER_REGISTRY_NO_PROTOCOL}/fixxx/zaken-redis"
     REDIS_SOURCE = "./redis"
     REDIS_NAME = "zaken-redis"
@@ -85,6 +86,7 @@ pipeline {
         build_image(env.ZAKEN_IMAGE_URL, env.ZAKEN_SOURCE)
         build_image(env.OPEN_ZAAK_IMAGE_URL, env.OPEN_ZAAK_SOURCE)
         build_image(env.OPEN_NOTIFICATIES_IMAGE_URL, env.OPEN_NOTIFICATIES_SOURCE)
+        // build_image(env.REDIS_IMAGE_URL, env.REDIS_SOURCE)
       }
     }
 
@@ -97,6 +99,7 @@ pipeline {
         tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.ACCEPTANCE)
         tag_and_deploy(env.OPEN_ZAAK_IMAGE_URL, env.OPEN_ZAAK_NAME, env.ACCEPTANCE)
         tag_and_deploy(env.OPEN_NOTIFICATIES_IMAGE_URL, env.OPEN_NOTIFICATIES_NAME, env.ACCEPTANCE)
+        // tag_and_deploy(env.REDIS_IMAGE_URL, env.REDIS_NAME, env.ACCEPTANCE)
       }
     }
 
@@ -107,6 +110,7 @@ pipeline {
         tag_and_deploy(env.ZAKEN_IMAGE_URL, env.ZAKEN_NAME, env.PRODUCTION)
         // tag_and_deploy(env.OPEN_ZAAK_IMAGE_URL, env.OPEN_ZAAK_NAME, env.PRODUCTION)
         // tag_and_deploy(env.OPEN_NOTIFICATIES_IMAGE_URL, env.OPEN_NOTIFICATIES_NAME, env.PRODUCTION)
+        // tag_and_deploy(env.REDIS_IMAGE_URL, env.REDIS_NAME, env.PRODUCTION)
       }
     }
   }
@@ -116,6 +120,7 @@ pipeline {
         remove_image(env.ZAKEN_IMAGE_URL)
         remove_image(env.OPEN_ZAAK_IMAGE_URL)
         remove_image(env.OPEN_NOTIFICATIES_IMAGE_URL)
+        // remove_image(env.REDIS_IMAGE_URL)
     }
   }
 }
