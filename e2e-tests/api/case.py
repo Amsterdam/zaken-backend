@@ -43,9 +43,10 @@ class Case:
                 open_tasks = self.client.get_case_tasks(self.data["id"])
                 open_task_names = self.client.get_names_from_tasks(open_tasks)
                 open_task_names.sort()
-                logger.info(f"DEBUG TEST = {open_task_names}")
                 # END DEBUG
-                raise Exception(f"Step ({step}) is not ready for case {self}.")
+                raise Exception(
+                    f"Step ({step}) is not ready for case {self}.\nFound:\n{open_task_names}"
+                )
 
             result = step.run(self.client, self)
             if isinstance(step, AbstractUserTask):
