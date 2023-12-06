@@ -64,7 +64,6 @@ INSTALLED_APPS = (
     "health_check",
     "health_check.db",
     "health_check.contrib.migrations",
-    "health_check.contrib.rabbitmq",
     "health_check.contrib.celery_ping",
     # Apps
     "apps.users",
@@ -455,25 +454,6 @@ POWERBROWSER_API_KEY = os.getenv("POWERBROWSER_API_KEY")
 SECRET_KEY_AZA_TOP = os.getenv("SECRET_KEY_AZA_TOP")
 TOP_API_URL = os.getenv("TOP_API_URL")
 
-RABBIT_MQ_URL = os.getenv("RABBIT_MQ_URL")
-RABBIT_MQ_USERNAME = os.getenv("RABBIT_MQ_USERNAME")
-RABBIT_MQ_PASSWORD = os.getenv("RABBIT_MQ_PASSWORD")
-
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_BROKER_URL = f"amqp://{RABBIT_MQ_USERNAME}:{RABBIT_MQ_PASSWORD}@{RABBIT_MQ_URL}"
-
-BROKER_URL = CELERY_BROKER_URL
-CELERY_TASK_TRACK_STARTED = True
-CELERY_RESULT_BACKEND = "django-db"
-CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_BEAT_SCHEDULE = {
-    "queue_every_five_mins": {
-        "task": "apps.health.tasks.query_every_five_mins",
-        "schedule": crontab(minute=5),
-    },
-}
-
 REDIS = os.getenv("REDIS")
 REDIS_URL = f"redis://{REDIS}"
 CACHES = {
@@ -486,6 +466,21 @@ CACHES = {
             "SOCKET_TIMEOUT": 5,
         },
     }
+}
+
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_BROKER_URL = REDIS_URL
+
+BROKER_URL = CELERY_BROKER_URL
+CELERY_TASK_TRACK_STARTED = True
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_BEAT_SCHEDULE = {
+    "queue_every_five_mins": {
+        "task": "apps.health.tasks.query_every_five_mins",
+        "schedule": crontab(minute=5),
+    },
 }
 
 LOGOUT_REDIRECT_URL = "/admin"

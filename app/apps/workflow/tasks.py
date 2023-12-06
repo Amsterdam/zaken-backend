@@ -32,6 +32,7 @@ class BaseTaskWithRetry(celery.Task):
     autoretry_for = (Exception,)
     max_retries = MAX_RETRIES
     default_retry_delay = DEFAULT_RETRY_DELAY
+    
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)

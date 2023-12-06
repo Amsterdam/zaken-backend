@@ -30,4 +30,6 @@ RUN chmod +x /app/wait-for.sh
 RUN chmod +x /app/celery.sh
 RUN chmod +x /app/deploy/docker-entrypoint.sh
 
-CMD ["bash", "/app/deploy/docker-entrypoint.sh"]
+
+ENTRYPOINT ["/app/deploy/docker-entrypoint.sh"]
+CMD ["uwsgi", "--ini", "/app/deploy/config.ini"]
