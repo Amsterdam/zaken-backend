@@ -663,6 +663,10 @@ class task_leegstand_opstellen_beeldverslag(user_task):
     due_date = relativedelta(days=3)
 
 
+class task_opstellen_leegstandsbeschikking(user_task):
+    due_date = relativedelta(days=7)
+
+
 class task_opstellen_constateringsbrief(user_task):
     due_date = relativedelta(days=7)
 

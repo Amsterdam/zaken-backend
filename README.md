@@ -23,6 +23,8 @@ Zakensysteem voor toezichthouders en handhavers van de Gemeente Amsterdam voor d
   - [NOTE: Making changes](#note-making-changes)
   - [Deploy new BPMN-model with incremented version](#deploy-new-bpmn-model-with-incremented-version)
   - [Important learnings](#important-learnings)
+    - [Forms](#forms)
+    - [User tasks](#user-tasks)
 
 
 
@@ -243,17 +245,17 @@ Open `public/index.html` in your browser.
 
 When a new version is deployed, the already existing cases still follow the path in the started version. Only new created cases follow the path of the latest version.
 
-When is it necessary to deploy a new version?
+When should you deploy a new version??
 
 - Path changes in the model
 - Timer changes
 - ID changes
 
-When is it NOT necessary to create a new version?
+When should you NOT deploy a new version??
 
-- Changes in form names. If you want to change the text of a form, you can do it directly in the latest version. Do not change IDs because paths can be taken based on an answer (ID).
+- Changes in form names. If you want to change the text of a form, you can do it directly in the latest version. Do not change IDs because paths can be taken based on the answer (ID).
 
-So if you think existing cases are getting stuck in the model, just create a new version.
+So if you think existing cases will get stuck in the model, just create a new version to be sure.
 
 
 ## Deploy new BPMN-model with incremented version
@@ -291,5 +293,9 @@ Run `docker compose build` to see your changes locally. Check the admin panel to
 
 ## Important learnings
 
+### Forms
 - Forms must be of type "Embedded or External Task Forms". If this is not possible add a `camunda:formKey="my_form_key"` to the `<bpmn:userTask/>`.
-- If a User task is added to the model it must be created as a class in user_tasks.py as well. The ID of the User task must match with the _task_name of the class.
+
+### User tasks
+- ADDING a user_task to the model: it must be created as a class in user_tasks.py as well. The ID of the User task must match with the _task_name of the class.
+- DELETING a user_task from the model: do NOT immediately remove it from user_tasks.py There may be an old version of this model running in production that needs this user_task. Removing this user_task will then create an error.

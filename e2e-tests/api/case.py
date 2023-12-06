@@ -39,7 +39,14 @@ class Case:
             if hasattr(step, "is_ready") and not wait_for(
                 lambda: step.is_ready(self.client, self), async_timeout, async_sleep
             ):
-                raise Exception(f"Step ({step}) is not ready for case {self}.")
+                # START DEBUG
+                open_tasks = self.client.get_case_tasks(self.data["id"])
+                open_task_names = self.client.get_names_from_tasks(open_tasks)
+                open_task_names.sort()
+                # END DEBUG
+                raise Exception(
+                    f"Step ({step}) is not ready for case {self}.\nFound:\n{open_task_names}"
+                )
 
             result = step.run(self.client, self)
             if isinstance(step, AbstractUserTask):

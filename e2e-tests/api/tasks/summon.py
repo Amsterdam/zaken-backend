@@ -41,16 +41,19 @@ class test_opstellen_concept_aanschrijving(
         self,
         type_concept_summon=TypeConceptSummon.OTHER_SUMMON,
         description="Concept aanschrijving toelichting",
+        direct_to_check_summons_value="No",
     ):
         super().__init__(
             type_concept_aanschrijving={"value": type_concept_summon},
             concept_aanschrijving_toelichting={"value": description},
+            direct_to_check_summons={"value": direct_to_check_summons_value},
         )
 
     @staticmethod
     def get_steps(
         type_concept_summon=TypeConceptSummon.OTHER_SUMMON,
         description="Concept aanschrijving toelichting",
+        direct_to_check_summons_value="No",
     ):
         return [
             *test_opstellen_beeldverslag.get_steps(),
@@ -58,6 +61,7 @@ class test_opstellen_concept_aanschrijving(
             __class__(
                 type_concept_summon=type_concept_summon,
                 description=description,
+                direct_to_check_summons_value=direct_to_check_summons_value,
             ),
         ]
 
