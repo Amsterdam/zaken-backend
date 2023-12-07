@@ -102,8 +102,8 @@
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="leegstandsgesprek_ingeplanned" label="Is er een afspraak gemaakt?" type="enum">
-            <camunda:value id="geen_afspraak_ingeplanned" name="Nee, geen afspraak kunnen inplannen" />
             <camunda:value id="afspraak_ingeplanned" name="Ja, afspraak kunnen inplannen" />
+            <camunda:value id="geen_afspraak_ingeplanned" name="Nee, geen afspraak kunnen inplannen" />
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
