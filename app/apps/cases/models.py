@@ -221,7 +221,7 @@ class Case(ModelEventEmitter):
 
     def get_state(self):
         # Return last added case_state
-        casestates = self.case_states.all().order_by("last_updated").last()
+        casestates = self.case_states.all().order_by("created").last()
         if casestates:
             return casestates.status
         else:
