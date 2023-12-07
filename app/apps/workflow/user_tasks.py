@@ -304,6 +304,17 @@ class task_nakijken_aanschrijving(user_task):
     _task_name = "task_check_summons"
     due_date = relativedelta(weeks=1)
 
+    # It's possible to bypass task_opstellen_concept_aanschrijving for theme Leegstand.
+    # Create the CaseState HANDHAVING if it doesn't exist. Otherwise, the status TOEZICHT is retained.
+    def instance_created(self):
+        from apps.cases.models import CaseState
+
+        CaseState.objects.get_or_create(
+            case=self.case_user_task.case,
+            status=CaseState.CaseStateChoice.HANDHAVING,
+        )
+        return
+
 
 class task_afzien_concept_aanschrijving(user_task):
     """Afzien concept aanschrijving"""
