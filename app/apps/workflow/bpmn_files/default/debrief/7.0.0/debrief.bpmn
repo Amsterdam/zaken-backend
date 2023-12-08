@@ -215,6 +215,7 @@
     <bpmn:sequenceFlow id="Flow_0n4bwon" sourceRef="service_status_debrief_corporatie" targetRef="task_opsturen_rapport_naar_corporatie" />
     <bpmn:exclusiveGateway id="Gateway_0e1ib1g" default="Flow_1g2df7t">
       <bpmn:incoming>Flow_1xt0i22</bpmn:incoming>
+      <bpmn:incoming>Flow_0zsc86a</bpmn:incoming>
       <bpmn:outgoing>Flow_0xk9owu</bpmn:outgoing>
       <bpmn:outgoing>Flow_1g2df7t</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -319,6 +320,7 @@
       <bpmn:incoming>Flow_0pno01a</bpmn:incoming>
       <bpmn:outgoing>Flow_0rjoh76</bpmn:outgoing>
       <bpmn:outgoing>Flow_0ow5gtm</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0zsc86a</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:parallelGateway id="gateway_parallel_violation_yes_out">
       <bpmn:incoming>Flow_0dr8lnw</bpmn:incoming>
@@ -525,7 +527,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1nhs384" sourceRef="task_reminder_documents" targetRef="Gateway_1orpidq" />
     <bpmn:sequenceFlow id="Flow_1iw1h14" sourceRef="task_wait_for_documents" targetRef="Gateway_1orpidq">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" />
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_02ehfj5">
       <bpmn:incoming>Flow_1baqrc4</bpmn:incoming>
@@ -533,6 +535,9 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1baqrc4" sourceRef="Gateway_1orpidq" targetRef="Gateway_02ehfj5" />
     <bpmn:sequenceFlow id="Flow_191wl7u" sourceRef="Gateway_02ehfj5" targetRef="gateway_merge_1t0o489" />
+    <bpmn:sequenceFlow id="Flow_0zsc86a" name="violation.value == SEND_TO_WOON or SEND_TO_ANOTHER_EXTERNAL_PARTY" sourceRef="Gateway_0xhzjqj" targetRef="Gateway_0e1ib1g">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "SEND_TO_WOON" or violation.value == "SEND_TO_ANOTHER_EXTERNAL_PARTY"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmn:signal id="Signal_039rhog" name="S" />
   <bpmn:message id="Message_1x25hwu" name="inform_civilian" />
@@ -751,6 +756,9 @@
       <bpmndi:BPMNShape id="Gateway_02ehfj5_di" bpmnElement="Gateway_02ehfj5" isMarkerVisible="true">
         <dc:Bounds x="1645" y="2495" width="50" height="50" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0filw7c_di" bpmnElement="event_timer_wait_for_documents">
+        <dc:Bounds x="1422" y="1932" width="36" height="36" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1gdfwon_di" bpmnElement="event_timer_wait_for_advise_other_discipline">
         <dc:Bounds x="992" y="2182" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -759,9 +767,6 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="898" y="485" width="86" height="40" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0filw7c_di" bpmnElement="event_timer_wait_for_documents">
-        <dc:Bounds x="1422" y="1932" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1xt0i22_di" bpmnElement="Flow_1xt0i22">
         <di:waypoint x="930" y="910" />
@@ -828,7 +833,7 @@
         <di:waypoint x="805" y="1150" />
         <di:waypoint x="1425" y="1150" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="998" y="1093" width="83" height="53" />
+          <dc:Bounds x="898" y="1123" width="83" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_09t0nyr_di" bpmnElement="Flow_09t0nyr">
@@ -836,7 +841,7 @@
         <di:waypoint x="780" y="1030" />
         <di:waypoint x="1730" y="1030" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="989" y="957" width="88" height="66" />
+          <dc:Bounds x="896" y="1007" width="88" height="66" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1emqy6s_di" bpmnElement="Flow_1emqy6s">
@@ -1130,6 +1135,14 @@
         <di:waypoint x="1645" y="2520" />
         <di:waypoint x="590" y="2520" />
         <di:waypoint x="492" y="2413" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zsc86a_di" bpmnElement="Flow_0zsc86a">
+        <di:waypoint x="805" y="1500" />
+        <di:waypoint x="1030" y="1500" />
+        <di:waypoint x="1030" y="935" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="935" y="1403" width="89" height="93" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

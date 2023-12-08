@@ -20,6 +20,8 @@ class Debriefing(TaskModelEventEmitter):
     VIOLATION_SCHEDULE_CONVERSATION = "SCHEDULE_CONVERSATION"
     VIOLATION_ADVICE_OTHER_DISCIPLINE = "ADVICE_OTHER_DISCIPLINE"
     VIOLATION_REQUEST_DOCUMENTS = "REQUEST_DOCUMENTS"
+    VIOLATION_SEND_TO_WOON = "SEND_TO_WOON"
+    VIOLATION_SEND_TO_ANOTHER_EXTERNAL_PARTY = "SEND_TO_ANOTHER_EXTERNAL_PARTY"
 
     VIOLATION_CHOICES = [
         (VIOLATION_NO, "Geen overtreding"),
@@ -36,6 +38,11 @@ class Debriefing(TaskModelEventEmitter):
         (VIOLATION_SCHEDULE_CONVERSATION, "Inplannen gesprek"),
         (VIOLATION_ADVICE_OTHER_DISCIPLINE, "Afwachten advies andere discipline"),
         (VIOLATION_REQUEST_DOCUMENTS, "Opvragen stukken"),
+        (VIOLATION_SEND_TO_WOON, "Doorsturen naar !Woon"),
+        (
+            VIOLATION_SEND_TO_ANOTHER_EXTERNAL_PARTY,
+            "Doorsturen naar andere externe partij",
+        ),
     ]
 
     case = models.ForeignKey(
@@ -77,6 +84,7 @@ class Debriefing(TaskModelEventEmitter):
 
     def get_violation_choices_by_theme(theme_id):
         if theme_id == 5:
+            # 5 = Leegstand
             # VIOLATION_LIKELY_INHABITED is only accessible to Leegstand.
             return [
                 vc
@@ -85,10 +93,14 @@ class Debriefing(TaskModelEventEmitter):
                 and vc[0] != Debriefing.VIOLATION_SCHEDULE_CONVERSATION
                 and vc[0] != Debriefing.VIOLATION_ADVICE_OTHER_DISCIPLINE
                 and vc[0] != Debriefing.VIOLATION_REQUEST_DOCUMENTS
+                and vc[0] != Debriefing.VIOLATION_SEND_TO_WOON
+                and vc[0] != Debriefing.VIOLATION_SEND_TO_ANOTHER_EXTERNAL_PARTY
             ]
         elif theme_id == 8:
+            # Goed verhuurderschap
             # SERVICE_COSTS, SCHEDULE_CONVERSATION, VIOLATION_ADVICE_OTHER_DISCIPLINE,
-            # VIOLATION_REQUEST_DOCUMENTS are only accessible to Goed verhuurderschap.
+            # VIOLATION_REQUEST_DOCUMENTS, VIOLATION_SEND_TO_WOON and VIOLATION_SEND_TO_ANOTHER_EXTERNAL_PARTY
+            # are only accessible to Goed verhuurderschap.
             return [
                 vc
                 for vc in Debriefing.VIOLATION_CHOICES
@@ -105,4 +117,6 @@ class Debriefing(TaskModelEventEmitter):
                 and vc[0] != Debriefing.VIOLATION_SCHEDULE_CONVERSATION
                 and vc[0] != Debriefing.VIOLATION_ADVICE_OTHER_DISCIPLINE
                 and vc[0] != Debriefing.VIOLATION_REQUEST_DOCUMENTS
+                and vc[0] != Debriefing.VIOLATION_SEND_TO_WOON
+                and vc[0] != Debriefing.VIOLATION_SEND_TO_ANOTHER_EXTERNAL_PARTY
             ]
