@@ -40,7 +40,8 @@ CORS_ORIGIN_WHITELIST = (
     "http://0.0.0.0:2999",
     "http://localhost:2999",
     "http://zaken-frontend.localhost",
-    "https://zaken-frontend.localhost"
+    "https://zaken-frontend.localhost",
+    "https://wonen.zaken.woon-o.azure.amsterdam.nl"
 )
 CORS_ORIGIN_ALLOW_ALL = False
 
