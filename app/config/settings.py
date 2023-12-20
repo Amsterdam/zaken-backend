@@ -8,6 +8,10 @@ from dotenv import load_dotenv
 from keycloak_oidc.default_settings import *  # noqa
 from sentry_sdk.integrations.django import DjangoIntegration
 
+from .azure_settings import Azure
+
+azure = Azure()
+
 load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -35,6 +39,8 @@ CORS_ORIGIN_WHITELIST = (
     "https://acc.wonen.zaken.amsterdam.nl",
     "http://0.0.0.0:2999",
     "http://localhost:2999",
+    "http://zaken-frontend.localhost",
+    "https://zaken-frontend.localhost"
 )
 CORS_ORIGIN_ALLOW_ALL = False
 
@@ -102,14 +108,27 @@ SPAGHETTI_SAUCE = {
     "show_fields": False,
 }
 
+DATABASE_HOST = os.getenv("DATABASE_HOST", "database")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "dev")
+DATABASE_USER = os.getenv("DATABASE_USER", "dev")
+DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD", "dev")
+DATABASE_PORT = os.getenv("DATABASE_PORT", "5432")
+DATABASE_OPTIONS = {'sslmode': 'allow', 'connect_timeout': 5}
+
+if 'azure.com' in DATABASE_HOST:
+    DATABASE_PASSWORD = azure.auth.db_password
+    DATABASE_OPTIONS['sslmode'] = 'require'
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("DATABASE_NAME"),
-        "USER": os.environ.get("DATABASE_USER"),
-        "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
-        "HOST": os.environ.get("DATABASE_HOST"),
-        "PORT": os.environ.get("DATABASE_PORT"),
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "NAME": DATABASE_NAME,
+        "USER": DATABASE_USER,
+        "PASSWORD": DATABASE_PASSWORD,
+        "HOST": DATABASE_HOST,
+        "CONN_MAX_AGE": 60 * 5,
+        "PORT": DATABASE_PORT,
+        'OPTIONS': {'sslmode': 'allow', 'connect_timeout': 5},
     },
 }
 
@@ -454,8 +473,11 @@ POWERBROWSER_API_KEY = os.getenv("POWERBROWSER_API_KEY")
 SECRET_KEY_AZA_TOP = os.getenv("SECRET_KEY_AZA_TOP")
 TOP_API_URL = os.getenv("TOP_API_URL")
 
-REDIS = os.getenv("REDIS")
-REDIS_URL = f"redis://{REDIS}"
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = os.getenv("REDIS_PORT")
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+
+REDIS_URL = f"rediss://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",

@@ -41,6 +41,8 @@ from django.contrib import admin
 from django.urls import path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
+from django.views.generic import View
+from django.http import JsonResponse
 
 router = DefaultRouter()
 router.register(r"addresses", AddressViewSet, basename="addresses")
@@ -85,6 +87,12 @@ router.register(r"citizen-reports", CitizenReportViewSet, basename="citizen-repo
 
 router.register(r"generic-tasks", GenericCompletedTaskViewSet, basename="generic-tasks")
 
+
+class MyView(View):
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({}, status=204)
+
+
 urlpatterns = [
     # Admin environment
     path("admin/download_data/", download_data),
@@ -122,8 +130,10 @@ urlpatterns = [
     ),
     path("data-model/", include("django_spaghetti.urls")),
     url("health/", include("health_check.urls")),
+    url(regex=r'^$', view=MyView.as_view(), name='index'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # JSON handlers for errors
 handler500 = "rest_framework.exceptions.server_error"
 handler400 = "rest_framework.exceptions.bad_request"
+
