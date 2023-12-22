@@ -407,7 +407,7 @@
     <bpmn:userTask id="task_opstellen_leegstandsbeschikking" name="Opstellen leegstandsbeschikking" camunda:formKey="form_opstellen_leegstandsbeschikking">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="leegstand_resultaat_leegstandsbeschikking" label="Naar nakijken voornemen?" type="enum">
+          <camunda:formField id="leegstand_resultaat_leegstandsbeschikking" label="Is het een voornemen of een besluit?" type="enum">
             <camunda:value id="naar_nakijken_voornemen" name="Naar nakijken voornemen" />
             <camunda:value id="direct_naar_nakijken_besluit" name="Direct naar nakijken besluit" />
           </camunda:formField>
