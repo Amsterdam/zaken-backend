@@ -1,5 +1,5 @@
 from django.apps import AppConfig
-from django.conf import settings
+from utils.openzaak_enabled import is_openzaak_enabled
 
 
 class OpenzaakConfig(AppConfig):
@@ -8,5 +8,5 @@ class OpenzaakConfig(AppConfig):
     app_label = "openzaak"
 
     def ready(self):
-        if settings.OPENZAAK_ENABLED == "True" or settings.OPENZAAK_ENABLED == True:
+        if is_openzaak_enabled():
             import apps.openzaak.signals  # noqa
