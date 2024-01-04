@@ -8,5 +8,5 @@ class OpenzaakConfig(AppConfig):
     app_label = "openzaak"
 
     def ready(self):
-        if settings.OPENZAAK_ENABLED:
+        if settings.OPENZAAK_ENABLED == "True" or settings.OPENZAAK_ENABLED == True:
             import apps.openzaak.signals  # noqa
