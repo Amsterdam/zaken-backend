@@ -16,7 +16,7 @@ from utils.api_queries_toeristische_verhuur import (
 )
 
 logger = logging.getLogger(__name__)
-timeout_in_sec = 10
+TIMEOUT_IN_SEC = 10
 
 
 class APIServiceCheckBackend(BaseHealthCheckBackend):
@@ -38,7 +38,7 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
             return
 
         try:
-            response = requests.get(api_url, timeout=timeout_in_sec)
+            response = requests.get(api_url, timeout=TIMEOUT_IN_SEC)
             response.raise_for_status()
         except ConnectionRefusedError as e:
             logger.error(e)
@@ -51,7 +51,11 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
             self.add_error(ServiceUnavailable(f"Service not found. {api_url}"))
         except Timeout:
             self.add_error(
+<<<<<<< HEAD
                 ServiceUnavailable(f"Exceeded timeout of {timeout_in_sec} seconds.")
+=======
+                ServiceUnavailable(f"Exceeded timeout of {TIMEOUT_IN_SEC} seconds")
+>>>>>>> 83f0f9bc (up the timeout)
             )
         except SSLError as e:
             logger.error(e)
