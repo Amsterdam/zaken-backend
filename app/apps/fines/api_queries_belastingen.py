@@ -8,24 +8,32 @@ from tenacity import after_log, retry, stop_after_attempt
 logger = logging.getLogger(__name__)
 
 
-@retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def get_fines(id):
+def get_fines(id, use_retry=True):
     """
     Search the Belasting API for fines with case_id identification
     """
-    parameter = {"identificatienummer": id}
-    header = {"authorization": f"Bearer {settings.BELASTING_API_ACCESS_TOKEN}"}
 
-    response = requests.get(
-        url=settings.BELASTING_API_URL,
-        headers=header,
-        params=parameter,
-        verify="/usr/local/share/ca-certificates/adp_rootca.crt",
-        timeout=6,
-    )
-    response.raise_for_status()
+    def _get_fines_internal():
+        parameter = {"identificatienummer": id}
+        header = {"authorization": f"Bearer {settings.BELASTING_API_ACCESS_TOKEN}"}
 
-    return response.json()
+        response = requests.get(
+            url=settings.BELASTING_API_URL,
+            headers=header,
+            params=parameter,
+            verify="/usr/local/share/ca-certificates/adp_rootca.crt",
+            timeout=6,
+        )
+        response.raise_for_status()
+
+        return response.json()
+
+    if use_retry:
+        _get_fines_internal = retry(
+            stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR)
+        )(_get_fines_internal)
+
+    return _get_fines_internal()
 
 
 def get_mock_fines(case_id):

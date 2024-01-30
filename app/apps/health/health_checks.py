@@ -6,7 +6,8 @@ from config.celery import debug_task
 from django.conf import settings
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import ServiceUnavailable
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, SSLError, Timeout
+from utils.api_queries_bag import do_bag_search_nummeraanduiding_id_by_bag_id
 from utils.api_queries_toeristische_verhuur import (
     get_bag_vakantieverhuur_registrations,
     get_bsn_vakantieverhuur_registrations,
@@ -15,7 +16,7 @@ from utils.api_queries_toeristische_verhuur import (
 )
 
 logger = logging.getLogger(__name__)
-timeout_in_sec = 6
+timeout_in_sec = 10
 
 
 class APIServiceCheckBackend(BaseHealthCheckBackend):
@@ -31,19 +32,14 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
         return self.api_url
 
     def check_status(self):
-        """Check service by opening and closing a broker channel."""
-        logger.info("Checking status of API url...")
         api_url = self.get_api_url()
-        assert api_url, "The given api_url should be set"
+        if api_url is None:
+            self.add_error(ServiceUnavailable("API URL is not set."))
+            return
+
         try:
             response = requests.get(api_url, timeout=timeout_in_sec)
             response.raise_for_status()
-        except AssertionError as e:
-            logger.error(e)
-            self.add_error(
-                ServiceUnavailable("The given API endpoint has not been set"),
-                e,
-            )
         except ConnectionRefusedError as e:
             logger.error(e)
             self.add_error(
@@ -53,10 +49,13 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
         except HTTPError as e:
             logger.error(e)
             self.add_error(ServiceUnavailable(f"Service not found. {api_url}"))
-        except requests.exceptions.Timeout:
+        except Timeout:
             self.add_error(
-                ServiceUnavailable(f"Exceeded timeout of {timeout_in_sec} seconds")
+                ServiceUnavailable(f"Exceeded timeout of {timeout_in_sec} seconds.")
             )
+        except SSLError as e:
+            logger.error(e)
+            self.add_error(ServiceUnavailable("SSL error."))
         except BaseException as e:
             logger.error(e)
             self.add_error(ServiceUnavailable("Unknown error"), e)
@@ -80,16 +79,6 @@ class BAGAtlasServiceCheck(APIServiceCheckBackend):
     verbose_name = "BAG Atlas"
 
 
-class BAGNummeraanduidingenServiceCheck(APIServiceCheckBackend):
-    """
-    Endpoint for checking the BAG Nummeraanduidingen Service API
-    """
-
-    critical_service = True
-    api_url = settings.BAG_API_NUMMERAANDUIDING_SEARCH_URL
-    verbose_name = "BAG Nummeraanduidingen"
-
-
 class BAGVerblijfsobjectServiceCheck(APIServiceCheckBackend):
     """
     Endpoint for checking the BAG Verblijfsobject Service API Endpoint
@@ -110,6 +99,33 @@ class BRPServiceCheck(APIServiceCheckBackend):
     verbose_name = "BRP"
 
 
+class BAGNummeraanduidingenServiceCheck(BaseHealthCheckBackend):
+    """
+    Endpoint for checking the BAG Nummeraanduidingen API
+    """
+
+    critical_service = True
+    verbose_name = "BAG Nummeraanduidingen"
+
+    def check_status(self):
+        try:
+            response = do_bag_search_nummeraanduiding_id_by_bag_id(
+                settings.BAG_ID_AMSTEL_1
+            )
+            message = response.get("message")
+            if message:
+                self.add_error(ServiceUnavailable(f"{message}"), message)
+        except HTTPError as e:
+            logger.error(e)
+            self.add_error(ServiceUnavailable(f"HTTPError {e.response.status_code}."))
+        except Exception as e:
+            logger.error(e)
+            self.add_error(ServiceUnavailable(f"Failed {e}"), e)
+
+    def identifier(self):
+        return self.verbose_name
+
+
 class CeleryExecuteTask(BaseHealthCheckBackend):
     def check_status(self):
         result = debug_task.apply_async(ignore_result=False)
@@ -126,9 +142,12 @@ class Belastingdienst(BaseHealthCheckBackend):
 
         try:
             # The id doesn't matter, as long an authenticated request is succesful.
-            get_fines("foo-id")
+            get_fines("foo-id", use_retry=False)
+        except SSLError as e:
+            logger.error(e)
+            self.add_error(ServiceUnavailable("SSL error."))
         except Exception as e:
-            self.add_error(ServiceUnavailable("Failed"), e)
+            self.add_error(ServiceUnavailable(f"Failed {e}"), e)
 
 
 class DecosJoinCheck(BaseHealthCheckBackend):
@@ -143,9 +162,9 @@ class DecosJoinCheck(BaseHealthCheckBackend):
             # The address doesn't matter, as long an authenticated request is succesful. Amstel 1 ;)
             path = "items/90642DCCC2DB46469657C3D0DF0B1ED7/COBJECTS?filter=PHONE3 eq '0363010012143319'"
             response = DecosJoinRequest().get(path)
-            assert response, "Could not reach Decos Join"
+            assert response, "Could not reach Decos Join."
         except Exception as e:
-            self.add_error(ServiceUnavailable("Failed"), e)
+            self.add_error(ServiceUnavailable(f"{e}"), e)
 
 
 class KeycloakCheck(APIServiceCheckBackend):
@@ -170,8 +189,11 @@ class OpenZaakZaken(APIServiceCheckBackend):
         from zgw_consumers.constants import APITypes
         from zgw_consumers.models import Service
 
-        zaken_service = Service.objects.filter(api_type=APITypes.zrc).get()
-        return zaken_service.api_root
+        try:
+            zaken_service = Service.objects.filter(api_type=APITypes.zrc).get()
+            return zaken_service.api_root
+        except Service.DoesNotExist:
+            return None
 
 
 class OpenZaakZakenCatalogus(APIServiceCheckBackend):
@@ -186,8 +208,11 @@ class OpenZaakZakenCatalogus(APIServiceCheckBackend):
         from zgw_consumers.constants import APITypes
         from zgw_consumers.models import Service
 
-        catalogi_service = Service.objects.filter(api_type=APITypes.ztc).get()
-        return catalogi_service.api_root
+        try:
+            catalogi_service = Service.objects.filter(api_type=APITypes.ztc).get()
+            return catalogi_service.api_root
+        except Service.DoesNotExist:
+            return None
 
 
 class OpenZaakZakenAlfresco(APIServiceCheckBackend):
@@ -202,8 +227,11 @@ class OpenZaakZakenAlfresco(APIServiceCheckBackend):
         from zgw_consumers.constants import APITypes
         from zgw_consumers.models import Service
 
-        documenten_service = Service.objects.filter(api_type=APITypes.drc).get()
-        return documenten_service.api_root
+        try:
+            documenten_service = Service.objects.filter(api_type=APITypes.drc).get()
+            return documenten_service.api_root
+        except Service.DoesNotExist:
+            return None
 
 
 class VakantieVerhuurRegistratieCheck(BaseHealthCheckBackend):
@@ -262,15 +290,17 @@ class Toeristischeverhuur(BaseHealthCheckBackend):
         }
 
         try:
-            response = get_vakantieverhuur_meldingen(
+            get_vakantieverhuur_meldingen(
                 settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_HEALTH_CHECK_BAG_ID,
                 query_params=params,
+                use_retry=False,
             )
-            assert response, "Could not reach Toeristischeverhuur.nl"
-
+        except HTTPError as e:
+            logger.error(e)
+            self.add_error(ServiceUnavailable(f"HTTPError {e.response.status_code}."))
         except Exception as e:
             logger.error(e)
-            self.add_error(ServiceUnavailable("Failed"), e)
+            self.add_error(ServiceUnavailable(f"Failed {e}"), e)
         else:
             logger.info(
                 "Connection established. Toeristischeverhuur.nl API connection is healthy."
@@ -284,9 +314,10 @@ class PowerBrowser(BaseHealthCheckBackend):
 
     def check_status(self):
         try:
-            response = PowerbrowserRequest().get_vergunningen_with_bag_id(
-                settings.BAG_ID_AMSTEL_1
-            )
-            assert response, "Could not reach PowerBrowser"
+            PowerbrowserRequest().get_vergunningen_with_bag_id(settings.BAG_ID_AMSTEL_1)
+        except HTTPError as e:
+            logger.error(e)
+            self.add_error(ServiceUnavailable(f"HTTPError {e.response.status_code}."))
         except Exception as e:
-            self.add_error(ServiceUnavailable("Failed"), e)
+            logger.error(e)
+            self.add_error(ServiceUnavailable(f"Failed {e}"), e)

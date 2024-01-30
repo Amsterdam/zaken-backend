@@ -6,7 +6,7 @@ Zakensysteem voor toezichthouders en handhavers van de Gemeente Amsterdam voor d
   - [Prerequisites](#prerequisites)
   - [Getting up and running (Local development only)](#getting-up-and-running-local-development-only)
   - [Running tests](#running-tests)
-  - [Accessing the API documentation](#accessing-the-api-documentation)
+  - [API documentation (Swagger)](#api-documentation-swagger)
   - [Generating an access token](#generating-an-access-token)
   - [Enabling local development environment variables](#enabling-local-development-environment-variables)
   - [Enabling Keycloak authentication for a locally run zaken-frontend](#enabling-keycloak-authentication-for-a-locally-run-zaken-frontend)
@@ -88,7 +88,7 @@ To run tests for a specific module, add a path:
 docker compose run --rm zaak-gateway python manage.py test apps/cases
 ```
 
-## Accessing the API documentation
+## API documentation (Swagger)
 
 You can access the documentation at:
 http://localhost:8080/api/v1/swagger/
