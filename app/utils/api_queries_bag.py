@@ -6,6 +6,8 @@ from tenacity import after_log, retry, stop_after_attempt
 
 logger = logging.getLogger(__name__)
 
+headers = {"x-api-key": settings.BAG_API_PUBLIC_KEY}
+
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
 def do_bag_search_nummeraanduiding_id_by_bag_id(bag_id):
@@ -15,6 +17,7 @@ def do_bag_search_nummeraanduiding_id_by_bag_id(bag_id):
     address_search = requests.get(
         settings.BAG_API_NUMMERAANDUIDING_SEARCH_URL,
         params={"adresseertVerblijfsobject.identificatie": bag_id},
+        headers=headers,
         timeout=30,
     )
     return address_search.json()
@@ -34,6 +37,7 @@ def do_bag_search_nummeraanduiding_id_by_address(address):
     address_search = requests.get(
         settings.BAG_API_NUMMERAANDUIDING_SEARCH_URL,
         params=params,
+        headers=headers,
         timeout=30,
     )
     return address_search.json()

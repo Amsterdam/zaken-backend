@@ -7,26 +7,36 @@ from tenacity import after_log, retry, stop_after_attempt
 logger = logging.getLogger(__name__)
 
 
-@retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def get_vakantieverhuur_meldingen(bag_id, query_params):
+def get_vakantieverhuur_meldingen(bag_id, query_params, use_retry=True):
     """
     Get the Vakantieverhuur meldingen from the Toeristische Verhuur register
     """
-    header = {
-        "x-api-key": settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_ACCESS_TOKEN
-    }
-    url = f"{settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_URL}meldingen/{bag_id}"
 
-    response = requests.get(
-        url=url,
-        params=query_params,
-        headers=header,
-        timeout=30,
-    )
+    def _get_vakantieverhuur_meldingen_internal():
+        header = {
+            "x-api-key": settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_ACCESS_TOKEN
+        }
+        url = (
+            f"{settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_URL}meldingen/{bag_id}"
+        )
 
-    response.raise_for_status()
+        response = requests.get(
+            url=url,
+            params=query_params,
+            headers=header,
+            timeout=30,
+        )
 
-    return response.json(), response.status_code
+        response.raise_for_status()
+
+        return response.json(), response.status_code
+
+    if use_retry:
+        _get_vakantieverhuur_meldingen_internal = retry(
+            stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR)
+        )(_get_vakantieverhuur_meldingen_internal)
+
+    return _get_vakantieverhuur_meldingen_internal()
 
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
