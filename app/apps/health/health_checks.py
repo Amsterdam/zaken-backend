@@ -16,7 +16,7 @@ from utils.api_queries_toeristische_verhuur import (
 )
 
 logger = logging.getLogger(__name__)
-TIMEOUT_IN_SEC = 10
+TIMEOUT_IN_SEC = 20
 
 
 class APIServiceCheckBackend(BaseHealthCheckBackend):
