@@ -171,10 +171,13 @@ Note that the apps and models should be updated whenever applications and models
 For changes to the model you have to migrate the DB.
 
 ```python
-python manage.py makemigrations --name name_of_your_migration
+python manage.py makemigrations --name <name_of_your_migration> <name_of_apps>
 
 python manage.py migrate
 ```
+
+name_of_apps is the model you would like to change like: cases, events, workflow or schedules.
+You can use the `---empty` flag to create a custom migration.
 
 # FAQ
 
