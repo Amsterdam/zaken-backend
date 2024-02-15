@@ -33,6 +33,7 @@ class HealthConfig(AppConfig):
         plugin_dir.register(PowerBrowser)
         plugin_dir.register(Toeristischeverhuur)
         # plugin_dir.register(VakantieVerhuurRegistratieCheck)
+        plugin_dir.register(PowerBrowser)
         plugin_dir.register(DecosJoinCheck)
         if is_openzaak_enabled():
             plugin_dir.register(OpenZaakZaken)
