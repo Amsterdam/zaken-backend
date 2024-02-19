@@ -149,6 +149,7 @@ MIDDLEWARE = (
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "axes.middleware.AxesMiddleware",
+    "opencensus.ext.django.middleware.OpencensusMiddleware",
 )
 
 STATIC_URL = "/static/"
@@ -233,7 +234,28 @@ LOGGING = {
         },
         "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
     },
+   
 }
+APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv(
+    "APPLICATIONINSIGHTS_CONNECTION_STRING"
+)
+
+if APPLICATIONINSIGHTS_CONNECTION_STRING:
+    OPENCENSUS = {
+        "TRACE": {
+            "SAMPLER": "opencensus.trace.samplers.ProbabilitySampler(rate=1)",
+            "EXPORTER": f"opencensus.ext.azure.trace_exporter.AzureExporter(connection_string='{APPLICATIONINSIGHTS_CONNECTION_STRING}')",
+        }
+    }
+    LOGGING["handlers"]["azure"] = {
+        "level": "DEBUG",
+        "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
+        "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
+    }
+    LOGGING["loggers"]["django"]["handlers"] = ["azure", "console"]
+    LOGGING["loggers"]["apps"]["handlers"] = ["azure", "console"]
+    LOGGING["loggers"]["utils"]["handlers"] = ["azure", "console"]
+
 
 """
 TODO: Only a few of these settings are actually used for our current flow,
