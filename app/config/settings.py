@@ -208,13 +208,6 @@ SPECTACULAR_SETTINGS = {
 
 TAG_NAME = os.getenv("TAG_NAME", "default-release")
 
-# Error logging through Sentry
-sentry_sdk.init(
-    dsn=os.environ.get("SENTRY_DSN"),
-    integrations=[DjangoIntegration()],
-    release=TAG_NAME,
-)
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -240,6 +233,11 @@ LOGGING = {
             "handlers": ["console"],
             "propagate": True,
         },
+        "django.request": {
+            "level": "INFO",
+            "handlers": ["console"],
+            "propagate": False,
+        },
         "mozilla_django_oidc": {"handlers": ["console"], "level": "INFO"},
     },
    
@@ -262,6 +260,7 @@ if APPLICATIONINSIGHTS_CONNECTION_STRING:
     }
     LOGGING["root"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["django"]["handlers"] = ["azure", "console"]
+    LOGGING["loggers"]["django.request"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["apps"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["utils"]["handlers"] = ["azure", "console"]
 
