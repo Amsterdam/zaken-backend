@@ -140,6 +140,7 @@ DATABASES = {
 }
 
 MIDDLEWARE = (
+    "opencensus.ext.django.middleware.OpencensusMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -152,7 +153,6 @@ MIDDLEWARE = (
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "axes.middleware.AxesMiddleware",
-    "opencensus.ext.django.middleware.OpencensusMiddleware",
 )
 
 STATIC_URL = "/static/"
@@ -240,7 +240,7 @@ LOGGING = {
         "django.request": {
             "level": "DEBUG",
             "handlers": ["console"],
-            "propagate": False,
+            "propagate": True,
         },
         "mozilla_django_oidc": {"handlers": ["console"], "level": "INFO"},
     },
