@@ -256,6 +256,7 @@ if APPLICATIONINSIGHTS_CONNECTION_STRING:
         "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
         "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
     }
+    LOGGING["root"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["django"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["apps"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["utils"]["handlers"] = ["azure", "console"]
