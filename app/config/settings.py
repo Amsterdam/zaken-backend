@@ -7,12 +7,15 @@ from celery.schedules import crontab
 from dotenv import load_dotenv
 from keycloak_oidc.default_settings import *  # noqa
 from sentry_sdk.integrations.django import DjangoIntegration
+from opencensus.trace import config_integration
 
 from .azure_settings import Azure
 
 azure = Azure()
 
 load_dotenv()
+
+config_integration.trace_integrations(['requests', 'logging', 'postgresql'])
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
