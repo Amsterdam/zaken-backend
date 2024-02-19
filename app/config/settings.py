@@ -216,25 +216,26 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console"],
-        "level": "INFO"
+        "level": "DEBUG"
     },
     "loggers": {
         "apps": {
             "handlers": ["console"],
-            "level": "INFO",
+            "level": "DEBUG",
             "propagate": True,
         },
         "utils": {
             "handlers": ["console"],
-            "level": "INFO",
+            "level": "DEBUG",
             "propagate": True,
         },
         "django": {
             "handlers": ["console"],
+            "level": "DEBUG",
             "propagate": True,
         },
         "django.request": {
-            "level": "INFO",
+            "level": "DEBUG",
             "handlers": ["console"],
             "propagate": False,
         },
@@ -254,7 +255,7 @@ if APPLICATIONINSIGHTS_CONNECTION_STRING:
         }
     }
     LOGGING["handlers"]["azure"] = {
-        "level": "INFO",
+        "level": "DEBUG",
         "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
         "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
     }
