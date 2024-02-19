@@ -237,7 +237,7 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": True,
         },
-        "django.request": {
+        "": {
             "level": "DEBUG",
             "handlers": ["console"],
             "propagate": True,
@@ -264,7 +264,7 @@ if APPLICATIONINSIGHTS_CONNECTION_STRING:
     }
     LOGGING["root"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["django"]["handlers"] = ["azure", "console"]
-    LOGGING["loggers"]["django.request"]["handlers"] = ["azure", "console"]
+    LOGGING["loggers"][""]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["apps"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["utils"]["handlers"] = ["azure", "console"]
 
