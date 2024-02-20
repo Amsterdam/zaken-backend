@@ -257,14 +257,14 @@ if APPLICATIONINSIGHTS_CONNECTION_STRING:
             "EXPORTER": f"opencensus.ext.azure.trace_exporter.AzureExporter(connection_string='{APPLICATIONINSIGHTS_CONNECTION_STRING}')",
         }
     }
-    LOGGING["handlers"]["azure"] = {
-        "level": "DEBUG",
-        "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
-        "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
-    }
+    # LOGGING["handlers"]["azure"] = {
+    #     "level": "DEBUG",
+    #     "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
+    #     "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
+    # }
     # LOGGING["root"]["handlers"] = ["azure", "console"]
     # LOGGING["loggers"]["django"]["handlers"] = ["azure", "console"]
-    LOGGING["loggers"][""]["handlers"] = ["azure", "console"]
+    # LOGGING["loggers"][""]["handlers"] = ["azure", "console"]
     # LOGGING["loggers"]["apps"]["handlers"] = ["azure", "console"]
     # LOGGING["loggers"]["utils"]["handlers"] = ["azure", "console"]
 
