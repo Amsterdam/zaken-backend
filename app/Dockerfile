@@ -32,4 +32,4 @@ RUN chmod +x /app/deploy/docker-entrypoint.sh
 
 
 ENTRYPOINT ["/app/deploy/docker-entrypoint.sh"]
-CMD ["uwsgi", "--ini", "/app/deploy/config.ini"]
+CMD ["opentelemetry-instrument", "uwsgi", "--ini", "/app/deploy/config.ini"]
