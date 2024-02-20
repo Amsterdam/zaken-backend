@@ -213,7 +213,7 @@ TAG_NAME = os.getenv("TAG_NAME", "default-release")
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": False,
+    "disable_existing_loggers": True,
     "handlers": {
         "console": {"class": "logging.StreamHandler", "level": "INFO"},
     },
@@ -243,9 +243,9 @@ LOGGING = {
             "propagate": True,
         },
         "mozilla_django_oidc": {"handlers": ["console"], "level": "INFO"},
-    },
-   
+    },  
 }
+
 APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv(
     "APPLICATIONINSIGHTS_CONNECTION_STRING"
 )
