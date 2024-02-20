@@ -44,7 +44,7 @@ deepdiff
 prettyprinter
 gemma-zds-client==1.0.0
 idna==3.3
-importlib-metadata==4.8.1
+# importlib-metadata==4.8.1
 inflection==0.5.1
 josepy==1.13.0
 jsonschema==4.4.0
