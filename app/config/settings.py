@@ -7,7 +7,7 @@ from celery.schedules import crontab
 from dotenv import load_dotenv
 from keycloak_oidc.default_settings import *  # noqa
 from sentry_sdk.integrations.django import DjangoIntegration
-# from opencensus.trace import config_integration
+from opencensus.trace import config_integration
 
 from .azure_settings import Azure
 
@@ -15,7 +15,7 @@ azure = Azure()
 
 load_dotenv()
 
-# config_integration.trace_integrations(['requests', 'logging', 'postgresql'])
+config_integration.trace_integrations(['requests', 'logging', 'postgresql'])
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
@@ -140,7 +140,7 @@ DATABASES = {
 }
 
 MIDDLEWARE = (
-    # "opencensus.ext.django.middleware.OpencensusMiddleware",
+    "opencensus.ext.django.middleware.OpencensusMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -246,27 +246,27 @@ LOGGING = {
     },
    
 }
-# APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv(
-#     "APPLICATIONINSIGHTS_CONNECTION_STRING"
-# )
+APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv(
+    "APPLICATIONINSIGHTS_CONNECTION_STRING"
+)
 
-# if APPLICATIONINSIGHTS_CONNECTION_STRING:
-#     OPENCENSUS = {
-#         "TRACE": {
-#             "SAMPLER": "opencensus.trace.samplers.ProbabilitySampler(rate=1)",
-#             "EXPORTER": f"opencensus.ext.azure.trace_exporter.AzureExporter(connection_string='{APPLICATIONINSIGHTS_CONNECTION_STRING}')",
-#         }
-#     }
-#     LOGGING["handlers"]["azure"] = {
-#         "level": "DEBUG",
-#         "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
-#         "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
-#     }
-#     LOGGING["root"]["handlers"] = ["azure", "console"]
-#     LOGGING["loggers"]["django"]["handlers"] = ["azure", "console"]
-#     LOGGING["loggers"][""]["handlers"] = ["azure", "console"]
-#     LOGGING["loggers"]["apps"]["handlers"] = ["azure", "console"]
-#     LOGGING["loggers"]["utils"]["handlers"] = ["azure", "console"]
+if APPLICATIONINSIGHTS_CONNECTION_STRING:
+    OPENCENSUS = {
+        "TRACE": {
+            "SAMPLER": "opencensus.trace.samplers.ProbabilitySampler(rate=1)",
+            "EXPORTER": f"opencensus.ext.azure.trace_exporter.AzureExporter(connection_string='{APPLICATIONINSIGHTS_CONNECTION_STRING}')",
+        }
+    }
+    LOGGING["handlers"]["azure"] = {
+        "level": "DEBUG",
+        "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
+        "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
+    }
+    LOGGING["root"]["handlers"] = ["azure", "console"]
+    LOGGING["loggers"]["django"]["handlers"] = ["azure", "console"]
+    LOGGING["loggers"][""]["handlers"] = ["azure", "console"]
+    LOGGING["loggers"]["apps"]["handlers"] = ["azure", "console"]
+    LOGGING["loggers"]["utils"]["handlers"] = ["azure", "console"]
 
 
 """
