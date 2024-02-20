@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 ENVIRONMENT = os.getenv("ENVIRONMENT")
-DEBUG = ENVIRONMENT == "development"
+DEBUG = True
 
 # Settings to improve security
 is_secure_environment = not DEBUG
