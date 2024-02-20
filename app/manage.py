@@ -13,7 +13,7 @@ if __name__ == "__main__":
     configure_azure_monitor(
         connection_string=os.environ['APPLICATIONINSIGHTS_CONNECTION_STRING']
     )
-    # LoggingInstrumentor().instrument(set_logging_format=True)
-    # DjangoInstrumentor().instrument(is_sql_commentor_enabled=True)
-    # Psycopg2Instrumentor().instrument()
+    LoggingInstrumentor().instrument(set_logging_format=True)
+    DjangoInstrumentor().instrument(is_sql_commentor_enabled=True)
+    Psycopg2Instrumentor().instrument()
     execute_from_command_line(sys.argv)
