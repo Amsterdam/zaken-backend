@@ -5,7 +5,6 @@ from os.path import join
 from celery.schedules import crontab
 from dotenv import load_dotenv
 from keycloak_oidc.default_settings import *  # noqa
-from sentry_sdk.integrations.django import DjangoIntegration
 from opencensus.trace import config_integration
 
 from .azure_settings import Azure
@@ -241,6 +240,11 @@ LOGGING = {
             "handlers": ["console"],
             "propagate": True,
         },
+        "celery": {
+            "handlers": ["celery", "console"],
+            "level": "INFO",
+            "propagate": True,
+        },
         # "mozilla_django_oidc": {"handlers": ["console"], "level": "INFO"},
     },  
 }
@@ -266,7 +270,7 @@ if APPLICATIONINSIGHTS_CONNECTION_STRING:
     LOGGING["loggers"][""]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["apps"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["utils"]["handlers"] = ["azure", "console"]
-
+    LOGGING["loggers"]["celery"]["handlers"] = ["azure", "console"]
 
 """
 TODO: Only a few of these settings are actually used for our current flow,
