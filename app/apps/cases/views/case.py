@@ -62,6 +62,9 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 from utils.mimetypes import get_mimetype
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class MultipleValueField(MultipleChoiceField):
@@ -410,6 +413,12 @@ class CaseViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
+
+    def list(self, request, *args, **kwargs):
+        logger.info("ZAKEN INFO***")
+        logger.error("ZAKEN INFO***")
+        return super().list(request, *args, **kwargs)
+
     permission_classes = rest_permission_classes_for_top() + [CanAccessSensitiveCases]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
