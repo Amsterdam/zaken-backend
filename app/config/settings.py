@@ -214,6 +214,10 @@ LOGGING = {
     "disable_existing_loggers": True,
     "handlers": {
         "console": {"class": "logging.StreamHandler", "level": "INFO"},
+        "celery": {
+            "level": "INFO",
+            "class": "logging.StreamHandler"
+        },
     },
     "root": {
         "handlers": ["console"],
@@ -270,8 +274,7 @@ if APPLICATIONINSIGHTS_CONNECTION_STRING:
     LOGGING["loggers"][""]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["apps"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["utils"]["handlers"] = ["azure", "console"]
-    LOGGING["loggers"]["celery"]["handlers"] = ["azure", "console"]
-
+    LOGGING["loggers"]["celery"]["handlers"] = ["azure", "console", "celery"]
 """
 TODO: Only a few of these settings are actually used for our current flow,
 but the mozilla_django_oidc OIDCAuthenticationBackend required these to be set.
