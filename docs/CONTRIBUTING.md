@@ -3,12 +3,12 @@
 To deploy a new version of AZA-backend you need to push a ....
 tag to Github. Jenkins will create
 
-We usually release from the master-branch. Create a new tag
+We usually release from the main-branch. Create a new tag
 with a semantic version number of format "v.x.x.x".
 To see the latest tags use
 
 ```
-git checkout master
+git checkout main
 git pull
 git tag -l | tail
 ```
