@@ -1,11 +1,11 @@
 name: 'Validate BPMN'
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
     - 'app/apps/workflow/bpmn_files/**/**/**/*.bpmn'
   pull_request:
-    branches: [ master, develop ]
+    branches: [ main, develop ]
 
 jobs:
   test:
