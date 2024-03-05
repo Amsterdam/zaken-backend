@@ -415,8 +415,6 @@ class CaseViewSet(
 ):
 
     def list(self, request, *args, **kwargs):
-        logger.info("ZAKEN INFO***")
-        logger.error("ZAKEN INFO***")
         return super().list(request, *args, **kwargs)
 
     permission_classes = rest_permission_classes_for_top() + [CanAccessSensitiveCases]

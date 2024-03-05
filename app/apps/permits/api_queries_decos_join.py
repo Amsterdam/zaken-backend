@@ -158,9 +158,6 @@ class DecosJoinRequest:
                         "Authorization": f"Basic {settings.DECOS_JOIN_AUTH_BASE64}",
                     }
                 )
-
-            logger.info(url)
-
             response = requests.get(url, **request_params)
 
             return response.json()
