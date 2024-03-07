@@ -135,7 +135,9 @@ class Address(models.Model):
         # If no nummeraanduidingen is found, try to search for BAG with address params.
         if not nummeraanduidingen and self.street_name:
             response = do_bag_search_nummeraanduiding_id_by_address(self)
-            nummeraanduidingen = response.get("_embedded", {}).get("nummeraanduidingen", [])
+            nummeraanduidingen = response.get("_embedded", {}).get(
+                "nummeraanduidingen", []
+            )
 
         # If there are multiple results, find the result with the same house number.
         # TODO: What if Weesperzijde 112 and Weesperzijde 112A have the same bag_id?
