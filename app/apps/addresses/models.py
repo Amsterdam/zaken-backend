@@ -77,7 +77,7 @@ class Address(models.Model):
     def get_or_create_by_bag_id(bag_id):
         return Address.objects.get_or_create(bag_id=bag_id)[0]
 
-    def search_and_set_bag_address_data(self):
+    def get_bag_address_data(self):
         # When moving the import to the beginning of the file, a Django error follows:
         # ImproperlyConfigured: AUTH_USER_MODEL refers to model 'users.User' that has not been installed.
         from utils.exceptions import DistrictNotFoundError
@@ -125,33 +125,25 @@ class Address(models.Model):
                     f"verblijfsobject_url: {verblijfsobject_url}, verblijfsobject: {verblijfsobject}"
                 )
 
-    def search_and_set_bag_nummeraanduiding_id(self):
-        bag_search_nummeraanduidingen = []
+    def get_bag_nummeraanduiding_id(self):
+        nummeraanduidingen = []
         # Searching by bag_id should be performed first because it returns the fewest results.
         # For example: A search for Weesperzijde 112 returns 14 results (112A, 112B, 112C etc).
-        bag_search_nummeraanduiding_id_response = (
-            do_bag_search_nummeraanduiding_id_by_bag_id(self.bag_id)
-        )
-        bag_search_nummeraanduidingen = bag_search_nummeraanduiding_id_response.get(
-            "_embedded", {}
-        ).get("nummeraanduidingen", [])
+        response = do_bag_search_nummeraanduiding_id_by_bag_id(self.bag_id)
+        nummeraanduidingen = response.get("_embedded", {}).get("nummeraanduidingen", [])
 
-        # If no bag_search_nummeraanduidingen is found, try to search for BAG with address params.
-        if not bag_search_nummeraanduidingen and self.street_name:
-            bag_search_nummeraanduiding_id_response = (
-                do_bag_search_nummeraanduiding_id_by_address(self)
-            )
-            bag_search_nummeraanduidingen = bag_search_nummeraanduiding_id_response.get(
-                "_embedded", {}
-            ).get("nummeraanduidingen", [])
+        # If no nummeraanduidingen is found, try to search for BAG with address params.
+        if not nummeraanduidingen and self.street_name:
+            response = do_bag_search_nummeraanduiding_id_by_address(self)
+            nummeraanduidingen = response.get("_embedded", {}).get("nummeraanduidingen", [])
 
         # If there are multiple results, find the result with the same house number.
         # TODO: What if Weesperzijde 112 and Weesperzijde 112A have the same bag_id?
         found_bag_nummeraanduiding = next(
             (
-                bag_search_nummeraanduiding
-                for bag_search_nummeraanduiding in bag_search_nummeraanduidingen
-                if bag_search_nummeraanduiding.get("huisnummer", None) == self.number
+                nummeraanduiding
+                for nummeraanduiding in nummeraanduidingen
+                if nummeraanduiding.get("huisnummer", None) == self.number
             ),
             {},
         )
@@ -164,15 +156,21 @@ class Address(models.Model):
         if nummeraanduiding_id:
             self.nummeraanduiding_id = nummeraanduiding_id
 
-    def save(self, *args, **kwargs):
-        self.search_and_set_bag_address_data()
+    def update_bag_data(self):
+        self.get_bag_address_data()
         # Prevent a nummeraanduiding_id error while creating a case.
         try:
-            self.search_and_set_bag_nummeraanduiding_id()
+            self.get_bag_nummeraanduiding_id()
         except Exception as e:
             logger.error(
                 f"Could not retrieve nummeraanduiding_id for bag_id:{self.bag_id}: {e}"
             )
 
-        # TODO: If self is missing address data, don't create a case.
+    def update_bag_data_and_save_address(self):
+        self.update_bag_data()
+        self.save()
+
+    def save(self, *args, **kwargs):
+        if not self.bag_id or not self.nummeraanduiding_id:
+            self.update_bag_data()
         return super().save(*args, **kwargs)

@@ -5,7 +5,7 @@ from django.contrib import admin
 @admin.action(description="Save addresses and update bag data")
 def save_addresses(modeladmin, request, queryset):
     for address in queryset:
-        address.save()
+        address.update_bag_data_and_save_address()
 
 
 @admin.register(HousingCorporation)
