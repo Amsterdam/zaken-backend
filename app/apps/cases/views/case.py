@@ -2,7 +2,7 @@ import io
 import operator
 from functools import reduce
 
-from apps.addresses.models import Address, District, HousingCorporation
+from apps.addresses.models import District, HousingCorporation
 from apps.cases.models import (
     Case,
     CaseDocument,
@@ -11,7 +11,6 @@ from apps.cases.models import (
     CaseStateType,
     CaseTheme,
     Subject,
-    Tag,
 )
 from apps.cases.serializers import (
     AdvertisementSerializer,
@@ -50,7 +49,7 @@ from apps.workflow.serializers import (
     StartWorkflowSerializer,
     WorkflowOptionSerializer,
 )
-from django.db.models import OuterRef, Q, Subquery, Prefetch
+from django.db.models import OuterRef, Q, Subquery
 from django.forms.fields import CharField, MultipleChoiceField
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
@@ -415,19 +414,8 @@ class CaseViewSet(
     viewsets.GenericViewSet,
 ):
 
-    queryset = Case.objects.all()
-
     def list(self, request, *args, **kwargs):
-        # Prefetch related objects to reduce database queries
-        queryset = self.queryset.prefetch_related(
-            Prefetch('address', queryset=Address.objects.all()),
-            Prefetch('theme', queryset=CaseTheme.objects.all()),
-            Prefetch('reason', queryset=CaseReason.objects.all()),
-            Prefetch('project', queryset=CaseProject.objects.all()),
-            Prefetch('subjects', queryset=Subject.objects.all()),
-            Prefetch('tags', queryset=Tag.objects.all()),
-        )
-        return self.get_paginated_response(self.serializer_class(queryset, many=True).data)
+        return super().list(request, *args, **kwargs)
 
     permission_classes = rest_permission_classes_for_top() + [CanAccessSensitiveCases]
     serializer_class = CaseSerializer
