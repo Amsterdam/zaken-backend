@@ -76,7 +76,7 @@ class BaseCaseSerializer(serializers.ModelSerializer):
         address = Address.get_or_create_by_bag_id(bag_id)
         if housing_corporation and not address.housing_corporation:
             address.housing_corporation = housing_corporation
-            address.save_async().delay()
+            address.save()
         elif housing_corporation and address.housing_corporation != housing_corporation:
             raise Exception(
                 f"You can not change the housing_corporation for a existing address: {address.housing_corporation}, new {housing_corporation}"

@@ -449,14 +449,6 @@ class CaseViewSet(
             queryset = queryset.exclude(sensitive=True)
         return queryset
 
-    @action(detail=False, methods=['get'])
-    def overview(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        fields = ['id', 'field1', 'field2', ...]  # Add the fields you need
-        data = queryset.values(*fields)
-        return Response(data)
-
     @action(
         detail=False,
         methods=["get"],

@@ -1,6 +1,4 @@
 import logging
-import celery
-from celery import shared_task
 
 from django.db import models
 from utils.api_queries_bag import (
@@ -175,7 +173,19 @@ class Address(models.Model):
         self.save()
 
     def save(self, *args, **kwargs):
+<<<<<<< HEAD
         if not self.bag_id or not self.nummeraanduiding_id:
             self.update_bag_data()
+=======
+        self.search_and_set_bag_address_data()
+        # Prevent a nummeraanduiding_id error while creating a case.
+        try:
+            self.search_and_set_bag_nummeraanduiding_id()
+        except Exception as e:
+            logger.error(
+                f"Could not retrieve nummeraanduiding_id for bag_id:{self.bag_id}: {e}"
+            )
+
+        # TODO: If self is missing address data, don't create a case.
+>>>>>>> 5e8f520b (Revert "try using celery for the save")
         return super().save(*args, **kwargs)
-    
