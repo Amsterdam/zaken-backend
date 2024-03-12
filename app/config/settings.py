@@ -258,16 +258,16 @@ APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv(
 )
 
 if APPLICATIONINSIGHTS_CONNECTION_STRING:
-    OPENCENSUS = {
-        "TRACE": {
-            "SAMPLER": "opencensus.trace.samplers.ProbabilitySampler(rate=1)",
-            "EXPORTER": f"opencensus.ext.azure.trace_exporter.AzureExporter(connection_string='{APPLICATIONINSIGHTS_CONNECTION_STRING}')",
-        }
-    }
+    # OPENCENSUS = {
+    #     "TRACE": {
+    #         "SAMPLER": "opencensus.trace.samplers.ProbabilitySampler(rate=1)",
+    #         "EXPORTER": f"opencensus.ext.azure.trace_exporter.AzureExporter(connection_string='{APPLICATIONINSIGHTS_CONNECTION_STRING}')",
+    #     }
+    # }
     LOGGING["handlers"]["azure"] = {
         "level": "INFO",
-        "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
-        "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
+        "class": "logging.StreamHandler",
+        # "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
     }
     LOGGING["root"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["django"]["handlers"] = ["azure", "console"]
