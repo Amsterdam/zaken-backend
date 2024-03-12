@@ -214,40 +214,40 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": True,
     "handlers": {
-        "console": {"class": "logging.StreamHandler", "level": "INFO"},
+        "console": {"class": "logging.StreamHandler", "level": "DEBUG"},
         "celery": {
-            "level": "INFO",
+            "level": "DEBUG",
             "class": "logging.StreamHandler"
         },
     },
     "root": {
         "handlers": ["console"],
-        "level": "INFO"
+        "level": "DEBUG"
     },
     "loggers": {
         "apps": {
             "handlers": ["console"],
-            "level": "INFO",
+            "level": "DEBUG",
             "propagate": True,
         },
         "utils": {
             "handlers": ["console"],
-            "level": "INFO",
+            "level": "DEBUG",
             "propagate": True,
         },
         "django": {
             "handlers": ["console"],
-            "level": "INFO",
+            "level": "DEBUG",
             "propagate": True,
         },
         "": {
-            "level": "INFO",
+            "level": "DEBUG",
             "handlers": ["console"],
             "propagate": True,
         },
         "celery": {
             "handlers": ["celery", "console"],
-            "level": "INFO",
+            "level": "DEBUG",
             "propagate": True,
         },
         # "mozilla_django_oidc": {"handlers": ["console"], "level": "INFO"},
@@ -266,7 +266,7 @@ if APPLICATIONINSIGHTS_CONNECTION_STRING:
         }
     }
     LOGGING["handlers"]["azure"] = {
-        "level": "INFO",
+        "level": "DEBUG",
         "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
         "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
     }
