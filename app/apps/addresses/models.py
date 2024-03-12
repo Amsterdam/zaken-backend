@@ -1,4 +1,6 @@
 import logging
+import celery
+from celery import shared_task
 
 from django.db import models
 from utils.api_queries_bag import (
@@ -176,3 +178,4 @@ class Address(models.Model):
         if not self.bag_id or not self.nummeraanduiding_id:
             self.update_bag_data()
         return super().save(*args, **kwargs)
+    
