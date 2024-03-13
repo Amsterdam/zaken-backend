@@ -81,6 +81,18 @@ class AddressTinySerializer(serializers.ModelSerializer):
             "housing_corporation",
         )
 
+# AddressSimplifiedSerializer is used for the cases in Zakenoverzicht with just a few details.
+class AddressSimplifiedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = (
+            "street_name",
+            "postal_code",
+            "number",
+            "suffix_letter",
+            "suffix",
+        )
+
 
 class ResidentSerializer(serializers.Serializer):
     geboortedatum = serializers.DateTimeField(required=True)

@@ -17,6 +17,7 @@ from apps.cases.serializers import (
     CaseCreateSerializer,
     CaseDataSerializer,
     CaseDetailSerializer,
+    CaseSimplifiedSerializer,
     CaseDocumentSerializer,
     CaseDocumentUploadSerializer,
     CaseSerializer,
@@ -389,6 +390,7 @@ class StandardResultsSetPagination(EmptyPagination):
             "schedule_week_segment", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
         ),
         OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
+        OpenApiParameter("simplified", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter("start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
         OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("state_types__name", OpenApiTypes.STR, OpenApiParameter.QUERY),
@@ -420,6 +422,10 @@ class CaseViewSet(
     pagination_class = StandardResultsSetPagination
 
     def get_serializer_class(self):
+        # Send `simplified` as parameter to use a simplified serializer with less details.
+        is_simplified = self.request.query_params.get("simplified", False) == "true"
+        if is_simplified:
+            return CaseSimplifiedSerializer
         if self.action == "retrieve":
             return CaseDetailSerializer
         if self.action in ("create", "update", "partial_update"):
