@@ -1,5 +1,9 @@
 from apps.addresses.models import Address, HousingCorporation
-from apps.addresses.serializers import AddressSerializer, AddressTinySerializer, AddressSimplifiedSerializer
+from apps.addresses.serializers import (
+    AddressSerializer,
+    AddressSimplifiedSerializer,
+    AddressTinySerializer,
+)
 from apps.cases.models import (
     Advertisement,
     Case,
@@ -241,6 +245,7 @@ class CaseDetailSerializer(serializers.ModelSerializer):
             "author",
             "created",
         )
+
 
 # CaseSimplifiedSerializer is used for the cases in Zakenoverzicht with just a few details.
 class CaseSimplifiedSerializer(serializers.ModelSerializer):

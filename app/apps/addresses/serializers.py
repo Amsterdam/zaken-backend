@@ -81,6 +81,7 @@ class AddressTinySerializer(serializers.ModelSerializer):
             "housing_corporation",
         )
 
+
 # AddressSimplifiedSerializer is used for the cases in Zakenoverzicht with just a few details.
 class AddressSimplifiedSerializer(serializers.ModelSerializer):
     class Meta:
