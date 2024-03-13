@@ -1,5 +1,9 @@
 from apps.addresses.models import Address, HousingCorporation
-from apps.addresses.serializers import AddressSerializer, AddressTinySerializer
+from apps.addresses.serializers import (
+    AddressSerializer,
+    AddressSimplifiedSerializer,
+    AddressTinySerializer,
+)
 from apps.cases.models import (
     Advertisement,
     Case,
@@ -240,6 +244,27 @@ class CaseDetailSerializer(serializers.ModelSerializer):
             "case_deleted",
             "author",
             "created",
+        )
+
+
+# CaseSimplifiedSerializer is used for the cases in Zakenoverzicht with just a few details.
+class CaseSimplifiedSerializer(serializers.ModelSerializer):
+    address = AddressSimplifiedSerializer(read_only=True)
+    workflows = CaseWorkflowBaseSerializer(
+        source="get_workflows", many=True, read_only=True
+    )
+    reason = CaseReasonSerializer(read_only=True)
+
+    class Meta:
+        model = Case
+        fields = (
+            "address",
+            "end_date",
+            "id",
+            "reason",
+            "workflows",
+            "start_date",
+            "last_updated",
         )
 
 
