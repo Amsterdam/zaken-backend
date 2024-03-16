@@ -1,4 +1,4 @@
-import os
+import os, socket
 from datetime import timedelta
 from os.path import join
 
@@ -549,6 +549,16 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute=5),
     },
 }
+
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    "socket_keepalive": True,
+    "socket_keepalive_options": {
+        socket.TCP_KEEPIDLE: 60,
+        socket.TCP_KEEPCNT: 5,
+        socket.TCP_KEEPINTVL: 10,
+    },
+}
+
 
 LOGOUT_REDIRECT_URL = "/admin"
 
