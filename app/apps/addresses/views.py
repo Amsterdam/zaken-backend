@@ -71,8 +71,7 @@ class AddressViewSet(
         # If no nummeraanduiding_id, get it!
         if not address.nummeraanduiding_id:
             try:
-                address.search_and_set_bag_address_data()
-                address.search_and_set_bag_nummeraanduiding_id()
+                address.update_bag_data()
             except Exception:
                 return Response(
                     {"error": "BAG data could not be obtained"},
@@ -91,7 +90,7 @@ class AddressViewSet(
             except Exception:
                 return Response(
                     {"error": "BRP data could not be obtained"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    status=status.HTTP_403_FORBIDDEN,
                 )
 
         return Response(
