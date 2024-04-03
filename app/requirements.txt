@@ -15,7 +15,7 @@ click-repl==0.2.0
 cryptography==41.0.1
 datapunt-keycloak-oidc @ git+https://github.com/petercuret/keycloak_oidc.git@master
 debugpy==1.4.1
-Django==3.2.13
+Django==3.2.25
 django-axes==5.32.0
 django-celery-beat==2.2.1
 django-celery-results==2.2.0
