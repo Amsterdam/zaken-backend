@@ -34,20 +34,7 @@ ZAKEN_CONTAINER_HOST = os.getenv("ZAKEN_CONTAINER_HOST")
 
 ALLOWED_HOSTS = "*"
 
-# TODO: Configure this in the environment variables
-CORS_ORIGIN_WHITELIST = (
-    "https://wonen.zaken.amsterdam.nl",
-    "https://acc.wonen.zaken.amsterdam.nl",
-    "http://0.0.0.0:2999",
-    "http://localhost:2999",
-    "http://zaken-frontend.localhost",
-    "https://zaken-frontend.localhost",
-    "https://wonen.zaken.woon-o.azure.amsterdam.nl",
-    "https://ton.woon-o.azure.amsterdam.nl",
-    "https://wonen.zaken.woon.azure.amsterdam.nl",
-    "https://ton.woon.azure.amsterdam.nl",
-    "https://ton.amsterdam.nl"
-)
+CORS_ORIGIN_WHITELIST = os.environ.get("CORS_ORIGIN_WHITELIST").split(",")
 CORS_ORIGIN_ALLOW_ALL = False
 
 INSTALLED_APPS = (
