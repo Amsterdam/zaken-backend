@@ -74,7 +74,7 @@ text-unidecode==1.3
 typing-extensions==3.10.0.2
 uritemplate==3.0.1
 urllib3==1.26.15
-uWSGI==2.0.19.1
+uWSGI==2.0.25
 vine==5.0.0
 wcwidth==0.2.5
 zgw-consumers==0.18.0
