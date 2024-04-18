@@ -1,4 +1,5 @@
-import os, socket
+import os
+import socket
 from datetime import timedelta
 from os.path import join
 
@@ -13,13 +14,13 @@ azure = Azure()
 
 load_dotenv()
 
-config_integration.trace_integrations(['requests', 'logging', 'postgresql'])
+config_integration.trace_integrations(["requests", "logging", "postgresql"])
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 ENVIRONMENT = os.getenv("ENVIRONMENT")
-DEBUG = ENVIRONMENT == "development"
+DEBUG = ENVIRONMENT == "local"
 
 # Settings to improve security
 is_secure_environment = not DEBUG
@@ -106,11 +107,11 @@ DATABASE_NAME = os.getenv("DATABASE_NAME", "dev")
 DATABASE_USER = os.getenv("DATABASE_USER", "dev")
 DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD", "dev")
 DATABASE_PORT = os.getenv("DATABASE_PORT", "5432")
-DATABASE_OPTIONS = {'sslmode': 'allow', 'connect_timeout': 5}
+DATABASE_OPTIONS = {"sslmode": "allow", "connect_timeout": 5}
 
-if 'azure.com' in DATABASE_HOST:
+if "azure.com" in DATABASE_HOST:
     DATABASE_PASSWORD = azure.auth.db_password
-    DATABASE_OPTIONS['sslmode'] = 'require'
+    DATABASE_OPTIONS["sslmode"] = "require"
 
 DATABASES = {
     "default": {
@@ -121,7 +122,7 @@ DATABASES = {
         "HOST": DATABASE_HOST,
         "CONN_MAX_AGE": 60 * 5,
         "PORT": DATABASE_PORT,
-        'OPTIONS': {'sslmode': 'allow', 'connect_timeout': 5},
+        "OPTIONS": {"sslmode": "allow", "connect_timeout": 5},
     },
 }
 
@@ -197,48 +198,44 @@ SPECTACULAR_SETTINGS = {
 
 TAG_NAME = os.getenv("TAG_NAME", "default-release")
 
+LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "DEBUG")
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": True,
     "handlers": {
-        "console": {"class": "logging.StreamHandler", "level": "DEBUG"},
-        "celery": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler"
-        },
+        "console": {"class": "logging.StreamHandler", "level": LOGGING_LEVEL},
+        "celery": {"level": LOGGING_LEVEL, "class": "logging.StreamHandler"},
     },
-    "root": {
-        "handlers": ["console"],
-        "level": "DEBUG"
-    },
+    "root": {"handlers": ["console"], "level": LOGGING_LEVEL},
     "loggers": {
         "apps": {
             "handlers": ["console"],
-            "level": "DEBUG",
+            "level": LOGGING_LEVEL,
             "propagate": True,
         },
         "utils": {
             "handlers": ["console"],
-            "level": "DEBUG",
+            "level": LOGGING_LEVEL,
             "propagate": True,
         },
         "django": {
             "handlers": ["console"],
-            "level": "DEBUG",
+            "level": LOGGING_LEVEL,
             "propagate": True,
         },
         "": {
-            "level": "DEBUG",
+            "level": LOGGING_LEVEL,
             "handlers": ["console"],
             "propagate": True,
         },
         "celery": {
             "handlers": ["celery", "console"],
-            "level": "DEBUG",
+            "level": LOGGING_LEVEL,
             "propagate": True,
         },
-        # "mozilla_django_oidc": {"handlers": ["console"], "level": "INFO"},
-    },  
+        "mozilla_django_oidc": {"handlers": ["console"], "level": "INFO"},
+    },
 }
 
 APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv(
@@ -508,8 +505,9 @@ TOP_API_URL = os.getenv("TOP_API_URL")
 REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = os.getenv("REDIS_PORT")
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_PREFIX = "rediss" if is_secure_environment else "redis"
+REDIS_URL = f"{REDIS_PREFIX}://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
 
-REDIS_URL = f"rediss://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -686,7 +684,9 @@ CITIZEN_REPORT_FEEDBACK_PERIODS = (
 )
 
 DEFAULT_WORKFLOW_TIMER_DURATIONS = {
+    "local": timedelta(seconds=20),
     "development": timedelta(seconds=20),
+    "test": timedelta(seconds=20),
     "acceptance": timedelta(seconds=240),
 }
 

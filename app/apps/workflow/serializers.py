@@ -181,6 +181,9 @@ class CaseWorkflowSerializer(CaseWorkflowBaseSerializer):
     information = serializers.SerializerMethodField()
 
     def get_information(self, obj):
+        """
+        Retrieves information from the object. Value from names.
+        """
         return obj.data.get("names", {}).get("value", "")
 
     @extend_schema_field(CaseUserTaskWorkdflowSerializer(many=True))

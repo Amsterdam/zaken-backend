@@ -57,6 +57,9 @@ class Address(models.Model):
 
     @property
     def full_address(self):
+        """
+        Retrieves a string with the full address of the object.
+        """
         full_address = f"{self.street_name} {self.number}"
         if self.suffix or self.suffix_letter:
             full_address = f"{full_address}-{self.suffix}{self.suffix_letter}"
