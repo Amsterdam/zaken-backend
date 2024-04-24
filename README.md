@@ -45,13 +45,13 @@ First, make sure you have built the project and executed the database migrations
 ```
 docker network create top_and_zaak_backend_bridge
 docker network create zaken_network
-docker compose build
+docker-compose -f docker-compose.local.yml build
 ```
 
 Start AZA backend:
 
 ```
-docker compose up
+docker-compose -f docker-compose.local.yml up
 ```
 
 To create all necessary credentials run the following command:

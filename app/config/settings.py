@@ -284,23 +284,23 @@ OIDC_AUTHENTICATION_CALLBACK_URL = "oidc-authenticate"
 
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv(
     "OIDC_OP_AUTHORIZATION_ENDPOINT",
-    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/auth",
+    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/auth",
 )
 OIDC_OP_TOKEN_ENDPOINT = os.getenv(
     "OIDC_OP_TOKEN_ENDPOINT",
-    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/token",
+    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/token",
 )
 OIDC_OP_USER_ENDPOINT = os.getenv(
     "OIDC_OP_USER_ENDPOINT",
-    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/userinfo",
+    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/userinfo",
 )
 OIDC_OP_JWKS_ENDPOINT = os.getenv(
     "OIDC_OP_JWKS_ENDPOINT",
-    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/certs",
+    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/certs",
 )
 OIDC_OP_LOGOUT_ENDPOINT = os.getenv(
     "OIDC_OP_LOGOUT_ENDPOINT",
-    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/logout",
+    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/logout",
 )
 
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
