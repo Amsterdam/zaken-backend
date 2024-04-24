@@ -1,6 +1,5 @@
 from django.apps import AppConfig
 from health_check.plugins import plugin_dir
-from utils.openzaak_enabled import is_openzaak_enabled
 
 class HealthConfig(AppConfig):
     name = "apps.health"
@@ -35,8 +34,3 @@ class HealthConfig(AppConfig):
         # plugin_dir.register(VakantieVerhuurRegistratieCheck)
         plugin_dir.register(PowerBrowser)
         plugin_dir.register(DecosJoinCheck)
-        if is_openzaak_enabled():
-            plugin_dir.register(OpenZaakZaken)
-            plugin_dir.register(OpenZaakZakenAlfresco)
-            plugin_dir.register(OpenZaakZakenCatalogus)
-
