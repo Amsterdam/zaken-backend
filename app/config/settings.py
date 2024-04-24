@@ -368,10 +368,7 @@ BELASTING_API_ACCESS_TOKEN = os.getenv("BELASTING_API_ACCESS_TOKEN", None)
 
 BRP_API_URL = "/".join(
     [
-        os.getenv(
-            "BRP_API_URL",
-            "https://acc.hc.data.amsterdam.nl/brp",
-        ),
+        os.getenv("BRP_API_URL", "https://acc.bp.data.amsterdam.nl/brp"),
         "ingeschrevenpersonen",
     ]
 )
