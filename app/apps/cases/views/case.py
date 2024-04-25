@@ -1,4 +1,5 @@
 import io
+import logging
 import operator
 from functools import reduce
 
@@ -62,7 +63,6 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 from utils.mimetypes import get_mimetype
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -413,7 +413,6 @@ class CaseViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
-
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
