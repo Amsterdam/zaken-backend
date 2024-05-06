@@ -49,7 +49,7 @@ def do_bag_search_by_bag_id(bag_id):
     Search BAG using a BWV 'landelijk BAG ID'
     """
     address_search = requests.get(
-        settings.BAG_API_SEARCH_URL, params={"q": bag_id}, timeout=0.5
+        settings.BAG_API_SEARCH_URL, params={"q": bag_id}, timeout=5
     )
     return address_search.json()
 
@@ -59,7 +59,7 @@ def get_bag_data_by_verblijfsobject_url(verblijfsobject_url):
     """
     Does a BAG Query given a URI
     """
-    bag_data = requests.get(verblijfsobject_url, timeout=0.5)
+    bag_data = requests.get(verblijfsobject_url, timeout=5)
     return bag_data.json()
 
 
