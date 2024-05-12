@@ -12,6 +12,7 @@ from apps.cases.models import (
     CaseStateType,
     CaseTheme,
     Subject,
+    Tag,
 )
 from apps.cases.serializers import (
     AdvertisementSerializer,
@@ -170,6 +171,9 @@ class CaseFilter(filters.FilterSet):
         to_field_name="name",
     )
     suffix = filters.CharFilter(method="get_suffix")
+    tag = filters.ModelMultipleChoiceFilter(
+        queryset=Tag.objects.all(), method="get_tag"
+    )
     task = filters.ModelMultipleChoiceFilter(
         queryset=CaseUserTask.objects.filter(completed=False),
         method="get_task",
@@ -312,6 +316,13 @@ class CaseFilter(filters.FilterSet):
             ).distinct()
         return queryset
 
+    def get_tag(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                tags__in=value,
+            ).distinct()
+        return queryset
+
     def get_theme(self, queryset, name, value):
         if value:
             return queryset.filter(
@@ -399,6 +410,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("state_types__name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("subject", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("subject_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("tag", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("task", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("theme_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
