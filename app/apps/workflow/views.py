@@ -6,6 +6,7 @@ from apps.cases.models import (
     CaseStateType,
     CaseTheme,
     Subject,
+    Tag,
 )
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
@@ -120,6 +121,10 @@ class CaseUserTaskFilter(filters.FilterSet):
         method="get_subject",
         to_field_name="name",
     )
+    tag = filters.ModelMultipleChoiceFilter(
+        queryset=Tag.objects.all(),
+        method="get_tag",
+    )
     theme = filters.ModelMultipleChoiceFilter(
         queryset=CaseTheme.objects.all(),
         method="get_theme",
@@ -173,6 +178,13 @@ class CaseUserTaskFilter(filters.FilterSet):
         if value:
             return queryset.filter(
                 case__subjects__in=value,
+            ).distinct()
+        return queryset
+
+    def get_tag(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                case__tags__in=value,
             ).distinct()
         return queryset
 
@@ -263,6 +275,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("subject", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("subject_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("tag", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("theme_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("ton_ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
