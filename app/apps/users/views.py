@@ -14,6 +14,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .auth import AuthenticationBackend
 from .models import User
 from .serializers import (
+    IsAuthorizedSerializer,
     OIDCAuthenticateSerializer,
     UserDetailSerializer,
     UserSerializer,
@@ -56,6 +57,7 @@ class PermissionViewSet(ViewSet):
 
 class IsAuthorizedView(APIView):
     permission_classes = ()
+    serializer_class = IsAuthorizedSerializer
 
     def get(self, request):
         is_authorized = IsInAuthorizedRealm().has_permission(request, self)

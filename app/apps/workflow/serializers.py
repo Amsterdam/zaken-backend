@@ -180,7 +180,7 @@ class CaseWorkflowSerializer(CaseWorkflowBaseSerializer):
     tasks = serializers.SerializerMethodField()
     information = serializers.SerializerMethodField()
 
-    def get_information(self, obj):
+    def get_information(self, obj) -> str:
         """
         Retrieves information from the object. Value from names.
         """

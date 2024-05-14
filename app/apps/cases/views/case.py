@@ -800,7 +800,9 @@ class CaseDocumentViewSet(
 
 
 class DocumentTypeViewSet(viewsets.ViewSet):
+    serializer_class = DocumentTypeSerializer
+
     def list(self, request):
         document_types = get_document_types()
-        serializer = DocumentTypeSerializer(document_types, many=True)
+        serializer = self.serializer_class(document_types, many=True)
         return Response(serializer.data)

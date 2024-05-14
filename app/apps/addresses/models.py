@@ -56,7 +56,7 @@ class Address(models.Model):
     )
 
     @property
-    def full_address(self):
+    def full_address(self) -> str:
         """
         Retrieves a string with the full address of the object.
         """
