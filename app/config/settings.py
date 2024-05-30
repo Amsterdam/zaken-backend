@@ -344,10 +344,10 @@ BAG_API_NUMMERAANDUIDING_SEARCH_URL = os.getenv(
     "BAG_API_NUMMERAANDUIDING_SEARCH_URL",
     "https://api.data.amsterdam.nl/v1/bag/nummeraanduidingen/",
 )
-# BAG Verblijfsobject
-BAG_API_VERBLIJFSOBJECT_URL = os.getenv(
-    "BAG_API_VERBLIJFSOBJECT_URL",
-    "https://api.data.amsterdam.nl/bag/v1.1/verblijfsobject/",
+# BAG benkagg for nummeraanduidingen and stadsdeel
+BAG_API_BENKAGG_SEARCH_URL = os.getenv(
+    "BAG_API_BENKAGG_SEARCH_URL",
+    "https://api.data.amsterdam.nl/v1/benkagg/adresseerbareobjecten/",
 )
 # API key for the public Amsterdam API (api.data.amsterdam.nl).
 # This key is NOT used for authorization, but to identify who is using the API for communication purposes.
