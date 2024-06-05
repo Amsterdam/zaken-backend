@@ -250,9 +250,12 @@ if APPLICATIONINSIGHTS_CONNECTION_STRING:
     def filter_queries(envelope):
         if LOGGING_LEVEL == "DEBUG":
             return True
-        if 'query' in envelope.data.baseData["name"].lower():
+        log_data = envelope.data.baseData
+        if 'query' in log_data["name"].lower():
             return False
-        if 'applicationinsights' in envelope.data.baseData["message"].lower():
+        if log_data["name"] == "GET /":
+            return False
+        if 'applicationinsights' in log_data["message"].lower():
             return False
         return True
     exporter = AzureExporter(connection_string=APPLICATIONINSIGHTS_CONNECTION_STRING)
