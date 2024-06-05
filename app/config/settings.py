@@ -10,7 +10,9 @@ from opencensus.trace import config_integration
 from opencensus.ext.azure.trace_exporter import AzureExporter
 
 from .azure_settings import Azure
-
+from opencensus.ext.azure.common.protocol import (
+    Envelope
+)
 azure = Azure()
 
 load_dotenv()
@@ -244,9 +246,13 @@ APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv(
 )
 
 if APPLICATIONINSIGHTS_CONNECTION_STRING:
+    # Only log queries when in DEBUG due to high cost
     def filter_queries(envelope):
-        envelope.data.baseData["name"]
+        if LOGGING_LEVEL == "DEBUG":
+            return True
         if 'query' in envelope.data.baseData["name"].lower():
+            return False
+        if 'applicationinsights' in envelope.data.baseData["message"].lower():
             return False
         return True
     exporter = AzureExporter(connection_string=APPLICATIONINSIGHTS_CONNECTION_STRING)
