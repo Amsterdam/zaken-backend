@@ -7,6 +7,8 @@ from celery.schedules import crontab
 from dotenv import load_dotenv
 from keycloak_oidc.default_settings import *  # noqa
 from opencensus.trace import config_integration
+from opencensus.ext.azure.common.protocol import TelemetryItem
+from opencensus.ext.azure.trace_exporter import AzureExporter
 
 from .azure_settings import Azure
 
@@ -243,10 +245,17 @@ APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv(
 )
 
 if APPLICATIONINSIGHTS_CONNECTION_STRING:
+    def filter_queries(envelope):
+        envelope.data.baseData["name"]
+        if 'query' in envelope.data.baseData["name"].lower():
+            return False
+        return True
+    exporter = AzureExporter(connection_string=APPLICATIONINSIGHTS_CONNECTION_STRING)
+    exporter.add_telemetry_processor(filter_queries)
     OPENCENSUS = {
         "TRACE": {
             "SAMPLER": "opencensus.trace.samplers.ProbabilitySampler(rate=1)",
-            "EXPORTER": f"opencensus.ext.azure.trace_exporter.AzureExporter(connection_string='{APPLICATIONINSIGHTS_CONNECTION_STRING}')",
+            "EXPORTER": exporter,
         }
     }
     LOGGING["handlers"]["azure"] = {
@@ -254,12 +263,14 @@ if APPLICATIONINSIGHTS_CONNECTION_STRING:
         "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
         "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
     }
+
     LOGGING["root"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["django"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"][""]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["apps"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["utils"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["celery"]["handlers"] = ["azure", "console", "celery"]
+    
 """
 TODO: Only a few of these settings are actually used for our current flow,
 but the mozilla_django_oidc OIDCAuthenticationBackend required these to be set.
