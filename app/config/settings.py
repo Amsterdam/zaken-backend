@@ -250,7 +250,7 @@ if APPLICATIONINSIGHTS_CONNECTION_STRING:
         }
     }
     LOGGING["handlers"]["azure"] = {
-        "level": "DEBUG",
+        "level": LOGGING_LEVEL,
         "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
         "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
     }
