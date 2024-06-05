@@ -10,9 +10,7 @@ from opencensus.trace import config_integration
 from opencensus.ext.azure.trace_exporter import AzureExporter
 
 from .azure_settings import Azure
-from opencensus.ext.azure.common.protocol import (
-    Envelope
-)
+
 azure = Azure()
 
 load_dotenv()
@@ -247,7 +245,7 @@ APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv(
 
 if APPLICATIONINSIGHTS_CONNECTION_STRING:
     # Only log queries when in DEBUG due to high cost
-    def filter_queries(envelope):
+    def filter_traces(envelope):
         if LOGGING_LEVEL == "DEBUG":
             return True
         log_data = envelope.data.baseData
@@ -259,7 +257,7 @@ if APPLICATIONINSIGHTS_CONNECTION_STRING:
             return False
         return True
     exporter = AzureExporter(connection_string=APPLICATIONINSIGHTS_CONNECTION_STRING)
-    exporter.add_telemetry_processor(filter_queries)
+    exporter.add_telemetry_processor(filter_traces)
     OPENCENSUS = {
         "TRACE": {
             "SAMPLER": "opencensus.trace.samplers.ProbabilitySampler(rate=1)",
