@@ -14,7 +14,7 @@ azure = Azure()
 
 load_dotenv()
 
-config_integration.trace_integrations(["requests", "logging", "postgresql"])
+config_integration.trace_integrations(["requests", "logging"])
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
