@@ -7,7 +7,6 @@ from celery.schedules import crontab
 from dotenv import load_dotenv
 from keycloak_oidc.default_settings import *  # noqa
 from opencensus.trace import config_integration
-from opencensus.ext.azure.common.protocol import TelemetryItem
 from opencensus.ext.azure.trace_exporter import AzureExporter
 
 from .azure_settings import Azure
