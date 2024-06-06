@@ -38,7 +38,9 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.http import JsonResponse
 from django.urls import path
+from django.views.generic import View
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 
@@ -85,6 +87,12 @@ router.register(r"citizen-reports", CitizenReportViewSet, basename="citizen-repo
 
 router.register(r"generic-tasks", GenericCompletedTaskViewSet, basename="generic-tasks")
 
+
+class MyView(View):
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({}, status=204)
+
+
 urlpatterns = [
     # Admin environment
     path("admin/download_data/", download_data),
@@ -96,12 +104,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # API Routing
     path("api/v1/", include(router.urls)),
-    path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),
-    path(
-        "api/v1/swagger/",
-        SpectacularSwaggerView.as_view(url_name="schema"),
-        name="swagger-ui",
-    ),
     # Authentication endpoint for exchanging an OIDC code for a token
     path(
         "api/v1/oidc-authenticate/",
@@ -122,7 +124,19 @@ urlpatterns = [
     ),
     path("data-model/", include("django_spaghetti.urls")),
     url("health/", include("health_check.urls")),
+    url(regex=r"^$", view=MyView.as_view(), name="index"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += [
+        # Swagger/OpenAPI documentation
+        path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),
+        path(
+            "api/v1/swagger/",
+            SpectacularSwaggerView.as_view(url_name="schema"),
+            name="swagger-ui",
+        ),
+    ]
 
 # JSON handlers for errors
 handler500 = "rest_framework.exceptions.server_error"

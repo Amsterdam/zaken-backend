@@ -5,6 +5,7 @@ from celery import Celery
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 app = Celery("proj")
+app.conf.task_default_queue = "AZA"
 app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 

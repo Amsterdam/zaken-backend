@@ -16,16 +16,14 @@ def get_fines(id, use_retry=True):
     def _get_fines_internal():
         parameter = {"identificatienummer": id}
         header = {"authorization": f"Bearer {settings.BELASTING_API_ACCESS_TOKEN}"}
-
         response = requests.get(
             url=settings.BELASTING_API_URL,
             headers=header,
             params=parameter,
-            verify="/usr/local/share/ca-certificates/adp_rootca.crt",
+            # verify="/usr/local/share/ca-certificates/adp_rootca.crt",
             timeout=6,
         )
         response.raise_for_status()
-
         return response.json()
 
     if use_retry:

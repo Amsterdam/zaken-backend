@@ -7,7 +7,7 @@ from django.conf import settings
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import ServiceUnavailable
 from requests.exceptions import HTTPError, SSLError, Timeout
-from utils.api_queries_bag import do_bag_search_nummeraanduiding_id_by_bag_id
+from utils.api_queries_bag import do_bag_search_benkagg_by_bag_id
 from utils.api_queries_toeristische_verhuur import (
     get_bag_vakantieverhuur_registrations,
     get_bsn_vakantieverhuur_registrations,
@@ -16,7 +16,7 @@ from utils.api_queries_toeristische_verhuur import (
 )
 
 logger = logging.getLogger(__name__)
-timeout_in_sec = 10
+TIMEOUT_IN_SEC = 20
 
 
 class APIServiceCheckBackend(BaseHealthCheckBackend):
@@ -38,7 +38,7 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
             return
 
         try:
-            response = requests.get(api_url, timeout=timeout_in_sec)
+            response = requests.get(api_url, timeout=TIMEOUT_IN_SEC)
             response.raise_for_status()
         except ConnectionRefusedError as e:
             logger.error(e)
@@ -51,7 +51,7 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
             self.add_error(ServiceUnavailable(f"Service not found. {api_url}"))
         except Timeout:
             self.add_error(
-                ServiceUnavailable(f"Exceeded timeout of {timeout_in_sec} seconds.")
+                ServiceUnavailable(f"Exceeded timeout of {TIMEOUT_IN_SEC} seconds")
             )
         except SSLError as e:
             logger.error(e)
@@ -79,16 +79,6 @@ class BAGAtlasServiceCheck(APIServiceCheckBackend):
     verbose_name = "BAG Atlas"
 
 
-class BAGVerblijfsobjectServiceCheck(APIServiceCheckBackend):
-    """
-    Endpoint for checking the BAG Verblijfsobject Service API Endpoint
-    """
-
-    critical_service = True
-    api_url = settings.BAG_API_VERBLIJFSOBJECT_URL
-    verbose_name = "BAG Verblijfsobject"
-
-
 class BRPServiceCheck(APIServiceCheckBackend):
     """
     Endpoint for checking the BRP Service API Endpoint
@@ -99,22 +89,25 @@ class BRPServiceCheck(APIServiceCheckBackend):
     verbose_name = "BRP"
 
 
-class BAGNummeraanduidingenServiceCheck(BaseHealthCheckBackend):
+class BAGBenkaggNummeraanduidingenServiceCheck(BaseHealthCheckBackend):
     """
-    Endpoint for checking the BAG Nummeraanduidingen API
+    Endpoint for checking the BAG Benkagg adresseerbareobjecten API
     """
 
     critical_service = True
-    verbose_name = "BAG Nummeraanduidingen"
+    verbose_name = "BAG Benkagg Nummeraanduidingen"
 
     def check_status(self):
         try:
-            response = do_bag_search_nummeraanduiding_id_by_bag_id(
-                settings.BAG_ID_AMSTEL_1
-            )
+            response = do_bag_search_benkagg_by_bag_id(settings.BAG_ID_AMSTEL_1)
             message = response.get("message")
             if message:
                 self.add_error(ServiceUnavailable(f"{message}"), message)
+            adresseerbareobjecten = response.get("_embedded", {}).get(
+                "adresseerbareobjecten", []
+            )
+            if len(adresseerbareobjecten) == 0:
+                self.add_error(ServiceUnavailable("No results"))
         except HTTPError as e:
             logger.error(e)
             self.add_error(ServiceUnavailable(f"HTTPError {e.response.status_code}."))

@@ -17,12 +17,12 @@ jobs:
     - name: Linting
       run: bash bin/cleanup_pre_commit.sh
     - name: Build Docker image
-      run: docker-compose build
+      run: docker-compose build -f docker-compose.local.yml
     - name: Create Docker network
       run: docker network create zaken_network
     - name: Create TOP and Zaken Docker network
       run: docker network create top_and_zaak_backend_bridge
     - name: Start images
-      run: docker-compose up -d
+      run: docker-compose -f docker-compose.local.yml  up -d
     - name: Run Tests
       run: docker-compose exec -T zaak-gateway python manage.py test

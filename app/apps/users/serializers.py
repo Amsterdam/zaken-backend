@@ -88,3 +88,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 class OIDCAuthenticateSerializer(serializers.Serializer):
     code = serializers.CharField(required=True)
+
+
+class IsAuthorizedSerializer(serializers.Serializer):
+    is_authorized = serializers.BooleanField()

@@ -2,10 +2,8 @@ import logging
 
 from django.db import models
 from utils.api_queries_bag import (
+    do_bag_search_benkagg_by_bag_id,
     do_bag_search_by_bag_id,
-    do_bag_search_nummeraanduiding_id_by_address,
-    do_bag_search_nummeraanduiding_id_by_bag_id,
-    get_bag_data_by_verblijfsobject_url,
 )
 
 logger = logging.getLogger(__name__)
@@ -56,7 +54,10 @@ class Address(models.Model):
     )
 
     @property
-    def full_address(self):
+    def full_address(self) -> str:
+        """
+        Retrieves a string with the full address of the object.
+        """
         full_address = f"{self.street_name} {self.number}"
         if self.suffix or self.suffix_letter:
             full_address = f"{full_address}-{self.suffix}{self.suffix_letter}"
@@ -78,10 +79,6 @@ class Address(models.Model):
         return Address.objects.get_or_create(bag_id=bag_id)[0]
 
     def get_bag_address_data(self):
-        # When moving the import to the beginning of the file, a Django error follows:
-        # ImproperlyConfigured: AUTH_USER_MODEL refers to model 'users.User' that has not been installed.
-        from utils.exceptions import DistrictNotFoundError
-
         bag_search_response = do_bag_search_by_bag_id(self.bag_id)
         bag_search_results = bag_search_response.get("results", [])
 
@@ -108,61 +105,46 @@ class Address(models.Model):
                 self.lng = centroid[0]
                 self.lat = centroid[1]
 
-            verblijfsobject_url = (
-                found_bag_data.get("_links", {}).get("self", {}).get("href")
-            )
-            verblijfsobject = (
-                verblijfsobject_url
-                and get_bag_data_by_verblijfsobject_url(verblijfsobject_url)
-            )
-            district_name = verblijfsobject and verblijfsobject.get(
-                "_stadsdeel", {}
-            ).get("naam")
-            if district_name:
-                self.district = District.objects.get_or_create(name=district_name)[0]
-            else:
-                raise DistrictNotFoundError(
-                    f"verblijfsobject_url: {verblijfsobject_url}, verblijfsobject: {verblijfsobject}"
-                )
+    def get_bag_identificatie_and_stadsdeel(self):
+        """
+        Retrieves the identificatie(nummeraanduiding_id) and stadsdeel of an address by bag_id.
+        nummeraanduiding_id is needed for BRP.
+        stadsdeel is needed for filtering.
+        """
+        # When moving the import to the beginning of the file, a Django error follows:
+        # ImproperlyConfigured: AUTH_USER_MODEL refers to model 'users.User' that has not been installed.
+        from utils.exceptions import DistrictNotFoundError
 
-    def get_bag_nummeraanduiding_id(self):
-        nummeraanduidingen = []
-        # Searching by bag_id should be performed first because it returns the fewest results.
-        # For example: A search for Weesperzijde 112 returns 14 results (112A, 112B, 112C etc).
-        response = do_bag_search_nummeraanduiding_id_by_bag_id(self.bag_id)
-        nummeraanduidingen = response.get("_embedded", {}).get("nummeraanduidingen", [])
+        response = do_bag_search_benkagg_by_bag_id(self.bag_id)
+        adresseerbareobjecten = response.get("_embedded", {}).get(
+            "adresseerbareobjecten", []
+        )
 
-        # If no nummeraanduidingen is found, try to search for BAG with address params.
-        if not nummeraanduidingen and self.street_name:
-            response = do_bag_search_nummeraanduiding_id_by_address(self)
-            nummeraanduidingen = response.get("_embedded", {}).get(
-                "nummeraanduidingen", []
-            )
-
-        # If there are multiple results, find the result with the same house number.
-        # TODO: What if Weesperzijde 112 and Weesperzijde 112A have the same bag_id?
-        found_bag_nummeraanduiding = next(
+        # There are adresseerbareobjecten with the same bag_id. Find the best result.
+        found_bag_object = next(
             (
-                nummeraanduiding
-                for nummeraanduiding in nummeraanduidingen
-                if nummeraanduiding.get("huisnummer", None) == self.number
+                adresseerbareobject
+                for adresseerbareobject in adresseerbareobjecten
+                if adresseerbareobject.get("huisnummer", None) == self.number
             ),
             {},
         )
-
-        nummeraanduiding_id = (
-            found_bag_nummeraanduiding.get("_links", {})
-            .get("self", {})
-            .get("identificatie", "")
-        )
+        nummeraanduiding_id = found_bag_object.get("identificatie")
         if nummeraanduiding_id:
             self.nummeraanduiding_id = nummeraanduiding_id
+
+        # Add Stadsdeel to address.
+        district_name = found_bag_object.get("gebiedenStadsdeelNaam")
+        if district_name:
+            self.district = District.objects.get_or_create(name=district_name)[0]
+        else:
+            raise DistrictNotFoundError(f"API benkagg bag_id: {self.bag_id}")
 
     def update_bag_data(self):
         self.get_bag_address_data()
         # Prevent a nummeraanduiding_id error while creating a case.
         try:
-            self.get_bag_nummeraanduiding_id()
+            self.get_bag_identificatie_and_stadsdeel()
         except Exception as e:
             logger.error(
                 f"Could not retrieve nummeraanduiding_id for bag_id:{self.bag_id}: {e}"

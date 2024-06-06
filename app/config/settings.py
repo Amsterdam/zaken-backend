@@ -1,20 +1,26 @@
 import os
+import socket
 from datetime import timedelta
 from os.path import join
 
-import sentry_sdk
 from celery.schedules import crontab
 from dotenv import load_dotenv
 from keycloak_oidc.default_settings import *  # noqa
-from sentry_sdk.integrations.django import DjangoIntegration
+from opencensus.ext.azure.trace_exporter import AzureExporter
+
+from .azure_settings import Azure
+
+azure = Azure()
 
 load_dotenv()
+
+# config_integration.trace_integrations(["requests", "logging"])
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 ENVIRONMENT = os.getenv("ENVIRONMENT")
-DEBUG = ENVIRONMENT == "development"
+DEBUG = ENVIRONMENT == "local"
 
 # Settings to improve security
 is_secure_environment = not DEBUG
@@ -29,13 +35,7 @@ ZAKEN_CONTAINER_HOST = os.getenv("ZAKEN_CONTAINER_HOST")
 
 ALLOWED_HOSTS = "*"
 
-# TODO: Configure this in the environment variables
-CORS_ORIGIN_WHITELIST = (
-    "https://wonen.zaken.amsterdam.nl",
-    "https://acc.wonen.zaken.amsterdam.nl",
-    "http://0.0.0.0:2999",
-    "http://localhost:2999",
-)
+CORS_ORIGIN_WHITELIST = os.environ.get("CORS_ORIGIN_WHITELIST").split(",")
 CORS_ORIGIN_ALLOW_ALL = False
 
 INSTALLED_APPS = (
@@ -64,7 +64,6 @@ INSTALLED_APPS = (
     "health_check",
     "health_check.db",
     "health_check.contrib.migrations",
-    "health_check.contrib.rabbitmq",
     "health_check.contrib.celery_ping",
     # Apps
     "apps.users",
@@ -103,18 +102,32 @@ SPAGHETTI_SAUCE = {
     "show_fields": False,
 }
 
+DATABASE_HOST = os.getenv("DATABASE_HOST", "database")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "dev")
+DATABASE_USER = os.getenv("DATABASE_USER", "dev")
+DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD", "dev")
+DATABASE_PORT = os.getenv("DATABASE_PORT", "5432")
+DATABASE_OPTIONS = {"sslmode": "allow", "connect_timeout": 5}
+
+if "azure.com" in DATABASE_HOST:
+    DATABASE_PASSWORD = azure.auth.db_password
+    DATABASE_OPTIONS["sslmode"] = "require"
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("DATABASE_NAME"),
-        "USER": os.environ.get("DATABASE_USER"),
-        "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
-        "HOST": os.environ.get("DATABASE_HOST"),
-        "PORT": os.environ.get("DATABASE_PORT"),
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "NAME": DATABASE_NAME,
+        "USER": DATABASE_USER,
+        "PASSWORD": DATABASE_PASSWORD,
+        "HOST": DATABASE_HOST,
+        "CONN_MAX_AGE": 60 * 5,
+        "PORT": DATABASE_PORT,
+        "OPTIONS": {"sslmode": "allow", "connect_timeout": 5},
     },
 }
 
 MIDDLEWARE = (
+    "opencensus.ext.django.middleware.OpencensusMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -185,33 +198,84 @@ SPECTACULAR_SETTINGS = {
 
 TAG_NAME = os.getenv("TAG_NAME", "default-release")
 
-# Error logging through Sentry
-sentry_sdk.init(
-    dsn=os.environ.get("SENTRY_DSN"),
-    integrations=[DjangoIntegration()],
-    release=TAG_NAME,
-)
+LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "DEBUG")
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": False,
+    "disable_existing_loggers": True,
     "handlers": {
-        "console": {"class": "logging.StreamHandler", "level": "DEBUG"},
+        "console": {"class": "logging.StreamHandler", "level": LOGGING_LEVEL},
+        "celery": {"level": LOGGING_LEVEL, "class": "logging.StreamHandler"},
     },
+    "root": {"handlers": ["console"], "level": LOGGING_LEVEL},
     "loggers": {
         "apps": {
             "handlers": ["console"],
-            "level": "INFO",
+            "level": LOGGING_LEVEL,
             "propagate": True,
         },
         "utils": {
             "handlers": ["console"],
-            "level": "INFO",
+            "level": LOGGING_LEVEL,
             "propagate": True,
         },
-        "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
+        "django": {
+            "handlers": ["console"],
+            "level": LOGGING_LEVEL,
+            "propagate": True,
+        },
+        "": {
+            "level": LOGGING_LEVEL,
+            "handlers": ["console"],
+            "propagate": True,
+        },
+        "celery": {
+            "handlers": ["celery", "console"],
+            "level": LOGGING_LEVEL,
+            "propagate": True,
+        },
+        "mozilla_django_oidc": {"handlers": ["console"], "level": "INFO"},
     },
 }
+
+APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv(
+    "APPLICATIONINSIGHTS_CONNECTION_STRING"
+)
+
+if APPLICATIONINSIGHTS_CONNECTION_STRING:
+    # Only log queries when in DEBUG due to high cost
+    def filter_traces(envelope):
+        if LOGGING_LEVEL == "DEBUG":
+            return True
+        log_data = envelope.data.baseData
+        if "query" in log_data["name"].lower():
+            return False
+        if log_data["name"] == "GET /":
+            return False
+        if "applicationinsights" in log_data.message.lower():
+            return False
+        return True
+
+    exporter = AzureExporter(connection_string=APPLICATIONINSIGHTS_CONNECTION_STRING)
+    exporter.add_telemetry_processor(filter_traces)
+    OPENCENSUS = {
+        "TRACE": {
+            "SAMPLER": "opencensus.trace.samplers.ProbabilitySampler(rate=1)",
+            "EXPORTER": exporter,
+        }
+    }
+    LOGGING["handlers"]["azure"] = {
+        "level": LOGGING_LEVEL,
+        "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
+        "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
+    }
+
+    LOGGING["root"]["handlers"] = ["azure", "console"]
+    LOGGING["loggers"]["django"]["handlers"] = ["azure", "console"]
+    LOGGING["loggers"][""]["handlers"] = ["azure", "console"]
+    LOGGING["loggers"]["apps"]["handlers"] = ["azure", "console"]
+    LOGGING["loggers"]["utils"]["handlers"] = ["azure", "console"]
+    LOGGING["loggers"]["celery"]["handlers"] = ["azure", "console", "celery"]
 
 """
 TODO: Only a few of these settings are actually used for our current flow,
@@ -237,23 +301,23 @@ OIDC_AUTHENTICATION_CALLBACK_URL = "oidc-authenticate"
 
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv(
     "OIDC_OP_AUTHORIZATION_ENDPOINT",
-    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/auth",
+    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/auth",
 )
 OIDC_OP_TOKEN_ENDPOINT = os.getenv(
     "OIDC_OP_TOKEN_ENDPOINT",
-    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/token",
+    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/token",
 )
 OIDC_OP_USER_ENDPOINT = os.getenv(
     "OIDC_OP_USER_ENDPOINT",
-    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/userinfo",
+    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/userinfo",
 )
 OIDC_OP_JWKS_ENDPOINT = os.getenv(
     "OIDC_OP_JWKS_ENDPOINT",
-    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/certs",
+    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/certs",
 )
 OIDC_OP_LOGOUT_ENDPOINT = os.getenv(
     "OIDC_OP_LOGOUT_ENDPOINT",
-    "https://iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/logout",
+    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/logout",
 )
 
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
@@ -297,10 +361,10 @@ BAG_API_NUMMERAANDUIDING_SEARCH_URL = os.getenv(
     "BAG_API_NUMMERAANDUIDING_SEARCH_URL",
     "https://api.data.amsterdam.nl/v1/bag/nummeraanduidingen/",
 )
-# BAG Verblijfsobject
-BAG_API_VERBLIJFSOBJECT_URL = os.getenv(
-    "BAG_API_VERBLIJFSOBJECT_URL",
-    "https://api.data.amsterdam.nl/bag/v1.1/verblijfsobject/",
+# BAG benkagg for nummeraanduidingen and stadsdeel
+BAG_API_BENKAGG_SEARCH_URL = os.getenv(
+    "BAG_API_BENKAGG_SEARCH_URL",
+    "https://api.data.amsterdam.nl/v1/benkagg/adresseerbareobjecten/",
 )
 # API key for the public Amsterdam API (api.data.amsterdam.nl).
 # This key is NOT used for authorization, but to identify who is using the API for communication purposes.
@@ -321,10 +385,7 @@ BELASTING_API_ACCESS_TOKEN = os.getenv("BELASTING_API_ACCESS_TOKEN", None)
 
 BRP_API_URL = "/".join(
     [
-        os.getenv(
-            "BRP_API_URL",
-            "https://acc.hc.data.amsterdam.nl/brp",
-        ),
+        os.getenv("BRP_API_URL", "https://acc.bp.data.amsterdam.nl/brp"),
         "ingeschrevenpersonen",
     ]
 )
@@ -455,27 +516,12 @@ POWERBROWSER_API_KEY = os.getenv("POWERBROWSER_API_KEY")
 SECRET_KEY_AZA_TOP = os.getenv("SECRET_KEY_AZA_TOP")
 TOP_API_URL = os.getenv("TOP_API_URL")
 
-RABBIT_MQ_URL = os.getenv("RABBIT_MQ_URL")
-RABBIT_MQ_USERNAME = os.getenv("RABBIT_MQ_USERNAME")
-RABBIT_MQ_PASSWORD = os.getenv("RABBIT_MQ_PASSWORD")
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = os.getenv("REDIS_PORT")
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_PREFIX = "rediss" if is_secure_environment else "redis"
+REDIS_URL = f"{REDIS_PREFIX}://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
 
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_BROKER_URL = f"amqp://{RABBIT_MQ_USERNAME}:{RABBIT_MQ_PASSWORD}@{RABBIT_MQ_URL}"
-
-BROKER_URL = CELERY_BROKER_URL
-CELERY_TASK_TRACK_STARTED = True
-CELERY_RESULT_BACKEND = "django-db"
-CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_BEAT_SCHEDULE = {
-    "queue_every_five_mins": {
-        "task": "apps.health.tasks.query_every_five_mins",
-        "schedule": crontab(minute=5),
-    },
-}
-
-REDIS = os.getenv("REDIS")
-REDIS_URL = f"redis://{REDIS}"
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -487,6 +533,32 @@ CACHES = {
         },
     }
 }
+
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_BROKER_URL = REDIS_URL
+BROKER_CONNECTION_MAX_RETRIES = None
+BROKER_CONNECTION_TIMEOUT = 120
+BROKER_URL = CELERY_BROKER_URL
+CELERY_TASK_TRACK_STARTED = True
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_BEAT_SCHEDULE = {
+    "queue_every_five_mins": {
+        "task": "apps.health.tasks.query_every_five_mins",
+        "schedule": crontab(minute=5),
+    },
+}
+
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    "socket_keepalive": True,
+    "socket_keepalive_options": {
+        socket.TCP_KEEPIDLE: 60,
+        socket.TCP_KEEPCNT: 5,
+        socket.TCP_KEEPINTVL: 10,
+    },
+}
+
 
 LOGOUT_REDIRECT_URL = "/admin"
 
@@ -626,7 +698,9 @@ CITIZEN_REPORT_FEEDBACK_PERIODS = (
 )
 
 DEFAULT_WORKFLOW_TIMER_DURATIONS = {
+    "local": timedelta(seconds=20),
     "development": timedelta(seconds=20),
+    "test": timedelta(seconds=20),
     "acceptance": timedelta(seconds=240),
 }
 

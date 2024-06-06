@@ -1,4 +1,5 @@
 import io
+import logging
 import operator
 from functools import reduce
 
@@ -11,6 +12,7 @@ from apps.cases.models import (
     CaseStateType,
     CaseTheme,
     Subject,
+    Tag,
 )
 from apps.cases.serializers import (
     AdvertisementSerializer,
@@ -62,6 +64,8 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 from utils.mimetypes import get_mimetype
+
+logger = logging.getLogger(__name__)
 
 
 class MultipleValueField(MultipleChoiceField):
@@ -167,6 +171,9 @@ class CaseFilter(filters.FilterSet):
         to_field_name="name",
     )
     suffix = filters.CharFilter(method="get_suffix")
+    tag = filters.ModelMultipleChoiceFilter(
+        queryset=Tag.objects.all(), method="get_tag"
+    )
     task = filters.ModelMultipleChoiceFilter(
         queryset=CaseUserTask.objects.filter(completed=False),
         method="get_task",
@@ -309,6 +316,13 @@ class CaseFilter(filters.FilterSet):
             ).distinct()
         return queryset
 
+    def get_tag(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                tags__in=value,
+            ).distinct()
+        return queryset
+
     def get_theme(self, queryset, name, value):
         if value:
             return queryset.filter(
@@ -396,6 +410,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("state_types__name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("subject", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("subject_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+        OpenApiParameter("tag", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("task", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("theme_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
@@ -410,6 +425,9 @@ class CaseViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
     permission_classes = rest_permission_classes_for_top() + [CanAccessSensitiveCases]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
@@ -782,7 +800,9 @@ class CaseDocumentViewSet(
 
 
 class DocumentTypeViewSet(viewsets.ViewSet):
+    serializer_class = DocumentTypeSerializer
+
     def list(self, request):
         document_types = get_document_types()
-        serializer = DocumentTypeSerializer(document_types, many=True)
+        serializer = self.serializer_class(document_types, many=True)
         return Response(serializer.data)

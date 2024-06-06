@@ -10,33 +10,13 @@ headers = {"x-api-key": settings.BAG_API_PUBLIC_KEY}
 
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def do_bag_search_nummeraanduiding_id_by_bag_id(bag_id):
+def do_bag_search_benkagg_by_bag_id(bag_id):
     """
-    Search BAG nummeraanduiding_id using an adresseertVerblijfsobjectId
+    Search BAG identificatie (nummeraanduiding_id) and stadsdeel using an adresseertVerblijfsobjectId
     """
     address_search = requests.get(
-        settings.BAG_API_NUMMERAANDUIDING_SEARCH_URL,
-        params={"adresseertVerblijfsobject.identificatie": bag_id},
-        headers=headers,
-        timeout=30,
-    )
-    return address_search.json()
-
-
-@retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def do_bag_search_nummeraanduiding_id_by_address(address):
-    """
-    Search BAG nummeraanduiding_id by using an address
-    """
-    params = {"postcode": address.postal_code, "huisnummer": address.number}
-    if address.suffix:
-        params["huisnummertoevoeging"] = address.suffix
-    if address.suffix_letter:
-        params["huisletter"] = address.suffix_letter
-
-    address_search = requests.get(
-        settings.BAG_API_NUMMERAANDUIDING_SEARCH_URL,
-        params=params,
+        settings.BAG_API_BENKAGG_SEARCH_URL,
+        params={"adresseertVerblijfsobjectIdentificatie": bag_id},
         headers=headers,
         timeout=30,
     )
@@ -49,18 +29,9 @@ def do_bag_search_by_bag_id(bag_id):
     Search BAG using a BWV 'landelijk BAG ID'
     """
     address_search = requests.get(
-        settings.BAG_API_SEARCH_URL, params={"q": bag_id}, timeout=0.5
+        settings.BAG_API_SEARCH_URL, params={"q": bag_id}, timeout=5
     )
     return address_search.json()
-
-
-@retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def get_bag_data_by_verblijfsobject_url(verblijfsobject_url):
-    """
-    Does a BAG Query given a URI
-    """
-    bag_data = requests.get(verblijfsobject_url, timeout=0.5)
-    return bag_data.json()
 
 
 # BWV migration queries

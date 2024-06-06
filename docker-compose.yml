@@ -1,95 +1,16 @@
-version: "3.5"
 
 services:
   zaak-gateway:
-    networks:
-      - zaken_network
-      - top_and_zaak_backend_bridge
     build: app
     hostname: zaak-gateway
-    image: zaak-gateway
+    image: ${REGISTRY:-127.0.0.1:5001}/${REPOSITORY:-salmagundi/zaken-backend}:${VERSION:-latest}
     ports:
       - 8080:8000
       - 5678:5678
-    depends_on:
-      - database
-      - zaak-redis
     env_file:
       - .env
     command: bash -c "/app/wait-for.sh zaak-redis:6379 && /app/wait-for.sh database:5432 && /app/deploy/docker-entrypoint.development.sh"
-    volumes:
-      - ./app:/app
+    # volumes:
+    #   - ./app:/app
     stdin_open: true
     tty: true
-
-  zaak-redis:
-    build: redis
-    environment:
-      - REDIS_PASSWORD=password
-      - REDIS_MAXMEM=100mb
-    networks:
-      - zaken_network
-    ports:
-      - "6379:6379"
-
-  database:
-    networks:
-      - zaken_network
-    image: amsterdam/postgres12
-    shm_size: "512m"
-    ports:
-      - "6409:5432"
-    env_file:
-      - .env
-    volumes:
-      - postgresql-data:/var/lib/postgresql/data
-
-  rabbitmq:
-    image: rabbitmq:3.9
-    networks:
-      - zaken_network
-    ports:
-      - 5672:5672
-    env_file:
-      - .env
-
-  zaken_celery_worker:
-    image: zaak-gateway
-    container_name: zaken_celery_worker
-    hostname: zaken_celery_worker
-    command: bash -c "/app/wait-for.sh zaak-redis:6379 && /app/wait-for.sh rabbitmq:5672 && /app/wait-for.sh zaak-gateway:8000 -- /app/celery.sh"
-    depends_on:
-      - zaak-gateway
-      - database
-      - rabbitmq
-      - zaak-redis
-    env_file:
-      - .env
-    networks:
-      - zaken_network
-    restart: on-failure
-
-  zaken_celery_beat:
-    image: zaak-gateway
-    container_name: zaken_celery_beat
-    hostname: zaken_celery_beat
-    command: sh -c "/app/wait-for.sh zaak-redis:6379 && /app/wait-for.sh rabbitmq:5672 && /app/wait-for.sh zaak-gateway:8000 -- celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
-    depends_on:
-      - zaak-gateway
-      - database
-      - rabbitmq
-      - zaak-redis
-    env_file:
-      - .env
-    networks:
-      - zaken_network
-    restart: on-failure
-
-networks:
-  zaken_network:
-    external: true
-  top_and_zaak_backend_bridge:
-    external: true
-
-volumes:
-  postgresql-data:

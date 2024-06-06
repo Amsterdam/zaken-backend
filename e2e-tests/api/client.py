@@ -32,7 +32,7 @@ class Client:
 
         if not res.ok:
             raise Exception(
-                f"Error {task_name}: status: {res.status_code} on url: {url} with data: {json}"
+                f"Error {task_name}: status: {res.status_code} on url: {url} with data: {json} and text:\n{res.text[:5000]}\n"
             )
 
         return res.json()
