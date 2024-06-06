@@ -6,7 +6,6 @@ from os.path import join
 from celery.schedules import crontab
 from dotenv import load_dotenv
 from keycloak_oidc.default_settings import *  # noqa
-from opencensus.trace import config_integration
 from opencensus.ext.azure.trace_exporter import AzureExporter
 
 from .azure_settings import Azure
@@ -249,13 +248,14 @@ if APPLICATIONINSIGHTS_CONNECTION_STRING:
         if LOGGING_LEVEL == "DEBUG":
             return True
         log_data = envelope.data.baseData
-        if 'query' in log_data["name"].lower():
+        if "query" in log_data["name"].lower():
             return False
         if log_data["name"] == "GET /":
             return False
-        if 'applicationinsights' in log_data["message"].lower():
+        if "applicationinsights" in log_data.message.lower():
             return False
         return True
+
     exporter = AzureExporter(connection_string=APPLICATIONINSIGHTS_CONNECTION_STRING)
     exporter.add_telemetry_processor(filter_traces)
     OPENCENSUS = {
@@ -276,7 +276,7 @@ if APPLICATIONINSIGHTS_CONNECTION_STRING:
     LOGGING["loggers"]["apps"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["utils"]["handlers"] = ["azure", "console"]
     LOGGING["loggers"]["celery"]["handlers"] = ["azure", "console", "celery"]
-    
+
 """
 TODO: Only a few of these settings are actually used for our current flow,
 but the mozilla_django_oidc OIDCAuthenticationBackend required these to be set.
