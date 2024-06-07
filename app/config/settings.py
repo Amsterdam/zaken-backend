@@ -520,7 +520,7 @@ REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = os.getenv("REDIS_PORT")
 REDIS_PASSWORD = azure.auth.db_password
 REDIS_PREFIX = "rediss" if is_secure_environment else "redis"
-REDIS_URL = f"{REDIS_PREFIX}://aza-app-o:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
+REDIS_URL = f"{REDIS_PREFIX}://be8f3124-744c-44ca-aa75-1a8fb56f02fe:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
 
 CACHES = {
     "default": {
