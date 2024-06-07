@@ -48,7 +48,9 @@ class AzureAuth:
         return credential
 
     @property
-    def db_password(self) -> object:
+    def db_password(
+        self, scopes=["https://ossrdbms-aad.database.windows.net/.default"]
+    ) -> object:
         # return access_token.token
         class DynamicString:
             def __init__(self, credential, scopes) -> None:
@@ -59,7 +61,6 @@ class AzureAuth:
                 access_token = self.credential.get_token(*self.scopes)
                 return access_token.token
 
-        scopes = ["https://ossrdbms-aad.database.windows.net/.default"]
         return DynamicString(self.credential, scopes)
 
 
