@@ -27,9 +27,6 @@ Zakensysteem voor toezichthouders en handhavers van de Gemeente Amsterdam voor d
     - [User tasks](#user-tasks)
 
 
-
-
-
 ## Prerequisites
 
 Make sure you have Docker installed locally:
@@ -42,7 +39,7 @@ These steps are necessary to make sure all configurations are set up correctly s
 
 First, make sure you have built the project and executed the database migrations:
 
-```
+```bash
 docker network create top_and_zaak_backend_bridge
 docker network create zaken_network
 docker-compose -f docker-compose.local.yml build
@@ -50,7 +47,7 @@ docker-compose -f docker-compose.local.yml build
 
 Start AZA backend:
 
-```
+```bash
 docker-compose -f docker-compose.local.yml up
 ```
 
