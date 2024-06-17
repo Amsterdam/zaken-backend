@@ -518,9 +518,13 @@ TOP_API_URL = os.getenv("TOP_API_URL")
 
 REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = os.getenv("REDIS_PORT")
-REDIS_USERNAME = os.getenv("REDIS_USERNAME")
-REDIS_PASSWORD = azure.auth.redis_password
+REDIS_USERNAME = ""
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 REDIS_PREFIX = "rediss" if is_secure_environment else "redis"
+if "windows.net" in REDIS_HOST:
+    REDIS_USERNAME = os.getenv("REDIS_USERNAME")
+    REDIS_PASSWORD = azure.auth.redis_password
+
 REDIS_URL = (
     f"{REDIS_PREFIX}://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
 )

@@ -4,6 +4,7 @@ import requests
 from apps.permits.api_queries_powerbrowser import PowerbrowserRequest
 from config.celery import debug_task
 from django.conf import settings
+from django.http import HttpResponse
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import ServiceUnavailable
 from requests.exceptions import HTTPError, SSLError, Timeout
@@ -314,3 +315,7 @@ class PowerBrowser(BaseHealthCheckBackend):
         except Exception as e:
             logger.error(e)
             self.add_error(ServiceUnavailable(f"Failed {e}"), e)
+
+
+def is_healthy(request):
+    return HttpResponse("Ok", content_type="text/plain", status=200)
