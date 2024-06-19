@@ -15,6 +15,7 @@ from apps.cases.views import (
 from apps.debriefings.views import DebriefingViewSet
 from apps.decisions.views import DecisionTypeViewSet, DecisionViewSet
 from apps.fines.views import FinesViewSet
+from apps.health.health_checks import is_healthy
 from apps.openzaak.views import ReceiveNotificationView
 from apps.quick_decisions.views import QuickDecisionTypeViewSet, QuickDecisionViewSet
 from apps.schedules.views import (
@@ -124,6 +125,7 @@ urlpatterns = [
     ),
     path("data-model/", include("django_spaghetti.urls")),
     url("health/", include("health_check.urls")),
+    url("startup/", is_healthy),
     url(regex=r"^$", view=MyView.as_view(), name="index"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

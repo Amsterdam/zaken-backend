@@ -62,6 +62,21 @@ class AzureAuth:
         scopes = ["https://ossrdbms-aad.database.windows.net/.default"]
         return DynamicString(self.credential, scopes)
 
+    @property
+    def redis_password(self) -> object:
+        # return access_token.token
+        class DynamicString:
+            def __init__(self, credential, scopes) -> None:
+                self.credential = credential
+                self.scopes = scopes
+
+            def __str__(self):
+                access_token = self.credential.get_token(*self.scopes)
+                return access_token.token
+
+        scopes = ["https://redis.azure.com/.default"]
+        return DynamicString(self.credential, scopes)
+
 
 class Azure:
     def __init__(self) -> None:
