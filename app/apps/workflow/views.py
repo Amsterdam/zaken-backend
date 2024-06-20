@@ -11,10 +11,8 @@ from apps.cases.models import (
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
 from apps.summons.serializers import SummonTypeSerializer
-from apps.users.permissions import (
-    CanAccessSensitiveCases,
-    rest_permission_classes_for_top,
-)
+from apps.users.auth_apps import TopKeyAuth
+from apps.users.permissions import CanAccessSensitiveCases
 from apps.workflow.serializers import (
     CaseUserTaskSerializer,
     CaseUserTaskTaskNameSerializer,
@@ -26,6 +24,7 @@ from django.db.models import Q
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
+from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
@@ -286,7 +285,7 @@ class CaseUserTaskViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
-    permission_classes = rest_permission_classes_for_top() + [CanAccessSensitiveCases]
+    permission_classes = [(IsInAuthorizedRealm & CanAccessSensitiveCases) | TopKeyAuth]
     serializer_class = CaseUserTaskSerializer
     queryset = CaseUserTask.objects.all()
     http_method_names = ["patch", "get"]
