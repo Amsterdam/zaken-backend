@@ -41,10 +41,8 @@ from apps.openzaak.helpers import (
     get_zaaktype,
 )
 from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
-from apps.users.permissions import (
-    CanAccessSensitiveCases,
-    rest_permission_classes_for_top,
-)
+from apps.users.auth_apps import TopKeyAuth
+from apps.users.permissions import CanAccessSensitiveCases
 from apps.workflow.models import CaseUserTask, CaseWorkflow, WorkflowOption
 from apps.workflow.serializers import (
     CaseWorkflowSerializer,
@@ -58,6 +56,7 @@ from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
+from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action, parser_classes
 from rest_framework.pagination import LimitOffsetPagination
@@ -428,7 +427,7 @@ class CaseViewSet(
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    permission_classes = rest_permission_classes_for_top() + [CanAccessSensitiveCases]
+    permission_classes = [(IsInAuthorizedRealm & CanAccessSensitiveCases) | TopKeyAuth]
     serializer_class = CaseSerializer
     queryset = Case.objects.all()
     filter_backends = (
@@ -452,6 +451,8 @@ class CaseViewSet(
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        if TopKeyAuth().has_permission(self.request, None):
+            return queryset
         if (
             self.action in ("list",)
             and hasattr(self.request, "user")
