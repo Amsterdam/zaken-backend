@@ -54,7 +54,7 @@ class VisitSerializer(serializers.ModelSerializer):
             return visit
         else:
             logger.warn("No task found")
-            return None
+            return object()
 
     class Meta:
         model = Visit
