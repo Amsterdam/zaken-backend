@@ -109,6 +109,10 @@ class Case(ModelEventEmitter):
         to=Address, null=True, on_delete=models.CASCADE, related_name="cases"
     )
     sensitive = models.BooleanField(default=False)
+    consent_to_share_info = models.BooleanField(
+        default=False,
+        help_text="This field determines if the case can be shared with a third party (housing corporation).",
+    )
     is_legacy_bwv = models.BooleanField(default=False)
     is_legacy_camunda = models.BooleanField(default=False)
     legacy_bwv_case_id = models.CharField(
