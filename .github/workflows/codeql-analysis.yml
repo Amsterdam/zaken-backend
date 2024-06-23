@@ -43,7 +43,7 @@ jobs:
         python-version: '3.9.16'
 
     # Update docker base image for a higher python version than 3.9 and remove this line.
-    - name: Install specific pip version for python 3.9
+    - name: Install specific pip version 23.1.2 for python 3.9
       run: python -m pip install pip==23.1.2
 
     - name: Install dependencies
@@ -58,7 +58,7 @@ jobs:
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
+      uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
         # Override the default behavior so that the action doesn't attempt
