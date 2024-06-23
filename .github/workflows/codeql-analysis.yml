@@ -48,7 +48,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
         if [ -f ./app/requirements.txt ];
         echo "Installing python dependencies"
         then pip install -r ./app/requirements.txt;
