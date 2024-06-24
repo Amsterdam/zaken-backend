@@ -31,7 +31,7 @@ jobs:
       # TEST
       ###################################################
 
-      - run: sudo apt-get install python3.9
+      - run: sudo apt-get install python3.10
 
       # Test version
       - run: python --version
