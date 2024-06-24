@@ -14,14 +14,40 @@ class Migration(migrations.Migration):
             sql="""
             DO $$
             BEGIN
-                -- cases_casetheme
+                -- Check if the sequence for cases_casetheme exists
                 IF NOT EXISTS (SELECT FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind = 'S' AND c.relname = 'cases_casetheme_id_seq' AND n.nspname = 'public') THEN
                     CREATE SEQUENCE public.cases_casetheme_id_seq INCREMENT BY 1 START WITH 1 MINVALUE 1 NO MAXVALUE CACHE 1;
                 END IF;
+
+                -- Check if the id column is not an identity column before altering the default
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM information_schema.columns
+                    WHERE table_name = 'cases_casetheme'
+                    AND column_name = 'id'
+                    AND is_identity = 'YES'
+                ) THEN
+                    ALTER TABLE cases_casetheme ALTER COLUMN id SET DEFAULT nextval('public.cases_casetheme_id_seq'::regclass);
+                END IF;
             END
             $$;
-
-            ALTER TABLE cases_casetheme ALTER COLUMN id SET DEFAULT nextval('public.cases_casetheme_id_seq'::regclass);
-        """
+        """,
+            reverse_sql="""
+            DO $$
+            BEGIN
+                -- Drop the default for the id column if it exists
+                IF EXISTS (
+                    SELECT 1
+                    FROM pg_class c
+                    JOIN pg_namespace n ON n.oid = c.relnamespace
+                    WHERE c.relkind = 'S'
+                    AND c.relname = 'cases_casetheme_id_seq'
+                    AND n.nspname = 'public'
+                ) THEN
+                    ALTER TABLE cases_casetheme ALTER COLUMN id DROP DEFAULT;
+                END IF;
+            END
+            $$;
+        """,
         )
     ]
