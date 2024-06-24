@@ -36,11 +36,10 @@ from apps.users.views import (
 from apps.visits.views import VisitViewSet
 from apps.workflow.views import CaseUserTaskViewSet, GenericCompletedTaskViewSet
 from django.conf import settings
-from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.http import JsonResponse
-from django.urls import path
+from django.urls import include, path, re_path
 from django.views.generic import View
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
@@ -124,9 +123,9 @@ urlpatterns = [
         name="notification-callback",
     ),
     path("data-model/", include("django_spaghetti.urls")),
-    url("health/", include("health_check.urls")),
-    url("startup/", is_healthy),
-    url(regex=r"^$", view=MyView.as_view(), name="index"),
+    path("health/", include("health_check.urls")),
+    path("startup/", is_healthy),
+    re_path(r"^$", view=MyView.as_view(), name="index"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

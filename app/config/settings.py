@@ -33,7 +33,7 @@ TIME_ZONE = "Europe/Amsterdam"
 
 ZAKEN_CONTAINER_HOST = os.getenv("ZAKEN_CONTAINER_HOST")
 
-ALLOWED_HOSTS = "*"
+ALLOWED_HOSTS = ["*"]
 
 CORS_ORIGIN_WHITELIST = os.environ.get("CORS_ORIGIN_WHITELIST").split(",")
 CORS_ORIGIN_ALLOW_ALL = False
@@ -339,11 +339,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 AXES_RESET_ON_SUCCESS = True
-AXES_ONLY_USER_FAILURES = (
-    True  # Enabled because IP from user is always .amsterdam.nl gateway
-)
 AXES_ENABLED = os.getenv("AXES_ENABLED", "True") == "True"
-AXES_META_PRECEDENCE_ORDER = ["HTTP_X_FORWARDED_FOR", "REMOTE_ADDR"]
 
 # Simple JWT is used for local development authentication only.
 SIMPLE_JWT = {

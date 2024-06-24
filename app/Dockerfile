@@ -1,5 +1,4 @@
-FROM amsterdam/python:3.9-buster
-LABEL maintainer="datapunt@amsterdam.nl"
+FROM python:3.10-bullseye
 
 ENV REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
@@ -10,11 +9,16 @@ RUN chmod 644 /usr/local/share/ca-certificates/adp_rootca.crt \
 
 ENV PYTHONUNBUFFERED 1
 
-RUN apt-get update && apt-get install -y
+# Update and install necessary packages including GDAL
+RUN apt-get update && apt-get install -y \
+    gdal-bin \
+    libgdal-dev \
+    graphviz \
+    graphviz-dev \
+    postgresql-client
+
 RUN pip install --upgrade pip
 RUN pip install uwsgi
-
-RUN apt-get install graphviz graphviz-dev -y
 RUN pip install pygraphviz
 
 RUN echo "10.240.5.72     acc.api.data.amsterdam.nl" >> /etc/hosts || echo "Could not write to /etc/hosts"
@@ -30,6 +34,8 @@ RUN chmod +x /app/wait-for.sh
 RUN chmod +x /app/celery.sh
 RUN chmod +x /app/deploy/docker-entrypoint.sh
 
+# Set the GDAL_LIBRARY_PATH environment variable
+ENV GDAL_LIBRARY_PATH /usr/lib/libgdal.so
 
 ENTRYPOINT ["/app/deploy/docker-entrypoint.sh"]
 CMD ["uwsgi", "--ini", "/app/deploy/config.ini"]
