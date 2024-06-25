@@ -9,19 +9,4 @@ class Migration(migrations.Migration):
         ("schedules", "0004_schedule_housing_corporation_combiteam"),
     ]
 
-    operations = [
-        migrations.RunSQL(
-            sql="""
-            DO $$
-            BEGIN
-                -- schedules_action
-                IF NOT EXISTS (SELECT FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind = 'S' AND c.relname = 'schedules_action_id_seq' AND n.nspname = 'public') THEN
-                    CREATE SEQUENCE public.schedules_action_id_seq INCREMENT BY 1 START WITH 1 MINVALUE 1 NO MAXVALUE CACHE 1;
-                END IF;
-            END
-            $$;
-
-            ALTER TABLE schedules_action ALTER COLUMN id SET DEFAULT nextval('public.schedules_action_id_seq'::regclass);
-        """
-        )
-    ]
+    operations = []

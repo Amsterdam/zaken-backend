@@ -9,22 +9,4 @@ class Migration(migrations.Migration):
         ("events", "0002_alter_default_column_ids_azure"),
     ]
 
-    operations = [
-        migrations.RunSQL(
-            sql="""
-            DO $$
-            DECLARE
-                max_id BIGINT;
-            BEGIN
-                -- Find the maximum id value in the table
-                SELECT MAX(id) INTO max_id FROM public.events_caseevent;
-
-                -- If there are no records, set max_id to 0
-                IF max_id IS NULL THEN
-                    max_id := 0;
-                END IF;
-                EXECUTE FORMAT('ALTER SEQUENCE public.events_caseevent_id_seq RESTART WITH %s;', max_id + 1);
-            END $$;
-        """
-        )
-    ]
+    operations = []

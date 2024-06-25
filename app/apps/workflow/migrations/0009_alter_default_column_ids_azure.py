@@ -9,24 +9,4 @@ class Migration(migrations.Migration):
         ("workflow", "0008_workflowoption_enabled_on_case_closed"),
     ]
 
-    operations = [
-        migrations.RunSQL(
-            sql="""
-            DO $$
-            BEGIN
-                -- workflow_caseusertask
-                IF NOT EXISTS (SELECT FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind = 'S' AND c.relname = 'workflow_caseusertask_id_seq' AND n.nspname = 'public') THEN
-                    CREATE SEQUENCE public.workflow_caseusertask_id_seq INCREMENT BY 1 START WITH 1 MINVALUE 1 NO MAXVALUE CACHE 1;
-                END IF;
-                -- workflow_caseworkflow
-                IF NOT EXISTS (SELECT FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind = 'S' AND c.relname = 'workflow_caseworkflow_id_seq' AND n.nspname = 'public') THEN
-                    CREATE SEQUENCE public.workflow_caseworkflow_id_seq INCREMENT BY 1 START WITH 1 MINVALUE 1 NO MAXVALUE CACHE 1;
-                END IF;
-            END
-            $$;
-
-            ALTER TABLE workflow_caseusertask ALTER COLUMN id SET DEFAULT nextval('public.workflow_caseusertask_id_seq'::regclass);
-            ALTER TABLE workflow_caseworkflow ALTER COLUMN id SET DEFAULT nextval('public.workflow_caseworkflow_id_seq'::regclass);
-        """
-        )
-    ]
+    operations = []
