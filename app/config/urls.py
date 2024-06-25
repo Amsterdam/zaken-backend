@@ -122,7 +122,6 @@ urlpatterns = [
         ReceiveNotificationView.as_view(),
         name="notification-callback",
     ),
-    path("data-model/", include("django_spaghetti.urls")),
     path("health/", include("health_check.urls")),
     path("startup/", is_healthy),
     re_path(r"^$", view=MyView.as_view(), name="index"),

@@ -54,7 +54,6 @@ INSTALLED_APPS = (
     "drf_spectacular",
     "django_extensions",
     "django_filters",
-    "django_spaghetti",
     "django_celery_beat",
     "django_celery_results",
     "zgw_consumers",
@@ -83,24 +82,6 @@ INSTALLED_APPS = (
     "apps.schedules",
     "apps.workflow",
 )
-
-# Add apps here to make them appear in the graphing visualisation
-SPAGHETTI_SAUCE = {
-    "apps": [
-        "users",
-        "cases",
-        "debriefings",
-        "permits",
-        "fines",
-        "addresses",
-        "visits",
-        "events",
-        "summons",
-        "decisions",
-        "schedules",
-    ],
-    "show_fields": False,
-}
 
 DATABASE_HOST = os.getenv("DATABASE_HOST", "database")
 DATABASE_NAME = os.getenv("DATABASE_NAME", "dev")
