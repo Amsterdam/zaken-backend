@@ -125,7 +125,7 @@ urlpatterns = [
     ),
     path("data-model/", include("django_spaghetti.urls")),
     url("health/", include("health_check.urls")),
-    url("startup/", is_healthy),
+    url("startup", is_healthy),
     url(regex=r"^$", view=MyView.as_view(), name="index"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
