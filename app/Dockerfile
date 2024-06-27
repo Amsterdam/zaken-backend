@@ -11,7 +11,7 @@ RUN chmod 644 /usr/local/share/ca-certificates/adp_rootca.crt \
 ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update && apt-get install -y
-# RUN pip install --upgrade pip
+RUN pip install --upgrade pip
 RUN pip install uwsgi
 
 RUN apt-get install graphviz graphviz-dev -y

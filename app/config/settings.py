@@ -516,23 +516,25 @@ POWERBROWSER_API_KEY = os.getenv("POWERBROWSER_API_KEY")
 SECRET_KEY_AZA_TOP = os.getenv("SECRET_KEY_AZA_TOP")
 TOP_API_URL = os.getenv("TOP_API_URL")
 
-REDIS_HOST = os.getenv("REDIS_HOST")
-REDIS_PORT = os.getenv("REDIS_PORT")
-REDIS_USERNAME = ""
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
-REDIS_PREFIX = "rediss" if is_secure_environment else "redis"
-if "windows.net" in REDIS_HOST:
-    REDIS_USERNAME = os.getenv("REDIS_USERNAME")
-    REDIS_PASSWORD = azure.auth.redis_password
 
-REDIS_URL = (
-    f"{REDIS_PREFIX}://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
-)
+def get_redis_url():
+    REDIS_HOST = os.getenv("REDIS_HOST")
+    REDIS_PORT = os.getenv("REDIS_PORT")
+    REDIS_USERNAME = ""
+    REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+    REDIS_PREFIX = "rediss" if is_secure_environment else "redis"
+    if "windows.net" in REDIS_HOST:
+        REDIS_USERNAME = os.getenv("REDIS_USERNAME")
+        REDIS_PASSWORD = azure.auth.redis_password
+    return (
+        f"{REDIS_PREFIX}://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
+    )
+
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": REDIS_URL,
+        "LOCATION": get_redis_url(),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "SOCKET_CONNECT_TIMEOUT": 5,
@@ -543,7 +545,7 @@ CACHES = {
 
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_BROKER_URL = REDIS_URL
+CELERY_BROKER_URL = get_redis_url()
 BROKER_CONNECTION_MAX_RETRIES = None
 BROKER_CONNECTION_TIMEOUT = 120
 BROKER_URL = CELERY_BROKER_URL
