@@ -113,7 +113,6 @@ class Address(models.Model):
         """
         # When moving the import to the beginning of the file, a Django error follows:
         # ImproperlyConfigured: AUTH_USER_MODEL refers to model 'users.User' that has not been installed.
-        from utils.exceptions import DistrictNotFoundError
 
         response = do_bag_search_benkagg_by_bag_id(self.bag_id)
         adresseerbareobjecten = response.get("_embedded", {}).get(
@@ -133,12 +132,9 @@ class Address(models.Model):
         if nummeraanduiding_id:
             self.nummeraanduiding_id = nummeraanduiding_id
 
-        # Add Stadsdeel to address.
         district_name = found_bag_object.get("gebiedenStadsdeelNaam")
         if district_name:
             self.district = District.objects.get_or_create(name=district_name)[0]
-        else:
-            raise DistrictNotFoundError(f"API benkagg bag_id: {self.bag_id}")
 
     def update_bag_data(self):
         self.get_bag_address_data()

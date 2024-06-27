@@ -10,7 +10,6 @@ from apps.addresses.models import Address, District
 from django.core import management
 from django.test import TestCase
 from model_bakery import baker
-from utils.exceptions import DistrictNotFoundError
 
 # TODO: Expand this by mocking the BAG API
 
@@ -25,31 +24,10 @@ class AddressModelTest(TestCase):
         baker.make(Address)
         self.assertEquals(Address.objects.count(), 1)
 
-    @patch("apps.addresses.models.do_bag_search_by_bag_id")
     @patch("apps.addresses.models.do_bag_search_benkagg_by_bag_id")
-    def test_can_create_address_with_bag_result_without_verblijftobject_url(
-        self, mock_do_bag_search_id, mock_do_bag_search_benkagg_id
-    ):
-        """Tests Address object creation with bag data mocks without verblijftobject url"""
-
-        mock_do_bag_search_id.return_value = (
-            mock_do_bag_search_id_result_without_links()
-        )
-        mock_do_bag_search_benkagg_id.return_value = (
-            mock_get_bag_identificatie_and_stadsdeel_result()
-        )
-
-        self.assertEquals(Address.objects.count(), 0)
-        self.assertEquals(District.objects.count(), 0)
-
-        with self.assertRaises(DistrictNotFoundError):
-            baker.make(Address)
-        mock_do_bag_search_id.assert_called()
-
     @patch("apps.addresses.models.do_bag_search_by_bag_id")
-    @patch("apps.addresses.models.do_bag_search_benkagg_by_bag_id")
-    def test_can_create_address_with_bag_result_without_verblijftobject_stadsdeel(
-        self, mock_do_bag_search_id, mock_do_bag_search_benkagg_id
+    def test_can_create_address_with_bag_result_without_stadsdeel(
+        self, mock_do_bag_search_benkagg_id, mock_do_bag_search_id
     ):
         """Tests Address object creation with bag data mocks without stadsdeel entry"""
 
@@ -61,14 +39,18 @@ class AddressModelTest(TestCase):
         self.assertEquals(Address.objects.count(), 0)
         self.assertEquals(District.objects.count(), 0)
 
-        with self.assertRaises(DistrictNotFoundError):
-            baker.make(Address)
+        baker.make(Address)
+
         mock_do_bag_search_id.assert_called()
+        mock_do_bag_search_benkagg_id.assert_called()
+
+        self.assertEquals(Address.objects.count(), 1)
+        self.assertEquals(District.objects.count(), 0)
 
     @patch("apps.addresses.models.do_bag_search_by_bag_id")
     @patch("apps.addresses.models.do_bag_search_benkagg_by_bag_id")
     def test_can_create_address_with_bag_result(
-        self, mock_do_bag_search_id, mock_do_bag_search_benkagg_id
+        self, mock_do_bag_search_benkagg_id, mock_do_bag_search_id
     ):
         """Tests Address object creation with bag data mocks"""
 
