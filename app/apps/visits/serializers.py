@@ -1,9 +1,12 @@
+import logging
+
 from apps.users.serializers import UserSerializer
 from apps.visits.models import Visit
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 class VisitSerializer(serializers.ModelSerializer):
@@ -50,7 +53,8 @@ class VisitSerializer(serializers.ModelSerializer):
             visit.authors.set(authors)
             return visit
         else:
-            raise Exception("No task found")
+            logger.warn("No task found")
+            return Visit()
 
     class Meta:
         model = Visit
