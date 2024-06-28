@@ -522,7 +522,7 @@ def get_redis_url():
     REDIS_PORT = os.getenv("REDIS_PORT")
     REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
     REDIS_PREFIX = "rediss" if is_secure_environment else "redis"
-    return f"{REDIS_PREFIX}://{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
+    return f"{REDIS_PREFIX}://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
 
 
 CACHES = {
