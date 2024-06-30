@@ -36,9 +36,6 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Upgrade pip
-        run: python3 -m pip install --upgrade pip
-
       - name: Test version
         run: python --version
 
@@ -47,7 +44,7 @@ jobs:
         working-directory: e2e-tests
 
       - name: Run tests
-        run: API_HOST=http://127.0.0.1:8080/api/v1 python3 -m unittest
+        run: API_HOST=http://localhost:8080/api/v1 python3 -m unittest
         working-directory: e2e-tests
 
       ###################################################
