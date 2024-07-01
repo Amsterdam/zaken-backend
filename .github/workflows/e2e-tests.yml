@@ -57,8 +57,8 @@ jobs:
 
       - if: ${{ failure() }}
         name: "ON FAILURE: Backend logs"
-        run: docker logs zaken-backend_zaak-gateway-1
+        run: docker logs zaken-backend_zaak-gateway_1
 
       - if: ${{ failure() }}
         name: "ON FAILURE: Database logs"
-        run: docker logs zaken-backend_database-1
+        run: docker logs zaken-backend_database_1
