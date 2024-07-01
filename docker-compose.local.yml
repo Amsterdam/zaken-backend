@@ -46,7 +46,7 @@ services:
     image: ${REGISTRY:-127.0.0.1:5001}/${REPOSITORY:-salmagundi/zaken-backend}:${VERSION:-latest}
     container_name: zaken_celery_worker
     hostname: zaken_celery_worker
-    command: bash -c '/app/celery.sh'
+    command: bash -c "/app/wait-for.sh zaak-gateway:8000 -- /app/celery.sh"
     depends_on:
       - zaak-gateway
       - database
@@ -61,7 +61,7 @@ services:
     image: ${REGISTRY:-127.0.0.1:5001}/${REPOSITORY:-salmagundi/zaken-backend}:${VERSION:-latest}
     container_name: zaken_celery_beat
     hostname: zaken_celery_beat
-    command: sh -c 'celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler'
+    command: sh -c "/app/wait-for.sh zaak-gateway:8000 -- celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
     depends_on:
       - zaak-gateway
       - database
