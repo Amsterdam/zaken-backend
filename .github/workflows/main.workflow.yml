@@ -26,3 +26,15 @@ jobs:
       run: docker-compose -f docker-compose.local.yml up -d
     - name: Run Tests
       run: docker-compose -f docker-compose.local.yml exec -T zaak-gateway python manage.py test
+
+    - if: ${{ failure() }}
+      name: "ON FAILURE: Which containers were running while failing?"
+      run: docker ps -a
+
+    - if: ${{ failure() }}
+      name: "ON FAILURE: Backend logs"
+      run: docker logs zaken-backend_zaak-gateway_1
+
+    - if: ${{ failure() }}
+      name: "ON FAILURE: Database logs"
+      run: docker logs zaken-backend_database_1
