@@ -1,3 +1,4 @@
+#!/bin/sh
 # Copied from https://github.com/eficode/wait-for on 01-07-2024
 
 VERSION="2.2.4"
