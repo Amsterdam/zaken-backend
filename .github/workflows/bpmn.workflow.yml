@@ -1,4 +1,4 @@
-name: 'Validate BPMN'
+name: 'BPMN validation'
 on:
   push:
     branches: [ main ]
