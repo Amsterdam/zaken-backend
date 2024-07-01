@@ -22,7 +22,8 @@ jobs:
 
       - run: docker network create zaken_network
       - run: docker network create top_and_zaak_backend_bridge
-      - run: docker-compose -f docker-compose.tests.yml up --detach
+      # - run: docker-compose -f docker-compose.tests.yml up --detach
+      - run: docker-compose -f docker-compose.tests.yml up
       - run: sleep 30
       - run: bash bin/setup_credentials.sh
       - run: ./e2e-tests/fix_models.sh
