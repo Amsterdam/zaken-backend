@@ -14,7 +14,8 @@ services:
       - zaak-redis
     env_file:
       - .env
-    command: bash -c '/app/deploy/docker-entrypoint.development.sh'
+    entrypoint: /app/deploy/docker-entrypoint.development.sh
+    command: bash -c 'uwsgi --ini /app/deploy/config.ini'
     volumes:
       - ./app:/app
     stdin_open: true
@@ -46,6 +47,7 @@ services:
     image: ${REGISTRY:-127.0.0.1:5001}/${REPOSITORY:-salmagundi/zaken-backend}:${VERSION:-latest}
     container_name: zaken_celery_worker
     hostname: zaken_celery_worker
+    entrypoint: /app/deploy/docker-entrypoint.celery.sh
     command: bash -c "/app/wait-for.sh http://zaak-gateway:8000 -- /app/celery.sh"
     depends_on:
       - zaak-gateway
@@ -61,6 +63,7 @@ services:
     image: ${REGISTRY:-127.0.0.1:5001}/${REPOSITORY:-salmagundi/zaken-backend}:${VERSION:-latest}
     container_name: zaken_celery_beat
     hostname: zaken_celery_beat
+    entrypoint: /app/deploy/docker-entrypoint.celery.sh
     command: sh -c "/app/wait-for.sh http://zaak-gateway:8000 -- celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
     depends_on:
       - zaak-gateway
