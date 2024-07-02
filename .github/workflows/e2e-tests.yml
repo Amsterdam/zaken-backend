@@ -1,5 +1,5 @@
 # action.yml
-name: "Run Integration test"
+name: "Run e2e-tests"
 on:
   push:
     branches:
@@ -14,7 +14,7 @@ jobs:
       ###################################################
 
       - name: Checkout backend
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       ###################################################
       # BACKEND
@@ -23,6 +23,7 @@ jobs:
       - run: docker network create zaken_network
       - run: docker network create top_and_zaak_backend_bridge
       - run: docker-compose -f docker-compose.local.yml up --detach
+      # - run: docker-compose -f docker-compose.tests.yml up
       - run: sleep 30
       - run: bash bin/setup_credentials.sh
       - run: ./e2e-tests/fix_models.sh
@@ -31,15 +32,20 @@ jobs:
       # TEST
       ###################################################
 
-      - run: sudo apt-get install python3.9
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-      # Test version
-      - run: python --version
+      - name: Test version
+        run: python --version
 
-      - run: python3 -m pip install -r requirements.txt
+      - name: Install requirements
+        run: python3 -m pip install -r requirements.txt
         working-directory: e2e-tests
 
-      - run: API_HOST=http://127.0.0.1:8080/api/v1 python3 -m unittest
+      - name: Run tests
+        run: API_HOST=http://127.0.0.1:8080/api/v1 python3 -m unittest
         working-directory: e2e-tests
 
       ###################################################

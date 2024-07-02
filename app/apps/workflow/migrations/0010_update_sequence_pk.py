@@ -9,37 +9,4 @@ class Migration(migrations.Migration):
         ("workflow", "0009_alter_default_column_ids_azure"),
     ]
 
-    operations = [
-        migrations.RunSQL(
-            sql="""
-            DO $$
-            DECLARE
-                max_id BIGINT;
-            BEGIN
-                -- workflow_caseusertask
-                -- Find the maximum id value in the table
-                SELECT MAX(id) INTO max_id FROM public.workflow_caseusertask;
-
-                -- If there are no records, set max_id to 0
-                IF max_id IS NULL THEN
-                    max_id := 0;
-                END IF;
-                EXECUTE FORMAT('ALTER SEQUENCE public.workflow_caseusertask_id_seq RESTART WITH %s;', max_id + 1);
-            END $$;
-             DO $$
-            DECLARE
-                max_id BIGINT;
-            BEGIN
-                -- workflow_caseworkflow
-                -- Find the maximum id value in the table
-                SELECT MAX(id) INTO max_id FROM public.workflow_caseworkflow;
-
-                -- If there are no records, set max_id to 0
-                IF max_id IS NULL THEN
-                    max_id := 0;
-                END IF;
-                EXECUTE FORMAT('ALTER SEQUENCE public.workflow_caseworkflow_id_seq RESTART WITH %s;', max_id + 1);
-            END $$;
-        """
-        )
-    ]
+    operations = []

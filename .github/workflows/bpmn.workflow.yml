@@ -1,4 +1,4 @@
-name: 'Validate BPMN'
+name: 'BPMN validation'
 on:
   push:
     branches: [ main ]
@@ -11,11 +11,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Use Node.js for BPMN Linting
-      uses: actions/setup-node@v3.1.1
+      uses: actions/setup-node@v4
       with:
-        node-version: '12.x'
+        node-version: '16.x'
     - name: Install dependencies for BPMN Linting
       run: npm install -g bpmnlint
     - name: Linting BPMN models

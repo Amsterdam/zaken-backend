@@ -1,5 +1,5 @@
 # action.yml
-name: 'Start frontend'
+name: 'Run integration-tests'
 on: pull_request
 jobs:
   main:
@@ -9,13 +9,13 @@ jobs:
       # CHECKOUT
       ###################################################
       - name: Checkout frontend
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: frontend
           repository: amsterdam/zaken-frontend
 
       - name: Checkout backend
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: backend
 

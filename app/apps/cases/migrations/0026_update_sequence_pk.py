@@ -9,22 +9,4 @@ class Migration(migrations.Migration):
         ("cases", "0025_remove_unused_tables_azure"),
     ]
 
-    operations = [
-        migrations.RunSQL(
-            sql="""
-            DO $$
-            DECLARE
-                max_id BIGINT;
-            BEGIN
-                -- Find the maximum id value in the table
-                SELECT MAX(id) INTO max_id FROM public.cases_casetheme;
-
-                -- If there are no records, set max_id to 0
-                IF max_id IS NULL THEN
-                    max_id := 0;
-                END IF;
-                EXECUTE FORMAT('ALTER SEQUENCE public.cases_casetheme_id_seq RESTART WITH %s;', max_id + 1);
-            END $$;
-        """
-        )
-    ]
+    operations = []

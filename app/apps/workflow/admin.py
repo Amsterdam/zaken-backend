@@ -1,8 +1,7 @@
-from django.conf.urls import url
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
-from django.urls import reverse
+from django.urls import re_path, reverse
 from django.utils.html import format_html, mark_safe
 
 from .forms import ResetSubworkflowsForm, UpdateDataForWorkflowsForm
@@ -145,12 +144,12 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            url(
+            re_path(
                 r"^(?P<caseworkflow_id>.+)/reset-subworkflows/$",
                 self.admin_site.admin_view(self.admin_process_reset_subworkflows),
                 name="reset-subworkflows",
             ),
-            url(
+            re_path(
                 r"^(?P<caseworkflow_id>.+)/update-data-for-subworkflow/$",
                 self.admin_site.admin_view(self.admin_update_data_for_workflow),
                 name="update-data-for-subworkflow",

@@ -79,21 +79,29 @@ def mock_do_bag_search_id_result_without_links():
     }
 
 
-def mock_get_bag_data_result():
+def mock_get_bag_identificatie_and_stadsdeel_result_without_stadsdeel():
     return {
-        "_stadsdeel": {
-            "_links": {
-                "self": {
-                    "href": "https://api.data.amsterdam.nl/gebieden/stadsdeel/03630930000000/"
+        "_embedded": {
+            "adresseerbareobjecten": [
+                {
+                    "huisnummer": 42,
+                    "identificatie": "123456789"
+                    # No "gebiedenStadsdeelNaam" key
                 }
-            },
-            "_display": "Weesp (S)",
-            "code": "S",
-            "naam": "Weesp",
-            "dataset": "gebieden",
-        },
+            ]
+        }
     }
 
 
-def mock_get_bag_data_result_without_stadsdeel():
-    return {}
+def mock_get_bag_identificatie_and_stadsdeel_result():
+    return {
+        "_embedded": {
+            "adresseerbareobjecten": [
+                {
+                    "identificatie": "123456789",
+                    "huisnummer": 42,
+                    "gebiedenStadsdeelNaam": "Zuidoost",
+                }
+            ]
+        }
+    }
