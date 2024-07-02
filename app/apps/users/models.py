@@ -1,6 +1,5 @@
 import uuid
 
-from apps.users.user_manager import UserManager
 from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 from django.db.models.base import Model
@@ -45,8 +44,6 @@ class User(AbstractUser):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
-
-    objects = UserManager()
 
     @property
     def full_name(self):

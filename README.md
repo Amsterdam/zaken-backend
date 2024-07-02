@@ -61,7 +61,7 @@ This will create superuser admin account with the following credentials
 
 ```bash
 email: admin@admin.com
-password: admin
+password: insecure
 ```
 
 Visit the Admin at http://localhost:8080/admin/

@@ -109,10 +109,8 @@ class Address(models.Model):
         """
         Retrieves the identificatie(nummeraanduiding_id) and stadsdeel of an address by bag_id.
         nummeraanduiding_id is needed for BRP.
-        stadsdeel is needed for filtering.
+        Stadsdeel is needed for filtering.
         """
-        # When moving the import to the beginning of the file, a Django error follows:
-        # ImproperlyConfigured: AUTH_USER_MODEL refers to model 'users.User' that has not been installed.
 
         response = do_bag_search_benkagg_by_bag_id(self.bag_id)
         adresseerbareobjecten = response.get("_embedded", {}).get(
