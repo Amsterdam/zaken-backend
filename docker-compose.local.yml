@@ -1,26 +1,4 @@
 services:
-  zaak-gateway:
-    networks:
-      - zaken_network
-      - top_and_zaak_backend_bridge
-    build: app
-    hostname: zaak-gateway
-    image: ${REGISTRY:-127.0.0.1:5001}/${REPOSITORY:-salmagundi/zaken-backend}:${VERSION:-latest}
-    ports:
-      - 8080:8000
-      - 5678:5678
-    depends_on:
-      - database
-      - zaak-redis
-    env_file:
-      - .env
-    entrypoint: /app/deploy/docker-entrypoint.development.sh
-    command: bash -c 'uwsgi --ini /app/deploy/config.ini'
-    volumes:
-      - ./app:/app
-    stdin_open: true
-    tty: true
-
   zaak-redis:
     build: redis
     environment:
@@ -42,6 +20,28 @@ services:
       - .env
     volumes:
       - postgresql-data:/var/lib/postgresql/data
+
+  zaak-gateway:
+    networks:
+      - zaken_network
+      - top_and_zaak_backend_bridge
+    build: app
+    hostname: zaak-gateway
+    image: ${REGISTRY:-127.0.0.1:5001}/${REPOSITORY:-salmagundi/zaken-backend}:${VERSION:-latest}
+    ports:
+      - 8080:8000
+      - 5678:5678
+    depends_on:
+      - database
+      - zaak-redis
+    env_file:
+      - .env
+    entrypoint: /app/deploy/docker-entrypoint.development.sh
+    command: bash -c 'uwsgi --ini /app/deploy/config.ini'
+    volumes:
+      - ./app:/app
+    stdin_open: true
+    tty: true
 
   zaken_celery_worker:
     image: ${REGISTRY:-127.0.0.1:5001}/${REPOSITORY:-salmagundi/zaken-backend}:${VERSION:-latest}

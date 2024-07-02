@@ -5,7 +5,7 @@ set -x
 
 until PGPASSWORD=$DATABASE_PASSWORD psql -h $DATABASE_HOST -U $DATABASE_USER -c '\q'; do
   echo "Postgres is unavailable - sleeping"
-  sleep 1
+  sleep 5
 done
 echo "Postgres is up!"
 
@@ -23,4 +23,4 @@ python manage.py axes_reset
 
 python manage.py loaddata fixture
 
-exec "$@"
+exec python -m debugpy --listen 0.0.0.0:5678 ./manage.py runserver 0.0.0.0:8000
