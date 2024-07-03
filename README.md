@@ -69,6 +69,12 @@ Visit the Admin at http://localhost:8080/admin/
 Check the health page to see if all services are up and running:
 http://localhost:8080/health
 
+To create all necessary user groups run the following command:
+
+```bash
+bash bin/setup_user_groups.sh
+```
+
 ## Running tests
 
 Set LOCAL_DEVELOPMENT_AUTHENTICATION environment variable to True (default)
