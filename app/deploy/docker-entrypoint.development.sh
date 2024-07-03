@@ -23,4 +23,4 @@ python manage.py axes_reset
 
 python manage.py loaddata fixture
 
-exec python -m debugpy --listen 0.0.0.0:5678 ./manage.py runserver 0.0.0.0:8000
+exec "$@"

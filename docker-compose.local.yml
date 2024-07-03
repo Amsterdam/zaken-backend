@@ -37,7 +37,7 @@ services:
     env_file:
       - .env
     entrypoint: /app/deploy/docker-entrypoint.development.sh
-    command: bash -c 'uwsgi --ini /app/deploy/config.ini'
+    command: python -m debugpy --listen 0.0.0.0:5678 ./manage.py runserver 0.0.0.0:8000
     volumes:
       - ./app:/app
     stdin_open: true
