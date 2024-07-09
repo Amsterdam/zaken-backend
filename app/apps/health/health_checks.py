@@ -76,7 +76,7 @@ class BAGAtlasServiceCheck(APIServiceCheckBackend):
     """
 
     critical_service = True
-    api_url = settings.BAG_API_SEARCH_URL
+    api_url = f"{settings.BAG_API_SEARCH_URL}?q={settings.BAG_ID_AMSTEL_1}"
     verbose_name = "BAG Atlas"
 
 

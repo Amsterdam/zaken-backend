@@ -33,8 +33,14 @@ def do_bag_search_by_bag_id(bag_id):
     Search BAG using a BWV 'landelijk BAG ID'
     """
     address_search = requests.get(
-        settings.BAG_API_SEARCH_URL, params={"q": bag_id}, timeout=5
+        settings.BAG_API_SEARCH_URL,
+        params={
+            "q": bag_id,
+            "fq": f"gemeentenaam:(amsterdam) AND (type:adres) AND (adresseerbaarobject_id: {bag_id}) AND (adrestype: hoofdadres)",
+        },
+        timeout=5,
     )
+
     return address_search.json()
 
 

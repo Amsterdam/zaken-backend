@@ -81,8 +81,7 @@ class Address(models.Model):
 
     def get_bag_address_data(self):
         bag_search_response = do_bag_search_by_bag_id(self.bag_id)
-        bag_search_results = bag_search_response.get("results", [])
-
+        bag_search_results = bag_search_response.get("response", {}).get("docs", [])
         if bag_search_results:
             # A BAG search will return an array with 1 or more results.
             # There could be a "Nevenadres" so check addresses for "Hoofdadres".
@@ -98,12 +97,11 @@ class Address(models.Model):
             self.postal_code = found_bag_data.get("postcode", "")
             self.street_name = found_bag_data.get("straatnaam", "")
             self.number = found_bag_data.get("huisnummer", "")
-            self.suffix_letter = found_bag_data.get("bag_huisletter", "")
-            self.suffix = found_bag_data.get("bag_toevoeging", "")
-            # Temporarily property for type. Could be verblijfsobject (huis) or standplaats (woonboot).
-            self.type = found_bag_data.get("type", "verblijfsobject")
-
-            centroid = found_bag_data.get("centroid", None)
+            self.suffix_letter = found_bag_data.get("huisletter", "")
+            self.suffix = found_bag_data.get("huisnummertoevoeging", "")
+            self.nummeraanduiding_id = found_bag_data.get("nummeraanduiding_id", "")
+            centroid_string = found_bag_data.get("centroide_ll", None)
+            centroid = self._parse_centroid(centroid_string)
             if centroid:
                 self.lng = centroid[0]
                 self.lat = centroid[1]
@@ -133,18 +131,7 @@ class Address(models.Model):
             {},
         )
 
-        nummeraanduiding_id = found_bag_object.get("identificatie")
-        if nummeraanduiding_id:
-            self.nummeraanduiding_id = nummeraanduiding_id
-
         district_name = found_bag_object.get("gebiedenStadsdeelNaam")
-
-        if district_name:
-            self.district = District.objects.get_or_create(name=district_name)[0]
-
-        # Get coordinates for standplaats (woonboot).
-        ligplaats_geometrie = found_bag_object.get("ligplaatsGeometrie") or {}
-        ligplaats_coordinates = ligplaats_geometrie.get("coordinates")
         if ligplaats_coordinates:
             (lat, lng) = convert_polygon_to_latlng(ligplaats_coordinates)
             self.lng = lng
@@ -168,3 +155,15 @@ class Address(models.Model):
         if not self.bag_id or not self.nummeraanduiding_id:
             self.update_bag_data()
         return super().save(*args, **kwargs)
+
+    def _parse_centroid(self, centroid):
+        # Check if the string starts with 'POINT(' and ends with ')'
+        if centroid.startswith("POINT(") and centroid.endswith(")"):
+            # Remove the 'POINT(' at the beginning and ')' at the end
+            coordinates_str = centroid[6:-1]
+            # Split the string by space to get the individual numbers
+            coordinates = coordinates_str.split()
+            # Convert the string numbers to float and return as a list
+            return [float(coordinates[0]), float(coordinates[1])]
+        else:
+            raise ValueError("Input string is not in the correct format.")
