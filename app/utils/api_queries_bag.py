@@ -10,13 +10,17 @@ headers = {"x-api-key": settings.BAG_API_PUBLIC_KEY}
 
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def do_bag_search_benkagg_by_bag_id(bag_id):
+def do_bag_search_benkagg_by_bag_id(bag_id, is_boat=False):
     """
     Search BAG identificatie (nummeraanduiding_id) and stadsdeel using an adresseertVerblijfsobjectId
     """
+    identification_type = "adresseertVerblijfsobjectIdentificatie"
+    if is_boat:
+        identification_type = "ligplaatsIdentificatie"
+
     address_search = requests.get(
         settings.BAG_API_BENKAGG_SEARCH_URL,
-        params={"adresseertVerblijfsobjectIdentificatie": bag_id},
+        params={identification_type: bag_id},
         headers=headers,
         timeout=30,
     )
