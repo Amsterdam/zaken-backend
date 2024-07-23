@@ -53,15 +53,15 @@ docker-compose -f docker-compose.local.yml up
 
 To create all necessary credentials run the following command:
 
-```
+```bash
 bash bin/setup_credentials.sh
 ```
 
 This will create superuser admin account with the following credentials
 
-```
+```bash
 email: admin@admin.com
-password: admin
+password: insecure
 ```
 
 Visit the Admin at http://localhost:8080/admin/
@@ -69,21 +69,35 @@ Visit the Admin at http://localhost:8080/admin/
 Check the health page to see if all services are up and running:
 http://localhost:8080/health
 
+To create all necessary user groups run the following command:
+
+```bash
+bash bin/setup_user_groups.sh
+```
+
 ## Running tests
 
 Set LOCAL_DEVELOPMENT_AUTHENTICATION environment variable to True (default)
 
 Run unit tests locally with:
 
-```
-docker compose run --rm zaak-gateway python manage.py test
+```bash
+docker compose -f docker-compose.local.yml run --rm zaak-gateway python manage.py test
 ```
 
 To run tests for a specific module, add a path:
 
+```bash
+docker compose -f docker-compose.local.yml run --rm zaak-gateway python manage.py test apps/cases
+
 ```
-docker compose run --rm zaak-gateway python manage.py test apps/cases
+
+Or a specific test:
+
+```bash
+docker-compose -f docker-compose.local.yml exec -T zaak-gateway python manage.py test apps.addresses.tests.tests_models.AddressModelTest.test_can_create_address_with_bag_result_without_stadsdeel
 ```
+
 
 ## API documentation (Swagger)
 
@@ -105,24 +119,25 @@ Create a `.env.local` file, on the root of your project, and override the variab
 
 Start your project with the newly created environment variables, like so:
 
-```
-docker compose --env-file .env.local up
+```bash
+docker compose -f docker-compose.local.yml --env-file .env.local up
 ```
 
 ## Enabling Keycloak authentication for a locally run zaken-frontend
 
-Set LOCAL_DEVELOPMENT_AUTHENTICATION environment variable to False
+Set `LOCAL_DEVELOPMENT_AUTHENTICATION` environment variable to False
 
 ## Generating Mock Data
 
-You can generate mock data easily (from the API swagger environment) by executing the /api/v1/generate-mock/ GET request.
+You can generate mock data easily (from the API swagger environment) by executing the `/api/v1/generate-mock/` GET request.
 
 ## Update fixtures
 
 Generate new fixtures json file:
 
-```
-docker-compose run --rm zaak-gateway python manage.py dumpdata --indent 2 -o temp_fixture.json [app_name]
+```bash
+docker compose -f docker-compose.local.yml run --rm zaak-gateway python manage.py dumpdata --indent 2 -o temp_fixture.json [app_name]
+
 ```
 
 Now manually copy changes you need to the corresponding fixtures file.
@@ -131,13 +146,13 @@ Now manually copy changes you need to the corresponding fixtures file.
 
 You can add pre-commit hooks for checking and cleaning up your changes:
 
-```
+```bash
 bash bin/install_pre_commit.sh
 ```
 
 You can also run the following command to ensure all files adhere to coding conventions:
 
-```
+```bash
 bash bin/cleanup_pre_commit.sh
 ```
 
@@ -167,7 +182,7 @@ Note that the apps and models should be updated whenever applications and models
 
 For changes to the model you have to migrate the DB.
 
-```python
+```bash
 python manage.py makemigrations --name <name_of_your_migration> <name_of_apps>
 
 python manage.py migrate
@@ -193,14 +208,14 @@ Try the online modeler for BPMN-models: https://bpmn.io/. This is a lightweight 
 
 Clone the bpmn-io Github repo for editing: https://github.com/bpmn-io/bpmn-js-examples.
 
-```
+```bash
 git clone git@github.com:bpmn-io/bpmn-js-examples.git
 ```
 
 If you'd like to use Camunda Platform execution related properties, include the camunda-bpmn-moddle dependency which tells the modeler about camunda:XXX extension properties: https://github.com/bpmn-io/bpmn-js-examples/tree/master/properties-panel#camunda-platform
 
 Follow next steps:
-```
+```bash
 cd bpmn-js-examples
 
 cd properties-panel
@@ -265,7 +280,7 @@ So if you think existing cases will get stuck in the model, just create a new ve
 
     Example: `housing_corporation` has a new minor version model and the latest version was `5.0.0` but `debrief` has latest version `6.0.0`. Then the new minor version of `housing_corporation` will be `6.1.0`.
 
-```
+```json
 bpmn_models/default/
 ├─ debrief/
 │  ├─ 0.1.0/
@@ -280,7 +295,7 @@ bpmn_models/default/
 
 - Add the new version to `WORKFLOW_SPEC_CONFIG` in `settings.py`:
 
-```python
+```json
 "housing_corporation": {
     "versions": {
         "5.0.0": {},

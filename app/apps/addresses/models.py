@@ -115,9 +115,6 @@ class Address(models.Model):
         If an address has an standplaats (woonboot) instead of verblijfsobject, the coordinates
         will be calculated by a polygon.
         """
-        # When moving the import to the beginning of the file, a Django error follows:
-        # ImproperlyConfigured: AUTH_USER_MODEL refers to model 'users.User' that has not been installed.
-        from utils.exceptions import DistrictNotFoundError
 
         is_boat = self.type == "standplaats"
         response = do_bag_search_benkagg_by_bag_id(self.bag_id, is_boat)
@@ -140,13 +137,10 @@ class Address(models.Model):
         if nummeraanduiding_id:
             self.nummeraanduiding_id = nummeraanduiding_id
 
-        # Add Stadsdeel to address.
         district_name = found_bag_object.get("gebiedenStadsdeelNaam")
 
         if district_name:
             self.district = District.objects.get_or_create(name=district_name)[0]
-        else:
-            raise DistrictNotFoundError(f"API benkagg bag_id: {self.bag_id}")
 
         # Get coordinates for standplaats (woonboot).
         ligplaats_geometrie = found_bag_object.get("ligplaatsGeometrie") or {}

@@ -33,7 +33,7 @@ TIME_ZONE = "Europe/Amsterdam"
 
 ZAKEN_CONTAINER_HOST = os.getenv("ZAKEN_CONTAINER_HOST")
 
-ALLOWED_HOSTS = "*"
+ALLOWED_HOSTS = ["*"]
 
 CORS_ORIGIN_WHITELIST = os.environ.get("CORS_ORIGIN_WHITELIST").split(",")
 CORS_ORIGIN_ALLOW_ALL = False
@@ -54,7 +54,6 @@ INSTALLED_APPS = (
     "drf_spectacular",
     "django_extensions",
     "django_filters",
-    "django_spaghetti",
     "django_celery_beat",
     "django_celery_results",
     "zgw_consumers",
@@ -83,24 +82,6 @@ INSTALLED_APPS = (
     "apps.schedules",
     "apps.workflow",
 )
-
-# Add apps here to make them appear in the graphing visualisation
-SPAGHETTI_SAUCE = {
-    "apps": [
-        "users",
-        "cases",
-        "debriefings",
-        "permits",
-        "fines",
-        "addresses",
-        "visits",
-        "events",
-        "summons",
-        "decisions",
-        "schedules",
-    ],
-    "show_fields": False,
-}
 
 DATABASE_HOST = os.getenv("DATABASE_HOST", "database")
 DATABASE_NAME = os.getenv("DATABASE_NAME", "dev")
@@ -339,11 +320,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 AXES_RESET_ON_SUCCESS = True
-AXES_ONLY_USER_FAILURES = (
-    True  # Enabled because IP from user is always .amsterdam.nl gateway
-)
 AXES_ENABLED = os.getenv("AXES_ENABLED", "True") == "True"
-AXES_META_PRECEDENCE_ORDER = ["HTTP_X_FORWARDED_FOR", "REMOTE_ADDR"]
 
 # Simple JWT is used for local development authentication only.
 SIMPLE_JWT = {
@@ -540,6 +517,7 @@ CACHES = {
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_URL = get_redis_url()
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 BROKER_CONNECTION_MAX_RETRIES = None
 BROKER_CONNECTION_TIMEOUT = 120
 BROKER_URL = CELERY_BROKER_URL
