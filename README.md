@@ -92,6 +92,13 @@ docker compose -f docker-compose.local.yml run --rm zaak-gateway python manage.p
 
 ```
 
+Or a specific test:
+
+```bash
+docker-compose -f docker-compose.local.yml exec -T zaak-gateway python manage.py test apps.addresses.tests.tests_models.AddressModelTest.test_can_create_address_with_bag_result_without_stadsdeel
+```
+
+
 ## API documentation (Swagger)
 
 You can access the documentation at:

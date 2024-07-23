@@ -27,7 +27,7 @@ class AddressModelTest(TestCase):
     @patch("apps.addresses.models.do_bag_search_benkagg_by_bag_id")
     @patch("apps.addresses.models.do_bag_search_by_bag_id")
     def test_can_create_address_with_bag_result_without_stadsdeel(
-        self, mock_do_bag_search_benkagg_id, mock_do_bag_search_id
+        self, mock_do_bag_search_id, mock_do_bag_search_benkagg_id
     ):
         """Tests Address object creation with bag data mocks without stadsdeel entry"""
 
