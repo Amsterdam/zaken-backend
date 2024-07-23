@@ -5,6 +5,7 @@ from utils.api_queries_bag import (
     do_bag_search_benkagg_by_bag_id,
     do_bag_search_by_bag_id,
 )
+from utils.coordinates import convert_polygon_to_latlng
 
 logger = logging.getLogger(__name__)
 
@@ -99,6 +100,8 @@ class Address(models.Model):
             self.number = found_bag_data.get("huisnummer", "")
             self.suffix_letter = found_bag_data.get("bag_huisletter", "")
             self.suffix = found_bag_data.get("bag_toevoeging", "")
+            # Temporarily property for type. Could be verblijfsobject (huis) or standplaats (woonboot).
+            self.type = found_bag_data.get("type", "verblijfsobject")
 
             centroid = found_bag_data.get("centroid", None)
             if centroid:
@@ -108,11 +111,14 @@ class Address(models.Model):
     def get_bag_identificatie_and_stadsdeel(self):
         """
         Retrieves the identificatie(nummeraanduiding_id) and stadsdeel of an address by bag_id.
-        nummeraanduiding_id is needed for BRP.
-        Stadsdeel is needed for filtering.
+        nummeraanduiding_id is needed for BRP and stadsdeel is used for filtering.
+        If an address has an standplaats (woonboot) instead of verblijfsobject, the coordinates
+        will be calculated by a polygon.
         """
 
-        response = do_bag_search_benkagg_by_bag_id(self.bag_id)
+        is_boat = self.type == "standplaats"
+        response = do_bag_search_benkagg_by_bag_id(self.bag_id, is_boat)
+
         adresseerbareobjecten = response.get("_embedded", {}).get(
             "adresseerbareobjecten", []
         )
@@ -126,13 +132,23 @@ class Address(models.Model):
             ),
             {},
         )
+
         nummeraanduiding_id = found_bag_object.get("identificatie")
         if nummeraanduiding_id:
             self.nummeraanduiding_id = nummeraanduiding_id
 
         district_name = found_bag_object.get("gebiedenStadsdeelNaam")
+
         if district_name:
             self.district = District.objects.get_or_create(name=district_name)[0]
+
+        # Get coordinates for standplaats (woonboot).
+        ligplaats_geometrie = found_bag_object.get("ligplaatsGeometrie") or {}
+        ligplaats_coordinates = ligplaats_geometrie.get("coordinates")
+        if ligplaats_coordinates:
+            (lat, lng) = convert_polygon_to_latlng(ligplaats_coordinates)
+            self.lng = lng
+            self.lat = lat
 
     def update_bag_data(self):
         self.get_bag_address_data()
