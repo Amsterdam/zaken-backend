@@ -206,55 +206,7 @@ Try the online modeler for BPMN-models: https://bpmn.io/. This is a lightweight 
 
 ## Editing models
 
-Clone the bpmn-io Github repo for editing: https://github.com/bpmn-io/bpmn-js-examples.
-
-```bash
-git clone git@github.com:bpmn-io/bpmn-js-examples.git
-```
-
-If you'd like to use Camunda Platform execution related properties, include the camunda-bpmn-moddle dependency which tells the modeler about camunda:XXX extension properties: https://github.com/bpmn-io/bpmn-js-examples/tree/master/properties-panel#camunda-platform
-
-Follow next steps:
-```bash
-cd bpmn-js-examples
-
-cd properties-panel
-
-npm install camunda-bpmn-moddle
-```
-
-Then, you need to pass the respective properties provider together with the moddle extension to the modeler:
-
-```js
-import {
-  BpmnPropertiesPanelModule,
-  BpmnPropertiesProviderModule,
-  CamundaPlatformPropertiesProviderModule
-} from 'bpmn-js-properties-panel';
-
-import CamundaBpmnModdle from 'camunda-bpmn-moddle/resources/camunda.json'
-
-const bpmnModeler = new BpmnModeler({
-  container: '#js-canvas',
-  propertiesPanel: {
-    parent: '#js-properties-panel'
-  },
-  additionalModules: [
-    BpmnPropertiesPanelModule,
-    BpmnPropertiesProviderModule,
-    CamundaPlatformPropertiesProviderModule
-  ],
-  moddleExtensions: {
-    camunda: CamundaBpmnModdle
-  }
-});
-```
-
-Finally:
-```
-npm run dev
-```
-Open `public/index.html` in your browser.
+Go to the releases page of the Camunda modeler: https://github.com/camunda/camunda-modeler/releases/ and download the appropriate zip. Extract the zip and start the Camunda Modeler. In the new versions of Camunda (v8) the form elements have been separated from the model. So use an older versio like v7 for example.
 
 ## NOTE: Making changes
 
