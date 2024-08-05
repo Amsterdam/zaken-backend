@@ -33,4 +33,4 @@ group.permissions.add(Permission.objects.get(name=\"Create a new 'Digitaal toezi
 
 (group, _) = UserGroup.objects.get_or_create(name='TOEZICHTHOUDER_DIGITAAL_TOEZICHT', display_name='Toezichthouder - Digitaal toezicht')
 group.permissions.add(Permission.objects.get(name=\"Can read 'Digitaal toezicht'\"))
-group.permissions.add(Permission.objects.get(name=\"Create a new 'Digitaal toezicht' Case\"))" | docker-compose -f docker-compose.local.yml run -T --rm zaak-gateway python manage.py shell
+group.permissions.add(Permission.objects.get(name=\"Create a new 'Digitaal toezicht' Case\"))" | docker compose -f docker-compose.local.yml run -T --rm zaak-gateway python manage.py shell
