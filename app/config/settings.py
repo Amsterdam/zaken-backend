@@ -302,7 +302,7 @@ OIDC_OP_LOGOUT_ENDPOINT = os.getenv(
 )
 
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
-    os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
+    os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", "False") == "False"
 )
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
@@ -753,6 +753,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "5.0.0": {},
                 "5.1.0": {},
                 "7.0.0": {},
+                "7.1.0": {},
             },
         },
         "director": {
