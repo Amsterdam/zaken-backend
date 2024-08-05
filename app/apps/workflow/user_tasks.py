@@ -1008,3 +1008,11 @@ class task_administrative_hercontrole(user_task):
 
 class task_opstellen_verslag_digitale_hercontrole(user_task):
     due_date = relativedelta(days=3)
+
+
+class task_doorzon_pv(user_task):
+    """Doorzon PV"""
+
+
+class task_sub_workflow_terug_melding_bag(user_task):
+    """Terug melding BAG"""
