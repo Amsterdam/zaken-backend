@@ -62,9 +62,9 @@
         <bpmn:flowNodeRef>Gateway_09iad1n</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_afwachten_overgaan_tot_handhaven</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_verwerken_resultaat_corporatie</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Gateway_1vqjm4z</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_02pcs11</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>event_timer_afwachten_overgaan_tot_handhaven</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_1vqjm4z</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>service_status_debrief_corporatie_violation</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="lane_projectmedewerker" name="Projectmedewerker">
@@ -194,7 +194,6 @@
     <bpmn:sequenceFlow id="Flow_17mde14" sourceRef="task_afwachten_overgaan_tot_handhaven" targetRef="Gateway_09iad1n">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" />
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1c5as05" sourceRef="task_kwaliteitscheck_rapporten" targetRef="task_opsturen_rapport_naar_corporatie_overtreding" />
     <bpmn:sequenceFlow id="Flow_0nhsi97" sourceRef="service_status_debrief_corporatie_violation" targetRef="task_kwaliteitscheck_rapporten" />
     <bpmn:exclusiveGateway id="gateway_is_debrief_violation" name="Is er een overtreding gepleegd?" default="Flow_10inq1c">
       <bpmn:incoming>Flow_0vosbwg</bpmn:incoming>
@@ -242,12 +241,6 @@
       <bpmn:outgoing>Flow_1l0841s</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_009vufo" sourceRef="task_ontvangen_reactie_corporatie" targetRef="task_verwerken_resultaat_corporatie" />
-    <bpmn:exclusiveGateway id="Gateway_1vqjm4z" default="Flow_1cxq8ey">
-      <bpmn:incoming>Flow_1emqy6s</bpmn:incoming>
-      <bpmn:incoming>Flow_03bqmmh</bpmn:incoming>
-      <bpmn:outgoing>Flow_1cxq8ey</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0bqzzx4</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0oksrjq" sourceRef="task_opsturen_rapport_naar_corporatie_overtreding" targetRef="task_afwachten_overgaan_tot_handhaven" />
     <bpmn:exclusiveGateway id="Gateway_02pcs11" default="Flow_006nokv">
       <bpmn:incoming>Flow_1l0841s</bpmn:incoming>
@@ -525,15 +518,22 @@
     <bpmn:sequenceFlow id="Flow_0zsc86a" name="violation.value == SEND_TO_WOON or SEND_TO_ANOTHER_EXTERNAL_PARTY" sourceRef="Gateway_0xhzjqj" targetRef="Gateway_0e1ib1g">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "SEND_TO_WOON" or violation.value == "SEND_TO_ANOTHER_EXTERNAL_PARTY"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1c5as05" sourceRef="task_kwaliteitscheck_rapporten" targetRef="task_opsturen_rapport_naar_corporatie_overtreding" />
+    <bpmn:exclusiveGateway id="Gateway_1vqjm4z" default="Flow_1cxq8ey">
+      <bpmn:incoming>Flow_1emqy6s</bpmn:incoming>
+      <bpmn:incoming>Flow_03bqmmh</bpmn:incoming>
+      <bpmn:outgoing>Flow_1cxq8ey</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0bqzzx4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="task_kwaliteitscheck_rapporten" name="Kwaliteitscheck rapporten">
+      <bpmn:incoming>Flow_0nhsi97</bpmn:incoming>
+      <bpmn:outgoing>Flow_1c5as05</bpmn:outgoing>
+    </bpmn:userTask>
     <bpmn:scriptTask id="service_status_debrief_corporatie_violation" name="Status Bijwerken: &#39;Debrief corporatie&#39;">
       <bpmn:incoming>Flow_0bqzzx4</bpmn:incoming>
       <bpmn:outgoing>Flow_0nhsi97</bpmn:outgoing>
       <bpmn:script>set_status("Debrief corporatie")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:userTask id="task_kwaliteitscheck_rapporten" name="Kwaliteitscheck rapporten">
-      <bpmn:incoming>Flow_0nhsi97</bpmn:incoming>
-      <bpmn:outgoing>Flow_1c5as05</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:userTask id="task_opsturen_rapport_naar_corporatie_overtreding" name="Opsturen rapport naar corporatie">
       <bpmn:incoming>Flow_1c5as05</bpmn:incoming>
       <bpmn:outgoing>Flow_0oksrjq</bpmn:outgoing>
@@ -621,9 +621,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_15fcnef_di" bpmnElement="task_verwerken_resultaat_corporatie">
         <dc:Bounds x="1260" y="610" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1vqjm4z_di" bpmnElement="Gateway_1vqjm4z" isMarkerVisible="true">
-        <dc:Bounds x="555" y="515" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_02pcs11_di" bpmnElement="Gateway_02pcs11" isMarkerVisible="true">
         <dc:Bounds x="1425" y="625" width="50" height="50" />
@@ -747,14 +744,17 @@
       <bpmndi:BPMNShape id="Gateway_02ehfj5_di" bpmnElement="Gateway_02ehfj5" isMarkerVisible="true">
         <dc:Bounds x="1645" y="2495" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0xt01jx_di" bpmnElement="service_status_debrief_corporatie_violation">
-        <dc:Bounds x="740" y="500" width="100" height="80" />
+      <bpmndi:BPMNShape id="Gateway_1vqjm4z_di" bpmnElement="Gateway_1vqjm4z" isMarkerVisible="true">
+        <dc:Bounds x="345" y="355" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0xt6f5e_di" bpmnElement="task_kwaliteitscheck_rapporten">
-        <dc:Bounds x="670" y="750" width="100" height="80" />
+        <dc:Bounds x="420" y="750" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0xt01jx_di" bpmnElement="service_status_debrief_corporatie_violation">
+        <dc:Bounds x="420" y="500" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1gu8aig_di" bpmnElement="task_opsturen_rapport_naar_corporatie_overtreding">
-        <dc:Bounds x="820" y="750" width="100" height="80" />
+        <dc:Bounds x="560" y="750" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0filw7c_di" bpmnElement="event_timer_wait_for_documents">
         <dc:Bounds x="1422" y="1932" width="36" height="36" />
@@ -846,8 +846,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1emqy6s_di" bpmnElement="Flow_1emqy6s">
         <di:waypoint x="370" y="885" />
-        <di:waypoint x="370" y="540" />
-        <di:waypoint x="555" y="540" />
+        <di:waypoint x="370" y="405" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ve2osa_di" bpmnElement="Flow_0ve2osa">
         <di:waypoint x="1595" y="910" />
@@ -885,15 +884,14 @@
         <di:waypoint x="520" y="910" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1cxq8ey_di" bpmnElement="Flow_1cxq8ey">
-        <di:waypoint x="580" y="515" />
-        <di:waypoint x="580" y="380" />
+        <di:waypoint x="395" y="380" />
         <di:waypoint x="1425" y="380" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0bqzzx4_di" bpmnElement="Flow_0bqzzx4">
-        <di:waypoint x="605" y="540" />
-        <di:waypoint x="740" y="540" />
+        <di:waypoint x="380" y="395" />
+        <di:waypoint x="442" y="500" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="591" y="510" width="88" height="27" />
+          <dc:Bounds x="396" y="436" width="88" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_07w787f_di" bpmnElement="Flow_07w787f">
@@ -918,14 +916,12 @@
         <di:waypoint x="1570" y="405" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1c5as05_di" bpmnElement="Flow_1c5as05">
-        <di:waypoint x="770" y="790" />
-        <di:waypoint x="820" y="790" />
+        <di:waypoint x="520" y="790" />
+        <di:waypoint x="560" y="790" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0nhsi97_di" bpmnElement="Flow_0nhsi97">
-        <di:waypoint x="790" y="580" />
-        <di:waypoint x="790" y="665" />
-        <di:waypoint x="720" y="665" />
-        <di:waypoint x="720" y="750" />
+        <di:waypoint x="470" y="580" />
+        <di:waypoint x="470" y="750" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0vosbwg_di" bpmnElement="Flow_0vosbwg">
         <di:waypoint x="780" y="1295" />
@@ -951,8 +947,8 @@
         <di:waypoint x="1310" y="690" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0oksrjq_di" bpmnElement="Flow_0oksrjq">
-        <di:waypoint x="870" y="750" />
-        <di:waypoint x="870" y="540" />
+        <di:waypoint x="610" y="750" />
+        <di:waypoint x="610" y="540" />
         <di:waypoint x="1400" y="540" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_006nokv_di" bpmnElement="Flow_006nokv">
@@ -1034,10 +1030,10 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_03bqmmh_di" bpmnElement="Flow_03bqmmh">
         <di:waypoint x="280" y="1475" />
-        <di:waypoint x="280" y="640" />
-        <di:waypoint x="561" y="546" />
+        <di:waypoint x="280" y="380" />
+        <di:waypoint x="345" y="380" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="290" y="1320" width="79" height="40" />
+          <dc:Bounds x="210" y="460" width="79" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1ikhh0l_di" bpmnElement="Flow_1ikhh0l">
