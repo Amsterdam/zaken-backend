@@ -1032,5 +1032,141 @@
       "message_name": "start_handhavingsverzoek",
       "to_directing_proccess": false
     }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 122,
+    "fields": {
+      "theme": 2,
+      "name": "Doorzon PV",
+      "message_name": "start_doorzon_pv",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 123,
+    "fields": {
+      "theme": 4,
+      "name": "Doorzon PV",
+      "message_name": "start_doorzon_pv",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 124,
+    "fields": {
+      "theme": 5,
+      "name": "Doorzon PV",
+      "message_name": "start_doorzon_pv",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 125,
+    "fields": {
+      "theme": 6,
+      "name": "Doorzon PV",
+      "message_name": "start_doorzon_pv",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 126,
+    "fields": {
+      "theme": 7,
+      "name": "Doorzon PV",
+      "message_name": "start_doorzon_pv",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 127,
+    "fields": {
+      "theme": 8,
+      "name": "Doorzon PV",
+      "message_name": "start_doorzon_pv",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 128,
+    "fields": {
+      "theme": 2,
+      "name": "Terug melding BAG",
+      "message_name": "start_terugmelding_bag",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 129,
+    "fields": {
+      "theme": 3,
+      "name": "Terug melding BAG",
+      "message_name": "start_terugmelding_bag",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 130,
+    "fields": {
+      "theme": 4,
+      "name": "Terug melding BAG",
+      "message_name": "start_terugmelding_bag",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 131,
+    "fields": {
+      "theme": 5,
+      "name": "Terug melding BAG",
+      "message_name": "start_terugmelding_bag",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 132,
+    "fields": {
+      "theme": 6,
+      "name": "Terug melding BAG",
+      "message_name": "start_terugmelding_bag",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 133,
+    "fields": {
+      "theme": 7,
+      "name": "Terug melding BAG",
+      "message_name": "start_terugmelding_bag",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 134,
+    "fields": {
+      "theme": 8,
+      "name": "Terug melding BAG",
+      "message_name": "start_terugmelding_bag",
+      "to_directing_proccess": false
+    }
   }
 ]

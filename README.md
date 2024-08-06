@@ -42,13 +42,13 @@ First, make sure you have built the project and executed the database migrations
 ```bash
 docker network create top_and_zaak_backend_bridge
 docker network create zaken_network
-docker-compose -f docker-compose.local.yml build
+docker compose -f docker-compose.local.yml build
 ```
 
 Start AZA backend:
 
 ```bash
-docker-compose -f docker-compose.local.yml up
+docker compose -f docker-compose.local.yml up
 ```
 
 To create all necessary credentials run the following command:
@@ -95,7 +95,7 @@ docker compose -f docker-compose.local.yml run --rm zaak-gateway python manage.p
 Or a specific test:
 
 ```bash
-docker-compose -f docker-compose.local.yml exec -T zaak-gateway python manage.py test apps.addresses.tests.tests_models.AddressModelTest.test_can_create_address_with_bag_result_without_stadsdeel
+docker compose -f docker-compose.local.yml exec -T zaak-gateway python manage.py test apps.addresses.tests.tests_models.AddressModelTest.test_can_create_address_with_bag_result_without_stadsdeel
 ```
 
 
@@ -173,7 +173,7 @@ To improve reliability, the health checks should be expanded for each essential 
 It's possible to generate a graph of the datamodel using the following command:
 
 ```
-docker-compose run --rm zaak-gateway python manage.py graph_models cases debriefings permits fines addresses events visits summons -X ModelEventEmitter,ModelEditableTimeConstraint,ModelEditablelBase --pygraphviz -o diagram.png
+docker compose run --rm zaak-gateway python manage.py graph_models cases debriefings permits fines addresses events visits summons -X ModelEventEmitter,ModelEditableTimeConstraint,ModelEditablelBase --pygraphviz -o diagram.png
 ```
 
 Note that the apps and models should be updated whenever applications and models are added or modified.
