@@ -51,7 +51,7 @@
         <bpmn:flowNodeRef>task_create_concept_summons</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0hmo9yd</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_create_quick_decision</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>task_verwerken_</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_verwerken_informatiebrief</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1514cbt</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>timer_monitoren_reactie_platform</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>gateway_which_type_of_summon</bpmn:flowNodeRef>
@@ -388,7 +388,7 @@
       <bpmn:incoming>Flow_0s4h3uh</bpmn:incoming>
       <bpmn:outgoing>Flow_0qa4dxm</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_verwerken_" name="Verwerken informatiebrief">
+    <bpmn:userTask id="task_verwerken_informatiebrief" name="Verwerken informatiebrief">
       <bpmn:incoming>Flow_0qa4dxm</bpmn:incoming>
       <bpmn:outgoing>Flow_02202f8</bpmn:outgoing>
     </bpmn:userTask>
@@ -475,7 +475,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" />
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0hq2av6" sourceRef="task_create_quick_decision" targetRef="service_script_next_step_close_case_summon" />
-    <bpmn:sequenceFlow id="Flow_02202f8" sourceRef="task_verwerken_" targetRef="service_script_next_step_close_case_summon" />
+    <bpmn:sequenceFlow id="Flow_02202f8" sourceRef="task_verwerken_informatiebrief" targetRef="service_script_next_step_close_case_summon" />
     <bpmn:sequenceFlow id="Flow_15oojg9" sourceRef="service_script_next_step_close_case_summon" targetRef="Event_12zzx0r" />
     <bpmn:sequenceFlow id="Flow_079uczj" sourceRef="Activity_1fpf4er" targetRef="task_monitoren_reactie_platform" />
     <bpmn:sequenceFlow id="Flow_02rp65e" name="summon_rappelleren_informeren_collegas_beleid = opnieuw_monitoren" sourceRef="gateway_reactie_platform" targetRef="task_monitoren_reactie_platform">
@@ -534,7 +534,7 @@
     <bpmn:sequenceFlow id="Flow_1v19dma" name="Direct naar nakijken aanschrijving" sourceRef="Gateway_0hmo9yd" targetRef="task_check_summons">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">direct_to_check_summons.value == "ja"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0qa4dxm" sourceRef="task_nakijken_informatiebrief" targetRef="task_verwerken_" />
+    <bpmn:sequenceFlow id="Flow_0qa4dxm" sourceRef="task_nakijken_informatiebrief" targetRef="task_verwerken_informatiebrief" />
     <bpmn:exclusiveGateway id="gateway_which_type_of_summon" name="Wat voor aanschrijving is het?">
       <bpmn:incoming>Flow_1detbpm</bpmn:incoming>
       <bpmn:outgoing>Flow_0ca7pn4</bpmn:outgoing>
@@ -567,12 +567,6 @@
       <bpmndi:BPMNShape id="Lane_11cm9q5_di" bpmnElement="Lane_1v9wk97" isHorizontal="true">
         <dc:Bounds x="190" y="1380" width="4090" height="170" />
         <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1t6r1v4_di" bpmnElement="gateway_which_type_of_summon" isMarkerVisible="true">
-        <dc:Bounds x="1245" y="535" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1192" y="480" width="76" height="40" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0259m8f_di" bpmnElement="task_create_summon">
         <dc:Bounds x="1060" y="520" width="100" height="80" />
@@ -702,9 +696,15 @@
         <dc:Bounds x="1220" y="1440" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0is356h_di" bpmnElement="task_verwerken_">
+      <bpmndi:BPMNShape id="Activity_0is356h_di" bpmnElement="task_verwerken_informatiebrief">
         <dc:Bounds x="2111" y="1290" width="100" height="80" />
         <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1t6r1v4_di" bpmnElement="gateway_which_type_of_summon" isMarkerVisible="true">
+        <dc:Bounds x="1245" y="535" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1192" y="480" width="76" height="40" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_09j0zym_di" bpmnElement="timer_monitoren_reactie_platform">
         <dc:Bounds x="1602" y="582" width="36" height="36" />
