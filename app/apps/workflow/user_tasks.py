@@ -1016,3 +1016,15 @@ class task_doorzon_pv(user_task):
 
 class task_sub_workflow_terug_melding_bag(user_task):
     """Terug melding BAG"""
+
+
+class task_nakijken_informatiebrief(user_task):
+    """task_nakijken_informatiebrief"""
+
+    _task_name = "task_nakijken_informatiebrief"
+
+
+class task_verwerken_informatiebrief(user_task):
+    """task_nakijken_informatiebrief"""
+
+    _task_name = "task_verwerken_informatiebrief"
