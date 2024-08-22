@@ -301,9 +301,7 @@ OIDC_OP_LOGOUT_ENDPOINT = os.getenv(
     "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/logout",
 )
 
-LOCAL_DEVELOPMENT_AUTHENTICATION = (
-    os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
-)
+LOCAL_DEVELOPMENT_AUTHENTICATION = False
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 6000
@@ -729,6 +727,7 @@ WORKFLOW_SPEC_CONFIG = {
             },
             "versions": {
                 "3.0.0": {},
+                "3.1.0": {},
             },
         },
         "debrief": {
@@ -1062,6 +1061,44 @@ WORKFLOW_SPEC_CONFIG = {
                         },
                     },
                 },
+                "7.2.0": {
+                    "messages": {
+                        "main_process": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "ja"},
+                                "debrief_next_step": {"value": "default"},
+                                "summon_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
+                                "housing_corporation_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
+                                "leegstandsmelding_eigenaar": {"value": "default"},
+                            },
+                        },
+                        "aanschrijving_toevoegen": {
+                            "initial_data": {
+                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+                                "authorization": {"value": "No"},
+                                "reason": {"value": "default"},
+                                "theme": {"value": "default"},
+                                "bepalen_processtap": {"value": "ja"},
+                                "debrief_next_step": {"value": "default"},
+                                "summon_next_step": {"value": "default"},
+                                "visit_next_step": {"value": "default"},
+                                "housing_corporation_next_step": {"value": "default"},
+                                "monitoren_reactie_platform_duration": timedelta(
+                                    days=14
+                                ),
+                                "leegstandsmelding_eigenaar": {"value": "default"},
+                            },
+                        },
+                    },
+                },
             },
         },
         "housing_corporation": {
@@ -1327,6 +1364,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "0.4.0": {},
                 "0.5.0": {},
                 "0.6.0": {},
+                "0.7.0": {},
             },
         },
         "citizen_report_feedback": {
