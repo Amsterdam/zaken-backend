@@ -51,10 +51,10 @@
         <bpmn:flowNodeRef>task_create_concept_summons</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0hmo9yd</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_create_quick_decision</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>task_verwerken_informatiebrief</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1514cbt</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>timer_monitoren_reactie_platform</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>gateway_which_type_of_summon</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_verwerken_informatiebrief</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:userTask id="task_create_summon" name="Verwerken aanschrijving" camunda:formKey="create_summon_form" camunda:candidateGroups="Projecthandhaver">
@@ -385,12 +385,8 @@
       <bpmn:outgoing>Flow_0hq2av6</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:userTask id="task_nakijken_informatiebrief" name="Nakijken informatiebrief">
-      <bpmn:incoming>Flow_0s4h3uh</bpmn:incoming>
+      <bpmn:incoming>Flow_1t3bmhb</bpmn:incoming>
       <bpmn:outgoing>Flow_0qa4dxm</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:userTask id="task_verwerken_informatiebrief" name="Verwerken informatiebrief">
-      <bpmn:incoming>Flow_0qa4dxm</bpmn:incoming>
-      <bpmn:outgoing>Flow_02202f8</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:boundaryEvent id="Event_1s4a0ru" attachedToRef="task_monitor_incoming_permit_application">
       <bpmn:outgoing>Flow_1tvv61b</bpmn:outgoing>
@@ -437,9 +433,6 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1abp6nw" name="type_aanschrijving = besluit" sourceRef="gateway_which_type_of_summon" targetRef="task_create_quick_decision">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "besluit"</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0s4h3uh" name="type_aanschrijving = informatiebrief" sourceRef="gateway_which_type_of_summon" targetRef="task_nakijken_informatiebrief">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "informatiebrief"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0bf9aqr" sourceRef="gateway_afzien_concept_aanschrijvingen_na_check" targetRef="task_create_summon" />
     <bpmn:sequenceFlow id="Flow_1kxv6a9" name="Ja, afzien voornemen" sourceRef="gateway_do_we_renounce_or_decision" targetRef="service_script_next_step_renounce_summon">
@@ -544,8 +537,15 @@
       <bpmn:outgoing>Flow_08sz0p5</bpmn:outgoing>
       <bpmn:outgoing>Flow_1ejttzw</bpmn:outgoing>
       <bpmn:outgoing>Flow_1abp6nw</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0s4h3uh</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1t3bmhb</bpmn:outgoing>
     </bpmn:exclusiveGateway>
+    <bpmn:userTask id="task_verwerken_informatiebrief" name="Verwerken informatiebrief">
+      <bpmn:incoming>Flow_0qa4dxm</bpmn:incoming>
+      <bpmn:outgoing>Flow_02202f8</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1t3bmhb" name="type_aanschrijving.value == &#34;informatiebrief&#34;" sourceRef="gateway_which_type_of_summon" targetRef="task_nakijken_informatiebrief">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "informatiebrief"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
   <bpmn:message id="Message_1k1jpww" name="start_decision_process" />
@@ -777,16 +777,7 @@
         <di:waypoint x="1310" y="1040" />
         <di:waypoint x="2111" y="1040" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1559" y="1350" width="84" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0s4h3uh_di" bpmnElement="Flow_0s4h3uh">
-        <di:waypoint x="1245" y="560" />
-        <di:waypoint x="1200" y="560" />
-        <di:waypoint x="1200" y="1480" />
-        <di:waypoint x="1220" y="1480" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1170" y="1018" width="90" height="27" />
+          <dc:Bounds x="1448" y="1350" width="84" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0bf9aqr_di" bpmnElement="Flow_0bf9aqr">
@@ -868,7 +859,7 @@
         <di:waypoint x="1005" y="920" />
         <di:waypoint x="3950" y="920" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1120" y="875" width="86" height="40" />
+          <dc:Bounds x="1027" y="875" width="86" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1e0tx2f_di" bpmnElement="Flow_1e0tx2f">
@@ -895,8 +886,7 @@
       <bpmndi:BPMNEdge id="Flow_02202f8_di" bpmnElement="Flow_02202f8">
         <di:waypoint x="2211" y="1330" />
         <di:waypoint x="3081" y="1330" />
-        <di:waypoint x="3081" y="920" />
-        <di:waypoint x="3950" y="920" />
+        <di:waypoint x="3950" y="943" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_15oojg9_di" bpmnElement="Flow_15oojg9">
         <di:waypoint x="4050" y="920" />
@@ -1028,7 +1018,7 @@
         <di:waypoint x="980" y="1270" />
         <di:waypoint x="3950" y="1270" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1120" y="1213" width="86" height="53" />
+          <dc:Bounds x="987" y="973" width="86" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0fx0k7f_di" bpmnElement="Flow_0fx0k7f">
@@ -1105,6 +1095,14 @@
         <di:waypoint x="1716" y="1480" />
         <di:waypoint x="1716" y="1330" />
         <di:waypoint x="2111" y="1330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1t3bmhb_di" bpmnElement="Flow_1t3bmhb">
+        <di:waypoint x="1259" y="574" />
+        <di:waypoint x="1230" y="1030" />
+        <di:waypoint x="1240" y="1440" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1248" y="1200" width="84" height="40" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
