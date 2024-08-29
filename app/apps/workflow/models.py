@@ -47,9 +47,6 @@ from .utils import (
 
 logger = logging.getLogger(__name__)
 
-# Summon types with workflow option "besluit" are only available from version "6.3.0"
-LTS_WORKFLOW_VERSION_SUMMON = "6.3.0"
-
 
 class CaseWorkflow(models.Model):
     WORKFLOW_TYPE_MAIN = "main_workflow"
@@ -153,12 +150,19 @@ class CaseWorkflow(models.Model):
 
     serializer = BpmnSerializer
 
-    def is_workflow_version_supported(self):
+    def get_workflow_exclude_options(self):
         if self.workflow_type == CaseWorkflow.WORKFLOW_TYPE_SUMMON:
-            return version.parse(self.workflow_version) >= version.parse(
-                LTS_WORKFLOW_VERSION_SUMMON
-            )
-        return True
+            summon_version = version.parse(self.workflow_version)
+            # Version is lower than 6.3, remove these options because they are not present in that BPMN version
+            if summon_version < version.parse("6.3.0"):
+                exclude_options = ["besluit", "informatiebrief"]
+            # Version is 6.3.0 or 7.1.0
+            elif version.parse("6.3.0") <= summon_version < version.parse("7.2.0"):
+                exclude_options = ["informatiebrief"]
+            else:
+                exclude_options = []
+
+            return exclude_options
 
     def get_lock_id(self):
         return f"caseworkflow-lock-{self.id}"

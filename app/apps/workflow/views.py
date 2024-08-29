@@ -382,14 +382,11 @@ class CaseUserTaskViewSet(
         paginator = LimitOffsetPagination()
         caseUserTask = self.get_object()
         theme = caseUserTask.case.theme
-
-        # Summon types with workflow option "besluit" are only available from version "6.3.0"
-        if caseUserTask.workflow.is_workflow_version_supported():
-            # The version is equal to or higher than 6.3.0" so return all types for theme.
-            query_set = theme.summon_types.all()
+        exclude_options = caseUserTask.workflow.get_workflow_exclude_options()
+        if exclude_options:
+            query_set = theme.summon_types.exclude(workflow_option__in=exclude_options)
         else:
-            # The version is lower than 6.3.0" so exclude "besluit".
-            query_set = theme.summon_types.exclude(workflow_option="besluit")
+            query_set = theme.summon_types.all()
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = SummonTypeSerializer(context, many=True)

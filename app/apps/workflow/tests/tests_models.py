@@ -43,3 +43,51 @@ class WorkflowModelTest(ZakenBackendTestMixin, TestCase):
         )
 
         self.assertEquals(workflow.get_workflow_spec().__class__, BpmnProcessSpec)
+
+    def test_get_workflow_exclude_options(self):
+        """Tests can get workflow spec"""
+
+        theme = baker.make(CaseTheme, name=settings.DEFAULT_THEME)
+        case = baker.make(Case, theme=theme)
+        workflow = baker.make(
+            CaseWorkflow,
+            case=case,
+            workflow_type=CaseWorkflow.WORKFLOW_TYPE_SUMMON,
+            id=8,
+            workflow_version="7.1.0",
+            workflow_theme_name="default",
+            data={},
+        )
+        exclude_options = workflow.get_workflow_exclude_options()
+        self.assertEqual(
+            exclude_options,
+            ["informatiebrief"],
+            "Should exclude 'informatiebrief' for version 7.1.0",
+        )
+
+        # Test case for version 6.0.0
+        workflow.workflow_version = "6.0.0"
+        exclude_options = workflow.get_workflow_exclude_options()
+        self.assertEqual(
+            exclude_options,
+            ["besluit", "informatiebrief"],
+            "Should exclude 'besluit' and 'informatiebrief' for version below 6.3.0",
+        )
+
+        # Test case for version 6.3.0
+        workflow.workflow_version = "6.3.0"
+        exclude_options = workflow.get_workflow_exclude_options()
+        self.assertEqual(
+            exclude_options,
+            ["informatiebrief"],
+            "Should exclude 'informatiebrief' for version 6.3.0",
+        )
+
+        # Test case for version 7.2.0 and above (e.g., 7.2.0)
+        workflow.workflow_version = "7.2.0"
+        exclude_options = workflow.get_workflow_exclude_options()
+        self.assertEqual(
+            exclude_options,
+            [],
+            "Should not exclude any options for version 7.2.0 and above",
+        )
