@@ -419,9 +419,7 @@
     <bpmn:sequenceFlow id="Flow_025eea2" name="waarschuwingsbrief" sourceRef="gateway_which_type_of_summon" targetRef="service_script_next_step_close_case_summon">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "waarschuwingsbrief"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0ca7pn4" name="type_aanschrijving = Andere aanschrijvingen" sourceRef="gateway_which_type_of_summon" targetRef="service_status_zienswijze">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "aanschrijvingen"</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0ca7pn4" name="type_aanschrijving = Andere aanschrijvingen or default" sourceRef="gateway_which_type_of_summon" targetRef="service_status_zienswijze" />
     <bpmn:sequenceFlow id="Flow_1b4iipp" name="legalisatiebrief" sourceRef="gateway_which_type_of_summon" targetRef="service_script_set_status_vergunningscheck">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "legalisatie-brief"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -528,7 +526,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">direct_to_check_summons.value == "ja"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0qa4dxm" sourceRef="task_nakijken_informatiebrief" targetRef="task_verwerken_informatiebrief" />
-    <bpmn:exclusiveGateway id="gateway_which_type_of_summon" name="Wat voor aanschrijving is het?">
+    <bpmn:exclusiveGateway id="gateway_which_type_of_summon" name="Wat voor aanschrijving is het?" default="Flow_0ca7pn4">
       <bpmn:incoming>Flow_1detbpm</bpmn:incoming>
       <bpmn:outgoing>Flow_0ca7pn4</bpmn:outgoing>
       <bpmn:outgoing>Flow_025eea2</bpmn:outgoing>
@@ -696,15 +694,15 @@
         <dc:Bounds x="1220" y="1440" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0is356h_di" bpmnElement="task_verwerken_informatiebrief">
-        <dc:Bounds x="2111" y="1290" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1t6r1v4_di" bpmnElement="gateway_which_type_of_summon" isMarkerVisible="true">
         <dc:Bounds x="1245" y="535" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1192" y="480" width="76" height="40" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0is356h_di" bpmnElement="task_verwerken_informatiebrief">
+        <dc:Bounds x="2111" y="1290" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_09j0zym_di" bpmnElement="timer_monitoren_reactie_platform">
         <dc:Bounds x="1602" y="582" width="36" height="36" />
@@ -742,19 +740,19 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ca7pn4_di" bpmnElement="Flow_0ca7pn4">
-        <di:waypoint x="1270" y="535" />
-        <di:waypoint x="1270" y="260" />
+        <di:waypoint x="1272" y="537" />
+        <di:waypoint x="1300" y="265" />
         <di:waypoint x="2890" y="260" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1535" y="210" width="84" height="40" />
+          <dc:Bounds x="1548" y="213" width="84" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1b4iipp_di" bpmnElement="Flow_1b4iipp">
-        <di:waypoint x="1270" y="535" />
-        <di:waypoint x="1270" y="380" />
+        <di:waypoint x="1277" y="542" />
+        <di:waypoint x="1340" y="380" />
         <di:waypoint x="2000" y="380" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1538" y="353" width="72" height="14" />
+          <dc:Bounds x="1579" y="353" width="72" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_08sz0p5_di" bpmnElement="Flow_08sz0p5">
