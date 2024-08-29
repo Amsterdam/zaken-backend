@@ -1024,3 +1024,15 @@ class task_bepalen_processtap_vv(user_task):
 
 class task_digitaal_rapport_th(user_task):
     due_date = relativedelta(days=3)
+
+    
+class task_nakijken_informatiebrief(user_task):
+    """task_nakijken_informatiebrief"""
+
+    _task_name = "task_nakijken_informatiebrief"
+
+
+class task_verwerken_informatiebrief(user_task):
+    """task_nakijken_informatiebrief"""
+
+    _task_name = "task_verwerken_informatiebrief"

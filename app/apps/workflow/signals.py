@@ -1,5 +1,6 @@
 import copy
 import datetime
+import logging
 
 import pytz
 from apps.events.models import TaskModelEventEmitter
@@ -15,6 +16,8 @@ from utils.exceptions import EventEmitterExistsError
 
 from .user_tasks import DEFAULT_USER_TASK_DUE_DATE, get_task_by_name
 from .utils import get_latest_version_from_config
+
+logger = logging.getLogger(__name__)
 
 
 @receiver(pre_save, dispatch_uid="event_emitter_pre_save")
@@ -36,6 +39,9 @@ def event_emitter_pre_save(instance, **kwargs):
             case_user_task_id=instance.case_user_task_id
         )
         if type_instance:
+            logger.error(
+                f"TaskModelEventEmitter of type '{instance.__class__.__name__}', with id '{instance.case_user_task_id}', already exists"
+            )
             raise EventEmitterExistsError(
                 f"TaskModelEventEmitter of type '{instance.__class__.__name__}', with id '{instance.case_user_task_id}', already exists"
             )
