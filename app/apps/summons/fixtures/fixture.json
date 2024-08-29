@@ -444,16 +444,16 @@
     "model": "summons.summontype",
     "pk": 63,
     "fields": {
-      "theme": 3,
-      "workflow_option": "informatiebrief",
-      "name": "Informatiebrief"
+      "theme": 8,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen besluit"
     }
   },
   {
     "model": "summons.summontype",
     "pk": 64,
     "fields": {
-      "theme": 4,
+      "theme": 3,
       "workflow_option": "informatiebrief",
       "name": "Informatiebrief"
     }
@@ -462,7 +462,25 @@
     "model": "summons.summontype",
     "pk": 65,
     "fields": {
+      "theme": 4,
+      "workflow_option": "informatiebrief",
+      "name": "Informatiebrief"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 66,
+    "fields": {
       "theme": 7,
+      "workflow_option": "informatiebrief",
+      "name": "Informatiebrief"
+    }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 67,
+    "fields": {
+      "theme": 2,
       "workflow_option": "informatiebrief",
       "name": "Informatiebrief"
     }
