@@ -314,10 +314,10 @@
       <bpmn:outgoing>Flow_1kiy9a8</bpmn:outgoing>
       <bpmn:script>set_status("Debrief")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:sequenceFlow id="Flow_07nlz48" sourceRef="Gateway_0bosnt7" targetRef="Activity_0e509br">
+    <bpmn:sequenceFlow id="Flow_07nlz48" name="digitale_surveillance_bepalen_processtap.value == &#34;inplannen_huisbezoek&#34;" sourceRef="Gateway_0bosnt7" targetRef="Activity_0e509br">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">digitale_surveillance_bepalen_processtap.value == "inplannen_huisbezoek"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:scriptTask id="Activity_0e509br" name="digitaal_toezicht_next_step = debrief">
+    <bpmn:scriptTask id="Activity_0e509br" name="digitaal_toezicht_next_step = visit">
       <bpmn:incoming>Flow_07nlz48</bpmn:incoming>
       <bpmn:outgoing>Flow_02bzraa</bpmn:outgoing>
       <bpmn:script>digitaal_toezicht_next_step = {"value": "visit"}</bpmn:script>
@@ -440,6 +440,7 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_1ciy4w1" bpmnElement="Activity_0e509br">
         <dc:Bounds x="1390" y="260" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0s8titi_di" bpmnElement="Event_0s8titi">
         <dc:Bounds x="1522" y="282" width="36" height="36" />
@@ -483,7 +484,7 @@
         <di:waypoint x="1465" y="430" />
         <di:waypoint x="1555" y="430" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1450" y="357" width="86" height="66" />
+          <dc:Bounds x="1466" y="367" width="87" height="66" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_02uij0x_di" bpmnElement="Flow_02uij0x">
@@ -630,7 +631,7 @@
         <di:waypoint x="1580" y="230" />
         <di:waypoint x="1580" y="405" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1279" y="243" width="88" height="53" />
+          <dc:Bounds x="1155" y="233" width="89" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0v7y8j0_di" bpmnElement="Flow_0v7y8j0">
@@ -698,6 +699,9 @@
       <bpmndi:BPMNEdge id="Flow_07nlz48_di" bpmnElement="Flow_07nlz48">
         <di:waypoint x="1440" y="405" />
         <di:waypoint x="1440" y="340" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1365" y="337" width="90" height="66" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_02bzraa_di" bpmnElement="Flow_02bzraa">
         <di:waypoint x="1490" y="300" />
