@@ -212,17 +212,31 @@ Go to the releases page of the Camunda modeler: https://github.com/camunda/camun
 
 When a new version is deployed, the already existing cases still follow the path in the started version. Only new created cases follow the path of the latest version.
 
-When should you deploy a new version??
+When is it necessary to deploy a new version?
 
 - Path changes in the model
 - Timer changes
 - ID changes
 
-When should you NOT deploy a new version??
+When is it NOT necessary to create a new version?
 
-- Changes in form names. If you want to change the text of a form, you can do it directly in the latest version. Do not change IDs because paths can be taken based on the answer (ID).
+- Changes in form names. If you want to change the text of a form, you can do it directly in the latest version. Do not change IDs because paths can be taken based on an answer (ID).
 
-So if you think existing cases will get stuck in the model, just create a new version to be sure.
+So if you think existing cases are getting stuck in the model, just create a new version.
+
+**NOTE:** When creating new routes **always use a default route**. If you made a mistake with versioning and new routes that do not exist in old versions, the application will follow the default route. If not, the application will colapse and celery workers will be unavailable.
+
+
+## Versioning
+
+The `director` model is the backbone of the BPMN-models. Watch out when updating the `director`! The `director` starts other models and ends them. The `director` chooses the applicable version of the model by the `director`'s major version itself. Example: a case has `director` version `6.0.0` and the `director` has to start the `unoccupied` model. The `unoccupied` model has versions: `4.0.0`, `4.0.1` and `7.1.0` (which shouldn't be possible). The `director` will choose `4.0.1` because it's the latest release of the `unoccupied` model with major version `6` or lower.
+
+A new model can **NEVER have a higher major version than the `director`**.
+
+
+## DIRECTOR changes major versioning
+
+The **major version** of the `director` needs to be bumped if a route in the `director` to a new model has been added or updated. For example: a visit type changed in the `visit` model. In the `director` you can choose the visit type. Works like a charm for new cases. Existing cases use the old `director` and will be lead to the new `visit` model where the visit type condition has changed. Conditions are not met and the application will go down.
 
 
 ## Deploy new BPMN-model with incremented version
@@ -230,19 +244,20 @@ So if you think existing cases will get stuck in the model, just create a new ve
 - Create a new version of the model file (.bpmn) in a new directory.
 - The name of the directory should be the GLOBAL next version.
 
-    Example: `housing_corporation` has a new minor version model and the latest version was `5.0.0` but `debrief` has latest version `6.0.0`. Then the new minor version of `housing_corporation` will be `6.1.0`.
+    Example: `housing_corporation` has a new minor version model and the latest version was `5.0.0` but the `director` has latest version `6.1.0`. Then the new minor version of `housing_corporation` will be `6.0.0`. The `director` with major version `6` will always start the latest `minor` version `6.0.0`.
 
-```json
+```
 bpmn_models/default/
-├─ debrief/
+├─ director/
 │  ├─ 0.1.0/
 │  ├─ 0.2.0/
 │  ├─ 6.0.0/
+│  ├─ 6.1.0/
 ├─ housing_coorporation/
 │  ├─ 5.0.0/
 │  │  ├─ housing_corporation.bpmn
-│  ├─ 6.1.0/
-│  │  ├─ housing_corporation.bpmn
+│  ├─ 6.0.0/
+│  │  ├─ housing_corporation.bpmn (NEW VERSION)
 ```
 
 - Add the new version to `WORKFLOW_SPEC_CONFIG` in `settings.py`:
@@ -251,12 +266,12 @@ bpmn_models/default/
 "housing_corporation": {
     "versions": {
         "5.0.0": {},
-        "6.1.0": {},
+        "6.0.0": {},  (NEW VERSION)
     },
 }
 ```
 
-Run `docker compose build` to see your changes locally. Check the admin panel to see which `case workflow` version is used.
+- Run `docker compose build` to see your changes locally. Check the admin panel to see which `case workflow` version is used.
 
 ## Important learnings
 
