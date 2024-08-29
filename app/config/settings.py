@@ -301,7 +301,9 @@ OIDC_OP_LOGOUT_ENDPOINT = os.getenv(
     "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/logout",
 )
 
-LOCAL_DEVELOPMENT_AUTHENTICATION = False
+LOCAL_DEVELOPMENT_AUTHENTICATION = (
+    os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
+)
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 6000
@@ -727,7 +729,7 @@ WORKFLOW_SPEC_CONFIG = {
             },
             "versions": {
                 "3.0.0": {},
-                "3.1.0": {},
+                "7.0.0": {},
             },
         },
         "debrief": {
@@ -1364,7 +1366,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "0.4.0": {},
                 "0.5.0": {},
                 "0.6.0": {},
-                "0.7.0": {},
+                "7.0.0": {},
             },
         },
         "citizen_report_feedback": {
