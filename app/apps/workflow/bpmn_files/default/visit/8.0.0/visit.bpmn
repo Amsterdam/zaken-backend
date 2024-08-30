@@ -205,7 +205,7 @@
       <bpmn:outgoing>Flow_1l7o27c</bpmn:outgoing>
       <bpmn:outgoing>Flow_0f3da8n</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_bepalen_processtap_vv" name="Bepalen processtap" camunda:formKey="from_bepalen_processtap_standaard">
+    <bpmn:userTask id="task_bepalen_processtap_vv" name="Bepalen processtap" camunda:formKey="form_bepalen_processtap_vv">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="visit_next_step" label="Wat is de gewenste vervolgstap?" type="enum">
@@ -376,15 +376,15 @@
       <bpmndi:BPMNShape id="Gateway_0i97097_di" bpmnElement="Gateway_0i97097" isMarkerVisible="true">
         <dc:Bounds x="1135" y="495" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_1irpc0r" bpmnElement="task_digitaal_rapport_th">
-        <dc:Bounds x="890" y="820" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0ca4k6y_di" bpmnElement="Event_0ca4k6y">
         <dc:Bounds x="1602" y="842" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_1ku9sxw" bpmnElement="Activity_0l1sulc">
         <dc:Bounds x="1410" y="820" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1irpc0r" bpmnElement="task_digitaal_rapport_th">
+        <dc:Bounds x="890" y="820" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_06dolxs_di" bpmnElement="Gateway_06dolxs" isMarkerVisible="true">
