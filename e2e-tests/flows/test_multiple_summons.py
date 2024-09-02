@@ -5,7 +5,7 @@ from api.tasks.summon import (
     test_afzien_concept_aanschrijving,
     test_opstellen_concept_aanschrijving,
 )
-from api.tasks.visit import test_bepalen_processtap_standaard
+from api.tasks.visit import test_bepalen_processtap_vv
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks
 
@@ -16,7 +16,7 @@ class TestMultipleSummons(DefaultAPITest):
         case.add_process(Process.HolidayRental.ADD_SUMMON),
         case.run_steps(
             ValidateOpenTasks(
-                test_bepalen_processtap_standaard, test_opstellen_concept_aanschrijving
+                test_bepalen_processtap_vv, test_opstellen_concept_aanschrijving
             ),
             *test_opstellen_verkorte_rapportage_huisbezoek.get_steps(),
             ValidateOpenTasks(test_opstellen_concept_aanschrijving),

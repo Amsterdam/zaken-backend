@@ -6,7 +6,7 @@ from api.tasks.debrief import (
     test_terugkoppelen_melder_1,
 )
 from api.tasks.visit import (
-    test_bepalen_processtap_standaard,
+    test_bepalen_processtap_vv,
     test_doorgeven_status_top,
     test_inplannen_status,
 )
@@ -18,7 +18,7 @@ class TestTimeline(DefaultAPITest):
     def test_no_identification(self):
         case = self.get_case()
         case.run_steps(
-            test_bepalen_processtap_standaard(),
+            test_bepalen_processtap_vv(),
             test_inplannen_status(),
             ValidateOpenTasks(test_doorgeven_status_top),
         )
@@ -28,7 +28,7 @@ class TestTimeline(DefaultAPITest):
 
     def test_home_visit_report(self):
         self.get_case().run_steps(
-            test_bepalen_processtap_standaard(),
+            test_bepalen_processtap_vv(),
             test_inplannen_status(),
             test_doorgeven_status_top(),
             test_create_debrief(violation=Violation.NO),
@@ -47,7 +47,7 @@ class TestTimelineWithIdentification(DefaultAPITest):
     def test(self):
         case = self.get_case()
         case.run_steps(
-            test_bepalen_processtap_standaard(),
+            test_bepalen_processtap_vv(),
             test_inplannen_status(),
             ValidateOpenTasks(test_doorgeven_status_top),
         )

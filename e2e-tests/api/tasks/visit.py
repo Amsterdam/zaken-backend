@@ -34,7 +34,7 @@ class test_bepalen_processtap(GenericUserTask, task_bepalen_processtap):
         return [__class__()]
 
 
-class test_bepalen_processtap_standaard(GenericUserTask, task_bepalen_processtap_vv):
+class test_bepalen_processtap_vv(GenericUserTask, task_bepalen_processtap_vv):
     def __init__(self, visit_next_step=VisitNextStep.VISIT_WITHOUT_AUTHORIZATION):
         super().__init__(visit_next_step={"value": visit_next_step})
 
@@ -87,7 +87,7 @@ class test_inplannen_status(AbstractUserTask, task_inplannen_status):
     def get_steps():
         # No preceiding step, case was just created
         return [
-            *test_bepalen_processtap_standaard.get_steps(),
+            *test_bepalen_processtap_vv.get_steps(),
             __class__(),
         ]
 
