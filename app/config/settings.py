@@ -52,6 +52,7 @@ INSTALLED_APPS = (
     "rest_framework",
     "rest_framework.authtoken",
     "drf_spectacular",
+    "drf_spectacular_sidecar",  # required for Django collectstatic discovery
     "django_extensions",
     "django_filters",
     "django_celery_beat",
@@ -175,6 +176,9 @@ SPECTACULAR_SETTINGS = {
     "SCHEMA_PATH_PREFIX": "/api/v[0-9]/",
     "TITLE": "Zaken Backend Gateway API",
     "VERSION": "v1",
+    "SWAGGER_UI_DIST": "SIDECAR",  # shorthand to use the sidecar instead
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
 }
 
 TAG_NAME = os.getenv("TAG_NAME", "default-release")
