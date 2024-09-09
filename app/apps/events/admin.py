@@ -18,4 +18,5 @@ admin.site.register(
         "type",
     ),
     search_fields=("emitter_id",),
+    ordering=("-id",),
 )
