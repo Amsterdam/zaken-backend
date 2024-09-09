@@ -90,6 +90,7 @@ class SummonedPerson(models.Model):
         "PERSON_ROLE_MIDDLEMAN": "Tussenpersoon",
         "PERSON_ROLE_PLATFORM": "Platform",
         "PERSON_ROLE_HEIR": "Erfgenaam",
+        "PERSON_ROLE_LANDLORD": "Verhuurder",
     }
     PERSON_ROLE = tuple((role, role) for role in PERSON_ROLE_MAPPING.keys())
     first_name = models.CharField(max_length=255, null=True, blank=True)

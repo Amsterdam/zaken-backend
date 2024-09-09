@@ -259,6 +259,7 @@ class CaseTaskAdmin(admin.ModelAdmin):
         "owner",
     )
     search_fields = (
+        "id",
         "case__id",
         "name",
         "task_name",
