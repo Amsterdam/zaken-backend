@@ -1018,6 +1018,14 @@ class task_sub_workflow_terug_melding_bag(user_task):
     """Terug melding BAG"""
 
 
+class task_bepalen_processtap_vv(user_task):
+    due_date = relativedelta(days=2)
+
+
+class task_digitaal_rapport_th(user_task):
+    due_date = relativedelta(days=3)
+
+
 class task_nakijken_informatiebrief(user_task):
     """task_nakijken_informatiebrief"""
 

@@ -22,7 +22,7 @@ from api.tasks.summon import (
     test_verwerk_aanschrijving,
 )
 from api.tasks.visit import (
-    test_bepalen_processtap_standaard,
+    test_bepalen_processtap_vv,
     test_doorgeven_status_top,
     test_inplannen_status,
 )
@@ -34,7 +34,7 @@ from api.validators import ValidateOpenTasks
 class TestViolationClosure(DefaultAPITest):
     def test_direct(self):
         self.get_case().run_steps(
-            test_bepalen_processtap_standaard(),
+            test_bepalen_processtap_vv(),
             test_inplannen_status(),
             test_doorgeven_status_top(),
             test_create_debrief(violation=Violation.YES),

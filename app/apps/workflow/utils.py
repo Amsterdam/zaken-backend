@@ -163,16 +163,22 @@ def get_latest_version_from_config(
     def get_major(v):
         return int(v.split(".")[0])
 
-    version = sorted([v for v, k in config.get("versions").items()])
-
+    theme_versions = sorted([v for v, k in config.get("versions").items()])
     if current_version:
-        version = [v for v in version if get_major(current_version) >= get_major(v)]
+        # Get the hightest version of a workflow, only if it's a lower version than the parent major version
+        # So a parent workflow with a major version of 6 will never start a sub workflow with version 7
+        theme_versions = [
+            theme_version
+            for theme_version in theme_versions
+            if get_major(current_version) >= get_major(theme_version)
+        ]
 
-    if not version:
+    if not theme_versions:
         raise Exception(
             f"Workflow version for theme name '{theme_name}', with type '{workflow_type}', does not exist in this workflow_spec config"
         )
-    return theme_name, version[-1]
+    highest_sub_version = theme_versions[-1]
+    return theme_name, highest_sub_version
 
 
 def get_initial_data_from_config(
