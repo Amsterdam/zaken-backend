@@ -21,8 +21,10 @@ from django import forms
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Exists, OuterRef
+from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from openpyxl import Workbook
 
 
 class LabelThemeModelChoiceField(forms.ModelChoiceField):
@@ -99,6 +101,45 @@ def remove_advertisement_linklist_items(modeladmin, request, queryset):
     for citizen_report in queryset:
         citizen_report.advertisement_linklist = []
         citizen_report.save()
+
+
+def export_queryset_to_excel(modeladmin, request, queryset):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Zaken"
+    headers = ["Zaak ID", "Address", "Thema", "Aanleiding", "Startdatum", "Einddatum"]
+    ws.append(headers)
+
+    for case in queryset:
+        # Format the dates in 'DD-MM-YYYY' format
+        start_date_formatted = (
+            case.start_date.strftime("%d-%m-%Y") if case.start_date else ""
+        )
+        end_date_formatted = case.end_date.strftime("%d-%m-%Y") if case.end_date else ""
+
+        ws.append(
+            [
+                case.id,
+                case.address.full_address,
+                case.theme.name,
+                case.reason.name,
+                start_date_formatted,
+                end_date_formatted,
+            ]
+        )
+
+    # Create an HTTP response with the Excel file
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = "attachment; filename=aza_cases_export.xlsx"
+
+    wb.save(response)
+    return response
+
+
+# Short description for the action, which will be displayed in the admin action dropdown
+export_queryset_to_excel.short_description = "Export Cases to Excel"
 
 
 @admin.register(CaseDocument)
@@ -179,9 +220,7 @@ class CaseAdmin(admin.ModelAdmin):
         "address__street_name",
         "address__postal_code",
     )
-    actions = [
-        create_main_worflow_for_case,
-    ]
+    actions = [create_main_worflow_for_case, export_queryset_to_excel]
 
 
 @admin.register(CaseTheme)
