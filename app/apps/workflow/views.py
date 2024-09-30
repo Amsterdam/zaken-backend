@@ -383,8 +383,11 @@ class CaseUserTaskViewSet(
         caseUserTask = self.get_object()
         theme = caseUserTask.case.theme
         exclude_options = caseUserTask.workflow.get_workflow_exclude_options()
-        if exclude_options:
-            query_set = theme.summon_types.exclude(workflow_option__in=exclude_options)
+        exclude_names = caseUserTask.workflow.get_workflow_exclude_names()
+        if exclude_names or exclude_options:
+            query_set = theme.summon_types.exclude(
+                workflow_option__in=exclude_options
+            ).exclude(name__in=exclude_names)
         else:
             query_set = theme.summon_types.all()
 
