@@ -63,7 +63,7 @@ def migrate_advertisement_linklist_items(modeladmin, request, queryset):
     for citizen_report in queryset:
         for link in citizen_report.advertisement_linklist:
             if (
-                citizen_report.case.reason.name == "SIA melding"
+                citizen_report.case.reason.name == "SIG melding"
                 and date(
                     year=citizen_report.date_added.year,
                     month=citizen_report.date_added.month,

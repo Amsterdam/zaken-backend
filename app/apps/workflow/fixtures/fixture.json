@@ -3,7 +3,7 @@
     "pk": 2,
     "fields": {
       "theme": 2,
-      "name": "Nieuwe SIA melding",
+      "name": "Nieuwe SIG melding",
       "message_name": "start_signal_process",
       "to_directing_proccess": false
     }
@@ -107,7 +107,7 @@
     "pk": 22,
     "fields": {
       "theme": 3,
-      "name": "Nieuwe SIA melding",
+      "name": "Nieuwe SIG melding",
       "message_name": "start_signal_process",
       "to_directing_proccess": false
     }
@@ -169,7 +169,7 @@
     "pk": 29,
     "fields": {
       "theme": 4,
-      "name": "Nieuwe SIA melding",
+      "name": "Nieuwe SIG melding",
       "message_name": "start_signal_process",
       "to_directing_proccess": false
     }
@@ -272,7 +272,7 @@
     "pk": 39,
     "fields": {
       "theme": 5,
-      "name": "Nieuwe SIA melding",
+      "name": "Nieuwe SIG melding",
       "message_name": "start_signal_process",
       "to_directing_proccess": false
     }
@@ -422,7 +422,7 @@
     "pk": 54,
     "fields": {
       "theme": 6,
-      "name": "Nieuwe SIA melding",
+      "name": "Nieuwe SIG melding",
       "message_name": "start_signal_process",
       "to_directing_proccess": false
     }
@@ -796,7 +796,7 @@
     "pk": 96,
     "fields": {
       "theme": 7,
-      "name": "Nieuwe SIA melding",
+      "name": "Nieuwe SIG melding",
       "message_name": "start_signal_process",
       "to_directing_proccess": false
     }
@@ -947,7 +947,7 @@
     "pk": 113,
     "fields": {
       "theme": 8,
-      "name": "Nieuwe SIA melding",
+      "name": "Nieuwe SIG melding",
       "message_name": "start_signal_process",
       "to_directing_proccess": false
     }

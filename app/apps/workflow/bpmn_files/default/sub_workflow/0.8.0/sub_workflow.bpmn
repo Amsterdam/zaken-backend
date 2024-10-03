@@ -693,10 +693,10 @@
     <bpmn:endEvent id="end_0q70hru">
       <bpmn:incoming>Flow_1dpqiy9</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:scriptTask id="service_status_melding" name="Bijwerken status: Nieuwe SIA melding">
+    <bpmn:scriptTask id="service_status_melding" name="Bijwerken status: Nieuwe SIG melding">
       <bpmn:incoming>Flow_0o6jc5g</bpmn:incoming>
       <bpmn:outgoing>Flow_0xjebak</bpmn:outgoing>
-      <bpmn:script>set_status("Nieuwe SIA melding")</bpmn:script>
+      <bpmn:script>set_status("Nieuwe SIG melding")</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:startEvent id="event_start_signal_process" name="Start melding proces" camunda:formKey="start_melding">
       <bpmn:extensionElements>
@@ -710,7 +710,7 @@
       <bpmn:outgoing>Flow_0o6jc5g</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0nu5r8p" messageRef="Message_0f7jpp5" />
     </bpmn:startEvent>
-    <bpmn:userTask id="task_create_signal" name="SIA melding verwerken" camunda:formKey="task_create_signal" camunda:candidateGroups="Projectmedewerker">
+    <bpmn:userTask id="task_create_signal" name="SIG melding verwerken" camunda:formKey="task_create_signal" camunda:candidateGroups="Projectmedewerker">
       <bpmn:incoming>Flow_0xjebak</bpmn:incoming>
       <bpmn:outgoing>Flow_1dpqiy9</bpmn:outgoing>
     </bpmn:userTask>
