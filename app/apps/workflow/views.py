@@ -384,12 +384,10 @@ class CaseUserTaskViewSet(
         theme = caseUserTask.case.theme
         exclude_options = caseUserTask.workflow.get_workflow_exclude_options()
         exclude_names = caseUserTask.workflow.get_workflow_exclude_names()
-        if exclude_names or exclude_options:
-            query_set = theme.summon_types.exclude(
-                workflow_option__in=exclude_options
-            ).exclude(name__in=exclude_names)
-        else:
-            query_set = theme.summon_types.all()
+        # Theres's always an exclude_options or a exclude_names. Version is always above/equal or below "7.3.0".
+        query_set = theme.summon_types.exclude(
+            workflow_option__in=exclude_options
+        ).exclude(name__in=exclude_names)
 
         context = paginator.paginate_queryset(query_set, request)
         serializer = SummonTypeSerializer(context, many=True)
