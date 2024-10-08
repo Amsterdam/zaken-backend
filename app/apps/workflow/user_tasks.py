@@ -163,7 +163,7 @@ class task_terugkoppelen_melder_2(user_task):
 
 
 class task_sia_terugkoppeling_melders_legacy(user_task):
-    """SIA terugkoppeling melder(s)"""
+    """SIG terugkoppeling melder(s)"""
 
     _task_name = "Activity_19a40xb"
     due_date = relativedelta(days=2)

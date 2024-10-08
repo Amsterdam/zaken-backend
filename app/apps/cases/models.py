@@ -430,7 +430,7 @@ class CitizenReport(TaskModelEventEmitter):
                 if getattr(self, f) is not None
             ]
         )
-        return f"SIA-nummer: {reporter}"
+        return f"SIG-nummer: {reporter}"
 
     def __str__(self):
         return f"CitizenReport: {self.date_added} - {self.case}"

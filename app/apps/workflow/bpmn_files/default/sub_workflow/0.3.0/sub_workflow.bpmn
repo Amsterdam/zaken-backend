@@ -127,7 +127,7 @@
       <bpmn:incoming>Flow_0xjebak</bpmn:incoming>
       <bpmn:outgoing>Flow_1dpqiy9</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_19a40xb" name="SIA terugkoppeling melder(s)" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(28).toDate()}">
+    <bpmn:userTask id="Activity_19a40xb" name="SIG terugkoppeling melder(s)" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(28).toDate()}">
       <bpmn:incoming>Flow_1dpqiy9</bpmn:incoming>
       <bpmn:outgoing>Flow_0zw0zxy</bpmn:outgoing>
     </bpmn:userTask>

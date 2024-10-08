@@ -64,7 +64,7 @@
     "model": "cases.casereason",
     "pk": 4,
     "fields": {
-      "name": "SIA melding",
+      "name": "SIG melding",
       "theme": 2
     }
   },
@@ -80,7 +80,7 @@
     "model": "cases.casereason",
     "pk": 6,
     "fields": {
-      "name": "SIA melding",
+      "name": "SIG melding",
       "theme": 3
     }
   },
@@ -88,7 +88,7 @@
     "model": "cases.casereason",
     "pk": 7,
     "fields": {
-      "name": "SIA melding",
+      "name": "SIG melding",
       "theme": 4
     }
   },
@@ -144,7 +144,7 @@
     "model": "cases.casereason",
     "pk": 15,
     "fields": {
-      "name": "SIA melding",
+      "name": "SIG melding",
       "theme": 5
     }
   },
@@ -192,7 +192,7 @@
     "model": "cases.casereason",
     "pk": 21,
     "fields": {
-      "name": "SIA melding",
+      "name": "SIG melding",
       "theme": 6
     }
   },
@@ -296,7 +296,7 @@
     "model": "cases.casereason",
     "pk": 34,
     "fields": {
-      "name": "SIA melding",
+      "name": "SIG melding",
       "theme": 7
     }
   },
@@ -352,7 +352,7 @@
     "model": "cases.casereason",
     "pk": 41,
     "fields": {
-      "name": "SIA melding",
+      "name": "SIG melding",
       "theme": 8
     }
   },
