@@ -151,18 +151,33 @@ class CaseWorkflow(models.Model):
     serializer = BpmnSerializer
 
     def get_workflow_exclude_options(self):
+        if self.workflow_type != CaseWorkflow.WORKFLOW_TYPE_SUMMON:
+            return []
+
+        summon_version = version.parse(self.workflow_version)
+
+        exclude_options = []
+
+        # Version is lower than 6.3, remove these options because they are not present in that BPMN version
+        if summon_version < version.parse("6.3.0"):
+            exclude_options = ["besluit", "informatiebrief", "geen_zienswijze"]
+        elif summon_version < version.parse("7.2.0"):  # covers versions 6.3.0 to 7.1.0
+            exclude_options = ["informatiebrief", "geen_zienswijze"]
+        elif summon_version < version.parse("7.3.0"):  # covers version 7.2.0
+            exclude_options = ["geen_zienswijze"]
+
+        return exclude_options
+
+    def get_workflow_exclude_names(self):
         if self.workflow_type == CaseWorkflow.WORKFLOW_TYPE_SUMMON:
             summon_version = version.parse(self.workflow_version)
-            # Version is lower than 6.3, remove these options because they are not present in that BPMN version
-            if summon_version < version.parse("6.3.0"):
-                exclude_options = ["besluit", "informatiebrief"]
-            # Version is 6.3.0 or 7.1.0
-            elif version.parse("6.3.0") <= summon_version < version.parse("7.2.0"):
-                exclude_options = ["informatiebrief"]
+            # Version is equal or higher than 7.3.0, remove this option because it's replaced by another route in the BPMN-model.
+            if summon_version >= version.parse("7.3.0"):
+                exclude_names = ["Voornemen intrekking BB-vergunning"]
             else:
-                exclude_options = []
+                exclude_names = []
 
-            return exclude_options
+            return exclude_names
 
     def get_lock_id(self):
         return f"caseworkflow-lock-{self.id}"

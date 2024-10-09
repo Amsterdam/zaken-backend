@@ -61,8 +61,8 @@ class WorkflowModelTest(ZakenBackendTestMixin, TestCase):
         exclude_options = workflow.get_workflow_exclude_options()
         self.assertEqual(
             exclude_options,
-            ["informatiebrief"],
-            "Should exclude 'informatiebrief' for version 7.1.0",
+            ["informatiebrief", "geen_zienswijze"],
+            "Should exclude 'informatiebrief' and 'geen_zienswijze' for version 7.1.0",
         )
 
         # Test case for version 6.0.0
@@ -70,8 +70,8 @@ class WorkflowModelTest(ZakenBackendTestMixin, TestCase):
         exclude_options = workflow.get_workflow_exclude_options()
         self.assertEqual(
             exclude_options,
-            ["besluit", "informatiebrief"],
-            "Should exclude 'besluit' and 'informatiebrief' for version below 6.3.0",
+            ["besluit", "informatiebrief", "geen_zienswijze"],
+            "Should exclude 'besluit', 'informatiebrief' and 'geen_zienswijze' for version below 6.3.0",
         )
 
         # Test case for version 6.3.0
@@ -79,15 +79,24 @@ class WorkflowModelTest(ZakenBackendTestMixin, TestCase):
         exclude_options = workflow.get_workflow_exclude_options()
         self.assertEqual(
             exclude_options,
-            ["informatiebrief"],
-            "Should exclude 'informatiebrief' for version 6.3.0",
+            ["informatiebrief", "geen_zienswijze"],
+            "Should exclude 'informatiebrief' and 'geen_zienswijze' for version 6.3.0",
         )
 
-        # Test case for version 7.2.0 and above (e.g., 7.2.0)
+        # Test case for version 7.2.0
         workflow.workflow_version = "7.2.0"
         exclude_options = workflow.get_workflow_exclude_options()
         self.assertEqual(
             exclude_options,
+            ["geen_zienswijze"],
+            "Should exclude 'geen_zienswijze' for version 7.2.0",
+        )
+
+        # Test case for version 7.3.0 and above (e.g., 7.3.0)
+        workflow.workflow_version = "7.3.0"
+        exclude_options = workflow.get_workflow_exclude_options()
+        self.assertEqual(
+            exclude_options,
             [],
-            "Should not exclude any options for version 7.2.0 and above",
+            "Should not exclude any options for version 7.3.0 and above",
         )

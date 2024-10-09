@@ -484,5 +484,14 @@
       "workflow_option": "informatiebrief",
       "name": "Informatiebrief"
     }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 68,
+    "fields": {
+      "theme": 2,
+      "workflow_option": "geen_zienswijze",
+      "name": "Voornemen intrekking BB-vergunning (geen zienswijze)"
+    }
   }
 ]
