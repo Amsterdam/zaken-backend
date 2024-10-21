@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from rest_framework.exceptions import NotFound
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.response import Response
 
 
@@ -31,3 +31,7 @@ class EmptyPagination(PageNumberPagination):
                     ]
                 )
             )
+
+
+class LimitedOffsetPaginator(LimitOffsetPagination):
+    max_limit = 1000

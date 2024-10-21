@@ -1,3 +1,4 @@
+from apps.main.pagination import LimitedOffsetPaginator
 from apps.users.permissions import rest_permission_classes_for_top
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.viewsets import GenericViewSet
@@ -10,3 +11,4 @@ class VisitViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
     permission_classes = rest_permission_classes_for_top()
     serializer_class = VisitSerializer
     queryset = Visit.objects.all()
+    pagination_class = LimitedOffsetPaginator
