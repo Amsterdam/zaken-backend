@@ -25,7 +25,7 @@ class DecisionViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
     serializer_class = DecisionSerializer
     queryset = Decision.objects.all()
     filter_backends = [DjangoFilterBackend]
-    paginator_class = (LimitedOffsetPaginator,)
+    paginator_class = LimitedOffsetPaginator
     filterset_fields = {
         "case": [
             "exact",
