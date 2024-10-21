@@ -82,7 +82,6 @@ class ObtainAuthTokenOIDC(APIView):
         except Exception as e:
             LOGGER.error("Could not authenticate: {}".format(str(e)))
             return HttpResponseBadRequest("Could not authenticate")
-
         try:
             refresh = RefreshToken.for_user(user)
         except Exception as e:
