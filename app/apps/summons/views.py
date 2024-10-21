@@ -1,5 +1,6 @@
 import logging
 
+from apps.main.pagination import LimitedOffsetPaginator
 from apps.summons.models import Summon, SummonedPerson, SummonType
 from apps.summons.serializers import (
     SummonedPersonAnonomizedSerializer,
@@ -21,6 +22,7 @@ class SummonViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
     queryset = Summon.objects.all()
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["case"]
+    pagination_class = LimitedOffsetPaginator
 
     def get_permissions(self):
         if self.request.method not in SAFE_METHODS:

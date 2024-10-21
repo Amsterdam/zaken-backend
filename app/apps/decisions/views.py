@@ -6,6 +6,7 @@ from apps.decisions.serializers import (
     DecisionSerializer,
     DecisionTypeSerializer,
 )
+from apps.main.pagination import LimitedOffsetPaginator
 from apps.users.permissions import CanPerformTask, rest_permission_classes_for_top
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
@@ -24,6 +25,7 @@ class DecisionViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
     serializer_class = DecisionSerializer
     queryset = Decision.objects.all()
     filter_backends = [DjangoFilterBackend]
+    paginator_class = (LimitedOffsetPaginator,)
     filterset_fields = {
         "case": [
             "exact",
