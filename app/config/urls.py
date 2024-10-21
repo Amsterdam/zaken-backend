@@ -16,7 +16,6 @@ from apps.debriefings.views import DebriefingViewSet
 from apps.decisions.views import DecisionTypeViewSet, DecisionViewSet
 from apps.fines.views import FinesViewSet
 from apps.health.health_checks import is_healthy
-from apps.openzaak.views import ReceiveNotificationView
 from apps.quick_decisions.views import QuickDecisionTypeViewSet, QuickDecisionViewSet
 from apps.schedules.views import (
     ActionViewSet,
@@ -115,12 +114,6 @@ urlpatterns = [
         "api/v1/is-authorized/",
         IsAuthorizedView.as_view(),
         name="is-authorized",
-    ),
-    # Endpoint to receive the notification
-    path(
-        "api/v1/openzaak/callbacks",
-        ReceiveNotificationView.as_view(),
-        name="notification-callback",
     ),
     path("health/", include("health_check.urls")),
     path("startup/", is_healthy),
