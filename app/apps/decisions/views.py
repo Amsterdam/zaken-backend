@@ -17,6 +17,8 @@ from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from .task_completion import update_decision_with_summon
+
 logger = logging.getLogger(__name__)
 
 
@@ -58,6 +60,18 @@ class DecisionViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
             many=True,
         )
         return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(
+            data=request.data,
+            context={"request": request},
+        )
+        if serializer.is_valid():
+            update_decision_with_summon(serializer)
+            return Response(
+                data="Decision added",
+                status=status.HTTP_200_OK,
+            )
 
 
 class DecisionTypeViewSet(GenericViewSet, ListModelMixin):

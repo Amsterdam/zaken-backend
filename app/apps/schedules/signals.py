@@ -1,6 +1,5 @@
 from apps.schedules.models import Schedule
-from apps.workflow.models import CaseWorkflow
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
 
@@ -37,9 +36,9 @@ def pre_save_schedule(sender, instance, **kwargs):
         )
 
 
-@receiver(post_save, sender=Schedule, dispatch_uid="schedule_create_complete_task")
-def complete_task_create_schedule(sender, instance, created, **kwargs):
-    if kwargs.get("raw"):
-        return
-    if created:
-        CaseWorkflow.complete_user_task(instance.case_user_task_id, {}, wait=True)
+# @receiver(post_save, sender=Schedule, dispatch_uid="schedule_create_complete_task")
+# def complete_task_create_schedule(sender, instance, created, **kwargs):
+#     if kwargs.get("raw"):
+#         return
+#     if created:
+#         CaseWorkflow.complete_user_task(instance.case_user_task_id, {}, wait=True)

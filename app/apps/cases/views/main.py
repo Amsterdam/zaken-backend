@@ -15,8 +15,10 @@ from apps.cases.serializers import (
     CitizenReportAnonomizedSerializer,
 )
 from apps.users.permissions import CanCloseCase, rest_permission_classes_for_top
+from django.db import transaction
 from rest_framework import mixins, viewsets
 from rest_framework.permissions import SAFE_METHODS
+from rest_framework.response import Response
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +37,21 @@ class CaseCloseViewSet(
         if self.request.method not in SAFE_METHODS:
             self.permission_classes.append(CanCloseCase)
         return super(CaseCloseViewSet, self).get_permissions()
+
+    def create(self, request):
+        with transaction.atomic():
+            serializer = self.serializer_class(
+                data=request.data,
+                context={"request": request},
+            )
+            if serializer.is_valid():
+                case_close = serializer.create(serializer.validated_data)
+                CaseState.objects.get_or_create(
+                    case=case_close.case,
+                    status=CaseState.CaseStateChoice.AFGESLOTEN,
+                )
+                case_close.case.close_case()
+                return Response(serializer.data)
 
 
 class CaseCloseResultViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):

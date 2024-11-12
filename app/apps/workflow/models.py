@@ -516,10 +516,10 @@ class CaseWorkflow(models.Model):
         return task
 
     @staticmethod
-    def complete_user_task(id, data, wait=False):
+    def complete_user_task(id, data, wait=False, timeout=None):
         task = task_complete_user_task_and_create_new_user_tasks.delay(id, data)
         if wait:
-            task.wait(timeout=None, interval=0.5)
+            task.wait(timeout=timeout, interval=0.5)
 
     def check_for_issues(self):
         wf = self.get_or_restore_workflow_state()
@@ -537,7 +537,6 @@ class CaseWorkflow(models.Model):
             return
 
         task = wf.get_task(task_id)
-
         if task and isinstance(task.task_spec, UserTask):
             task.update_data(data)
             wf.complete_task_from_id(task.id)
