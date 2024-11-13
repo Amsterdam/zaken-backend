@@ -58,7 +58,7 @@ psycopg2==2.9.1
 pycparser==2.20
 # pygraphviz==1.7
 PyJWT
-pyOpenSSL==23.2.0
+pyOpenSSL==24.2.1
 pyproj==3.6.1
 pyrsistent==0.18.0
 python-crontab==2.5.1
