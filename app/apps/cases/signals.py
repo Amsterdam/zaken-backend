@@ -28,25 +28,3 @@ def start_workflow_for_case(sender, instance, created, **kwargs):
     if created:
         CaseState.objects.get_or_create(case=instance)
         task_create_main_worflow_for_case.delay(case_id=instance.id, data=data)
-
-
-# @receiver(post_save, sender=CitizenReport, dispatch_uid="complete_citizen_report_task")
-# def complete_citizen_report_task(sender, instance, created, **kwargs):
-#     if kwargs.get("raw"):
-#         return
-#     if instance.case_user_task_id != "-1" and created:
-#         CaseWorkflow.complete_user_task(instance.case_user_task_id, {})
-#     if created:
-#         task_create_citizen_report_worflow_for_case.delay(instance.id)
-
-
-# @receiver(post_save, sender=CaseClose)
-# def close_case(sender, instance, created, **kwargs):
-#     if kwargs.get("raw"):
-#         return
-#     if instance.case_user_task_id != "-1" and created:
-#         CaseState.objects.get_or_create(
-#             case=instance.case,
-#             status=CaseState.CaseStateChoice.AFGESLOTEN,
-#         )
-#         instance.case.close_case()

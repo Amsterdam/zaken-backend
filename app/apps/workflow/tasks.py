@@ -2,6 +2,9 @@ import copy
 from time import sleep
 
 import celery
+import celery.contrib
+import celery.contrib.django
+import celery.contrib.django.task
 from apps.cases.models import Case, CitizenReport
 from celery import shared_task
 from celery.utils.log import get_task_logger
@@ -183,7 +186,6 @@ def task_wait_for_workflows_and_send_message(self, workflow_id, message, extra_d
     from apps.workflow.models import CaseWorkflow
 
     workflow_instance = CaseWorkflow.objects.get(id=workflow_id)
-
     if workflow_instance.get_lock():
         main_workflow = CaseWorkflow.objects.filter(
             case=workflow_instance.case, main_workflow=True

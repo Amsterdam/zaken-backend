@@ -24,5 +24,10 @@ class VisitViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
             complete_task_create_visit(serializer)
             return Response(
                 data="Visit added",
-                status=200,
+                status=201,
+            )
+        else:
+            return Response(
+                data=serializer.errors,
+                status=400,
             )

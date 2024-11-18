@@ -72,6 +72,11 @@ class DecisionViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
                 data="Decision added",
                 status=status.HTTP_200_OK,
             )
+        else:
+            return Response(
+                data=serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class DecisionTypeViewSet(GenericViewSet, ListModelMixin):

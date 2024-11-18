@@ -26,7 +26,7 @@ def event_emitter_pre_save(instance, **kwargs):
     if kwargs.get("raw"):
         return
     # Make sure redis is available when saving type TaskModelEventEmitter
-    # cache.set("connection", "test")
+    cache.set("connection", "test")
 
     if (
         not instance.id

@@ -20,6 +20,7 @@ def update_decision_with_summon(serializer):
                 "type_besluit": {"value": decision.decision_type.workflow_option},
             }
             if summon:
+                print("summon", summon)
                 decision.summon = summon
                 decision.save()
                 names = ", ".join([person.__str__() for person in summon.persons.all()])
@@ -28,7 +29,7 @@ def update_decision_with_summon(serializer):
                         "names": {"value": f"{names}: {decision.decision_type.name}"},
                     }
                 )
-            CaseWorkflow.complete_user_task(task.id, data, wait=True)
+            CaseWorkflow.complete_user_task(task.id, data, wait=False)
         except Exception as e:
             logger.error(f"Error while completing task for decision: {e}")
             raise e

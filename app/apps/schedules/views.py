@@ -38,8 +38,10 @@ class ScheduleViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
             complete_task_create_schedule(serializer)
             return Response(
                 data="schedule added",
-                status=200,
+                status=201,
             )
+        else:
+            return Response(serializer.errors, status=400)
 
 
 class ActionViewSet(GenericViewSet, ListModelMixin):

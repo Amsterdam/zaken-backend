@@ -52,6 +52,8 @@ class CaseCloseViewSet(
                 )
                 case_close.case.close_case()
                 return Response(serializer.data)
+            else:
+                return Response(serializer.errors, status=400)
 
 
 class CaseCloseResultViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):

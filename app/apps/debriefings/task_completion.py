@@ -17,7 +17,7 @@ def complete_task_create_debrief(serializer):
                         "value": debrief.violation,
                     }
                 },
-                wait=True,
+                wait=False,
             )
         except Exception as e:
             logger.error(f"Error completing task {debrief.case_user_task_id}: {e}")

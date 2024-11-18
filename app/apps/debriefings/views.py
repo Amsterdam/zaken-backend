@@ -41,5 +41,7 @@ class DebriefingViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
             complete_task_create_debrief(serializer)
             return Response(
                 data="Debrief added",
-                status=status.HTTP_200_OK,
+                status=status.HTTP_201_CREATED,
             )
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

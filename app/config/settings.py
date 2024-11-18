@@ -308,6 +308,7 @@ OIDC_OP_LOGOUT_ENDPOINT = os.getenv(
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
     os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
 )
+
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 6000
 
@@ -701,7 +702,7 @@ WORKFLOW_SPEC_CONFIG = {
         },
         "close_case": {
             "initial_data": {
-                "decision_count": {"value": 0},
+                # "decision_count": {"value": 0},
                 "reason": {"value": "default"},
                 "theme": {"value": "default"},
             },
