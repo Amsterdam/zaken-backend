@@ -34,11 +34,3 @@ def pre_save_schedule(sender, instance, **kwargs):
         instance.housing_corporation_combiteam = (
             is_corpo_combiteam_completed_tasks | is_combiteam_project
         )
-
-
-# @receiver(post_save, sender=Schedule, dispatch_uid="schedule_create_complete_task")
-# def complete_task_create_schedule(sender, instance, created, **kwargs):
-#     if kwargs.get("raw"):
-#         return
-#     if created:
-#         CaseWorkflow.complete_user_task(instance.case_user_task_id, {}, wait=True)

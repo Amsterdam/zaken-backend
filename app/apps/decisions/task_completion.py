@@ -20,7 +20,6 @@ def update_decision_with_summon(serializer):
                 "type_besluit": {"value": decision.decision_type.workflow_option},
             }
             if summon:
-                print("summon", summon)
                 decision.summon = summon
                 decision.save()
                 names = ", ".join([person.__str__() for person in summon.persons.all()])

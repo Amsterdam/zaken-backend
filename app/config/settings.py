@@ -702,7 +702,7 @@ WORKFLOW_SPEC_CONFIG = {
         },
         "close_case": {
             "initial_data": {
-                # "decision_count": {"value": 0},
+                "decision_count": {"value": 0},
                 "reason": {"value": "default"},
                 "theme": {"value": "default"},
             },
