@@ -514,7 +514,6 @@ class GenericCompletedTaskViewSet(
             )
             from .task_completion import complete_user_task
 
-            # completed_task = GenericCompletedTask.objects.create(data)
             response = complete_user_task(data)
             return Response(response)
         return Response(status=status.HTTP_400_BAD_REQUEST)
