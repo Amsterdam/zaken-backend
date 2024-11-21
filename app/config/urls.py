@@ -9,8 +9,6 @@ from apps.cases.views import (
     CaseViewSet,
     CitizenReportViewSet,
     DocumentTypeViewSet,
-    ImportBWVCaseDataView,
-    download_data,
 )
 from apps.debriefings.views import DebriefingViewSet
 from apps.decisions.views import DecisionTypeViewSet, DecisionViewSet
@@ -94,12 +92,6 @@ class MyView(View):
 
 urlpatterns = [
     # Admin environment
-    path("admin/download_data/", download_data),
-    path(
-        "admin/import-bwv-cases",
-        ImportBWVCaseDataView.as_view(),
-        name="import-bwv-cases",
-    ),
     path("admin/", admin.site.urls),
     # API Routing
     path("api/v1/", include(router.urls)),

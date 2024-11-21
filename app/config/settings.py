@@ -333,8 +333,8 @@ SIMPLE_JWT = {
 }
 
 # BAG Atlas
-BAG_API_SEARCH_URL = os.getenv(
-    "BAG_API_SEARCH_URL", "https://api.pdok.nl/bzk/locatieserver/search/v3_1/free"
+BAG_API_PDOK_URL = os.getenv(
+    "BAG_API_PDOK_URL", "https://api.pdok.nl/bzk/locatieserver/search/v3_1/free"
 )
 
 # BAG benkagg for nummeraanduidingen and stadsdeel

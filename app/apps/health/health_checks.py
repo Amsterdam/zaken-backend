@@ -8,7 +8,10 @@ from django.http import HttpResponse
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import ServiceUnavailable
 from requests.exceptions import HTTPError, SSLError, Timeout
-from utils.api_queries_bag import do_bag_search_benkagg_by_bag_id
+from utils.api_queries_bag import (
+    do_bag_search_benkagg_by_id,
+    do_bag_search_pdok_by_bag_id,
+)
 from utils.api_queries_toeristische_verhuur import (
     get_bag_vakantieverhuur_registrations,
     get_bsn_vakantieverhuur_registrations,
@@ -70,16 +73,6 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
         return self.__class__.__name__
 
 
-class BAGAtlasServiceCheck(APIServiceCheckBackend):
-    """
-    Endpoint for checking the BAG Atlas Service API Endpoint
-    """
-
-    critical_service = True
-    api_url = f"{settings.BAG_API_SEARCH_URL}?q={settings.BAG_ID_AMSTEL_1}"
-    verbose_name = "BAG Atlas"
-
-
 class BRPServiceCheck(APIServiceCheckBackend):
     """
     Endpoint for checking the BRP Service API Endpoint
@@ -96,11 +89,12 @@ class BAGBenkaggNummeraanduidingenServiceCheck(BaseHealthCheckBackend):
     """
 
     critical_service = True
-    verbose_name = "BAG Benkagg Nummeraanduidingen"
+    verbose_name = "BAG Benkagg Stadsdelen"
 
     def check_status(self):
         try:
-            response = do_bag_search_benkagg_by_bag_id(settings.BAG_ID_AMSTEL_1)
+            IDENTIFICATIE_AMSTEL_1 = "0363200012145295"
+            response = do_bag_search_benkagg_by_id(IDENTIFICATIE_AMSTEL_1)
             message = response.get("message")
             if message:
                 self.add_error(ServiceUnavailable(f"{message}"), message)
@@ -109,6 +103,38 @@ class BAGBenkaggNummeraanduidingenServiceCheck(BaseHealthCheckBackend):
             )
             if len(adresseerbareobjecten) == 0:
                 self.add_error(ServiceUnavailable("No results"))
+        except HTTPError as e:
+            logger.error(e)
+            self.add_error(ServiceUnavailable(f"HTTPError {e.response.status_code}."))
+        except Exception as e:
+            logger.error(e)
+            self.add_error(ServiceUnavailable(f"Failed {e}"), e)
+
+    def identifier(self):
+        return self.verbose_name
+
+
+class BAGPdokServiceCheck(BaseHealthCheckBackend):
+    """
+    Endpoint for checking the BAG PDOK API
+    """
+
+    critical_service = True
+    verbose_name = "BAG PDOK API"
+
+    def check_status(self):
+        try:
+            bag_search_response = do_bag_search_pdok_by_bag_id(settings.BAG_ID_AMSTEL_1)
+            bag_search_results = bag_search_response.get("response", {}).get("docs", [])
+            if bag_search_results:
+                found_bag_data = bag_search_results[0]
+                weergavenaam = found_bag_data.get("weergavenaam")
+
+            if not weergavenaam == "Amstel 1, 1011PN Amsterdam":
+                self.add_error(
+                    ServiceUnavailable(f"No expected results: {weergavenaam}")
+                )
+
         except HTTPError as e:
             logger.error(e)
             self.add_error(ServiceUnavailable(f"HTTPError {e.response.status_code}."))

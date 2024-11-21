@@ -2,10 +2,9 @@ import logging
 
 from django.db import models
 from utils.api_queries_bag import (
-    do_bag_search_benkagg_by_bag_id,
-    do_bag_search_by_bag_id,
+    do_bag_search_benkagg_by_id,
+    do_bag_search_pdok_by_bag_id,
 )
-from utils.coordinates import convert_polygon_to_latlng
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +79,7 @@ class Address(models.Model):
         return Address.objects.get_or_create(bag_id=bag_id)[0]
 
     def get_bag_address_data(self):
-        bag_search_response = do_bag_search_by_bag_id(self.bag_id)
+        bag_search_response = do_bag_search_pdok_by_bag_id(self.bag_id)
         bag_search_results = bag_search_response.get("response", {}).get("docs", [])
         if bag_search_results:
             found_bag_data = bag_search_results[0]
@@ -96,16 +95,24 @@ class Address(models.Model):
                 self.lng = centroid[0]
                 self.lat = centroid[1]
 
-    def get_bag_identificatie_and_stadsdeel(self):
+    def _parse_centroid(self, centroid):
+        # Check if the string starts with 'POINT(' and ends with ')'
+        if centroid.startswith("POINT(") and centroid.endswith(")"):
+            # Remove the 'POINT(' at the beginning and ')' at the end
+            coordinates_str = centroid[6:-1]
+            # Split the string by space to get the individual numbers
+            coordinates = coordinates_str.split()
+            # Convert the string numbers to float and return as a list
+            return [float(coordinates[0]), float(coordinates[1])]
+        else:
+            raise ValueError("Input string is not in the correct format.")
+
+    def get_bag_type_and_stadsdeel(self):
         """
-        Retrieves the identificatie(nummeraanduiding_id) and stadsdeel of an address by bag_id.
-        nummeraanduiding_id is needed for BRP and stadsdeel is used for filtering.
-        If an address has an standplaats (woonboot) instead of verblijfsobject, the coordinates
-        will be calculated by a polygon.
+        Retrieves the stadsdeel and type of address by identificatie(nummeraanduiding_id).
         """
 
-        is_boat = self.type == "standplaats"
-        response = do_bag_search_benkagg_by_bag_id(self.bag_id, is_boat)
+        response = do_bag_search_benkagg_by_id(self.nummeraanduiding_id)
 
         adresseerbareobjecten = response.get("_embedded", {}).get(
             "adresseerbareobjecten", []
@@ -120,18 +127,19 @@ class Address(models.Model):
             ),
             {},
         )
-
+        # Temporarily property for type. Could be verblijfsobject (huis) or standplaats (woonboot).
+        # It's not used by now, but could be useful in the future.
+        self.type = found_bag_object.get("typeAdresseerbaarObjectOmschrijving")
         district_name = found_bag_object.get("gebiedenStadsdeelNaam")
-        if ligplaats_coordinates:
-            (lat, lng) = convert_polygon_to_latlng(ligplaats_coordinates)
-            self.lng = lng
-            self.lat = lat
+
+        if district_name:
+            self.district = District.objects.get_or_create(name=district_name)[0]
 
     def update_bag_data(self):
         self.get_bag_address_data()
         # Prevent a nummeraanduiding_id error while creating a case.
         try:
-            self.get_bag_identificatie_and_stadsdeel()
+            self.get_bag_type_and_stadsdeel()
         except Exception as e:
             logger.error(
                 f"Could not retrieve nummeraanduiding_id for bag_id:{self.bag_id}: {e}"
@@ -145,15 +153,3 @@ class Address(models.Model):
         if not self.bag_id or not self.nummeraanduiding_id:
             self.update_bag_data()
         return super().save(*args, **kwargs)
-
-    def _parse_centroid(self, centroid):
-        # Check if the string starts with 'POINT(' and ends with ')'
-        if centroid.startswith("POINT(") and centroid.endswith(")"):
-            # Remove the 'POINT(' at the beginning and ')' at the end
-            coordinates_str = centroid[6:-1]
-            # Split the string by space to get the individual numbers
-            coordinates = coordinates_str.split()
-            # Convert the string numbers to float and return as a list
-            return [float(coordinates[0]), float(coordinates[1])]
-        else:
-            raise ValueError("Input string is not in the correct format.")
