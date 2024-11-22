@@ -51,7 +51,7 @@ class AddressModelTest(TestCase):
     @patch("apps.addresses.models.do_bag_search_benkagg_by_id")
     @patch("apps.addresses.models.do_bag_search_pdok_by_bag_id")
     def test_can_create_address_with_bag_result(
-        self, mock_do_bag_search_benkagg_id, mock_do_bag_search_pdok_by_bag_id
+        self, mock_do_bag_search_pdok_by_bag_id, mock_do_bag_search_benkagg_id
     ):
         """Tests Address object creation with bag data mocks"""
 
@@ -65,10 +65,12 @@ class AddressModelTest(TestCase):
         self.assertEquals(Address.objects.count(), 0)
         self.assertEquals(District.objects.count(), 0)
 
-        baker.make(Address)
+        address = baker.make(Address)
 
         mock_do_bag_search_pdok_by_bag_id.assert_called()
         mock_do_bag_search_benkagg_id.assert_called()
 
         self.assertEquals(Address.objects.count(), 1)
         self.assertEquals(District.objects.count(), 1)
+
+        self.assertEquals(address.district.name, "Zuidoost")

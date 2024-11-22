@@ -61,7 +61,7 @@ def mock_get_bag_identificatie_and_stadsdeel_result_without_stadsdeel():
         "_embedded": {
             "adresseerbareobjecten": [
                 {
-                    "huisnummer": 42,
+                    "huisnummer": 1,
                     "identificatie": "123456789"
                     # No "gebiedenStadsdeelNaam" key
                 }
@@ -76,8 +76,9 @@ def mock_get_bag_identificatie_and_stadsdeel_result():
             "adresseerbareobjecten": [
                 {
                     "identificatie": "123456789",
-                    "huisnummer": 42,
+                    "huisnummer": 1,
                     "gebiedenStadsdeelNaam": "Zuidoost",
+                    "typeAdresseerbaarObjectOmschrijving": "verblijfsobject",
                 }
             ]
         }
