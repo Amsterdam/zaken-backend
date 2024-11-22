@@ -333,14 +333,10 @@ SIMPLE_JWT = {
 }
 
 # BAG Atlas
-BAG_API_SEARCH_URL = os.getenv(
-    "BAG_API_SEARCH_URL", "https://api.data.amsterdam.nl/atlas/search/adres/"
+BAG_API_PDOK_URL = os.getenv(
+    "BAG_API_PDOK_URL", "https://api.pdok.nl/bzk/locatieserver/search/v3_1/free"
 )
-# BAG Nummeraanduidingen
-BAG_API_NUMMERAANDUIDING_SEARCH_URL = os.getenv(
-    "BAG_API_NUMMERAANDUIDING_SEARCH_URL",
-    "https://api.data.amsterdam.nl/v1/bag/nummeraanduidingen/",
-)
+
 # BAG benkagg for nummeraanduidingen and stadsdeel
 BAG_API_BENKAGG_SEARCH_URL = os.getenv(
     "BAG_API_BENKAGG_SEARCH_URL",
