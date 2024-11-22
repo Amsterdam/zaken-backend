@@ -12,7 +12,11 @@ headers = {"x-api-key": settings.BAG_API_PUBLIC_KEY}
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
 def do_bag_search_benkagg_by_id(identificatie):
     """
-    Search BAG by identificatie (nummeraanduiding_id)
+    Search BAG by identificatie (nummeraanduiding_id).
+    With benkagg you cannot search by bag_id (adresseerbaarobject_id).
+    You can use the parameters 'verblijfsobjectIdentificatie', 'ligplaatsIdentificatie' or 'standplaatsIdentificatie'
+    with a bag_id but then you need to know the type of object first (woonhuis, woonboot of woonwagen).
+    This is really annoying.
     """
     address_search = requests.get(
         settings.BAG_API_BENKAGG_SEARCH_URL,
