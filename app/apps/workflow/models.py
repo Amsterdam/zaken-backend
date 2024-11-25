@@ -674,6 +674,28 @@ class CaseWorkflow(models.Model):
         self._update_db(wf)
 
     def has_a_timer_event_fired(self):
+        if self.id == "14434":
+            logger.error("Trigger for wf id 14434")
+            wf = self.get_or_restore_workflow_state()
+            if not wf:
+                logger.error("no wf")
+                return False
+            waiting_tasks = wf._get_waiting_tasks()
+
+            self._execute_scripts_if_needed(wf)
+            logger.error("waiting task count: " + str(len(waiting_tasks)))
+            for task in waiting_tasks:
+                if hasattr(task.task_spec, "event_definition") and isinstance(
+                    task.task_spec.event_definition, TimerEventDefinition
+                ):
+                    logger.error("task has timer event definition")
+                    event_definition = task.task_spec.event_definition
+                    has_fired = event_definition.has_fired(task)
+                    if has_fired:
+                        logger.error(
+                            f"TimerEventDefinition for task '{task.task_spec.name}' has expired. Workflow with id '{self.id}', needs an update"
+                        )
+
         wf = self.get_or_restore_workflow_state()
         if not wf:
             return False
@@ -688,7 +710,7 @@ class CaseWorkflow(models.Model):
                 event_definition = task.task_spec.event_definition
                 has_fired = event_definition.has_fired(task)
                 if has_fired:
-                    logger.info(
+                    logger.warning(
                         f"TimerEventDefinition for task '{task.task_spec.name}' has expired. Workflow with id '{self.id}', needs an update"
                     )
                     return True
