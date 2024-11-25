@@ -5,6 +5,7 @@ from string import Template
 
 from apps.cases.models import Case, CaseStateType, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
+from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import cache
@@ -46,6 +47,7 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
+task_logger = get_task_logger(__name__)
 
 
 class CaseWorkflow(models.Model):
@@ -675,24 +677,24 @@ class CaseWorkflow(models.Model):
 
     def has_a_timer_event_fired(self):
         if self.id == "14434":
-            logger.error("Trigger for wf id 14434")
+            task_logger.error("Trigger for wf id 14434")
             wf = self.get_or_restore_workflow_state()
             if not wf:
-                logger.error("no wf")
+                task_logger.error("no wf")
                 return False
             waiting_tasks = wf._get_waiting_tasks()
 
             self._execute_scripts_if_needed(wf)
-            logger.error("waiting task count: " + str(len(waiting_tasks)))
+            task_logger.error("waiting task count: " + str(len(waiting_tasks)))
             for task in waiting_tasks:
                 if hasattr(task.task_spec, "event_definition") and isinstance(
                     task.task_spec.event_definition, TimerEventDefinition
                 ):
-                    logger.error("task has timer event definition")
+                    task_logger.error("task has timer event definition")
                     event_definition = task.task_spec.event_definition
                     has_fired = event_definition.has_fired(task)
                     if has_fired:
-                        logger.error(
+                        task_logger.error(
                             f"TimerEventDefinition for task '{task.task_spec.name}' has expired. Workflow with id '{self.id}', needs an update"
                         )
 
