@@ -676,8 +676,8 @@ class CaseWorkflow(models.Model):
         self._update_db(wf)
 
     def has_a_timer_event_fired(self):
-        if self.id == 14434:
-            task_logger.error("Trigger for wf id 14434")
+        if self.id == 32025:
+            task_logger.error("Trigger for wf id 32025")
             wf = self.get_or_restore_workflow_state()
             if not wf:
                 task_logger.error("no wf")
