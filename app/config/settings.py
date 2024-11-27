@@ -514,7 +514,6 @@ CACHES = {
 }
 
 CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_URL = get_redis_url()
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 BROKER_CONNECTION_MAX_RETRIES = None
@@ -522,13 +521,14 @@ BROKER_CONNECTION_TIMEOUT = 120
 BROKER_URL = CELERY_BROKER_URL
 CELERY_TASK_TRACK_STARTED = True
 CELERY_RESULT_BACKEND = "django-db"
-CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_TASK_TIME_LIMIT = 5400  # 1,5 hours
 CELERY_BEAT_SCHEDULE = {
     "queue_every_five_mins": {
         "task": "apps.health.tasks.query_every_five_mins",
         "schedule": crontab(minute=5),
     },
 }
+
 
 CELERY_BROKER_TRANSPORT_OPTIONS = {
     "socket_keepalive": True,
