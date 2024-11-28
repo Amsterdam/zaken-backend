@@ -5,7 +5,6 @@ from string import Template
 
 from apps.cases.models import Case, CaseStateType, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
-from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import cache
@@ -47,7 +46,6 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
-task_logger = get_task_logger(__name__)
 
 
 class CaseWorkflow(models.Model):
