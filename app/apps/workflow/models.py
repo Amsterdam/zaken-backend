@@ -688,7 +688,7 @@ class CaseWorkflow(models.Model):
                 event_definition = task.task_spec.event_definition
                 has_fired = event_definition.has_fired(task)
                 if has_fired:
-                    logger.info(
+                    logger.warning(
                         f"TimerEventDefinition for task '{task.task_spec.name}' has expired. Workflow with id '{self.id}', needs an update"
                     )
                     return True

@@ -41,6 +41,9 @@ def task_update_workflows(self):
     workflow_instances = CaseWorkflow.objects.filter(completed=False)
     for workflow in workflow_instances:
         if workflow.has_a_timer_event_fired():
+            logger.warning(
+                f"task_update_workflows: workflow with id '{workflow.id}', has a timer event fired"
+            )
             task_update_workflow.delay(workflow.id)
     return f"task_update_workflows complete: count '{workflow_instances.count()}'"
 
