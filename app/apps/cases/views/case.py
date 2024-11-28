@@ -612,7 +612,9 @@ class CaseViewSet(
             context={"request": request},
         )
         if serializer.is_valid():
-            serializer.create(serializer.validated_data)
+            from apps.cases.task_completion import complete_citizen_report_task
+
+            complete_citizen_report_task(serializer)
             return Response(
                 data="CitizenReport added",
                 status=status.HTTP_200_OK,
