@@ -178,7 +178,7 @@ SPECTACULAR_SETTINGS = {
 
 TAG_NAME = os.getenv("TAG_NAME", "default-release")
 
-LOGGING_LEVEL = "INFO"
+LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "DEBUG")
 
 LOGGING = {
     "version": 1,
@@ -214,7 +214,7 @@ LOGGING = {
             "level": LOGGING_LEVEL,
             "propagate": True,
         },
-        "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
+        "mozilla_django_oidc": {"handlers": ["console"], "level": LOGGING_LEVEL},
     },
 }
 
@@ -269,7 +269,6 @@ OIDC_USE_NONCE
 OIDC_AUTHORIZED_GROUPS
 OIDC_OP_USER_ENDPOINT
 """
-# OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", None)
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", None)
 OIDC_USE_NONCE = False
 OIDC_AUTHORIZED_GROUPS = (
