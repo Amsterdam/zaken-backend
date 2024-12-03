@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from drf_spectacular.contrib.rest_framework_simplejwt import SimpleJWTScheme
-from keycloak_oidc.auth import OIDCAuthenticationBackend
+from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from mozilla_django_oidc.contrib.drf import OIDCAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
