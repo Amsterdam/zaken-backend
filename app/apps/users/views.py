@@ -1,9 +1,9 @@
 import logging
 
+from apps.users.permissions import IsInAuthorizedRealm
 from django.contrib.auth.models import Permission
 from django.http import HttpResponseBadRequest
 from drf_spectacular.utils import extend_schema
-from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import generics, serializers, status
 from rest_framework.decorators import action
 from rest_framework.response import Response

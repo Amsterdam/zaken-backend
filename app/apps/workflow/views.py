@@ -12,7 +12,7 @@ from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
-from apps.users.permissions import CanAccessSensitiveCases
+from apps.users.permissions import CanAccessSensitiveCases, IsInAuthorizedRealm
 from apps.workflow.serializers import (
     CaseUserTaskSerializer,
     CaseUserTaskTaskNameSerializer,
@@ -24,7 +24,6 @@ from django.db.models import Q
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination

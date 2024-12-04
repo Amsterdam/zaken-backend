@@ -14,7 +14,6 @@ click-didyoumean==0.3.1
 click-plugins==1.1.1
 click-repl==0.2.0
 cryptography==43.0.3
-datapunt-keycloak-oidc @ git+https://github.com/remyvdwereld/keycloak_oidc_top.git@main
 debugpy==1.4.1
 Django==4.2.16
 django-axes==6.5.0
