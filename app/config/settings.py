@@ -295,6 +295,11 @@ OIDC_OP_JWKS_ENDPOINT = os.getenv(
     "OIDC_OP_JWKS_ENDPOINT",
     "https://login.microsoftonline.com/72fca1b1-2c2e-4376-a445-294d80196804/discovery/v2.0/keys",
 )
+OIDC_RP_SIGN_ALGO = "RS256"
+OIDC_OP_ISSUER = os.getenv(
+    "OIDC_OP_ISSUER",
+    "https://login.microsoftonline.com/72fca1b1-2c2e-4376-a445-294d80196804/v2.0",
+)
 
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
     os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
