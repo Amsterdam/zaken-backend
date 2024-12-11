@@ -568,9 +568,6 @@ class CaseWorkflow(models.Model):
             self.data.update(wf.last_task.data)
 
         completed = False
-        print("wf.is_completed()", wf.is_completed())
-        print("self.completed", self.completed)
-        print("tasks", wf.get_tasks())
         if wf.is_completed() and not self.completed:
             completed = True
             self.completed = True
