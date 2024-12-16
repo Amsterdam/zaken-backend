@@ -8,7 +8,7 @@ from utils.exceptions import MKSPermissionsError
 logger = logging.getLogger(__name__)
 
 
-def get_brp_by_nummeraanduiding_id(request, nummeraanduiding_id):
+def get_brp_by_nummeraanduiding_id(request, nummeraanduiding_id, brp_access_token):
     """Returns BRP data by bag_"""
 
     queryParams = {
@@ -16,7 +16,7 @@ def get_brp_by_nummeraanduiding_id(request, nummeraanduiding_id):
         "inclusiefoverledenpersonen": "true",
         "expand": "partners,ouders,kinderen",
     }
-    return get_brp(request, queryParams)
+    return get_brp(request, queryParams, brp_access_token)
 
 
 def get_brp_by_address(request, postal_code, number, suffix, suffix_letter):
@@ -44,7 +44,7 @@ def get_brp_by_address(request, postal_code, number, suffix, suffix_letter):
 
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def get_brp(request, queryParams):
+def get_brp(request, queryParams, brp_access_token):
     """Returns BRP data"""
 
     url = f"{settings.BRP_API_URL}"
@@ -54,7 +54,7 @@ def get_brp(request, queryParams):
         params=queryParams,
         timeout=30,
         headers={
-            "Authorization": request.headers.get("Authorization"),
+            "Authorization": f"Bearer {brp_access_token}",
         },
     )
     if response.status_code == 403:

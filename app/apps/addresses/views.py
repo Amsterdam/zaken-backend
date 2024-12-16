@@ -81,8 +81,9 @@ class AddressViewSet(
         # nummeraanduiding_id should have been retrieved, so get BRP data
         if address.nummeraanduiding_id:
             try:
+                brp_access_token = request.GET.get("brp_access_token", None)
                 brp_data, status_code = get_brp_by_nummeraanduiding_id(
-                    request, address.nummeraanduiding_id
+                    request, address.nummeraanduiding_id, brp_access_token
                 )
                 serialized_residents = ResidentsSerializer(data=brp_data)
                 serialized_residents.is_valid(raise_exception=True)

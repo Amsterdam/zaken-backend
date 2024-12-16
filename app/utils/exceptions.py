@@ -1,3 +1,4 @@
+from apps.users.auth import InvalidTokenError
 from redis.exceptions import TimeoutError as RedisTimeoutError
 from rest_framework import status
 from rest_framework.response import Response
@@ -40,6 +41,11 @@ def custom_exception_handler(exc, context):
             status=status.HTTP_403_FORBIDDEN,
         )
 
+    if isinstance(exc, InvalidTokenError):
+        return Response(
+            {"message": "Unauthorized"},
+            status=status.HTTP_403_FORBIDDEN,
+        )
     if isinstance(exc, DistrictNotFoundError):
         return Response(
             {"message": "Het stadsdeel voor dit adres is niet gevonden"},

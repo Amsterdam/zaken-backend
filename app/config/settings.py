@@ -298,12 +298,15 @@ OIDC_OP_JWKS_ENDPOINT = os.getenv(
 OIDC_RP_SIGN_ALGO = "RS256"
 OIDC_OP_ISSUER = os.getenv(
     "OIDC_OP_ISSUER",
-    "https://login.microsoftonline.com/72fca1b1-2c2e-4376-a445-294d80196804/v2.0",
+    "https://sts.windows.net/72fca1b1-2c2e-4376-a445-294d80196804/",
 )
+
+OIDC_TRUSTED_AUDIENCES = f"api://{OIDC_RP_CLIENT_ID}"
 
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
     os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
 )
+
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 6000
 
@@ -357,7 +360,7 @@ BELASTING_API_ACCESS_TOKEN = os.getenv("BELASTING_API_ACCESS_TOKEN", None)
 
 BRP_API_URL = "/".join(
     [
-        os.getenv("BRP_API_URL", "https://acc.bp.data.amsterdam.nl/brp"),
+        os.getenv("BRP_API_URL", "https://acc.bp.data.amsterdam.nl/entra/brp"),
         "ingeschrevenpersonen",
     ]
 )
