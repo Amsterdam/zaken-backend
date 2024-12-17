@@ -8,7 +8,7 @@ from utils.exceptions import MKSPermissionsError
 logger = logging.getLogger(__name__)
 
 
-def get_brp_by_nummeraanduiding_id(request, nummeraanduiding_id, obo_acces_stoken):
+def get_brp_by_nummeraanduiding_id(request, nummeraanduiding_id, obo_access_token):
     """Returns BRP data by bag_"""
 
     queryParams = {
@@ -16,7 +16,7 @@ def get_brp_by_nummeraanduiding_id(request, nummeraanduiding_id, obo_acces_stoke
         "inclusiefoverledenpersonen": "true",
         "expand": "partners,ouders,kinderen",
     }
-    return get_brp(queryParams, obo_acces_stoken)
+    return get_brp(queryParams, obo_access_token)
 
 
 def get_brp_by_address(request, postal_code, number, suffix, suffix_letter):
@@ -44,10 +44,10 @@ def get_brp_by_address(request, postal_code, number, suffix, suffix_letter):
 
 
 @retry(stop=stop_after_attempt(3))
-def get_brp(queryParams, obo_acces_stoken):
+def get_brp(queryParams, obo_access_token):
     """Returns BRP data"""
     url = f"{settings.BRP_API_URL}"
-    brp_access_token = get_brp_access_token(obo_acces_stoken)
+    brp_access_token = get_brp_access_token(obo_access_token)
     response = requests.get(
         url,
         params=queryParams,
@@ -63,13 +63,13 @@ def get_brp(queryParams, obo_acces_stoken):
     return response.json(), response.status_code
 
 
-def get_brp_access_token(obo_acces_stoken):
+def get_brp_access_token(obo_access_token):
     url = settings.OIDC_OP_TOKEN_ENDPOINT
     payload = {
         "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
         "client_id": settings.BRP_CLIENT_ID,
         "client_secret": settings.BRP_CLIENT_SECRET,
-        "assertion": obo_acces_stoken,
+        "assertion": obo_access_token,
         "scope": f"{settings.BRP_CLIENT_ID}/.default",
         "requested_token_use": "on_behalf_of",
     }
