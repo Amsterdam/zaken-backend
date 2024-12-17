@@ -4,6 +4,7 @@ from apps.addresses.models import Address, District, HousingCorporation
 from apps.addresses.serializers import (
     AddressSerializer,
     DistrictSerializer,
+    GetResidentsSerializer,
     HousingCorporationSerializer,
     MeldingenSerializer,
     ResidentsSerializer,
@@ -61,6 +62,7 @@ class AddressViewSet(
         url_path="residents",
         permission_classes=[permissions.CanAccessBRP],
     )
+    @extend_schema(request={GetResidentsSerializer})
     def residents_by_bag_id(self, request, bag_id):
         # Get address
         try:
