@@ -41,7 +41,7 @@ class AddressViewSet(
     serializer_class = AddressSerializer
     queryset = Address.objects.all()
     lookup_field = "bag_id"
-    http_method_names = ["get", "patch"]
+    http_method_names = ["get", "patch", "post"]
 
     def update(self, request, bag_id, *args, **kwargs):
         address_instance = Address.objects.get(bag_id=bag_id)
@@ -56,7 +56,7 @@ class AddressViewSet(
 
     @action(
         detail=True,
-        methods=["get"],
+        methods=["post"],
         serializer_class=ResidentsSerializer,
         url_path="residents",
         permission_classes=[permissions.CanAccessBRP],
@@ -81,9 +81,9 @@ class AddressViewSet(
         # nummeraanduiding_id should have been retrieved, so get BRP data
         if address.nummeraanduiding_id:
             try:
-                brp_access_token = request.GET.get("brp_access_token", None)
+                obo_acces_stoken = request.data.get("obo_acces_stoken")
                 brp_data, status_code = get_brp_by_nummeraanduiding_id(
-                    request, address.nummeraanduiding_id, brp_access_token
+                    request, address.nummeraanduiding_id, obo_acces_stoken
                 )
                 serialized_residents = ResidentsSerializer(data=brp_data)
                 serialized_residents.is_valid(raise_exception=True)
