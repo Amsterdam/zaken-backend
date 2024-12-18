@@ -56,7 +56,6 @@ def get_brp(queryParams, obo_access_token):
             "Authorization": f"Bearer {brp_access_token}",
         },
     )
-    print(response.text)
     if response.status_code == 403:
         raise MKSPermissionsError()
 
@@ -75,7 +74,7 @@ def get_brp_access_token(obo_access_token):
     }
 
     response = requests.request("POST", url, data=payload)
-    print(response.text)
+
     return response.json().get("access_token")
 
 
