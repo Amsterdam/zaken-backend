@@ -36,6 +36,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.http import JsonResponse
+from django.shortcuts import redirect
 from django.urls import include, path, re_path
 from django.views.generic import View
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
@@ -109,6 +110,11 @@ urlpatterns = [
     ),
     path("health/", include("health_check.urls")),
     path("startup/", is_healthy),
+    path("startup/", is_healthy),
+    path(
+        ".well-known/security.txt",
+        lambda: redirect("https://www.amsterdam.nl/security.txt"),
+    ),
     re_path(r"^$", view=MyView.as_view(), name="index"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
