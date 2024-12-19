@@ -110,7 +110,6 @@ urlpatterns = [
     ),
     path("health/", include("health_check.urls")),
     path("startup/", is_healthy),
-    path("startup/", is_healthy),
     path(
         ".well-known/security.txt",
         lambda: redirect("https://www.amsterdam.nl/security.txt"),
