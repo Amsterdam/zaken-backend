@@ -10,3 +10,4 @@ __pycache__/
 app/.env
 app/.coverage
 private_media/
+.local.env

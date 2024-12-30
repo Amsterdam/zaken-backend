@@ -13,10 +13,9 @@ from utils.api_queries_bag import (
     do_bag_search_pdok_by_bag_id,
 )
 from utils.api_queries_toeristische_verhuur import (
-    get_bag_vakantieverhuur_registrations,
-    get_bsn_vakantieverhuur_registrations,
     get_vakantieverhuur_meldingen,
-    get_vakantieverhuur_registration,
+    get_vakantieverhuur_registrations_by_bag_id,
+    get_vakantieverhuur_registrations_by_bsn_number,
 )
 
 logger = logging.getLogger(__name__)
@@ -265,22 +264,15 @@ class VakantieVerhuurRegistratieCheck(BaseHealthCheckBackend):
     def check_status(self):
 
         try:
-            registration = get_vakantieverhuur_registration(
-                settings.VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER
-            )
-            assert bool(
-                registration
-            ), "The registration data is empty and could not be retrieved"
-
-            bsn_registrations = get_bsn_vakantieverhuur_registrations(
-                settings.VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_BSN
+            bsn_registrations = get_vakantieverhuur_registrations_by_bsn_number(
+                settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_BSN
             )
             assert (
                 len(bsn_registrations) > 0
             ), "The registration data is empty and could not be retrieved using the BSN number"
 
-            bag_registrations = get_bag_vakantieverhuur_registrations(
-                settings.VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_BAG_ID
+            bag_registrations = get_vakantieverhuur_registrations_by_bag_id(
+                settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_BAG_ID
             )
             assert (
                 len(bag_registrations) > 0
@@ -311,7 +303,7 @@ class Toeristischeverhuur(BaseHealthCheckBackend):
 
         try:
             get_vakantieverhuur_meldingen(
-                settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_HEALTH_CHECK_BAG_ID,
+                settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_BAG_ID,
                 query_params=params,
                 use_retry=False,
             )
