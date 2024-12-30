@@ -6,6 +6,8 @@ from apps.addresses.serializers import (
     DistrictSerializer,
     HousingCorporationSerializer,
     MeldingenSerializer,
+    RegistrationDetailsSerializer,
+    RegistrationNumberSerializer,
     ResidentsSerializer,
 )
 from apps.cases.models import Advertisement
@@ -21,7 +23,11 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from utils.api_queries_brp import get_brp_by_nummeraanduiding_id
-from utils.api_queries_toeristische_verhuur import get_vakantieverhuur_meldingen
+from utils.api_queries_toeristische_verhuur import (
+    get_vakantieverhuur_meldingen,
+    get_vakantieverhuur_registration,
+    get_vakantieverhuur_registrations_by_bag_id,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -238,5 +244,61 @@ class AddressViewSet(
         except Exception:
             return Response(
                 {"error": "Toeristische verhuur meldingen could not be obtained"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    @extend_schema(
+        description="Gets all registrations for holiday rental by bag_id",
+        responses={status.HTTP_200_OK: RegistrationDetailsSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="registrations",
+        methods=["get"],
+        pagination_class=None,
+    )
+    def registrations(self, request, bag_id):
+        try:
+            (
+                registrations_data,
+                status_code,
+            ) = get_vakantieverhuur_registrations_by_bag_id(
+                bag_id,
+            )
+            serialized_registrations = RegistrationNumberSerializer(
+                data=registrations_data, many=True
+            )
+            serialized_registrations.is_valid(raise_exception=True)
+
+            # Fetch details for each registration number
+            detailed_registrations = []
+            for registration in serialized_registrations.data:
+                # Remove spaces from registration number
+                registration_number = registration["registrationNumber"].replace(
+                    " ", ""
+                )
+                try:
+                    # Fetch detailed data for the current registrationNumber
+                    (
+                        registration_details,
+                        detail_status_code,
+                    ) = get_vakantieverhuur_registration(registration_number)
+                    if detail_status_code == 200:  # Only append if successful
+                        detailed_registrations.append(registration_details)
+                    else:
+                        print(
+                            f"Failed to fetch details for {registration_number}. Status: {detail_status_code}"
+                        )
+                except Exception as e:
+                    print(f"Error fetching details for {registration_number}: {e}")
+
+            serializer = RegistrationDetailsSerializer(
+                detailed_registrations, many=True
+            )
+
+            return Response(serializer.data, status=status_code)
+        except Exception:
+            return Response(
+                {"error": "Toeristische verhuur registrations could not be obtained"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )

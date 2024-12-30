@@ -39,57 +39,61 @@ def get_vakantieverhuur_meldingen(bag_id, query_params, use_retry=True):
     return _get_vakantieverhuur_meldingen_internal()
 
 
-@retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
+@retry(stop=stop_after_attempt(1), after=after_log(logger, logging.ERROR))
 def get_vakantieverhuur_registration(registration_number):
     """
     Get the Vakantieverhuur registration
     """
-    header = {"x-api-key": settings.VAKANTIEVERHUUR_REGISTRATIE_API_ACCESS_TOKEN}
-    url = (
-        f"{settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_URL}{registration_number}"
-    )
+    header = {
+        "x-api-key": settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_ACCESS_TOKEN
+    }
+    url = f"{settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_URL}registrations/{registration_number}"
 
     response = requests.get(
         url=url,
         headers=header,
-        verify="/usr/local/share/ca-certificates/adp_rootca.crt",
+        timeout=30,
     )
     response.raise_for_status()
 
-    return response.json()
+    return response.json(), response.status_code
 
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def get_bsn_vakantieverhuur_registrations(bsn_number):
+def get_vakantieverhuur_registrations_by_bag_id(bag_id):
     """
-    Get the Vakantieverhuur registrations using a BSN number
+    Get the Vakantieverhuur registration by bag_id
     """
-    header = {"x-api-key": settings.VAKANTIEVERHUUR_REGISTRATIE_API_ACCESS_TOKEN}
-    url = f"{settings.VAKANTIEVERHUUR_REGISTRATIE_API_URL}bsn/{bsn_number}"
+    header = {
+        "x-api-key": settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_ACCESS_TOKEN
+    }
+    url = f"{settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_URL}registrations/adresseerbaarObjectIdentificatie/{bag_id}"
 
     response = requests.get(
         url=url,
         headers=header,
-        verify="/usr/local/share/ca-certificates/adp_rootca.crt",
+        timeout=30,
     )
     response.raise_for_status()
 
-    return response.json()
+    return response.json(), response.status_code
 
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
-def get_bag_vakantieverhuur_registrations(bag_id):
+def get_vakantieverhuur_registrations_by_bsn_number(bsn_number):
     """
-    Get the Vakantieverhuur registrations using a BSN number
+    Get the Vakantieverhuur registration by bsn_number
     """
-    header = {"x-api-key": settings.VAKANTIEVERHUUR_REGISTRATIE_API_ACCESS_TOKEN}
-    url = f"{settings.VAKANTIEVERHUUR_REGISTRATIE_API_URL}bagid/{bag_id}"
+    header = {
+        "x-api-key": settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_ACCESS_TOKEN
+    }
+    url = f"{settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_URL}registrations/bsn/{bsn_number}"
 
     response = requests.get(
         url=url,
         headers=header,
-        verify="/usr/local/share/ca-certificates/adp_rootca.crt",
+        timeout=30,
     )
     response.raise_for_status()
 
-    return response.json()
+    return response.json(), response.status_code
