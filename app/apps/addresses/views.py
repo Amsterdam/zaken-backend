@@ -292,6 +292,13 @@ class AddressViewSet(
                 except Exception as e:
                     print(f"Error fetching details for {registration_number}: {e}")
 
+            # Sort detailed_registrations by 'createdAt' with the newest first
+            detailed_registrations = sorted(
+                detailed_registrations,
+                key=lambda x: x.get("createdAt", ""),
+                reverse=True,
+            )
+
             serializer = RegistrationDetailsSerializer(
                 detailed_registrations, many=True
             )
