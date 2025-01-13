@@ -120,3 +120,17 @@ class MeldingenSerializer(serializers.Serializer):
     totalPages = serializers.IntegerField()
     totalRecords = serializers.IntegerField()
     data = serializers.ListField(child=serializers.DictField())
+
+
+class RegistrationNumberSerializer(serializers.Serializer):
+    registrationNumber = serializers.CharField(required=True)
+
+
+class RegistrationDetailsSerializer(serializers.Serializer):
+    registrationNumber = serializers.CharField(required=True)
+    requester = serializers.DictField()
+    rentalHouse = serializers.DictField()
+    requestForOther = serializers.BooleanField()
+    requestForBedAndBreakfast = serializers.BooleanField()
+    createdAt = serializers.DateTimeField()
+    agreementDate = serializers.DateTimeField()

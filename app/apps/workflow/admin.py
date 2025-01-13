@@ -15,6 +15,13 @@ def force_update_workflows(modeladmin, request, queryset):
         task_update_workflow.delay(workflow.id)
 
 
+@admin.action(description="Complete subworkflows if there are no open tasks")
+def complete_sub_workflow(modeladmin, request, queryset):
+    for workflow in queryset.all():
+        wf = workflow.get_or_restore_workflow_state()
+        workflow.complete_sub_workflow(wf)
+
+
 @admin.action(description="Remove workflows for closed cases")
 def remove_workflows_for_closed_cases(modeladmin, request, queryset):
     queryset.filter(
@@ -91,6 +98,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         migrate_worflows_to_latest,
         force_update_workflows,
         remove_workflows_for_closed_cases,
+        complete_sub_workflow,
     )
 
     def issues(self, obj):
