@@ -174,7 +174,7 @@ class CaseFilter(filters.FilterSet):
         queryset=Tag.objects.all(), method="get_tag"
     )
     task = filters.ModelMultipleChoiceFilter(
-        queryset=CaseUserTask.objects.filter(completed=False),
+        queryset=CaseUserTask.objects.all(),
         method="get_task",
         to_field_name="task_name",
     )
@@ -294,6 +294,8 @@ class CaseFilter(filters.FilterSet):
         return queryset
 
     def get_task(self, queryset, name, value):
+        # Filter here instead of the queryset to prevent exceptions when there are no open tasks with a speciifc state
+        value = [task for task in value if not task.completed]
         if value:
             return queryset.filter(
                 workflows__completed=False,
