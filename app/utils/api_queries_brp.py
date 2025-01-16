@@ -2,7 +2,6 @@ import logging
 
 import requests
 from django.conf import settings
-from tenacity import retry, stop_after_attempt
 from utils.exceptions import MKSPermissionsError
 
 logger = logging.getLogger(__name__)
@@ -43,7 +42,6 @@ def get_brp_by_address(request, postal_code, number, suffix, suffix_letter):
     return get_brp(request, queryParams)
 
 
-@retry(stop=stop_after_attempt(3))
 def get_brp(queryParams, obo_access_token):
     """Returns BRP data"""
     url = f"{settings.BRP_API_URL}"
@@ -56,7 +54,7 @@ def get_brp(queryParams, obo_access_token):
             "Authorization": f"Bearer {brp_access_token}",
         },
     )
-    if response.status_code == 403:
+    if response.status_code == 403 or response.url not in url:
         raise MKSPermissionsError()
 
     return response.json(), response.status_code
