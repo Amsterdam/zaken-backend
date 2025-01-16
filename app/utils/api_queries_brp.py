@@ -54,7 +54,7 @@ def get_brp(queryParams, obo_access_token):
             "Authorization": f"Bearer {brp_access_token}",
         },
     )
-    if response.status_code == 403 or response.url not in url:
+    if response.status_code == 403 or url not in response.url:
         raise MKSPermissionsError()
 
     return response.json(), response.status_code
