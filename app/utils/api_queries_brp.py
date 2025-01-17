@@ -72,7 +72,6 @@ def get_brp_access_token(obo_access_token):
     }
 
     response = requests.request("POST", url, data=payload)
-
     return response.json().get("access_token")
 
 
