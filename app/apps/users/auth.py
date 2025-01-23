@@ -23,6 +23,10 @@ class OIDCAuthenticationBackend(OIDCAuthenticationBackend):
         user = self.save_user(user, claims)
         return user
 
+    def update_user(self, user, claims):
+        user = self.save_user(user, claims)
+        return user
+
     def validate_issuer(self, payload):
         issuer = self.get_settings("OIDC_OP_ISSUER")
         if not issuer == payload["iss"]:
