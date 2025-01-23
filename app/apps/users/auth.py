@@ -12,6 +12,17 @@ from .auth_dev import DevelopmentAuthenticationBackend
 
 
 class OIDCAuthenticationBackend(OIDCAuthenticationBackend):
+    def save_user(self, user, claims):
+        user.first_name = claims.get("given_name", "")
+        user.last_name = claims.get("family_name", "")
+        user.save()
+        return user
+
+    def create_user(self, claims):
+        user = super(OIDCAuthenticationBackend, self).create_user(claims)
+        user = self.save_user(user, claims)
+        return user
+
     def validate_issuer(self, payload):
         issuer = self.get_settings("OIDC_OP_ISSUER")
         if not issuer == payload["iss"]:
