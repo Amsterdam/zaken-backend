@@ -6,8 +6,6 @@ from tenacity import after_log, retry, stop_after_attempt
 
 logger = logging.getLogger(__name__)
 
-headers = {"x-api-key": settings.BAG_API_PUBLIC_KEY}
-
 
 @retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
 def do_bag_search_benkagg_by_id(identificatie):
@@ -21,7 +19,6 @@ def do_bag_search_benkagg_by_id(identificatie):
     address_search = requests.get(
         settings.BAG_API_BENKAGG_SEARCH_URL,
         params={"identificatie": identificatie},
-        headers=headers,
         timeout=30,
     )
     return address_search.json()
