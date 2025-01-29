@@ -335,12 +335,6 @@ BAG_API_BENKAGG_SEARCH_URL = os.getenv(
     "BAG_API_BENKAGG_SEARCH_URL",
     "https://api.data.amsterdam.nl/v1/benkagg/adresseerbareobjecten/",
 )
-# API key for the public Amsterdam API (api.data.amsterdam.nl).
-# This key is NOT used for authorization, but to identify who is using the API for communication purposes.
-BAG_API_PUBLIC_KEY = os.getenv(
-    "BAG_API_PUBLIC_KEY",
-    "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMxNjQ2NDI4NzA1MzQ4NzI1NTEsImV4cCI6MTczODA3MDQ4N30.sGNs0EIRcdyUv76X1J1q46Y4kAIHSqHR1fca-srQlIQnV0aWduQn5xTlGQM1lvZCDk_F5qWf0__8u1jcYDMlDg",
-)
 # Bag_id of Amstel 1 for testing purposes.
 BAG_ID_AMSTEL_1 = os.getenv(
     "BAG_ID_AMSTEL_1",
@@ -553,9 +547,6 @@ VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_URL = os.getenv(
 )
 VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_ACCESS_TOKEN = os.getenv(
     "VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_ACCESS_TOKEN"
-)
-VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_BAG_ID = os.getenv(
-    "VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_BAG_ID", "0503100000000209"
 )
 VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_BSN = os.getenv(
     "VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_BSN"

@@ -272,7 +272,7 @@ class VakantieVerhuurRegistratieCheck(BaseHealthCheckBackend):
             ), "The registration data is empty and could not be retrieved using the BSN number"
 
             bag_registrations = get_vakantieverhuur_registrations_by_bag_id(
-                settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_BAG_ID
+                settings.BAG_ID_AMSTEL_1
             )
             assert (
                 len(bag_registrations) > 0
@@ -303,7 +303,7 @@ class Toeristischeverhuur(BaseHealthCheckBackend):
 
         try:
             get_vakantieverhuur_meldingen(
-                settings.VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_BAG_ID,
+                settings.BAG_ID_AMSTEL_1,
                 query_params=params,
                 use_retry=False,
             )
