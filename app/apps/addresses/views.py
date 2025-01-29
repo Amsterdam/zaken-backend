@@ -4,6 +4,7 @@ from apps.addresses.models import Address, District, HousingCorporation
 from apps.addresses.serializers import (
     AddressSerializer,
     DistrictSerializer,
+    GetResidentsSerializer,
     HousingCorporationSerializer,
     MeldingenSerializer,
     RegistrationDetailsSerializer,
@@ -47,7 +48,7 @@ class AddressViewSet(
     serializer_class = AddressSerializer
     queryset = Address.objects.all()
     lookup_field = "bag_id"
-    http_method_names = ["get", "patch"]
+    http_method_names = ["get", "patch", "post"]
 
     def update(self, request, bag_id, *args, **kwargs):
         address_instance = Address.objects.get(bag_id=bag_id)
@@ -62,11 +63,12 @@ class AddressViewSet(
 
     @action(
         detail=True,
-        methods=["get"],
+        methods=["post"],
         serializer_class=ResidentsSerializer,
         url_path="residents",
         permission_classes=[permissions.CanAccessBRP],
     )
+    @extend_schema(request={GetResidentsSerializer})
     def residents_by_bag_id(self, request, bag_id):
         # Get address
         try:
@@ -86,18 +88,13 @@ class AddressViewSet(
 
         # nummeraanduiding_id should have been retrieved, so get BRP data
         if address.nummeraanduiding_id:
-            try:
-                brp_data, status_code = get_brp_by_nummeraanduiding_id(
-                    request, address.nummeraanduiding_id
-                )
-                serialized_residents = ResidentsSerializer(data=brp_data)
-                serialized_residents.is_valid(raise_exception=True)
-                return Response(serialized_residents.data, status=status_code)
-            except Exception:
-                return Response(
-                    {"error": "BRP data could not be obtained"},
-                    status=status.HTTP_403_FORBIDDEN,
-                )
+            obo_access_token = request.data.get("obo_access_token")
+            brp_data, status_code = get_brp_by_nummeraanduiding_id(
+                request, address.nummeraanduiding_id, obo_access_token
+            )
+            serialized_residents = ResidentsSerializer(data=brp_data)
+            serialized_residents.is_valid(raise_exception=True)
+            return Response(serialized_residents.data, status=status_code)
 
         return Response(
             {"error": "no nummeraanduiding_id found"}, status=status.HTTP_404_NOT_FOUND

@@ -5,7 +5,6 @@ from os.path import join
 
 from celery.schedules import crontab
 from dotenv import load_dotenv
-from keycloak_oidc.default_settings import *  # noqa
 from opencensus.ext.azure.trace_exporter import AzureExporter
 
 from .azure_settings import Azure
@@ -14,7 +13,6 @@ azure = Azure()
 
 load_dotenv()
 
-# config_integration.trace_integrations(["requests", "logging"])
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
@@ -48,7 +46,6 @@ INSTALLED_APPS = (
     "django.contrib.postgres",
     "corsheaders",
     # Third party apps
-    "keycloak_oidc",
     "rest_framework",
     "rest_framework.authtoken",
     "drf_spectacular",
@@ -162,9 +159,7 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
-    "DEFAULT_PERMISSION_CLASSES": (
-        "keycloak_oidc.drf.permissions.IsInAuthorizedRealm",
-    ),
+    "DEFAULT_PERMISSION_CLASSES": ("apps.users.permissions.IsInAuthorizedRealm",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "apps.users.auth.AuthenticationClass",
         "rest_framework.authentication.TokenAuthentication",
@@ -219,7 +214,7 @@ LOGGING = {
             "level": LOGGING_LEVEL,
             "propagate": True,
         },
-        "mozilla_django_oidc": {"handlers": ["console"], "level": "INFO"},
+        "mozilla_django_oidc": {"handlers": ["console"], "level": LOGGING_LEVEL},
     },
 }
 
@@ -274,41 +269,38 @@ OIDC_USE_NONCE
 OIDC_AUTHORIZED_GROUPS
 OIDC_OP_USER_ENDPOINT
 """
-OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", None)
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", None)
 OIDC_USE_NONCE = False
-OIDC_AUTHORIZED_GROUPS = (
-    "wonen_zaaksysteem",
-    "wonen_zaak",
-    "enable_persistent_token",
-)
 OIDC_AUTHENTICATION_CALLBACK_URL = "oidc-authenticate"
-
+OIDC_RP_CLIENT_ID = os.environ.get(
+    "OIDC_RP_CLIENT_ID", "14c4257b-bcd1-4850-889e-7156c9efe2ec"
+)
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv(
     "OIDC_OP_AUTHORIZATION_ENDPOINT",
-    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/auth",
+    "https://login.microsoftonline.com/72fca1b1-2c2e-4376-a445-294d80196804/oauth2/v2.0/authorize",
 )
 OIDC_OP_TOKEN_ENDPOINT = os.getenv(
     "OIDC_OP_TOKEN_ENDPOINT",
-    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/token",
+    "https://login.microsoftonline.com/72fca1b1-2c2e-4376-a445-294d80196804/oauth2/v2.0/token",
 )
 OIDC_OP_USER_ENDPOINT = os.getenv(
-    "OIDC_OP_USER_ENDPOINT",
-    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/userinfo",
+    "OIDC_OP_USER_ENDPOINT", "https://graph.microsoft.com/oidc/userinfo"
 )
 OIDC_OP_JWKS_ENDPOINT = os.getenv(
     "OIDC_OP_JWKS_ENDPOINT",
-    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/certs",
+    "https://login.microsoftonline.com/72fca1b1-2c2e-4376-a445-294d80196804/discovery/v2.0/keys",
 )
-OIDC_OP_LOGOUT_ENDPOINT = os.getenv(
-    "OIDC_OP_LOGOUT_ENDPOINT",
-    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/logout",
+OIDC_RP_SIGN_ALGO = "RS256"
+OIDC_OP_ISSUER = os.getenv(
+    "OIDC_OP_ISSUER",
+    "https://sts.windows.net/72fca1b1-2c2e-4376-a445-294d80196804/",
 )
+
+OIDC_TRUSTED_AUDIENCES = f"api://{OIDC_RP_CLIENT_ID}"
 
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
     os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
 )
-
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 6000
 
@@ -362,11 +354,13 @@ BELASTING_API_ACCESS_TOKEN = os.getenv("BELASTING_API_ACCESS_TOKEN", None)
 
 BRP_API_URL = "/".join(
     [
-        os.getenv("BRP_API_URL", "https://acc.bp.data.amsterdam.nl/brp"),
+        os.getenv("BRP_API_URL", "https://acc.bp.data.amsterdam.nl/entra/brp"),
         "ingeschrevenpersonen",
     ]
 )
 
+BRP_CLIENT_ID = os.getenv("BRP_CLIENT_ID", "BRP_CLIENT_ID")
+BRP_CLIENT_SECRET = os.getenv("BRP_CLIENT_SECRET", "BRP_CLIENT_SECRET")
 # Secret keys which can be used to access certain parts of the API
 SECRET_KEY_TOP_ZAKEN = os.getenv("SECRET_KEY_TOP_ZAKEN", None)
 SECRET_KEY_TON_ZAKEN = os.getenv("SECRET_KEY_TON_ZAKEN", None)

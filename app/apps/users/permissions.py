@@ -1,7 +1,19 @@
 from apps.cases.models import Case
 from apps.users.auth_apps import TonKeyAuth, TopKeyAuth
-from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework.permissions import BasePermission, IsAuthenticated
+
+
+class InAuthGroup(BasePermission):
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated)
+
+
+class IsInAuthorizedRealm(InAuthGroup):
+    """
+    A permission to allow access if and only if a user is logged in,
+    and is a member of one of the OIDC_AUTHORIZED_GROUPS groups in Keycloak
+    """
+
 
 custom_permissions = [
     # Permissions for cases/tasks

@@ -42,7 +42,7 @@ from apps.openzaak.helpers import (
 )
 from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
 from apps.users.auth_apps import TopKeyAuth
-from apps.users.permissions import CanAccessSensitiveCases
+from apps.users.permissions import CanAccessSensitiveCases, IsInAuthorizedRealm
 from apps.workflow.models import CaseUserTask, CaseWorkflow, WorkflowOption
 from apps.workflow.serializers import (
     CaseWorkflowSerializer,
@@ -56,7 +56,6 @@ from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from keycloak_oidc.drf.permissions import IsInAuthorizedRealm
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action, parser_classes
 from rest_framework.pagination import LimitOffsetPagination

@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from rest_framework.test import APIClient
@@ -11,8 +10,7 @@ def add_user_to_authorized_groups(user):
     """
     Adds users to the authorized groups configured in the OIDC_AUTHORIZED_GROUPS
     """
-    realm_access_groups = settings.OIDC_AUTHORIZED_GROUPS
-
+    realm_access_groups = "all_permissions"
     all_permissions = Permission.objects.all()
     for realm_access_group in realm_access_groups:
         group, _ = Group.objects.get_or_create(name=realm_access_group)
