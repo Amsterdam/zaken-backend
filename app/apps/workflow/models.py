@@ -506,6 +506,16 @@ class CaseWorkflow(models.Model):
     def update_tasks(self, wf):
         self.set_absolete_tasks_to_completed(wf)
         self.create_user_tasks(wf)
+        self.complete_sub_workflow(wf)
+
+    # The sub_workflow.bpmn has multiple flows inside, so spiff does not know when the workflow is completed.
+    def complete_sub_workflow(self, wf):
+        if (
+            self.workflow_type == self.WORKFLOW_TYPE_SUB
+            and len(wf.get_ready_user_tasks()) == 0
+        ):
+            self.completed = True
+            self.save()
 
     @staticmethod
     def get_task_by_task_id(id):
@@ -554,7 +564,6 @@ class CaseWorkflow(models.Model):
             self.data.update(wf.last_task.data)
 
         completed = False
-
         if wf.is_completed() and not self.completed:
             completed = True
             self.completed = True
@@ -684,7 +693,7 @@ class CaseWorkflow(models.Model):
                 event_definition = task.task_spec.event_definition
                 has_fired = event_definition.has_fired(task)
                 if has_fired:
-                    logger.info(
+                    logger.warning(
                         f"TimerEventDefinition for task '{task.task_spec.name}' has expired. Workflow with id '{self.id}', needs an update"
                     )
                     return True

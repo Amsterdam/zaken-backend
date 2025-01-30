@@ -13,10 +13,9 @@ click==8.1.2
 click-didyoumean==0.3.1
 click-plugins==1.1.1
 click-repl==0.2.0
-cryptography==41.0.1
-datapunt-keycloak-oidc @ git+https://github.com/remyvdwereld/keycloak_oidc_top.git@main
+cryptography==43.0.3
 debugpy==1.4.1
-Django==4.2.14
+Django==4.2.16
 django-axes==6.5.0
 django-celery-beat==2.6.0
 django-celery-results==2.5.1
@@ -58,13 +57,13 @@ psycopg2==2.9.1
 pycparser==2.20
 # pygraphviz==1.7
 PyJWT
-pyOpenSSL==23.2.0
+pyOpenSSL==24.2.1
 pyproj==3.6.1
 pyrsistent==0.18.0
 python-crontab==2.5.1
 python-dateutil==2.8.2
 pytz==2022.1
-redis==5.0.7
+redis==5.2.0
 requests==2.32.3
 requests-mock==1.9.3
 six==1.16.0

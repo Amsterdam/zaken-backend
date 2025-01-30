@@ -4,8 +4,11 @@ from apps.addresses.models import Address, District, HousingCorporation
 from apps.addresses.serializers import (
     AddressSerializer,
     DistrictSerializer,
+    GetResidentsSerializer,
     HousingCorporationSerializer,
     MeldingenSerializer,
+    RegistrationDetailsSerializer,
+    RegistrationNumberSerializer,
     ResidentsSerializer,
 )
 from apps.cases.models import Advertisement
@@ -21,7 +24,11 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from utils.api_queries_brp import get_brp_by_nummeraanduiding_id
-from utils.api_queries_toeristische_verhuur import get_vakantieverhuur_meldingen
+from utils.api_queries_toeristische_verhuur import (
+    get_vakantieverhuur_meldingen,
+    get_vakantieverhuur_registration,
+    get_vakantieverhuur_registrations_by_bag_id,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +48,7 @@ class AddressViewSet(
     serializer_class = AddressSerializer
     queryset = Address.objects.all()
     lookup_field = "bag_id"
-    http_method_names = ["get", "patch"]
+    http_method_names = ["get", "patch", "post"]
 
     def update(self, request, bag_id, *args, **kwargs):
         address_instance = Address.objects.get(bag_id=bag_id)
@@ -56,11 +63,12 @@ class AddressViewSet(
 
     @action(
         detail=True,
-        methods=["get"],
+        methods=["post"],
         serializer_class=ResidentsSerializer,
         url_path="residents",
         permission_classes=[permissions.CanAccessBRP],
     )
+    @extend_schema(request={GetResidentsSerializer})
     def residents_by_bag_id(self, request, bag_id):
         # Get address
         try:
@@ -80,18 +88,13 @@ class AddressViewSet(
 
         # nummeraanduiding_id should have been retrieved, so get BRP data
         if address.nummeraanduiding_id:
-            try:
-                brp_data, status_code = get_brp_by_nummeraanduiding_id(
-                    request, address.nummeraanduiding_id
-                )
-                serialized_residents = ResidentsSerializer(data=brp_data)
-                serialized_residents.is_valid(raise_exception=True)
-                return Response(serialized_residents.data, status=status_code)
-            except Exception:
-                return Response(
-                    {"error": "BRP data could not be obtained"},
-                    status=status.HTTP_403_FORBIDDEN,
-                )
+            obo_access_token = request.data.get("obo_access_token")
+            brp_data, status_code = get_brp_by_nummeraanduiding_id(
+                request, address.nummeraanduiding_id, obo_access_token
+            )
+            serialized_residents = ResidentsSerializer(data=brp_data)
+            serialized_residents.is_valid(raise_exception=True)
+            return Response(serialized_residents.data, status=status_code)
 
         return Response(
             {"error": "no nummeraanduiding_id found"}, status=status.HTTP_404_NOT_FOUND
@@ -238,5 +241,68 @@ class AddressViewSet(
         except Exception:
             return Response(
                 {"error": "Toeristische verhuur meldingen could not be obtained"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    @extend_schema(
+        description="Gets all registrations for holiday rental by bag_id",
+        responses={status.HTTP_200_OK: RegistrationDetailsSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="registrations",
+        methods=["get"],
+        pagination_class=None,
+    )
+    def registrations(self, request, bag_id):
+        try:
+            (
+                registrations_data,
+                status_code,
+            ) = get_vakantieverhuur_registrations_by_bag_id(
+                bag_id,
+            )
+            serialized_registrations = RegistrationNumberSerializer(
+                data=registrations_data, many=True
+            )
+            serialized_registrations.is_valid(raise_exception=True)
+
+            # Fetch details for each registration number
+            detailed_registrations = []
+            for registration in serialized_registrations.data:
+                # Remove spaces from registration number
+                registration_number = registration["registrationNumber"].replace(
+                    " ", ""
+                )
+                try:
+                    # Fetch detailed data for the current registrationNumber
+                    (
+                        registration_details,
+                        detail_status_code,
+                    ) = get_vakantieverhuur_registration(registration_number)
+                    if detail_status_code == 200:  # Only append if successful
+                        detailed_registrations.append(registration_details)
+                    else:
+                        print(
+                            f"Failed to fetch details for {registration_number}. Status: {detail_status_code}"
+                        )
+                except Exception as e:
+                    print(f"Error fetching details for {registration_number}: {e}")
+
+            # Sort detailed_registrations by 'createdAt' with the newest first
+            detailed_registrations = sorted(
+                detailed_registrations,
+                key=lambda x: x.get("createdAt", ""),
+                reverse=True,
+            )
+
+            serializer = RegistrationDetailsSerializer(
+                detailed_registrations, many=True
+            )
+
+            return Response(serializer.data, status=status_code)
+        except Exception:
+            return Response(
+                {"error": "Toeristische verhuur registrations could not be obtained"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )

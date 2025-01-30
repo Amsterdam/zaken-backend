@@ -21,30 +21,30 @@ class AddressSerializer(serializers.ModelSerializer):
         model = Address
         fields = (
             "bag_id",
-            "id",
+            "district",
             "full_address",
-            "street_name",
-            "number",
-            "suffix_letter",
-            "suffix",
-            "postal_code",
+            "housing_corporation",
+            "id",
             "lat",
             "lng",
-            "full_address",
-            "district",
-            "housing_corporation",
+            "number",
+            "nummeraanduiding_id",
+            "postal_code",
+            "street_name",
+            "suffix",
+            "suffix_letter",
         )
         read_only_fields = (
+            "district",
+            "full_address",
             "id",
-            "street_name",
-            "number",
-            "suffix_letter",
-            "suffix",
-            "postal_code",
             "lat",
             "lng",
-            "full_address",
-            "district",
+            "number",
+            "postal_code",
+            "street_name",
+            "suffix",
+            "suffix_letter",
         )
         extra_kwargs = {"bag_id": {"validators": []}}
 
@@ -110,9 +110,27 @@ class ResidentsSerializer(serializers.Serializer):
     _embedded = serializers.DictField()
 
 
+class GetResidentsSerializer(serializers.Serializer):
+    obo_access_token = serializers.DictField()
+
+
 class MeldingenSerializer(serializers.Serializer):
     pageNumber = serializers.IntegerField()
     pageSize = serializers.IntegerField()
     totalPages = serializers.IntegerField()
     totalRecords = serializers.IntegerField()
     data = serializers.ListField(child=serializers.DictField())
+
+
+class RegistrationNumberSerializer(serializers.Serializer):
+    registrationNumber = serializers.CharField(required=True)
+
+
+class RegistrationDetailsSerializer(serializers.Serializer):
+    registrationNumber = serializers.CharField(required=True)
+    requester = serializers.DictField()
+    rentalHouse = serializers.DictField()
+    requestForOther = serializers.BooleanField()
+    requestForBedAndBreakfast = serializers.BooleanField()
+    createdAt = serializers.DateTimeField()
+    agreementDate = serializers.DateTimeField()

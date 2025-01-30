@@ -7,8 +7,8 @@ class HealthConfig(AppConfig):
 
     def ready(self):
         from .health_checks import (  # OpenZaakZaken,; OpenZaakZakenAlfresco,; OpenZaakZakenCatalogus,
-            BAGAtlasServiceCheck,
             BAGBenkaggNummeraanduidingenServiceCheck,
+            BAGPdokServiceCheck,
             Belastingdienst,
             BRPServiceCheck,
             CeleryExecuteTask,
@@ -18,8 +18,8 @@ class HealthConfig(AppConfig):
             Toeristischeverhuur,
         )
 
-        plugin_dir.register(BAGAtlasServiceCheck)
         plugin_dir.register(BAGBenkaggNummeraanduidingenServiceCheck)
+        plugin_dir.register(BAGPdokServiceCheck)
         plugin_dir.register(BRPServiceCheck)
         plugin_dir.register(Belastingdienst)
         plugin_dir.register(CeleryExecuteTask)

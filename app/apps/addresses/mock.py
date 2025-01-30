@@ -1,81 +1,58 @@
-def mock_do_bag_search_id_result():
+def mock_do_bag_search_pdok_by_bag_id_result():
     return {
-        "_links": {
-            "self": {
-                "href": "https://api.data.amsterdam.nl/atlas/search/adres/?q=1100MOmo%2042&page=1"
-            },
-            "next": {"href": None},
-            "prev": {"href": None},
-        },
-        "count_hits": 1,
-        "count": 1,
-        "results": [
-            {
-                "_links": {
-                    "self": {
-                        "href": "https://api.data.amsterdam.nl/bag/v1.1/verblijfsobject/0363010001028805/"
-                    }
-                },
-                "type": "verblijfsobject",
-                "dataset": "v11_nummeraanduiding",
-                "adres": "Mockemstraat 42",
-                "postcode": "1100MO",
-                "straatnaam": "Mockemstraat",
-                "straatnaam_no_ws": "Mockemstraat",
-                "huisnummer": 42,
-                "toevoeging": "42",
-                "bag_huisletter": "",
-                "bag_toevoeging": "",
-                "woonplaats": "Amsterdam",
-                "type_adres": "Hoofdadres",
-                "status": "Naamgeving uitgegeven",
-                "landelijk_id": "0363200000516944",
-                "vbo_status": "Verblijfsobject in gebruik",
-                "adresseerbaar_object_id": "0363010001028805",
-                "subtype": "verblijfsobject",
-                "centroid": [6.969577908893136, 52.82184218979086],
-                "subtype_id": "0363010001028805",
-                "_display": "Mockemstraat 42",
-            }
-        ],
-    }
-
-
-def mock_do_bag_search_id_result_without_links():
-    return {
-        "_links": {
-            "self": {
-                "href": "https://api.data.amsterdam.nl/atlas/search/adres/?q=1100MOmo%2042&page=1"
-            },
-            "next": {"href": None},
-            "prev": {"href": None},
-        },
-        "count_hits": 1,
-        "count": 1,
-        "results": [
-            {
-                "type": "verblijfsobject",
-                "dataset": "v11_nummeraanduiding",
-                "adres": "Mockemstraat 42",
-                "postcode": "1100MO",
-                "straatnaam": "Mockemstraat",
-                "straatnaam_no_ws": "Mockemstraat",
-                "huisnummer": 42,
-                "toevoeging": "42",
-                "bag_huisletter": "",
-                "bag_toevoeging": "",
-                "woonplaats": "Amsterdam",
-                "type_adres": "Hoofdadres",
-                "status": "Naamgeving uitgegeven",
-                "landelijk_id": "03635000650516944",
-                "vbo_status": "Verblijfsobject in gebruik",
-                "adresseerbaar_object_id": "03635000650516944",
-                "subtype": "verblijfsobject",
-                "centroid": [4.969577908893136, 52.82184218979086],
-                "subtype_id": "03635000650516944",
-                "_display": "Mockemstraat 42",
-            }
-        ],
+        "response": {
+            "numFound": 1,
+            "start": 0,
+            "maxScore": 7.2593327,
+            "numFoundExact": True,
+            "docs": [
+                {
+                    "bron": "BAG",
+                    "woonplaatscode": "3594",
+                    "type": "adres",
+                    "woonplaatsnaam": "Amsterdam",
+                    "wijkcode": "WK0363AF",
+                    "huis_nlt": "1",
+                    "openbareruimtetype": "Weg",
+                    "buurtnaam": "Waterloopleinbuurt",
+                    "gemeentecode": "0363",
+                    "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/nummeraanduiding/0363200012145295",
+                    "weergavenaam": "Amstel 1, 1011PN Amsterdam",
+                    "suggest": [
+                        "Amstel 1, 1011PN Amsterdam",
+                        "Amstel 1, 1011 PN Amsterdam",
+                    ],
+                    "adrestype": "hoofdadres",
+                    "straatnaam_verkort": "Amstel",
+                    "id": "adr-9c02454e0f09cd9347aeb11cc03c9fb7",
+                    "gekoppeld_perceel": ["ASD12-P-3514"],
+                    "gemeentenaam": "Amsterdam",
+                    "buurtcode": "BU0363AF09",
+                    "wijknaam": "Nieuwmarkt/Lastage",
+                    "identificatie": "0363010012143319-0363200012145295",
+                    "openbareruimte_id": "0363300000002701",
+                    "waterschapsnaam": "Waterschap Amstel, Gooi en Vecht",
+                    "provinciecode": "PV27",
+                    "postcode": "1011PN",
+                    "provincienaam": "Noord-Holland",
+                    "centroide_ll": "POINT(4.90016547 52.3676456)",
+                    "geometrie_ll": "POINT(4.90016547 52.3676456)",
+                    "nummeraanduiding_id": "0363200012145295",
+                    "waterschapscode": "11",
+                    "adresseerbaarobject_id": "0363010012143319",
+                    "huisnummer": 1,
+                    "provincieafkorting": "NH",
+                    "geometrie_rd": "POINT(121828.874 486751.728)",
+                    "centroide_rd": "POINT(121828.874 486751.728)",
+                    "straatnaam": "Amstel",
+                    "shards": "bag",
+                    "_version_": 1816306460560195585,
+                    "typesortering": 4.0,
+                    "sortering": 1.0,
+                    "shard": "bag",
+                }
+            ],
+        }
     }
 
 
@@ -84,7 +61,7 @@ def mock_get_bag_identificatie_and_stadsdeel_result_without_stadsdeel():
         "_embedded": {
             "adresseerbareobjecten": [
                 {
-                    "huisnummer": 42,
+                    "huisnummer": 1,
                     "identificatie": "123456789"
                     # No "gebiedenStadsdeelNaam" key
                 }
@@ -99,8 +76,9 @@ def mock_get_bag_identificatie_and_stadsdeel_result():
             "adresseerbareobjecten": [
                 {
                     "identificatie": "123456789",
-                    "huisnummer": 42,
+                    "huisnummer": 1,
                     "gebiedenStadsdeelNaam": "Zuidoost",
+                    "typeAdresseerbaarObjectOmschrijving": "verblijfsobject",
                 }
             ]
         }

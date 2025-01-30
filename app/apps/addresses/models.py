@@ -2,10 +2,9 @@ import logging
 
 from django.db import models
 from utils.api_queries_bag import (
-    do_bag_search_benkagg_by_bag_id,
-    do_bag_search_by_bag_id,
+    do_bag_search_benkagg_by_id,
+    do_bag_search_pdok_by_bag_id,
 )
-from utils.coordinates import convert_polygon_to_latlng
 
 logger = logging.getLogger(__name__)
 
@@ -80,44 +79,40 @@ class Address(models.Model):
         return Address.objects.get_or_create(bag_id=bag_id)[0]
 
     def get_bag_address_data(self):
-        bag_search_response = do_bag_search_by_bag_id(self.bag_id)
-        bag_search_results = bag_search_response.get("results", [])
-
+        bag_search_response = do_bag_search_pdok_by_bag_id(self.bag_id)
+        bag_search_results = bag_search_response.get("response", {}).get("docs", [])
         if bag_search_results:
-            # A BAG search will return an array with 1 or more results.
-            # There could be a "Nevenadres" so check addresses for "Hoofdadres".
-
-            found_address = None
-            for address in bag_search_results:
-                if address.get("type_adres") == "Hoofdadres":
-                    found_address = address
-                    break  # Found first desired object so break the loop.
-
-            found_bag_data = found_address or bag_search_results[0]
-
+            found_bag_data = bag_search_results[0]
             self.postal_code = found_bag_data.get("postcode", "")
             self.street_name = found_bag_data.get("straatnaam", "")
             self.number = found_bag_data.get("huisnummer", "")
-            self.suffix_letter = found_bag_data.get("bag_huisletter", "")
-            self.suffix = found_bag_data.get("bag_toevoeging", "")
-            # Temporarily property for type. Could be verblijfsobject (huis) or standplaats (woonboot).
-            self.type = found_bag_data.get("type", "verblijfsobject")
-
-            centroid = found_bag_data.get("centroid", None)
+            self.suffix_letter = found_bag_data.get("huisletter", "")
+            self.suffix = found_bag_data.get("huisnummertoevoeging", "")
+            self.nummeraanduiding_id = found_bag_data.get("nummeraanduiding_id", "")
+            centroid_string = found_bag_data.get("centroide_ll", None)
+            centroid = self._parse_centroid(centroid_string)
             if centroid:
                 self.lng = centroid[0]
                 self.lat = centroid[1]
 
-    def get_bag_identificatie_and_stadsdeel(self):
+    def _parse_centroid(self, centroid):
+        # Check if the string starts with 'POINT(' and ends with ')'
+        if centroid.startswith("POINT(") and centroid.endswith(")"):
+            # Remove the 'POINT(' at the beginning and ')' at the end
+            coordinates_str = centroid[6:-1]
+            # Split the string by space to get the individual numbers
+            coordinates = coordinates_str.split()
+            # Convert the string numbers to float and return as a list
+            return [float(coordinates[0]), float(coordinates[1])]
+        else:
+            raise ValueError("Input string is not in the correct format.")
+
+    def get_bag_type_and_stadsdeel(self):
         """
-        Retrieves the identificatie(nummeraanduiding_id) and stadsdeel of an address by bag_id.
-        nummeraanduiding_id is needed for BRP and stadsdeel is used for filtering.
-        If an address has an standplaats (woonboot) instead of verblijfsobject, the coordinates
-        will be calculated by a polygon.
+        Retrieves the stadsdeel and type of address by identificatie(nummeraanduiding_id).
         """
 
-        is_boat = self.type == "standplaats"
-        response = do_bag_search_benkagg_by_bag_id(self.bag_id, is_boat)
+        response = do_bag_search_benkagg_by_id(self.nummeraanduiding_id)
 
         adresseerbareobjecten = response.get("_embedded", {}).get(
             "adresseerbareobjecten", []
@@ -132,29 +127,19 @@ class Address(models.Model):
             ),
             {},
         )
-
-        nummeraanduiding_id = found_bag_object.get("identificatie")
-        if nummeraanduiding_id:
-            self.nummeraanduiding_id = nummeraanduiding_id
-
+        # Temporarily property for type. Could be verblijfsobject (huis) or standplaats (woonboot).
+        # It's not used by now, but could be useful in the future.
+        self.type = found_bag_object.get("typeAdresseerbaarObjectOmschrijving")
         district_name = found_bag_object.get("gebiedenStadsdeelNaam")
 
         if district_name:
             self.district = District.objects.get_or_create(name=district_name)[0]
 
-        # Get coordinates for standplaats (woonboot).
-        ligplaats_geometrie = found_bag_object.get("ligplaatsGeometrie") or {}
-        ligplaats_coordinates = ligplaats_geometrie.get("coordinates")
-        if ligplaats_coordinates:
-            (lat, lng) = convert_polygon_to_latlng(ligplaats_coordinates)
-            self.lng = lng
-            self.lat = lat
-
     def update_bag_data(self):
         self.get_bag_address_data()
         # Prevent a nummeraanduiding_id error while creating a case.
         try:
-            self.get_bag_identificatie_and_stadsdeel()
+            self.get_bag_type_and_stadsdeel()
         except Exception as e:
             logger.error(
                 f"Could not retrieve nummeraanduiding_id for bag_id:{self.bag_id}: {e}"

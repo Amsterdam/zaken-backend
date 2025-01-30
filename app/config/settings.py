@@ -5,7 +5,6 @@ from os.path import join
 
 from celery.schedules import crontab
 from dotenv import load_dotenv
-from keycloak_oidc.default_settings import *  # noqa
 from opencensus.ext.azure.trace_exporter import AzureExporter
 
 from .azure_settings import Azure
@@ -14,7 +13,6 @@ azure = Azure()
 
 load_dotenv()
 
-# config_integration.trace_integrations(["requests", "logging"])
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
@@ -48,7 +46,6 @@ INSTALLED_APPS = (
     "django.contrib.postgres",
     "corsheaders",
     # Third party apps
-    "keycloak_oidc",
     "rest_framework",
     "rest_framework.authtoken",
     "drf_spectacular",
@@ -162,9 +159,7 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
-    "DEFAULT_PERMISSION_CLASSES": (
-        "keycloak_oidc.drf.permissions.IsInAuthorizedRealm",
-    ),
+    "DEFAULT_PERMISSION_CLASSES": ("apps.users.permissions.IsInAuthorizedRealm",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "apps.users.auth.AuthenticationClass",
         "rest_framework.authentication.TokenAuthentication",
@@ -219,7 +214,7 @@ LOGGING = {
             "level": LOGGING_LEVEL,
             "propagate": True,
         },
-        "mozilla_django_oidc": {"handlers": ["console"], "level": "INFO"},
+        "mozilla_django_oidc": {"handlers": ["console"], "level": LOGGING_LEVEL},
     },
 }
 
@@ -274,36 +269,34 @@ OIDC_USE_NONCE
 OIDC_AUTHORIZED_GROUPS
 OIDC_OP_USER_ENDPOINT
 """
-OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", None)
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", None)
 OIDC_USE_NONCE = False
-OIDC_AUTHORIZED_GROUPS = (
-    "wonen_zaaksysteem",
-    "wonen_zaak",
-    "enable_persistent_token",
-)
 OIDC_AUTHENTICATION_CALLBACK_URL = "oidc-authenticate"
-
+OIDC_RP_CLIENT_ID = os.environ.get(
+    "OIDC_RP_CLIENT_ID", "14c4257b-bcd1-4850-889e-7156c9efe2ec"
+)
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv(
     "OIDC_OP_AUTHORIZATION_ENDPOINT",
-    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/auth",
+    "https://login.microsoftonline.com/72fca1b1-2c2e-4376-a445-294d80196804/oauth2/v2.0/authorize",
 )
 OIDC_OP_TOKEN_ENDPOINT = os.getenv(
     "OIDC_OP_TOKEN_ENDPOINT",
-    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/token",
+    "https://login.microsoftonline.com/72fca1b1-2c2e-4376-a445-294d80196804/oauth2/v2.0/token",
 )
 OIDC_OP_USER_ENDPOINT = os.getenv(
-    "OIDC_OP_USER_ENDPOINT",
-    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/userinfo",
+    "OIDC_OP_USER_ENDPOINT", "https://graph.microsoft.com/oidc/userinfo"
 )
 OIDC_OP_JWKS_ENDPOINT = os.getenv(
     "OIDC_OP_JWKS_ENDPOINT",
-    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/certs",
+    "https://login.microsoftonline.com/72fca1b1-2c2e-4376-a445-294d80196804/discovery/v2.0/keys",
 )
-OIDC_OP_LOGOUT_ENDPOINT = os.getenv(
-    "OIDC_OP_LOGOUT_ENDPOINT",
-    "https://acc.iam.amsterdam.nl/auth/realms/datapunt-ad-acc/protocol/openid-connect/logout",
+OIDC_RP_SIGN_ALGO = "RS256"
+OIDC_OP_ISSUER = os.getenv(
+    "OIDC_OP_ISSUER",
+    "https://sts.windows.net/72fca1b1-2c2e-4376-a445-294d80196804/",
 )
+
+OIDC_TRUSTED_AUDIENCES = f"api://{OIDC_RP_CLIENT_ID}"
 
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
     os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
@@ -334,24 +327,14 @@ SIMPLE_JWT = {
 }
 
 # BAG Atlas
-BAG_API_SEARCH_URL = os.getenv(
-    "BAG_API_SEARCH_URL", "https://api.data.amsterdam.nl/atlas/search/adres/"
+BAG_API_PDOK_URL = os.getenv(
+    "BAG_API_PDOK_URL", "https://api.pdok.nl/bzk/locatieserver/search/v3_1/free"
 )
-# BAG Nummeraanduidingen
-BAG_API_NUMMERAANDUIDING_SEARCH_URL = os.getenv(
-    "BAG_API_NUMMERAANDUIDING_SEARCH_URL",
-    "https://api.data.amsterdam.nl/v1/bag/nummeraanduidingen/",
-)
+
 # BAG benkagg for nummeraanduidingen and stadsdeel
 BAG_API_BENKAGG_SEARCH_URL = os.getenv(
     "BAG_API_BENKAGG_SEARCH_URL",
     "https://api.data.amsterdam.nl/v1/benkagg/adresseerbareobjecten/",
-)
-# API key for the public Amsterdam API (api.data.amsterdam.nl).
-# This key is NOT used for authorization, but to identify who is using the API for communication purposes.
-BAG_API_PUBLIC_KEY = os.getenv(
-    "BAG_API_PUBLIC_KEY",
-    "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMxNjQ2NDI4NzA1MzQ4NzI1NTEsImV4cCI6MTczODA3MDQ4N30.sGNs0EIRcdyUv76X1J1q46Y4kAIHSqHR1fca-srQlIQnV0aWduQn5xTlGQM1lvZCDk_F5qWf0__8u1jcYDMlDg",
 )
 # Bag_id of Amstel 1 for testing purposes.
 BAG_ID_AMSTEL_1 = os.getenv(
@@ -366,11 +349,13 @@ BELASTING_API_ACCESS_TOKEN = os.getenv("BELASTING_API_ACCESS_TOKEN", None)
 
 BRP_API_URL = "/".join(
     [
-        os.getenv("BRP_API_URL", "https://acc.bp.data.amsterdam.nl/brp"),
+        os.getenv("BRP_API_URL", "https://acc.bp.data.amsterdam.nl/entra/brp"),
         "ingeschrevenpersonen",
     ]
 )
 
+BRP_CLIENT_ID = os.getenv("BRP_CLIENT_ID", "BRP_CLIENT_ID")
+BRP_CLIENT_SECRET = os.getenv("BRP_CLIENT_SECRET", "BRP_CLIENT_SECRET")
 # Secret keys which can be used to access certain parts of the API
 SECRET_KEY_TOP_ZAKEN = os.getenv("SECRET_KEY_TOP_ZAKEN", None)
 SECRET_KEY_TON_ZAKEN = os.getenv("SECRET_KEY_TON_ZAKEN", None)
@@ -519,7 +504,6 @@ CACHES = {
 }
 
 CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_URL = get_redis_url()
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 BROKER_CONNECTION_MAX_RETRIES = None
@@ -527,13 +511,14 @@ BROKER_CONNECTION_TIMEOUT = 120
 BROKER_URL = CELERY_BROKER_URL
 CELERY_TASK_TRACK_STARTED = True
 CELERY_RESULT_BACKEND = "django-db"
-CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_TASK_TIME_LIMIT = 5400  # 1,5 hours
 CELERY_BEAT_SCHEDULE = {
     "queue_every_five_mins": {
         "task": "apps.health.tasks.query_every_five_mins",
         "schedule": crontab(minute=5),
     },
 }
+
 
 CELERY_BROKER_TRANSPORT_OPTIONS = {
     "socket_keepalive": True,
@@ -564,22 +549,8 @@ VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_URL = os.getenv(
 VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_ACCESS_TOKEN = os.getenv(
     "VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_ACCESS_TOKEN"
 )
-VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_HEALTH_CHECK_BAG_ID = os.getenv(
-    "VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_HEALTH_CHECK_BAG_ID", "0503100000000209"
-)
-
-VAKANTIEVERHUUR_REGISTRATIE_API_URL = os.getenv("VAKANTIEVERHUUR_REGISTRATIE_API_URL")
-VAKANTIEVERHUUR_REGISTRATIE_API_ACCESS_TOKEN = os.getenv(
-    "VAKANTIEVERHUUR_REGISTRATIE_API_ACCESS_TOKEN"
-)
-VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_BSN = os.getenv(
-    "VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_BSN"
-)
-VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_BAG_ID = os.getenv(
-    "VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_BAG_ID"
-)
-VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER = os.getenv(
-    "VAKANTIEVERHUUR_REGISTRATIE_API_HEALTH_CHECK_REGISTRATION_NUMBER"
+VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_BSN = os.getenv(
+    "VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_BSN"
 )
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

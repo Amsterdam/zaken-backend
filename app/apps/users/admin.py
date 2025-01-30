@@ -35,7 +35,6 @@ class UserAdmin(UserAdmin):
                     "is_staff",
                     "is_superuser",
                     "groups",
-                    "user_permissions",
                 )
             },
         ),
@@ -47,3 +46,10 @@ class UserAdmin(UserAdmin):
     list_display = ("id", "full_name", "email", "is_staff", "last_login", "date_joined")
     search_fields = ("email",)
     ordering = ("email",)
+    readonly_fields = (
+        "first_name",
+        "last_name",
+        "last_login",
+        "date_joined",
+        "username",
+    )
