@@ -15,7 +15,7 @@ click-plugins==1.1.1
 click-repl==0.2.0
 cryptography==43.0.3
 debugpy==1.4.1
-Django==4.2.16
+Django==5.1.6
 django-axes==6.5.0
 django-celery-beat==2.6.0
 django-celery-results==2.5.1
