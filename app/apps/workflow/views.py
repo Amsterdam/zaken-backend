@@ -494,6 +494,12 @@ class GenericCompletedTaskViewSet(
             task = CaseUserTask.objects.get(
                 id=data["case_user_task_id"], completed=False
             )
+
+            if task.case.sensitive and not request.user.has_perm(
+                "users.access_sensitive_dossiers"
+            ):
+                return Response(status=status.HTTP_403_FORBIDDEN)
+
             from .user_tasks import get_task_by_name
 
             user_task_type = get_task_by_name(task.task_name)

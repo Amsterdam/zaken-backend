@@ -119,6 +119,7 @@ MIDDLEWARE = (
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "axes.middleware.AxesMiddleware",
+    "apps.cases.middleware.SensitiveCaseMiddleware",
 )
 
 STATIC_URL = "/static/"
