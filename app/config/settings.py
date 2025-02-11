@@ -104,22 +104,7 @@ DATABASES = {
         "OPTIONS": {"sslmode": "allow", "connect_timeout": 5},
     },
 }
-REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "PAGE_SIZE": 500,
-    "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S%z",
-    "DEFAULT_RENDERER_CLASSES": (
-        "rest_framework.renderers.JSONRenderer",
-        "rest_framework.renderers.BrowsableAPIRenderer",
-    ),
-    "DEFAULT_PERMISSION_CLASSES": ("apps.users.permissions.IsInAuthorizedRealm",),
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "apps.users.auth.AuthenticationClass",
-        "rest_framework.authentication.TokenAuthentication",
-    ),
-    "EXCEPTION_HANDLER": "utils.exceptions.custom_exception_handler",
-}
+
 MIDDLEWARE = (
     "opencensus.ext.django.middleware.OpencensusMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -166,6 +151,22 @@ TEMPLATES = [
     },
 ]
 
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "PAGE_SIZE": 500,
+    "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S%z",
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": ("apps.users.permissions.IsInAuthorizedRealm",),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "apps.users.auth.AuthenticationClass",
+        "rest_framework.authentication.TokenAuthentication",
+    ),
+    "EXCEPTION_HANDLER": "utils.exceptions.custom_exception_handler",
+}
 
 SPECTACULAR_SETTINGS = {
     "SCHEMA_PATH_PREFIX": "/api/v[0-9]/",

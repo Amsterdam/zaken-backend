@@ -14,10 +14,6 @@ class CaseEventsMixin:
     def events(self, request, pk):
         try:
             case = Case.objects.get(pk=pk)
-            # if case.sensitive and not request.user.has_perm(
-            #     "users.access_sensitive_dossiers"
-            # ):
-            #     return Response(status=status.HTTP_403_FORBIDDEN)
         except Case.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
