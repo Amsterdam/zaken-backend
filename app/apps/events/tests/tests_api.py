@@ -11,7 +11,8 @@ from app.utils.unittest_helpers import (
 
 class CaseEventGetDetailAPITest(ZakenBackendTestMixin, CaseEventEmitterTestCase):
     def test_unauthenticated_get(self):
-        url = reverse("cases-detail", kwargs={"pk": 1})
+        case = self.create_case()
+        url = reverse("cases-detail", kwargs={"pk": case.id})
         # TODO: find out how to do this with url reversal instead
         url += "events/"
         client = get_unauthenticated_client()
@@ -19,7 +20,8 @@ class CaseEventGetDetailAPITest(ZakenBackendTestMixin, CaseEventEmitterTestCase)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_authenticated_get_no_case(self):
-        url = reverse("cases-detail", kwargs={"pk": 1})
+        case = self.create_case()
+        url = reverse("cases-detail", kwargs={"pk": case.id})
         url += "events/"
         client = get_authenticated_client()
         response = client.get(url)
