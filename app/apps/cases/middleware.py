@@ -1,7 +1,6 @@
 import re
 
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 from rest_framework import status
 
 from .models import Case
@@ -16,9 +15,10 @@ class SensitiveCaseMiddleware:
         match = re.match(r"^/api/v1/cases/(\d+)/", request.path)
         if request.path.startswith("/api/v1/cases/") and match:
             case_id = match.group(1)
-            case = get_object_or_404(Case, pk=case_id)
+            case = Case.objects.filter(pk=case_id).first()
             if (
-                case.sensitive
+                case
+                and case.sensitive
                 and request.user.is_authenticated
                 and not request.user.has_perm("users.access_sensitive_dossiers")
             ):
