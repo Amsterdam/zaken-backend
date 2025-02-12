@@ -31,29 +31,31 @@ class FeedbackViewset(GenericAPIView):
     def _create_slack_message_body(self, data):
         return {
             "blocks": [
-                {"type": "section", "text": {"type": "mrkdwn", "text": ":house:  AZA"}},
                 {
-                    "type": "section",
+                    "type": "header",
                     "text": {
-                        "type": "mrkdwn",
-                        "text": f":earth_africa:  <{data['url']}>",
+                        "type": "plain_text",
+                        "text": ":rocket: Nieuwe feedback ontvangen! ",
                     },
                 },
                 {
                     "type": "section",
                     "fields": [
-                        {
-                            "type": "mrkdwn",
-                            "text": f":woman-tipping-hand::skin-tone-5:  {data['user'].email}",
-                        }
+                        {"type": "mrkdwn", "text": "*Applicatie:*\n:house: AZA"},
+                        {"type": "mrkdwn", "text": f"*E-mail:*\n {data['user'].email}"},
                     ],
+                },
+                {
+                    "type": "section",
+                    "text": {"type": "mrkdwn", "text": f"*URL:*\n <{data['url']}>"},
                 },
                 {
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": f":loudspeaker:  {data['feedback']}",
+                        "text": f"> :loudspeaker: *Feedback: *\n> {data['feedback']}",
                     },
                 },
+                {"type": "divider"},
             ]
         }
