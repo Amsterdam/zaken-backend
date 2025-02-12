@@ -79,6 +79,7 @@ INSTALLED_APPS = (
     "apps.summons",
     "apps.schedules",
     "apps.workflow",
+    "apps.feedback",
 )
 
 DATABASE_HOST = os.getenv("DATABASE_HOST", "database")
@@ -1364,6 +1365,11 @@ TEST_ZAKEN_ROOT = "https://zaken.nl/api/v1/"
 TEST_DOCUMENTEN_ROOT = "https://documenten.nl/api/v1/"
 TEST_CATALOGI_ROOT = "https://catalogi.nl/api/v1/"
 TEST_NOTIFICATION_ROOT = "https://notification.nl/api/v1/"
+
+
+SLACK_WEBHOOK_URL = os.getenv(
+    "SLACK_WEBHOOK_URL", "https://hooks.slack.com/services/test/test/test"
+)
 
 MIMETYPES_FALLBACK = {
     "x3d": "application/vnd.hzn-3d-crossword",
