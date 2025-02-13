@@ -12,6 +12,7 @@ from apps.cases.views import (
 )
 from apps.debriefings.views import DebriefingViewSet
 from apps.decisions.views import DecisionTypeViewSet, DecisionViewSet
+from apps.feedback.views import FeedbackViewset
 from apps.fines.views import FinesViewSet
 from apps.health.health_checks import is_healthy
 from apps.quick_decisions.views import QuickDecisionTypeViewSet, QuickDecisionViewSet
@@ -109,6 +110,7 @@ urlpatterns = [
     ),
     path("health/", include("health_check.urls")),
     path("startup/", is_healthy),
+    path("api/v1/feedback/", FeedbackViewset.as_view(), name="feedback"),
     re_path(r"^$", view=MyView.as_view(), name="index"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
