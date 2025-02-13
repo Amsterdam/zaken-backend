@@ -53,7 +53,7 @@ class FeedbackViewset(GenericAPIView):
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": f"> :loudspeaker: *Feedback: *\n> {data['feedback']}",
+                        "text": f":loudspeaker: *Feedback: *\n ```{data['feedback']}```",
                     },
                 },
                 {"type": "divider"},
