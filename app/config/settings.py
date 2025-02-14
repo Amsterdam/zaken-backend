@@ -303,6 +303,7 @@ OIDC_TRUSTED_AUDIENCES = f"api://{OIDC_RP_CLIENT_ID}"
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
     os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
 )
+
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 6000
 
@@ -1281,6 +1282,31 @@ WORKFLOW_SPEC_CONFIG = {
                         "start_verzoek_opheffing_openbaarmaking_namen": {},
                         "start_doorzon_pv": {},
                         "start_terugmelding_bag": {},
+                    },
+                },
+                "7.2.0": {
+                    "messages": {
+                        "start_signal_process": {},
+                        "start_correspondence_process": {},
+                        "start_callbackrequest_process": {},
+                        "start_objectionfile_process": {},
+                        "start_extra_information": {},
+                        "start_nuisance_process": {},
+                        "start_casus_overleg_proces": {},
+                        "start_opstellen_digitale_analyse_proces": {},
+                        "start_aanleveren_wob_dossier": {},
+                        "start_terugkoppelen_bi": {},
+                        "start_uitkomst_corporatie_proces": {},
+                        "start_rapport_bewoners": {},
+                        "start_afsluiten_zaak": {},
+                        "start_mma_signal_process": {},
+                        "start_lod_verzoek_tot_opheffing": {},
+                        "start_verzoek_opheffing_openbaarmaking_namen": {},
+                        "start_doorzon_pv": {},
+                        "start_terugmelding_bag": {},
+                        "start_doorzetten_stukken_woningcorporatie": {},
+                        "start_doorzetten_bestuurlijk_prostitutie": {},
+                        "start_doorzetten_stukken_stadsdeel": {},
                     },
                 },
             },
