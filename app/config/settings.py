@@ -303,7 +303,7 @@ OIDC_TRUSTED_AUDIENCES = f"api://{OIDC_RP_CLIENT_ID}"
 LOCAL_DEVELOPMENT_AUTHENTICATION = (
     os.getenv("LOCAL_DEVELOPMENT_AUTHENTICATION", False) == "True"
 )
-
+LOCAL_DEVELOPMENT_AUTHENTICATION = False
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 6000
 
@@ -1307,6 +1307,8 @@ WORKFLOW_SPEC_CONFIG = {
                         "start_doorzetten_stukken_woningcorporatie": {},
                         "start_doorzetten_bestuurlijk_prostitutie": {},
                         "start_doorzetten_stukken_stadsdeel": {},
+                        "start_bewustwordingsgesprek_eigenaar": {},
+                        "start_informatieverzoek": {},
                     },
                 },
             },
