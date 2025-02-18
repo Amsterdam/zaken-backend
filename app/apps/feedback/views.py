@@ -47,13 +47,26 @@ class FeedbackViewset(GenericAPIView):
                 },
                 {
                     "type": "section",
+                    "fields": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"*User-Agent:*\n `{data['user_agent']}`",
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": f"*Schermgrootte:*\n `{data['screen']}`",
+                        },
+                    ],
+                },
+                {
+                    "type": "section",
                     "text": {"type": "mrkdwn", "text": f"*URL:*\n <{data['url']}>"},
                 },
                 {
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": f":loudspeaker: *Feedback: *\n ```{data['feedback']}```",
+                        "text": f":loudspeaker: *Feedback: *\n> {data['feedback']}",
                     },
                 },
                 {"type": "divider"},
