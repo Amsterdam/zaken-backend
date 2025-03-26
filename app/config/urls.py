@@ -38,7 +38,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import include, path, re_path
-from django.views.generic import View
+from django.views.generic import RedirectView, View
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 
@@ -111,6 +111,9 @@ urlpatterns = [
     path("health/", include("health_check.urls")),
     path("startup/", is_healthy),
     path("api/v1/feedback/", FeedbackViewset.as_view(), name="feedback"),
+    path(
+        "favicon.ico", RedirectView.as_view(url="/static/favicon.ico", permanent=True)
+    ),
     re_path(r"^$", view=MyView.as_view(), name="index"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
