@@ -1,3 +1,5 @@
+from apps.events.models import TaskModelEventEmitter
+from django.apps import apps
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -60,6 +62,25 @@ def migrate_worflows_to_latest(modeladmin, request, queryset):
         return TemplateResponse(
             request, "admin/workflow/caseworkflow/migrate_to_latest.html", context
         )
+
+
+@admin.action(description="Resolve invalid completed task emitter")
+def resolve_invalid_completed_task_emitter(modeladmin, request, queryset):
+    for obj in queryset.all():
+        if obj.completed is True:
+            return None
+        subclass_models = get_subclasses_of_base_emitter()
+        for model in subclass_models:
+            related_objects = model.objects.filter(case_user_task_id=obj.id)
+            if related_objects.exists():
+                related_object = related_objects.first()
+                data = {
+                    field.name: getattr(related_object, field.name)
+                    for field in related_object._meta.fields
+                    if field.name != "id"
+                }
+                related_object.delete()
+                model.objects.create(**data)
 
 
 @admin.register(CaseWorkflow)
@@ -255,6 +276,35 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         )
 
 
+def get_subclasses_of_base_emitter():
+    return [
+        model
+        for model in apps.get_models()
+        if issubclass(model, TaskModelEventEmitter)
+        and model is not TaskModelEventEmitter
+    ]
+
+
+class InvalidCompletedTaskModelEventEmitterFilter(admin.SimpleListFilter):
+    title = "Check invalid completed task event emitter"
+    parameter_name = "check_invalid_completed_task_event_emitter"
+
+    def lookups(self, request, model_admin):
+        return (("yes", "Yes"),)
+
+    def queryset(self, request, queryset):
+        subclass_models = get_subclasses_of_base_emitter()
+        related_task_ids = set()
+        for model in subclass_models:
+            related_task_ids.update(
+                model.objects.values_list("case_user_task_id", flat=True)
+            )
+
+        if self.value() == "yes":
+            return queryset.filter(id__in=related_task_ids, completed=False)
+        return queryset
+
+
 @admin.register(CaseUserTask)
 class CaseTaskAdmin(admin.ModelAdmin):
     list_display = (
@@ -265,6 +315,7 @@ class CaseTaskAdmin(admin.ModelAdmin):
         "completed",
         "workflow",
         "owner",
+        "invalid_completed_task_event_emitter",
     )
     search_fields = (
         "id",
@@ -272,7 +323,24 @@ class CaseTaskAdmin(admin.ModelAdmin):
         "name",
         "task_name",
     )
-    list_filter = ("completed", "name")
+    actions = [resolve_invalid_completed_task_emitter]
+
+    def invalid_completed_task_event_emitter(self, obj):
+        if obj.completed is True:
+            return None
+        subclass_models = get_subclasses_of_base_emitter()
+        for model in subclass_models:
+            related_objects = model.objects.filter(case_user_task_id=obj.id)
+            if related_objects.exists():
+                related_object = related_objects.first()
+                url = reverse(
+                    f"admin:{related_object._meta.app_label}_{related_object._meta.model_name}_change",
+                    args=[related_object.id],
+                )
+                return format_html('<a href="{}">{}</a>', url, str(related_object))
+        return None
+
+    list_filter = ("completed", InvalidCompletedTaskModelEventEmitterFilter, "name")
 
 
 @admin.register(WorkflowOption)
