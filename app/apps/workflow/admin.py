@@ -299,8 +299,9 @@ class InvalidCompletedTaskModelEventEmitterFilter(admin.SimpleListFilter):
         subclass_models = get_subclasses_of_base_emitter()
         related_task_ids = set()
         for model in subclass_models:
+            task_ids = model.objects.values_list("case_user_task_id", flat=True)
             related_task_ids.update(
-                model.objects.values_list("case_user_task_id", flat=True)
+                task_id for task_id in task_ids if isinstance(task_id, int)
             )
 
         if self.value() == "yes":
