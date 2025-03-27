@@ -1,10 +1,12 @@
 from apps.events.models import TaskModelEventEmitter
+from apps.visits.models import Visit
 from django.apps import apps
 from django.contrib import admin, messages
+from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import re_path, reverse
-from django.utils.html import format_html, mark_safe
+from django.utils.html import format_html, format_html_join, mark_safe
 
 from .forms import ResetSubworkflowsForm, UpdateDataForWorkflowsForm
 from .models import CaseUserTask, CaseWorkflow, GenericCompletedTask, WorkflowOption
@@ -77,10 +79,10 @@ def resolve_invalid_completed_task_emitter(modeladmin, request, queryset):
                 data = {
                     field.name: getattr(related_object, field.name)
                     for field in related_object._meta.fields
-                    if field.name != "id"
                 }
-                related_object.delete()
-                model.objects.create(**data)
+                with transaction.atomic():
+                    related_object.delete()
+                    model.objects.create(**data)
 
 
 @admin.register(CaseWorkflow)
@@ -282,6 +284,7 @@ def get_subclasses_of_base_emitter():
         for model in apps.get_models()
         if issubclass(model, TaskModelEventEmitter)
         and model is not TaskModelEventEmitter
+        and model is not Visit
     ]
 
 
@@ -328,16 +331,23 @@ class CaseTaskAdmin(admin.ModelAdmin):
     def invalid_completed_task_event_emitter(self, obj):
         if obj.completed is True:
             return None
+
         subclass_models = get_subclasses_of_base_emitter()
+        links = []
+
         for model in subclass_models:
             related_objects = model.objects.filter(case_user_task_id=obj.id)
-            if related_objects.exists():
-                related_object = related_objects.first()
+            for related_object in related_objects:
                 url = reverse(
                     f"admin:{related_object._meta.app_label}_{related_object._meta.model_name}_change",
                     args=[related_object.id],
                 )
-                return format_html('<a href="{}">{}</a>', url, str(related_object))
+                links.append(
+                    format_html('<a href="{}">{}</a>', url, str(related_object))
+                )
+
+        if links:
+            return format_html_join("<br>", "{}", ((link,) for link in links))
         return None
 
     list_filter = ("completed", InvalidCompletedTaskModelEventEmitterFilter, "name")
