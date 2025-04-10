@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
 from django.contrib.auth.models import Group
+from rest_framework.authtoken.admin import TokenAdmin
 
-from .models import User, UserGroup
+from .models import ScopedToken, User, UserGroup
 
 admin.site.unregister(Group)
 
@@ -53,3 +54,12 @@ class UserAdmin(UserAdmin):
         "date_joined",
         "username",
     )
+
+
+@admin.register(ScopedToken)
+class ScopedTokenAdmin(TokenAdmin):
+    list_display = ("key", "user", "allowed_views")
+    search_fields = ("user__username", "allowed_views")
+
+    fields = ("key", "user", "allowed_views")
+    readonly_fields = ("key",)

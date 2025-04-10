@@ -114,3 +114,16 @@ def rest_permission_classes_for_top():
 
 def rest_permission_classes_for_ton():
     return [(IsInAuthorizedRealm) | TonKeyAuth]
+
+
+class ScopedViewPermission(BasePermission):
+    """
+    Custom permission to only allow tokens for specific views / endpoints
+    """
+
+    def has_permission(self, request, view):
+        token = getattr(request, "auth", None)
+        if not token or not hasattr(token, "allowed_views"):
+            return False
+        allowed = [v.strip() for v in token.allowed_views.split(",") if v.strip()]
+        return view.action in allowed

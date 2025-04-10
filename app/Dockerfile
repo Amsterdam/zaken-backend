@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y \
     graphviz-dev \
     postgresql-client
 
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip setuptools wheel
 RUN pip install uwsgi
 RUN pip install pygraphviz
 

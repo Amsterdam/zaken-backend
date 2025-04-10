@@ -3,6 +3,8 @@ import uuid
 from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 from django.db.models.base import Model
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
 
 from .permissions import custom_permissions
 from .utils import generate_username
@@ -71,3 +73,34 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         self.username = generate_username(self.email)
         super().save(*args, **kwargs)
+
+
+class ScopedToken(models.Model):
+    key = models.CharField(max_length=40, primary_key=True)
+    user = models.ForeignKey(
+        User, related_name="scoped_auth_tokens", on_delete=models.CASCADE
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    allowed_views = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Comma-separated list of allowed view actions",
+    )
+
+    class Meta:
+        verbose_name = "Scoped Token"
+        verbose_name_plural = "Scoped Tokens"
+        app_label = "authtoken"
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = Token.generate_key()
+        return super().save(*args, **kwargs)
+
+
+class ScopedTokenAuth(TokenAuthentication):
+    """
+    Custom authentication class for ScopedToken.
+    """
+
+    model = ScopedToken
