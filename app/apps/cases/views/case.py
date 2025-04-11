@@ -16,6 +16,7 @@ from apps.cases.models import (
 )
 from apps.cases.serializers import (
     AdvertisementSerializer,
+    CaseBagIdsSerializer,
     CaseCreateSerializer,
     CaseDataSerializer,
     CaseDetailSerializer,
@@ -42,7 +43,12 @@ from apps.openzaak.helpers import (
 )
 from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
 from apps.users.auth_apps import TopKeyAuth
-from apps.users.permissions import CanAccessSensitiveCases, IsInAuthorizedRealm
+from apps.users.models import ScopedTokenAuth
+from apps.users.permissions import (
+    CanAccessSensitiveCases,
+    IsInAuthorizedRealm,
+    ScopedViewPermission,
+)
 from apps.workflow.models import CaseUserTask, CaseWorkflow, WorkflowOption
 from apps.workflow.serializers import (
     CaseWorkflowSerializer,
@@ -758,6 +764,27 @@ class CaseViewSet(
         )
         serializer = serializers.ListSerializer(queryset, child=serializers.CharField())
         return Response(serializer.data)
+
+    # This is a dedicated endpoint for the data team, provided in support of OOV.
+    @extend_schema(
+        description="Returns a list of all open cases with their corresponding BAG IDs",
+        responses={status.HTTP_200_OK: CaseBagIdsSerializer(many=True)},
+    )
+    @action(
+        detail=False,
+        url_path="bag-ids",
+        methods=["get"],
+        authentication_classes=[ScopedTokenAuth],
+        permission_classes=[ScopedViewPermission],
+    )
+    def bag_ids(self, request):
+        queryset = self.get_queryset().filter(end_date__isnull=True)  # Only open cases
+        paginator = StandardResultsSetPagination()
+        paginated_queryset = paginator.paginate_queryset(queryset, request)
+        serializer = CaseBagIdsSerializer(
+            paginated_queryset, many=True, context={"request": request}
+        )
+        return paginator.get_paginated_response(serializer.data)
 
 
 class CaseDocumentViewSet(

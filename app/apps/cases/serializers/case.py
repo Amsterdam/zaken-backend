@@ -268,6 +268,21 @@ class CaseSimplifiedSerializer(serializers.ModelSerializer):
         )
 
 
+class CaseBagIdsSerializer(serializers.ModelSerializer):
+    bag_id = serializers.CharField(source="address.bag_id", read_only=True)
+    nummeraanduiding_id = serializers.CharField(
+        source="address.nummeraanduiding_id", read_only=True
+    )
+
+    class Meta:
+        model = Case
+        fields = (
+            "id",
+            "bag_id",
+            "nummeraanduiding_id",
+        )
+
+
 class CaseDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseDocument
