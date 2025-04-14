@@ -312,12 +312,10 @@ class CaseWorkflow(models.Model):
         with transaction.atomic():
             workflow_instance.save(update_fields=["data"])
             transaction.on_commit(lambda: workflow_instance.release_lock())
-
         all_workflows = CaseWorkflow.objects.filter(
             case=workflow_instance.case,
             workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
         )
-
         workflows_completed = [
             a
             for a in all_workflows.values_list("data", flat=True)
@@ -330,7 +328,6 @@ class CaseWorkflow(models.Model):
         so the last waiting worklfow kan tell the main workflow to accept the message after all, so only the main workflow can resume
         """
         if len(workflows_completed) == all_workflows.count() and main_workflow:
-
             # pick up all summons and pass them on to the main workflow
             theme = main_workflow.case.theme.snake_case_name
 
@@ -526,10 +523,10 @@ class CaseWorkflow(models.Model):
         return task
 
     @staticmethod
-    def complete_user_task(id, data, wait=False):
+    def complete_user_task(id, data, wait=False, timeout=None):
         task = task_complete_user_task_and_create_new_user_tasks.delay(id, data)
         if wait:
-            task.wait(timeout=None, interval=0.5)
+            task.wait(timeout=timeout, interval=0.5)
 
     def check_for_issues(self):
         wf = self.get_or_restore_workflow_state()
@@ -547,7 +544,6 @@ class CaseWorkflow(models.Model):
             return
 
         task = wf.get_task(task_id)
-
         if task and isinstance(task.task_spec, UserTask):
             task.update_data(data)
             wf.complete_task_from_id(task.id)

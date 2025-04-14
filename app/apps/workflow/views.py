@@ -517,13 +517,8 @@ class GenericCompletedTaskViewSet(
                     "variables": variables,
                 }
             )
+            from .task_completion import complete_user_task
 
-            try:
-                GenericCompletedTask.objects.create(**data)
-                return Response(
-                    f"CaseUserTask {data['case_user_task_id']} has been completed"
-                )
-            except Exception as e:
-                raise e
-
+            response = complete_user_task(data)
+            return Response(response)
         return Response(status=status.HTTP_400_BAD_REQUEST)
