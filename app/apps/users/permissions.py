@@ -126,4 +126,6 @@ class ScopedViewPermission(BasePermission):
         if not token or not hasattr(token, "allowed_views"):
             return False
         allowed = [v.strip() for v in token.allowed_views.split(",") if v.strip()]
+        print(allowed)
+        print(view.action)
         return view.action in allowed
