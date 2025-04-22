@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("users", "0010_delete_scopedtoken"),
+        ("users", "0008_alter_permission_options"),
     ]
 
     operations = [
