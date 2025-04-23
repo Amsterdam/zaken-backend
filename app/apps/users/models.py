@@ -75,7 +75,7 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
 
-class ScopedToken(models.Model):
+class ScopedViewToken(models.Model):
     key = models.CharField(max_length=40, primary_key=True)
     user = models.ForeignKey(
         User, related_name="scoped_auth_tokens", on_delete=models.CASCADE
@@ -90,7 +90,6 @@ class ScopedToken(models.Model):
     class Meta:
         verbose_name = "Scoped Token"
         verbose_name_plural = "Scoped Tokens"
-        app_label = "authtoken"
 
     def save(self, *args, **kwargs):
         if not self.key:
@@ -103,4 +102,4 @@ class ScopedTokenAuth(TokenAuthentication):
     Custom authentication class for ScopedToken.
     """
 
-    model = ScopedToken
+    model = ScopedViewToken
