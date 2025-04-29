@@ -389,5 +389,15 @@
       "workflow_option": "boete",
       "is_sanction": true
     }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 48,
+    "fields": {
+      "theme": 5,
+      "name": "Invordering dwangsom",
+      "workflow_option": "invordering_dwangsom",
+      "is_sanction": true
+    }
   }
 ]
