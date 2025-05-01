@@ -11,6 +11,8 @@ from freezegun import freeze_time
 
 
 class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
+    fixtures = ["fixture.json"]
+
     def test_can_create_debrief(self):
         self.assertEqual(Debriefing.objects.count(), 0)
         self.create_debriefing()
@@ -55,3 +57,108 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
 
         self.assertEquals(debriefing.feedback, modified_feedback)
         self.assertEquals(debriefing.violation, modified_violation)
+
+    def test_debriefing_get_violation_choices(self):
+        theme_id = 2
+        expected_values = [
+            "NO",
+            "YES",
+            "ADDITIONAL_RESEARCH_REQUIRED",
+            "ADDITIONAL_VISIT_REQUIRED",
+            "ADDITIONAL_VISIT_WITH_AUTHORIZATION",
+            "SEND_TO_OTHER_THEME",
+        ]
+        result = [
+            choice[0] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
+        ]
+        self.assertEqual(set(result), set(expected_values))
+
+        theme_id = 3
+        expected_values = [
+            "NO",
+            "YES",
+            "ADDITIONAL_RESEARCH_REQUIRED",
+            "ADDITIONAL_VISIT_REQUIRED",
+            "ADDITIONAL_VISIT_WITH_AUTHORIZATION",
+            "SEND_TO_OTHER_THEME",
+        ]
+        result = [
+            choice[0] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
+        ]
+        self.assertEqual(set(result), set(expected_values))
+
+        theme_id = 4
+        expected_values = [
+            "NO",
+            "YES",
+            "ADDITIONAL_RESEARCH_REQUIRED",
+            "ADDITIONAL_VISIT_REQUIRED",
+            "ADDITIONAL_VISIT_WITH_AUTHORIZATION",
+            "SEND_TO_OTHER_THEME",
+        ]
+        result = [
+            choice[0] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
+        ]
+        self.assertEqual(set(result), set(expected_values))
+
+        theme_id = 5
+        expected_values = [
+            "NO",
+            "YES",
+            "ADDITIONAL_RESEARCH_REQUIRED",
+            "ADDITIONAL_VISIT_REQUIRED",
+            "ADDITIONAL_VISIT_WITH_AUTHORIZATION",
+            "SEND_TO_OTHER_THEME",
+            "LIKELY_INHABITED",
+        ]
+        result = [
+            choice[0] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
+        ]
+        self.assertEqual(set(result), set(expected_values))
+
+        theme_id = 6
+        expected_values = [
+            "NO",
+            "YES",
+            "ADDITIONAL_RESEARCH_REQUIRED",
+            "ADDITIONAL_VISIT_REQUIRED",
+            "ADDITIONAL_VISIT_WITH_AUTHORIZATION",
+            "SEND_TO_OTHER_THEME",
+        ]
+        result = [
+            choice[0] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
+        ]
+        self.assertEqual(set(result), set(expected_values))
+
+        theme_id = 7
+        expected_values = [
+            "NO",
+            "YES",
+            "ADDITIONAL_RESEARCH_REQUIRED",
+            "ADDITIONAL_VISIT_REQUIRED",
+            "ADDITIONAL_VISIT_WITH_AUTHORIZATION",
+            "SEND_TO_OTHER_THEME",
+        ]
+        result = [
+            choice[0] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
+        ]
+        self.assertEqual(set(result), set(expected_values))
+
+        theme_id = 8
+        expected_values = [
+            "NO",
+            "YES",
+            "ADDITIONAL_VISIT_REQUIRED",
+            "ADDITIONAL_VISIT_WITH_AUTHORIZATION",
+            "SEND_TO_OTHER_THEME",
+            "SERVICE_COSTS",
+            "SCHEDULE_CONVERSATION",
+            "ADVICE_OTHER_DISCIPLINE",
+            "REQUEST_DOCUMENTS",
+            "SEND_TO_WOON",
+            "SEND_TO_ANOTHER_EXTERNAL_PARTY",
+        ]
+        result = [
+            choice[0] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
+        ]
+        self.assertEqual(set(result), set(expected_values))

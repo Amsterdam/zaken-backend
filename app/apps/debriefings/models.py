@@ -4,6 +4,18 @@ from django.conf import settings
 from django.db import models
 
 
+class ViolationType(models.Model):
+    name = models.CharField(max_length=255)
+    value = models.CharField(max_length=255)
+    enabled = models.BooleanField(default=True)
+    theme = models.ForeignKey(
+        to="cases.CaseTheme",
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="violation_types",
+    )
+
+
 class Debriefing(TaskModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_DEBRIEFING
 
@@ -81,6 +93,12 @@ class Debriefing(TaskModelEventEmitter):
             event_values.update(**self.violation_result)
 
         return event_values
+
+    # def get_violation_choices_by_theme(theme_id):
+    #     return ViolationType.objects.filter(
+    #         theme_id=theme_id,
+    #         enabled=True,
+    #     ).values_list("value", "name")
 
     def get_violation_choices_by_theme(theme_id):
         if theme_id == 5:
