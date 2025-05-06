@@ -1,0 +1,440 @@
+[
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Geen overtreding",
+        "value": "NO",
+        "enabled": true,
+        "theme": 2
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Overtreding",
+        "value": "YES",
+        "enabled": true,
+        "theme": 2
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Nader intern onderzoek nodig",
+        "value": "ADDITIONAL_RESEARCH_REQUIRED",
+        "enabled": true,
+        "theme": 2
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Aanvullend bezoek nodig",
+        "value": "ADDITIONAL_VISIT_REQUIRED",
+        "enabled": true,
+        "theme": 2
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Machtiging benodigd",
+        "value": "ADDITIONAL_VISIT_WITH_AUTHORIZATION",
+        "enabled": true,
+        "theme": 2
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Naar ander thema",
+        "value": "SEND_TO_OTHER_THEME",
+        "enabled": true,
+        "theme": 2
+      }
+    },
+
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Geen overtreding",
+        "value": "NO",
+        "enabled": true,
+        "theme": 3
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Overtreding",
+        "value": "YES",
+        "enabled": true,
+        "theme": 3
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Nader intern onderzoek nodig",
+        "value": "ADDITIONAL_RESEARCH_REQUIRED",
+        "enabled": true,
+        "theme": 3
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Aanvullend bezoek nodig",
+        "value": "ADDITIONAL_VISIT_REQUIRED",
+        "enabled": true,
+        "theme": 3
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Machtiging benodigd",
+        "value": "ADDITIONAL_VISIT_WITH_AUTHORIZATION",
+        "enabled": true,
+        "theme": 3
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Naar ander thema",
+        "value": "SEND_TO_OTHER_THEME",
+        "enabled": true,
+        "theme": 3
+      }
+    },
+
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Geen overtreding",
+        "value": "NO",
+        "enabled": true,
+        "theme": 4
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Overtreding",
+        "value": "YES",
+        "enabled": true,
+        "theme": 4
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Nader intern onderzoek nodig",
+        "value": "ADDITIONAL_RESEARCH_REQUIRED",
+        "enabled": true,
+        "theme": 4
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Aanvullend bezoek nodig",
+        "value": "ADDITIONAL_VISIT_REQUIRED",
+        "enabled": true,
+        "theme": 4
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Machtiging benodigd",
+        "value": "ADDITIONAL_VISIT_WITH_AUTHORIZATION",
+        "enabled": true,
+        "theme": 4
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Naar ander thema",
+        "value": "SEND_TO_OTHER_THEME",
+        "enabled": true,
+        "theme": 4
+      }
+    },
+
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Geen overtreding",
+        "value": "NO",
+        "enabled": true,
+        "theme": 5
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Overtreding",
+        "value": "YES",
+        "enabled": true,
+        "theme": 5
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Nader intern onderzoek nodig",
+        "value": "ADDITIONAL_RESEARCH_REQUIRED",
+        "enabled": true,
+        "theme": 5
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Aanvullend bezoek nodig",
+        "value": "ADDITIONAL_VISIT_REQUIRED",
+        "enabled": true,
+        "theme": 5
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Machtiging benodigd",
+        "value": "ADDITIONAL_VISIT_WITH_AUTHORIZATION",
+        "enabled": true,
+        "theme": 5
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Naar ander thema",
+        "value": "SEND_TO_OTHER_THEME",
+        "enabled": true,
+        "theme": 5
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Vermoeden bewoning/leegstand",
+        "value": "LIKELY_INHABITED",
+        "enabled": true,
+        "theme": 5
+      }
+    },
+
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Geen overtreding",
+        "value": "NO",
+        "enabled": true,
+        "theme": 6
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Overtreding",
+        "value": "YES",
+        "enabled": true,
+        "theme": 6
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Nader intern onderzoek nodig",
+        "value": "ADDITIONAL_RESEARCH_REQUIRED",
+        "enabled": true,
+        "theme": 6
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Aanvullend bezoek nodig",
+        "value": "ADDITIONAL_VISIT_REQUIRED",
+        "enabled": true,
+        "theme": 6
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Machtiging benodigd",
+        "value": "ADDITIONAL_VISIT_WITH_AUTHORIZATION",
+        "enabled": true,
+        "theme": 6
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Naar ander thema",
+        "value": "SEND_TO_OTHER_THEME",
+        "enabled": true,
+        "theme": 6
+      }
+    },
+
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Geen overtreding",
+        "value": "NO",
+        "enabled": true,
+        "theme": 7
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Overtreding",
+        "value": "YES",
+        "enabled": true,
+        "theme": 7
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Nader intern onderzoek nodig",
+        "value": "ADDITIONAL_RESEARCH_REQUIRED",
+        "enabled": true,
+        "theme": 7
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Aanvullend bezoek nodig",
+        "value": "ADDITIONAL_VISIT_REQUIRED",
+        "enabled": true,
+        "theme": 7
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Machtiging benodigd",
+        "value": "ADDITIONAL_VISIT_WITH_AUTHORIZATION",
+        "enabled": true,
+        "theme": 7
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Naar ander thema",
+        "value": "SEND_TO_OTHER_THEME",
+        "enabled": true,
+        "theme": 7
+      }
+    },
+
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Geen overtreding",
+        "value": "NO",
+        "enabled": true,
+        "theme": 8
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Overtreding",
+        "value": "YES",
+        "enabled": true,
+        "theme": 8
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Aanvullend bezoek nodig",
+        "value": "ADDITIONAL_VISIT_REQUIRED",
+        "enabled": true,
+        "theme": 8
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Machtiging benodigd",
+        "value": "ADDITIONAL_VISIT_WITH_AUTHORIZATION",
+        "enabled": true,
+        "theme": 8
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Naar ander thema",
+        "value": "SEND_TO_OTHER_THEME",
+        "enabled": true,
+        "theme": 8
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Narekenen onredelijke servicekosten",
+        "value": "SERVICE_COSTS",
+        "enabled": true,
+        "theme": 8
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Inplannen gesprek",
+        "value": "SCHEDULE_CONVERSATION",
+        "enabled": true,
+        "theme": 8
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Afwachten advies andere discipline",
+        "value": "ADVICE_OTHER_DISCIPLINE",
+        "enabled": true,
+        "theme": 8
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Opvragen stukken",
+        "value": "REQUEST_DOCUMENTS",
+        "enabled": true,
+        "theme": 8
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Doorsturen naar !Woon",
+        "value": "SEND_TO_WOON",
+        "enabled": true,
+        "theme": 8
+      }
+    },
+    {
+      "model": "debriefings.violationtype",
+      "fields": {
+        "name": "Doorsturen naar andere externe partij",
+        "value": "SEND_TO_ANOTHER_EXTERNAL_PARTY",
+        "enabled": true,
+        "theme": 8
+      }
+    }
+  ]
