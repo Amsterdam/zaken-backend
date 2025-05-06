@@ -1,6 +1,7 @@
 import logging
 import time
 
+import requests
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from drf_spectacular.contrib.rest_framework_simplejwt import SimpleJWTScheme
@@ -64,6 +65,19 @@ class OIDCAuthenticationBackend(OIDCAuthenticationBackend):
         userinfo = self.verify_token(access_token)
         self.validate_access_token(userinfo)
         return userinfo
+
+    def get_token(self, payload):
+        response = requests.post(
+            self.OIDC_OP_TOKEN_ENDPOINT,
+            data=payload,
+            verify=self.get_settings("OIDC_VERIFY_SSL", True),
+            timeout=self.get_settings("OIDC_TIMEOUT", None),
+            proxies=self.get_settings("OIDC_PROXY", None),
+            # Add origin headers to the request because Azure requires it in the PKCE flow
+            headers={"Origin": "https://test.nl"},
+        )
+        self.raise_token_response_error(response)
+        return response.json()
 
 
 LOGGER = logging.getLogger(__name__)

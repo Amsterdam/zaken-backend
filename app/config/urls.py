@@ -36,11 +36,19 @@ from apps.workflow.views import CaseUserTaskViewSet, GenericCompletedTaskViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.shortcuts import redirect
 from django.urls import include, path, re_path
 from django.views.generic import RedirectView, View
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
+
+
+@login_required
+def admin_redirect(request):
+    return redirect("/admin")
+
 
 router = DefaultRouter()
 router.register(r"addresses", AddressViewSet, basename="addresses")
@@ -92,7 +100,8 @@ class MyView(View):
 
 
 urlpatterns = [
-    # Admin environment
+    path("oidc/", include("mozilla_django_oidc.urls")),
+    path("admin/login/", admin_redirect),
     path("admin/", admin.site.urls),
     # API Routing
     path("api/v1/", include(router.urls)),
