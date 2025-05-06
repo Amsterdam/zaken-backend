@@ -27,4 +27,5 @@ class ViolationTypeAdmin(admin.ModelAdmin):
         "name",
         "value",
         "theme",
+        "enabled",
     )
