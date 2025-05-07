@@ -13,7 +13,7 @@ def complete_task_create_debrief(sender, instance, created, **kwargs):
             instance.case_user_task_id,
             {
                 "violation": {
-                    "value": instance.violation,
+                    "value": instance.violation.value,
                 }
             },
             wait=True,

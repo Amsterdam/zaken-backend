@@ -91,7 +91,7 @@ class Debriefing(TaskModelEventEmitter):
         event_values = {
             "author": self.author.full_name,
             "date_added": self.date_added,
-            "violation": self.violation,
+            "violation": self.violation.value,
             "feedback": self.feedback,
             "nuisance_detected": self.nuisance_detected,
         }
