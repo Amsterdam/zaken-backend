@@ -1,5 +1,5 @@
 from apps.cases.models import Case
-from apps.debriefings.models import Debriefing
+from apps.debriefings.models import Debriefing, ViolationType
 from django.contrib.auth import get_user_model
 from model_bakery import baker
 
@@ -18,7 +18,7 @@ class DebriefingTestMixin:
     def create_debriefing(self):
         case = self.create_case()
         author = self.create_user()
-        violation = Debriefing.VIOLATION_YES
+        violation = ViolationType.objects.filter(value="NO").first()
         debriefing = baker.make(
             Debriefing, case=case, author=author, violation=violation
         )

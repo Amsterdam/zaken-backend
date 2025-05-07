@@ -19,43 +19,7 @@ class ViolationType(models.Model):
 class Debriefing(TaskModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_DEBRIEFING
 
-    VIOLATION_NO = "NO"
-    VIOLATION_YES = "YES"
-    VIOLATION_ADDITIONAL_RESEARCH_REQUIRED = "ADDITIONAL_RESEARCH_REQUIRED"
-    VIOLATION_ADDITIONAL_VISIT_REQUIRED = "ADDITIONAL_VISIT_REQUIRED"
-    VIOLATION_ADDITIONAL_VISIT_WITH_AUTHORIZATION = (
-        "ADDITIONAL_VISIT_WITH_AUTHORIZATION"
-    )
-    VIOLATION_SEND_TO_OTHER_THEME = "SEND_TO_OTHER_THEME"
-    VIOLATION_LIKELY_INHABITED = "LIKELY_INHABITED"
-    VIOLATION_SERVICE_COSTS = "SERVICE_COSTS"
-    VIOLATION_SCHEDULE_CONVERSATION = "SCHEDULE_CONVERSATION"
-    VIOLATION_ADVICE_OTHER_DISCIPLINE = "ADVICE_OTHER_DISCIPLINE"
-    VIOLATION_REQUEST_DOCUMENTS = "REQUEST_DOCUMENTS"
-    VIOLATION_SEND_TO_WOON = "SEND_TO_WOON"
-    VIOLATION_SEND_TO_ANOTHER_EXTERNAL_PARTY = "SEND_TO_ANOTHER_EXTERNAL_PARTY"
-
-    VIOLATION_CHOICES = [
-        (VIOLATION_NO, "Geen overtreding"),
-        (VIOLATION_YES, "Overtreding"),
-        (VIOLATION_ADDITIONAL_RESEARCH_REQUIRED, "Nader intern onderzoek nodig"),
-        (VIOLATION_ADDITIONAL_VISIT_REQUIRED, "Aanvullend bezoek nodig"),
-        (
-            VIOLATION_ADDITIONAL_VISIT_WITH_AUTHORIZATION,
-            "Machtiging benodigd",
-        ),
-        (VIOLATION_SEND_TO_OTHER_THEME, "Naar ander thema"),
-        (VIOLATION_LIKELY_INHABITED, "Vermoeden bewoning/leegstand"),
-        (VIOLATION_SERVICE_COSTS, "Narekenen onredelijke servicekosten"),
-        (VIOLATION_SCHEDULE_CONVERSATION, "Inplannen gesprek"),
-        (VIOLATION_ADVICE_OTHER_DISCIPLINE, "Afwachten advies andere discipline"),
-        (VIOLATION_REQUEST_DOCUMENTS, "Opvragen stukken"),
-        (VIOLATION_SEND_TO_WOON, "Doorsturen naar !Woon"),
-        (
-            VIOLATION_SEND_TO_ANOTHER_EXTERNAL_PARTY,
-            "Doorsturen naar andere externe partij",
-        ),
-    ]
+    VIOLATION_CHOICES = []
 
     case = models.ForeignKey(
         to=Case, null=False, on_delete=models.CASCADE, related_name="debriefings"
@@ -69,10 +33,16 @@ class Debriefing(TaskModelEventEmitter):
     # TODO: Maybe rename this to date_created for consistency?
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
-    violation = models.CharField(
+    violation = models.ForeignKey(
+        to="ViolationType",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="debriefings",
+    )
+    violation_old = models.CharField(
         max_length=255,
         choices=VIOLATION_CHOICES,
-        default=VIOLATION_NO,
+        default="NO",
     )
     violation_result = models.JSONField(null=True, blank=True)
     feedback = models.TextField(null=False, blank=False)
@@ -85,7 +55,7 @@ class Debriefing(TaskModelEventEmitter):
         event_values = {
             "author": self.author.full_name,
             "date_added": self.date_added,
-            "violation": self.violation,
+            "violation": self.violation.value,
             "feedback": self.feedback,
             "nuisance_detected": self.nuisance_detected,
         }
@@ -94,47 +64,8 @@ class Debriefing(TaskModelEventEmitter):
 
         return event_values
 
-    # def get_violation_choices_by_theme(theme_id):
-    #     return ViolationType.objects.filter(
-    #         theme_id=theme_id,
-    #         enabled=True,
-    #     ).values_list("value", "name")
-
     def get_violation_choices_by_theme(theme_id):
-        if theme_id == 5:
-            # 5 = Leegstand
-            # VIOLATION_LIKELY_INHABITED is only accessible to Leegstand.
-            return [
-                vc
-                for vc in Debriefing.VIOLATION_CHOICES
-                if vc[0] != Debriefing.VIOLATION_SERVICE_COSTS
-                and vc[0] != Debriefing.VIOLATION_SCHEDULE_CONVERSATION
-                and vc[0] != Debriefing.VIOLATION_ADVICE_OTHER_DISCIPLINE
-                and vc[0] != Debriefing.VIOLATION_REQUEST_DOCUMENTS
-                and vc[0] != Debriefing.VIOLATION_SEND_TO_WOON
-                and vc[0] != Debriefing.VIOLATION_SEND_TO_ANOTHER_EXTERNAL_PARTY
-            ]
-        elif theme_id == 8:
-            # Goed verhuurderschap
-            # SERVICE_COSTS, SCHEDULE_CONVERSATION, VIOLATION_ADVICE_OTHER_DISCIPLINE,
-            # VIOLATION_REQUEST_DOCUMENTS, VIOLATION_SEND_TO_WOON and VIOLATION_SEND_TO_ANOTHER_EXTERNAL_PARTY
-            # are only accessible to Goed verhuurderschap.
-            return [
-                vc
-                for vc in Debriefing.VIOLATION_CHOICES
-                if vc[0] != Debriefing.VIOLATION_LIKELY_INHABITED
-                and vc[0] != Debriefing.VIOLATION_ADDITIONAL_RESEARCH_REQUIRED
-            ]
-        else:
-            # Other themes
-            return [
-                vc
-                for vc in Debriefing.VIOLATION_CHOICES
-                if vc[0] != Debriefing.VIOLATION_LIKELY_INHABITED
-                and vc[0] != Debriefing.VIOLATION_SERVICE_COSTS
-                and vc[0] != Debriefing.VIOLATION_SCHEDULE_CONVERSATION
-                and vc[0] != Debriefing.VIOLATION_ADVICE_OTHER_DISCIPLINE
-                and vc[0] != Debriefing.VIOLATION_REQUEST_DOCUMENTS
-                and vc[0] != Debriefing.VIOLATION_SEND_TO_WOON
-                and vc[0] != Debriefing.VIOLATION_SEND_TO_ANOTHER_EXTERNAL_PARTY
-            ]
+        return ViolationType.objects.filter(
+            theme_id=theme_id,
+            enabled=True,
+        ).values_list("value", "name")

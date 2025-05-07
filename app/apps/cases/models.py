@@ -241,11 +241,11 @@ class Case(ModelEventEmitter):
                 force = True
         elif isinstance(instance, Debriefing):
             force = bool(
-                instance.violation
+                instance.violation.value
                 in [
-                    Debriefing.VIOLATION_NO,
-                    Debriefing.VIOLATION_YES,
-                    Debriefing.VIOLATION_SEND_TO_OTHER_THEME,
+                    "NO",
+                    "YES",
+                    "SEND_TO_OTHER_THEME",
                 ]
             )
         if force:

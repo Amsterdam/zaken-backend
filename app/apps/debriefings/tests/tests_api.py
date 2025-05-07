@@ -1,10 +1,11 @@
 """
 Tests for Debriefing models
 """
-from apps.debriefings.models import Debriefing
+from apps.debriefings.models import Debriefing, ViolationType
 from apps.debriefings.tests.tests_helpers import DebriefingTestMixin
 from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from django.urls import reverse
+from model_bakery import baker
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -15,6 +16,8 @@ from app.utils.unittest_helpers import (
 
 
 class DebriefingCreateAPITest(ZakenBackendTestMixin, APITestCase, DebriefingTestMixin):
+    fixtures = ["fixture.json"]
+
     def test_unauthenticated_post(self):
         url = reverse("debriefings-list")
         client = get_unauthenticated_client()
@@ -30,9 +33,9 @@ class DebriefingCreateAPITest(ZakenBackendTestMixin, APITestCase, DebriefingTest
     def test_authenticated_post_create(self):
         self.assertEqual(Debriefing.objects.count(), 0)
         case = self.create_case()
-
+        violation_type = baker.make(ViolationType, theme_id=case.theme_id, value="NO")
         data = {
-            "violation": Debriefing.VIOLATION_ADDITIONAL_RESEARCH_REQUIRED,
+            "violation": violation_type.value,
             "feedback": "Hello World Feedback",
             "case": case.id,
         }

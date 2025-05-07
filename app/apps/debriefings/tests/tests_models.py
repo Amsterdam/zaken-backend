@@ -3,7 +3,7 @@ Tests for Debriefing models
 """
 from datetime import datetime, timezone
 
-from apps.debriefings.models import Debriefing
+from apps.debriefings.models import Debriefing, ViolationType
 from apps.debriefings.tests.tests_helpers import DebriefingTestMixin
 from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from django.test import TestCase
@@ -46,8 +46,7 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
     def test_can_be_modified(self):
         debriefing = self.create_debriefing()
         modified_feedback = "Adding other text"
-        modified_violation = Debriefing.VIOLATION_ADDITIONAL_RESEARCH_REQUIRED
-
+        modified_violation = ViolationType.objects.filter(value="NO").first()
         debriefing.feedback = modified_feedback
         debriefing.violation = modified_violation
 
