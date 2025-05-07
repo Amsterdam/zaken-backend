@@ -19,43 +19,7 @@ class ViolationType(models.Model):
 class Debriefing(TaskModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_DEBRIEFING
 
-    VIOLATION_NO = "NO"
-    VIOLATION_YES = "YES"
-    VIOLATION_ADDITIONAL_RESEARCH_REQUIRED = "ADDITIONAL_RESEARCH_REQUIRED"
-    VIOLATION_ADDITIONAL_VISIT_REQUIRED = "ADDITIONAL_VISIT_REQUIRED"
-    VIOLATION_ADDITIONAL_VISIT_WITH_AUTHORIZATION = (
-        "ADDITIONAL_VISIT_WITH_AUTHORIZATION"
-    )
-    VIOLATION_SEND_TO_OTHER_THEME = "SEND_TO_OTHER_THEME"
-    VIOLATION_LIKELY_INHABITED = "LIKELY_INHABITED"
-    VIOLATION_SERVICE_COSTS = "SERVICE_COSTS"
-    VIOLATION_SCHEDULE_CONVERSATION = "SCHEDULE_CONVERSATION"
-    VIOLATION_ADVICE_OTHER_DISCIPLINE = "ADVICE_OTHER_DISCIPLINE"
-    VIOLATION_REQUEST_DOCUMENTS = "REQUEST_DOCUMENTS"
-    VIOLATION_SEND_TO_WOON = "SEND_TO_WOON"
-    VIOLATION_SEND_TO_ANOTHER_EXTERNAL_PARTY = "SEND_TO_ANOTHER_EXTERNAL_PARTY"
-
-    VIOLATION_CHOICES = [
-        (VIOLATION_NO, "Geen overtreding"),
-        (VIOLATION_YES, "Overtreding"),
-        (VIOLATION_ADDITIONAL_RESEARCH_REQUIRED, "Nader intern onderzoek nodig"),
-        (VIOLATION_ADDITIONAL_VISIT_REQUIRED, "Aanvullend bezoek nodig"),
-        (
-            VIOLATION_ADDITIONAL_VISIT_WITH_AUTHORIZATION,
-            "Machtiging benodigd",
-        ),
-        (VIOLATION_SEND_TO_OTHER_THEME, "Naar ander thema"),
-        (VIOLATION_LIKELY_INHABITED, "Vermoeden bewoning/leegstand"),
-        (VIOLATION_SERVICE_COSTS, "Narekenen onredelijke servicekosten"),
-        (VIOLATION_SCHEDULE_CONVERSATION, "Inplannen gesprek"),
-        (VIOLATION_ADVICE_OTHER_DISCIPLINE, "Afwachten advies andere discipline"),
-        (VIOLATION_REQUEST_DOCUMENTS, "Opvragen stukken"),
-        (VIOLATION_SEND_TO_WOON, "Doorsturen naar !Woon"),
-        (
-            VIOLATION_SEND_TO_ANOTHER_EXTERNAL_PARTY,
-            "Doorsturen naar andere externe partij",
-        ),
-    ]
+    VIOLATION_CHOICES = []
 
     case = models.ForeignKey(
         to=Case, null=False, on_delete=models.CASCADE, related_name="debriefings"
@@ -78,7 +42,7 @@ class Debriefing(TaskModelEventEmitter):
     violation_old = models.CharField(
         max_length=255,
         choices=VIOLATION_CHOICES,
-        default=VIOLATION_NO,
+        default="NO",
     )
     violation_result = models.JSONField(null=True, blank=True)
     feedback = models.TextField(null=False, blank=False)
