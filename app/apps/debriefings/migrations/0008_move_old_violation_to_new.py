@@ -9,9 +9,14 @@ def migrate_violation_strings_to_foreign_keys(apps, schema_editor):
     for debriefing in Debriefing.objects.all():
         if not debriefing.violation_old:
             continue
-        vt = ViolationType.objects.get(
+        vt = ViolationType.objects.filter(
             value=debriefing.violation_old, theme_id=debriefing.case.theme_id
-        )
+        ).first()
+        if not vt:
+            print(
+                f"ViolationType with value {debriefing.violation_old} and theme_id {debriefing.case.theme_id} not found."
+            )
+            continue
         debriefing.violation_id = vt.id
         debriefing.save(update_fields=["violation"])
 
