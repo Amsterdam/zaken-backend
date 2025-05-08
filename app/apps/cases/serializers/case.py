@@ -278,6 +278,7 @@ class CaseBagIdsSerializer(serializers.ModelSerializer):
         model = Case
         fields = (
             "id",
+            "created",
             "bag_id",
             "nummeraanduiding_id",
         )

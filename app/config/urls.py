@@ -126,7 +126,7 @@ urlpatterns = [
     re_path(r"^$", view=MyView.as_view(), name="index"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-if settings.DEBUG:
+if not settings.ENVIRONMENT == "production":
     urlpatterns += [
         # Swagger/OpenAPI documentation
         path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),
