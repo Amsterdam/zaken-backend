@@ -19,8 +19,6 @@ class ViolationType(models.Model):
 class Debriefing(TaskModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_DEBRIEFING
 
-    VIOLATION_CHOICES = []
-
     case = models.ForeignKey(
         to=Case, null=False, on_delete=models.CASCADE, related_name="debriefings"
     )
@@ -41,7 +39,6 @@ class Debriefing(TaskModelEventEmitter):
     )
     violation_old = models.CharField(
         max_length=255,
-        choices=VIOLATION_CHOICES,
         default="NO",
     )
     violation_result = models.JSONField(null=True, blank=True)
