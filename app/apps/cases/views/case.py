@@ -1,6 +1,7 @@
 import io
 import logging
 import operator
+import re
 from functools import reduce
 
 from apps.addresses.models import District, HousingCorporation
@@ -251,6 +252,22 @@ class CaseFilter(filters.FilterSet):
         return queryset.filter(last_schedule_field=value)
 
     def get_fuzy_street_name(self, queryset, name, value):
+        """
+        Searches by street name or by a combination of postal code and house number in the format '1234AB 59'.
+        """
+        # Pattern to match a postal code followed by a house number
+        pattern = r"^[0-9]{4}[a-zA-Z]{2} \d+$"
+
+        value = value.strip()
+        if re.match(pattern, value):
+            postal_code, house_number = value.split(" ", 1)
+            house_number = int(house_number)
+
+            return queryset.filter(
+                address__postal_code__iexact=postal_code, address__number=house_number
+            )
+
+        # Search for street name
         return queryset.filter(address__street_name__trigram_similar=value)
 
     def get_number(self, queryset, name, value):
