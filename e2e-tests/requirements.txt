@@ -1,5 +1,5 @@
 # for making requests to the api
-requests==2.32.0
+requests==2.32.4
 requests-futures==1.0.0
 
 # for generating fake data
