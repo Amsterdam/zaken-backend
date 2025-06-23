@@ -165,7 +165,7 @@ class CaseFilter(filters.FilterSet):
         method="get_state_types",
         to_field_name="name",
     )
-    street_name = filters.CharFilter(method="get_fuzy_street_name")
+    street_name = filters.CharFilter(method="get_street_name")
     subject = filters.ModelMultipleChoiceFilter(
         queryset=Subject.objects.all(),
         method="get_subject",
@@ -251,7 +251,7 @@ class CaseFilter(filters.FilterSet):
         )
         return queryset.filter(last_schedule_field=value)
 
-    def get_fuzy_street_name(self, queryset, name, value):
+    def get_street_name(self, queryset, name, value):
         """
         Searches by street name or by a combination of postal code and house number in the format '1234AB 59'.
         """
@@ -268,7 +268,7 @@ class CaseFilter(filters.FilterSet):
             )
 
         # Search for street name
-        return queryset.filter(address__street_name__trigram_similar=value)
+        return queryset.filter(address__street_name__icontains=value)
 
     def get_number(self, queryset, name, value):
         return queryset.filter(address__number=value)
