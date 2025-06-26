@@ -46,7 +46,8 @@
       "theme": 2,
       "name": "Terugbelverzoek",
       "message_name": "start_callbackrequest_process",
-      "to_directing_proccess": false
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
     }
   },
   {
