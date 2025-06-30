@@ -350,6 +350,10 @@ BAG_ID_AMSTEL_1 = os.getenv(
     "BAG_ID_AMSTEL_1",
     "0363010012143319",
 )
+# Nummeraanduiding_id of Amstel 1 for testing purposes.
+NUMMERAANDUIGING_ID_AMSTEL_1 = os.getenv(
+    "NUMMERAANDUIGING_ID_AMSTEL_1", "0363200012145295"
+)
 BELASTING_API_URL = os.getenv(
     "BELASTING_API_URL",
     "https://api-acc.belastingen.centric.eu/bel/inn/afne/vora/v1/vorderingenidentificatienummer/",
@@ -365,6 +369,18 @@ BRP_API_URL = "/".join(
 
 BRP_CLIENT_ID = os.getenv("BRP_CLIENT_ID", "BRP_CLIENT_ID")
 BRP_CLIENT_SECRET = os.getenv("BRP_CLIENT_SECRET", "BRP_CLIENT_SECRET")
+
+# BRP API settings for NEW BRP-API team Benk
+BENK_BRP_CLIENT_ID = os.getenv("BENK_BRP_CLIENT_ID", "BENK_BRP_CLIENT_ID")
+BENK_BRP_CLIENT_SECRET = os.getenv("BENK_BRP_CLIENT_SECRET", "BENK_BRP_CLIENT_SECRET")
+BENK_BRP_SCOPE = os.getenv("BENK_BRP_SCOPE", "BENK_BRP_SCOPE")
+BENK_BRP_X_CORRELATION_ID = os.getenv(
+    "BENK_BRP_X_CORRELATION_ID", "spn-benk-brp-a-wonen ACC"
+)
+BENK_BRP_API_URL = os.getenv(
+    "BENK_BRP_API_URL", "https://acc.api.brp.amsterdam.nl/bevragingen/v1/"
+)
+
 # Secret keys which can be used to access certain parts of the API
 SECRET_KEY_TOP_ZAKEN = os.getenv("SECRET_KEY_TOP_ZAKEN", None)
 SECRET_KEY_TON_ZAKEN = os.getenv("SECRET_KEY_TON_ZAKEN", None)

@@ -114,6 +114,14 @@ class GetResidentsSerializer(serializers.Serializer):
     obo_access_token = serializers.DictField()
 
 
+class BrpSerializer(serializers.Serializer):
+    type = serializers.CharField(required=True)
+    personen = serializers.ListField(
+        child=serializers.DictField(),
+        required=True,
+    )
+
+
 class MeldingenSerializer(serializers.Serializer):
     pageNumber = serializers.IntegerField()
     pageSize = serializers.IntegerField()

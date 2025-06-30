@@ -82,6 +82,16 @@ class BRPServiceCheck(APIServiceCheckBackend):
     verbose_name = "BRP"
 
 
+class BRPNewServiceCheck(APIServiceCheckBackend):
+    """
+    Endpoint for checking the BRP Service API Endpoint
+    """
+
+    critical_service = True
+    api_url = settings.BENK_BRP_API_URL
+    verbose_name = "BRP BENK"
+
+
 class BAGBenkaggNummeraanduidingenServiceCheck(BaseHealthCheckBackend):
     """
     Endpoint for checking the BAG Benkagg adresseerbareobjecten API
@@ -92,8 +102,9 @@ class BAGBenkaggNummeraanduidingenServiceCheck(BaseHealthCheckBackend):
 
     def check_status(self):
         try:
-            IDENTIFICATIE_AMSTEL_1 = "0363200012145295"
-            response = do_bag_search_benkagg_by_id(IDENTIFICATIE_AMSTEL_1)
+            response = do_bag_search_benkagg_by_id(
+                settings.NUMMERAANDUIGING_ID_AMSTEL_1
+            )
             message = response.get("message")
             if message:
                 self.add_error(ServiceUnavailable(f"{message}"), message)
