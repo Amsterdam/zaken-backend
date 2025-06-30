@@ -3,6 +3,7 @@ import logging
 from apps.addresses.models import Address, District, HousingCorporation
 from apps.addresses.serializers import (
     AddressSerializer,
+    BrpSerializer,
     DistrictSerializer,
     GetResidentsSerializer,
     HousingCorporationSerializer,
@@ -23,6 +24,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
+from utils.api_queries_benk_brp import BrpRequest
 from utils.api_queries_brp import get_brp_by_nummeraanduiding_id
 from utils.api_queries_toeristische_verhuur import (
     get_vakantieverhuur_meldingen,
@@ -95,6 +97,52 @@ class AddressViewSet(
             serialized_residents = ResidentsSerializer(data=brp_data)
             serialized_residents.is_valid(raise_exception=True)
             return Response(serialized_residents.data, status=status_code)
+
+        return Response(
+            {"error": "no nummeraanduiding_id found"}, status=status.HTTP_404_NOT_FOUND
+        )
+
+    @action(
+        detail=True,
+        methods=["get"],
+        serializer_class=BrpSerializer,
+        url_path="residents-new",
+        permission_classes=[permissions.CanAccessBRP],
+    )
+    @extend_schema(
+        description="Gets the residents associated with this address",
+    )
+    def residents_by_bag_id_new_api(self, request, bag_id):
+        # Get address
+        try:
+            address = Address.objects.get(bag_id=bag_id)
+        except Address.DoesNotExist:
+            address = Address(bag_id=bag_id)
+
+        # If no nummeraanduiding_id, get it!
+        if not address.nummeraanduiding_id:
+            try:
+                address.update_bag_data()
+            except Exception:
+                return Response(
+                    {"error": "BAG data could not be obtained"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+        # nummeraanduiding_id should have been retrieved, so get BRP data
+        if address.nummeraanduiding_id:
+            try:
+                response = BrpRequest().get_brp_with_nummeraanduiding_id(
+                    address.nummeraanduiding_id, request.user.email
+                )
+
+                serialized_residents = BrpSerializer(data=response)
+                serialized_residents.is_valid(raise_exception=True)
+                # return Response(serialized_residents.data, status=status_code)
+                return Response(serialized_residents.data)
+            except Exception as e:
+                logger.error(f"Failed to fetch residents for bag id {bag_id}: {e}")
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(
             {"error": "no nummeraanduiding_id found"}, status=status.HTTP_404_NOT_FOUND
