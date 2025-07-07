@@ -374,9 +374,6 @@ BRP_CLIENT_SECRET = os.getenv("BRP_CLIENT_SECRET", "BRP_CLIENT_SECRET")
 BENK_BRP_CLIENT_ID = os.getenv("BENK_BRP_CLIENT_ID", "BENK_BRP_CLIENT_ID")
 BENK_BRP_CLIENT_SECRET = os.getenv("BENK_BRP_CLIENT_SECRET", "BENK_BRP_CLIENT_SECRET")
 BENK_BRP_SCOPE = os.getenv("BENK_BRP_SCOPE", "BENK_BRP_SCOPE")
-BENK_BRP_X_CORRELATION_ID = os.getenv(
-    "BENK_BRP_X_CORRELATION_ID", "spn-benk-brp-a-wonen ACC"
-)
 BENK_BRP_API_URL = os.getenv(
     "BENK_BRP_API_URL", "https://acc.api.brp.amsterdam.nl/bevragingen/v1/"
 )

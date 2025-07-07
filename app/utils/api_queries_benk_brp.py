@@ -3,6 +3,7 @@ import os
 
 import requests
 from django.conf import settings
+from opencensus.trace.tracer import Tracer
 
 logger = logging.getLogger(__name__)
 
@@ -36,10 +37,14 @@ class BrpRequest:
     def _perform_api_call(
         self, url, method="post", json=None, access_token=None, user_email=None
     ):
+        # Initialize tracer for Application Insights
+        tracer = Tracer()
+        span_context = tracer.span_context
+        operation_id = span_context.trace_id
         headers = {
             "Authorization": f"Bearer {access_token}" if access_token else "",
-            "X-Correlation-ID": settings.BENK_BRP_X_CORRELATION_ID,
-            "X-Task-Description": settings.BENK_BRP_X_CORRELATION_ID,
+            "X-Correlation-ID": operation_id,
+            "X-Task-Description": "Wonen",
             "X-User": user_email,
         }
 
