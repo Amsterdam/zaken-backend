@@ -37,7 +37,7 @@ pyproj==3.6.1
 python-dotenv==1.1.0
 python-dateutil==2.8.2
 pytz==2022.1
-redis==5.2.0
+redis==6.2.0
 Requests==2.32.4
 requests-mock==1.9.3
 spiffworkflow==1.1.0
