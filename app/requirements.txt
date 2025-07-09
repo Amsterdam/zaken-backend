@@ -20,7 +20,7 @@ drf-spectacular-sidecar==2024.7.1
 drf-writable-nested==0.6.3
 Faker==8.13.2
 freezegun==1.1.0
-gemma-zds-client==1.0.0
+gemma-zds-client==2.0.0
 model-bakery==1.20.4
 mozilla-django-oidc==4.0.1
 opencensus==0.11.2
