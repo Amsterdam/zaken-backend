@@ -111,6 +111,9 @@ class CaseFilter(filters.FilterSet):
         queryset=HousingCorporation.objects.all(),
         method="get_housing_corporation",
     )
+    housing_corporation_isnull = filters.BooleanFilter(
+        method="filter_housing_corporation_isnull"
+    )
     is_enforcement_request = filters.BooleanFilter(
         method="get_enforcement_request_cases"
     )
@@ -283,6 +286,9 @@ class CaseFilter(filters.FilterSet):
             return queryset.filter(address__housing_corporation__in=value)
         return queryset
 
+    def filter_housing_corporation_isnull(self, queryset, name, value):
+        return queryset.filter(address__housing_corporation__isnull=value)
+
     def get_open_cases(self, queryset, name, value):
         return queryset.filter(end_date__isnull=value)
 
@@ -396,6 +402,9 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("from_start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
         OpenApiParameter(
             "housing_corporation", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
+        ),
+        OpenApiParameter(
+            "housing_corporation_isnull", OpenApiTypes.BOOL, OpenApiParameter.QUERY
         ),
         OpenApiParameter(
             "is_enforcement_request", OpenApiTypes.BOOL, OpenApiParameter.QUERY
