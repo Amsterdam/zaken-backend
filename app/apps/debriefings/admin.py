@@ -29,3 +29,4 @@ class ViolationTypeAdmin(admin.ModelAdmin):
         "theme",
         "enabled",
     )
+    list_filter = ("theme", "enabled")

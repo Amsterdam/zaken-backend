@@ -68,7 +68,7 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
             "SEND_TO_OTHER_THEME",
         ]
         result = [
-            choice[0] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
+            choice[1] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
         ]
         self.assertEqual(set(result), set(expected_values))
 
@@ -82,7 +82,7 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
             "SEND_TO_OTHER_THEME",
         ]
         result = [
-            choice[0] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
+            choice[1] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
         ]
         self.assertEqual(set(result), set(expected_values))
 
@@ -96,7 +96,7 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
             "SEND_TO_OTHER_THEME",
         ]
         result = [
-            choice[0] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
+            choice[1] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
         ]
         self.assertEqual(set(result), set(expected_values))
 
@@ -111,7 +111,7 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
             "LIKELY_INHABITED",
         ]
         result = [
-            choice[0] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
+            choice[1] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
         ]
         self.assertEqual(set(result), set(expected_values))
 
@@ -125,7 +125,7 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
             "SEND_TO_OTHER_THEME",
         ]
         result = [
-            choice[0] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
+            choice[1] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
         ]
         self.assertEqual(set(result), set(expected_values))
 
@@ -139,7 +139,7 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
             "SEND_TO_OTHER_THEME",
         ]
         result = [
-            choice[0] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
+            choice[1] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
         ]
         self.assertEqual(set(result), set(expected_values))
 
@@ -158,6 +158,6 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
             "SEND_TO_ANOTHER_EXTERNAL_PARTY",
         ]
         result = [
-            choice[0] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
+            choice[1] for choice in Debriefing.get_violation_choices_by_theme(theme_id)
         ]
         self.assertEqual(set(result), set(expected_values))
