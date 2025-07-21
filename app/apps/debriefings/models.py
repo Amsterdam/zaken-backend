@@ -15,6 +15,9 @@ class ViolationType(models.Model):
         related_name="violation_types",
     )
 
+    def __str__(self):
+        return f"{self.name} - {self.theme}"
+
 
 class Debriefing(TaskModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_DEBRIEFING
@@ -65,4 +68,4 @@ class Debriefing(TaskModelEventEmitter):
         return ViolationType.objects.filter(
             theme_id=theme_id,
             enabled=True,
-        ).values_list("value", "name")
+        ).values_list("id", "value", "name")

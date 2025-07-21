@@ -33,5 +33,6 @@ class DebriefingCreateSerializer(serializers.ModelSerializer):
 
 
 class ViolationTypeSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
     key = serializers.CharField()
     value = serializers.CharField()
