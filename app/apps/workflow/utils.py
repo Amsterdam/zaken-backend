@@ -62,9 +62,11 @@ def parse_task_spec_form(form):
                 for o in f.__dict__.get("options", [])
             ],
             "name": f.id,
-            "type": "multiselect"
-            if bool([v.name for v in f.validation if v.name == "multiple"])
-            else trans_types.get(f.type, "text"),
+            "type": (
+                "multiselect"
+                if bool([v.name for v in f.validation if v.name == "multiple"])
+                else trans_types.get(f.type, "text")
+            ),
             "required": not bool(
                 [v.name for v in f.validation if v.name == "optional"]
             ),
@@ -85,18 +87,27 @@ def map_variables_on_task_spec_form(variables, task_spec_form):
             k,
             {
                 "label": form.get(k, {}).get("label", v.get("value")),
-                "value": v.get("value")
-                if not form.get(k, {}).get("options")
-                else [
-                    dict((o.get("value"), o) for o in form.get(k, {}).get("options"))
-                    .get(vv, {})
-                    .get("label", vv)
-                    for vv in v.get("value")
-                ]
-                if isinstance(v.get("value"), list)
-                else dict((o.get("value"), o) for o in form.get(k, {}).get("options"))
-                .get(v.get("value"), {})
-                .get("label", v.get("value")),
+                "value": (
+                    v.get("value")
+                    if not form.get(k, {}).get("options")
+                    else (
+                        [
+                            dict(
+                                (o.get("value"), o)
+                                for o in form.get(k, {}).get("options")
+                            )
+                            .get(vv, {})
+                            .get("label", vv)
+                            for vv in v.get("value")
+                        ]
+                        if isinstance(v.get("value"), list)
+                        else dict(
+                            (o.get("value"), o) for o in form.get(k, {}).get("options")
+                        )
+                        .get(v.get("value"), {})
+                        .get("label", v.get("value"))
+                    )
+                ),
             },
         )
         for k, v in variables.items()
@@ -388,9 +399,11 @@ def get_workflow_spec_dump(
 
         task_spec_blueprint = {
             "task_spec_class_name": task_spec.__class__.__name__,
-            "form": parse_task_spec_form(task_spec.form)
-            if hasattr(task_spec, "form")
-            else [],
+            "form": (
+                parse_task_spec_form(task_spec.form)
+                if hasattr(task_spec, "form")
+                else []
+            ),
         }
         if not hide_names:
             task_spec_blueprint.update(
@@ -520,9 +533,9 @@ def compare_workflow_specs(version_a, version_b, theme_name, worflow_type):
         "stucture_changed": stucture_changed,
         "task_ids_and_stucture_changed": task_ids_and_stucture_changed,
         "user_tasks_changed": user_tasks_changed if user_tasks_changed else False,
-        "user_tasks_formfields_changed": user_tasks_formfields_changed
-        if user_tasks_formfields_changed
-        else False,
+        "user_tasks_formfields_changed": (
+            user_tasks_formfields_changed if user_tasks_formfields_changed else False
+        ),
     }
 
 
@@ -696,9 +709,9 @@ def ff_to_subworkflow(subworkflow, spec, message_name, data):
 
     result = {
         "workflow": workflow,
-        "last_task_spec_name": workflow.last_task.task_spec.name
-        if workflow.last_task
-        else None,
+        "last_task_spec_name": (
+            workflow.last_task.task_spec.name if workflow.last_task else None
+        ),
         "completed": completed,
     }
     return result, success
@@ -867,9 +880,11 @@ def workflow_tree_inspect(
         data = dict(
             (
                 f.get("name"),
-                [option.get("value") for option in f.get("options", [])]
-                if f.get("options", [])
-                else [True, False],
+                (
+                    [option.get("value") for option in f.get("options", [])]
+                    if f.get("options", [])
+                    else [True, False]
+                ),
             )
             for f in fields
         )
@@ -993,15 +1008,19 @@ def workflow_spec_path_inspect(
                         m,
                         workflow_spec,
                         script_engine,
-                        initial_data
-                        if not v.get("initial_data")
-                        else v.get("initial_data", {}),
+                        (
+                            initial_data
+                            if not v.get("initial_data")
+                            else v.get("initial_data", {})
+                        ),
                     ),
                     "tree_valid": workflow_tree_inspect(
                         workflow,
-                        initial_data
-                        if not v.get("initial_data")
-                        else v.get("initial_data", {}),
+                        (
+                            initial_data
+                            if not v.get("initial_data")
+                            else v.get("initial_data", {})
+                        ),
                         script_engine,
                         m,
                         spec_user_tasks,

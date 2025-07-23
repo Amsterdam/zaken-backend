@@ -1,6 +1,7 @@
 """
 Tests for Debriefing models
 """
+
 from apps.cases.models import Case
 from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from apps.schedules.models import Action, DaySegment, Priority, Schedule, WeekSegment
