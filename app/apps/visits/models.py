@@ -34,6 +34,7 @@ class Visit(TaskModelEventEmitter):
     notes = models.TextField(null=True, blank=True)
     top_visit_id = models.PositiveBigIntegerField()
     completed = models.BooleanField(default=True)
+    is_additional = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-start_time"]
@@ -51,6 +52,7 @@ class Visit(TaskModelEventEmitter):
             "can_next_visit_go_ahead_description": self.can_next_visit_go_ahead_description,
             "suggest_next_visit": self.suggest_next_visit,
             "suggest_next_visit_description": self.suggest_next_visit_description,
+            "is_additional": self.is_additional,
         }
         if self.notes:
             json_obj["notes"] = self.notes

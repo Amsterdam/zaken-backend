@@ -62,7 +62,7 @@ def mock_get_bag_identificatie_and_stadsdeel_result_without_stadsdeel():
             "adresseerbareobjecten": [
                 {
                     "huisnummer": 1,
-                    "identificatie": "123456789"
+                    "identificatie": "123456789",
                     # No "gebiedenStadsdeelNaam" key
                 }
             ]
