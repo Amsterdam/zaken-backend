@@ -1139,3 +1139,47 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def extract_subworkflow_message_versions():
+    """
+    Extracts the first version in which each message appears across all subworkflow versions.
+    Versions are sorted in ascending order to ensure the earliest version is selected per message.
+    Returns a dictionary mapping message names to their first version.
+    """
+    subworkflow = settings.WORKFLOW_SPEC_CONFIG["default"].get("sub_workflow", {})
+    versions = subworkflow.get("versions", {})
+
+    message_versions = {}
+
+    def version_key(version: str):
+        return list(map(int, version.split(".")))
+
+    for version in sorted(versions.keys(), key=version_key):
+        messages = versions[version].get("messages", {})
+        for name in messages:
+            if name not in message_versions:
+                message_versions[name] = version
+
+    return message_versions
+
+
+def filter_messages_by_max_major_version(max_version):
+    """
+    Filters the message versions extracted from the subworkflow,
+    keeping only those with a major version number lower than the given max_version.
+    Returns a dictionary of message names and their versions.
+    """
+
+    def get_major(version_string):
+        return int(version_string.split(".")[0])
+
+    max_major = get_major(max_version)
+
+    all_versions = extract_subworkflow_message_versions()
+
+    return {
+        name: version
+        for name, version in all_versions.items()
+        if get_major(version) < max_major
+    }

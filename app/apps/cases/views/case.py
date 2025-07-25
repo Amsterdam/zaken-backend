@@ -56,6 +56,7 @@ from apps.workflow.serializers import (
     StartWorkflowSerializer,
     WorkflowOptionSerializer,
 )
+from apps.workflow.utils import filter_messages_by_max_major_version
 from django.db.models import OuterRef, Q, Subquery
 from django.forms.fields import CharField, MultipleChoiceField
 from django.http import FileResponse
@@ -581,6 +582,20 @@ class CaseViewSet(
         options = WorkflowOption.objects.filter(
             theme=case.theme,
         )
+
+        workflow_director = CaseWorkflow.objects.filter(
+            case=case, main_workflow=True
+        ).first()
+
+        if workflow_director:
+            message_names = filter_messages_by_max_major_version(
+                workflow_director.workflow_version
+            )
+            if message_names:
+                options = options.filter(
+                    message_name__in=message_names,
+                )
+
         if case.end_date:
             options = options.filter(
                 enabled_on_case_closed=True,
