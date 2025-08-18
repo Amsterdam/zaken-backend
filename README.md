@@ -37,7 +37,9 @@ Make sure you have Docker installed locally:
 
 These steps are necessary to make sure all configurations are set up correctly so that you can get the project running correctly.
 
-First, make sure you have built the project and executed the database migrations:
+### Creating networks & build container
+
+First, create the necessary networks and build the project:
 
 ```bash
 docker network create top_and_zaak_backend_bridge
@@ -45,29 +47,39 @@ docker network create zaken_network
 docker compose -f docker-compose.local.yml build
 ```
 
-Start AZA backend:
+### Starting the backend
+
+Run the following to start the backend:
 
 ```bash
 docker compose -f docker-compose.local.yml up
 ```
 
-To create all necessary credentials run the following command:
+### Creating a superuser
+
+For accessing the Django admin during local development you'll have to become a `superuser`. This user should have the same `email` and `username` as the one that will be auto-created by the SSO login.
+
+Run the following command to either create the user, or make the existing one a superuser:
 
 ```bash
-bash bin/setup_credentials.sh
+sh bin/setup_superuser.sh <email>
 ```
 
-This will create superuser admin account with the following credentials
+### Using local development authentication
+To run the project with local Django authentication instead of OpenID Connect (OIDC), create a `.local.env` file with:
 
 ```bash
-email: admin@admin.com
-password: insecure
+LOCAL_DEVELOPMENT_AUTHENTICATION=False
 ```
 
-Visit the Admin at http://localhost:8080/admin/
+### Django admin & services
+
+Visit the Admin at http://localhost:8081/admin/
 
 Check the health page to see if all services are up and running:
 http://localhost:8080/health
+
+### Creating user groups
 
 To create all necessary user groups run the following command:
 
@@ -125,7 +137,11 @@ docker compose -f docker-compose.local.yml --env-file .env.local up
 
 ## Enabling Keycloak authentication for a locally run zaken-frontend
 
-Set `LOCAL_DEVELOPMENT_AUTHENTICATION` environment variable to False
+Set `LOCAL_DEVELOPMENT_AUTHENTICATION` by adding it to a `.local.env` file:
+
+```bash
+LOCAL_DEVELOPMENT_AUTHENTICATION=False
+```
 
 ## Generating Mock Data
 
