@@ -1,4 +1,4 @@
-FROM python:3.10-bullseye
+FROM python:3.13-trixie
 
 ENV REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
@@ -15,11 +15,15 @@ RUN apt-get update && apt-get install -y \
     libgdal-dev \
     graphviz \
     graphviz-dev \
-    postgresql-client
+    postgresql-client \
+    tzdata \
+    wget \
+    curl \
+    netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --upgrade pip setuptools wheel
-RUN pip install uwsgi
-RUN pip install pygraphviz
+RUN pip install --upgrade pip setuptools wheel pygraphviz uwsgi
+RUN pip install "poetry==$POETRY_VERSION"
 
 RUN echo "10.240.5.72     acc.api.data.amsterdam.nl" >> /etc/hosts || echo "Could not write to /etc/hosts"
 
