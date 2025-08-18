@@ -52,7 +52,7 @@ class CaseThemeApiTest(ZakenBackendTestMixin, APITestCase):
         response = client.get(url)
         data = response.json()
 
-        self.assertEquals(data["results"], [])
+        self.assertEqual(data["results"], [])
 
     def test_authenticated_get_filled(self):
         baker.make(CaseTheme, _quantity=2)
@@ -63,7 +63,7 @@ class CaseThemeApiTest(ZakenBackendTestMixin, APITestCase):
         response = client.get(url)
         data = response.json()
 
-        self.assertEquals(len(data["results"]), 2)
+        self.assertEqual(len(data["results"]), 2)
 
 
 class CaseThemeReasonApiTest(ZakenBackendTestMixin, APITestCase):
@@ -459,7 +459,7 @@ class CaseCreatApiTest(ZakenBackendTestMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_authenticated_post_create(self):
-        self.assertEquals(Case.objects.count(), 0)
+        self.assertEqual(Case.objects.count(), 0)
 
         theme = baker.make(CaseTheme)
         reason = baker.make(CaseReason, theme=theme)
@@ -477,11 +477,11 @@ class CaseCreatApiTest(ZakenBackendTestMixin, APITestCase):
             format="json",
         )
 
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(Case.objects.count(), 1)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Case.objects.count(), 1)
 
     def test_authenticated_post_create_with_advertisements(self):
-        self.assertEquals(Case.objects.count(), 0)
+        self.assertEqual(Case.objects.count(), 0)
 
         theme = baker.make(CaseTheme)
         reason = baker.make(CaseReason, theme=theme)
@@ -508,13 +508,13 @@ class CaseCreatApiTest(ZakenBackendTestMixin, APITestCase):
         cases = Case.objects.all()
         citizen_reports = CitizenReport.objects.all()
         advertisements = Advertisement.objects.all()
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(advertisements.count(), 2)
-        self.assertEquals(cases.count(), 1)
-        self.assertEquals(citizen_reports.count(), 1)
-        self.assertEquals(cases[0].advertisements.count(), 2)
-        self.assertEquals(cases[0].case_created_advertisements.count(), 1)
-        self.assertEquals(citizen_reports[0].related_advertisements.count(), 1)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(advertisements.count(), 2)
+        self.assertEqual(cases.count(), 1)
+        self.assertEqual(citizen_reports.count(), 1)
+        self.assertEqual(cases[0].advertisements.count(), 2)
+        self.assertEqual(cases[0].case_created_advertisements.count(), 1)
+        self.assertEqual(citizen_reports[0].related_advertisements.count(), 1)
 
     def test_authenticated_post_create_fail_wrong_theme(self):
         """Should not be able to create a case if a wrong theme ID is given"""
@@ -534,8 +534,8 @@ class CaseCreatApiTest(ZakenBackendTestMixin, APITestCase):
             format="json",
         )
 
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEquals(Case.objects.count(), 0)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Case.objects.count(), 0)
 
     def test_authenticated_post_create_fail_wrong_reason(self):
         """Should not be able to create a case if a wrong theme ID is given"""
@@ -554,12 +554,12 @@ class CaseCreatApiTest(ZakenBackendTestMixin, APITestCase):
             format="json",
         )
 
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEquals(Case.objects.count(), 0)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Case.objects.count(), 0)
 
     def test_authenticated_post_create_wrong_theme_reason_relation(self):
         """Request should fail if the CaseReason is not one of the given themes CaseReasons"""
-        self.assertEquals(Case.objects.count(), 0)
+        self.assertEqual(Case.objects.count(), 0)
 
         theme_a = baker.make(CaseTheme)
         theme_b = baker.make(CaseTheme)
@@ -578,14 +578,14 @@ class CaseCreatApiTest(ZakenBackendTestMixin, APITestCase):
             format="json",
         )
 
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEquals(Case.objects.count(), 0)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Case.objects.count(), 0)
 
     def test_authenticated_post_create_author(self):
         """
         The author of the case should automatically be set to the authenticated user who made the POST request
         """
-        self.assertEquals(Case.objects.count(), 0)
+        self.assertEqual(Case.objects.count(), 0)
 
         theme = baker.make(CaseTheme)
         reason = baker.make(CaseReason, theme=theme)
@@ -606,7 +606,7 @@ class CaseCreatApiTest(ZakenBackendTestMixin, APITestCase):
         test_user = get_test_user()
         case = Case.objects.get(id=response.data["id"])
 
-        self.assertEquals(case.author, test_user)
+        self.assertEqual(case.author, test_user)
 
 
 class CaseThemeSummonTypeApiTest(ZakenBackendTestMixin, APITestCase):

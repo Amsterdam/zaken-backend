@@ -11,21 +11,21 @@ class AdressUtilsSearchTest(TestCase):
 
     def test_no_results(self):
         results = search()
-        self.assertEquals(len(results), 0)
+        self.assertEqual(len(results), 0)
 
     def test_no_matching_street_name(self):
         baker.make(Address, street_name="Foo")
 
         results = search(street_name="Warmoesstraat")
-        self.assertEquals(len(results), 0)
+        self.assertEqual(len(results), 0)
 
     def test_matching_street_name(self):
         STREET_NAME = "Warmoesstraat"
         address = baker.make(Address, street_name=STREET_NAME)
 
         results = search(street_name=STREET_NAME)
-        self.assertEquals(len(results), 1)
-        self.assertEquals(results[0], address)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0], address)
 
     def test_similar_street_name(self):
         STREET_NAME = "Warmoesstraat"
@@ -33,8 +33,8 @@ class AdressUtilsSearchTest(TestCase):
         address = baker.make(Address, street_name=STREET_NAME)
 
         results = search(street_name=SIMILAR_STREET_NAME)
-        self.assertEquals(len(results), 1)
-        self.assertEquals(results[0], address)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0], address)
 
     def test_multiple_similar_street_name(self):
         SIMILAR_STREET_NAMES = [
@@ -59,7 +59,7 @@ class AdressUtilsSearchTest(TestCase):
             baker.make(Address, street_name=street_name)
 
         results = search(street_name="Warmoesstraat")
-        self.assertEquals(len(results), len(SIMILAR_STREET_NAMES))
+        self.assertEqual(len(results), len(SIMILAR_STREET_NAMES))
 
     def test_matching_street_name_number(self):
         STREET_NAME = "Warmoesstraat"
@@ -69,8 +69,8 @@ class AdressUtilsSearchTest(TestCase):
 
         results = search(street_name=STREET_NAME, number=1)
 
-        self.assertEquals(len(results), 1)
-        self.assertEquals(results[0], address)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0], address)
 
     def test_matching_street_name_numer(self):
         STREET_NAME = "Warmoesstraat"
@@ -79,38 +79,38 @@ class AdressUtilsSearchTest(TestCase):
         baker.make(Address, street_name=STREET_NAME, number=11, suffix="A")
 
         results = search(street_name=STREET_NAME, number=1, suffix="A")
-        self.assertEquals(len(results), 1)
-        self.assertEquals(results[0], address)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0], address)
 
     def test_no_matching_postal_code(self):
         baker.make(Address, postal_code="1012GW")
 
         results = search(postal_code="Foo")
-        self.assertEquals(len(results), 0)
+        self.assertEqual(len(results), 0)
 
     def test_matching_postal_code(self):
         POSTAL_CODE = "1012GW"
         address = baker.make(Address, postal_code=POSTAL_CODE)
 
         results = search(postal_code=POSTAL_CODE)
-        self.assertEquals(len(results), 1)
-        self.assertEquals(results[0], address)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0], address)
 
     def test_matching_postal_code_leading_space(self):
         POSTAL_CODE = "1012GW"
         address = baker.make(Address, postal_code=POSTAL_CODE)
 
         results = search(postal_code=" " + POSTAL_CODE)
-        self.assertEquals(len(results), 1)
-        self.assertEquals(results[0], address)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0], address)
 
     def test_matching_postal_code_trailing_space(self):
         POSTAL_CODE = "1012GW"
         address = baker.make(Address, postal_code=POSTAL_CODE)
 
         results = search(postal_code=POSTAL_CODE + " ")
-        self.assertEquals(len(results), 1)
-        self.assertEquals(results[0], address)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0], address)
 
     def test_matching_postal_code_mid_space(self):
         POSTAL_CODE_CORRECT = "1012GW"
@@ -118,8 +118,8 @@ class AdressUtilsSearchTest(TestCase):
         address = baker.make(Address, postal_code=POSTAL_CODE_CORRECT)
 
         results = search(postal_code=POSTAL_CODE_SPACE)
-        self.assertEquals(len(results), 1)
-        self.assertEquals(results[0], address)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0], address)
 
     def test_matching_postal_code_number(self):
         POSTAL_CODE = "1012GW"
@@ -128,8 +128,8 @@ class AdressUtilsSearchTest(TestCase):
         baker.make(Address, postal_code=POSTAL_CODE, number=3)
 
         results = search(postal_code=POSTAL_CODE, number=1)
-        self.assertEquals(len(results), 1)
-        self.assertEquals(results[0], address)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0], address)
 
     def test_matching_postal_code_number_suffix(self):
         POSTAL_CODE = "1012GW"
@@ -140,5 +140,5 @@ class AdressUtilsSearchTest(TestCase):
         baker.make(Address, postal_code=POSTAL_CODE, number=3, suffix=SUFFIX)
 
         results = search(postal_code=POSTAL_CODE, number=1, suffix=SUFFIX)
-        self.assertEquals(len(results), 1)
-        self.assertEquals(results[0], address)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0], address)

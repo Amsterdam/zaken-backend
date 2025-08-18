@@ -12,7 +12,7 @@ class WorkflowConfTest(TestCase):
 
         serializer = WorkflowSpecConfigSerializer(data=settings.WORKFLOW_SPEC_CONFIG)
 
-        self.assertEquals(serializer.is_valid(), True)
+        self.assertEqual(serializer.is_valid(), True)
 
     def test_settings_conf_paths(self):
         """
@@ -21,13 +21,13 @@ class WorkflowConfTest(TestCase):
 
         serializer = WorkflowSpecConfigSerializer(data=settings.WORKFLOW_SPEC_CONFIG)
 
-        self.assertEquals(serializer.is_valid(), True)
+        self.assertEqual(serializer.is_valid(), True)
 
         paths = workflow_spec_paths_inspect(settings.WORKFLOW_SPEC_CONFIG)
 
         non_valid_paths = [p.get("path") for p in paths if not p.get("workflow_data")]
 
-        self.assertEquals(non_valid_paths, [])
+        self.assertEqual(non_valid_paths, [])
 
     def test_settings_conf_messages(self):
         """
@@ -37,13 +37,13 @@ class WorkflowConfTest(TestCase):
 
         serializer = WorkflowSpecConfigSerializer(data=settings.WORKFLOW_SPEC_CONFIG)
 
-        self.assertEquals(serializer.is_valid(), True)
+        self.assertEqual(serializer.is_valid(), True)
 
         paths = workflow_spec_paths_inspect(settings.WORKFLOW_SPEC_CONFIG)
 
         non_valid_paths = [p.get("path") for p in paths if not p.get("workflow_data")]
 
-        self.assertEquals(non_valid_paths, [])
+        self.assertEqual(non_valid_paths, [])
         valid_paths_messages = [
             {
                 "messages": p.get("workflow_data", {}).get("messages"),
@@ -60,7 +60,7 @@ class WorkflowConfTest(TestCase):
             if not m.get("exists")
         ]
 
-        self.assertEquals(invalid_messages_paths, [])
+        self.assertEqual(invalid_messages_paths, [])
 
     def test_workflow_tree(self):
         """
@@ -69,13 +69,13 @@ class WorkflowConfTest(TestCase):
 
         serializer = WorkflowSpecConfigSerializer(data=settings.WORKFLOW_SPEC_CONFIG)
 
-        self.assertEquals(serializer.is_valid(), True)
+        self.assertEqual(serializer.is_valid(), True)
 
         paths = workflow_spec_paths_inspect(settings.WORKFLOW_SPEC_CONFIG)
 
         non_valid_paths = [p.get("path") for p in paths if not p.get("workflow_data")]
 
-        self.assertEquals(non_valid_paths, [])
+        self.assertEqual(non_valid_paths, [])
         workflow_tree_inspect = [
             {
                 "path": p.get("path"),
@@ -88,4 +88,4 @@ class WorkflowConfTest(TestCase):
         invalid_workflow_trees = [
             p.get("path") for p in workflow_tree_inspect if not p.get("tree_valid")
         ]
-        self.assertEquals(invalid_workflow_trees, [])
+        self.assertEqual(invalid_workflow_trees, [])

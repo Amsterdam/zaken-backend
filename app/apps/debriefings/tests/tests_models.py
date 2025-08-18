@@ -22,7 +22,7 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
     def test_date_added(self):
         debriefing = self.create_debriefing()
 
-        self.assertEquals(
+        self.assertEqual(
             debriefing.date_added, datetime(2019, 12, 25, tzinfo=timezone.utc)
         )
 
@@ -30,7 +30,7 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
         with freeze_time("2019-12-25"):
             debriefing = self.create_debriefing()
 
-            self.assertEquals(
+            self.assertEqual(
                 debriefing.date_modified, datetime(2019, 12, 25, tzinfo=timezone.utc)
             )
 
@@ -38,7 +38,7 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
             debriefing.feedback = "New Feedback"
             debriefing.save()
 
-        self.assertEquals(
+        self.assertEqual(
             debriefing.date_modified, datetime(2019, 12, 26, tzinfo=timezone.utc)
         )
 
@@ -54,8 +54,8 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
 
         debriefing = Debriefing.objects.all()[0]
 
-        self.assertEquals(debriefing.feedback, modified_feedback)
-        self.assertEquals(debriefing.violation, modified_violation)
+        self.assertEqual(debriefing.feedback, modified_feedback)
+        self.assertEqual(debriefing.violation, modified_violation)
 
     def test_debriefing_get_violation_choices(self):
         theme_id = 2
