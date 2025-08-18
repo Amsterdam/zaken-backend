@@ -19,9 +19,9 @@ class AddressModelTest(TestCase):
 
     def test_can_create_address(self):
         """Tests Address object creation without bag mocks"""
-        self.assertEquals(Address.objects.count(), 0)
+        self.assertEqual(Address.objects.count(), 0)
         baker.make(Address)
-        self.assertEquals(Address.objects.count(), 1)
+        self.assertEqual(Address.objects.count(), 1)
 
     @patch("apps.addresses.models.do_bag_search_benkagg_by_id")
     @patch("apps.addresses.models.do_bag_search_pdok_by_bag_id")
@@ -37,16 +37,16 @@ class AddressModelTest(TestCase):
             mock_get_bag_identificatie_and_stadsdeel_result_without_stadsdeel()
         )
 
-        self.assertEquals(Address.objects.count(), 0)
-        self.assertEquals(District.objects.count(), 0)
+        self.assertEqual(Address.objects.count(), 0)
+        self.assertEqual(District.objects.count(), 0)
 
         baker.make(Address)
 
         mock_do_bag_search_pdok_by_bag_id.assert_called()
         mock_do_bag_search_benkagg_id.assert_called()
 
-        self.assertEquals(Address.objects.count(), 1)
-        self.assertEquals(District.objects.count(), 0)
+        self.assertEqual(Address.objects.count(), 1)
+        self.assertEqual(District.objects.count(), 0)
 
     @patch("apps.addresses.models.do_bag_search_benkagg_by_id")
     @patch("apps.addresses.models.do_bag_search_pdok_by_bag_id")
@@ -62,15 +62,15 @@ class AddressModelTest(TestCase):
             mock_get_bag_identificatie_and_stadsdeel_result()
         )
 
-        self.assertEquals(Address.objects.count(), 0)
-        self.assertEquals(District.objects.count(), 0)
+        self.assertEqual(Address.objects.count(), 0)
+        self.assertEqual(District.objects.count(), 0)
 
         address = baker.make(Address)
 
         mock_do_bag_search_pdok_by_bag_id.assert_called()
         mock_do_bag_search_benkagg_id.assert_called()
 
-        self.assertEquals(Address.objects.count(), 1)
-        self.assertEquals(District.objects.count(), 1)
+        self.assertEqual(Address.objects.count(), 1)
+        self.assertEqual(District.objects.count(), 1)
 
-        self.assertEquals(address.district.name, "Zuidoost")
+        self.assertEqual(address.district.name, "Zuidoost")

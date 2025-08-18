@@ -34,7 +34,7 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
 
     @patch("apps.workflow.models.CaseWorkflow.complete_user_task")
     def test_authenticated_post_create(self, mock):
-        self.assertEquals(Summon.objects.count(), 0)
+        self.assertEqual(Summon.objects.count(), 0)
 
         mock.return_value = True
 
@@ -58,12 +58,12 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
         client = get_authenticated_client()
         response = client.post(url, data, format="json")
 
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(Summon.objects.count(), 1)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Summon.objects.count(), 1)
 
     @patch("apps.workflow.models.CaseWorkflow.complete_user_task")
     def test_authenticated_post_creates_persons(self, mock):
-        self.assertEquals(SummonedPerson.objects.count(), 0)
+        self.assertEqual(SummonedPerson.objects.count(), 0)
 
         mock.return_value = True
 
@@ -87,15 +87,15 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
         client = get_authenticated_client()
         response = client.post(url, data, format="json")
 
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(SummonedPerson.objects.count(), 1)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(SummonedPerson.objects.count(), 1)
 
     @patch("apps.workflow.models.CaseWorkflow.complete_user_task")
     def test_authenticated_post_creates_persons_with_preposition(self, mock):
         """
         SummonedPersons can be created with a preposition
         """
-        self.assertEquals(SummonedPerson.objects.count(), 0)
+        self.assertEqual(SummonedPerson.objects.count(), 0)
 
         mock.return_value = True
 
@@ -122,7 +122,7 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
 
         persons = response.json()["persons"]
 
-        self.assertEquals(
+        self.assertEqual(
             SummonedPerson.objects.get(id=persons[0]["id"]).preposition, PREPOSITION
         )
 
@@ -131,7 +131,7 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
         """
         SummonedPersons can be created without a preposition
         """
-        self.assertEquals(SummonedPerson.objects.count(), 0)
+        self.assertEqual(SummonedPerson.objects.count(), 0)
 
         mock.return_value = True
 
@@ -157,7 +157,7 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
 
         persons = response.json()["persons"]
 
-        self.assertEquals(
+        self.assertEqual(
             SummonedPerson.objects.get(id=persons[0]["id"]).preposition, None
         )
 
@@ -168,7 +168,7 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
         In this case there is no first and last name,
         but only a entity_name, function and role.
         """
-        self.assertEquals(SummonedPerson.objects.count(), 0)
+        self.assertEqual(SummonedPerson.objects.count(), 0)
 
         mock.return_value = True
 
@@ -196,7 +196,7 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
 
         persons = response.json()["persons"]
 
-        self.assertEquals(
+        self.assertEqual(
             SummonedPerson.objects.get(id=persons[0]["id"]).function, function_name
         )
 
@@ -205,7 +205,7 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
         """
         The current user should be set implicitly as author
         """
-        self.assertEquals(SummonedPerson.objects.count(), 0)
+        self.assertEqual(SummonedPerson.objects.count(), 0)
 
         mock.return_value = True
 
@@ -231,13 +231,13 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
 
         test_user = get_test_user()
         summon = Summon.objects.get(id=response.data["id"])
-        self.assertEquals(test_user, summon.author)
+        self.assertEqual(test_user, summon.author)
 
     def test_authenticated_post_invalid_case(self):
         """
         A post should fail if the given Case doesn't exist
         """
-        self.assertEquals(Summon.objects.count(), 0)
+        self.assertEqual(Summon.objects.count(), 0)
 
         case = baker.make(Case)
         summon_type = baker.make(SummonType, theme=case.theme)
@@ -259,14 +259,14 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
         client = get_authenticated_client()
         response = client.post(url, data, format="json")
 
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEquals(Summon.objects.count(), 0)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Summon.objects.count(), 0)
 
     def test_authenticated_post_invalid_type(self):
         """
         A post should fail if the given Case doesn't exist
         """
-        self.assertEquals(Summon.objects.count(), 0)
+        self.assertEqual(Summon.objects.count(), 0)
 
         case = baker.make(Case)
 
@@ -287,5 +287,5 @@ class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
         client = get_authenticated_client()
         response = client.post(url, data, format="json")
 
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEquals(Summon.objects.count(), 0)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Summon.objects.count(), 0)
