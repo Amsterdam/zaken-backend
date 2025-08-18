@@ -1,4 +1,4 @@
-FROM python:3.10-bullseye
+FROM python:3.12-slim
 
 ENV REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
@@ -15,7 +15,8 @@ RUN apt-get update && apt-get install -y \
     libgdal-dev \
     graphviz \
     graphviz-dev \
-    postgresql-client
+    postgresql-client \
+    tzdata
 
 RUN pip install --upgrade pip setuptools wheel
 RUN pip install uwsgi

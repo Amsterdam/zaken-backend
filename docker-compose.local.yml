@@ -1,25 +1,4 @@
 services:
-  zaak-redis:
-    build: redis
-    environment:
-      - REDIS_PASSWORD=password
-      - REDIS_MAXMEM=100mb
-    networks:
-      - zaken_network
-    ports:
-      - "6379:6379"
-
-  database:
-    networks:
-      - zaken_network
-    image: postgis/postgis:14-3.2
-    shm_size: "512m"
-    ports:
-      - "6409:5432"
-    env_file:
-      - .env
-    volumes:
-      - postgresql-data:/var/lib/postgresql/data
 
   zaak-gateway:
     networks:
@@ -44,6 +23,28 @@ services:
       - ./app:/app
     stdin_open: true
     tty: true
+
+  zaak-redis:
+    build: redis
+    environment:
+      - REDIS_PASSWORD=password
+      - REDIS_MAXMEM=100mb
+    networks:
+      - zaken_network
+    ports:
+      - "6379:6379"
+
+  database:
+    networks:
+      - zaken_network
+    image: postgis/postgis:14-3.2
+    shm_size: "512m"
+    ports:
+      - "6409:5432"
+    env_file:
+      - .env
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
 
   zaken_celery_worker:
     image: ${REGISTRY:-127.0.0.1:5001}/${REPOSITORY:-salmagundi/zaken-backend}:${VERSION:-latest}
