@@ -12,11 +12,11 @@ class SummonModelTest(ZakenBackendTestMixin, TestCase):
 
     def test_can_create_summon(self):
         """Tests ThemeModel object creation"""
-        self.assertEquals(Summon.objects.count(), 0)
+        self.assertEqual(Summon.objects.count(), 0)
 
         baker.make(Summon)
 
-        self.assertEquals(Summon.objects.count(), 1)
+        self.assertEqual(Summon.objects.count(), 1)
 
 
 class SummonTypeModelTest(TestCase):
@@ -25,11 +25,11 @@ class SummonTypeModelTest(TestCase):
 
     def test_can_create_summon_type(self):
         """Tests ThemeModel object creation"""
-        self.assertEquals(SummonType.objects.count(), 0)
+        self.assertEqual(SummonType.objects.count(), 0)
 
         baker.make(SummonType)
 
-        self.assertEquals(SummonType.objects.count(), 1)
+        self.assertEqual(SummonType.objects.count(), 1)
 
 
 class SummonedPersonTypeModelTest(TestCase):
@@ -38,8 +38,8 @@ class SummonedPersonTypeModelTest(TestCase):
 
     def test_can_create_summoned_person(self):
         """Tests ThemeModel object creation"""
-        self.assertEquals(SummonedPerson.objects.count(), 0)
+        self.assertEqual(SummonedPerson.objects.count(), 0)
 
         baker.make(SummonedPerson)
 
-        self.assertEquals(SummonedPerson.objects.count(), 1)
+        self.assertEqual(SummonedPerson.objects.count(), 1)

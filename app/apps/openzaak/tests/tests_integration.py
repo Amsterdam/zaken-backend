@@ -51,7 +51,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         # Try uploading the document.
         file = SimpleUploadedFile(name="test_file.txt", content=b"Test")
         create_document(case, file, language="nld")
-        self.assertEquals(CaseDocument.objects.count(), 1)
+        self.assertEqual(CaseDocument.objects.count(), 1)
         document = CaseDocument.objects.first()
         connect_case_and_document(document)
         document.refresh_from_db()
@@ -88,7 +88,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         file = SimpleUploadedFile(name="test_file.txt", content=b"Test")
         with self.assertRaises(ClientError):
             create_document(case, file, language="nld")
-        self.assertEquals(CaseDocument.objects.count(), 0)
+        self.assertEqual(CaseDocument.objects.count(), 0)
 
     @requests_mock.Mocker()
     def test_fail_connection(self, m):
@@ -117,6 +117,6 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         # Try uploading the document.
         file = SimpleUploadedFile(name="test_file.txt", content=b"Test")
         create_document(case, file, language="nld")
-        self.assertEquals(CaseDocument.objects.count(), 1)
+        self.assertEqual(CaseDocument.objects.count(), 1)
         document = CaseDocument.objects.first()
         self.assertFalse(document.connected)
