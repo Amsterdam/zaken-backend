@@ -16,7 +16,7 @@ class WorkflowModelTest(ZakenBackendTestMixin, TestCase):
     def test_can_create_workflow(self):
         """Tests CaseWorkflow object creation"""
 
-        self.assertEquals(CaseWorkflow.objects.count(), 0)
+        self.assertEqual(CaseWorkflow.objects.count(), 0)
         theme = baker.make(CaseTheme, name=settings.DEFAULT_THEME)
         case = baker.make(Case, theme=theme)
         baker.make(
@@ -25,7 +25,7 @@ class WorkflowModelTest(ZakenBackendTestMixin, TestCase):
             workflow_version=None,
             workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
         )
-        self.assertEquals(CaseWorkflow.objects.count(), 1)
+        self.assertEqual(CaseWorkflow.objects.count(), 1)
 
     def test_can_get_workflow_spec(self):
         """Tests can get workflow spec"""
@@ -42,7 +42,7 @@ class WorkflowModelTest(ZakenBackendTestMixin, TestCase):
             data={},
         )
 
-        self.assertEquals(workflow.get_workflow_spec().__class__, BpmnProcessSpec)
+        self.assertEqual(workflow.get_workflow_spec().__class__, BpmnProcessSpec)
 
     def test_get_workflow_exclude_options(self):
         """Tests can get workflow spec"""

@@ -12,11 +12,11 @@ class ActionModelTest(TestCase):
         management.call_command("flush", verbosity=0, interactive=False)
 
     def test_can_create_object(self):
-        self.assertEquals(self.MODEL.objects.count(), 0)
+        self.assertEqual(self.MODEL.objects.count(), 0)
 
         baker.make(self.MODEL)
 
-        self.assertEquals(self.MODEL.objects.count(), 1)
+        self.assertEqual(self.MODEL.objects.count(), 1)
 
     def test_assert_unique_together(self):
         model_object = baker.make(self.MODEL)
@@ -32,11 +32,11 @@ class WeekSegmentModelTest(TestCase):
         management.call_command("flush", verbosity=0, interactive=False)
 
     def test_can_create_object(self):
-        self.assertEquals(self.MODEL.objects.count(), 0)
+        self.assertEqual(self.MODEL.objects.count(), 0)
 
         baker.make(self.MODEL)
 
-        self.assertEquals(self.MODEL.objects.count(), 1)
+        self.assertEqual(self.MODEL.objects.count(), 1)
 
     def test_assert_unique_together(self):
         model_object = baker.make(self.MODEL)
@@ -52,11 +52,11 @@ class DaySegmentModelTest(TestCase):
         management.call_command("flush", verbosity=0, interactive=False)
 
     def test_can_create_object(self):
-        self.assertEquals(self.MODEL.objects.count(), 0)
+        self.assertEqual(self.MODEL.objects.count(), 0)
 
         baker.make(self.MODEL)
 
-        self.assertEquals(self.MODEL.objects.count(), 1)
+        self.assertEqual(self.MODEL.objects.count(), 1)
 
     def test_assert_unique_together(self):
         model_object = baker.make(self.MODEL)
@@ -72,11 +72,11 @@ class PriorityModelTest(TestCase):
         management.call_command("flush", verbosity=0, interactive=False)
 
     def test_can_create_object(self):
-        self.assertEquals(self.MODEL.objects.count(), 0)
+        self.assertEqual(self.MODEL.objects.count(), 0)
 
         baker.make(self.MODEL)
 
-        self.assertEquals(self.MODEL.objects.count(), 1)
+        self.assertEqual(self.MODEL.objects.count(), 1)
 
     def test_assert_unique_together(self):
         model_object = baker.make(self.MODEL)
@@ -93,11 +93,11 @@ class ScheduleModelTest(ZakenBackendTestMixin, TestCase):
         super().setUp()
 
     def test_can_create_object(self):
-        self.assertEquals(self.MODEL.objects.count(), 0)
+        self.assertEqual(self.MODEL.objects.count(), 0)
 
         baker.make(self.MODEL)
 
-        self.assertEquals(self.MODEL.objects.count(), 1)
+        self.assertEqual(self.MODEL.objects.count(), 1)
 
     def test_assert_unique_together(self):
         model_object = baker.make(self.MODEL)

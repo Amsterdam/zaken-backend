@@ -25,4 +25,4 @@ class GenerateUsernameTest(TestCase):
 
         username = generate_username(username_input)
 
-        self.assertEquals(150, len(username))
+        self.assertEqual(150, len(username))
