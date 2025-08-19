@@ -3,11 +3,12 @@
 __pycache__/
 .vscode/
 .DS_Store
-.env.local
 !**/src/main/**/build/
 !**/src/test/**/build/
 
 app/.env
 app/.coverage
 private_media/
+
+.env.local
 .local.env
