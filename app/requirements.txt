@@ -42,4 +42,4 @@ Requests==2.32.4
 requests-mock==1.9.3
 spiffworkflow==1.1.0
 tenacity==8.0.1
-zgw-consumers==0.18.0
+zgw-consumers==0.27.0
