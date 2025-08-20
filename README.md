@@ -37,7 +37,9 @@ Make sure you have Docker installed locally:
 
 These steps are necessary to make sure all configurations are set up correctly so that you can get the project running correctly.
 
-First, make sure you have built the project and executed the database migrations:
+### Creating networks & build container
+
+First, create the necessary networks and build the project:
 
 ```bash
 docker network create top_and_zaak_backend_bridge
@@ -45,29 +47,39 @@ docker network create zaken_network
 docker compose -f docker-compose.local.yml build
 ```
 
-Start AZA backend:
+### Starting the backend
+
+Run the following to start the backend:
 
 ```bash
 docker compose -f docker-compose.local.yml up
 ```
 
-To create all necessary credentials run the following command:
+### Creating a superuser
+
+For accessing the Django admin during local development you'll have to become a `superuser`. This user should have the same `email` and `username` as the one that will be auto-created by the SSO login.
+
+Run the following command to either create the user, or make the existing one a superuser:
 
 ```bash
-bash bin/setup_credentials.sh
+sh bin/setup_superuser.sh <email>
 ```
 
-This will create superuser admin account with the following credentials
+### Using local development authentication
+To run the project with local Django authentication instead of OpenID Connect (OIDC), create a `.env.local` file with:
 
 ```bash
-email: admin@admin.com
-password: insecure
+LOCAL_DEVELOPMENT_AUTHENTICATION=False
 ```
 
-Visit the Admin at http://localhost:8080/admin/
+### Django admin & services
+
+Visit the Admin at http://localhost:8081/admin/
 
 Check the health page to see if all services are up and running:
 http://localhost:8080/health
+
+### Creating user groups
 
 To create all necessary user groups run the following command:
 
@@ -106,26 +118,29 @@ http://localhost:8080/api/v1/swagger/
 
 ## Generating an access token
 
-When the LOCAL_DEVELOPMENT_AUTHENTICATION environment variable is set to True, you can gain access easily in the Swagger documentation by executing the /api/v1/oidc-authenticate/ POST request.
-You can use the 'access' token in the response:
+When the `LOCAL_DEVELOPMENT_AUTHENTICATION` environment variable is set to `True`, you can gain access easily in the Swagger documentation by executing the `/api/v1/oidc-authenticate/` POST request.
+
+You can use the 'access' token in the response: \
 Click on the 'Authorize' button in the top right corner of the page, and enter the given access token.
-This allows you to execute the API endpoints in the page.
+This allows you to execute the API endpoints in the page. \
 By default, the `local.user@dev.com` user doesn't have any roles assigned.
 From the [admin interface](http://localhost:8080/admin/) you can either assign roles or make the user superuser.
 
 ## Enabling local development environment variables
 
-Create a `.env.local` file, on the root of your project, and override the variables you need locally
-
-Start your project with the newly created environment variables, like so:
+Create a `.env.local` file, on the root of your project, and override the variables you need locally. This file is automatically loaded when you start the project:
 
 ```bash
-docker compose -f docker-compose.local.yml --env-file .env.local up
+docker compose -f docker-compose.local.yml up
 ```
 
 ## Enabling Keycloak authentication for a locally run zaken-frontend
 
-Set `LOCAL_DEVELOPMENT_AUTHENTICATION` environment variable to False
+Set `LOCAL_DEVELOPMENT_AUTHENTICATION` by adding it to a `.env.local` file:
+
+```bash
+LOCAL_DEVELOPMENT_AUTHENTICATION=False
+```
 
 ## Generating Mock Data
 

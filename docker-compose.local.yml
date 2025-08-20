@@ -36,6 +36,8 @@ services:
       - zaak-redis
     env_file:
       - path: .env
+      - path: .env.local
+        required: false
       - path: .local.env
         required: false
     entrypoint: /app/deploy/docker-entrypoint.development.sh
