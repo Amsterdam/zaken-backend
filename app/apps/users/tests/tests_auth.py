@@ -70,7 +70,7 @@ class AuthTest(TestCase):
 
         # Most importantly, the get_or_create_user function is called, and it's return value is given
         authentication_backend.get_or_create_user.assert_called_once()
-        self.assertEquals(authenticated_result, FOO_USER)
+        self.assertEqual(authenticated_result, FOO_USER)
 
     def test_verification_fails(self):
         """

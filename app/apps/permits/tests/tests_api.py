@@ -58,4 +58,4 @@ class PermitViewSetTest(APITestCase):
         # The response returns a 200
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # self.assertEquals(response.json(), MOCK_RESPONSE)
+        # self.assertEqual(response.json(), MOCK_RESPONSE)
