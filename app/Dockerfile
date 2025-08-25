@@ -1,4 +1,4 @@
-FROM python:3.13-trixie
+FROM python:3.13-slim-trixie
 
 ENV REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
@@ -7,7 +7,9 @@ COPY certificates/adp_rootca.crt /usr/local/share/ca-certificates/adp_rootca.crt
 RUN chmod 644 /usr/local/share/ca-certificates/adp_rootca.crt \
     && update-ca-certificates --fresh
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1 \
+    POETRY_VIRTUALENVS_CREATE=false \
+    POETRY_VERSION=2.1
 
 # Update and install necessary packages including GDAL
 RUN apt-get update && apt-get install -y \
@@ -29,8 +31,9 @@ RUN echo "10.240.5.72     acc.api.data.amsterdam.nl" >> /etc/hosts || echo "Coul
 
 WORKDIR /app
 
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r /app/requirements.txt
+COPY pyproject.toml poetry.lock  ./
+RUN poetry install --no-interaction --no-ansi --only main
+
 COPY . /app/
 
 RUN chmod +x /app/restore_db.sh
