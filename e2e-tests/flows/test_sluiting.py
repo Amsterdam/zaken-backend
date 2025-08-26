@@ -14,7 +14,6 @@ from api.tasks.debrief import (
     test_create_debrief,
     test_opstellen_beeldverslag,
     test_opstellen_rapport_van_bevindingen,
-    test_terugkoppelen_melder_2,
 )
 from api.tasks.summon import (
     test_nakijken_aanschrijving,

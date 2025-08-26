@@ -9,7 +9,6 @@ from ..helpers import (
     connect_case_and_document,
     create_document,
     create_open_zaak_case,
-    create_open_zaak_case_status,
     delete_document,
     get_document,
     get_document_inhoud,

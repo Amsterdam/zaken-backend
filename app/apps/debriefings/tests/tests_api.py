@@ -1,6 +1,7 @@
 """
 Tests for Debriefing models
 """
+
 from apps.debriefings.models import Debriefing, ViolationType
 from apps.debriefings.tests.tests_helpers import DebriefingTestMixin
 from apps.openzaak.tests.utils import ZakenBackendTestMixin

@@ -42,15 +42,15 @@ class DecosJoinConf:
                         {
                             self.DECOS_JOIN_BOOK_KEY: str(p[0]),
                             self.PERMIT_TYPE: str(p[1]),
-                            self.EXPRESSION_STRING: str(p[2])
-                            if len(p) >= 3
-                            else self.default_expression,
-                            self.INITIAL_DATA: dict(p[3])
-                            if len(p) >= 4
-                            else self.default_initial_data,
-                            self.FIELD_MAPPING: p[4]
-                            if len(p) >= 5
-                            else self.default_field_mapping,
+                            self.EXPRESSION_STRING: (
+                                str(p[2]) if len(p) >= 3 else self.default_expression
+                            ),
+                            self.INITIAL_DATA: (
+                                dict(p[3]) if len(p) >= 4 else self.default_initial_data
+                            ),
+                            self.FIELD_MAPPING: (
+                                p[4] if len(p) >= 5 else self.default_field_mapping
+                            ),
                         }
                     )
         except Exception as e:
@@ -306,9 +306,9 @@ class DecosJoinRequest:
                     )
                     data.update(
                         {
-                            "permit_granted": "GRANTED"
-                            if permit_granted
-                            else "NOT_GRANTED",
+                            "permit_granted": (
+                                "GRANTED" if permit_granted else "NOT_GRANTED"
+                            ),
                             "permit_type": conf.get(DecosJoinConf.PERMIT_TYPE),
                             "raw_data": folder["fields"],
                             "details": decos_join_conf_object.map_data_on_conf_keys(
