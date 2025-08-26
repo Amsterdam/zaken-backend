@@ -5,7 +5,6 @@ from api.tasks.summon import (
     test_opstellen_beeldverslag,
     test_opstellen_concept_aanschrijving,
     test_opstellen_rapport_van_bevindingen,
-    test_terugkoppelen_melder_2,
 )
 from api.test import DefaultAPITest
 from api.validators import ValidateOpenTasks

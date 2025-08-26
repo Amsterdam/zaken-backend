@@ -6,12 +6,7 @@ from model_bakery import baker
 from zds_client.client import ClientError
 from zgw_consumers.test import mock_service_oas_get
 
-from ..helpers import (
-    connect_case_and_document,
-    create_document,
-    create_open_zaak_case,
-    create_open_zaak_case_status,
-)
+from ..helpers import connect_case_and_document, create_document, create_open_zaak_case
 from .utils import OpenZaakBaseMixin
 
 

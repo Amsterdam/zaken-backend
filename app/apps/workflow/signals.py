@@ -113,9 +113,11 @@ def case_workflow_pre_save(sender, instance, **kwargs):
             instance.data.update(
                 {
                     "leegstandsmelding_eigenaar": {
-                        "value": "ja"
-                        if reason == "leegstandsmelding_eigenaar"
-                        else "default",
+                        "value": (
+                            "ja"
+                            if reason == "leegstandsmelding_eigenaar"
+                            else "default"
+                        ),
                     },
                 }
             )
