@@ -14,12 +14,9 @@ from api.tasks import AbstractUserTask, GenericUserTask
 from api.tasks.debrief import (
     test_opstellen_beeldverslag,
     test_opstellen_rapport_van_bevindingen,
-    test_terugkoppelen_melder_2,
 )
 from api.timers import WaitForTimer
 from api.user_tasks import (
-    task_afronden_vergunningscheck,
-    task_afwachten_intern_onderzoek,
     task_afzien_concept_aanschrijving,
     task_beoordelen_zienswijze,
     task_controleren_binnenkomst_vergunningaanvraag,

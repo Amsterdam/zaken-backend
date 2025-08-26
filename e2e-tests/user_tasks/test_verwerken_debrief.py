@@ -5,8 +5,6 @@ from api.tasks.debrief import (
     test_opstellen_beeldverslag,
     test_opstellen_rapport_van_bevindingen,
     test_opstellen_verkorte_rapportage_huisbezoek,
-    test_terugkoppelen_melder_1,
-    test_terugkoppelen_melder_2,
 )
 from api.tasks.visit import (
     test_aanvragen_machtiging,

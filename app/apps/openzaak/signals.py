@@ -6,7 +6,6 @@ from apps.openzaak.helpers import (
     create_open_zaak_case,
     create_open_zaak_case_resultaat,
     create_open_zaak_case_status,
-    update_open_zaak_case,
 )
 from django.conf import settings
 from django.db.models.signals import post_save
