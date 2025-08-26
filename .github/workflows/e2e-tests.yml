@@ -14,7 +14,7 @@ jobs:
       ###################################################
 
       - name: Checkout backend
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       ###################################################
       # BACKEND
@@ -31,16 +31,16 @@ jobs:
       # TEST
       ###################################################
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.13'
 
       - name: Test version
         run: python --version
 
       - name: Install requirements
-        run: pip install poetry==2.1 && POETRY_VIRTUALENVS_CREATE=false poetry install pyproject.toml --no-interaction --no-ansi
+        run: pip install poetry==2.1.4 && POETRY_VIRTUALENVS_CREATE=false poetry install --no-interaction --no-ansi
         working-directory: e2e-tests
 
       - name: Run tests

@@ -9,7 +9,7 @@ RUN chmod 644 /usr/local/share/ca-certificates/adp_rootca.crt \
 
 ENV PYTHONUNBUFFERED=1 \
     POETRY_VIRTUALENVS_CREATE=false \
-    POETRY_VERSION=2.1
+    POETRY_VERSION=2.1.4
 
 # Update and install necessary packages including GDAL
 RUN apt-get update && apt-get install -y \
