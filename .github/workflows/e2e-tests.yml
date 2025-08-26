@@ -40,7 +40,7 @@ jobs:
         run: python --version
 
       - name: Install requirements
-        run: python3 -m pip install -r requirements.txt
+        run: pip install poetry==2.1 && POETRY_VIRTUALENVS_CREATE=false poetry install pyproject.toml --no-interaction --no-ansi
         working-directory: e2e-tests
 
       - name: Run tests

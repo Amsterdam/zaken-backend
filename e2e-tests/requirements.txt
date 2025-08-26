@@ -1,9 +1,0 @@
-# for making requests to the api
-requests==2.32.4
-requests-futures==1.0.0
-
-# for generating fake data
-Faker==37.5.3
-
-# For parallel testing
-nose2==0.10.0
