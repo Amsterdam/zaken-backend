@@ -304,7 +304,7 @@
     "model": "cases.casereason",
     "pk": 35,
     "fields": {
-      "name": "Digitaal toezicht",
+      "name": "Digitaal onderzoek",
       "theme": 7
     }
   },

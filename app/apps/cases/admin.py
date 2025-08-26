@@ -39,7 +39,7 @@ class CaseAdminForm(forms.ModelForm):
 
     reason = LabelThemeModelChoiceField(
         queryset=CaseReason.objects.all(),
-        required=False,
+        required=True,
     )
     project = LabelThemeModelChoiceField(
         queryset=CaseProject.objects.all(),

@@ -8,7 +8,7 @@ docker compose -f ../docker-compose.local.yml build
 
 docker compose run --rm zaak-gateway python manage.py migrate
 
-bash ../bin/setup_credentials.sh
+bash ../bin/setup_superuser.sh admin@admin.com
 
 ./fix_models.sh
 
