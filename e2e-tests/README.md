@@ -8,12 +8,10 @@
 
 ## Installing
 
-You can install in a virtualenv.
+You can install via Poetry.
 
 ```
-virtualenv env
-. env/bin/activate
-pip install -r requirements.txt
+poetry install
 ```
 
 ## Running the test
@@ -22,12 +20,10 @@ Follow install instructions from the main README.md file.
 And make sure we have the right database configuration.
 Now start Docker with the test config file and run the test suite.
 
-```
+```sh
 ./setup_or_reset_and_start.sh
 ```
 
+```sh
 LOGLEVEL=INFO NO_SKIP=1 nose2
-
-```
-
 ```
