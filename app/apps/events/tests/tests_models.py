@@ -4,10 +4,9 @@ Tests for CaseEvent & EventsEmitter models
 
 from apps.events.models import CaseEvent
 from apps.events.tests.tests_helpers import CaseEventEmitterTestCase
-from apps.openzaak.tests.utils import ZakenBackendTestMixin
 
 
-class CaseEventTest(ZakenBackendTestMixin, CaseEventEmitterTestCase):
+class CaseEventTest(CaseEventEmitterTestCase):
     def test_case_creates_events(self):
         """Creating a new EventEmitter should also create corresponding event"""
         self.assertEqual(0, CaseEvent.objects.count())

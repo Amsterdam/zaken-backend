@@ -2,7 +2,6 @@ from datetime import date
 from uuid import UUID
 
 from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTheme
-from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from django.core import management
 from django.test import TestCase
 from django.utils import timezone
@@ -10,7 +9,7 @@ from freezegun import freeze_time
 from model_bakery import baker
 
 
-class CaseStateStypeModelTest(ZakenBackendTestMixin, TestCase):
+class CaseStateStypeModelTest(TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
         super().setUp()
@@ -24,7 +23,7 @@ class CaseStateStypeModelTest(ZakenBackendTestMixin, TestCase):
         self.assertEqual(CaseStateType.objects.count(), 1)
 
 
-class CaseStateModelTest(ZakenBackendTestMixin, TestCase):
+class CaseStateModelTest(TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
         super().setUp()
@@ -37,7 +36,7 @@ class CaseStateModelTest(ZakenBackendTestMixin, TestCase):
         self.assertEqual(case_state.created, mock_date)
 
 
-class CaseThemeModelTest(ZakenBackendTestMixin, TestCase):
+class CaseThemeModelTest(TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
         super().setUp()
@@ -51,7 +50,7 @@ class CaseThemeModelTest(ZakenBackendTestMixin, TestCase):
         self.assertEqual(CaseTheme.objects.count(), 1)
 
 
-class CaseReasonModelTest(ZakenBackendTestMixin, TestCase):
+class CaseReasonModelTest(TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
         super().setUp()
@@ -72,7 +71,7 @@ class CaseReasonModelTest(ZakenBackendTestMixin, TestCase):
         self.assertEqual(theme.reasons.count(), 2)
 
 
-class CaseModelTest(ZakenBackendTestMixin, TestCase):
+class CaseModelTest(TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
         super().setUp()

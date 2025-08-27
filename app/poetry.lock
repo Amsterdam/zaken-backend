@@ -725,21 +725,6 @@ celery = ">=5.2.7,<6.0"
 Django = ">=3.2.25"
 
 [[package]]
-name = "django-choices"
-version = "2.0.0"
-description = "Sanity for the django choices functionality."
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "django-choices-2.0.0.tar.gz", hash = "sha256:9cfe228c2c016d522115564ab4e0aa0c150987cff0d35767f68e775090abec61"},
-    {file = "django_choices-2.0.0-py3-none-any.whl", hash = "sha256:bf53f973168ae2a6d55ca3a84e535fa1f5a6da19dce580cef7049fd73d45826c"},
-]
-
-[package.dependencies]
-Django = ">=3.2"
-
-[[package]]
 name = "django-cors-headers"
 version = "4.7.0"
 description = "django-cors-headers is a Django application for handling the server headers required for Cross-Origin Resource Sharing (CORS)."
@@ -844,27 +829,6 @@ asgiref = ">=3.6"
 django = ">=4.2"
 
 [[package]]
-name = "django-privates"
-version = "3.1.1"
-description = "Simple private media integration for Django"
-optional = false
-python-versions = ">=3.10"
-groups = ["main"]
-files = [
-    {file = "django_privates-3.1.1-py3-none-any.whl", hash = "sha256:df2f60d53ca92b77e89a87c267a1a5a6a08e6c777f4ae4add5b08c22104b4e81"},
-    {file = "django_privates-3.1.1.tar.gz", hash = "sha256:e9aa62222f3786cd901ae19de9ac8d75b68a4d49f7a312e59a0915021baee48d"},
-]
-
-[package.dependencies]
-django = ">=4.2"
-django-sendfile2 = ">=0.5"
-
-[package.extras]
-docs = ["sphinx", "sphinx-rtd-theme"]
-release = ["bump-my-version"]
-tests = ["Pillow", "django-stubs[compatible-mypy]", "pyquery", "pytest", "pytest-cov", "pytest-django", "pytest-pythonpath", "ruff", "tox"]
-
-[[package]]
 name = "django-redis"
 version = "6.0.0"
 description = "Full featured redis cache backend for Django."
@@ -882,58 +846,6 @@ redis = ">=4.0.2"
 
 [package.extras]
 hiredis = ["redis[hiredis] (>=4.0.2)"]
-
-[[package]]
-name = "django-relativedelta"
-version = "2.0.0"
-description = "Django alternative to DurationField using dateutil.relativedelta"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "django-relativedelta-2.0.0.tar.gz", hash = "sha256:8a56bd5461dea35b74011f95be1d90d20caafe1f0c9be2fce8e8eefdf92e2cbe"},
-    {file = "django_relativedelta-2.0.0-py3-none-any.whl", hash = "sha256:72b37b27eadc03b0b4869712363c37126445161f6880106468006e4b52a76e59"},
-]
-
-[package.dependencies]
-Django = ">=1.10"
-python-dateutil = ">=2.6.0"
-
-[package.extras]
-test = ["bump2version (>=1.0.0)", "flake8 (>=3.8.3)", "isort (>=5.5.3)", "mysqlclient (>=2.0.1)", "psycopg2-binary (<=2.8.6)", "pytest (>=6.0.2)", "pytest-coverage", "pytest-django (>=3.7.0)", "pytest-echo (>=1.7.1)", "pytest-pythonpath (>=0.7.3)", "tox (>=3.14.3)", "tox-pyenv (>=1.1.0)"]
-
-[[package]]
-name = "django-sendfile2"
-version = "0.7.2"
-description = "Abstraction to offload file uploads to web-server (e.g. Apache with mod_xsendfile) once Django has checked permissions etc."
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "django_sendfile2-0.7.2-py3-none-any.whl", hash = "sha256:d1b364c2e0b32de996bb8df30889681c723a7cae13c837c0256dd25f87074530"},
-    {file = "django_sendfile2-0.7.2.tar.gz", hash = "sha256:d0939d52217d314b110d0b7b15ace5063d96aeb4980b7e0f94c020c2e25646f8"},
-]
-
-[package.dependencies]
-django = "*"
-
-[package.extras]
-docs = ["sphinx", "sphinx_rtd_theme"]
-
-[[package]]
-name = "django-solo"
-version = "2.4.0"
-description = "Django Solo helps working with singletons"
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = [
-    {file = "django_solo-2.4.0-py3-none-any.whl", hash = "sha256:62e9c7d929620a61848515839833750ca142840051595cf5c8e617dcefc9e5cf"},
-    {file = "django_solo-2.4.0.tar.gz", hash = "sha256:ec92dc00aec75034a3f93b3a85152e57c4b03d7987f8cfd0ea8a47cc6e3c2084"},
-]
-
-[package.dependencies]
-django = ">=4.2"
 
 [[package]]
 name = "django-timezone-field"
@@ -1093,30 +1005,6 @@ files = [
     {file = "future-1.0.0-py3-none-any.whl", hash = "sha256:929292d34f5872e70396626ef385ec22355a1fae8ad29e1a734c3e43f9fbc216"},
     {file = "future-1.0.0.tar.gz", hash = "sha256:bd2968309307861edae1458a4f8a4f3598c03be43b97521076aebf5d94c07b05"},
 ]
-
-[[package]]
-name = "gemma-zds-client"
-version = "1.0.1"
-description = "Generieke client voor GEMMA-zaken componenten"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "gemma-zds-client-1.0.1.tar.gz", hash = "sha256:5ec3f036a9bccd043ab7a3294f3ef26079042d72f59908f73a5792bc9d887341"},
-    {file = "gemma_zds_client-1.0.1-py3-none-any.whl", hash = "sha256:35733832e490e8db0c14fb1353daed4d5f9d6a9f3a9dd2e208324b8c519fd677"},
-]
-
-[package.dependencies]
-pyjwt = "*"
-pyyaml = "*"
-requests = "*"
-
-[package.extras]
-coverage = ["pytest-cov"]
-docs = ["sphinx", "sphinx-rtd-theme"]
-pep8 = ["flake8"]
-release = ["bump2version", "twine"]
-tests = ["black", "isort", "pytest", "requests-mock", "tox"]
 
 [[package]]
 name = "google-api-core"
@@ -1930,25 +1818,6 @@ docs = ["sphinx", "sphinx-rtd-theme", "zope.interface"]
 tests = ["coverage[toml] (==5.0.4)", "pytest (>=6.0.0,<7.0.0)"]
 
 [[package]]
-name = "pyopenssl"
-version = "25.1.0"
-description = "Python wrapper module around the OpenSSL library"
-optional = false
-python-versions = ">=3.7"
-groups = ["main"]
-files = [
-    {file = "pyopenssl-25.1.0-py3-none-any.whl", hash = "sha256:2b11f239acc47ac2e5aca04fd7fa829800aeee22a2eb30d744572a157bd8a1ab"},
-    {file = "pyopenssl-25.1.0.tar.gz", hash = "sha256:8d031884482e0c67ee92bf9a4d8cceb08d92aba7136432ffb0703c5280fc205b"},
-]
-
-[package.dependencies]
-cryptography = ">=41.0.5,<46"
-
-[package.extras]
-docs = ["sphinx (!=5.2.0,!=5.2.0.post0,!=7.2.5)", "sphinx_rtd_theme"]
-test = ["pretend", "pytest (>=3.0.1)", "pytest-rerunfailures"]
-
-[[package]]
 name = "pyproj"
 version = "3.7.2"
 description = "Python interface to PROJ (cartographic projections and coordinate transformations library)"
@@ -2738,40 +2607,7 @@ files = [
     {file = "wrapt-1.17.3.tar.gz", hash = "sha256:f66eb08feaa410fe4eebd17f2a2c8e2e46d3476e9f8c783daa8e09e0faa666d0"},
 ]
 
-[[package]]
-name = "zgw-consumers"
-version = "0.18.0"
-description = "Reusable code for consumers of ZGW APIs"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "zgw-consumers-0.18.0.tar.gz", hash = "sha256:7d307795010df8002bf4d16b8a353f3314bb96bd206bb3fb886570e859fa1e5c"},
-    {file = "zgw_consumers-0.18.0-py3-none-any.whl", hash = "sha256:fd3970180a9569729be90342a3b91ae20807cede3f8c6f91396d69399586b91a"},
-]
-
-[package.dependencies]
-django = "*"
-django-choices = "*"
-django-privates = "*"
-django-relativedelta = "*"
-django-solo = "*"
-Faker = ">=0.7.0"
-gemma-zds-client = ">=0.14.0"
-pyopenssl = "*"
-requests = "*"
-requests-mock = "*"
-
-[package.extras]
-coverage = ["pytest-cov"]
-db = ["psycopg2"]
-docs = ["sphinx", "sphinx-rtd-theme"]
-drf = ["djangorestframework"]
-pep8 = ["flake8"]
-release = ["twine"]
-tests = ["black", "django-redis", "isort", "pytest", "pytest-django", "requests-mock", "tabulate", "tox"]
-
 [metadata]
 lock-version = "2.1"
 python-versions = "~=3.13"
-content-hash = "a1e9fff90e33e59b215a9fd1761e32b69a95297da1f22458924003a534a0c59e"
+content-hash = "94d7d52a0f87d47e0b72dce29eb2da295d9cb92f0e2115f1e504d25997c37e1d"
