@@ -35,19 +35,19 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.13'
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        if [ -f ./app/requirements.txt ];
+        python -m pip install --upgrade pip && pip install poetry==2.1.4
+        if [ -f ./app/pyproject.toml ];
         echo "Installing python dependencies"
-        then pip install -r ./app/requirements.txt;
+        then POETRY_VIRTUALENVS_CREATE=false poetry install --directory=./app --no-interaction --no-ansi;
         fi
         # Set the `CODEQL-PYTHON` environment variable to the Python executable
         # that includes the dependencies

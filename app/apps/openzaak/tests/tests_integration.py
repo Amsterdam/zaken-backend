@@ -6,12 +6,7 @@ from model_bakery import baker
 from zds_client.client import ClientError
 from zgw_consumers.test import mock_service_oas_get
 
-from ..helpers import (
-    connect_case_and_document,
-    create_document,
-    create_open_zaak_case,
-    create_open_zaak_case_status,
-)
+from ..helpers import connect_case_and_document, create_document, create_open_zaak_case
 from .utils import OpenZaakBaseMixin
 
 
@@ -51,7 +46,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         # Try uploading the document.
         file = SimpleUploadedFile(name="test_file.txt", content=b"Test")
         create_document(case, file, language="nld")
-        self.assertEquals(CaseDocument.objects.count(), 1)
+        self.assertEqual(CaseDocument.objects.count(), 1)
         document = CaseDocument.objects.first()
         connect_case_and_document(document)
         document.refresh_from_db()
@@ -88,7 +83,7 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         file = SimpleUploadedFile(name="test_file.txt", content=b"Test")
         with self.assertRaises(ClientError):
             create_document(case, file, language="nld")
-        self.assertEquals(CaseDocument.objects.count(), 0)
+        self.assertEqual(CaseDocument.objects.count(), 0)
 
     @requests_mock.Mocker()
     def test_fail_connection(self, m):
@@ -117,6 +112,6 @@ class OpenZaakConnectionTests(OpenZaakBaseMixin, TestCase):
         # Try uploading the document.
         file = SimpleUploadedFile(name="test_file.txt", content=b"Test")
         create_document(case, file, language="nld")
-        self.assertEquals(CaseDocument.objects.count(), 1)
+        self.assertEqual(CaseDocument.objects.count(), 1)
         document = CaseDocument.objects.first()
         self.assertFalse(document.connected)

@@ -1,0 +1,30 @@
+[project]
+name = "zaken-backend-e2e-tests"
+version = "1.0.0"
+description = "Amsterdamse Zaken Administratie (AZA) backend"
+authors = [{ name = "Gemeente Amsterdam", email = "datapunt@amsterdam.nl" }]
+readme = "../README.md"
+requires-python = "~=3.13"
+
+dependencies = [
+
+    "python-dateutil (~=2.9)",
+
+    # For making requests to the api
+    "requests (~=2.32)",
+    "requests-futures (~=1.0)",
+
+    # For generating fake data
+    "Faker (~=37.5)",
+
+    # For parallel testing
+    "nose2 (~=0.10)",
+
+]
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
