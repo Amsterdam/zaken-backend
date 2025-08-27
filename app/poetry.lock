@@ -829,6 +829,27 @@ asgiref = ">=3.6"
 django = ">=4.2"
 
 [[package]]
+name = "django-privates"
+version = "3.1.1"
+description = "Simple private media integration for Django"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "django_privates-3.1.1-py3-none-any.whl", hash = "sha256:df2f60d53ca92b77e89a87c267a1a5a6a08e6c777f4ae4add5b08c22104b4e81"},
+    {file = "django_privates-3.1.1.tar.gz", hash = "sha256:e9aa62222f3786cd901ae19de9ac8d75b68a4d49f7a312e59a0915021baee48d"},
+]
+
+[package.dependencies]
+django = ">=4.2"
+django-sendfile2 = ">=0.5"
+
+[package.extras]
+docs = ["sphinx", "sphinx-rtd-theme"]
+release = ["bump-my-version"]
+tests = ["Pillow", "django-stubs[compatible-mypy]", "pyquery", "pytest", "pytest-cov", "pytest-django", "pytest-pythonpath", "ruff", "tox"]
+
+[[package]]
 name = "django-redis"
 version = "6.0.0"
 description = "Full featured redis cache backend for Django."
@@ -846,6 +867,24 @@ redis = ">=4.0.2"
 
 [package.extras]
 hiredis = ["redis[hiredis] (>=4.0.2)"]
+
+[[package]]
+name = "django-sendfile2"
+version = "0.7.2"
+description = "Abstraction to offload file uploads to web-server (e.g. Apache with mod_xsendfile) once Django has checked permissions etc."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "django_sendfile2-0.7.2-py3-none-any.whl", hash = "sha256:d1b364c2e0b32de996bb8df30889681c723a7cae13c837c0256dd25f87074530"},
+    {file = "django_sendfile2-0.7.2.tar.gz", hash = "sha256:d0939d52217d314b110d0b7b15ace5063d96aeb4980b7e0f94c020c2e25646f8"},
+]
+
+[package.dependencies]
+django = "*"
+
+[package.extras]
+docs = ["sphinx", "sphinx_rtd_theme"]
 
 [[package]]
 name = "django-timezone-field"
@@ -2610,4 +2649,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "~=3.13"
-content-hash = "94d7d52a0f87d47e0b72dce29eb2da295d9cb92f0e2115f1e504d25997c37e1d"
+content-hash = "d20964f9f262a40ac2f9bbc8ccea2b332bd1fd29e680d40c5716a9fc0b683904"
