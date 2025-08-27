@@ -7,7 +7,6 @@ from apps.addresses.serializers import (
 from apps.cases.models import (
     Advertisement,
     Case,
-    CaseDocument,
     CaseProject,
     CaseReason,
     CaseTheme,
@@ -282,19 +281,3 @@ class CaseBagIdsSerializer(serializers.ModelSerializer):
             "bag_id",
             "nummeraanduiding_id",
         )
-
-
-class CaseDocumentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CaseDocument
-        fields = "__all__"
-
-
-class CaseDocumentUploadSerializer(serializers.Serializer):
-    file = serializers.FileField()
-    documenttype_url = serializers.URLField(required=False)
-
-
-class DocumentTypeSerializer(serializers.Serializer):
-    omschrijving = serializers.CharField()
-    url = serializers.URLField()

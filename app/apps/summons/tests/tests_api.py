@@ -1,7 +1,6 @@
 from unittest.mock import patch
 
 from apps.cases.models import Case
-from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from apps.summons.models import Summon, SummonedPerson, SummonType
 from django.core import management
 from django.urls import reverse
@@ -15,7 +14,7 @@ from utils.unittest_helpers import (
 )
 
 
-class SummonCreateAPITest(ZakenBackendTestMixin, APITestCase):
+class SummonCreateAPITest(APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
         super().setUp()

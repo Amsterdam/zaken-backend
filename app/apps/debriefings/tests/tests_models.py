@@ -6,12 +6,11 @@ from datetime import datetime, timezone
 
 from apps.debriefings.models import Debriefing, ViolationType
 from apps.debriefings.tests.tests_helpers import DebriefingTestMixin
-from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from django.test import TestCase
 from freezegun import freeze_time
 
 
-class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
+class DebriefingModelTest(TestCase, DebriefingTestMixin):
     fixtures = ["fixture.json"]
 
     def test_can_create_debrief(self):

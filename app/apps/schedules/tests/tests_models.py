@@ -1,4 +1,3 @@
-from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from apps.schedules.models import Action, DaySegment, Priority, Schedule, WeekSegment
 from django.core import management
 from django.test import TestCase
@@ -85,7 +84,7 @@ class PriorityModelTest(TestCase):
             baker.make(self.MODEL, name=model_object.name, theme=model_object.theme)
 
 
-class ScheduleModelTest(ZakenBackendTestMixin, TestCase):
+class ScheduleModelTest(TestCase):
     MODEL = Schedule
 
     def setUp(self):
