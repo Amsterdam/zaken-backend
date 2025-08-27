@@ -2,7 +2,6 @@ import datetime
 
 from apps.addresses.models import Address
 from apps.cases.models import Case
-from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from django.core import management
 from django.urls import reverse
 from model_bakery import baker
@@ -15,7 +14,7 @@ from app.utils.unittest_helpers import (
 )
 
 
-class AddressCasesApiTest(ZakenBackendTestMixin, APITestCase):
+class AddressCasesApiTest(APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
         super().setUp()

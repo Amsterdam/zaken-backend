@@ -1,11 +1,10 @@
-from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from apps.summons.models import Summon, SummonedPerson, SummonType
 from django.core import management
 from django.test import TestCase
 from model_bakery import baker
 
 
-class SummonModelTest(ZakenBackendTestMixin, TestCase):
+class SummonModelTest(TestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
         super().setUp()
