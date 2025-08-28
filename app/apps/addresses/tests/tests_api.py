@@ -2,7 +2,6 @@ import datetime
 
 from apps.addresses.models import Address
 from apps.cases.models import Case
-from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from django.core import management
 from django.urls import reverse
 from model_bakery import baker
@@ -15,7 +14,7 @@ from app.utils.unittest_helpers import (
 )
 
 
-class AddressCasesApiTest(ZakenBackendTestMixin, APITestCase):
+class AddressCasesApiTest(APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
         super().setUp()
@@ -52,7 +51,7 @@ class AddressCasesApiTest(ZakenBackendTestMixin, APITestCase):
         data = response.json()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(data["results"], [])
+        self.assertEqual(data["results"], [])
 
     def test_authenticated_get_results(self):
         BAG_ID = "foo"
@@ -66,7 +65,7 @@ class AddressCasesApiTest(ZakenBackendTestMixin, APITestCase):
         response = client.get(url)
         data = response.json()
 
-        self.assertEquals(len(data["results"]), NUMBER_OF_CASES)
+        self.assertEqual(len(data["results"]), NUMBER_OF_CASES)
 
     def test_authenticated_get_open_cases_results(self):
         BAG_ID = "foo"
@@ -87,7 +86,7 @@ class AddressCasesApiTest(ZakenBackendTestMixin, APITestCase):
         response = client.get(url + "?open_cases=true")
         data = response.json()
 
-        self.assertEquals(len(data["results"]), NUMBER_OF_OPEN_CASES)
+        self.assertEqual(len(data["results"]), NUMBER_OF_OPEN_CASES)
 
     def test_authenticated_get_closed_cases_results(self):
         BAG_ID = "foo"
@@ -108,4 +107,4 @@ class AddressCasesApiTest(ZakenBackendTestMixin, APITestCase):
         response = client.get(url + "?open_cases=false")
         data = response.json()
 
-        self.assertEquals(len(data["results"]), NUMBER_OF_CLOSED_CASES)
+        self.assertEqual(len(data["results"]), NUMBER_OF_CLOSED_CASES)

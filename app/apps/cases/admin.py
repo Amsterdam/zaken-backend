@@ -6,7 +6,6 @@ from apps.cases.models import (
     CaseClose,
     CaseCloseReason,
     CaseCloseResult,
-    CaseDocument,
     CaseProject,
     CaseReason,
     CaseState,
@@ -140,17 +139,6 @@ def export_queryset_to_excel(modeladmin, request, queryset):
 
 # Short description for the action, which will be displayed in the admin action dropdown
 export_queryset_to_excel.short_description = "Export Cases to Excel"
-
-
-@admin.register(CaseDocument)
-class CaseDocumentAdmin(admin.ModelAdmin):
-    list_display = (
-        "id",
-        "case",
-        "document_url",
-        "connected",
-    )
-    search_fields = ("case__id",)
 
 
 class BewaartermijnFilter(admin.SimpleListFilter):

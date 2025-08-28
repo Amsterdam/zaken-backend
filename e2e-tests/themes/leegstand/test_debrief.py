@@ -3,14 +3,8 @@ from api.tasks.debrief import (
     test_create_debrief,
     test_opstellen_beeldverslag,
     test_opstellen_rapport_van_bevindingen,
-    test_terugkoppelen_melder_2,
 )
-from api.tasks.summon import (
-    test_monitoren_binnenkomen_vergunningaanvraag,
-    test_nakijken_aanschrijving,
-    test_opstellen_concept_aanschrijving,
-    test_verwerk_aanschrijving,
-)
+from api.tasks.summon import test_opstellen_concept_aanschrijving
 from api.tasks.unoccupied import test_opstellen_aanschrijving_eigenaar
 from api.tasks.visit import test_doorgeven_status_top, test_inplannen_status
 from api.test import DefaultAPITest

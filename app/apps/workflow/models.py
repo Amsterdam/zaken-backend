@@ -931,11 +931,11 @@ class CaseWorkflow(models.Model):
             "workflow": workflow,
             "workflow_type": self.workflow_type,
             "current_workflow": current_workflow,
-            "found_user_task_names": [
-                t.task_spec.name for t in workflow.get_ready_user_tasks()
-            ]
-            if workflow
-            else [],
+            "found_user_task_names": (
+                [t.task_spec.name for t in workflow.get_ready_user_tasks()]
+                if workflow
+                else []
+            ),
             "expected_user_task_names": expected_user_task_names,
             "current_version": self.workflow_version,
             "latest_version": latest_version,

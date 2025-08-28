@@ -4,10 +4,7 @@ from api.tasks.close_case import (
     test_close_case_concept,
     test_uitzetten_vervolgstap,
 )
-from api.tasks.decision import (
-    test_versturen_invordering_belastingen,
-    test_verwerken_definitieve_besluit,
-)
+from api.tasks.decision import test_verwerken_definitieve_besluit
 from api.tasks.renounce_decision import (
     test_nakijken_afzien_voornemen,
     test_opstellen_concept_voornemen_afzien,

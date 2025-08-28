@@ -6,6 +6,7 @@ authentication in which this project servers as its own authentication provider.
 We are using an implicit autentication flow with a dedicated authentication provider/server now.
 Additional tests for user creation/update and role verification on authenticated requests are needed.
 """
+
 from unittest.mock import Mock
 
 from django.core.exceptions import SuspiciousOperation
@@ -70,7 +71,7 @@ class AuthTest(TestCase):
 
         # Most importantly, the get_or_create_user function is called, and it's return value is given
         authentication_backend.get_or_create_user.assert_called_once()
-        self.assertEquals(authenticated_result, FOO_USER)
+        self.assertEqual(authenticated_result, FOO_USER)
 
     def test_verification_fails(self):
         """
