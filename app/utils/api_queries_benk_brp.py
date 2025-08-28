@@ -1,9 +1,10 @@
 import logging
 import os
+import uuid
 
 import requests
 from django.conf import settings
-from opencensus.trace.tracer import Tracer
+from opentelemetry import trace
 
 logger = logging.getLogger(__name__)
 
@@ -37,10 +38,13 @@ class BrpRequest:
     def _perform_api_call(
         self, url, method="post", json=None, access_token=None, user_email=None
     ):
-        # Initialize tracer for Application Insights
-        tracer = Tracer()
-        span_context = tracer.span_context
-        operation_id = span_context.trace_id
+        # Obtain current trace id from OpenTelemetry, fallback to new UUID if missing
+        current_span = trace.get_current_span()
+        span_context = current_span.get_span_context() if current_span else None
+        trace_id_int = (
+            span_context.trace_id if span_context and span_context.trace_id else 0
+        )
+        operation_id = f"{trace_id_int:032x}" if trace_id_int else uuid.uuid4().hex
         headers = {
             "Authorization": f"Bearer {access_token}" if access_token else "",
             "X-Correlation-ID": operation_id,

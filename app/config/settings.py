@@ -5,7 +5,6 @@ from os.path import join
 
 from celery.schedules import crontab
 from dotenv import load_dotenv
-from opencensus.ext.azure.trace_exporter import AzureExporter
 
 from .azure_settings import Azure
 
@@ -105,7 +104,6 @@ DATABASES = {
 }
 
 MIDDLEWARE = (
-    "opencensus.ext.django.middleware.OpencensusMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -177,85 +175,6 @@ SPECTACULAR_SETTINGS = {
 }
 
 TAG_NAME = os.getenv("TAG_NAME", "default-release")
-
-LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "DEBUG")
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": True,
-    "handlers": {
-        "console": {"class": "logging.StreamHandler", "level": LOGGING_LEVEL},
-        "celery": {"level": LOGGING_LEVEL, "class": "logging.StreamHandler"},
-    },
-    "root": {"handlers": ["console"], "level": LOGGING_LEVEL},
-    "loggers": {
-        "apps": {
-            "handlers": ["console"],
-            "level": LOGGING_LEVEL,
-            "propagate": True,
-        },
-        "utils": {
-            "handlers": ["console"],
-            "level": LOGGING_LEVEL,
-            "propagate": True,
-        },
-        "django": {
-            "handlers": ["console"],
-            "level": LOGGING_LEVEL,
-            "propagate": True,
-        },
-        "": {
-            "level": LOGGING_LEVEL,
-            "handlers": ["console"],
-            "propagate": True,
-        },
-        "celery": {
-            "handlers": ["celery", "console"],
-            "level": LOGGING_LEVEL,
-            "propagate": True,
-        },
-        "mozilla_django_oidc": {"handlers": ["console"], "level": LOGGING_LEVEL},
-    },
-}
-
-APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv(
-    "APPLICATIONINSIGHTS_CONNECTION_STRING"
-)
-
-if APPLICATIONINSIGHTS_CONNECTION_STRING:
-    # Only log queries when in DEBUG due to high cost
-    def filter_traces(envelope):
-        if LOGGING_LEVEL == "DEBUG":
-            return True
-        log_data = envelope.data.baseData
-        if "query" in log_data["name"].lower():
-            return False
-        if log_data["name"] == "GET /":
-            return False
-        if "applicationinsights" in log_data.message.lower():
-            return False
-        return True
-
-    exporter = AzureExporter(connection_string=APPLICATIONINSIGHTS_CONNECTION_STRING)
-    exporter.add_telemetry_processor(filter_traces)
-    OPENCENSUS = {
-        "TRACE": {
-            "SAMPLER": "opencensus.trace.samplers.ProbabilitySampler(rate=1)",
-            "EXPORTER": exporter,
-        }
-    }
-    LOGGING["handlers"]["azure"] = {
-        "level": LOGGING_LEVEL,
-        "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
-        "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
-    }
-
-    LOGGING["root"]["handlers"] = ["azure", "console"]
-    LOGGING["loggers"]["django"]["handlers"] = ["azure", "console"]
-    LOGGING["loggers"][""]["handlers"] = ["azure", "console"]
-    LOGGING["loggers"]["apps"]["handlers"] = ["azure", "console"]
-    LOGGING["loggers"]["utils"]["handlers"] = ["azure", "console"]
-    LOGGING["loggers"]["celery"]["handlers"] = ["azure", "console", "celery"]
 
 """
 TODO: Only a few of these settings are actually used for our current flow,
