@@ -8,7 +8,12 @@ from django.dispatch import receiver
 def complete_task_create_debrief(sender, instance, created, **kwargs):
     if kwargs.get("raw"):
         return
-    if created:
+    # Only complete a task when there is a real CaseUserTask reference
+    if (
+        created
+        and getattr(instance, "case_user_task_id", None)
+        and instance.case_user_task_id != "-1"
+    ):
         CaseWorkflow.complete_user_task(
             instance.case_user_task_id,
             {
