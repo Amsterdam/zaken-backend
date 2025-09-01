@@ -167,7 +167,8 @@ def start_workflow(sender, instance, created, **kwargs):
     if kwargs.get("raw"):
         return
     if created:
-        task_start_worflow(instance.id)
+        # Run asynchronously so lock contention triggers Celery autoretry instead of failing inline
+        task_start_worflow.delay(instance.id)
 
 
 @receiver(
