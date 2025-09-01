@@ -331,6 +331,13 @@ class task_monitoren_binnenkomen_vergunningaanvraag(user_task):
     due_date = relativedelta(weeks=0)
 
 
+class task_monitoren_binnenkomen_vergunningaanvraag_extra_opties(user_task):
+    """Monitoren binnenkomen vergunningaanvraag"""
+
+    _task_name = "task_monitor_incoming_permit_application_extra_options"
+    due_date = relativedelta(weeks=0)
+
+
 class task_controleren_binnenkomst_vergunningaanvraag(user_task):
     """Controleren binnenkomst vergunningaanvraag"""
 
