@@ -1,6 +1,7 @@
 """
 Tests for Debriefing models
 """
+
 from datetime import datetime, timezone
 
 from apps.debriefings.models import Debriefing, ViolationType
