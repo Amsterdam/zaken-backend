@@ -100,6 +100,10 @@ def task_create_main_worflow_for_case(self, case_id, data={}):
     from apps.workflow.models import CaseWorkflow
 
     case = Case.objects.get(id=case_id)
+    # Idempotency: if a main workflow already exists for this case, do nothing
+    existing = CaseWorkflow.objects.filter(case=case, main_workflow=True).first()
+    if existing:
+        return f"task_start_main_worflow_for_case: main workflow id '{existing.id}' already exists for case '{case_id}', skipping"
     with transaction.atomic():
         workflow_instance = CaseWorkflow.objects.create(
             case=case,
@@ -248,7 +252,9 @@ def task_complete_worflow(self, worklow_id, data):
 def task_complete_user_task_and_create_new_user_tasks(self, task_id, data={}):
     from apps.workflow.models import CaseUserTask
 
-    task = CaseUserTask.objects.get(id=task_id, completed=False)
+    task = CaseUserTask.objects.filter(id=task_id, completed=False).first()
+    if not task:
+        return f"task_complete_user_task_and_create_new_user_tasks: task '{task_id}' not found or already completed, skipping"
 
     if task.workflow.get_lock():
         task.workflow.complete_user_task_and_create_new_user_tasks(task.task_id, data)

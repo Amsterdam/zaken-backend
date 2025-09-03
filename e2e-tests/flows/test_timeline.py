@@ -3,7 +3,6 @@ from api.tasks.close_case import test_close_case, test_uitzetten_vervolgstap
 from api.tasks.debrief import (
     test_create_debrief,
     test_opstellen_verkorte_rapportage_huisbezoek,
-    test_terugkoppelen_melder_1,
 )
 from api.tasks.visit import (
     test_bepalen_processtap_vv,
