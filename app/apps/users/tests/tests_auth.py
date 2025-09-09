@@ -6,6 +6,7 @@ authentication in which this project servers as its own authentication provider.
 We are using an implicit autentication flow with a dedicated authentication provider/server now.
 Additional tests for user creation/update and role verification on authenticated requests are needed.
 """
+
 from unittest.mock import Mock
 
 from django.core.exceptions import SuspiciousOperation

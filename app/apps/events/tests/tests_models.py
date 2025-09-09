@@ -1,6 +1,7 @@
 """
 Tests for CaseEvent & EventsEmitter models
 """
+
 from apps.events.models import CaseEvent
 from apps.events.tests.tests_helpers import CaseEventEmitterTestCase
 from apps.openzaak.tests.utils import ZakenBackendTestMixin

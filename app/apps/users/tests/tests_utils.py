@@ -1,6 +1,7 @@
 """
 Tests for helpers
 """
+
 from apps.users.utils import generate_username
 from django.test import TestCase
 

@@ -38,23 +38,28 @@ class VisitSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         authors = self.get_authors(validated_data)
         case = validated_data.get("case")
+
         task = case.tasks.filter(
             task_name="task_create_visit",
             completed=False,
         ).first()
-        if task:
-            visit, created = Visit.objects.update_or_create(
-                case=case,
-                case_user_task_id=str(task.id),
-                top_visit_id=validated_data.get("top_visit_id"),
-                defaults=validated_data,
-            )
 
-            visit.authors.set(authors)
-            return visit
-        else:
-            logger.warn("No task found")
+        if not task:
+            logger.warning("No task found")
             return Visit()
+
+        is_additional = "aanvullend" in task.name.lower()
+
+        visit, created = Visit.objects.update_or_create(
+            case=case,
+            case_user_task_id=str(task.id),
+            top_visit_id=validated_data.get("top_visit_id"),
+            defaults=validated_data,
+            is_additional=is_additional,
+        )
+
+        visit.authors.set(authors)
+        return visit
 
     class Meta:
         model = Visit

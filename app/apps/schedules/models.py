@@ -84,6 +84,7 @@ class Schedule(TaskModelEventEmitter):
     housing_corporation_combiteam = models.BooleanField(
         default=False,
     )
+    is_additional = models.BooleanField(default=False)
 
     def __get_event_values__(self):
         return {
@@ -96,4 +97,5 @@ class Schedule(TaskModelEventEmitter):
             "author": self.author.__str__(),
             "visit_from_datetime": self.visit_from_datetime,
             "housing_corporation_combiteam": self.housing_corporation_combiteam,
+            "is_additional": self.is_additional,
         }
