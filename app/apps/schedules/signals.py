@@ -8,7 +8,7 @@ from django.dispatch import receiver
 def pre_save_schedule(sender, instance, **kwargs):
     if kwargs.get("raw"):
         return
-    if not instance.id:
+    if instance._state.adding:
         is_corpo_combiteam_completed_tasks = bool(
             instance.case.generic_completed_tasks.filter(
                 task_name__in=(
@@ -41,5 +41,9 @@ def pre_save_schedule(sender, instance, **kwargs):
 def complete_task_create_schedule(sender, instance, created, **kwargs):
     if kwargs.get("raw"):
         return
-    if created:
+    if (
+        created
+        and getattr(instance, "case_user_task_id", None)
+        and instance.case_user_task_id != "-1"
+    ):
         CaseWorkflow.complete_user_task(instance.case_user_task_id, {}, wait=True)

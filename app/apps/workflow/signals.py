@@ -1,8 +1,8 @@
 import copy
 import datetime
 import logging
+from datetime import timezone
 
-import pytz
 from apps.events.models import TaskModelEventEmitter
 from apps.visits.models import Visit
 from apps.workflow.models import CaseUserTask, CaseWorkflow, GenericCompletedTask
@@ -10,7 +10,7 @@ from apps.workflow.tasks import task_start_worflow
 from django.core.cache import cache
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from django.utils import timezone
+from django.utils import timezone as django_timezone
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from utils.exceptions import EventEmitterExistsError
 
@@ -52,9 +52,9 @@ def case_user_task_pre_save(sender, instance, **kwargs):
     if kwargs.get("raw"):
         return
     if not instance.id:
-        now = timezone.now()
+        now = django_timezone.now()
         d = datetime.datetime(
-            year=now.year, month=now.month, day=now.day, tzinfo=pytz.UTC
+            year=now.year, month=now.month, day=now.day, tzinfo=timezone.utc
         )
         task = get_task_by_name(instance.task_name)
         task_elapse_datetime = instance.workflow.get_task_elapse_datetime(
@@ -167,7 +167,8 @@ def start_workflow(sender, instance, created, **kwargs):
     if kwargs.get("raw"):
         return
     if created:
-        task_start_worflow(instance.id)
+        # Run asynchronously so lock contention triggers Celery autoretry instead of failing inline
+        task_start_worflow.delay(instance.id)
 
 
 @receiver(

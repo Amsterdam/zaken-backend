@@ -1,13 +1,15 @@
-FROM python:3.10-bullseye
+FROM python:3.13-slim-trixie
 
-ENV REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
+ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
 # Setup Certificates for ADP/Motiv
 COPY certificates/adp_rootca.crt /usr/local/share/ca-certificates/adp_rootca.crt
 RUN chmod 644 /usr/local/share/ca-certificates/adp_rootca.crt \
     && update-ca-certificates --fresh
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1 \
+    POETRY_VIRTUALENVS_CREATE=false \
+    POETRY_VERSION=2.1.4
 
 # Update and install necessary packages including GDAL
 RUN apt-get update && apt-get install -y \
@@ -15,18 +17,29 @@ RUN apt-get update && apt-get install -y \
     libgdal-dev \
     graphviz \
     graphviz-dev \
-    postgresql-client
+    postgresql-client \
+    tzdata \
+    media-types \
+    wget \
+    curl \
+    netcat-openbsd \
+    locales \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --upgrade pip setuptools wheel
-RUN pip install uwsgi
-RUN pip install pygraphviz
+# Set UTF-8 configuration
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
+ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8
 
-RUN echo "10.240.5.72     acc.api.data.amsterdam.nl" >> /etc/hosts || echo "Could not write to /etc/hosts"
+RUN pip install --upgrade pip setuptools wheel pygraphviz uwsgi
+RUN pip install "poetry==$POETRY_VERSION"
 
 WORKDIR /app
 
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r /app/requirements.txt
+COPY pyproject.toml poetry.lock  ./
+RUN poetry install --no-interaction --no-ansi --only main
+
 COPY . /app/
 
 RUN chmod +x /app/restore_db.sh
@@ -35,7 +48,7 @@ RUN chmod +x /app/celery.sh
 RUN chmod +x /app/deploy/docker-entrypoint.sh
 
 # Set the GDAL_LIBRARY_PATH environment variable
-ENV GDAL_LIBRARY_PATH /usr/lib/libgdal.so
+ENV GDAL_LIBRARY_PATH=/usr/lib/libgdal.so
 
 ENTRYPOINT ["/app/deploy/docker-entrypoint.sh"]
 CMD ["uwsgi", "--ini", "/app/deploy/config.ini"]

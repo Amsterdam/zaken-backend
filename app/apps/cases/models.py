@@ -281,17 +281,6 @@ class Case(ModelEventEmitter):
         ordering = ["-id"]
 
 
-class CaseDocument(models.Model):
-    case = models.ForeignKey(Case, on_delete=models.CASCADE)
-    document_url = models.URLField()
-    document_content = models.URLField()
-    case_document_connection_url = models.URLField(default=False, blank=True)
-    connected = models.BooleanField(default=False, blank=True)
-
-    def __str__(self):
-        return f"Document van {self.case}"
-
-
 class CaseStateType(models.Model):
     name = models.CharField(max_length=255, unique=True)
 

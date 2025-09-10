@@ -207,63 +207,6 @@ class KeycloakCheck(APIServiceCheckBackend):
     verbose_name = "Keycloak"
 
 
-class OpenZaakZaken(APIServiceCheckBackend):
-    """
-    Endpoint for checking Keycloak
-    """
-
-    critical_service = True
-    verbose_name = "Open-zaak zaken (ZRC)"
-
-    def get_api_url(self):
-        from zgw_consumers.constants import APITypes
-        from zgw_consumers.models import Service
-
-        try:
-            zaken_service = Service.objects.filter(api_type=APITypes.zrc).get()
-            return zaken_service.api_root
-        except Service.DoesNotExist:
-            return None
-
-
-class OpenZaakZakenCatalogus(APIServiceCheckBackend):
-    """
-    Endpoint for checking Keycloak
-    """
-
-    critical_service = True
-    verbose_name = "Open-zaak catalogus (ZTC)"
-
-    def get_api_url(self):
-        from zgw_consumers.constants import APITypes
-        from zgw_consumers.models import Service
-
-        try:
-            catalogi_service = Service.objects.filter(api_type=APITypes.ztc).get()
-            return catalogi_service.api_root
-        except Service.DoesNotExist:
-            return None
-
-
-class OpenZaakZakenAlfresco(APIServiceCheckBackend):
-    """
-    Endpoint for checking Keycloak
-    """
-
-    critical_service = True
-    verbose_name = "Open-zaak Alfresco (DRC)"
-
-    def get_api_url(self):
-        from zgw_consumers.constants import APITypes
-        from zgw_consumers.models import Service
-
-        try:
-            documenten_service = Service.objects.filter(api_type=APITypes.drc).get()
-            return documenten_service.api_root
-        except Service.DoesNotExist:
-            return None
-
-
 class VakantieVerhuurRegistratieCheck(BaseHealthCheckBackend):
     """
     Check if a connection can be made with the Vakantieverhuur Registratie API

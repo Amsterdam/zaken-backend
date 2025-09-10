@@ -6,7 +6,7 @@ class HealthConfig(AppConfig):
     name = "apps.health"
 
     def ready(self):
-        from .health_checks import (  # OpenZaakZaken,; OpenZaakZakenAlfresco,; OpenZaakZakenCatalogus,
+        from .health_checks import (
             BAGBenkaggNummeraanduidingenServiceCheck,
             BAGPdokServiceCheck,
             Belastingdienst,
@@ -27,9 +27,6 @@ class HealthConfig(AppConfig):
         plugin_dir.register(CeleryExecuteTask)
         plugin_dir.register(DecosJoinCheck)
         plugin_dir.register(KeycloakCheck)
-        # plugin_dir.register(OpenZaakZaken)
-        # plugin_dir.register(OpenZaakZakenAlfresco)
-        # plugin_dir.register(OpenZaakZakenCatalogus)
         plugin_dir.register(PowerBrowser)
         plugin_dir.register(Toeristischeverhuur)
         # plugin_dir.register(VakantieVerhuurRegistratieCheck)

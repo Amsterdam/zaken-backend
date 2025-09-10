@@ -5,7 +5,6 @@ from os.path import join
 
 from celery.schedules import crontab
 from dotenv import load_dotenv
-from opencensus.ext.azure.trace_exporter import AzureExporter
 
 from .azure_settings import Azure
 
@@ -54,7 +53,6 @@ INSTALLED_APPS = (
     "django_filters",
     "django_celery_beat",
     "django_celery_results",
-    "zgw_consumers",
     "privates",
     "axes",
     # Health checks. (Expand when more services become available)
@@ -74,7 +72,6 @@ INSTALLED_APPS = (
     "apps.visits",
     "apps.events",
     "apps.health",
-    "apps.openzaak",
     "apps.support",
     "apps.summons",
     "apps.schedules",
@@ -107,7 +104,6 @@ DATABASES = {
 }
 
 MIDDLEWARE = (
-    "opencensus.ext.django.middleware.OpencensusMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -179,85 +175,6 @@ SPECTACULAR_SETTINGS = {
 }
 
 TAG_NAME = os.getenv("TAG_NAME", "default-release")
-
-LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "DEBUG")
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": True,
-    "handlers": {
-        "console": {"class": "logging.StreamHandler", "level": LOGGING_LEVEL},
-        "celery": {"level": LOGGING_LEVEL, "class": "logging.StreamHandler"},
-    },
-    "root": {"handlers": ["console"], "level": LOGGING_LEVEL},
-    "loggers": {
-        "apps": {
-            "handlers": ["console"],
-            "level": LOGGING_LEVEL,
-            "propagate": True,
-        },
-        "utils": {
-            "handlers": ["console"],
-            "level": LOGGING_LEVEL,
-            "propagate": True,
-        },
-        "django": {
-            "handlers": ["console"],
-            "level": LOGGING_LEVEL,
-            "propagate": True,
-        },
-        "": {
-            "level": LOGGING_LEVEL,
-            "handlers": ["console"],
-            "propagate": True,
-        },
-        "celery": {
-            "handlers": ["celery", "console"],
-            "level": LOGGING_LEVEL,
-            "propagate": True,
-        },
-        "mozilla_django_oidc": {"handlers": ["console"], "level": LOGGING_LEVEL},
-    },
-}
-
-APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv(
-    "APPLICATIONINSIGHTS_CONNECTION_STRING"
-)
-
-if APPLICATIONINSIGHTS_CONNECTION_STRING:
-    # Only log queries when in DEBUG due to high cost
-    def filter_traces(envelope):
-        if LOGGING_LEVEL == "DEBUG":
-            return True
-        log_data = envelope.data.baseData
-        if "query" in log_data["name"].lower():
-            return False
-        if log_data["name"] == "GET /":
-            return False
-        if "applicationinsights" in log_data.message.lower():
-            return False
-        return True
-
-    exporter = AzureExporter(connection_string=APPLICATIONINSIGHTS_CONNECTION_STRING)
-    exporter.add_telemetry_processor(filter_traces)
-    OPENCENSUS = {
-        "TRACE": {
-            "SAMPLER": "opencensus.trace.samplers.ProbabilitySampler(rate=1)",
-            "EXPORTER": exporter,
-        }
-    }
-    LOGGING["handlers"]["azure"] = {
-        "level": LOGGING_LEVEL,
-        "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
-        "connection_string": APPLICATIONINSIGHTS_CONNECTION_STRING,
-    }
-
-    LOGGING["root"]["handlers"] = ["azure", "console"]
-    LOGGING["loggers"]["django"]["handlers"] = ["azure", "console"]
-    LOGGING["loggers"][""]["handlers"] = ["azure", "console"]
-    LOGGING["loggers"]["apps"]["handlers"] = ["azure", "console"]
-    LOGGING["loggers"]["utils"]["handlers"] = ["azure", "console"]
-    LOGGING["loggers"]["celery"]["handlers"] = ["azure", "console", "celery"]
 
 """
 TODO: Only a few of these settings are actually used for our current flow,
@@ -580,78 +497,6 @@ VAKANTIEVERHUUR_TOERISTISCHE_VERHUUR_API_BSN = os.getenv(
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 DEFAULT_RSIN = os.getenv("DEFAULT_RSIN", "130365312")
-# Used to enable open-zaak signals
-OPENZAAK_ENABLED = os.getenv("OPENZAAK_ENABLED")
-# Catalogus Ruimte en Economie WONEN
-OPENZAAK_CATALOGI_URL = os.getenv(
-    "OPENZAAK_CATALOGI_URL",
-    "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/catalogussen/fe6b2aaf-9ec3-4430-ac88-486fd68194b7",
-)
-# Open-zaak zaaktype Toezicht identificatie
-OPENZAAK_ZAAKTYPE_IDENTIFICATIE_TOEZICHT = os.getenv(
-    "OPENZAAK_ZAAKTYPE_IDENTIFICATIE_TOEZICHT",
-    "ZAAKTYPE-2021-0000000001",
-)
-# Open-zaak zaaktype Handhaven identificatie
-OPENZAAK_ZAAKTYPE_IDENTIFICATIE_HANDHAVEN = os.getenv(
-    "OPENZAAK_ZAAKTYPE_IDENTIFICATIE_HANDHAVEN",
-    "ZAAKTYPE-2021-0000000002",
-)
-# Open-zaak resultaattype omschrijving generiek Afgebroken
-OPENZAAK_RESULTAATTYPE_OMSCHRIJVING_GENERIEK_AFGEBROKEN = os.getenv(
-    "OPENZAAK_RESULTAATTYPE_OMSCHRIJVING_GENERIEK_AFGEBROKEN",
-    "Afgebroken",
-)
-# Open-zaak resultaattype omschrijving generiek Afgehandeld
-OPENZAAK_RESULTAATTYPE_OMSCHRIJVING_GENERIEK_AFGEHANDELD = os.getenv(
-    "OPENZAAK_RESULTAATTYPE_OMSCHRIJVING_GENERIEK_AFGEHANDELD",
-    "Afgehandeld",
-)
-# Open-zaak statustype omschrijving generiek Afsluiten
-OPENZAAK_STATUSTYPE_OMSCHRIJVING_GENERIEK_AFSLUITEN = os.getenv(
-    "OPENZAAK_STATUSTYPE_OMSCHRIJVING_GENERIEK_AFSLUITEN",
-    "Afsluiten",
-)
-# Default zaaktype is Toezicht
-OPENZAAK_DEFAULT_ZAAKTYPE_URL = os.getenv(
-    "OPENZAAK_DEFAULT_ZAAKTYPE_URL",
-    "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/zaaktypen/52883e00-2b76-421a-92e3-7a2bea8ff008",
-)
-# Default is Standaard
-OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL = os.getenv(
-    "OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE_URL",
-    "https://acc.api.wonen.zaken.amsterdam.nl/open-zaak/catalogi/api/v1/informatieobjecttypen/655ed6b3-2ee8-475d-8e40-7de76a2454f7",
-)
-OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE = os.getenv(
-    "OPENZAAK_DEFAULT_INFORMATIEOBJECTTYPE"
-)
-OPENZAAK_CASETYPEURL_TOEZICHT = os.getenv("OPENZAAK_CASETYPE_TOEZICHT")
-OPENZAAK_CASETYPEURL_HANDHAVING = os.getenv("OPENZAAK_CASETYPE_HANDHAVING")
-OPENZAAK_CASETYPEURL_AFGESLOTEN = os.getenv("OPENZAAK_CASETYPE_AFGESLOTEN")
-OPENZAAK_CASETYPEURL_DEFAULT = os.getenv("OPENZAAK_CASETYPE_DEFAULT")
-
-OPENZAAK_CASESTATE_URL_DEFAULT = os.getenv("OPENZAAK_CASESTATE_URL_DEFAULT")
-OPENZAAK_CASESTATE_URLS = {
-    "TOEZICHT": os.getenv(
-        "OPENZAAK_CASESTATE_URL_TOEZICHT", OPENZAAK_CASESTATE_URL_DEFAULT
-    ),
-    "HANDHAVING": os.getenv(
-        "OPENZAAK_CASESTATE_URL_TOEZICHT", OPENZAAK_CASESTATE_URL_DEFAULT
-    ),
-    "AFGESLOTEN": os.getenv(
-        "OPENZAAK_CASESTATE_URL_TOEZICHT", OPENZAAK_CASESTATE_URL_DEFAULT
-    ),
-}
-OPENZAAK_CASETHEME_URL_DEFAULT = os.getenv("OPENZAAK_CASETHEME_URL_DEFAULT")
-OPENZAAK_CASETHEME_URLS = {
-    2: os.getenv(
-        "OPENZAAK_CASETHEME_URL_VAKANTIEVERHUUR", OPENZAAK_CASETHEME_URL_DEFAULT
-    ),
-    3: os.getenv("OPENZAAK_CASETHEME_URL_KAMERVERHUUR", OPENZAAK_CASETHEME_URL_DEFAULT),
-    4: os.getenv("OPENZAAK_CASETHEME_URL_ONDERMIJNING", OPENZAAK_CASETHEME_URL_DEFAULT),
-    5: os.getenv("OPENZAAK_CASETHEME_URL_LEEGSTAND", OPENZAAK_CASETHEME_URL_DEFAULT),
-    6: os.getenv("OPENZAAK_CASETHEME_URL_ONDERHUUR", OPENZAAK_CASETHEME_URL_DEFAULT),
-}
 
 HOST = os.getenv("HOST")
 
@@ -1445,15 +1290,6 @@ WORKFLOW_SPEC_CONFIG = {
         },
     },
 }
-
-ZGW_CONSUMERS_TEST_SCHEMA_DIRS = [
-    os.path.normpath(join(BASE_DIR, "apps", "openzaak", "tests", "files"))
-]
-TEST_ZAKEN_ROOT = "https://zaken.nl/api/v1/"
-TEST_DOCUMENTEN_ROOT = "https://documenten.nl/api/v1/"
-TEST_CATALOGI_ROOT = "https://catalogi.nl/api/v1/"
-TEST_NOTIFICATION_ROOT = "https://notification.nl/api/v1/"
-
 
 SLACK_WEBHOOK_URL = os.getenv(
     "SLACK_WEBHOOK_URL", "https://hooks.slack.com/services/test/test/test"

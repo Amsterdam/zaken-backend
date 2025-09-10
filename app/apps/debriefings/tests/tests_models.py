@@ -6,12 +6,11 @@ from datetime import datetime, timezone
 
 from apps.debriefings.models import Debriefing, ViolationType
 from apps.debriefings.tests.tests_helpers import DebriefingTestMixin
-from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from django.test import TestCase
 from freezegun import freeze_time
 
 
-class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
+class DebriefingModelTest(TestCase, DebriefingTestMixin):
     fixtures = ["fixture.json"]
 
     def test_can_create_debrief(self):
@@ -23,7 +22,7 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
     def test_date_added(self):
         debriefing = self.create_debriefing()
 
-        self.assertEquals(
+        self.assertEqual(
             debriefing.date_added, datetime(2019, 12, 25, tzinfo=timezone.utc)
         )
 
@@ -31,7 +30,7 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
         with freeze_time("2019-12-25"):
             debriefing = self.create_debriefing()
 
-            self.assertEquals(
+            self.assertEqual(
                 debriefing.date_modified, datetime(2019, 12, 25, tzinfo=timezone.utc)
             )
 
@@ -39,7 +38,7 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
             debriefing.feedback = "New Feedback"
             debriefing.save()
 
-        self.assertEquals(
+        self.assertEqual(
             debriefing.date_modified, datetime(2019, 12, 26, tzinfo=timezone.utc)
         )
 
@@ -55,8 +54,8 @@ class DebriefingModelTest(ZakenBackendTestMixin, TestCase, DebriefingTestMixin):
 
         debriefing = Debriefing.objects.all()[0]
 
-        self.assertEquals(debriefing.feedback, modified_feedback)
-        self.assertEquals(debriefing.violation, modified_violation)
+        self.assertEqual(debriefing.feedback, modified_feedback)
+        self.assertEqual(debriefing.violation, modified_violation)
 
     def test_debriefing_get_violation_choices(self):
         theme_id = 2

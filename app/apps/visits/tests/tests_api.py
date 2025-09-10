@@ -1,5 +1,4 @@
 from apps.cases.models import Case, CaseTheme
-from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from apps.visits.models import Visit
 from apps.workflow.models import CaseUserTask, CaseWorkflow
 from django.conf import settings
@@ -18,7 +17,7 @@ from utils.unittest_helpers import (
 User = get_user_model()
 
 
-class VisitApiTest(ZakenBackendTestMixin, APITestCase):
+class VisitApiTest(APITestCase):
     def setUp(self):
         management.call_command("flush", verbosity=0, interactive=False)
         super().setUp()
@@ -42,7 +41,7 @@ class VisitApiTest(ZakenBackendTestMixin, APITestCase):
         response = client.get(url)
         data = response.json()
 
-        self.assertEquals(data["results"], [])
+        self.assertEqual(data["results"], [])
 
     def test_authenticated_get_filled(self):
 
@@ -73,7 +72,7 @@ class VisitApiTest(ZakenBackendTestMixin, APITestCase):
         response = client.get(url)
         data = response.json()
 
-        self.assertEquals(len(data["results"]), 2)
+        self.assertEqual(len(data["results"]), 2)
 
     def test_unauthenticated_post(self):
         url = reverse("visits-list")
@@ -88,7 +87,7 @@ class VisitApiTest(ZakenBackendTestMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_authenticated_post_201(self):
-        self.assertEquals(Visit.objects.count(), 0)
+        self.assertEqual(Visit.objects.count(), 0)
 
         casetheme = baker.make(CaseTheme)
         case = baker.make(Case, theme=casetheme)
@@ -112,11 +111,11 @@ class VisitApiTest(ZakenBackendTestMixin, APITestCase):
         }
         response = client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(Visit.objects.count(), 1)
+        self.assertEqual(Visit.objects.count(), 1)
 
     def test_authenticated_user_create(self):
         # Should create users using the given email if they don't exist yet
-        self.assertEquals(User.objects.count(), 0)
+        self.assertEqual(User.objects.count(), 0)
 
         casetheme = baker.make(CaseTheme)
         case = baker.make(Case, theme=casetheme)
@@ -145,7 +144,7 @@ class VisitApiTest(ZakenBackendTestMixin, APITestCase):
 
         response = client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(User.objects.count(), 2)
+        self.assertEqual(User.objects.count(), 2)
 
         visit = Visit.objects.all()[0]
         self.assertEqual(len(visit.authors.all()), 2)

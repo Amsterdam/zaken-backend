@@ -11,7 +11,9 @@ class GenerateUsernameTest(TestCase):
         """
         Normalizes the given string
         """
-        username = generate_username("株式会社ＫＡＤＯＫＡＷＡ Ｆｕｔｕｒｅ Ｐｕｂｌｉｓｈｉｎｇ")
+        username = generate_username(
+            "株式会社ＫＡＤＯＫＡＷＡ Ｆｕｔｕｒｅ Ｐｕｂｌｉｓｈｉｎｇ"
+        )
 
         self.assertEqual(username, "株式会社KADOKAWA Future Publishing")
 
@@ -25,4 +27,4 @@ class GenerateUsernameTest(TestCase):
 
         username = generate_username(username_input)
 
-        self.assertEquals(150, len(username))
+        self.assertEqual(150, len(username))

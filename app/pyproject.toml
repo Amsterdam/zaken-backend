@@ -1,0 +1,59 @@
+[project]
+name = "zaken-backend"
+version = "1.0.0"
+description = "Amsterdamse Zaken Administratie (AZA) backend"
+authors = [{ name = "Gemeente Amsterdam", email = "datapunt@amsterdam.nl" }]
+readme = "../README.md"
+requires-python = "~=3.13"
+packages = [{ include = "apps" }]
+
+dependencies = [
+    "azure-monitor-opentelemetry (>=1.7.0,<2.0.0)",
+    "azure-storage-blob (~=12.26)",
+    "celery (~=5.5)",
+    "debugpy (~=1.8)",
+    "debugpy (~=1.8)",
+    "deepdiff (~=8.6)",
+    "Django (~=5.2)",
+    "Django (~=5.2)",
+    "django-axes (~=8.0)",
+    "django-axes (~=8.0)",
+    "django-celery-beat (~=2.8)",
+    "django-celery-results (~=2.6)",
+    "django-cors-headers (~=4.7)",
+    "django-csp (~=4.0)",
+    "django-extensions==4.1",
+    "django-filter (~=25.1)",
+    "django-health-check (~=3.20)",
+    "django-permissions-policy (~=4.26)",
+    "django-privates (>=3.1.1,<4.0.0)",
+    "django-redis (~=6.0)",
+    "djangorestframework (~=3.16)",
+    "djangorestframework-simplejwt (~=5.5)",
+    "drf-spectacular (~=0.28)",
+    "drf-spectacular-sidecar (~=2025.8)",
+    "drf-writable-nested (~=0.7)",
+    "Faker (~=37.5)",
+    "freezegun (~=1.5)",
+    "model-bakery (~=1.20)",
+    "mozilla-django-oidc (~=4.0)",
+    "openpyxl (~=3.1)",
+    "packaging (~=25)",
+    "prettyprinter (~=0.18)",
+    "psycopg2-binary (>=2.9.10,<3.0.0)",
+    "pyproj (~=3.7)",
+    "python-dateutil (~=2.9)",
+    "python-dotenv (~=1.1)",
+    "redis (~=6.4)",
+    "Requests (~=2.32)",
+    "requests-mock (~=1.12)",
+    "spiffworkflow (==1.1.0)",
+    "tenacity (~=9.0)",
+]
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

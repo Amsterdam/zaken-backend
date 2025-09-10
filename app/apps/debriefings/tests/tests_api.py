@@ -4,7 +4,6 @@ Tests for Debriefing models
 
 from apps.debriefings.models import Debriefing, ViolationType
 from apps.debriefings.tests.tests_helpers import DebriefingTestMixin
-from apps.openzaak.tests.utils import ZakenBackendTestMixin
 from django.urls import reverse
 from model_bakery import baker
 from rest_framework import status
@@ -16,7 +15,7 @@ from app.utils.unittest_helpers import (
 )
 
 
-class DebriefingCreateAPITest(ZakenBackendTestMixin, APITestCase, DebriefingTestMixin):
+class DebriefingCreateAPITest(APITestCase, DebriefingTestMixin):
     fixtures = ["fixture.json"]
 
     def test_unauthenticated_post(self):

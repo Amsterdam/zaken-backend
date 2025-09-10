@@ -1,4 +1,3 @@
-import io
 import logging
 import operator
 import re
@@ -7,7 +6,6 @@ from functools import reduce
 from apps.addresses.models import District, HousingCorporation
 from apps.cases.models import (
     Case,
-    CaseDocument,
     CaseProject,
     CaseReason,
     CaseStateType,
@@ -21,27 +19,14 @@ from apps.cases.serializers import (
     CaseCreateSerializer,
     CaseDataSerializer,
     CaseDetailSerializer,
-    CaseDocumentSerializer,
-    CaseDocumentUploadSerializer,
     CaseSerializer,
     CaseSimplifiedSerializer,
     CitizenReportSerializer,
-    DocumentTypeSerializer,
     SubjectSerializer,
 )
 from apps.events.mixins import CaseEventsMixin
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
-from apps.openzaak.helpers import (
-    create_document,
-    delete_document,
-    get_document,
-    get_document_inhoud,
-    get_document_types,
-    get_documents_meta,
-    get_open_zaak_case,
-    get_zaaktype,
-)
 from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
 from apps.users.auth_apps import TopKeyAuth
 from apps.users.models import ScopedTokenAuth
@@ -59,17 +44,14 @@ from apps.workflow.serializers import (
 from apps.workflow.utils import filter_messages_by_max_major_version
 from django.db.models import OuterRef, Q, Subquery
 from django.forms.fields import CharField, MultipleChoiceField
-from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, serializers, status, viewsets
-from rest_framework.decorators import action, parser_classes
+from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
-from utils.mimetypes import get_mimetype
 
 logger = logging.getLogger(__name__)
 
@@ -688,79 +670,6 @@ class CaseViewSet(
         return paginator.get_paginated_response(serializer.data)
 
     @extend_schema(
-        description="Gets the DocumentType instances associated with this case",
-        responses={status.HTTP_200_OK: DocumentTypeSerializer(many=True)},
-    )
-    @action(
-        detail=True,
-        url_path="document-types",
-        methods=["get"],
-    )
-    def documents_types(self, request, pk):
-        case = self.get_object()
-        case_meta = get_open_zaak_case(case.case_url)
-        zaaktype_meta = get_zaaktype(case_meta.zaaktype)
-        document_types = [
-            dt
-            for dt in get_document_types()
-            if dt.get("url") in zaaktype_meta.informatieobjecttypen
-        ]
-        serializer = DocumentTypeSerializer(document_types, many=True)
-        return Response(serializer.data)
-
-    @extend_schema(
-        description="Gets the CaseDocument instances associated with this case",
-        responses={
-            status.HTTP_200_OK: serializers.ListSerializer(
-                child=serializers.DictField()
-            )
-        },
-    )
-    @action(
-        detail=True,
-        url_path="documents",
-        url_name="documents",
-        methods=["get"],
-        serializer_class=serializers.ListSerializer(child=serializers.DictField()),
-    )
-    def documents(self, request, pk):
-        paginator = LimitOffsetPagination()
-        case = self.get_object()
-        document_urls = case.casedocument_set.all().values("document_url", "id")
-        documents_ids = {d.get("document_url"): d.get("id") for d in document_urls}
-        documents = get_documents_meta([d.get("document_url") for d in document_urls])
-
-        # adds CaseDocument ids to documents from zgw-consumer
-        documents = [{**d, "id": documents_ids.get(d.get("url"))} for d in documents]
-        context = paginator.paginate_queryset(documents, request)
-        return paginator.get_paginated_response(context)
-
-    @extend_schema(
-        description="Add CaseDocument instances and associate it with this case",
-        responses={status.HTTP_200_OK: CaseDocumentSerializer()},
-        request=CaseDocumentUploadSerializer(),
-    )
-    @parser_classes([JSONParser, FormParser, MultiPartParser])
-    @action(
-        detail=True,
-        url_path="documents/create",
-        url_name="documents-create",
-        methods=["post"],
-        serializer_class=CaseDocumentUploadSerializer,
-    )
-    def add_document(self, request, pk):
-        case = self.get_object()
-        file_uploaded = request.FILES.get("file")
-        response = create_document(
-            case,
-            file_uploaded,
-            "nld",
-            request.data.get("documenttype_url"),
-        )
-        serialized = CaseDocumentSerializer(response)
-        return Response(serialized.data)
-
-    @extend_schema(
         description="Gets all reason names",
         responses={
             status.HTTP_200_OK: serializers.ListSerializer(
@@ -826,53 +735,3 @@ class CaseViewSet(
             paginated_queryset, many=True, context={"request": request}
         )
         return paginator.get_paginated_response(serializer.data)
-
-
-class CaseDocumentViewSet(
-    mixins.RetrieveModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet,
-):
-    permission_classes = [CanAccessSensitiveCases]
-    serializer_class = CaseDocumentSerializer
-    queryset = CaseDocument.objects.all()
-    pagination_class = StandardResultsSetPagination
-
-    def retrieve(self, request, *args, **kwargs):
-        casedocument = self.get_object()
-        document = get_document(casedocument.document_url)
-        document.update({"id": casedocument.id})
-        return Response(document)
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        delete_document(instance)
-        return super().destroy(request, *args, **kwargs)
-
-    @action(
-        detail=True,
-        url_path="download",
-        methods=["get"],
-    )
-    def download(self, request, pk):
-        casedocument = self.get_object()
-        document = get_document(casedocument.document_url)
-        content = get_document_inhoud(casedocument.document_content)
-
-        response = FileResponse(io.BytesIO(content))
-        response[
-            "Content-Disposition"
-        ] = f"attachment; filename={document.get('bestandsnaam')}"
-        response["Content-Type"] = get_mimetype(document.get("formaat"))
-        response["Content-Length"] = document.get("bestandsomvang")
-        response["Last-Modified"] = document.get("creatiedatum")
-        return response
-
-
-class DocumentTypeViewSet(viewsets.ViewSet):
-    serializer_class = DocumentTypeSerializer
-
-    def list(self, request):
-        document_types = get_document_types()
-        serializer = self.serializer_class(document_types, many=True)
-        return Response(serializer.data)
