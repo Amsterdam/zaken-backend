@@ -23,21 +23,14 @@ RUN apt-get update && apt-get install -y \
     wget \
     curl \
     netcat-openbsd \
-    && rm -rf /var/lib/apt/lists/*
-
-
-# -------------------------------------------------------------------
-# UTF-8 configuratieblok
-# -------------------------------------------------------------------
-RUN apt-get update && apt-get install -y --no-install-recommends \
     locales \
-    && sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen \
-    && locale-gen \
     && rm -rf /var/lib/apt/lists/*
+
+# Set UTF-8 configuration
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8
-# -------------------------------------------------------------------
 
 RUN pip install --upgrade pip setuptools wheel pygraphviz uwsgi
 RUN pip install "poetry==$POETRY_VERSION"
