@@ -171,7 +171,7 @@ class Belastingdienst(BaseHealthCheckBackend):
         from apps.fines.api_queries_belastingen import get_fines
 
         try:
-            # The id doesn't matter, as long an authenticated request is succesful.
+            # The id doesn't matter, as long an authenticated request is successful.
             get_fines("foo-id", use_retry=False)
         except SSLError as e:
             logger.error(e)
