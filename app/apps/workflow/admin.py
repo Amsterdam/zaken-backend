@@ -90,18 +90,16 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "case",
-        "main_workflow",
         "workflow_type",
+        "main_workflow",
         "workflow_version",
-        "workflow_theme_name",
+        "completed",
         "parent_workflow",
         "case_state_type",
-        "issues",
-        "completed",
+        "reset_subworkflows",
         "date_modified",
         "created",
         "update_data",
-        "reset_subworkflows",
     )
 
     list_filter = (
@@ -111,11 +109,8 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         "case_state_type",
         "workflow_type",
         "workflow_version",
-        "workflow_theme_name",
     )
     search_fields = ("case__id",)
-
-    list_editable = ("case_state_type",)
 
     actions = (
         migrate_worflows_to_latest,
