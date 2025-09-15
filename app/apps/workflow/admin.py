@@ -197,7 +197,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
                 messages.add_message(
                     request,
                     messages.INFO,
-                    f"De workflow director '{caseworkflow.id}' is gemigreert naar de laatste versie en gereset naar de de subworkflow '{request.GET.get('reset_to')}'",
+                    f"De workflow director '{caseworkflow.id}' is gemigreerd naar de laatste versie en gereset naar de de subworkflow '{request.GET.get('reset_to')}'",
                 )
                 url = reverse(
                     "admin:reset-subworkflows",

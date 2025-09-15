@@ -68,7 +68,7 @@ class User(AbstractUser):
             return full_name
 
     def __str__(self):
-        return self.full_name
+        return self.full_name or self.username or str(self.id)
 
     def save(self, *args, **kwargs):
         self.username = generate_username(self.email)
