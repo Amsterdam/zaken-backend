@@ -564,7 +564,6 @@ class CaseViewSet(
         options = WorkflowOption.objects.filter(
             theme=case.theme,
         )
-
         workflow_director = CaseWorkflow.objects.filter(
             case=case, main_workflow=True
         ).first()
@@ -574,8 +573,11 @@ class CaseViewSet(
                 workflow_director.workflow_version
             )
             if message_names:
+                names = list(message_names.keys())
+                # Filter on message names and version and always include the "aanschrijving_toevoegen" message
                 options = options.filter(
-                    message_name__in=message_names,
+                    Q(message_name__in=names)
+                    | Q(message_name="aanschrijving_toevoegen")
                 )
 
         if case.end_date:
