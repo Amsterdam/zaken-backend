@@ -80,6 +80,10 @@ class CharArrayFilter(filters.BaseCSVFilter, filters.CharFilter):
     pass
 
 
+class IntArrayFilter(filters.BaseCSVFilter, filters.NumberFilter):
+    pass
+
+
 class CaseFilter(filters.FilterSet):
     district = filters.ModelMultipleChoiceFilter(
         queryset=District.objects.all(), method="get_district"
@@ -97,6 +101,7 @@ class CaseFilter(filters.FilterSet):
     housing_corporation_isnull = filters.BooleanFilter(
         method="filter_housing_corporation_isnull"
     )
+    ids = IntArrayFilter(field_name="id", lookup_expr="in")
     is_enforcement_request = filters.BooleanFilter(
         method="get_enforcement_request_cases"
     )
@@ -389,6 +394,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter(
             "housing_corporation_isnull", OpenApiTypes.BOOL, OpenApiParameter.QUERY
         ),
+        OpenApiParameter("ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter(
             "is_enforcement_request", OpenApiTypes.BOOL, OpenApiParameter.QUERY
         ),

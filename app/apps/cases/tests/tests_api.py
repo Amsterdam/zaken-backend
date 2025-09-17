@@ -206,6 +206,19 @@ class CaseListApiTest(APITestCase):
         results = response.data["results"]
         self.assertEqual(len(results), 1)
 
+    def test_filter_ids(self):
+        case_a = baker.make(Case)
+        case_b = baker.make(Case)
+        baker.make(Case)
+
+        url = reverse("cases-list")
+        client = get_authenticated_client()
+        response = client.get(url, {"ids": f"{case_a.id},{case_b.id}"})
+
+        results = response.data["results"]
+        returned_ids = sorted([item["id"] for item in results])
+        self.assertEqual(returned_ids, sorted([case_a.id, case_b.id]))
+
     def test_filter_open_cases(self):
         FILTER_PARAMETERS = {"open_cases": "true"}
         CLOSED_CASES_QUANTITY = 10
