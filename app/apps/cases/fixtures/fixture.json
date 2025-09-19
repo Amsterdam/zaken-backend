@@ -1,4 +1,5 @@
-[{
+[
+  {
     "model": "cases.casetheme",
     "pk": 2,
     "fields": {
@@ -49,6 +50,14 @@
     "pk": 8,
     "fields": {
       "name": "Goed verhuurderschap",
+      "sensitive": false
+    }
+  },
+  {
+    "model": "cases.casetheme",
+    "pk": 9,
+    "fields": {
+      "name": "Huisvestingsvergunning",
       "sensitive": false
     }
   },
@@ -362,6 +371,38 @@
     "fields": {
       "name": "Handhavingsverzoek",
       "theme": 7
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 46,
+    "fields": {
+      "name": "Handhavingsverzoek",
+      "theme": 9
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 47,
+    "fields": {
+      "name": "Eigen onderzoek",
+      "theme": 9
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 48,
+    "fields": {
+      "name": "Project",
+      "theme": 9
+    }
+  },
+  {
+    "model": "cases.casereason",
+    "pk": 49,
+    "fields": {
+      "name": "Digitaal onderzoek",
+      "theme": 9
     }
   },
   {
@@ -734,6 +775,42 @@
     }
   },
   {
+    "model": "cases.caseclosereason",
+    "pk": 56,
+    "fields": {
+      "name": "Doorgezet naar ander team",
+      "case_theme": 9,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 57,
+    "fields": {
+      "name": "Onvoldoende bewijs",
+      "case_theme": 9,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 58,
+    "fields": {
+      "name": "Gelegaliseerd",
+      "case_theme": 9,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 59,
+    "fields": {
+      "name": "Anders, vermeld in toelichting",
+      "case_theme": 9,
+      "result": false
+    }
+  },
+  {
     "model": "cases.casecloseresult",
     "pk": 4,
     "fields": {
@@ -851,6 +928,14 @@
     "fields": {
       "name": "Regulier bewoond",
       "case_theme": 7
+    }
+  },
+  {
+    "model": "cases.casecloseresult",
+    "pk": 19,
+    "fields": {
+      "name": "Gelegaliseerd",
+      "case_theme": 9
     }
   },
   {
@@ -1425,6 +1510,14 @@
     "fields": {
       "name": "Doorzon",
       "theme": 2
+    }
+  },
+  {
+    "model": "cases.subject",
+    "pk": 85,
+    "fields": {
+      "name": "Ontbreken huisvestingsvergunning",
+      "theme": 9
     }
   }
 ]
