@@ -601,6 +601,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "7.1.0": {},
                 "7.2.0": {},
                 "7.3.0": {},
+                "7.4.0": {},
             },
         },
         "director": {
@@ -1278,6 +1279,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "0.5.0": {},
                 "0.6.0": {},
                 "8.0.0": {},
+                "8.1.0": {},
             },
         },
         "citizen_report_feedback": {
