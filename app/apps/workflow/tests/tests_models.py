@@ -1,10 +1,10 @@
 from apps.cases.models import Case, CaseTheme
 from apps.workflow.models import CaseWorkflow
+from apps.workflow.spiff import compat as spiff_compat
 from django.conf import settings
 from django.core import management
 from django.test import TestCase
 from model_bakery import baker
-from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnProcessSpec
 
 
 class WorkflowModelTest(TestCase):
@@ -41,7 +41,10 @@ class WorkflowModelTest(TestCase):
             data={},
         )
 
-        self.assertEqual(workflow.get_workflow_spec().__class__, BpmnProcessSpec)
+        self.assertEqual(
+            workflow.get_workflow_spec().__class__,
+            spiff_compat.get_bpmn_process_spec_type(),
+        )
 
     def test_get_workflow_exclude_options(self):
         """Tests can get workflow spec"""

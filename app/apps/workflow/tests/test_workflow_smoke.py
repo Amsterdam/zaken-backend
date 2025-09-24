@@ -1,16 +1,13 @@
+from apps.workflow.spiff import compat as spiff_compat
 from apps.workflow.utils import get_workflow_path, get_workflow_spec
 from django.conf import settings
 from django.test import SimpleTestCase
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.task import Task
 
 
 def _script_engine():
     """Return a script engine stub that exercises Spiff's hook points."""
-    return PythonScriptEngine(
-        scriptingAdditions={
+    return spiff_compat.create_script_engine(
+        scripting_additions={
             "set_status": lambda *args, **kwargs: None,
             "wait_for_workflows_and_send_message": lambda *args, **kwargs: None,
             "script_wait": lambda *args, **kwargs: None,
@@ -40,9 +37,11 @@ class WorkflowSmokeTests(SimpleTestCase):
                 spec = get_workflow_spec(path, workflow_type)
                 self.assertIsNotNone(spec)
 
-                workflow = BpmnWorkflow(spec, script_engine=_script_engine())
+                workflow = spiff_compat.create_workflow(
+                    spec, script_engine=_script_engine()
+                )
                 workflow.refresh_waiting_tasks()
-                ready_tasks = workflow.get_tasks(Task.READY)
+                ready_tasks = workflow.get_tasks(spiff_compat.get_task_type().READY)
 
                 # If the BPMN parsing or engine bootstrap breaks this will raise,
                 # so just assert we end up with a list of ready tasks.
@@ -59,21 +58,22 @@ class WorkflowSmokeTests(SimpleTestCase):
         spec = get_workflow_spec(path, workflow_type)
 
         script_engine = _script_engine()
-        workflow = BpmnWorkflow(spec, script_engine=script_engine)
+        workflow = spiff_compat.create_workflow(spec, script_engine=script_engine)
         workflow.refresh_waiting_tasks()
 
-        serializer = BpmnSerializer()
-        serialized = serializer.serialize_workflow(workflow, include_spec=True)
+        serialized = spiff_compat.serialize_workflow(workflow, include_spec=True)
 
-        restored_workflow = serializer.deserialize_workflow(serialized)
+        restored_workflow = spiff_compat.deserialize_workflow(serialized)
         restored_workflow.script_engine = _script_engine()
         restored_workflow.refresh_waiting_tasks()
 
         original_ready = [
-            task.task_spec.name for task in workflow.get_tasks(Task.READY)
+            task.task_spec.name
+            for task in workflow.get_tasks(spiff_compat.get_task_type().READY)
         ]
         restored_ready = [
-            task.task_spec.name for task in restored_workflow.get_tasks(Task.READY)
+            task.task_spec.name
+            for task in restored_workflow.get_tasks(spiff_compat.get_task_type().READY)
         ]
 
         self.assertEqual(original_ready, restored_ready)

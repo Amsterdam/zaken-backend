@@ -5,6 +5,7 @@ from string import Template
 
 from apps.cases.models import Case, CaseStateType, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
+from apps.workflow.spiff import compat as spiff_compat
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import cache
@@ -13,16 +14,10 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_duration
 from packaging import version
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
-from SpiffWorkflow.bpmn.specs.BoundaryEvent import _BoundaryEventParent
 from SpiffWorkflow.bpmn.specs.event_definitions import (
     MessageEventDefinition,
     TimerEventDefinition,
 )
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.camunda.specs.UserTask import UserTask
-from SpiffWorkflow.task import Task
 from utils.managers import BulkCreateSignalsManager
 
 from .tasks import (
@@ -148,8 +143,6 @@ class CaseWorkflow(models.Model):
         default=False,
     )
 
-    serializer = BpmnSerializer
-
     def get_workflow_exclude_options(self):
         if self.workflow_type != CaseWorkflow.WORKFLOW_TYPE_SUMMON:
             return []
@@ -187,9 +180,6 @@ class CaseWorkflow(models.Model):
 
     def release_lock(self):
         release_lock(self.get_lock_id())
-
-    def get_serializer(self):
-        return self.serializer()
 
     def get_workflow_spec(self):
         try:
@@ -234,8 +224,8 @@ class CaseWorkflow(models.Model):
         def parse_duration_string(str_duration):
             return parse_duration(str_duration)
 
-        wf.script_engine = PythonScriptEngine(
-            scriptingAdditions={
+        wf.script_engine = spiff_compat.create_script_engine(
+            scripting_additions={
                 "set_status": set_status,
                 "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
                 "script_wait": script_wait,
@@ -441,7 +431,7 @@ class CaseWorkflow(models.Model):
         for t in wf.last_task.children:
             t.update_data(data)
         self._execute_scripts_if_needed(wf)
-        serialize_wf = self.get_serializer().serialize_workflow(wf, include_spec=False)
+        serialize_wf = spiff_compat.serialize_workflow(wf, include_spec=False)
         self.serialized_workflow_state = serialize_wf
 
         self.save()
@@ -462,7 +452,9 @@ class CaseWorkflow(models.Model):
 
     def set_absolete_tasks_to_completed(self, wf):
         # some tasks are absolete after wf.do_engine_steps or wf.refresh_waiting_tasks
-        ready_tasks_ids = [t.id for t in wf.get_tasks(Task.READY)]
+        ready_tasks_ids = [
+            t.id for t in wf.get_tasks(spiff_compat.get_task_type().READY)
+        ]
 
         # cleanup: sets dj tasks to completed
         task_instances = self.tasks.all().exclude(
@@ -548,7 +540,7 @@ class CaseWorkflow(models.Model):
 
         task = wf.get_task(task_id)
 
-        if task and isinstance(task.task_spec, UserTask):
+        if task and isinstance(task.task_spec, spiff_compat.get_user_task_type()):
             task.update_data(data)
             wf.complete_task_from_id(task.id)
             logger.info(
@@ -572,7 +564,7 @@ class CaseWorkflow(models.Model):
             completed = True
             self.completed = True
 
-        state = self.get_serializer().serialize_workflow(wf, include_spec=False)
+        state = spiff_compat.serialize_workflow(wf, include_spec=False)
         self.serialized_workflow_state = state
         self.started = True
         self.save()
@@ -589,7 +581,7 @@ class CaseWorkflow(models.Model):
 
         if self.serialized_workflow_state:
             try:
-                wf = self.get_serializer().deserialize_workflow(
+                wf = spiff_compat.deserialize_workflow(
                     self.serialized_workflow_state, workflow_spec=workflow_spec
                 )
                 wf = self.get_script_engine(wf)
@@ -598,7 +590,7 @@ class CaseWorkflow(models.Model):
                 return False
             return wf
         else:
-            wf = BpmnWorkflow(workflow_spec)
+            wf = spiff_compat.create_workflow(workflow_spec)
             wf = self.get_script_engine(wf)
             return wf
 
@@ -614,11 +606,15 @@ class CaseWorkflow(models.Model):
             if hasattr(task, "parent")
             else None
         )
+        boundary_event_type = spiff_compat.get_boundary_event_type()
         if (
             sibling
-            and isinstance(task.parent.task_spec, _BoundaryEventParent)
+            and isinstance(sibling.task_spec, boundary_event_type)
             and hasattr(sibling.task_spec, "event_definition")
-            and isinstance(sibling.task_spec.event_definition, TimerEventDefinition)
+            and isinstance(
+                sibling.task_spec.event_definition,
+                TimerEventDefinition,
+            )
         ):
             start_time = datetime.datetime.strptime(
                 sibling._get_internal_data("start_time", None), "%Y-%m-%d %H:%M:%S.%f"
@@ -640,11 +636,15 @@ class CaseWorkflow(models.Model):
             if hasattr(task, "parent")
             else None
         )
+        boundary_event_type = spiff_compat.get_boundary_event_type()
         if (
             sibling
-            and isinstance(task.parent.task_spec, _BoundaryEventParent)
+            and isinstance(sibling.task_spec, boundary_event_type)
             and hasattr(sibling.task_spec, "event_definition")
-            and isinstance(sibling.task_spec.event_definition, TimerEventDefinition)
+            and isinstance(
+                sibling.task_spec.event_definition,
+                TimerEventDefinition,
+            )
         ):
             task_datetime = sibling.workflow.script_engine.evaluate(
                 sibling, sibling.task_spec.event_definition.dateTime
@@ -659,7 +659,7 @@ class CaseWorkflow(models.Model):
 
     def _initial_data(self, wf, data):
 
-        first_task = wf.get_tasks(Task.READY)
+        first_task = wf.get_tasks(spiff_compat.get_task_type().READY)
         last_task = wf.last_task
         if first_task:
             first_task = first_task[0]
@@ -692,7 +692,8 @@ class CaseWorkflow(models.Model):
 
         for task in waiting_tasks:
             if hasattr(task.task_spec, "event_definition") and isinstance(
-                task.task_spec.event_definition, TimerEventDefinition
+                task.task_spec.event_definition,
+                TimerEventDefinition,
             ):
                 event_definition = task.task_spec.event_definition
                 has_fired = event_definition.has_fired(task)
@@ -708,7 +709,10 @@ class CaseWorkflow(models.Model):
         for task in waiting_tasks:
             if (
                 hasattr(task.task_spec, "event_definition")
-                and isinstance(task.task_spec.event_definition, MessageEventDefinition)
+                and isinstance(
+                    task.task_spec.event_definition,
+                    MessageEventDefinition,
+                )
                 and wf.get_tasks_from_spec_name(
                     f"script_{task.task_spec.event_definition.message}"
                 )
@@ -804,7 +808,7 @@ class CaseWorkflow(models.Model):
             )
             return result
         else:
-            state = self.get_serializer().serialize_workflow(
+            state = spiff_compat.serialize_workflow(
                 workflow_result.get("workflow"), include_spec=False
             )
             self.workflow_theme_name = latest_theme_name
@@ -1015,14 +1019,14 @@ class CaseWorkflow(models.Model):
             if subworkflow_success:
                 success = True
         if not test and success:
-            state = self.get_serializer().serialize_workflow(
+            state = spiff_compat.serialize_workflow(
                 workflow_result.get("workflow"), include_spec=False
             )
             self.workflow_theme_name = latest_theme_name
             self.workflow_version = latest_version
             self.serialized_workflow_state = state
 
-            subworkflow_state = self.get_serializer().serialize_workflow(
+            subworkflow_state = spiff_compat.serialize_workflow(
                 subworkflow_result.get("workflow"), include_spec=False
             )
             subworkflow.workflow_theme_name = subworkflow_result.get(
