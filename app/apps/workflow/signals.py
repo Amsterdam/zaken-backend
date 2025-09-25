@@ -11,9 +11,9 @@ from django.core.cache import cache
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone as django_timezone
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from utils.exceptions import EventEmitterExistsError
 
+from .spiff import compat as spiff_compat
 from .user_tasks import DEFAULT_USER_TASK_DUE_DATE, get_task_by_name
 from .utils import get_latest_version_from_config
 
@@ -157,9 +157,9 @@ def case_workflow_pre_save(sender, instance, **kwargs):
             current_verion,
         )
         workflow_spec = instance.get_workflow_spec()
-        wf = BpmnWorkflow(workflow_spec)
-        wf = instance.get_serializer().serialize_workflow(wf, include_spec=False)
-        instance.serialized_workflow_state = wf
+        wf = spiff_compat.create_workflow(workflow_spec)
+        serialized = spiff_compat.serialize_workflow(wf, include_spec=False)
+        instance.serialized_workflow_state = serialized
 
 
 @receiver(post_save, sender=CaseWorkflow, dispatch_uid="start_workflow")

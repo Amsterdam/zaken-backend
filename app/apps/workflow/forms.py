@@ -4,6 +4,7 @@ import json
 from django import forms
 
 from .models import CaseWorkflow
+from .spiff import compat as spiff_compat
 from .tasks import task_update_workflow
 
 
@@ -74,9 +75,7 @@ class UpdateDataForWorkflowsForm(forms.Form):
             wf.last_task.update_data(data)
             for t in wf.last_task.children:
                 t.update_data(data)
-            serialize_wf = caseworkflow.get_serializer().serialize_workflow(
-                wf, include_spec=False
-            )
+            serialize_wf = spiff_compat.serialize_workflow(wf, include_spec=False)
             caseworkflow.serialized_workflow_state = serialize_wf
             caseworkflow.save()
             task_update_workflow.delay(caseworkflow.id)

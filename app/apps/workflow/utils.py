@@ -6,19 +6,12 @@ import logging
 import os
 
 from apps.events.models import TaskModelEventEmitter
+from apps.workflow.spiff import compat as spiff_compat
 from deepdiff import DeepDiff
 from django.conf import settings
 from prettyprinter import pprint
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
-from SpiffWorkflow.bpmn.specs.BoundaryEvent import BoundaryEvent
-from SpiffWorkflow.bpmn.specs.event_definitions import TimerEventDefinition
-from SpiffWorkflow.bpmn.specs.ScriptTask import ScriptTask
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
-from SpiffWorkflow.camunda.specs.UserTask import UserTask
-from SpiffWorkflow.specs.StartTask import StartTask
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.bpmn.specs.defaults import ScriptTask
+from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
 
 logger = logging.getLogger(__name__)
 
@@ -144,7 +137,7 @@ def get_workflow_spec_user_tasks(workflow_spec):
         ts
         for workflow_spec in workflow_specs
         for k, ts in workflow_spec.task_specs.items()
-        if isinstance(ts, UserTask)
+        if isinstance(ts, spiff_compat.get_user_task_type())
     ]
 
 
@@ -254,20 +247,11 @@ def is_bpmn_file(file_name):
 
 
 def get_workflow_spec(path, workflow_type):
-    x = CamundaParser()
-
-    for f in get_workflow_spec_files(path):
-        x.add_bpmn_file(f)
-    spec = x.get_spec(workflow_type)
-    return spec
+    return spiff_compat.load_spec(path, workflow_type)
 
 
 def get_workflow_spec_files(path):
-    return [
-        os.path.join(path, f)
-        for f in os.listdir(path)
-        if os.path.isfile(os.path.join(path, f)) and is_bpmn_file(f)
-    ]
+    return list(spiff_compat.iter_bpmn_files(path))
 
 
 def compare_path_until_task(workflow_spec_a, workflow_spec_b, task_name):
@@ -551,8 +535,8 @@ def ff_workflow(
     timer_event_task_start_times={},
     message_name=None,
 ):
-    script_engine = PythonScriptEngine(
-        scriptingAdditions={
+    script_engine = spiff_compat.create_script_engine(
+        scripting_additions={
             "set_status": lambda *args: None,
             "wait_for_workflows_and_send_message": lambda *args: None,
             "script_wait": lambda *args: None,
@@ -560,35 +544,39 @@ def ff_workflow(
             "parse_duration": lambda *args: None,
         }
     )
-    workflow = BpmnWorkflow(spec, script_engine=script_engine)
+    workflow = spiff_compat.create_workflow(spec, script_engine=script_engine)
 
-    first_task = workflow.get_tasks(Task.READY)[0]
-    first_task.update_data(data)
+    task_state = spiff_compat.get_task_type()
+    first_task = workflow.get_tasks(state=task_state.READY)[0]
+    spiff_compat.update_task_data(first_task, data)
 
     workflow.refresh_waiting_tasks()
     workflow.do_engine_steps()
 
     if message_name:
         logger.info(f" - message: {message_name}")
-        workflow.message(message_name, message_name, "message_name")
+        spiff_compat.accept_message(
+            workflow,
+            message_name,
+            data=message_name,
+            correlation_key="message_name",
+        )
         workflow.refresh_waiting_tasks()
         workflow.do_engine_steps()
 
     def complete_task_and_get_workflow_clone(wf, user_task_data, user_task):
         data = copy.deepcopy(wf.last_task.data)
         data.update(user_task_data)
-        workflow_clone_serialized = BpmnSerializer().serialize_workflow(
+        workflow_clone_serialized = spiff_compat.serialize_workflow(
             wf, include_spec=True
         )
-        workflow_clone = BpmnSerializer().deserialize_workflow(
-            workflow_clone_serialized
-        )
+        workflow_clone = spiff_compat.deserialize_workflow(workflow_clone_serialized)
         workflow_clone.script_engine = script_engine
         if user_task:
             tasks = workflow_clone.get_tasks_from_spec_name(user_task.task_spec.name)
             if tasks:
                 completed_tasks.append(tasks[0].task_spec.name)
-                tasks[0].update_data(data)
+                spiff_compat.update_task_data(tasks[0], data)
                 workflow_clone.complete_task_from_id(tasks[0].id)
                 try:
                     workflow_clone.refresh_waiting_tasks()
@@ -604,15 +592,19 @@ def ff_workflow(
         return sorted(found_user_task_names) == sorted(expected_user_task_names)
 
     def get_ready_tasks(wf):
+        task_type = spiff_compat.get_task_type()
+        boundary_event = spiff_compat.get_boundary_event_type()
+        start_task_type = spiff_compat.get_start_task_type()
+        user_task_type = spiff_compat.get_user_task_type()
         return [
             t
-            for t in wf.get_tasks(Task.WAITING | Task.READY)
+            for t in wf.get_tasks(state=task_type.WAITING | task_type.READY)
             if t.task_spec.name not in completed_tasks
             and (
-                isinstance(t.task_spec, UserTask)
-                or isinstance(t.task_spec, BoundaryEvent)
+                isinstance(t.task_spec, user_task_type)
+                or isinstance(t.task_spec, boundary_event)
             )
-            and not isinstance(t.task_spec.inputs[0], StartTask)
+            and not isinstance(t.task_spec.inputs[0], start_task_type)
             or hasattr(t.task_spec, "event_definition")
             and isinstance(t.task_spec.event_definition, TimerEventDefinition)
         ]
@@ -647,8 +639,8 @@ def ff_workflow(
 
 
 def ff_to_subworkflow(subworkflow, spec, message_name, data):
-    script_engine = PythonScriptEngine(
-        scriptingAdditions={
+    script_engine = spiff_compat.create_script_engine(
+        scripting_additions={
             "set_status": lambda *args: None,
             "wait_for_workflows_and_send_message": lambda *args: None,
             "script_wait": lambda *args: None,
@@ -656,23 +648,29 @@ def ff_to_subworkflow(subworkflow, spec, message_name, data):
             "parse_duration": lambda *args: None,
         }
     )
-    workflow = BpmnWorkflow(spec, script_engine=script_engine)
+    workflow = spiff_compat.create_workflow(spec, script_engine=script_engine)
 
-    first_task = workflow.get_tasks(Task.READY)[0]
-    first_task.update_data(data)
+    task_state = spiff_compat.get_task_type()
+    first_task = workflow.get_tasks(state=task_state.READY)[0]
+    spiff_compat.update_task_data(first_task, data)
 
     workflow.refresh_waiting_tasks()
     workflow.do_engine_steps()
 
-    workflow.message(message_name, message_name, "message_name")
+    spiff_compat.accept_message(
+        workflow, message_name, data=message_name, correlation_key="message_name"
+    )
     workflow.refresh_waiting_tasks()
     workflow.do_engine_steps()
 
     def get_waiting_tasks(wf):
         return [
             t
-            for t in wf.get_tasks(Task.WAITING)
-            if t.task_spec.inputs and not isinstance(t.task_spec.inputs[0], StartTask)
+            for t in wf.get_tasks(state=task_state.WAITING)
+            if t.task_spec.inputs
+            and not isinstance(
+                t.task_spec.inputs[0], spiff_compat.get_start_task_type()
+            )
         ]
 
     ready_tasks = get_waiting_tasks(workflow)
@@ -691,11 +689,13 @@ def ff_to_subworkflow(subworkflow, spec, message_name, data):
             else:
                 if (
                     task.task_spec.inputs
-                    and not isinstance(task.task_spec.inputs[0], StartTask)
+                    and not isinstance(
+                        task.task_spec.inputs[0], spiff_compat.get_start_task_type()
+                    )
                     and task.task_spec.description not in completed
                 ):
                     try:
-                        task.update_data(data)
+                        spiff_compat.update_task_data(task, data)
                         workflow.complete_task_from_id(task.id)
                         workflow.refresh_waiting_tasks()
                         workflow.do_engine_steps()
@@ -724,20 +724,25 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
     def wait_for_workflows_and_send_message(message):
         logger.info(f"wait_for_workflows_and_send_message: {message}")
 
-    script_engine = PythonScriptEngine(
-        scriptingAdditions={
+    script_engine = spiff_compat.create_script_engine(
+        scripting_additions={
             "set_status": set_status,
             "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
         }
     )
 
-    workflow = BpmnWorkflow(workflow_spec, script_engine=script_engine)
+    workflow = spiff_compat.create_workflow(workflow_spec, script_engine=script_engine)
 
-    first_task = workflow.get_tasks(Task.READY)[0]
-    first_task.update_data(data)
+    first_task = workflow.get_tasks(spiff_compat.get_task_type().READY)[0]
+    spiff_compat.update_task_data(first_task, data)
 
     workflow.do_engine_steps()
-    workflow.message("start_signal_process", {"value": "test"}, "next_step")
+    spiff_compat.accept_message(
+        workflow,
+        "start_signal_process",
+        data={"value": "test"},
+        correlation_key="next_step",
+    )
     workflow.do_engine_steps()
 
     logger.info("expected_user_task_names")
@@ -764,7 +769,7 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
                 workflow.refresh_waiting_tasks()
                 workflow.do_engine_steps()
 
-                waiting_tasks = workflow.get_tasks(Task.WAITING)
+                waiting_tasks = workflow.get_tasks(spiff_compat.get_task_type().WAITING)
 
                 if waiting_tasks:
                     logger.info(waiting_tasks[-1].__dict__)
@@ -794,7 +799,7 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
                                 mk: "VALUE_FOR_MISSING_KEY",
                             }
                         )
-                task.update_data(data)
+                spiff_compat.update_task_data(task, data)
                 workflow.complete_task_from_id(task.id)
                 workflow.refresh_waiting_tasks()
                 workflow.do_engine_steps()
@@ -804,14 +809,14 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
             logger.info(
                 "Nothing found, have to check for waiting tasks to complete. Try to run further when waiting tasks are completed"
             )
-            waiting_tasks = workflow.get_tasks(Task.WAITING)
+            waiting_tasks = workflow.get_tasks(spiff_compat.get_task_type().WAITING)
             if waiting_tasks:
                 logger.info(waiting_tasks[-1].task_spec.name)
                 logger.info(type(waiting_tasks[-1].task_spec))
                 logger.info(waiting_tasks[-1].parent.task_spec.name)
                 logger.info(type(waiting_tasks[-1].parent.task_spec))
             for wt in waiting_tasks:
-                if isinstance(wt.parent.task_spec, StartTask):
+                if isinstance(wt.parent.task_spec, spiff_compat.get_start_task_type()):
                     pass
                 else:
                     workflow.complete_task_from_id(wt.id)
@@ -829,16 +834,16 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
 def workflow_test_message(message, workflow_spec, script_engine, initial_data={}):
     try:
 
-        workflow_a = BpmnWorkflow(workflow_spec)
-        first_task_a = workflow_a.get_tasks(Task.READY)
+        workflow_a = spiff_compat.create_workflow(workflow_spec)
+        first_task_a = workflow_a.get_tasks(spiff_compat.get_task_type().READY)
         first_task_a[0].update_data(initial_data)
-        workflow_a_serialized = BpmnSerializer().serialize_workflow(
+        workflow_a_serialized = spiff_compat.serialize_workflow(
             workflow_a, include_spec=False
         )
-        workflow_b = BpmnSerializer().deserialize_workflow(
+        workflow_b = spiff_compat.deserialize_workflow(
             workflow_a_serialized, workflow_spec
         )
-        first_task_b = workflow_a.get_tasks(Task.READY)
+        first_task_b = workflow_a.get_tasks(spiff_compat.get_task_type().READY)
         first_task_b[0].update_data(initial_data)
         workflow_a.script_engine = script_engine
         workflow_b.script_engine = script_engine
@@ -848,7 +853,12 @@ def workflow_test_message(message, workflow_spec, script_engine, initial_data={}
         workflow_a.do_engine_steps()
         workflow_b.do_engine_steps()
 
-        workflow_a.message(message, "default", "default")
+        spiff_compat.accept_message(
+            workflow_a,
+            message,
+            data="default",
+            correlation_key="default",
+        )
 
         dump_a = workflow_a.get_dump()
         dump_b = workflow_b.get_dump()
@@ -861,10 +871,10 @@ def workflow_test_message(message, workflow_spec, script_engine, initial_data={}
 def workflow_tree_inspect(
     workflow_org, initial_data, script_engine, message_name=None, spec_user_tasks=[]
 ):
-    workflow_serialized = BpmnSerializer().serialize_workflow(
+    workflow_serialized = spiff_compat.serialize_workflow(
         workflow_org, include_spec=True
     )
-    workflow = BpmnSerializer().deserialize_workflow(workflow_serialized)
+    workflow = spiff_compat.deserialize_workflow(workflow_serialized)
     workflow.script_engine = script_engine
 
     def get_valid_fields(user_task):
@@ -903,7 +913,7 @@ def workflow_tree_inspect(
             out.append(o)
         return out
 
-    tasks = workflow.get_tasks(Task.READY)
+    tasks = workflow.get_tasks(spiff_compat.get_task_type().READY)
     if tasks:
         tasks[0].update_data(initial_data)
     workflow.refresh_waiting_tasks()
@@ -911,19 +921,22 @@ def workflow_tree_inspect(
 
     if message_name:
         logger.info(f" - message: {message_name}")
-        workflow.message(message_name, message_name, "message_name")
+        spiff_compat.accept_message(
+            workflow,
+            message_name,
+            data=message_name,
+            correlation_key="message_name",
+        )
         workflow.refresh_waiting_tasks()
         workflow.do_engine_steps()
 
     def complete_task_and_get_workflow_clone(workflow, user_task_data, user_task):
         data = copy.deepcopy(workflow.last_task.data)
         data.update(user_task_data)
-        workflow_clone_serialized = BpmnSerializer().serialize_workflow(
+        workflow_clone_serialized = spiff_compat.serialize_workflow(
             workflow, include_spec=True
         )
-        workflow_clone = BpmnSerializer().deserialize_workflow(
-            workflow_clone_serialized
-        )
+        workflow_clone = spiff_compat.deserialize_workflow(workflow_clone_serialized)
         workflow_clone.script_engine = script_engine
         if user_task:
             tasks = workflow_clone.get_tasks_from_spec_name(user_task.task_spec.name)
@@ -990,7 +1003,7 @@ def workflow_spec_path_inspect(
 ):
     try:
         workflow_spec = get_workflow_spec(workflow_spec_path, type)
-        workflow = BpmnWorkflow(workflow_spec)
+        workflow = spiff_compat.create_workflow(workflow_spec)
         workflow.script_engine = script_engine
         logger.info(f"workflow_type: {type}")
         spec_user_tasks = [
@@ -1057,8 +1070,8 @@ def workflow_spec_paths_inspect(workflow_spec_conf):
     def parse_duration_string(duration_str):
         pass
 
-    script_engine = PythonScriptEngine(
-        scriptingAdditions={
+    script_engine = spiff_compat.create_script_engine(
+        scripting_additions={
             "set_status": set_status,
             "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
             "script_wait": script_wait,
