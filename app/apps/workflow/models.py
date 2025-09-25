@@ -14,10 +14,8 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_duration
 from packaging import version
-from SpiffWorkflow.bpmn.specs.event_definitions import (
-    MessageEventDefinition,
-    TimerEventDefinition,
-)
+from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
+from SpiffWorkflow.camunda.specs.event_definitions import MessageEventDefinition
 from utils.managers import BulkCreateSignalsManager
 
 from .tasks import (
@@ -453,7 +451,7 @@ class CaseWorkflow(models.Model):
     def set_absolete_tasks_to_completed(self, wf):
         # some tasks are absolete after wf.do_engine_steps or wf.refresh_waiting_tasks
         ready_tasks_ids = [
-            t.id for t in wf.get_tasks(spiff_compat.get_task_type().READY)
+            t.id for t in wf.get_tasks(state=spiff_compat.get_task_type().READY)
         ]
 
         # cleanup: sets dj tasks to completed
@@ -659,7 +657,7 @@ class CaseWorkflow(models.Model):
 
     def _initial_data(self, wf, data):
 
-        first_task = wf.get_tasks(spiff_compat.get_task_type().READY)
+        first_task = wf.get_tasks(state=spiff_compat.get_task_type().READY)
         last_task = wf.last_task
         if first_task:
             first_task = first_task[0]
