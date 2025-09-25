@@ -1,0 +1,117 @@
+{% extends "admin/base_site.html" %}
+{% load i18n l10n admin_urls %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} migrate-spiff-serialization{% endblock %}
+
+{% block content %}
+  <h1>SpiffWorkflow Serialization Migration Results</h1>
+
+  <div class="module">
+    <h2>Migration Summary</h2>
+    <p><strong>Total workflows analyzed:</strong> {{ total_workflows }}</p>
+    <p><strong>Already compatible:</strong> {{ compatible_workflows|length }}</p>
+    <p><strong>Need migration:</strong> {{ needs_migration|length }}</p>
+    <p><strong>Successfully migrated:</strong> {{ successful_migrations|length }}</p>
+    <p><strong>Failed migrations:</strong> {{ failed_migrations|length }}</p>
+  </div>
+
+  {% if compatible_workflows %}
+    <div class="module">
+      <h2>Already Compatible Workflows ({{ compatible_workflows|length }})</h2>
+      <p>These workflows are already using the v3.1.1 serialization format:</p>
+      <ul>
+        {% for workflow in compatible_workflows %}
+          <li>
+            <strong>Workflow ID:</strong> {{ workflow.workflow_id }} |
+            <strong>Case ID:</strong> {{ workflow.case_id|default:"N/A" }} |
+            <strong>Type:</strong> {{ workflow.workflow_type }}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if needs_migration %}
+    <div class="module">
+      <h2 style="color: orange;">Workflows Needing Migration ({{ needs_migration|length }})</h2>
+      <p>These workflows need to be migrated to the v3.1.1 serialization format:</p>
+      <ul>
+        {% for workflow in needs_migration %}
+          <li>
+            <strong>Workflow ID:</strong> {{ workflow.workflow_id }} |
+            <strong>Case ID:</strong> {{ workflow.case_id|default:"N/A" }} |
+            <strong>Type:</strong> {{ workflow.workflow_type }}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if failed_migrations %}
+    <div class="module">
+      <h2 style="color: red;">Failed Migrations ({{ failed_migrations|length }})</h2>
+      <p>These workflows could not be migrated and may need manual intervention:</p>
+      <ul>
+        {% for workflow in failed_migrations %}
+          <li style="margin-bottom: 10px;">
+            <strong>Workflow ID:</strong> {{ workflow.workflow_id }} |
+            <strong>Case ID:</strong> {{ workflow.case_id|default:"N/A" }} |
+            <strong>Type:</strong> {{ workflow.workflow_type }}<br>
+            <strong>Error:</strong> <span style="color: red;">{{ workflow.message }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if successful_migrations and "Already compatible" not in successful_migrations.0.message %}
+    <div class="module">
+      <h2 style="color: green;">Successfully Migrated ({{ successful_migrations|length }})</h2>
+      <p>These workflows have been migrated to the v3.1.1 serialization format:</p>
+      <ul>
+        {% for workflow in successful_migrations %}
+          {% if "Already compatible" not in workflow.message %}
+            <li>
+              <strong>Workflow ID:</strong> {{ workflow.workflow_id }} |
+              <strong>Case ID:</strong> {{ workflow.case_id|default:"N/A" }} |
+              <strong>Type:</strong> {{ workflow.workflow_type }}
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if needs_migration or failed_migrations %}
+    <div class="module">
+      <h2>Migration Action</h2>
+      {% if needs_migration %}
+        <p>{{ needs_migration|length }} workflow{{ needs_migration|length|pluralize }} can be migrated to the v3.1.1 format.</p>
+      {% endif %}
+      {% if failed_migrations %}
+        <p style="color: red;">{{ failed_migrations|length }} workflow{{ failed_migrations|length|pluralize }} failed during analysis.</p>
+      {% endif %}
+      <p>The migration will only affect workflows that need to be updated. Already compatible workflows will be left unchanged.</p>
+
+      <form action="" method="post">{% csrf_token %}
+        <fieldset class="module aligned">
+          {% for obj in queryset.all %}
+            <input type="hidden" name="_selected_action" value="{{ obj.pk|unlocalize }}"/>
+          {% endfor %}
+        </fieldset>
+        <div class="submit-row">
+          <input type="hidden" name="action" value="{{ action }}"/>
+          <input type="submit" name="confirmation" value="Confirm Migration" class="default"/>
+          <a href="#" onclick="window.history.back(); return false;"
+             class="button cancel-link">{% trans "Cancel" %}</a>
+        </div>
+      </form>
+    </div>
+  {% else %}
+    <div class="module">
+      <p><strong>No migration needed.</strong> All selected workflows are already compatible with SpiffWorkflow v3.1.1.</p>
+      <a href="#" onclick="window.history.back(); return false;" class="button">{% trans "Go back" %}</a>
+    </div>
+  {% endif %}
+
+{% endblock %}

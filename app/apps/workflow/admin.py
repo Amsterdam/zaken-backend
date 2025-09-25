@@ -66,6 +66,93 @@ def migrate_worflows_to_latest(modeladmin, request, queryset):
         )
 
 
+@admin.action(description="Migrate SpiffWorkflow serialization to latest")
+def migrate_spiff_serialization(modeladmin, request, queryset):
+    """
+    Migrate workflow serialization from SpiffWorkflow to latest format.
+    This action handles workflows that fail to deserialize with the new format.
+    """
+    results = []
+    test = request.POST.get("confirmation") is None
+
+    for caseworkflow in queryset.all():
+        result = {
+            "workflow_id": caseworkflow.id,
+            "case_id": caseworkflow.case.id if caseworkflow.case else None,
+            "workflow_type": caseworkflow.workflow_type,
+            "success": False,
+            "message": "",
+            "old_serialization_exists": bool(caseworkflow.serialized_workflow_state),
+        }
+
+        if not caseworkflow.serialized_workflow_state:
+            result["message"] = "No serialized workflow state found"
+            results.append(result)
+            continue
+
+        # Try to deserialize with current v3.1.1 deserializer
+        workflow_spec = caseworkflow.get_workflow_spec()
+        if not workflow_spec:
+            result["message"] = "Could not load workflow spec"
+            results.append(result)
+            continue
+
+        # Check if migration is needed using the model method
+        needs_migration = caseworkflow.needs_spiff_migration()
+
+        if not needs_migration:
+            result["success"] = True
+            result["message"] = "Already compatible with v3.1.1"
+        else:
+            if test:
+                # In test mode, just report that migration is needed
+                result["message"] = "Needs migration to v3.1.1"
+            else:
+                # Perform the actual migration using the model method
+                success, message = caseworkflow.migrate_spiff_serialization()
+                result["success"] = success
+                result["message"] = message
+
+        results.append(result)
+
+    if request.POST.get("confirmation") is None:
+        request.current_app = modeladmin.admin_site.name
+
+        failed_migrations = [
+            r
+            for r in results
+            if not r.get("success") and "Needs migration" not in r.get("message", "")
+        ]
+        successful_migrations = [
+            r
+            for r in results
+            if r.get("success") and "Already compatible" not in r.get("message", "")
+        ]
+        compatible_workflows = [
+            r
+            for r in results
+            if r.get("success") and "Already compatible" in r.get("message", "")
+        ]
+        needs_migration = [
+            r for r in results if "Needs migration" in r.get("message", "")
+        ]
+
+        context = {
+            "action": request.POST["action"],
+            "queryset": queryset,
+            "failed_migrations": failed_migrations,
+            "successful_migrations": successful_migrations,
+            "compatible_workflows": compatible_workflows,
+            "needs_migration": needs_migration,
+            "total_workflows": len(results),
+        }
+        return TemplateResponse(
+            request,
+            "admin/workflow/caseworkflow/migrate_spiff_serialization.html",
+            context,
+        )
+
+
 @admin.action(description="Resolve invalid completed task emitter")
 def resolve_invalid_completed_task_emitter(modeladmin, request, queryset):
     for obj in queryset.all():
@@ -114,6 +201,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
 
     actions = (
         migrate_worflows_to_latest,
+        migrate_spiff_serialization,
         force_update_workflows,
         remove_workflows_for_closed_cases,
         complete_sub_workflow,

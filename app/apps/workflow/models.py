@@ -1043,6 +1043,82 @@ class CaseWorkflow(models.Model):
 
         return result, success
 
+    def needs_spiff_migration(self) -> bool:
+        """
+        Check if this workflow's serialization needs migration to latest format.
+        Returns True if the current serialized state cannot be deserialized.
+        """
+        if not self.serialized_workflow_state:
+            return False
+
+        workflow_spec = self.get_workflow_spec()
+        if not workflow_spec:
+            return False
+
+        try:
+            from .spiff import compat as spiff_compat
+
+            spiff_compat.deserialize_workflow(
+                self.serialized_workflow_state, workflow_spec=workflow_spec
+            )
+            return False  # Deserialization successful, no migration needed
+        except Exception:
+            return True  # Deserialization failed, migration needed
+
+    def migrate_spiff_serialization(self) -> tuple[bool, str]:
+        """
+        Migrate this workflow's serialization to latest format.
+        Returns (success: bool, message: str).
+        """
+        if not self.serialized_workflow_state:
+            return False, "No serialized workflow state found"
+
+        workflow_spec = self.get_workflow_spec()
+        if not workflow_spec:
+            return False, "Could not load workflow spec"
+
+        # Check if migration is needed
+        if not self.needs_spiff_migration():
+            return True, "Already compatible with latest"
+
+        try:
+            from .spiff import compat as spiff_compat
+
+            # Get current workflow data
+            current_data = self.data or {}
+
+            # Create fresh workflow with current spec
+            new_wf = spiff_compat.create_workflow(workflow_spec)
+            new_wf = self.get_script_engine(new_wf)
+
+            # Apply preserved data to restore state
+            if current_data:
+                spiff_compat.update_task_data(new_wf.last_task, current_data)
+
+                # Try to restore message state if applicable
+                if self.workflow_message_name:
+                    try:
+                        spiff_compat.accept_message(
+                            new_wf, self.workflow_message_name, current_data
+                        )
+                    except Exception:
+                        # Message restoration might fail, that's okay
+                        pass
+
+            # Serialize with new format
+            new_serialized_state = spiff_compat.serialize_workflow(
+                new_wf, include_spec=False
+            )
+
+            # Update the workflow
+            self.serialized_workflow_state = new_serialized_state
+            self.save(update_fields=["serialized_workflow_state"])
+
+            return True, "Successfully migrated to latest format"
+
+        except Exception as e:
+            return False, f"Migration failed: {str(e)}"
+
     def __str__(self):
         return f"{self.id}, case: {self.case.id}"
 
