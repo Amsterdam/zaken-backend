@@ -47,7 +47,7 @@ dependencies = [
     "redis (~=6.4)",
     "Requests (~=2.32)",
     "requests-mock (~=1.12)",
-    "spiffworkflow (==1.1.0)",
+    "spiffworkflow (>=2.0.0,<3.0.0)",
     "tenacity (~=9.0)",
 ]
 
