@@ -521,26 +521,6 @@ files = [
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
-name = "configparser"
-version = "7.2.0"
-description = "Updated configparser from stdlib for earlier Pythons."
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = [
-    {file = "configparser-7.2.0-py3-none-any.whl", hash = "sha256:fee5e1f3db4156dcd0ed95bc4edfa3580475537711f67a819c966b389d09ce62"},
-    {file = "configparser-7.2.0.tar.gz", hash = "sha256:b629cc8ae916e3afbd36d1b3d093f34193d851e11998920fdcfc4552218b7b70"},
-]
-
-[package.extras]
-check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1)"]
-cover = ["pytest-cov"]
-doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
-enabler = ["pytest-enabler (>=2.2)"]
-test = ["pytest (>=6,!=8.1.*)", "types-backports"]
-type = ["pytest-mypy"]
-
-[[package]]
 name = "cron-descriptor"
 version = "2.0.5"
 description = "A Python library that converts cron expressions into human readable strings."
@@ -2454,19 +2434,22 @@ files = [
 
 [[package]]
 name = "spiffworkflow"
-version = "2.0.1"
+version = "3.1.1"
 description = "A workflow framework and BPMN/DMN Processor"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "SpiffWorkflow-2.0.1-py3-none-any.whl", hash = "sha256:99aa21ff8f914d9c0aafc1e90b40fd1616ba496ef9dd1320bc6170de05fdcd22"},
-    {file = "SpiffWorkflow-2.0.1.tar.gz", hash = "sha256:fd7e757f26356af3972768de04c041200e841ffff88e5ab90f2e57cd369b99b9"},
+    {file = "spiffworkflow-3.1.1-py3-none-any.whl", hash = "sha256:193e1920a20c6b7e276b78a7adabf6b135f3deaf8f0a1e7614864b5a0e03abd4"},
+    {file = "spiffworkflow-3.1.1.tar.gz", hash = "sha256:8dcfeabb38f3bc36259ad4171e6c734fe39e06be82c148ac5249006268cb5016"},
 ]
 
 [package.dependencies]
-configparser = "*"
 lxml = "*"
+
+[package.extras]
+dev = ["build", "coverage"]
+doc = ["sphinx", "sphinx_rtd_theme"]
 
 [[package]]
 name = "sqlparse"
@@ -2692,4 +2675,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "~=3.13"
-content-hash = "c1fb8f7305d1d4d0fb56d9dcc9b5635551bd9107e2cb92006a6adffe06c62727"
+content-hash = "3f36fa5f7f118eefe30f8a6b28f784feb128f0ee97f360e5a3347c8af0482fe5"
