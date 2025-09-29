@@ -11,7 +11,9 @@ from django.core.cache import cache
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone as django_timezone
+from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.camunda.serializer.config import CAMUNDA_CONFIG
 from utils.exceptions import EventEmitterExistsError
 
 from .user_tasks import DEFAULT_USER_TASK_DUE_DATE, get_task_by_name
@@ -51,15 +53,22 @@ def event_emitter_pre_save(instance, **kwargs):
 def case_user_task_pre_save(sender, instance, **kwargs):
     if kwargs.get("raw"):
         return
+
+    now = django_timezone.now()
+    d = datetime.datetime(
+        year=now.year, month=now.month, day=now.day, tzinfo=timezone.utc
+    )
+
     if not instance.id:
-        now = django_timezone.now()
-        d = datetime.datetime(
-            year=now.year, month=now.month, day=now.day, tzinfo=timezone.utc
-        )
         task = get_task_by_name(instance.task_name)
+
+    try:
         task_elapse_datetime = instance.workflow.get_task_elapse_datetime(
             instance.task_id
         )
+    except Exception:
+        # If task is not found in workflow, just skip this
+        task_elapse_datetime = None
         cached_task_key = (
             f"parent_workflow_{instance.workflow.parent_workflow.id}_{instance.task_name}_due_date"
             if instance.workflow.parent_workflow
@@ -73,15 +82,25 @@ def case_user_task_pre_save(sender, instance, **kwargs):
         elif isinstance(task_elapse_datetime, datetime.datetime):
             instance.due_date = task_elapse_datetime
         else:
-            instance.due_date = d + (
-                task.get_due_date(instance) if task else DEFAULT_USER_TASK_DUE_DATE
-            )
+            # Get task for new instances, fallback to default for existing instances
+            if not instance.id:
+                instance.due_date = d + (
+                    task.get_due_date(instance) if task else DEFAULT_USER_TASK_DUE_DATE
+                )
+            else:
+                # For existing instances without cached data, use default due date
+                instance.due_date = d + DEFAULT_USER_TASK_DUE_DATE
     else:
-        previous = CaseUserTask.objects.get(id=instance.id)
-        if instance.due_date != previous.due_date:
-            instance.workflow.set_task_elapse_datetime(
-                instance.task_id, instance.due_date
-            )
+        try:
+            previous = CaseUserTask.objects.get(id=instance.id)
+            if instance.due_date != previous.due_date:
+                instance.workflow.set_task_elapse_datetime(
+                    instance.task_id, instance.due_date
+                )
+        except CaseUserTask.DoesNotExist:
+            # This can happen during bulk_create where instances have IDs but aren't saved yet
+            # In this case, treat it as a new instance and set default due date
+            instance.due_date = d + DEFAULT_USER_TASK_DUE_DATE
 
 
 @receiver(post_save, sender=CaseUserTask, dispatch_uid="case_user_task_post_save")
@@ -158,8 +177,10 @@ def case_workflow_pre_save(sender, instance, **kwargs):
         )
         workflow_spec = instance.get_workflow_spec()
         wf = BpmnWorkflow(workflow_spec)
-        wf = instance.get_serializer().serialize_workflow(wf, include_spec=False)
-        instance.serialized_workflow_state = wf
+        reg = instance.get_serializer().configure(CAMUNDA_CONFIG)
+        serializer = BpmnWorkflowSerializer(registry=reg)
+        serialized_wf = serializer.serialize_json(wf)
+        instance.serialized_workflow_state = serialized_wf
 
 
 @receiver(post_save, sender=CaseWorkflow, dispatch_uid="start_workflow")
@@ -188,4 +209,5 @@ def complete_generic_user_task_and_create_new_user_tasks(
         user_task_type = get_task_by_name(task.task_name)
         user_task_instance = user_task_type(task)
         data.update(user_task_instance.get_data())
+
         CaseWorkflow.complete_user_task(task.id, data, wait=True)
