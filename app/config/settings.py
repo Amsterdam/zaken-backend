@@ -154,7 +154,7 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 500,
     "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S%z",
     "DEFAULT_RENDERER_CLASSES": (
-        "rest_framework.renderers.JSONRenderer",
+        "apps.workflow.renderers.DotAccessDictJSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("apps.users.permissions.IsInAuthorizedRealm",),

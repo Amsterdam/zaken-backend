@@ -1,12 +1,13 @@
 import re
 
-from apps.addresses.serializers import AddressSerializer
-from apps.cases.models import Case, CaseStateType
-from apps.workflow.models import CaseUserTask, CaseWorkflow
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.fields import empty
 from rest_framework.settings import api_settings
+
+from apps.addresses.serializers import AddressSerializer
+from apps.cases.models import Case, CaseStateType
+from apps.workflow.models import CaseUserTask, CaseWorkflow
 
 from .models import GenericCompletedTask, WorkflowOption
 from .user_tasks import get_task_by_name
@@ -184,7 +185,7 @@ class CaseWorkflowSerializer(CaseWorkflowBaseSerializer):
         """
         Retrieves information from the object. Value from names.
         """
-        return obj.data.get("names", {}).get("value", "")
+        return obj.serializable_data.get("names", {}).get("value", "")
 
     @extend_schema_field(CaseUserTaskWorkdflowSerializer(many=True))
     def get_tasks(self, obj):

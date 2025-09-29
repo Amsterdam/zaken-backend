@@ -13,16 +13,16 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_duration
 from packaging import version
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
-from SpiffWorkflow.bpmn.specs.BoundaryEvent import _BoundaryEventParent
-from SpiffWorkflow.bpmn.specs.event_definitions import (
-    MessageEventDefinition,
-    TimerEventDefinition,
-)
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnEvent
+from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine, TaskDataEnvironment
+from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
+from SpiffWorkflow.bpmn.specs.control import BoundaryEvent
+from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.camunda.specs.UserTask import UserTask
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.camunda.serializer.config import CAMUNDA_CONFIG
+from SpiffWorkflow.camunda.specs.event_definitions import MessageEventDefinition
+from SpiffWorkflow.camunda.specs.user_task import UserTask
 from utils.managers import BulkCreateSignalsManager
 
 from .tasks import (
@@ -36,8 +36,11 @@ from .tasks import (
     task_wait_for_workflows_and_send_message,
 )
 from .utils import (
+    convert_dot_access_to_value_dicts,
+    convert_value_dicts_to_dot_access,
     ff_to_subworkflow,
     ff_workflow,
+    filter_predefined_workflow_functions,
     get_initial_data_from_config,
     get_latest_version_from_config,
     get_workflow_path,
@@ -148,7 +151,7 @@ class CaseWorkflow(models.Model):
         default=False,
     )
 
-    serializer = BpmnSerializer
+    serializer = BpmnWorkflowSerializer
 
     def get_workflow_exclude_options(self):
         if self.workflow_type != CaseWorkflow.WORKFLOW_TYPE_SUMMON:
@@ -189,7 +192,7 @@ class CaseWorkflow(models.Model):
         release_lock(self.get_lock_id())
 
     def get_serializer(self):
-        return self.serializer()
+        return self.serializer
 
     def get_workflow_spec(self):
         try:
@@ -213,6 +216,34 @@ class CaseWorkflow(models.Model):
         )
         self.save()
 
+    @property
+    def serializable_data(self):
+        """
+        Returns workflow data with DotAccessDict objects converted to regular dictionaries
+        for JSON serialization in API responses.
+        """
+        return convert_dot_access_to_value_dicts(self.data)
+
+    def get_safe_data(self):
+        """
+        Safe method to access workflow data with guaranteed JSON serialization compatibility.
+        This method ensures DotAccessDict objects are always converted before being used.
+        """
+        return self.serializable_data
+
+    def __getattribute__(self, name):
+        """
+        Override attribute access to ensure data field is always safely serialized.
+        This catches any direct access to the data field and converts it safely.
+        """
+        if name == "data":
+            raw_data = super().__getattribute__(name)
+            if raw_data is None:
+                return None
+
+            return convert_dot_access_to_value_dicts(raw_data)
+        return super().__getattribute__(name)
+
     def get_script_engine(self, wf):
         # injects functions in workflow
         workflow_instance = self
@@ -221,27 +252,34 @@ class CaseWorkflow(models.Model):
             workflow_instance.set_case_state_type(input)
 
         def wait_for_workflows_and_send_message(message, data={}):
+            serializable_data = convert_dot_access_to_value_dicts(data)
             task_wait_for_workflows_and_send_message.delay(
-                workflow_instance.id, message
+                workflow_instance.id, message, serializable_data
             )
 
         def script_wait(message, data={}):
-            task_script_wait.delay(workflow_instance.id, message, data)
+            serializable_data = convert_dot_access_to_value_dicts(data)
+            task_script_wait.delay(workflow_instance.id, message, serializable_data)
 
         def start_subworkflow(subworkflow_name, data={}):
-            task_start_subworkflow.delay(subworkflow_name, workflow_instance.id, data)
+            serializable_data = convert_dot_access_to_value_dicts(data)
+            task_start_subworkflow.delay(
+                subworkflow_name, workflow_instance.id, serializable_data
+            )
 
         def parse_duration_string(str_duration):
             return parse_duration(str_duration)
 
         wf.script_engine = PythonScriptEngine(
-            scriptingAdditions={
-                "set_status": set_status,
-                "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
-                "script_wait": script_wait,
-                "start_subworkflow": start_subworkflow,
-                "parse_duration": parse_duration_string,
-            }
+            environment=TaskDataEnvironment(
+                environment_globals={
+                    "set_status": set_status,
+                    "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
+                    "script_wait": script_wait,
+                    "start_subworkflow": start_subworkflow,
+                    "parse_duration": parse_duration_string,
+                }
+            )
         )
         return wf
 
@@ -392,20 +430,26 @@ class CaseWorkflow(models.Model):
 
         success = False
         jump_to = initial_data.pop("jump_to", None)
+
+        filtered_data = filter_predefined_workflow_functions(initial_data)
+        converted_data = convert_value_dicts_to_dot_access(filtered_data)
+
         if jump_to:
             result = self.reset_subworkflow(jump_to, test=False)
             success = result.get("success")
 
         if not success:
-            wf = self._initial_data(wf, initial_data)
+            wf = self._initial_data(wf, converted_data)
 
             wf = self._update_workflow(wf)
 
             if self.workflow_message_name:
-                wf.message(
-                    self.workflow_message_name,
-                    self.workflow_message_name,
-                    "message_name",
+                wf.catch(
+                    BpmnEvent(
+                        # Only the message name is relevant here, the other parameters are not used but the docs don't really specify what they are used for.
+                        MessageEventDefinition(self.workflow_message_name),
+                        {"result_var": "result_var", "payload": "payload"},
+                    )
                 )
                 wf = self._update_workflow(wf)
             self._update_db(wf)
@@ -423,12 +467,20 @@ class CaseWorkflow(models.Model):
 
         wf = self._update_workflow(wf)
 
+        converted_extra_data = convert_value_dicts_to_dot_access(extra_data)
+
         if wf.last_task:
-            wf.last_task.update_data(extra_data)
+            wf.last_task.data.update(converted_extra_data)
 
         wf = self._update_workflow(wf)
 
-        wf.accept_message(message_name)
+        wf.catch(
+            BpmnEvent(
+                # Only the message name is relevant here, the other parameters are not used but the docs don't really specify what they are used for.
+                MessageEventDefinition(message_name),
+                {"result_var": "result_var", "payload": "payload"},
+            )
+        )
 
         wf = self._update_workflow(wf)
         self._update_db(wf)
@@ -437,11 +489,16 @@ class CaseWorkflow(models.Model):
         wf = self.get_or_restore_workflow_state()
         if not wf:
             return False
-        wf.last_task.update_data(data)
+
+        converted_data = convert_value_dicts_to_dot_access(data)
+
+        if wf.last_task:
+            wf.last_task.data.update(converted_data)
         for t in wf.last_task.children:
-            t.update_data(data)
+            t.data.update(converted_data)
         self._execute_scripts_if_needed(wf)
-        serialize_wf = self.get_serializer().serialize_workflow(wf, include_spec=False)
+
+        serialize_wf = self.get_serializer().serialize_json(wf)
         self.serialized_workflow_state = serialize_wf
 
         self.save()
@@ -462,7 +519,7 @@ class CaseWorkflow(models.Model):
 
     def set_absolete_tasks_to_completed(self, wf):
         # some tasks are absolete after wf.do_engine_steps or wf.refresh_waiting_tasks
-        ready_tasks_ids = [t.id for t in wf.get_tasks(Task.READY)]
+        ready_tasks_ids = [t.id for t in wf.get_tasks(state=TaskState.READY)]
 
         # cleanup: sets dj tasks to completed
         task_instances = self.tasks.all().exclude(
@@ -472,15 +529,54 @@ class CaseWorkflow(models.Model):
 
         return updated
 
+    def _get_task_display_name(self, task):
+        """
+        Get the display name for a task, handling SpiffWorkflow 3.x API changes.
+        Tries multiple approaches to find the proper human-readable task name.
+        """
+        try:
+            # Try SpiffWorkflow 3.x approach first - check for display_name or description
+            if hasattr(task.task_spec, "display_name") and task.task_spec.display_name:
+                return Template(task.task_spec.display_name).safe_substitute(task.data)
+
+            # Try description (legacy approach)
+            if hasattr(task.task_spec, "description") and task.task_spec.description:
+                description = task.task_spec.description
+                if description and description.strip() and description != "User Task":
+                    return Template(description).safe_substitute(task.data)
+
+            # Try task_spec.bpmn_name or bpmn_id (newer SpiffWorkflow versions)
+            if hasattr(task.task_spec, "bpmn_name") and task.task_spec.bpmn_name:
+                return Template(task.task_spec.bpmn_name).safe_substitute(task.data)
+
+            # Try the name field (technical name, but better than "User Task")
+            if hasattr(task.task_spec, "name") and task.task_spec.name:
+                # Convert technical name to more readable format
+                name = (
+                    task.task_spec.name.replace("_", " ").replace("task ", "").title()
+                )
+                return Template(name).safe_substitute(task.data)
+
+            # Last resort: return a generic name
+            return "User Task"
+
+        except Exception as e:
+            logger.warning(f"Error getting task display name: {e}")
+            return getattr(task.task_spec, "name", "User Task")
+
     def create_user_tasks(self, wf):
-        ready_tasks = wf.get_ready_user_tasks()
+        ready_tasks = wf.get_tasks(state=TaskState.READY)
         task_data = [
             CaseUserTask(
                 task_id=task.id,
                 task_name=task.task_spec.name,
-                name=Template(task.task_spec.description).safe_substitute(task.data),
-                roles=[r.strip() for r in task.task_spec.lane.split(",")],
-                form=parse_task_spec_form(task.task_spec.form),
+                name=self._get_task_display_name(task),
+                roles=[
+                    r.strip()
+                    for r in (task.task_spec.lane or "").split(",")
+                    if r.strip()
+                ],
+                form=parse_task_spec_form(getattr(task.task_spec, "form", None)),
                 case=self.case,
                 workflow=self,
             )
@@ -499,12 +595,18 @@ class CaseWorkflow(models.Model):
         wf = self.get_or_restore_workflow_state()
         if not wf:
             return
-        wf.complete_all(False, False)
-        # TODO: There are probably still waiting tasks active, so cleanup, if we should not wait for those tasks
 
-        self.completed = True
-
-        self._update_db(wf)
+        # In v3, check if workflow is actually completed
+        if wf.is_completed() and not self.completed:
+            self.completed = True
+            self._update_db(wf)
+        elif not wf.is_completed():
+            # If workflow is not completed, try to advance it
+            wf.refresh_waiting_tasks()
+            wf.do_engine_steps()
+            if wf.is_completed() and not self.completed:
+                self.completed = True
+                self._update_db(wf)
 
     def update_tasks(self, wf):
         self.set_absolete_tasks_to_completed(wf)
@@ -515,7 +617,7 @@ class CaseWorkflow(models.Model):
     def complete_sub_workflow(self, wf):
         if (
             self.workflow_type == self.WORKFLOW_TYPE_SUB
-            and len(wf.get_ready_user_tasks()) == 0
+            and len(wf.get_tasks(state=TaskState.READY)) == 0
         ):
             self.completed = True
             self.save()
@@ -546,11 +648,14 @@ class CaseWorkflow(models.Model):
         if not wf:
             return
 
-        task = wf.get_task(task_id)
+        task = wf.get_task_from_id(task_id)
 
         if task and isinstance(task.task_spec, UserTask):
-            task.update_data(data)
-            wf.complete_task_from_id(task.id)
+            filtered_data = filter_predefined_workflow_functions(data or {})
+
+            converted_data = convert_value_dicts_to_dot_access(filtered_data)
+            task.set_data(**converted_data)
+            task.complete()
             logger.info(
                 f"COMPLETE TASK: {task.task_spec.name}, case: {self.case.id}-{self.workflow_type}"
             )
@@ -564,35 +669,56 @@ class CaseWorkflow(models.Model):
 
     def save_workflow_state(self, wf):
         if wf.last_task:
-            # update this workflow with the latest task data
-            self.data.update(wf.last_task.data)
+            # Update this workflow with the latest task data, but filter out predefined function names
+            filtered_data = filter_predefined_workflow_functions(wf.last_task.data)
+            converted_data = convert_dot_access_to_value_dicts(filtered_data)
+            self.data.update(converted_data)
 
         completed = False
         if wf.is_completed() and not self.completed:
             completed = True
             self.completed = True
 
-        state = self.get_serializer().serialize_workflow(wf, include_spec=False)
+        # Before serialization, ensure all task data is JSON serializable
+        # by converting DotAccessDict objects throughout the workflow
+        for task in wf.get_tasks():
+            if hasattr(task, "data") and task.data:
+                filtered_data = filter_predefined_workflow_functions(task.data)
+                task.data = convert_dot_access_to_value_dicts(filtered_data)
+
+        reg = self.get_serializer().configure(CAMUNDA_CONFIG)
+        serializer = BpmnWorkflowSerializer(registry=reg)
+        state = serializer.serialize_json(wf)
         self.serialized_workflow_state = state
         self.started = True
         self.save()
 
         if completed:
             data = copy.deepcopy(wf.last_task.data) if wf.last_task else {}
-            task_complete_worflow.delay(self.id, data)
+            serializable_data = convert_dot_access_to_value_dicts(data)
+            task_complete_worflow.delay(self.id, serializable_data)
 
     def get_or_restore_workflow_state(self):
-        # gets the unserialized workflow from this workflow instance, it has to use an workflow_spec, witch in this case will be load from filesystem.
+        # Get the unserialized workflow from this workflow instance, it has to use an workflow_spec,
+        # which in this case will be load from filesystem.
         workflow_spec = self.get_workflow_spec()
         if not workflow_spec:
             return
 
         if self.serialized_workflow_state:
             try:
-                wf = self.get_serializer().deserialize_workflow(
-                    self.serialized_workflow_state, workflow_spec=workflow_spec
-                )
+                reg = self.get_serializer().configure(CAMUNDA_CONFIG)
+                serializer = BpmnWorkflowSerializer(registry=reg)
+                wf = serializer.deserialize_json(self.serialized_workflow_state)
                 wf = self.get_script_engine(wf)
+
+                # Convert data for SpiffWorkflow 3.x compatibility when loading from DB
+                if wf.last_task and wf.last_task.data:
+                    filtered_data = filter_predefined_workflow_functions(
+                        wf.last_task.data
+                    )
+                    wf.last_task.data = convert_value_dicts_to_dot_access(filtered_data)
+
             except Exception as e:
                 logger.error(f"deserialize workflow failed: {e}")
                 return False
@@ -600,6 +726,15 @@ class CaseWorkflow(models.Model):
         else:
             wf = BpmnWorkflow(workflow_spec)
             wf = self.get_script_engine(wf)
+
+            # Apply initial data conversion if available
+            if self.data:
+                filtered_data = filter_predefined_workflow_functions(self.data)
+                converted_data = convert_value_dicts_to_dot_access(filtered_data)
+
+                if wf.get_tasks(state=TaskState.READY):
+                    wf.get_tasks(state=TaskState.READY)[0].data.update(converted_data)
+
             return wf
 
     def get_task_elapse_datetime(self, task_id, workflow=None):
@@ -608,7 +743,7 @@ class CaseWorkflow(models.Model):
         if not workflow:
             return
 
-        task = workflow.get_task(task_id)
+        task = workflow.get_task_from_id(task_id)
         sibling = (
             next(iter([t for t in task.parent.children if t.id != task_id]), None)
             if hasattr(task, "parent")
@@ -616,9 +751,13 @@ class CaseWorkflow(models.Model):
         )
         if (
             sibling
-            and isinstance(task.parent.task_spec, _BoundaryEventParent)
-            and hasattr(sibling.task_spec, "event_definition")
-            and isinstance(sibling.task_spec.event_definition, TimerEventDefinition)
+            and isinstance(getattr(sibling, "task_spec", None), BoundaryEvent)
+            and isinstance(
+                getattr(sibling.task_spec, "event_definition", None),
+                TimerEventDefinition,
+            )
+            and getattr(sibling.task_spec, "attached_to", None)
+            is getattr(task.parent, "task_spec", None)
         ):
             start_time = datetime.datetime.strptime(
                 sibling._get_internal_data("start_time", None), "%Y-%m-%d %H:%M:%S.%f"
@@ -642,9 +781,13 @@ class CaseWorkflow(models.Model):
         )
         if (
             sibling
-            and isinstance(task.parent.task_spec, _BoundaryEventParent)
-            and hasattr(sibling.task_spec, "event_definition")
-            and isinstance(sibling.task_spec.event_definition, TimerEventDefinition)
+            and isinstance(getattr(sibling, "task_spec", None), BoundaryEvent)
+            and isinstance(
+                getattr(sibling.task_spec, "event_definition", None),
+                TimerEventDefinition,
+            )
+            and getattr(sibling.task_spec, "attached_to", None)
+            is getattr(task.parent, "task_spec", None)
         ):
             task_datetime = sibling.workflow.script_engine.evaluate(
                 sibling, sibling.task_spec.event_definition.dateTime
@@ -659,36 +802,38 @@ class CaseWorkflow(models.Model):
 
     def _initial_data(self, wf, data):
 
-        first_task = wf.get_tasks(Task.READY)
+        first_task = wf.get_tasks(state=TaskState.READY)
         last_task = wf.last_task
         if first_task:
             first_task = first_task[0]
         elif last_task:
             first_task = last_task
 
-        # TODO: how to set initial data
-        first_task.update_data(data)
+        filtered_data = filter_predefined_workflow_functions(data)
+
+        first_task.data.update(filtered_data)
 
         return wf
 
     def update_workflow(self):
-        # call this on a regular bases to complete tasks that are time related
+        # Call this on a regular bases to complete tasks that are time related
         wf = self.get_or_restore_workflow_state()
         if not wf:
             return
-        # changes the workflow
+        # Change the workflow
         wf = self._update_workflow(wf)
 
-        # no changes to the workflow after this point
+        # No changes to the workflow after this point
         self._update_db(wf)
 
     def has_a_timer_event_fired(self):
         wf = self.get_or_restore_workflow_state()
         if not wf:
             return False
-        waiting_tasks = wf._get_waiting_tasks()
+        waiting_tasks = wf.get_tasks(state=TaskState.WAITING)
 
-        self._execute_scripts_if_needed(wf)
+        if wf.last_task:
+            self._execute_scripts_if_needed(wf)
 
         for task in waiting_tasks:
             if hasattr(task.task_spec, "event_definition") and isinstance(
@@ -704,7 +849,7 @@ class CaseWorkflow(models.Model):
         return False
 
     def _execute_scripts_if_needed(self, wf):
-        waiting_tasks = wf._get_waiting_tasks()
+        waiting_tasks = wf.get_tasks(state=TaskState.WAITING)
         for task in waiting_tasks:
             if (
                 hasattr(task.task_spec, "event_definition")
@@ -717,7 +862,9 @@ class CaseWorkflow(models.Model):
                     f"script_{task.task_spec.event_definition.message}"
                 )[0]
                 script_task.workflow.script_engine.execute(
-                    script_task, script_task.task_spec.script, wf.last_task.data
+                    script_task,
+                    script_task.task_spec.script,
+                    wf.last_task.data if wf.last_task else {},
                 )
         return wf
 
@@ -739,6 +886,8 @@ class CaseWorkflow(models.Model):
         else:
             original_data = self.data
 
+        converted_data = convert_value_dicts_to_dot_access(original_data)
+
         latest_theme_name, latest_version = get_latest_version_from_config(
             self.workflow_theme_name, self.workflow_type
         )
@@ -753,7 +902,7 @@ class CaseWorkflow(models.Model):
             latest_version,
             self.workflow_message_name,
         )
-        initial_data.update(original_data)
+        initial_data.update(converted_data)
         initial_data.pop("jump_to", None)
 
         wf_spec_latest = get_workflow_spec(latest_path, self.workflow_type)
@@ -823,8 +972,12 @@ class CaseWorkflow(models.Model):
         if not self.parent_workflow or not wf:
             return False
 
-        original_data = copy.deepcopy(wf.last_task.data)
-        expected_user_task_names = [t.task_spec.name for t in wf.get_ready_user_tasks()]
+        original_data = copy.deepcopy(wf.last_task.data) if wf.last_task else {}
+        expected_user_task_names = [
+            t.task_spec.name
+            for t in wf.get_tasks(state=TaskState.READY)
+            if isinstance(t.task_spec, UserTask)
+        ]
 
         # manual override of expected tasks for version 2.0.0
         if self.workflow_type == CaseWorkflow.WORKFLOW_TYPE_DEBRIEF and sorted(
@@ -932,7 +1085,11 @@ class CaseWorkflow(models.Model):
             "workflow_type": self.workflow_type,
             "current_workflow": current_workflow,
             "found_user_task_names": (
-                [t.task_spec.name for t in workflow.get_ready_user_tasks()]
+                [
+                    t.task_spec.name
+                    for t in workflow.get_tasks(state=TaskState.READY)
+                    if isinstance(t.task_spec, UserTask)
+                ]
                 if workflow
                 else []
             ),
@@ -955,7 +1112,9 @@ class CaseWorkflow(models.Model):
         if not wf:
             original_data = self.data
         else:
-            original_data = copy.deepcopy(wf.last_task.data)
+            original_data = (
+                copy.deepcopy(wf.last_task.data) if wf.last_task else self.data
+            )
 
         subworkflows = CaseWorkflow.objects.filter(
             parent_workflow=self, completed=False
