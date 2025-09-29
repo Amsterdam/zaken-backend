@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core import management
 from django.test import TestCase
 from model_bakery import baker
-from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnProcessSpec
+from SpiffWorkflow.bpmn.specs import BpmnProcessSpec
 
 
 class WorkflowModelTest(TestCase):
