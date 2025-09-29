@@ -71,9 +71,9 @@ class UpdateDataForWorkflowsForm(forms.Form):
         )
 
         if not test:
-            wf.last_task.update_data(data)
+            wf.last_task.data.update(data)
             for t in wf.last_task.children:
-                t.update_data(data)
+                t.data.update(data)
             serialize_wf = caseworkflow.get_serializer().serialize_workflow(
                 wf, include_spec=False
             )
