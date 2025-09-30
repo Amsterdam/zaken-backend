@@ -150,6 +150,10 @@ class CaseWorkflow(models.Model):
 
     serializer = BpmnWorkflowSerializer
 
+    def ensure_data_dict(self):
+        if self.data is None:
+            self.data = {}
+
     def get_workflow_exclude_options(self):
         if self.workflow_type != CaseWorkflow.WORKFLOW_TYPE_SUMMON:
             return []
@@ -253,7 +257,18 @@ class CaseWorkflow(models.Model):
             return parse_duration(str_duration)
 
         def get_data(field_name):
-            return self.data.get(field_name, {}).get("value")
+            data_source = None
+            if wf.last_task and getattr(wf.last_task, "data", None):
+                data_source = wf.last_task.data
+            elif self.data:
+                data_source = self.data
+            else:
+                data_source = {}
+            return (
+                data_source.get(field_name, {}).get("value")
+                if isinstance(data_source.get(field_name), dict)
+                else data_source.get(field_name)
+            )
 
         wf.script_engine = PythonScriptEngine(
             environment=TaskDataEnvironment(
@@ -644,6 +659,7 @@ class CaseWorkflow(models.Model):
         self._update_db(wf)
 
     def save_workflow_state(self, wf):
+        self.ensure_data_dict()
         if wf.last_task:
             data = wf.last_task.data
             self.data.update(data)
@@ -807,30 +823,34 @@ class CaseWorkflow(models.Model):
         return False
 
     def _execute_scripts_if_needed(self, wf):
+        """Execute scripts for message events when there are waiting tasks."""
         waiting_tasks = wf.get_tasks(state=TaskState.WAITING)
         for task in waiting_tasks:
-            script_tasks = (
-                [
-                    t
-                    for t in wf.get_tasks()
-                    if t.task_spec.name
-                    == f"script_{task.task_spec.event_definition.message}"
+            # Only execute scripts for message events, not regular script tasks
+            if hasattr(task.task_spec, "event_definition") and isinstance(
+                task.task_spec.event_definition, MessageEventDefinition
+            ):
+                message = task.task_spec.event_definition.message
+                script_tasks = [
+                    t for t in wf.get_tasks() if t.task_spec.name == f"script_{message}"
                 ]
-                if (
-                    hasattr(task.task_spec, "event_definition")
-                    and isinstance(
-                        task.task_spec.event_definition, MessageEventDefinition
+                if script_tasks:
+                    script_task = script_tasks[0]
+                    # Get the data to execute the script against
+                    data = wf.last_task.data if wf.last_task else {}
+                    # Execute the script - it modifies the data dict in place
+                    script_task.workflow.script_engine.execute(
+                        script_task,
+                        script_task.task_spec.script,
+                        data,
                     )
-                )
-                else []
-            )
-            if script_tasks:
-                script_task = script_tasks[0]
-                script_task.workflow.script_engine.execute(
-                    script_task,
-                    script_task.task_spec.script,
-                    wf.last_task.data if wf.last_task else {},
-                )
+                    # The execute method modifies the data dict in place,
+                    # but we need to ensure the script_task's data is also updated
+                    script_task.data.update(data)
+
+                    # After executing message event scripts, run engine steps to process any changes
+                    wf.refresh_waiting_tasks()
+                    wf.do_engine_steps()
         return wf
 
     def _update_workflow(self, wf):
