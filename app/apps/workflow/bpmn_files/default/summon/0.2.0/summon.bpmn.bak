@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0k0da6k" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
+  <bpmn:collaboration id="Collaboration_1t5ylmo">
+    <bpmn:participant id="Participant_1ciseh2" name="Process" processRef="summon" />
+  </bpmn:collaboration>
+  <bpmn:process id="summon" name="Zaak Wonen VakantieVerhuur - Aanschrijving" isExecutable="true" camunda:versionTag="0.4.0">
+    <bpmn:laneSet id="LaneSet_0iy1emi">
+      <bpmn:lane id="lane_projectmedewerker_1wein50" name="Projectmedewerker">
+        <bpmn:flowNodeRef>task_monitor_incoming_point_of_view</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_monitor_incoming_permit_application</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_status_zienswijze</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1mo05mc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1s4a0ru</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_projecthandhaver_1szfa18" name="Projecthandhaver">
+        <bpmn:flowNodeRef>gateway_do_we_renounce_or_decision</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gateway_has_point_of_view_received</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_judge_point_of_view</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_check_incoming_point_of_view</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1rmmm5s</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gateway_has_permit_been_granted</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_afronden_vergunningscheck</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gateway_has_permit_been_requested</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1gaa36w</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_monitor_permit_request_procedure</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gateway_which_type_of_summon</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_check_incoming_permit_application</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_script_next_step_closing_procedure</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_script_next_step_close_case_1neab16</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_13bywna</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_status_summon</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_script_set_status_vergunningscheck</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_create_summon</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_script_next_step_close_case_summon</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_0ysomyy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_script_next_step_summon_01s1xpa</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_script_next_step_summon_02y42to</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_0uynagg</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_script_next_step_renounce_summon</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_start_renounce_1va49v0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_start_decision_process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1514cbt</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_script_next_step_decision_summon</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:exclusiveGateway id="gateway_do_we_renounce_or_decision">
+      <bpmn:incoming>Flow_1bkt8kw</bpmn:incoming>
+      <bpmn:outgoing>Flow_1kxv6a9</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0o6dkue</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="gateway_has_point_of_view_received">
+      <bpmn:incoming>Flow_1luefv1</bpmn:incoming>
+      <bpmn:outgoing>Flow_141448o</bpmn:outgoing>
+      <bpmn:outgoing>Flow_15k43jt</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="task_judge_point_of_view" name="Beoordelen zienswijze" camunda:formKey="review_citizen_objection" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="is_citizen_objection_valid" label="Is er reden tot afzien voornemen?" type="enum">
+            <camunda:value id="yes_citizen_objection_valid" name="Ja, afzien voornemen" />
+            <camunda:value id="no_citizen_objection_not_valid" name="Nee, besluit opleggen" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0umy2og</bpmn:incoming>
+      <bpmn:incoming>Flow_141448o</bpmn:incoming>
+      <bpmn:outgoing>Flow_1bkt8kw</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_check_incoming_point_of_view" name="Controleren binnenkomst zienswijze" camunda:formKey="monitor_civilian_action" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="is_civilian_objection_received" label="Is de burger zienswijze ontvangen?" type="enum" defaultValue="no_objection_not_received">
+            <camunda:value id="no_objection_not_received" name="Nee, burger zienswijze niet ontvangen" />
+            <camunda:value id="yes_objection_received" name="Ja, burger zienswijze ontvangen" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_05c0mfz</bpmn:incoming>
+      <bpmn:outgoing>Flow_1luefv1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_monitor_incoming_point_of_view" name="Monitoren binnenkomen zienswijze" default="Flow_0umy2og" camunda:formKey="monitor_civilian_action" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(17).toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="is_civilian_objection_received" label="Ja, er is een zienswijze binnengekomen" type="boolean" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1pop5qk</bpmn:incoming>
+      <bpmn:outgoing>Flow_0umy2og</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:startEvent id="Event_1rmmm5s">
+      <bpmn:outgoing>Flow_1wlsww0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="gateway_has_permit_been_granted">
+      <bpmn:incoming>Flow_1f8btyg</bpmn:incoming>
+      <bpmn:outgoing>Flow_1usf3sm</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1izu6zi</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="task_afronden_vergunningscheck" name="Afronden vergunningscheck" camunda:formKey="afronden_vergunningscheck_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="afronden_vergunningscheck_formfield" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0m6yape</bpmn:incoming>
+      <bpmn:incoming>Flow_1izu6zi</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ddf58d</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="gateway_has_permit_been_requested">
+      <bpmn:incoming>Flow_1c107fw</bpmn:incoming>
+      <bpmn:outgoing>Flow_18si44b</bpmn:outgoing>
+      <bpmn:outgoing>Flow_12sivk9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Activity_1gaa36w" name="Controleren vergunningsprocedure" camunda:formKey="form_monitoren_vergunningsprocedure" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="civilian_has_gotten_permit" label="Heeft de burger nu een vergunning?" type="enum" defaultValue="no_permit">
+            <camunda:value id="no_permit" name="Nee, geen vergunning verleend" />
+            <camunda:value id="yes_permit" name="Ja, burger heeft nu een vergunning" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1g3luuj</bpmn:incoming>
+      <bpmn:outgoing>Flow_1f8btyg</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_monitor_permit_request_procedure" name="Monitoren vergunningsprocedure" camunda:formKey="form_monitoren_vergunningsprocedure" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(56).toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="civilian_has_gotten_permit" label="Ja, vergunning verleend" type="boolean">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_18si44b</bpmn:incoming>
+      <bpmn:incoming>Flow_0oyiegq</bpmn:incoming>
+      <bpmn:outgoing>Flow_0m6yape</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="gateway_which_type_of_summon" name="Wat voor aanschrijving is het?">
+      <bpmn:incoming>Flow_1detbpm</bpmn:incoming>
+      <bpmn:outgoing>Flow_0p4fa1b</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0ca7pn4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_025eea2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0jcg14m</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="task_monitor_incoming_permit_application" name="Monitoren binnenkomen vergunningaanvraag" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().plusDays(32).toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="action_civilian_permit_requested" label="Ja, vergunningaanvraag binnengekomen " type="boolean">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1kedpc9</bpmn:incoming>
+      <bpmn:outgoing>Flow_0oyiegq</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_check_incoming_permit_application" name="Controleren binnenkomst vergunningaanvraag" camunda:formKey="form_monitor_actie_burger" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="action_civilian_permit_requested" label="Is de vergunning aangevraagd?" type="enum" defaultValue="no_action">
+            <camunda:value id="no_action" name="Nee, de vergunning is niet aangevraagd" />
+            <camunda:value id="yes_permit_requested" name="Ja, de vergunning is aangevraagd" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1tvv61b</bpmn:incoming>
+      <bpmn:outgoing>Flow_1c107fw</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:scriptTask id="service_script_next_step_closing_procedure" name="summon_next_step = {&#34;value&#34;: &#34;closing_procedure&#34;}">
+      <bpmn:incoming>Flow_0jcg14m</bpmn:incoming>
+      <bpmn:outgoing>Flow_167bomv</bpmn:outgoing>
+      <bpmn:script>summon_next_step = {"value": "closing_procedure"}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="service_script_next_step_close_case_1neab16" name="summon_next_step = {&#34;value&#34;: &#34;close_case&#34;}">
+      <bpmn:incoming>Flow_025eea2</bpmn:incoming>
+      <bpmn:outgoing>Flow_1db08jl</bpmn:outgoing>
+      <bpmn:script>summon_next_step = {"value": "close_case"}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="end_13bywna">
+      <bpmn:incoming>Flow_1db08jl</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="service_status_summon" name="set_status(&#34;Aanschrijving&#34;)">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="decision">"false"</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1wlsww0</bpmn:incoming>
+      <bpmn:outgoing>Flow_1atmgnk</bpmn:outgoing>
+      <bpmn:script>set_status("Aanschrijving")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="service_script_set_status_vergunningscheck" name="set_status(&#34;Vergunningscheck&#34;)">
+      <bpmn:incoming>Flow_0p4fa1b</bpmn:incoming>
+      <bpmn:outgoing>Flow_1kedpc9</bpmn:outgoing>
+      <bpmn:script>set_status("Vergunningscheck")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="service_status_zienswijze" name="set_status(&#34;Zienswijze&#34;)">
+      <bpmn:incoming>Flow_0ca7pn4</bpmn:incoming>
+      <bpmn:outgoing>Flow_1pop5qk</bpmn:outgoing>
+      <bpmn:script>set_status("Zienswijze")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="task_create_summon" name="Verwerk aanschrijving" camunda:formKey="create_summon_form" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="type_aanschrijving" label="Welk type aanschrijving heb je opgesteld?" type="enum">
+            <camunda:value id="waarschuwingsbrief" name="Waarschuwingsbrief" />
+            <camunda:value id="aanschrijvingen" name="Overige aanschrijvingen" />
+            <camunda:value id="sluiting" name="Sluitingsbesluit" />
+            <camunda:value id="legalisatie-brief" name="Legalisatie Brief" />
+          </camunda:formField>
+          <camunda:formField id="names" type="string" />
+          <camunda:formField id="summon_id" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1atmgnk</bpmn:incoming>
+      <bpmn:outgoing>Flow_1detbpm</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:scriptTask id="service_script_next_step_close_case_summon" name="summon_next_step = close_case&#34;">
+      <bpmn:incoming>Flow_0ddf58d</bpmn:incoming>
+      <bpmn:outgoing>Flow_1smx7q3</bpmn:outgoing>
+      <bpmn:script>summon_next_step = {"value": "close_case"}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="end_0ysomyy" name="start sluitingsproces">
+      <bpmn:incoming>Flow_167bomv</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="service_script_next_step_summon_01s1xpa" name="summon_next_step = summon&#34;">
+      <bpmn:incoming>Flow_1usf3sm</bpmn:incoming>
+      <bpmn:outgoing>Flow_06rtztr</bpmn:outgoing>
+      <bpmn:script>summon_next_step = {"value": "summon"}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="service_script_next_step_summon_02y42to" name="summon_next_step = summon&#34;">
+      <bpmn:incoming>Flow_12sivk9</bpmn:incoming>
+      <bpmn:outgoing>Flow_0l19ncx</bpmn:outgoing>
+      <bpmn:script>summon_next_step = {"value": "summon"}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="end_0uynagg">
+      <bpmn:incoming>Flow_1smx7q3</bpmn:incoming>
+      <bpmn:incoming>Flow_06rtztr</bpmn:incoming>
+      <bpmn:incoming>Flow_0l19ncx</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="service_script_next_step_renounce_summon" name="summon_next_step = {&#34;value&#34;: &#34;renounce&#34;}">
+      <bpmn:incoming>Flow_1kxv6a9</bpmn:incoming>
+      <bpmn:outgoing>Flow_1oesxow</bpmn:outgoing>
+      <bpmn:script>summon_next_step = {"value": "renounce"}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="end_start_renounce_1va49v0" name="Voornemen afzien">
+      <bpmn:incoming>Flow_1oesxow</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="end_start_decision_process" name="Opstellen besluit process">
+      <bpmn:incoming>Flow_186wilc</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:boundaryEvent id="Event_1514cbt" attachedToRef="task_monitor_permit_request_procedure">
+      <bpmn:outgoing>Flow_1g3luuj</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_1qokzil">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">parse_duration(task_monitor_permit_request_procedure_timer_duration)</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Event_1mo05mc" attachedToRef="task_monitor_incoming_point_of_view">
+      <bpmn:outgoing>Flow_05c0mfz</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_091gtsz">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">parse_duration(task_monitor_incoming_point_of_view_timer_duration)</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Event_1s4a0ru" attachedToRef="task_monitor_incoming_permit_application">
+      <bpmn:outgoing>Flow_1tvv61b</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_03lkxje">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">parse_duration(task_monitor_incoming_permit_application_timer_duration)</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_1oesxow" sourceRef="service_script_next_step_renounce_summon" targetRef="end_start_renounce_1va49v0" />
+    <bpmn:sequenceFlow id="Flow_1db08jl" sourceRef="service_script_next_step_close_case_1neab16" targetRef="end_13bywna" />
+    <bpmn:sequenceFlow id="Flow_167bomv" sourceRef="service_script_next_step_closing_procedure" targetRef="end_0ysomyy" />
+    <bpmn:sequenceFlow id="Flow_1kxv6a9" name="Ja, afzien voornemen" sourceRef="gateway_do_we_renounce_or_decision" targetRef="service_script_next_step_renounce_summon">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">is_citizen_objection_valid.value == "yes_citizen_objection_valid"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1bkt8kw" sourceRef="task_judge_point_of_view" targetRef="gateway_do_we_renounce_or_decision" />
+    <bpmn:sequenceFlow id="Flow_141448o" name="Ja, zienswijze ontvangen" sourceRef="gateway_has_point_of_view_received" targetRef="task_judge_point_of_view">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">is_civilian_objection_received.value == "yes_objection_received"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1luefv1" sourceRef="task_check_incoming_point_of_view" targetRef="gateway_has_point_of_view_received" />
+    <bpmn:sequenceFlow id="Flow_05c0mfz" sourceRef="Event_1mo05mc" targetRef="task_check_incoming_point_of_view" />
+    <bpmn:sequenceFlow id="Flow_0umy2og" name="Ja, burger zienswijze ontvangen" sourceRef="task_monitor_incoming_point_of_view" targetRef="task_judge_point_of_view" />
+    <bpmn:sequenceFlow id="Flow_1smx7q3" sourceRef="service_script_next_step_close_case_summon" targetRef="end_0uynagg" />
+    <bpmn:sequenceFlow id="Flow_186wilc" sourceRef="service_script_next_step_decision_summon" targetRef="end_start_decision_process" />
+    <bpmn:sequenceFlow id="Flow_1wlsww0" sourceRef="Event_1rmmm5s" targetRef="service_status_summon" />
+    <bpmn:sequenceFlow id="Flow_1izu6zi" name="Ja, burger heeft nu een vergunning" sourceRef="gateway_has_permit_been_granted" targetRef="task_afronden_vergunningscheck">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit.value == "yes_permit"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0o6dkue" name="Nee, besluit opleggen" sourceRef="gateway_do_we_renounce_or_decision" targetRef="service_script_next_step_decision_summon">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">is_citizen_objection_valid.value == "no_citizen_objection_not_valid"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_15k43jt" name="Nee, zienswijze niet ontvangen" sourceRef="gateway_has_point_of_view_received" targetRef="service_script_next_step_decision_summon">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">is_civilian_objection_received.value == "no_objection_not_received"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1pop5qk" sourceRef="service_status_zienswijze" targetRef="task_monitor_incoming_point_of_view" />
+    <bpmn:sequenceFlow id="Flow_0ddf58d" sourceRef="task_afronden_vergunningscheck" targetRef="service_script_next_step_close_case_summon" />
+    <bpmn:sequenceFlow id="Flow_0m6yape" name="Ja, burger heeft nu een vergunning" sourceRef="task_monitor_permit_request_procedure" targetRef="task_afronden_vergunningscheck">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit.value == True</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1usf3sm" name="Nee, geen vergunning verleend" sourceRef="gateway_has_permit_been_granted" targetRef="service_script_next_step_summon_01s1xpa">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit.value == "no_permit"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1f8btyg" sourceRef="Activity_1gaa36w" targetRef="gateway_has_permit_been_granted" />
+    <bpmn:sequenceFlow id="Flow_12sivk9" name="Nee, geen vergunning aangevraagd" sourceRef="gateway_has_permit_been_requested" targetRef="service_script_next_step_summon_02y42to">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">action_civilian_permit_requested.value == "no_action"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0oyiegq" name="Ja, vergunning aangevraagd" sourceRef="task_monitor_incoming_permit_application" targetRef="task_monitor_permit_request_procedure">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">action_civilian_permit_requested.value == True</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1g3luuj" name="Na 56 dagen" sourceRef="Event_1514cbt" targetRef="Activity_1gaa36w" />
+    <bpmn:sequenceFlow id="Flow_18si44b" name="Ja, vergunning aangevraagd" sourceRef="gateway_has_permit_been_requested" targetRef="task_monitor_permit_request_procedure">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">action_civilian_permit_requested.value == "yes_permit_requested"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1c107fw" sourceRef="task_check_incoming_permit_application" targetRef="gateway_has_permit_been_requested" />
+    <bpmn:sequenceFlow id="Flow_1tvv61b" name="Na 32 dagen" sourceRef="Event_1s4a0ru" targetRef="task_check_incoming_permit_application" />
+    <bpmn:sequenceFlow id="Flow_1atmgnk" sourceRef="service_status_summon" targetRef="task_create_summon" />
+    <bpmn:sequenceFlow id="Flow_0ca7pn4" name="type_aanschrijving = Andere aanschrijvingen" sourceRef="gateway_which_type_of_summon" targetRef="service_status_zienswijze">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "aanschrijvingen"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_025eea2" name="type_aanschrijving = waarschuwingsbrief" sourceRef="gateway_which_type_of_summon" targetRef="service_script_next_step_close_case_1neab16">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "waarschuwingsbrief"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1kedpc9" sourceRef="service_script_set_status_vergunningscheck" targetRef="task_monitor_incoming_permit_application" />
+    <bpmn:sequenceFlow id="Flow_0jcg14m" name="type_aanschrijving = sluiting" sourceRef="gateway_which_type_of_summon" targetRef="service_script_next_step_closing_procedure">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "sluiting"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0p4fa1b" name="type_aanschrijving = legalisatie brief" sourceRef="gateway_which_type_of_summon" targetRef="service_script_set_status_vergunningscheck">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "legalisatie-brief"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1detbpm" sourceRef="task_create_summon" targetRef="gateway_which_type_of_summon" />
+    <bpmn:sequenceFlow id="Flow_06rtztr" sourceRef="service_script_next_step_summon_01s1xpa" targetRef="end_0uynagg" />
+    <bpmn:sequenceFlow id="Flow_0l19ncx" sourceRef="service_script_next_step_summon_02y42to" targetRef="end_0uynagg" />
+    <bpmn:scriptTask id="service_script_next_step_decision_summon" name="summon_next_step = {&#34;value&#34;: &#34;decision&#34;}">
+      <bpmn:incoming>Flow_0o6dkue</bpmn:incoming>
+      <bpmn:incoming>Flow_15k43jt</bpmn:incoming>
+      <bpmn:outgoing>Flow_186wilc</bpmn:outgoing>
+      <bpmn:script>summon_next_step = {"value": "decision"}</bpmn:script>
+    </bpmn:scriptTask>
+  </bpmn:process>
+  <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />
+  <bpmn:message id="Message_1k1jpww" name="start_decision_process" />
+  <bpmn:message id="Message_1od7c00" name="start_uitzetten_vervolgstap" />
+  <bpmn:message id="Message_0io3xyw" name="aanschrijving_toevoegen" />
+  <bpmn:message id="Message_043fuj2" name="aza_wonen_local_vakantieverhuur_sluitingsproces" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1t5ylmo">
+      <bpmndi:BPMNShape id="Participant_1ciseh2_di" bpmnElement="Participant_1ciseh2" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="2990" height="750" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1szfa18_di" bpmnElement="lane_projecthandhaver_1szfa18" isHorizontal="true">
+        <dc:Bounds x="190" y="370" width="2960" height="460" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1wein50_di" bpmnElement="lane_projectmedewerker_1wein50" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="2960" height="290" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0l19ncx_di" bpmnElement="Flow_0l19ncx">
+        <di:waypoint x="2020" y="720" />
+        <di:waypoint x="2090" y="720" />
+        <di:waypoint x="2090" y="599" />
+        <di:waypoint x="2122" y="599" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06rtztr_di" bpmnElement="Flow_06rtztr">
+        <di:waypoint x="2020" y="480" />
+        <di:waypoint x="2090" y="480" />
+        <di:waypoint x="2090" y="599" />
+        <di:waypoint x="2122" y="599" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1detbpm_di" bpmnElement="Flow_1detbpm">
+        <di:waypoint x="590" y="480" />
+        <di:waypoint x="715" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0p4fa1b_di" bpmnElement="Flow_0p4fa1b">
+        <di:waypoint x="765" y="480" />
+        <di:waypoint x="890" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="775" y="430" width="85" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jcg14m_di" bpmnElement="Flow_0jcg14m">
+        <di:waypoint x="740" y="505" />
+        <di:waypoint x="740" y="720" />
+        <di:waypoint x="890" y="720" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="775" y="686" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1kedpc9_di" bpmnElement="Flow_1kedpc9">
+        <di:waypoint x="990" y="480" />
+        <di:waypoint x="1060" y="480" />
+        <di:waypoint x="1060" y="300" />
+        <di:waypoint x="1150" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_025eea2_di" bpmnElement="Flow_025eea2">
+        <di:waypoint x="740" y="505" />
+        <di:waypoint x="740" y="599" />
+        <di:waypoint x="890" y="599" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="771" y="542" width="88" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ca7pn4_di" bpmnElement="Flow_0ca7pn4">
+        <di:waypoint x="740" y="455" />
+        <di:waypoint x="740" y="180" />
+        <di:waypoint x="1150" y="180" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="775" y="130" width="85" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1atmgnk_di" bpmnElement="Flow_1atmgnk">
+        <di:waypoint x="380" y="480" />
+        <di:waypoint x="490" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1tvv61b_di" bpmnElement="Flow_1tvv61b">
+        <di:waypoint x="1150" y="358" />
+        <di:waypoint x="1150" y="680" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1168" y="343" width="63" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1c107fw_di" bpmnElement="Flow_1c107fw">
+        <di:waypoint x="1220" y="720" />
+        <di:waypoint x="1255" y="720" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18si44b_di" bpmnElement="Flow_18si44b">
+        <di:waypoint x="1280" y="695" />
+        <di:waypoint x="1280" y="480" />
+        <di:waypoint x="1330" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1203" y="586" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1g3luuj_di" bpmnElement="Flow_1g3luuj">
+        <di:waypoint x="1448" y="480" />
+        <di:waypoint x="1520" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1440" y="453" width="63" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0oyiegq_di" bpmnElement="Flow_0oyiegq">
+        <di:waypoint x="1250" y="300" />
+        <di:waypoint x="1380" y="300" />
+        <di:waypoint x="1380" y="440" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1270" y="266" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12sivk9_di" bpmnElement="Flow_12sivk9">
+        <di:waypoint x="1305" y="720" />
+        <di:waypoint x="1920" y="720" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1359" y="670" width="65" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1f8btyg_di" bpmnElement="Flow_1f8btyg">
+        <di:waypoint x="1620" y="480" />
+        <di:waypoint x="1705" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1usf3sm_di" bpmnElement="Flow_1usf3sm">
+        <di:waypoint x="1755" y="480" />
+        <di:waypoint x="1920" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1785" y="439" width="55" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0m6yape_di" bpmnElement="Flow_0m6yape">
+        <di:waypoint x="1380" y="520" />
+        <di:waypoint x="1380" y="599" />
+        <di:waypoint x="1680" y="599" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1481" y="550" width="78" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ddf58d_di" bpmnElement="Flow_0ddf58d">
+        <di:waypoint x="1780" y="599" />
+        <di:waypoint x="1920" y="599" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pop5qk_di" bpmnElement="Flow_1pop5qk">
+        <di:waypoint x="1250" y="180" />
+        <di:waypoint x="2190" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15k43jt_di" bpmnElement="Flow_15k43jt">
+        <di:waypoint x="2400" y="505" />
+        <di:waypoint x="2400" y="680" />
+        <di:waypoint x="2840" y="680" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2412" y="646" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0o6dkue_di" bpmnElement="Flow_0o6dkue">
+        <di:waypoint x="2650" y="505" />
+        <di:waypoint x="2650" y="650" />
+        <di:waypoint x="2840" y="650" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2670" y="616" width="59" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1izu6zi_di" bpmnElement="Flow_1izu6zi">
+        <di:waypoint x="1730" y="505" />
+        <di:waypoint x="1730" y="559" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1741" y="510" width="78" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wlsww0_di" bpmnElement="Flow_1wlsww0">
+        <di:waypoint x="258" y="480" />
+        <di:waypoint x="280" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_186wilc_di" bpmnElement="Flow_186wilc">
+        <di:waypoint x="2940" y="660" />
+        <di:waypoint x="3002" y="660" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1smx7q3_di" bpmnElement="Flow_1smx7q3">
+        <di:waypoint x="2020" y="599" />
+        <di:waypoint x="2122" y="599" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0umy2og_di" bpmnElement="Flow_0umy2og">
+        <di:waypoint x="2290" y="180" />
+        <di:waypoint x="2540" y="180" />
+        <di:waypoint x="2540" y="440" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2387" y="126" width="52" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05c0mfz_di" bpmnElement="Flow_05c0mfz">
+        <di:waypoint x="2290" y="238" />
+        <di:waypoint x="2290" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1luefv1_di" bpmnElement="Flow_1luefv1">
+        <di:waypoint x="2340" y="480" />
+        <di:waypoint x="2375" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_141448o_di" bpmnElement="Flow_141448o">
+        <di:waypoint x="2425" y="480" />
+        <di:waypoint x="2490" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2414" y="447" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bkt8kw_di" bpmnElement="Flow_1bkt8kw">
+        <di:waypoint x="2590" y="480" />
+        <di:waypoint x="2625" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1kxv6a9_di" bpmnElement="Flow_1kxv6a9">
+        <di:waypoint x="2675" y="480" />
+        <di:waypoint x="2840" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2669" y="445" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_167bomv_di" bpmnElement="Flow_167bomv">
+        <di:waypoint x="990" y="720" />
+        <di:waypoint x="1042" y="720" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1db08jl_di" bpmnElement="Flow_1db08jl">
+        <di:waypoint x="990" y="599" />
+        <di:waypoint x="1042" y="599" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1oesxow_di" bpmnElement="Flow_1oesxow">
+        <di:waypoint x="2940" y="480" />
+        <di:waypoint x="3002" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Gateway_11453r6_di" bpmnElement="gateway_do_we_renounce_or_decision" isMarkerVisible="true">
+        <dc:Bounds x="2625" y="455" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1j1sd3l_di" bpmnElement="gateway_has_point_of_view_received" isMarkerVisible="true">
+        <dc:Bounds x="2375" y="455" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task_judge_point_of_view_di" bpmnElement="task_judge_point_of_view">
+        <dc:Bounds x="2490" y="440" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task_check_incoming_point_of_view_di" bpmnElement="task_check_incoming_point_of_view">
+        <dc:Bounds x="2240" y="440" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task_monitor_incoming_point_of_view_di" bpmnElement="task_monitor_incoming_point_of_view">
+        <dc:Bounds x="2190" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1rmmm5s_di" bpmnElement="Event_1rmmm5s">
+        <dc:Bounds x="222" y="462" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0fr0xxj_di" bpmnElement="gateway_has_permit_been_granted" isMarkerVisible="true">
+        <dc:Bounds x="1705" y="455" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ofpfsa_di" bpmnElement="task_afronden_vergunningscheck">
+        <dc:Bounds x="1680" y="559" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0s3wb8r_di" bpmnElement="gateway_has_permit_been_requested" isMarkerVisible="true">
+        <dc:Bounds x="1255" y="695" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1gaa36w_di" bpmnElement="Activity_1gaa36w">
+        <dc:Bounds x="1520" y="440" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0g6kz7m_di" bpmnElement="task_monitor_permit_request_procedure">
+        <dc:Bounds x="1330" y="440" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1t6r1v4_di" bpmnElement="gateway_which_type_of_summon" isMarkerVisible="true">
+        <dc:Bounds x="715" y="455" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="662" y="400" width="76" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ptqws9_di" bpmnElement="task_monitor_incoming_permit_application">
+        <dc:Bounds x="1150" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1t8h57c_di" bpmnElement="task_check_incoming_permit_application">
+        <dc:Bounds x="1120" y="680" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0vx9ad7_di" bpmnElement="service_script_next_step_closing_procedure">
+        <dc:Bounds x="890" y="680" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1neab16_di" bpmnElement="service_script_next_step_close_case_1neab16">
+        <dc:Bounds x="890" y="559" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_13bywna_di" bpmnElement="end_13bywna">
+        <dc:Bounds x="1042" y="581" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1b4nvrz_di" bpmnElement="service_status_summon">
+        <dc:Bounds x="280" y="440" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1hgmhyi_di" bpmnElement="service_script_set_status_vergunningscheck">
+        <dc:Bounds x="890" y="440" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1wnzjw9_di" bpmnElement="service_status_zienswijze">
+        <dc:Bounds x="1150" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0259m8f_di" bpmnElement="task_create_summon">
+        <dc:Bounds x="490" y="440" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1u8ay13_di" bpmnElement="service_script_next_step_close_case_summon">
+        <dc:Bounds x="1920" y="559" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1euvv6c_di" bpmnElement="end_0ysomyy">
+        <dc:Bounds x="1042" y="702" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1025" y="745" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0e9plh0_di" bpmnElement="service_script_next_step_summon_01s1xpa">
+        <dc:Bounds x="1920" y="440" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_02y42to_di" bpmnElement="service_script_next_step_summon_02y42to">
+        <dc:Bounds x="1920" y="680" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1dean41_di" bpmnElement="end_0uynagg">
+        <dc:Bounds x="2122" y="581" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2112" y="774" width="57" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0p04gzy_di" bpmnElement="service_script_next_step_renounce_summon">
+        <dc:Bounds x="2840" y="440" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1d3zz5w_di" bpmnElement="end_start_renounce_1va49v0">
+        <dc:Bounds x="3002" y="462" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2977" y="505" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0yjcfff_di" bpmnElement="end_start_decision_process">
+        <dc:Bounds x="3002" y="642" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2980" y="685" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_18im036_di" bpmnElement="service_script_next_step_decision_summon">
+        <dc:Bounds x="2840" y="620" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1qii9bf_di" bpmnElement="Event_1s4a0ru">
+        <dc:Bounds x="1132" y="322" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1mo05mc_di" bpmnElement="Event_1mo05mc">
+        <dc:Bounds x="2272" y="202" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ya7mo6_di" bpmnElement="Event_1514cbt">
+        <dc:Bounds x="1412" y="462" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
