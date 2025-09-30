@@ -34,6 +34,7 @@ class WorkflowConfTest(TestCase):
         Tests if the messages used in conf can be executed and if so,
         does this result in a change in the workflow, if so the message is valid
         """
+        self.maxDiff = None
 
         serializer = WorkflowSpecConfigSerializer(data=settings.WORKFLOW_SPEC_CONFIG)
 
@@ -66,6 +67,7 @@ class WorkflowConfTest(TestCase):
         """
         Tests if the bpmn trees of all the versions/types do not return errors.
         """
+        self.maxDiff = None
 
         serializer = WorkflowSpecConfigSerializer(data=settings.WORKFLOW_SPEC_CONFIG)
 
