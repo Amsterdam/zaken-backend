@@ -207,6 +207,7 @@ class CaseDataSerializer(serializers.ModelSerializer):
         source="get_workflows", many=True, read_only=True
     )
     subjects = SubjectSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
     project = CaseProjectSerializer(read_only=True)
     theme = CaseThemeSerializer(read_only=True)
     reason = CaseReasonSerializer(read_only=True)
