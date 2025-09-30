@@ -25,6 +25,67 @@ from SpiffWorkflow.specs.StartTask import StartTask
 logger = logging.getLogger(__name__)
 
 
+def create_script_engine(
+    set_status=None,
+    wait_for_workflows_and_send_message=None,
+    script_wait=None,
+    start_subworkflow=None,
+    parse_duration=None,
+    get_data=None,
+    start_workflow=None,
+    close_case=None,
+):
+    """
+    Factory function to create a PythonScriptEngine with the specified environment globals.
+
+    Args:
+        set_status: Function to set workflow status (optional)
+        wait_for_workflows_and_send_message: Function to wait for workflows and send messages (optional)
+        script_wait: Function for script waiting (optional)
+        start_subworkflow: Function to start subworkflows (optional)
+        parse_duration: Function to parse duration strings (optional)
+        get_data: Function to get data from workflow (optional)
+        start_workflow: Function to start workflows (optional)
+        close_case: Function to close cases (optional)
+
+    Returns:
+        PythonScriptEngine: Configured script engine instance
+    """
+
+    return PythonScriptEngine(
+        environment=TaskDataEnvironment(
+            environment_globals={
+                "set_status": (
+                    set_status if set_status is not None else lambda *args: None
+                ),
+                "wait_for_workflows_and_send_message": (
+                    wait_for_workflows_and_send_message
+                    if wait_for_workflows_and_send_message is not None
+                    else lambda *args: None
+                ),
+                "script_wait": (
+                    script_wait if script_wait is not None else lambda *args: None
+                ),
+                "start_subworkflow": (
+                    start_subworkflow
+                    if start_subworkflow is not None
+                    else lambda *args: None
+                ),
+                "parse_duration": (
+                    parse_duration if parse_duration is not None else lambda *args: None
+                ),
+                "get_data": get_data if get_data is not None else lambda *args: None,
+                "start_workflow": (
+                    start_workflow if start_workflow is not None else lambda *args: None
+                ),
+                "close_case": (
+                    close_case if close_case is not None else lambda *args: None
+                ),
+            }
+        )
+    )
+
+
 def timedelta_to_iso_duration(td):
     """Convert a timedelta object to ISO 8601 duration format."""
     total_seconds = int(td.total_seconds())
@@ -584,18 +645,7 @@ def ff_workflow(
     timer_event_task_start_times={},
     message_name=None,
 ):
-    script_engine = PythonScriptEngine(
-        environment=TaskDataEnvironment(
-            environment_globals={
-                "set_status": lambda *args: None,
-                "wait_for_workflows_and_send_message": lambda *args: None,
-                "script_wait": lambda *args: None,
-                "start_subworkflow": lambda *args: None,
-                "parse_duration": lambda *args: None,
-                "get_data": lambda *args: None,
-            }
-        )
-    )
+    script_engine = create_script_engine()
     workflow = BpmnWorkflow(spec, script_engine=script_engine)
 
     first_task = workflow.get_tasks(state=TaskState.READY)[0]
@@ -695,18 +745,7 @@ def ff_workflow(
 
 
 def ff_to_subworkflow(subworkflow, spec, message_name, data):
-    script_engine = PythonScriptEngine(
-        environment=TaskDataEnvironment(
-            environment_globals={
-                "set_status": lambda *args: None,
-                "wait_for_workflows_and_send_message": lambda *args: None,
-                "script_wait": lambda *args: None,
-                "start_subworkflow": lambda *args: None,
-                "parse_duration": lambda *args: None,
-                "get_data": lambda *args: None,
-            }
-        )
-    )
+    script_engine = create_script_engine()
     workflow = BpmnWorkflow(spec, script_engine=script_engine)
 
     first_task = workflow.get_tasks(state=TaskState.READY)[0]
@@ -781,13 +820,9 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
     def wait_for_workflows_and_send_message(message):
         logger.info(f"wait_for_workflows_and_send_message: {message}")
 
-    script_engine = PythonScriptEngine(
-        environment=TaskDataEnvironment(
-            environment_globals={
-                "set_status": set_status,
-                "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
-            }
-        )
+    script_engine = create_script_engine(
+        set_status=set_status,
+        wait_for_workflows_and_send_message=wait_for_workflows_and_send_message,
     )
 
     workflow = BpmnWorkflow(workflow_spec, script_engine=script_engine)
@@ -1146,17 +1181,13 @@ def workflow_spec_paths_inspect(workflow_spec_conf):
     def get_data(field_name):
         pass
 
-    script_engine = PythonScriptEngine(
-        environment=TaskDataEnvironment(
-            environment_globals={
-                "set_status": set_status,
-                "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
-                "script_wait": script_wait,
-                "start_subworkflow": start_subworkflow,
-                "parse_duration": parse_duration_string,
-                "get_data": get_data,
-            }
-        )
+    script_engine = create_script_engine(
+        set_status=set_status,
+        wait_for_workflows_and_send_message=wait_for_workflows_and_send_message,
+        script_wait=script_wait,
+        start_subworkflow=start_subworkflow,
+        parse_duration=parse_duration_string,
+        get_data=get_data,
     )
     paths = [
         {

@@ -15,7 +15,6 @@ from django.utils.dateparse import parse_duration
 from packaging import version
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn import BpmnEvent
-from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine, TaskDataEnvironment
 from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 from SpiffWorkflow.bpmn.specs.control import BoundaryEvent
 from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
@@ -36,6 +35,7 @@ from .tasks import (
     task_wait_for_workflows_and_send_message,
 )
 from .utils import (
+    create_script_engine,
     ff_to_subworkflow,
     ff_workflow,
     get_initial_data_from_config,
@@ -280,17 +280,13 @@ class CaseWorkflow(models.Model):
                 else data_source.get(field_name)
             )
 
-        wf.script_engine = PythonScriptEngine(
-            environment=TaskDataEnvironment(
-                environment_globals={
-                    "set_status": set_status,
-                    "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
-                    "script_wait": script_wait,
-                    "start_subworkflow": start_subworkflow,
-                    "parse_duration": parse_duration_string,
-                    "get_data": get_data,
-                }
-            )
+        wf.script_engine = create_script_engine(
+            set_status=set_status,
+            wait_for_workflows_and_send_message=wait_for_workflows_and_send_message,
+            script_wait=script_wait,
+            start_subworkflow=start_subworkflow,
+            parse_duration=parse_duration_string,
+            get_data=get_data,
         )
         return wf
 
