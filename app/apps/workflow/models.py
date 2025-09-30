@@ -38,7 +38,6 @@ from .tasks import (
 from .utils import (
     ff_to_subworkflow,
     ff_workflow,
-    filter_predefined_workflow_functions,
     get_initial_data_from_config,
     get_latest_version_from_config,
     get_workflow_path,
@@ -418,14 +417,12 @@ class CaseWorkflow(models.Model):
         success = False
         jump_to = initial_data.pop("jump_to", None)
 
-        filtered_data = filter_predefined_workflow_functions(initial_data)
-
         if jump_to:
             result = self.reset_subworkflow(jump_to, test=False)
             success = result.get("success")
 
         if not success:
-            wf = self._initial_data(wf, filtered_data)
+            wf = self._initial_data(wf, initial_data)
 
             wf = self._update_workflow(wf)
 
@@ -633,8 +630,7 @@ class CaseWorkflow(models.Model):
         task = wf.get_task_from_id(task_id)
 
         if task and isinstance(task.task_spec, UserTask):
-            filtered_data = filter_predefined_workflow_functions(data or {})
-            task.set_data(**filtered_data)
+            task.set_data(**data)
             task.complete()
             logger.info(
                 f"COMPLETE TASK: {task.task_spec.name}, case: {self.case.id}-{self.workflow_type}"
@@ -649,20 +645,17 @@ class CaseWorkflow(models.Model):
 
     def save_workflow_state(self, wf):
         if wf.last_task:
-            # Update this workflow with the latest task data, but filter out predefined function names
-            filtered_data = filter_predefined_workflow_functions(wf.last_task.data)
-            self.data.update(filtered_data)
+            data = wf.last_task.data
+            self.data.update(data)
 
         completed = False
         if wf.is_completed() and not self.completed:
             completed = True
             self.completed = True
 
-        # Ensure all task data is properly filtered
         for task in wf.get_tasks():
             if hasattr(task, "data") and task.data:
-                filtered_data = filter_predefined_workflow_functions(task.data)
-                task.data = filtered_data
+                task.data = data
 
         reg = self.get_serializer().configure(CAMUNDA_CONFIG)
         serializer = BpmnWorkflowSerializer(registry=reg)
@@ -689,13 +682,6 @@ class CaseWorkflow(models.Model):
                 wf = serializer.deserialize_json(self.serialized_workflow_state)
                 wf = self.get_script_engine(wf)
 
-                # Apply filtered data when loading from DB
-                if wf.last_task and wf.last_task.data:
-                    filtered_data = filter_predefined_workflow_functions(
-                        wf.last_task.data
-                    )
-                    wf.last_task.data = filtered_data
-
             except Exception as e:
                 logger.error(f"deserialize workflow failed: {e}")
                 return False
@@ -706,10 +692,8 @@ class CaseWorkflow(models.Model):
 
             # Apply initial data if available
             if self.data:
-                filtered_data = filter_predefined_workflow_functions(self.data)
-
                 if wf.get_tasks(state=TaskState.READY):
-                    wf.get_tasks(state=TaskState.READY)[0].data.update(filtered_data)
+                    wf.get_tasks(state=TaskState.READY)[0].data.update(self.data)
 
             return wf
 
@@ -785,9 +769,7 @@ class CaseWorkflow(models.Model):
         elif last_task:
             first_task = last_task
 
-        filtered_data = filter_predefined_workflow_functions(data)
-
-        first_task.data.update(filtered_data)
+        first_task.data.update(data)
 
         return wf
 

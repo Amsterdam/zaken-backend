@@ -26,23 +26,6 @@ from SpiffWorkflow.specs.StartTask import StartTask
 logger = logging.getLogger(__name__)
 
 
-# TODO: Remove this function, since I think we don't need it after all...
-def filter_predefined_workflow_functions(data):
-    """
-    Filter out predefined function names that conflict with SpiffWorkflow 3.x script engine.
-    Returns a filtered dictionary without the predefined function names.
-    """
-    predefined_functions = {
-        # "wait_for_workflows_and_send_message",
-        # "start_subworkflow",
-        # "script_wait",
-        # "set_status",
-        # "parse_duration",
-    }
-
-    return {k: v for k, v in data.items() if k not in predefined_functions}
-
-
 def complete_uncompleted_task_for_event_emitters(event_emmitter, data={}):
     from .models import CaseWorkflow
 
