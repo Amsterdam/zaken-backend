@@ -114,21 +114,21 @@
     <bpmn:sequenceFlow id="Flow_1413gz2" sourceRef="Gateway_14auegw" targetRef="Gateway_0e8jomi" />
     <bpmn:sequenceFlow id="Flow_0zo0j7q" sourceRef="Gateway_0e8jomi" targetRef="Gateway_1bwuvvm" />
     <bpmn:sequenceFlow id="Flow_1ow6olp" sourceRef="Gateway_1lvo51p" targetRef="Gateway_0v7u98e">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">decision_count.value == 0</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("decision_count") == 0</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_134qi52" sourceRef="Gateway_1lvo51p" targetRef="task_close_case_concept" />
     <bpmn:sequenceFlow id="Flow_1k06j81" sourceRef="task_intrekken_vorderingen" targetRef="Gateway_0e8jomi" />
     <bpmn:sequenceFlow id="Flow_0exgj0g" sourceRef="task_nakijken_intrekkingen" targetRef="task_verwerken_en_opsturen_besluit" />
     <bpmn:sequenceFlow id="Flow_0ueodq6" sourceRef="task_opstellen_intrekkingen" targetRef="task_nakijken_intrekkingen" />
     <bpmn:sequenceFlow id="Flow_0we5ak7" name="sluiten_zaak_keuze == intrekken_besluiten" sourceRef="Gateway_1cn2wvo" targetRef="task_opstellen_intrekkingen">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">sluiten_zaak_keuze.value == "intrekken_besluiten"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("sluiten_zaak_keuze") == "intrekken_besluiten"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0vfjjzh" sourceRef="service_status_afsluiten_zaak" targetRef="Gateway_1lvo51p" />
-    <bpmn:sequenceFlow id="Flow_00aal58" name="next_step.value == &#34;hercontrole&#34;" sourceRef="gateway_hercontrole_of_afsluiten" targetRef="end_04zl50i">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "hercontrole"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_00aal58" name="next_step == &#34;hercontrole&#34;" sourceRef="gateway_hercontrole_of_afsluiten" targetRef="end_04zl50i">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "hercontrole"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1wqsk3u" name="next_step.value == &#34;sluiten&#34;" sourceRef="gateway_hercontrole_of_afsluiten" targetRef="service_status_afsluiten_zaak">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "sluiten"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_1wqsk3u" name="next_step == &#34;sluiten&#34;" sourceRef="gateway_hercontrole_of_afsluiten" targetRef="service_status_afsluiten_zaak">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "sluiten"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0p39b0h" sourceRef="task_verwerken_en_opsturen_besluit" targetRef="Gateway_14auegw" />
     <bpmn:sequenceFlow id="Flow_0mev85v" name="ingetrokken_sancties &#62; 0" sourceRef="Gateway_14auegw" targetRef="task_intrekken_vorderingen">
@@ -139,8 +139,8 @@
     <bpmn:sequenceFlow id="Flow_0e6gl5c" sourceRef="start_1qt4hub" targetRef="service_status_vervolgstap" />
     <bpmn:sequenceFlow id="Flow_1s97xge" sourceRef="service_status_vervolgstap" targetRef="Gateway_1qrgd4m" />
     <bpmn:sequenceFlow id="Flow_1exw36j" sourceRef="Gateway_1qrgd4m" targetRef="task_set_next_step" />
-    <bpmn:sequenceFlow id="Flow_0ppemzu" name="reason.value = reason_digitaal_toezicht" sourceRef="Gateway_1qrgd4m" targetRef="task_set_next_step_digital_surveillance">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reason.value == "reason_digitaal_toezicht"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0ppemzu" name="reason = reason_digitaal_toezicht" sourceRef="Gateway_1qrgd4m" targetRef="task_set_next_step_digital_surveillance">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("reason") == "reason_digitaal_toezicht"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1x2e9iu" sourceRef="task_set_next_step_digital_surveillance" targetRef="Gateway_0y428mq" />
     <bpmn:exclusiveGateway id="gateway_hercontrole_of_afsluiten" name="Hercontrole of afsluiten zaak?">
@@ -156,10 +156,10 @@
       <bpmn:outgoing>Flow_1ow6olp</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1juhwsh" name="next_step == digitale_hercontrole" sourceRef="gateway_hercontrole_of_afsluiten" targetRef="task_uitvoeren_digitale_hercontrole">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "digitale_hercontrole"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "digitale_hercontrole"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1twvx09" name="next_step == debrief" sourceRef="Gateway_1wtdezq" targetRef="end_04zl50i">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "debrief"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "debrief"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:scriptTask id="service_status_vervolgstap" name="set_status(&#34;Vervolgstap&#34;)">
       <bpmn:incoming>Flow_0e6gl5c</bpmn:incoming>
@@ -242,8 +242,8 @@
     <bpmn:sequenceFlow id="Flow_0u9naei" sourceRef="Gateway_0v7u98e" targetRef="Gateway_1bwuvvm" />
     <bpmn:sequenceFlow id="Flow_0bqr79n" sourceRef="Gateway_1bwuvvm" targetRef="task_close_case" />
     <bpmn:sequenceFlow id="Flow_0dcdsq9" sourceRef="task_close_case" targetRef="end_04zl50i" />
-    <bpmn:sequenceFlow id="Flow_0ceelud" name="theme.value = theme_goed_verhuurderschap" sourceRef="Gateway_1qrgd4m" targetRef="task_set_next_step_administratieve_hercontrole">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">theme.value == "theme_goed_verhuurderschap"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0ceelud" name="theme = theme_goed_verhuurderschap" sourceRef="Gateway_1qrgd4m" targetRef="task_set_next_step_administratieve_hercontrole">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("theme") == "theme_goed_verhuurderschap"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1mlcl6j" sourceRef="task_set_next_step_administratieve_hercontrole" targetRef="Gateway_0y428mq" />
     <bpmn:userTask id="task_set_next_step_administratieve_hercontrole" name="Uitzetten vervolgstap" camunda:formKey="form_set_next_step_digital_surveillance">
@@ -260,7 +260,7 @@
       <bpmn:outgoing>Flow_1mlcl6j</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_0ipd01p" name="next_step == administratieve_hercontrole en debrief" sourceRef="gateway_hercontrole_of_afsluiten" targetRef="task_administrative_hercontrole">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "debrief"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "debrief"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:userTask id="task_administrative_hercontrole" name="Administratieve hercontrole">
       <bpmn:incoming>Flow_0ipd01p</bpmn:incoming>

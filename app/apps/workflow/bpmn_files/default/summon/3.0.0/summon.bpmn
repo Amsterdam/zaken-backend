@@ -103,50 +103,50 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1detbpm" sourceRef="task_create_summon" targetRef="gateway_which_type_of_summon" />
     <bpmn:sequenceFlow id="Flow_0jcg14m" name="type_aanschrijving = sluiting pand" sourceRef="gateway_which_type_of_summon" targetRef="service_script_next_step_closing_procedure">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "sluiting"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("type_aanschrijving") == "sluiting"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_025eea2" name="waarschuwingsbrief" sourceRef="gateway_which_type_of_summon" targetRef="service_script_next_step_close_case_summon">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "waarschuwingsbrief"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("type_aanschrijving") == "waarschuwingsbrief"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0ca7pn4" name="type_aanschrijving = Andere aanschrijvingen" sourceRef="gateway_which_type_of_summon" targetRef="service_status_zienswijze">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "aanschrijvingen"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("type_aanschrijving") == "aanschrijvingen"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_12sivk9" name="Nee, geen vergunning aangevraagd" sourceRef="gateway_has_permit_been_requested" targetRef="service_script_next_step_summon">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">action_civilian_permit_requested.value == "no_action"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("action_civilian_permit_requested") == "no_action"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1usf3sm" name="Nee, vergunning is niet verleend" sourceRef="gateway_has_permit_been_granted" targetRef="service_script_next_step_summon">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit.value == "no_permit"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("civilian_has_gotten_permit") == "no_permit"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_15k43jt" name="Nee, zienswijze niet ontvangen" sourceRef="gateway_has_point_of_view_received" targetRef="service_script_next_step_decision_summon">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">is_civilian_objection_received.value == "no_objection_not_received"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("is_civilian_objection_received") == "no_objection_not_received"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0o6dkue" name="Nee, besluit opleggen" sourceRef="gateway_do_we_renounce_or_decision" targetRef="service_script_next_step_decision_summon">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">is_citizen_objection_valid.value == "no_citizen_objection_not_valid"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("is_citizen_objection_valid") == "no_citizen_objection_not_valid"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1kxv6a9" name="Ja, afzien voornemen" sourceRef="gateway_do_we_renounce_or_decision" targetRef="service_script_next_step_renounce_summon">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">is_citizen_objection_valid.value == "yes_citizen_objection_valid"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("is_citizen_objection_valid") == "yes_citizen_objection_valid"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0ij4o8b" sourceRef="task_check_summons" targetRef="gateway_afzien_concept_aanschrijvingen_na_check" />
     <bpmn:sequenceFlow id="Flow_02q9z4q" sourceRef="gateway_afzien_concept_aanschrijvingen" targetRef="task_check_summons" />
     <bpmn:sequenceFlow id="Flow_0bf9aqr" sourceRef="gateway_afzien_concept_aanschrijvingen_na_check" targetRef="task_create_summon" />
     <bpmn:sequenceFlow id="Flow_189gckp" name="aanschrijving valide = nee" sourceRef="gateway_afzien_concept_aanschrijvingen_na_check" targetRef="task_afzien_concept_aanschrijving">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">aanschrijving_valide.value == "nee"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("aanschrijving_valide") == "nee"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1ohw0bb" name="afzien-aanschrijving" sourceRef="gateway_afzien_concept_aanschrijvingen" targetRef="task_afzien_concept_aanschrijving">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_concept_aanschrijving.value == "afzien_aanschrijving"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("type_concept_aanschrijving") == "afzien_aanschrijving"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_041q8eg" sourceRef="task_afzien_concept_aanschrijving" targetRef="gateway_afzien_concept_aanschrijvingen_opties" />
     <bpmn:sequenceFlow id="Flow_1pt6l2m" name="afzien concept aanschrijving = concept_aanschrijving" sourceRef="gateway_afzien_concept_aanschrijvingen_opties" targetRef="task_create_concept_summons">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">afzien_concept_aanschrijving.value == "concept_aanschrijving"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("afzien_concept_aanschrijving") == "concept_aanschrijving"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0sy2hc3" name="afzien concept aanschrijving = geen_overtreding" sourceRef="gateway_afzien_concept_aanschrijvingen_opties" targetRef="service_script_next_step_close_case_summon">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">afzien_concept_aanschrijving.value == "geen_overtreding"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("afzien_concept_aanschrijving") == "geen_overtreding"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0kqbmg9" name="afzien concept aanschrijving = nieuw_huisbezoek" sourceRef="gateway_afzien_concept_aanschrijvingen_opties" targetRef="service_script_next_step_visit">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">afzien_concept_aanschrijving.value == "nieuw_huisbezoek"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("afzien_concept_aanschrijving") == "nieuw_huisbezoek"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1b4iipp" name="legalisatiebrief" sourceRef="gateway_which_type_of_summon" targetRef="service_script_set_status_vergunningscheck">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "legalisatie-brief"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("type_aanschrijving") == "legalisatie-brief"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:startEvent id="Event_1rmmm5s">
       <bpmn:outgoing>Flow_1wlsww0</bpmn:outgoing>
@@ -252,7 +252,7 @@
       <bpmn:outgoing>Flow_0ij4o8b</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_08sz0p5" name="type_aanschrijving = verzoek_verwijdering_advertentie" sourceRef="gateway_which_type_of_summon" targetRef="Activity_1fpf4er">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_aanschrijving.value == "verzoek_verwijdering_advertentie"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("type_aanschrijving") == "verzoek_verwijdering_advertentie"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1kedpc9" sourceRef="service_script_set_status_vergunningscheck" targetRef="task_monitor_incoming_permit_application" />
     <bpmn:userTask id="task_monitoren_reactie_platform" name="Monitoren reactie platform" camunda:formKey="form_monitoren_reactie_platform">
@@ -337,7 +337,7 @@
     <bpmn:sequenceFlow id="Flow_1bkt8kw" sourceRef="task_judge_point_of_view" targetRef="gateway_do_we_renounce_or_decision" />
     <bpmn:sequenceFlow id="Flow_1luefv1" sourceRef="task_check_incoming_point_of_view" targetRef="gateway_has_point_of_view_received" />
     <bpmn:sequenceFlow id="Flow_141448o" name="Ja, zienswijze ontvangen" sourceRef="gateway_has_point_of_view_received" targetRef="task_judge_point_of_view">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">is_civilian_objection_received.value == "yes_objection_received"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("is_civilian_objection_received") == "yes_objection_received"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0umy2og" name="Ja, burger zienswijze ontvangen" sourceRef="task_monitor_incoming_point_of_view" targetRef="task_judge_point_of_view" />
     <bpmn:sequenceFlow id="Flow_05c0mfz" sourceRef="Event_1mo05mc" targetRef="task_check_incoming_point_of_view" />
@@ -405,16 +405,16 @@
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="Flow_1f8btyg" sourceRef="Activity_1gaa36w" targetRef="gateway_has_permit_been_granted" />
     <bpmn:sequenceFlow id="Flow_1izu6zi" name="Ja, vergunning is verleend" sourceRef="gateway_has_permit_been_granted" targetRef="Gateway_0zrx2ej">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit.value == "yes_permit"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("civilian_has_gotten_permit") == "yes_permit"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_18si44b" name="Ja, vergunning aangevraagd" sourceRef="gateway_has_permit_been_requested" targetRef="task_monitor_permit_request_procedure">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">action_civilian_permit_requested.value == "yes_permit_requested"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("action_civilian_permit_requested") == "yes_permit_requested"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0oyiegq" name="Ja, vergunning aangevraagd" sourceRef="task_monitor_incoming_permit_application" targetRef="task_monitor_permit_request_procedure">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">action_civilian_permit_requested.value == True</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("action_civilian_permit_requested") == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0m6yape" name="Ja, vergunning is verleend" sourceRef="task_monitor_permit_request_procedure" targetRef="Gateway_0zrx2ej">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">civilian_has_gotten_permit.value == True</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("civilian_has_gotten_permit") == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1tvv61b" name="Na 32 dagen" sourceRef="Event_1s4a0ru" targetRef="task_check_incoming_permit_application" />
     <bpmn:sequenceFlow id="Flow_1g3luuj" name="Na 56 dagen" sourceRef="Event_1514cbt" targetRef="Activity_1gaa36w" />
@@ -463,10 +463,10 @@
     <bpmn:sequenceFlow id="Flow_1o2ylbn" sourceRef="timer_monitoren_reactie_platform" targetRef="task_rappelleren_informeren_collegas_beleid" />
     <bpmn:sequenceFlow id="Flow_0ymg74d" sourceRef="task_rappelleren_informeren_collegas_beleid" targetRef="gateway_reactie_platform" />
     <bpmn:sequenceFlow id="Flow_02rp65e" name="summon_rappelleren_informeren_collegas_beleid = opnieuw_monitoren" sourceRef="gateway_reactie_platform" targetRef="task_monitoren_reactie_platform">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon_rappelleren_informeren_collegas_beleid.value == "opnieuw_monitoren"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("summon_rappelleren_informeren_collegas_beleid") == "opnieuw_monitoren"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_07uhdij" name="summon_rappelleren_informeren_collegas_beleid = opstellen_aanschrijving" sourceRef="gateway_reactie_platform" targetRef="service_script_next_step_summon">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon_rappelleren_informeren_collegas_beleid.value == "opstellen_aanschrijving"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("summon_rappelleren_informeren_collegas_beleid") == "opstellen_aanschrijving"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0p1mnxg" sourceRef="gateway_reactie_platform" targetRef="service_script_next_step_close_case_summon" />
     <bpmn:sequenceFlow id="Flow_0763lk9" sourceRef="task_monitoren_reactie_platform" targetRef="service_script_next_step_close_case_summon">

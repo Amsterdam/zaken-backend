@@ -67,23 +67,23 @@
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:sequenceFlow id="Flow_04t25yo" name="leegstand_reactie == ander_gebruik_dan_woning" sourceRef="Gateway_0tslqg0" targetRef="service_script_next_step_unoccupied_debrief">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_reactie.value == "ander_gebruik_dan_woning"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("leegstand_reactie") == "ander_gebruik_dan_woning"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1urc9jd" sourceRef="Gateway_0f2k564" targetRef="Gateway_0b8aigx" />
     <bpmn:sequenceFlow id="Flow_1y70fnk" name="leegstand_gesprek == gesprek_opnieuw_inplannen" sourceRef="Gateway_1iomo77" targetRef="Gateway_05tzqvj">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_gesprek.value == "gesprek_opnieuw_inplannen"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("leegstand_gesprek") == "gesprek_opnieuw_inplannen"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_11wtcis" sourceRef="task_controleren_binnenkomen_melding" targetRef="Gateway_0f2k564" />
     <bpmn:sequenceFlow id="Flow_1wo1deu" sourceRef="Gateway_05tzqvj" targetRef="service_status_" />
     <bpmn:sequenceFlow id="Flow_1k3djn6" sourceRef="Event_0xdw5sz" targetRef="task_controleren_binnenkomen_melding" />
     <bpmn:sequenceFlow id="Flow_1pr9sst" name="leegstand_reactie == reactie_ontvangen_woning_leeg" sourceRef="Gateway_0tslqg0" targetRef="Gateway_05tzqvj">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_reactie.value == "woning_leeg"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("leegstand_reactie") == "woning_leeg"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0zn8nf2" name="leegstand_reactie == pied_a_terre or leegstand_reactie == geen_aanschrijving" sourceRef="Gateway_0tslqg0" targetRef="Gateway_1rpbfjx">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_reactie.value == "pied_a_terre" or leegstand_reactie.value == "geen_aanschrijving"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("leegstand_reactie") == "pied_a_terre" or get_data("leegstand_reactie") == "geen_aanschrijving"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1bxos4w" name="leegstand_reactie == woning_niet_leeg" sourceRef="Gateway_0tslqg0" targetRef="Gateway_1ku1e8l">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_reactie.value == "woning_niet_leeg"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("leegstand_reactie") == "woning_niet_leeg"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1a9zrzn" sourceRef="service_status_leegstandsmelding" targetRef="task_leegstand_monitoren_binnenkomen_melding" />
     <bpmn:userTask id="task_versturen_afspraakbrief" name="Versturen afspraakbrief">
@@ -99,7 +99,7 @@
     <bpmn:sequenceFlow id="Flow_1b0zi4a" sourceRef="task_versturen_afspraakbrief" targetRef="task_uitvoeren_leegstandsgesprek" />
     <bpmn:sequenceFlow id="Flow_0rdqj1a" sourceRef="task_inplannen_leegstandsgesprek" targetRef="Gateway_0xwxrsz" />
     <bpmn:sequenceFlow id="Flow_0v3g1u8" name="leegstandsgesprek_ingeplanned == geen_afspraak_ingeplanned" sourceRef="Gateway_0xwxrsz" targetRef="Gateway_1ku1e8l">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstandsgesprek_ingeplanned.value == "geen_afspraak_ingeplanned"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("leegstandsgesprek_ingeplanned") == "geen_afspraak_ingeplanned"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_19s34tz" sourceRef="service_status_" targetRef="task_inplannen_leegstandsgesprek" />
     <bpmn:userTask id="task_inplannen_leegstandsgesprek" name="Inplannen leegstandsgesprek" camunda:formKey="form_inplannen_leegstand_gesprek">
@@ -142,7 +142,7 @@
     <bpmn:sequenceFlow id="Flow_1wf847d" sourceRef="start_event_unoccupied" targetRef="Gateway_0v7g8m3" />
     <bpmn:sequenceFlow id="Flow_1849ztt" sourceRef="Gateway_0v7g8m3" targetRef="Gateway_05nnzfi" />
     <bpmn:sequenceFlow id="Flow_036iptq" name="summon_next_step == unoccupied" sourceRef="Gateway_0v7g8m3" targetRef="service_status_leegstandsmelding">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon_next_step.value == "unoccupied"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("summon_next_step") == "unoccupied"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1er1r68" sourceRef="task_opstellen_aanschrijving_eigenaar" targetRef="task_leegstand_monitoren_binnenkomen_reactie" />
     <bpmn:sequenceFlow id="Flow_1rrhhut" sourceRef="task_leegstand_monitoren_binnenkomen_reactie" targetRef="Gateway_1y34uj2">
@@ -187,7 +187,7 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0hi8x32" sourceRef="Gateway_0b8aigx" targetRef="Gateway_05tzqvj" />
     <bpmn:sequenceFlow id="Flow_0fnsis0" name="leegstandsmelding_binnengekomen == melding_nee_vorder" sourceRef="Gateway_0f2k564" targetRef="service_status_vorderen">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstandsmelding_binnengekomen.value == "melding_nee_vorder"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("leegstandsmelding_binnengekomen") == "melding_nee_vorder"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1kpgdka" sourceRef="task_monitoren_binnenkomen_reactie_vordering" targetRef="Gateway_151oz0u" />
     <bpmn:exclusiveGateway id="Gateway_0f2k564" default="Flow_1urc9jd">
@@ -202,7 +202,7 @@
       <bpmn:outgoing>Flow_1x88ujy</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0utegrz" name="leegstandsmelding_binnengekomen == melding_is_niet_binnengekomen" sourceRef="Gateway_0f2k564" targetRef="Gateway_151oz0u">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstandsmelding_binnengekomen.value == "melding_nee_handhaven"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("leegstandsmelding_binnengekomen") == "melding_nee_handhaven"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1x88ujy" sourceRef="Gateway_151oz0u" targetRef="Gateway_0jgp7ic" />
     <bpmn:userTask id="task_controleren_binnenkomen_melding" name="Controleren binnenkomen melding" camunda:formKey="form_controleren_binnenkomen_melding">
@@ -269,7 +269,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0aviyn0" sourceRef="Gateway_05nnzfi" targetRef="service_status_aanschrijving_eigenaar" />
     <bpmn:sequenceFlow id="Flow_0r5copp" name="leegstandsmelding_eigenaar == ja" sourceRef="Gateway_05nnzfi" targetRef="Activity_1derutl">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstandsmelding_eigenaar.value == "ja"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("leegstandsmelding_eigenaar") == "ja"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0epnziu" sourceRef="Activity_1derutl" targetRef="Gateway_0b8aigx" />
     <bpmn:scriptTask id="service_status_leegstandsmelding" name="Status: &#34;Leegstandsmelding&#34;">
@@ -476,14 +476,14 @@
     <bpmn:sequenceFlow id="Flow_0l0dvo5" sourceRef="Gateway_1rpbfjx" targetRef="service_script_next_step_unoccupied_close_case" />
     <bpmn:sequenceFlow id="Flow_1eryuub" sourceRef="service_script_next_step_unoccupied_close_case" targetRef="end_event_unoccupied" />
     <bpmn:sequenceFlow id="Flow_0tjpgeg" name="leegstand_resultaat_onderzoek == woning_verkocht or leegstand_resultaat_onderzoek == reguliere_bewoning" sourceRef="Gateway_1kl0rqm" targetRef="Gateway_1rpbfjx">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_resultaat_onderzoek.value == "woning_verkocht" or leegstand_resultaat_onderzoek.value == "reguliere_bewoning"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("leegstand_resultaat_onderzoek") == "woning_verkocht" or get_data("leegstand_resultaat_onderzoek") == "reguliere_bewoning"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0bacwh9" sourceRef="Gateway_1hg6rzt" targetRef="Gateway_1rxsmhl" />
     <bpmn:sequenceFlow id="Flow_06ck92e" name="leegstand_gesprek == woning_niet_geschikt" sourceRef="Gateway_1rxsmhl" targetRef="Gateway_1oa7hdg">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_gesprek.value == "woning_niet_geschikt"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("leegstand_gesprek") == "woning_niet_geschikt"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0908uo7" name="leegstand_gesprek == woning_geschikt or leegstand_gesprek == handhaven" sourceRef="Gateway_1rxsmhl" targetRef="Gateway_108j5j8">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstand_gesprek.value == "woning_geschikt" or leegstand_gesprek.value == "handhaven"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("leegstand_gesprek") == "woning_geschikt" or get_data("leegstand_gesprek") == "handhaven"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_03sddsw" sourceRef="Gateway_0jgp7ic" targetRef="Gateway_108j5j8" />
     <bpmn:sequenceFlow id="Flow_1x6chcz" sourceRef="Gateway_108j5j8" targetRef="service_script_next_step_unoccupied_summon" />

@@ -79,7 +79,7 @@
       <bpmn:incoming>Flow_0glrbhf</bpmn:incoming>
       <bpmn:incoming>Flow_0ue48rk</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:scriptTask id="service_script_set_close_case" name="debrief_next_step.value = &#34;close_case&#34;">
+    <bpmn:scriptTask id="service_script_set_close_case" name="debrief_next_step = &#34;close_case&#34;">
       <bpmn:incoming>Flow_0ve2osa</bpmn:incoming>
       <bpmn:outgoing>Flow_1v0g0l8</bpmn:outgoing>
       <bpmn:script>debrief_next_step = {"value": "close_case"}</bpmn:script>
@@ -106,25 +106,25 @@
     <bpmn:sequenceFlow id="Flow_1xt0i22" sourceRef="task_prepare_abbreviated_visit_rapport" targetRef="Gateway_0e1ib1g" />
     <bpmn:sequenceFlow id="Flow_0ue48rk" sourceRef="service_script_set_unoccupied" targetRef="end_1kkhxmk" />
     <bpmn:sequenceFlow id="Flow_1na46h4" name="violation == LIKELY_INHABITED" sourceRef="Gateway_0rtswrc" targetRef="service_script_set_unoccupied">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "LIKELY_INHABITED"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "LIKELY_INHABITED"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0glrbhf" sourceRef="service_script_set_digital_surveillance" targetRef="end_1kkhxmk" />
     <bpmn:sequenceFlow id="Flow_1spub49" name="reason = reason_digitaal_toezicht" sourceRef="Gateway_1lk1j5g" targetRef="service_script_set_digital_surveillance">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reason.value == "reason_digitaal_toezicht"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("reason") == "reason_digitaal_toezicht"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0x4kfil" sourceRef="service_script_set_visit_auth_yes" targetRef="end_1kkhxmk" />
     <bpmn:sequenceFlow id="Flow_0z8zmjv" sourceRef="service_script_set_visit_auth_no" targetRef="end_1kkhxmk" />
     <bpmn:sequenceFlow id="Flow_08m5xl9" sourceRef="service_script_set_summon" targetRef="end_1kkhxmk" />
     <bpmn:sequenceFlow id="Flow_1v0g0l8" sourceRef="service_script_set_close_case" targetRef="end_1kkhxmk" />
     <bpmn:sequenceFlow id="Flow_10inq1c" sourceRef="gateway_is_debrief_violation" targetRef="Gateway_1lk1j5g" />
-    <bpmn:sequenceFlow id="Flow_09fde08" name="violation.value = no OR To other theme" sourceRef="gateway_is_debrief_violation" targetRef="task_prepare_abbreviated_visit_rapport">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "NO" or violation.value == "SEND_TO_OTHER_THEME"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_09fde08" name="violation = no OR To other theme" sourceRef="gateway_is_debrief_violation" targetRef="task_prepare_abbreviated_visit_rapport">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "NO" or get_data("violation") == "SEND_TO_OTHER_THEME"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_09q4ikx" name="violation.value == ADDITIONAL_VISIT_REQUIRED " sourceRef="gateway_is_debrief_violation" targetRef="Gateway_0gkciwn">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADDITIONAL_VISIT_REQUIRED"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_09q4ikx" name="violation == ADDITIONAL_VISIT_REQUIRED " sourceRef="gateway_is_debrief_violation" targetRef="Gateway_0gkciwn">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "ADDITIONAL_VISIT_REQUIRED"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_09t0nyr" name="violation.value == ADDITIONAL_VISIT_WITH_AUTHORIZATION" sourceRef="gateway_is_debrief_violation" targetRef="service_script_set_visit_auth_yes">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADDITIONAL_VISIT_WITH_AUTHORIZATION"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_09t0nyr" name="violation == ADDITIONAL_VISIT_WITH_AUTHORIZATION" sourceRef="gateway_is_debrief_violation" targetRef="service_script_set_visit_auth_yes">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "ADDITIONAL_VISIT_WITH_AUTHORIZATION"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1emqy6s" sourceRef="gateway_parallel_violation_yes_out" targetRef="Gateway_1vqjm4z" />
     <bpmn:sequenceFlow id="Flow_0ve2osa" sourceRef="Gateway_00eyyex" targetRef="service_script_set_close_case" />
@@ -149,18 +149,18 @@
     <bpmn:sequenceFlow id="Flow_129w1rw" sourceRef="gateway_parallel_violation_yes_in" targetRef="task_create_report_of_findings" />
     <bpmn:sequenceFlow id="Flow_026une2" sourceRef="gateway_parallel_violation_yes_in" targetRef="task_create_picture_rapport" />
     <bpmn:sequenceFlow id="Flow_1cxq8ey" sourceRef="Gateway_1vqjm4z" targetRef="Gateway_0ytuy6x" />
-    <bpmn:scriptTask id="service_script_set_digital_surveillance" name="debrief_next_step.value = digital_surveillance">
+    <bpmn:scriptTask id="service_script_set_digital_surveillance" name="debrief_next_step = digital_surveillance">
       <bpmn:incoming>Flow_1spub49</bpmn:incoming>
       <bpmn:outgoing>Flow_0glrbhf</bpmn:outgoing>
       <bpmn:script>debrief_next_step = {"value": "digital_surveillance"}</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="service_script_set_summon" name="debrief_next_step.value = &#34;summon&#34;">
+    <bpmn:scriptTask id="service_script_set_summon" name="debrief_next_step = &#34;summon&#34;">
       <bpmn:incoming>Flow_0p6gzks</bpmn:incoming>
       <bpmn:outgoing>Flow_08m5xl9</bpmn:outgoing>
       <bpmn:script>debrief_next_step = {"value": "summon"}</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_0bqzzx4" name="theme == theme_onderhuur" sourceRef="Gateway_1vqjm4z" targetRef="service_status_debrief_corporatie_violation">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">theme.value == "theme_onderhuur"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("theme") == "theme_onderhuur"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_07w787f" sourceRef="Gateway_0gkciwn" targetRef="service_script_set_visit_auth_no" />
     <bpmn:sequenceFlow id="Flow_0p6gzks" sourceRef="Gateway_09iad1n" targetRef="service_script_set_summon" />
@@ -219,7 +219,7 @@
       <bpmn:outgoing>Flow_1g2df7t</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0xk9owu" name="theme == theme_onderhuur" sourceRef="Gateway_0e1ib1g" targetRef="service_status_debrief_corporatie">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">theme.value == "theme_onderhuur"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("theme") == "theme_onderhuur"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1g2df7t" sourceRef="Gateway_0e1ib1g" targetRef="Gateway_00eyyex" />
     <bpmn:scriptTask id="service_status_debrief_corporatie" name="Status Bijwerken: &#39;Debrief corporatie&#39;">
@@ -259,7 +259,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_006nokv" sourceRef="Gateway_02pcs11" targetRef="Gateway_00eyyex" />
     <bpmn:sequenceFlow id="Flow_0q5xatf" name="debrief_resultaat_corporatie == officiele_waarschuwing" sourceRef="Gateway_02pcs11" targetRef="Activity_16wt8ro">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_resultaat_corporatie.value == "officiele_waarschuwing"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("debrief_resultaat_corporatie") == "officiele_waarschuwing"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0ep75ar" sourceRef="Activity_16wt8ro" targetRef="Gateway_0gkciwn" />
     <bpmn:exclusiveGateway id="Gateway_00eyyex">
@@ -267,8 +267,8 @@
       <bpmn:incoming>Flow_1g2df7t</bpmn:incoming>
       <bpmn:outgoing>Flow_0ve2osa</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0woi9k1" name="violation.value = ADDITIONAL_RESEARCH_REQUIRED" sourceRef="gateway_is_futher_debrief_research_needed" targetRef="task_wait_internal_reasearch">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADDITIONAL_RESEARCH_REQUIRED"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0woi9k1" name="violation = ADDITIONAL_RESEARCH_REQUIRED" sourceRef="gateway_is_futher_debrief_research_needed" targetRef="task_wait_internal_reasearch">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "ADDITIONAL_RESEARCH_REQUIRED"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_14629v6" sourceRef="task_wait_internal_reasearch" targetRef="gateway_merge_1t0o489" />
     <bpmn:sequenceFlow id="Flow_0pno01a" name="Nee" sourceRef="Gateway_1kn7b96" targetRef="Gateway_0xhzjqj" />
@@ -284,8 +284,8 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0lji06z" sourceRef="task_create_debrief" targetRef="Gateway_0svb9vo" />
     <bpmn:sequenceFlow id="Flow_19qs7p9" name="Nee" sourceRef="gateway_is_futher_debrief_research_needed" targetRef="Gateway_1kn7b96" />
-    <bpmn:sequenceFlow id="Flow_0vk1q66" name="violation.value = SERVICE_COSTS" sourceRef="Gateway_1kn7b96" targetRef="task_recalulate_service_costs">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "SERVICE_COSTS"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0vk1q66" name="violation = SERVICE_COSTS" sourceRef="Gateway_1kn7b96" targetRef="task_recalulate_service_costs">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "SERVICE_COSTS"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1dgxvkn" sourceRef="task_recalulate_service_costs" targetRef="gateway_merge_1t0o489" />
     <bpmn:userTask id="task_recalulate_service_costs" name="Narekenen onredelijke servicekosten" camunda:candidateGroups="Projecthandhaver">
@@ -312,8 +312,8 @@
       <bpmn:outgoing>Flow_129w1rw</bpmn:outgoing>
       <bpmn:outgoing>Flow_026une2</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:sequenceFlow id="Flow_0rjoh76" name="violation.value = SCHEDULE_CONVERSATION" sourceRef="Gateway_0xhzjqj" targetRef="task_send_conversation_invitation">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "SCHEDULE_CONVERSATION"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0rjoh76" name="violation = SCHEDULE_CONVERSATION" sourceRef="Gateway_0xhzjqj" targetRef="task_send_conversation_invitation">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "SCHEDULE_CONVERSATION"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:userTask id="task_send_conversation_invitation" name="Versturen uitnodiging gesprek" camunda:formKey="form_versturen_uitnodiging_gesprek" camunda:candidateGroups="Projecthandhaver">
       <bpmn:extensionElements>
@@ -349,8 +349,8 @@
       <bpmn:outgoing>Flow_1ikhh0l</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0lumusd" sourceRef="task_conduct_conversation_landlord" targetRef="Gateway_00wvpen" />
-    <bpmn:sequenceFlow id="Flow_03bqmmh" name="conversation_result.value = NO_ANSWER" sourceRef="Gateway_00wvpen" targetRef="Gateway_1vqjm4z">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">conversation_result.value == "NO_ANSWER"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_03bqmmh" name="conversation_result = NO_ANSWER" sourceRef="Gateway_00wvpen" targetRef="Gateway_1vqjm4z">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("conversation_result") == "NO_ANSWER"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1ikhh0l" sourceRef="Gateway_00wvpen" targetRef="gateway_merge_1t0o489" />
     <bpmn:userTask id="task_ontvangen_reactie_corporatie" name="Ontvangen reactie corporatie">
@@ -418,8 +418,8 @@
       <bpmn:incoming>Flow_1rwhccj</bpmn:incoming>
       <bpmn:outgoing>Flow_15ktw0e</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_1rwhccj" name="violation.value = ADVICE_OTHER_DISCIPLINE" sourceRef="Gateway_0svb9vo" targetRef="task_wait_for_advise_other_discipline">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADVICE_OTHER_DISCIPLINE"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_1rwhccj" name="violation = ADVICE_OTHER_DISCIPLINE" sourceRef="Gateway_0svb9vo" targetRef="task_wait_for_advise_other_discipline">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "ADVICE_OTHER_DISCIPLINE"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:userTask id="task_reminder_advise_other_discipline" name="Rappelleren advies andere discipline" camunda:formKey="form_rappelleren_advies_andere_discipline" camunda:candidateGroups="Projecthandhaver">
       <bpmn:extensionElements>
@@ -461,8 +461,8 @@
       <bpmn:outgoing>Flow_1q2fdi2</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0erikfb" name="Nee" sourceRef="Gateway_0jpr6ll" targetRef="gateway_is_futher_debrief_research_needed" />
-    <bpmn:sequenceFlow id="Flow_1q2fdi2" name="violation.value = REQUEST_DOCUMENTS" sourceRef="Gateway_0jpr6ll" targetRef="task_request_documents">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "REQUEST_DOCUMENTS"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_1q2fdi2" name="violation = REQUEST_DOCUMENTS" sourceRef="Gateway_0jpr6ll" targetRef="task_request_documents">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "REQUEST_DOCUMENTS"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0kr4ttu" sourceRef="task_request_documents" targetRef="task_wait_for_documents" />
     <bpmn:userTask id="task_wait_for_documents" name="Afwachten stukken" camunda:formKey="form_wait_for_documents" camunda:candidateGroups="Projecthandhaver">
@@ -515,8 +515,8 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1baqrc4" sourceRef="Gateway_1orpidq" targetRef="Gateway_02ehfj5" />
     <bpmn:sequenceFlow id="Flow_191wl7u" sourceRef="Gateway_02ehfj5" targetRef="gateway_merge_1t0o489" />
-    <bpmn:sequenceFlow id="Flow_0zsc86a" name="violation.value == SEND_TO_WOON or SEND_TO_ANOTHER_EXTERNAL_PARTY" sourceRef="Gateway_0xhzjqj" targetRef="Gateway_0e1ib1g">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "SEND_TO_WOON" or violation.value == "SEND_TO_ANOTHER_EXTERNAL_PARTY"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0zsc86a" name="violation == SEND_TO_WOON or SEND_TO_ANOTHER_EXTERNAL_PARTY" sourceRef="Gateway_0xhzjqj" targetRef="Gateway_0e1ib1g">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "SEND_TO_WOON" or get_data("violation") == "SEND_TO_ANOTHER_EXTERNAL_PARTY"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1c5as05" sourceRef="task_kwaliteitscheck_rapporten" targetRef="task_opsturen_rapport_naar_corporatie_overtreding" />
     <bpmn:exclusiveGateway id="Gateway_1vqjm4z" default="Flow_1cxq8ey">
