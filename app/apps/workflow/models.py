@@ -826,11 +826,17 @@ class CaseWorkflow(models.Model):
             )
             if script_tasks:
                 script_task = script_tasks[0]
+                # Get the data to execute the script against
+                data = wf.last_task.data if wf.last_task else {}
+                # Execute the script - it modifies the data dict in place
                 script_task.workflow.script_engine.execute(
                     script_task,
                     script_task.task_spec.script,
-                    wf.last_task.data if wf.last_task else {},
+                    data,
                 )
+                # The execute method modifies the data dict in place,
+                # but we need to ensure the script_task's data is also updated
+                script_task.data.update(data)
         return wf
 
     def _update_workflow(self, wf):
