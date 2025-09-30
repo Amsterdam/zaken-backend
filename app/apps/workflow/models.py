@@ -43,6 +43,7 @@ from .utils import (
     get_workflow_path,
     get_workflow_spec,
     parse_task_spec_form,
+    timedelta_to_iso_duration,
 )
 
 logger = logging.getLogger(__name__)
@@ -254,7 +255,16 @@ class CaseWorkflow(models.Model):
             )
 
         def parse_duration_string(str_duration):
-            return parse_duration(str_duration)
+            # Convert to timedelta if it's a string
+            if isinstance(str_duration, datetime.timedelta):
+                td = str_duration
+            else:
+                td = parse_duration(str_duration)
+
+            # Always return ISO 8601 duration format for SpiffWorkflow compatibility
+            if td is not None:
+                return timedelta_to_iso_duration(td)
+            return str_duration  # Return original if parsing failed
 
         def get_data(field_name):
             data_source = None
@@ -741,8 +751,14 @@ class CaseWorkflow(models.Model):
             task_datetime = sibling.workflow.script_engine.evaluate(
                 sibling, sibling.task_spec.event_definition.dateTime
             )
+            # Handle both timedelta objects and ISO 8601 strings
             if isinstance(task_datetime, datetime.timedelta):
                 return start_time + task_datetime
+            elif isinstance(task_datetime, str):
+                # Parse ISO 8601 string to timedelta
+                td = parse_duration(task_datetime)
+                if td:
+                    return start_time + td
 
     def set_task_elapse_datetime(self, task_id, datetime_new):
         workflow = self.get_or_restore_workflow_state()
@@ -768,10 +784,16 @@ class CaseWorkflow(models.Model):
             task_datetime = sibling.workflow.script_engine.evaluate(
                 sibling, sibling.task_spec.event_definition.dateTime
             )
+            # Handle both timedelta objects and ISO 8601 strings
+            td = None
             if isinstance(task_datetime, datetime.timedelta):
-                new_start_time = (datetime_new - task_datetime).strftime(
-                    "%Y-%m-%d %H:%M:%S.%f"
-                )
+                td = task_datetime
+            elif isinstance(task_datetime, str):
+                # Parse ISO 8601 string to timedelta
+                td = parse_duration(task_datetime)
+
+            if td:
+                new_start_time = (datetime_new - td).strftime("%Y-%m-%d %H:%M:%S.%f")
                 sibling.internal_data["start_time"] = new_start_time
                 self.save_workflow_state(workflow)
                 return new_start_time

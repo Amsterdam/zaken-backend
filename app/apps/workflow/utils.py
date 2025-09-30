@@ -5,7 +5,6 @@ import json
 import logging
 import os
 
-from apps.events.models import TaskModelEventEmitter
 from deepdiff import DeepDiff
 from django.conf import settings
 from prettyprinter import pprint
@@ -26,7 +25,37 @@ from SpiffWorkflow.specs.StartTask import StartTask
 logger = logging.getLogger(__name__)
 
 
+def timedelta_to_iso_duration(td):
+    """Convert a timedelta object to ISO 8601 duration format."""
+    total_seconds = int(td.total_seconds())
+    days, remainder = divmod(total_seconds, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    # Build date part (P...D)
+    date_part = f"{days}D" if days else ""
+
+    # Build time part (T...H...M...S)
+    time_parts = []
+    if hours:
+        time_parts.append(f"{hours}H")
+    if minutes:
+        time_parts.append(f"{minutes}M")
+    if seconds:
+        time_parts.append(f"{seconds}S")
+
+    time_part = "T" + "".join(time_parts) if time_parts else ""
+
+    # Combine parts - always starts with P, date part, then time part if present
+    result = f"P{date_part}{time_part}"
+
+    # If we have no parts at all, return PT0S (zero duration)
+    return result if (date_part or time_part) else "PT0S"
+
+
 def complete_uncompleted_task_for_event_emitters(event_emmitter, data={}):
+    from apps.events.models import TaskModelEventEmitter
+
     from .models import CaseWorkflow
 
     if not issubclass(event_emmitter.__class__, TaskModelEventEmitter):
