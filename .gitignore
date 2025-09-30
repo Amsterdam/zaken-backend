@@ -14,3 +14,5 @@ private_media/
 
 .env.local
 .local.env
+
+docker-compose.override.yml
