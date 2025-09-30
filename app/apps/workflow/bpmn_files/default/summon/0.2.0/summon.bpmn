@@ -171,12 +171,12 @@
     <bpmn:scriptTask id="service_script_next_step_closing_procedure" name="summon_next_step = {&#34;value&#34;: &#34;closing_procedure&#34;}">
       <bpmn:incoming>Flow_0jcg14m</bpmn:incoming>
       <bpmn:outgoing>Flow_167bomv</bpmn:outgoing>
-      <bpmn:script>summon_next_step = {"value": "closing_procedure"}</bpmn:script>
+      <bpmn:script>summon_next_step = "closing_procedure"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="service_script_next_step_close_case_1neab16" name="summon_next_step = {&#34;value&#34;: &#34;close_case&#34;}">
       <bpmn:incoming>Flow_025eea2</bpmn:incoming>
       <bpmn:outgoing>Flow_1db08jl</bpmn:outgoing>
-      <bpmn:script>summon_next_step = {"value": "close_case"}</bpmn:script>
+      <bpmn:script>summon_next_step = "close_case"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="end_13bywna">
       <bpmn:incoming>Flow_1db08jl</bpmn:incoming>
@@ -220,7 +220,7 @@
     <bpmn:scriptTask id="service_script_next_step_close_case_summon" name="summon_next_step = close_case&#34;">
       <bpmn:incoming>Flow_0ddf58d</bpmn:incoming>
       <bpmn:outgoing>Flow_1smx7q3</bpmn:outgoing>
-      <bpmn:script>summon_next_step = {"value": "close_case"}</bpmn:script>
+      <bpmn:script>summon_next_step = "close_case"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="end_0ysomyy" name="start sluitingsproces">
       <bpmn:incoming>Flow_167bomv</bpmn:incoming>
@@ -228,12 +228,12 @@
     <bpmn:scriptTask id="service_script_next_step_summon_01s1xpa" name="summon_next_step = summon&#34;">
       <bpmn:incoming>Flow_1usf3sm</bpmn:incoming>
       <bpmn:outgoing>Flow_06rtztr</bpmn:outgoing>
-      <bpmn:script>summon_next_step = {"value": "summon"}</bpmn:script>
+      <bpmn:script>summon_next_step = "summon"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="service_script_next_step_summon_02y42to" name="summon_next_step = summon&#34;">
       <bpmn:incoming>Flow_12sivk9</bpmn:incoming>
       <bpmn:outgoing>Flow_0l19ncx</bpmn:outgoing>
-      <bpmn:script>summon_next_step = {"value": "summon"}</bpmn:script>
+      <bpmn:script>summon_next_step = "summon"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="end_0uynagg">
       <bpmn:incoming>Flow_1smx7q3</bpmn:incoming>
@@ -243,7 +243,7 @@
     <bpmn:scriptTask id="service_script_next_step_renounce_summon" name="summon_next_step = {&#34;value&#34;: &#34;renounce&#34;}">
       <bpmn:incoming>Flow_1kxv6a9</bpmn:incoming>
       <bpmn:outgoing>Flow_1oesxow</bpmn:outgoing>
-      <bpmn:script>summon_next_step = {"value": "renounce"}</bpmn:script>
+      <bpmn:script>summon_next_step = "renounce"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="end_start_renounce_1va49v0" name="Voornemen afzien">
       <bpmn:incoming>Flow_1oesxow</bpmn:incoming>
@@ -336,7 +336,7 @@
       <bpmn:incoming>Flow_0o6dkue</bpmn:incoming>
       <bpmn:incoming>Flow_15k43jt</bpmn:incoming>
       <bpmn:outgoing>Flow_186wilc</bpmn:outgoing>
-      <bpmn:script>summon_next_step = {"value": "decision"}</bpmn:script>
+      <bpmn:script>summon_next_step = "decision"</bpmn:script>
     </bpmn:scriptTask>
   </bpmn:process>
   <bpmn:signal id="Signal_1g0m22x" name="signal_start_summon_process" />

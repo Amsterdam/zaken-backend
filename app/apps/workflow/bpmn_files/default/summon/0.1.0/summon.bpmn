@@ -125,7 +125,7 @@
       <bpmn:incoming>Flow_0o6dkue</bpmn:incoming>
       <bpmn:incoming>Flow_15k43jt</bpmn:incoming>
       <bpmn:outgoing>Flow_186wilc</bpmn:outgoing>
-      <bpmn:script>next_step = {"value": "decision"}</bpmn:script>
+      <bpmn:script>next_step = "decision"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="Event_0v6yc85" name="Opstellen concept aanschrijvingen">
       <bpmn:incoming>Flow_1bea976</bpmn:incoming>
@@ -278,7 +278,7 @@
     <bpmn:scriptTask id="Activity_0vx9ad7" name="next_step = {&#34;value&#34;: &#34;close_case&#34;}">
       <bpmn:incoming>Flow_0jcg14m</bpmn:incoming>
       <bpmn:outgoing>Flow_167bomv</bpmn:outgoing>
-      <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
+      <bpmn:script>next_step = "close_case"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="Event_0ysomyy" name="start sluitingsproces">
       <bpmn:incoming>Flow_167bomv</bpmn:incoming>
@@ -287,7 +287,7 @@
     <bpmn:scriptTask id="Activity_1neab16" name="next_step = {&#34;value&#34;: &#34;close_case&#34;}">
       <bpmn:incoming>Flow_025eea2</bpmn:incoming>
       <bpmn:outgoing>Flow_1db08jl</bpmn:outgoing>
-      <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
+      <bpmn:script>next_step = "close_case"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="Event_13bywna">
       <bpmn:incoming>Flow_1db08jl</bpmn:incoming>
@@ -331,12 +331,12 @@
     <bpmn:scriptTask id="service_script_next_step_close_case_summon" name="next_step = close_case&#34;">
       <bpmn:incoming>Flow_0ddf58d</bpmn:incoming>
       <bpmn:outgoing>Flow_1smx7q3</bpmn:outgoing>
-      <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
+      <bpmn:script>next_step = "close_case"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="service_script_next_step_renounce_summon" name="next_step = {&#34;value&#34;: &#34;renounce&#34;}">
       <bpmn:incoming>Flow_1kxv6a9</bpmn:incoming>
       <bpmn:outgoing>Flow_1oesxow</bpmn:outgoing>
-      <bpmn:script>next_step = {"value": "renounce"}</bpmn:script>
+      <bpmn:script>next_step = "renounce"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_1oesxow" sourceRef="service_script_next_step_renounce_summon" targetRef="end_start_renounce_1va49v0" />
     <bpmn:boundaryEvent id="Event_1514cbt" attachedToRef="task_monitor_permit_request_procedure">

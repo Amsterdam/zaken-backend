@@ -153,17 +153,17 @@
       <bpmn:incoming>Flow_0cnrig2</bpmn:incoming>
       <bpmn:incoming>Flow_1uo97lz</bpmn:incoming>
       <bpmn:outgoing>Flow_1b4cx5k</bpmn:outgoing>
-      <bpmn:script>digitaal_toezicht_next_step = {"value": "summon"}</bpmn:script>
+      <bpmn:script>digitaal_toezicht_next_step = "summon"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="service_visit_next_step_default" name="visit_next_step = default">
       <bpmn:incoming>Flow_1rnmquk</bpmn:incoming>
       <bpmn:outgoing>Flow_1uo97lz</bpmn:outgoing>
-      <bpmn:script>visit_next_step = {"value": "default"}</bpmn:script>
+      <bpmn:script>visit_next_step = "default"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="script_digitaal_toezicht_next_step_debrief" name="digitaal_toezicht_next_step = debrief">
       <bpmn:incoming>Flow_1xa193k</bpmn:incoming>
       <bpmn:outgoing>Flow_0v7y8j0</bpmn:outgoing>
-      <bpmn:script>digitaal_toezicht_next_step = {"value": "debrief"}</bpmn:script>
+      <bpmn:script>digitaal_toezicht_next_step = "debrief"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:exclusiveGateway id="Gateway_0g175z9" default="Flow_174tpfq">
       <bpmn:incoming>Flow_0spf5l3</bpmn:incoming>
@@ -320,7 +320,7 @@
     <bpmn:scriptTask id="Activity_0e509br" name="digitaal_toezicht_next_step = visit">
       <bpmn:incoming>Flow_07nlz48</bpmn:incoming>
       <bpmn:outgoing>Flow_02bzraa</bpmn:outgoing>
-      <bpmn:script>digitaal_toezicht_next_step = {"value": "visit"}</bpmn:script>
+      <bpmn:script>digitaal_toezicht_next_step = "visit"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_02bzraa" sourceRef="Activity_0e509br" targetRef="Event_0s8titi" />
     <bpmn:endEvent id="Event_0s8titi">

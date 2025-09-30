@@ -103,7 +103,7 @@
     <bpmn:scriptTask id="Activity_0f7x7aq" name="next_step = {&#34;value&#34;: &#34;close_case&#34;}">
       <bpmn:incoming>Flow_00nt5t7</bpmn:incoming>
       <bpmn:outgoing>Flow_13ca7sd</bpmn:outgoing>
-      <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
+      <bpmn:script>next_step = "close_case"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="Event_1c80mz8">
       <bpmn:incoming>Flow_13ca7sd</bpmn:incoming>
@@ -133,7 +133,7 @@
     <bpmn:scriptTask id="service_script_next_step_close_case" name="next_step = {&#34;value&#34;: &#34;close_case&#34;}">
       <bpmn:incoming>Flow_0tzy074</bpmn:incoming>
       <bpmn:outgoing>Flow_005h6w2</bpmn:outgoing>
-      <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
+      <bpmn:script>next_step = "close_case"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="end_14226b3" name="Uitzetten vervolgstap">
       <bpmn:incoming>Flow_005h6w2</bpmn:incoming>
@@ -141,7 +141,7 @@
     <bpmn:scriptTask id="service_script_next_step_renounce" name="next_step = {&#34;value&#34;: &#34;renounce&#34;}">
       <bpmn:incoming>Flow_0azm62q</bpmn:incoming>
       <bpmn:outgoing>Flow_0p5ojnr</bpmn:outgoing>
-      <bpmn:script>next_step = {"value": "renounce"}</bpmn:script>
+      <bpmn:script>next_step = "renounce"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="end_1hipcpo">
       <bpmn:incoming>Flow_0p5ojnr</bpmn:incoming>

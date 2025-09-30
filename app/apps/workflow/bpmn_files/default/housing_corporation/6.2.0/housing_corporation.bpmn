@@ -40,7 +40,7 @@
     <bpmn:scriptTask id="service_housing_corporation_next_step_visit" name="housing_corporation_next_step = visit">
       <bpmn:incoming>Flow_02eegfk</bpmn:incoming>
       <bpmn:outgoing>Flow_1mz5c2u</bpmn:outgoing>
-      <bpmn:script>housing_corporation_next_step = {"value": "visit"}</bpmn:script>
+      <bpmn:script>housing_corporation_next_step = "visit"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:exclusiveGateway id="Gateway_1vb2wgi">
       <bpmn:incoming>Flow_1mz5c2u</bpmn:incoming>
@@ -59,7 +59,7 @@
     <bpmn:scriptTask id="service_housing_corporation_next_step_debrief" name="housing_corporation_next_step = debrief">
       <bpmn:incoming>Flow_14od47u</bpmn:incoming>
       <bpmn:outgoing>Flow_0r1gbsz</bpmn:outgoing>
-      <bpmn:script>housing_corporation_next_step = {"value": "debrief"}</bpmn:script>
+      <bpmn:script>housing_corporation_next_step = "debrief"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:userTask id="task_doorzetten_adres_naar_corporatie" name="Doorzetten adres naar corporatie">
       <bpmn:incoming>Flow_0oulak2</bpmn:incoming>
@@ -127,7 +127,7 @@
     <bpmn:scriptTask id="Activity_0v949qo" name="bepalen_processtap = default">
       <bpmn:incoming>Flow_1c36m7z</bpmn:incoming>
       <bpmn:outgoing>Flow_0oulak2</bpmn:outgoing>
-      <bpmn:script>bepalen_processtap = {"value": "default"}</bpmn:script>
+      <bpmn:script>bepalen_processtap = "default"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_02eegfk" sourceRef="Gateway_0orgca0" targetRef="service_housing_corporation_next_step_visit" />
     <bpmn:sequenceFlow id="Flow_0oulak2" sourceRef="Activity_0v949qo" targetRef="task_doorzetten_adres_naar_corporatie" />

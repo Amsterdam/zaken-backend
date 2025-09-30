@@ -172,7 +172,7 @@
     <bpmn:scriptTask id="service_next_step_close_case" name="next_step = {&#34;value&#34;: &#34;close_case&#34;}">
       <bpmn:incoming>Flow_1urudmq</bpmn:incoming>
       <bpmn:outgoing>Flow_0o18kyi</bpmn:outgoing>
-      <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
+      <bpmn:script>next_step = "close_case"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:userTask id="task_opslaan_sleutelteruggave_formulier" name="Opslaan sleutelteruggave formulier" camunda:candidateGroups="Handhavingsjurist" camunda:dueDate="${dateTime().plusDays(7).toDate()}">
       <bpmn:incoming>Flow_0qimyxa</bpmn:incoming>

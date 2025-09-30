@@ -276,7 +276,7 @@
     <bpmn:scriptTask id="Activity_1derutl" name="leegstandsmelding_eigenaar = default">
       <bpmn:incoming>Flow_0r5copp</bpmn:incoming>
       <bpmn:outgoing>Flow_0epnziu</bpmn:outgoing>
-      <bpmn:script>leegstandsmelding_eigenaar = {"value": "default"}</bpmn:script>
+      <bpmn:script>leegstandsmelding_eigenaar = "default"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_07z1j5t" sourceRef="task_create_debrief_leegstand" targetRef="Gateway_13ewieu" />
     <bpmn:sequenceFlow id="Flow_1d623vm" sourceRef="service_status_debrief" targetRef="task_create_debrief_leegstand" />
@@ -370,12 +370,12 @@
     <bpmn:scriptTask id="service_script_next_step_unoccupied_debrief" name="unoccupied_next_step = debrief">
       <bpmn:incoming>Flow_04t25yo</bpmn:incoming>
       <bpmn:outgoing>Flow_0g2y990</bpmn:outgoing>
-      <bpmn:script>unoccupied_next_step = {"value": "debrief"}</bpmn:script>
+      <bpmn:script>unoccupied_next_step = "debrief"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="service_script_next_step_unoccupied_close_case" name="unoccupied_next_step = close_case">
       <bpmn:incoming>Flow_0zn8nf2</bpmn:incoming>
       <bpmn:outgoing>Flow_1eryuub</bpmn:outgoing>
-      <bpmn:script>unoccupied_next_step = {"value": "close_case"}</bpmn:script>
+      <bpmn:script>unoccupied_next_step = "close_case"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:exclusiveGateway id="Gateway_1rxsmhl">
       <bpmn:incoming>Flow_0bacwh9</bpmn:incoming>
@@ -391,7 +391,7 @@
     <bpmn:scriptTask id="service_script_next_step_unoccupied_summon" name="unoccupied_next_step = summon">
       <bpmn:incoming>Flow_1x6chcz</bpmn:incoming>
       <bpmn:outgoing>Flow_05vmv5f</bpmn:outgoing>
-      <bpmn:script>unoccupied_next_step = {"value": "summon"}</bpmn:script>
+      <bpmn:script>unoccupied_next_step = "summon"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:exclusiveGateway id="Gateway_0jgp7ic">
       <bpmn:incoming>Flow_1sfzuqw</bpmn:incoming>
@@ -465,12 +465,12 @@
     <bpmn:scriptTask id="service_script_next_step_unoccupied_decision" name="unoccupied_next_step = decision AND task check_concept_decision">
       <bpmn:incoming>Flow_1u042xk</bpmn:incoming>
       <bpmn:outgoing>Flow_0vbfk33</bpmn:outgoing>
-      <bpmn:script>unoccupied_next_step = {"value": "decision"}; direct_to_check_concept_decision = {"value": "Yes"}</bpmn:script>
+      <bpmn:script>unoccupied_next_step = "decision"; direct_to_check_concept_decision = "Yes"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="service_script_type_concept_aanschrijving" name="type_concept_aanschrijving = aanschrijvingen">
       <bpmn:incoming>Flow_1fkzlv4</bpmn:incoming>
       <bpmn:outgoing>Flow_0ikowfz</bpmn:outgoing>
-      <bpmn:script>direct_to_check_summons = {"value": "ja"}</bpmn:script>
+      <bpmn:script>direct_to_check_summons = "ja"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_1u042xk" name="Direct naar nakijken besluit in Decision" sourceRef="Gateway_0f1jktd" targetRef="service_script_next_step_unoccupied_decision">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("leegstand_resultaat_leegstandsbeschikking") == "direct_naar_nakijken_besluit"</bpmn:conditionExpression>

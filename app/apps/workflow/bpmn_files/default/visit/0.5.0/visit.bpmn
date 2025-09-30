@@ -123,7 +123,7 @@
     <bpmn:scriptTask id="service_bepalen_processtap_default" name="bepalen_processtap = default">
       <bpmn:incoming>Flow_1d4p7zq</bpmn:incoming>
       <bpmn:outgoing>Flow_1vk0xad</bpmn:outgoing>
-      <bpmn:script>bepalen_processtap = {"value": "default"}</bpmn:script>
+      <bpmn:script>bepalen_processtap = "default"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_100ib64" name="situation == &#34;nobody_present&#34; and can_next_visit_go_ahead == True" sourceRef="gateway_what_is_result_visit" targetRef="gateway_merge_1fmcb00">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">get_data("situation") == "nobody_present" and get_data("can_next_visit_go_ahead") == True</bpmn:conditionExpression>
@@ -170,13 +170,13 @@
     <bpmn:scriptTask id="service_visit_next_step_debrief_after_visit" name="visit_next_step = debrief_after_visit">
       <bpmn:incoming>Flow_0umtr1t</bpmn:incoming>
       <bpmn:outgoing>Flow_0xiaus7</bpmn:outgoing>
-      <bpmn:script>visit_next_step = {"value": "debrief_after_visit"}</bpmn:script>
+      <bpmn:script>visit_next_step = "debrief_after_visit"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_01xohud" sourceRef="service_visit_next_step_debrief_after_no_visit" targetRef="Event_0ii0awz" />
     <bpmn:scriptTask id="service_visit_next_step_debrief_after_no_visit" name="visit_next_step = debrief_after_no_visit">
       <bpmn:incoming>Flow_15wg2t8</bpmn:incoming>
       <bpmn:outgoing>Flow_01xohud</bpmn:outgoing>
-      <bpmn:script>visit_next_step = {"value": "debrief_after_no_visit"}</bpmn:script>
+      <bpmn:script>visit_next_step = "debrief_after_no_visit"</bpmn:script>
     </bpmn:scriptTask>
   </bpmn:process>
   <bpmn:signal id="Signal_039rhog" name="S" />

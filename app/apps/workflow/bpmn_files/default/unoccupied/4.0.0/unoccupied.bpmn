@@ -135,12 +135,12 @@
     <bpmn:scriptTask id="service_script_next_step_unoccupied_debrief" name="unoccupied_next_step = debrief">
       <bpmn:incoming>Flow_04t25yo</bpmn:incoming>
       <bpmn:outgoing>Flow_0g2y990</bpmn:outgoing>
-      <bpmn:script>unoccupied_next_step = {"value": "debrief"}</bpmn:script>
+      <bpmn:script>unoccupied_next_step = "debrief"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="service_script_next_step_unoccupied_close_case" name="unoccupied_next_step = close_case">
       <bpmn:incoming>Flow_0l0dvo5</bpmn:incoming>
       <bpmn:outgoing>Flow_1eryuub</bpmn:outgoing>
-      <bpmn:script>unoccupied_next_step = {"value": "close_case"}</bpmn:script>
+      <bpmn:script>unoccupied_next_step = "close_case"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:exclusiveGateway id="Gateway_1rpbfjx">
       <bpmn:incoming>Flow_0zn8nf2</bpmn:incoming>
@@ -218,7 +218,7 @@
     <bpmn:scriptTask id="service_script_next_step_unoccupied_summon" name="unoccupied_next_step = summon">
       <bpmn:incoming>Flow_1x6chcz</bpmn:incoming>
       <bpmn:outgoing>Flow_05vmv5f</bpmn:outgoing>
-      <bpmn:script>unoccupied_next_step = {"value": "summon"}</bpmn:script>
+      <bpmn:script>unoccupied_next_step = "summon"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_1v6sl25" sourceRef="task_uitvoeren_leegstandsgesprek" targetRef="Gateway_1iomo77" />
     <bpmn:sequenceFlow id="Flow_0xioobk" sourceRef="Gateway_1iomo77" targetRef="task_leegstand_opstellen_rapport_van_bevindingen" />
@@ -458,7 +458,7 @@
     <bpmn:scriptTask id="Activity_1derutl" name="leegstandsmelding_eigenaar = default">
       <bpmn:incoming>Flow_0r5copp</bpmn:incoming>
       <bpmn:outgoing>Flow_0epnziu</bpmn:outgoing>
-      <bpmn:script>leegstandsmelding_eigenaar = {"value": "default"}</bpmn:script>
+      <bpmn:script>leegstandsmelding_eigenaar = "default"</bpmn:script>
     </bpmn:scriptTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">

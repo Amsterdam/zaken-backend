@@ -64,7 +64,7 @@
     <bpmn:scriptTask id="Activity_0cyrkp2" name="next_step = {&#34;value&#34;: &#34;close_case&#34;}">
       <bpmn:incoming>Flow_0nnp7hu</bpmn:incoming>
       <bpmn:outgoing>Flow_1niydg5</bpmn:outgoing>
-      <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
+      <bpmn:script>next_step = "close_case"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_1niydg5" sourceRef="Activity_0cyrkp2" targetRef="service_end_status_133c7jr" />
   </bpmn:process>

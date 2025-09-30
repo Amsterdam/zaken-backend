@@ -186,7 +186,7 @@
     <bpmn:scriptTask id="script_set_authorization_no" name="script_set_authorization_no">
       <bpmn:incoming>Flow_0w2wtlv</bpmn:incoming>
       <bpmn:outgoing>Flow_0mmrplc</bpmn:outgoing>
-      <bpmn:script>authorization = {"value": "No"}</bpmn:script>
+      <bpmn:script>authorization = "No"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_161irhq" name="debrief_next_step = Visit" sourceRef="gateway_merge_0wumcd2" targetRef="gateway_merge_1dtewmn">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("debrief_next_step") == "visit"</bpmn:conditionExpression>
