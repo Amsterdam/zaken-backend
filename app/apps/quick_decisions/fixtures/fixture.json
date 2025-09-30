@@ -187,5 +187,32 @@
       "name": "Intrekken last onder dwangsom",
       "workflow_option": "besluit"
     }
+  },
+  {
+    "model": "quick_decisions.quickdecisiontype",
+    "pk": 22,
+    "fields": {
+      "theme": 9,
+      "name": "Opheffen last onder dwangsom",
+      "workflow_option": "besluit"
+    }
+  },
+  {
+    "model": "quick_decisions.quickdecisiontype",
+    "pk": 23,
+    "fields": {
+      "theme": 9,
+      "name": "Intrekken bestuurlijke boete",
+      "workflow_option": "besluit"
+    }
+  },
+  {
+    "model": "quick_decisions.quickdecisiontype",
+    "pk": 24,
+    "fields": {
+      "theme": 9,
+      "name": "Intrekken last onder dwangsom",
+      "workflow_option": "besluit"
+    }
   }
 ]
