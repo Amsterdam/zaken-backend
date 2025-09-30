@@ -891,10 +891,10 @@
     <bpmn:sequenceFlow id="Flow_01lsi38" sourceRef="Gateway_01k1rx7" targetRef="Event_0j1c5c5" />
     <bpmn:sequenceFlow id="Flow_16nf6jj" sourceRef="Gateway_1unhz54" targetRef="task_handhavingsverzoek_afwijzen" />
     <bpmn:sequenceFlow id="Flow_0ahparx" name="juistheid_aanvraag == juist_voldoet" sourceRef="Gateway_1unhz54" targetRef="task_handhavingsverzoek_opstellen_ontvangstbevestiging">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">handhavingsverzoek_juistheid_aanvraag.value == "juist_voldoet"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("handhavingsverzoek_juistheid_aanvraag") == "juist_voldoet"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0796m3t" name="handhavingsverzoek_juistheid_aanvraag == onjuist" sourceRef="Gateway_1unhz54" targetRef="task_handhavingsverzoek_opstellen_buiten_behandeling_laten">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">handhavingsverzoek_juistheid_aanvraag.value == "onjuist"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("handhavingsverzoek_juistheid_aanvraag") == "onjuist"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1gl9vud" sourceRef="task_handhavingsverzoek_verwerken_buiten_behandeling_laten" targetRef="Gateway_0t5rj58" />
     <bpmn:sequenceFlow id="Flow_1ceqygs" sourceRef="task_handhavingsverzoek_juist_verwerken_afwijzing" targetRef="Gateway_0t5rj58" />
@@ -902,7 +902,7 @@
     <bpmn:sequenceFlow id="Flow_0ps3pvh" sourceRef="task_handhavingsverzoek_aangeven_uitkomst_debrief" targetRef="Gateway_10fxjok" />
     <bpmn:sequenceFlow id="Flow_0gr9qm7" sourceRef="Gateway_10fxjok" targetRef="task_handhavingsverzoek_aangeven_uitkomst" />
     <bpmn:sequenceFlow id="Flow_18r3sx9" name="uitkomst_debrief == geen_overtreding" sourceRef="Gateway_10fxjok" targetRef="task_handhavingsverzoek_opstellen_afwijzing">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">handhavingsverzoek_uitkomst_debrief.value == "geen_overtreding"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("handhavingsverzoek_uitkomst_debrief") == "geen_overtreding"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1tunsld" sourceRef="Gateway_19zjpm5" targetRef="Gateway_01k1rx7" />
     <bpmn:sequenceFlow id="Flow_08wdnxt" sourceRef="Gateway_16tf6v6" targetRef="Gateway_01k1rx7" />
@@ -916,7 +916,7 @@
     <bpmn:sequenceFlow id="Flow_116za7x" sourceRef="task_handhavingsverzoek_aangeven_uitkomst" targetRef="Gateway_0s3nj3w" />
     <bpmn:sequenceFlow id="Flow_1eztzfv" sourceRef="Gateway_0s3nj3w" targetRef="Gateway_19zjpm5" />
     <bpmn:sequenceFlow id="Flow_0217kgp" name="uitkomst == afwijzing_handhavingsverzoek" sourceRef="Gateway_0s3nj3w" targetRef="task_handhavingsverzoek_opstellen_besluit_afwijzing">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">handhavingsverzoek_uitkomst.value == "afwijzing_handhavingsverzoek"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("handhavingsverzoek_uitkomst") == "afwijzing_handhavingsverzoek"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0d5ueu4" sourceRef="task_handhavingsverzoek_opstellen_besluit_afwijzing" targetRef="task_handhavingsverzoek_nakijken_besluit_afwijzing" />
     <bpmn:sequenceFlow id="Flow_1u2f04t" sourceRef="task_handhavingsverzoek_nakijken_besluit_afwijzing" targetRef="task_handhavingsverzoek_verwerken_besluit_afwijzing" />
@@ -937,7 +937,7 @@
     <bpmn:sequenceFlow id="Flow_0klerhw" sourceRef="service_status_ingebrekestelling" targetRef="task_controleren_of_gemeente_in_gebreke_is" />
     <bpmn:sequenceFlow id="Flow_14x8s9f" sourceRef="task_controleren_of_gemeente_in_gebreke_is" targetRef="Gateway_0m0ys6j" />
     <bpmn:sequenceFlow id="Flow_1krzf7r" name="ingebrekestelling_resultaat == gemeente_is_in_gebreke" sourceRef="Gateway_0m0ys6j" targetRef="Event_1b0ead4">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">ingebrekestelling_resultaat.value == "gemeente_is_in_gebreke"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("ingebrekestelling_resultaat") == "gemeente_is_in_gebreke"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_07nkpfr" sourceRef="Gateway_0m0ys6j" targetRef="task_opstellen_brief_ongeldige_ingebrekestelling" />
     <bpmn:sequenceFlow id="Flow_085cjmc" sourceRef="task_opstellen_brief_ongeldige_ingebrekestelling" targetRef="task_nakijken_brief_ongeldige_ingebrekestelling" />

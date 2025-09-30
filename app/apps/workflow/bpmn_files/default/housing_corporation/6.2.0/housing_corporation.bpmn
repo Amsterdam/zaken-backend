@@ -53,7 +53,7 @@
     <bpmn:sequenceFlow id="Flow_1l76fkr" sourceRef="start_housing_corporation" targetRef="service_status_afstemmen_corporatie" />
     <bpmn:sequenceFlow id="Flow_03venu5" sourceRef="Gateway_0s1f81q" targetRef="Gateway_0orgca0" />
     <bpmn:sequenceFlow id="Flow_14od47u" name="reactie_ontvangen_voor_huisbezoek == direct_naar_debrief" sourceRef="Gateway_0orgca0" targetRef="service_housing_corporation_next_step_debrief">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reactie_ontvangen_voor_huisbezoek.value == "direct_naar_debrief"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("reactie_ontvangen_voor_huisbezoek") == "direct_naar_debrief"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0r1gbsz" sourceRef="service_housing_corporation_next_step_debrief" targetRef="Gateway_1vb2wgi" />
     <bpmn:scriptTask id="service_housing_corporation_next_step_debrief" name="housing_corporation_next_step = debrief">
@@ -117,7 +117,7 @@
     <bpmn:sequenceFlow id="Flow_09zo0ia" sourceRef="event_timer_monitoren_reactie_corporatie_voor_huisbezoek" targetRef="task_contacteren_corporatie_voor_huisbezoek" />
     <bpmn:sequenceFlow id="Flow_00uz88f" sourceRef="task_contacteren_corporatie_voor_huisbezoek" targetRef="Gateway_1x7xgjp" />
     <bpmn:sequenceFlow id="Flow_0pm8kve" name="reactie_ontvangen_voor_huisbezoek == geen_reactie" sourceRef="Gateway_1x7xgjp" targetRef="Gateway_0kr3sgh">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reactie_ontvangen_voor_huisbezoek.value == "geen_reactie"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("reactie_ontvangen_voor_huisbezoek") == "geen_reactie"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0015sc9" sourceRef="Gateway_0kr3sgh" targetRef="task_monitoren_reactie_corporatie_voor_huisbezoek" />
     <bpmn:sequenceFlow id="Flow_0jz7wu4" sourceRef="Gateway_1x7xgjp" targetRef="Gateway_0s1f81q" />

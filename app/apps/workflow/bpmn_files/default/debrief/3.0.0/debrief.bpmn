@@ -66,7 +66,7 @@
       <bpmn:outgoing>Flow_09t0nyr</bpmn:outgoing>
       <bpmn:outgoing>Flow_10inq1c</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:scriptTask id="service_script_set_close_case" name="debrief_next_step.value = &#34;close_case&#34;">
+    <bpmn:scriptTask id="service_script_set_close_case" name="debrief_next_step = &#34;close_case&#34;">
       <bpmn:incoming>Flow_1siw1z9</bpmn:incoming>
       <bpmn:outgoing>Flow_1v0g0l8</bpmn:outgoing>
       <bpmn:script>debrief_next_step = {"value": "close_case"}</bpmn:script>
@@ -78,7 +78,7 @@
       <bpmn:incoming>Flow_0x4kfil</bpmn:incoming>
       <bpmn:incoming>Flow_0glrbhf</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:scriptTask id="service_script_set_summon" name="debrief_next_step.value = &#34;summon&#34;">
+    <bpmn:scriptTask id="service_script_set_summon" name="debrief_next_step = &#34;summon&#34;">
       <bpmn:incoming>Flow_1emqy6s</bpmn:incoming>
       <bpmn:outgoing>Flow_08m5xl9</bpmn:outgoing>
       <bpmn:script>debrief_next_step = {"value": "summon"}</bpmn:script>
@@ -124,14 +124,14 @@
     <bpmn:sequenceFlow id="Flow_0migjkh" sourceRef="task_create_report_of_findings" targetRef="gateway_parallel_violation_yes_out" />
     <bpmn:sequenceFlow id="Flow_0uh94ud" sourceRef="task_terugkoppelen_melder_2" targetRef="gateway_parallel_violation_yes_out" />
     <bpmn:sequenceFlow id="Flow_1emqy6s" sourceRef="gateway_parallel_violation_yes_out" targetRef="service_script_set_summon" />
-    <bpmn:sequenceFlow id="Flow_09t0nyr" name="violation.value == ADDITIONAL_VISIT_WITH_AUTHORIZATION" sourceRef="gateway_is_debrief_violation" targetRef="service_script_set_visit_auth_yes">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADDITIONAL_VISIT_WITH_AUTHORIZATION"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_09t0nyr" name="violation == ADDITIONAL_VISIT_WITH_AUTHORIZATION" sourceRef="gateway_is_debrief_violation" targetRef="service_script_set_visit_auth_yes">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "ADDITIONAL_VISIT_WITH_AUTHORIZATION"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_09q4ikx" name="violation.value == ADDITIONAL_VISIT_REQUIRED " sourceRef="gateway_is_debrief_violation" targetRef="service_script_set_visit_auth_no">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADDITIONAL_VISIT_REQUIRED"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_09q4ikx" name="violation == ADDITIONAL_VISIT_REQUIRED " sourceRef="gateway_is_debrief_violation" targetRef="service_script_set_visit_auth_no">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "ADDITIONAL_VISIT_REQUIRED"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_09fde08" name="violation.value = no OR To other theme" sourceRef="gateway_is_debrief_violation" targetRef="gateway_parallel_no_violation_yes_in">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "NO" or violation.value == "SEND_TO_OTHER_THEME"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_09fde08" name="violation = no OR To other theme" sourceRef="gateway_is_debrief_violation" targetRef="gateway_parallel_no_violation_yes_in">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "NO" or get_data("violation") == "SEND_TO_OTHER_THEME"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_10inq1c" sourceRef="gateway_is_debrief_violation" targetRef="Gateway_1lk1j5g" />
     <bpmn:sequenceFlow id="Flow_1siw1z9" sourceRef="gateway_parallel_no_violation_yes_out" targetRef="service_script_set_close_case" />
@@ -140,7 +140,7 @@
     <bpmn:sequenceFlow id="Flow_0z8zmjv" sourceRef="service_script_set_visit_auth_no" targetRef="end_1kkhxmk" />
     <bpmn:sequenceFlow id="Flow_0x4kfil" sourceRef="service_script_set_visit_auth_yes" targetRef="end_1kkhxmk" />
     <bpmn:sequenceFlow id="Flow_1spub49" name="reason = reason_digitaal_toezicht" sourceRef="Gateway_1lk1j5g" targetRef="service_script_set_digital_surveillance">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reason.value == "reason_digitaal_toezicht"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("reason") == "reason_digitaal_toezicht"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1c3b8q1" sourceRef="task_prepare_abbreviated_visit_rapport" targetRef="gateway_parallel_no_violation_yes_out" />
     <bpmn:sequenceFlow id="Flow_1wb9dmv" sourceRef="task_terugkoppelen_melder_1" targetRef="gateway_parallel_no_violation_yes_out" />
@@ -198,12 +198,12 @@
     <bpmn:sequenceFlow id="Flow_14k2xx3" sourceRef="service_status_debrief" targetRef="gateway_merge_1t0o489" />
     <bpmn:sequenceFlow id="Flow_14629v6" sourceRef="task_wait_internal_reasearch" targetRef="gateway_merge_1t0o489" />
     <bpmn:sequenceFlow id="Flow_0zox8jb" sourceRef="gateway_merge_1t0o489" targetRef="task_create_debrief" />
-    <bpmn:sequenceFlow id="Flow_0woi9k1" name="violation.value = ADDITIONAL_RESEARCH_REQUIRED" sourceRef="gateway_is_futher_debrief_research_needed" targetRef="task_wait_internal_reasearch">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADDITIONAL_RESEARCH_REQUIRED"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0woi9k1" name="violation = ADDITIONAL_RESEARCH_REQUIRED" sourceRef="gateway_is_futher_debrief_research_needed" targetRef="task_wait_internal_reasearch">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "ADDITIONAL_RESEARCH_REQUIRED"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0lji06z" sourceRef="task_create_debrief" targetRef="gateway_is_futher_debrief_research_needed" />
     <bpmn:sequenceFlow id="Flow_0glrbhf" sourceRef="service_script_set_digital_surveillance" targetRef="end_1kkhxmk" />
-    <bpmn:scriptTask id="service_script_set_digital_surveillance" name="debrief_next_step.value = digital_surveillance">
+    <bpmn:scriptTask id="service_script_set_digital_surveillance" name="debrief_next_step = digital_surveillance">
       <bpmn:incoming>Flow_1spub49</bpmn:incoming>
       <bpmn:outgoing>Flow_0glrbhf</bpmn:outgoing>
       <bpmn:script>debrief_next_step = {"value": "digital_surveillance"}</bpmn:script>

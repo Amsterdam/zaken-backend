@@ -147,10 +147,10 @@
     <bpmn:sequenceFlow id="Flow_117ysh5" name="Nee niet ontvangen" sourceRef="Event_1y0st2l" targetRef="task_contacteren_eigenaar_2" />
     <bpmn:sequenceFlow id="Flow_0t5bbcs" sourceRef="task_contacteren_eigenaar_2" targetRef="Gateway_0qpqse9" />
     <bpmn:sequenceFlow id="Flow_0xczgvy" name="Afgekeurd" sourceRef="gateway_is_heropeningsverzoek_goedgekeurd" targetRef="Gateway_0qpqse9">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">beoordeling_verzoek.value == "afgekeurd"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("beoordeling_verzoek") == "afgekeurd"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1o605c7" name="Goedgekeurd" sourceRef="gateway_is_heropeningsverzoek_goedgekeurd" targetRef="Activity_0y9eeup">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">beoordeling_verzoek.value == "goedgekeurd"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("beoordeling_verzoek") == "goedgekeurd"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:endEvent id="end_1nksma5">
       <bpmn:incoming>Flow_0o18kyi</bpmn:incoming>
