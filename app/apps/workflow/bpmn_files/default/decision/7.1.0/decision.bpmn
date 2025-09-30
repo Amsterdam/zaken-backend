@@ -50,13 +50,13 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_005h6w2" sourceRef="service_script_next_step_close_case" targetRef="end_14226b3" />
     <bpmn:sequenceFlow id="Flow_15jrvwj" name="Besluit = sanctie (boete, invordering dwangsom, meldplicht beschikking boete)" sourceRef="gateway_parallel_0h8vjtw" targetRef="Gateway_1vrgtx4">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_besluit.value == "boete" or type_besluit.value == "last_onder_dwangsom" or type_besluit.value == "meldplicht_beschikking_boete" or type_besluit.value == "invordering_dwangsom"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("type_besluit") == "boete" or get_data("type_besluit") == "last_onder_dwangsom" or get_data("type_besluit") == "meldplicht_beschikking_boete" or get_data("type_besluit") == "invordering_dwangsom"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0tzy074" sourceRef="gateway_merge_0f59geq" targetRef="service_script_next_step_close_case" />
     <bpmn:sequenceFlow id="Flow_1r2nz2z" sourceRef="task_contact_city_district" targetRef="gateway_merge_0f59geq" />
     <bpmn:sequenceFlow id="Flow_10vmiho" sourceRef="task_send_tax_collection" targetRef="gateway_merge_0f59geq" />
     <bpmn:sequenceFlow id="Flow_0azm62q" name="Afzien van besluit" sourceRef="gateway_which_type_of_decision" targetRef="service_script_next_step_renounce">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_besluit.value == "no_decision"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("type_besluit") == "no_decision"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1fjclix" name="Definitief besluit" sourceRef="gateway_which_type_of_decision" targetRef="gateway_parallel_0h8vjtw" />
     <bpmn:sequenceFlow id="Flow_1iai8dg" sourceRef="service_status_besluit" targetRef="Gateway_0zpua3b" />
@@ -65,10 +65,10 @@
     <bpmn:sequenceFlow id="Flow_10ujifg" sourceRef="task_create_decision" targetRef="gateway_which_type_of_decision" />
     <bpmn:sequenceFlow id="Flow_18vwc84" sourceRef="start_0eecx50" targetRef="service_status_besluit" />
     <bpmn:sequenceFlow id="Flow_0bjw3py" name="Besluit = Intrekken vergunning *3" sourceRef="gateway_parallel_0h8vjtw" targetRef="task_contact_city_district">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_besluit.value == "intrekken_vv_vergunning" or type_besluit.value == "intrekken_bb_vergunning" or type_besluit.value == "intrekken_shortstay_vergunning"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("type_besluit") == "intrekken_vv_vergunning" or get_data("type_besluit") == "intrekken_bb_vergunning" or get_data("type_besluit") == "intrekken_shortstay_vergunning"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_00nt5t7" name="Last onder dwangsom of Preventieve last" sourceRef="gateway_which_type_of_decision" targetRef="Activity_0f7x7aq">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_besluit.value == "last_onder_dwangsom" or type_besluit.value == "preventieve_last"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("type_besluit") == "last_onder_dwangsom" or get_data("type_besluit") == "preventieve_last"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="gateway_parallel_0h8vjtw" default="Flow_0ppxurm">
       <bpmn:incoming>Flow_1fjclix</bpmn:incoming>
@@ -108,8 +108,8 @@
       <bpmn:incoming>Flow_0q95btx</bpmn:incoming>
       <bpmn:outgoing>Flow_10ujifg</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_1pjats0" name="theme.value = theme_goed_verhuurderschap&#34; and type_besluit.value = boete" sourceRef="Gateway_1vrgtx4" targetRef="Gateway_0i5uus1">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">theme.value == "theme_goed_verhuurderschap" and type_besluit.value == "boete"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_1pjats0" name="theme = theme_goed_verhuurderschap&#34; and type_besluit = boete" sourceRef="Gateway_1vrgtx4" targetRef="Gateway_0i5uus1">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("theme") == "theme_goed_verhuurderschap" and get_data("type_besluit") == "boete"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_1vrgtx4" default="Flow_19xjp0z">
       <bpmn:incoming>Flow_15jrvwj</bpmn:incoming>
@@ -119,7 +119,7 @@
     <bpmn:sequenceFlow id="Flow_19xjp0z" sourceRef="Gateway_1vrgtx4" targetRef="task_send_tax_collection" />
     <bpmn:sequenceFlow id="Flow_0vnyc1f" sourceRef="Gateway_1p2ej4c" targetRef="gateway_merge_0f59geq" />
     <bpmn:sequenceFlow id="Flow_1uqqsmy" name="Nee, geen openbaarmaking namen" sourceRef="Gateway_1wh7gsl" targetRef="Gateway_0bd73r1">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">publicate_names.value == "no"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("publicate_names") == "no"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0v3kojk" sourceRef="task_take_decision_publicate_names" targetRef="Gateway_1wh7gsl" />
     <bpmn:sequenceFlow id="Flow_1rii54x" sourceRef="task_send_tax_collection_theme_goed_verhuurderschap" targetRef="Gateway_1p2ej4c" />
@@ -227,7 +227,7 @@
       <bpmn:outgoing>Flow_19ug36g</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1avbdm2" name="Ja, publiceer namen" sourceRef="Gateway_0080oni" targetRef="task_publicate_names">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">wait_injunction.value == "publicate"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("wait_injunction") == "publicate"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:userTask id="task_send_tax_collection" name="Versturen invordering belastingen" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
       <bpmn:incoming>Flow_19xjp0z</bpmn:incoming>
@@ -288,7 +288,7 @@
       <bpmn:outgoing>Flow_0ifal1k</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0ifal1k" name="Direct naar nakijken besluit" sourceRef="Gateway_0zpua3b" targetRef="task_check_concept_decision">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">direct_to_check_concept_decision.value == "Yes"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("direct_to_check_concept_decision") == "Yes"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmn:message id="Message_1k5s52q" name="start_decision_process" />

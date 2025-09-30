@@ -12,7 +12,7 @@
       <bpmn:outgoing>Flow_1bizv1n</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1sswvpm" name="Ja" sourceRef="gateway_do_we_need_a_hercontrole" targetRef="Activity_1vaddj9">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "hercontrole"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "hercontrole"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1bizv1n" name="Nee" sourceRef="gateway_do_we_need_a_hercontrole" targetRef="end_0ins2a3" />
     <bpmn:endEvent id="end_0ins2a3">
@@ -46,7 +46,7 @@
       <bpmn:outgoing>Flow_0ysd6yg</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_19fjsci" sourceRef="gateway_merge_0wumcd2" targetRef="gateway_merge_17juvrg">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon.value == "No"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("summon") == "No"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="gateway_next_step_is_renounce_or_close" name="Wat is de volgende stap" default="Flow_1e320ch">
       <bpmn:incoming>Flow_10huie7</bpmn:incoming>
@@ -60,14 +60,14 @@
       <bpmn:outgoing>Flow_104a0sv</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0bq1d3y" name="Afsluiten zaak" sourceRef="gateway_what_is_next_step" targetRef="gateway_merge_17juvrg">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "close_case"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "close_case"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_02ymmf5" name="Besluit" sourceRef="gateway_what_is_next_step" targetRef="script_start_decision_subworkflow">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "decision"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "decision"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1e320ch" sourceRef="gateway_next_step_is_renounce_or_close" targetRef="gateway_merge_17juvrg" />
     <bpmn:sequenceFlow id="Flow_0ysd6yg" sourceRef="gateway_merge_0wumcd2" targetRef="gateway_merge_1obmbig">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon.value == "Yes"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("summon") == "Yes"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="gateway_merge_1obmbig">
       <bpmn:incoming>Flow_0ysd6yg</bpmn:incoming>
@@ -147,10 +147,10 @@
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_1dztw7t" sourceRef="resume_after_renounce_decision" targetRef="gateway_merge_17juvrg" />
     <bpmn:sequenceFlow id="Flow_104a0sv" name="Afzien besluit" sourceRef="gateway_what_is_next_step" targetRef="script_start_renounce_decision_subworkflow">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "renounce"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "renounce"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0nnxs73" name="Alsnog afzien besluit" sourceRef="gateway_next_step_is_renounce_or_close" targetRef="script_start_renounce_decision_subworkflow">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "renounce"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "renounce"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1wwhp76" sourceRef="script_start_close_case_subworkflow" targetRef="resume_after_close_case" />
     <bpmn:scriptTask id="script_start_close_case_subworkflow" name="script_start_close_case_subworkflow">
