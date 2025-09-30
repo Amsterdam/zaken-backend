@@ -1269,6 +1269,7 @@ WORKFLOW_SPEC_CONFIG = {
         "visit": {
             "initial_data": {
                 "bepalen_processtap": {"value": "default"},
+                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
             },
             "versions": {
                 "0.1.0": {},
