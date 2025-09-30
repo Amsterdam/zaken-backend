@@ -54,6 +54,8 @@ services:
     hostname: zaken_celery_worker
     entrypoint: /app/deploy/docker-entrypoint.celery.sh
     command: bash -c "/app/wait-for.sh http://zaak-gateway:8000 -- /app/celery.sh"
+    volumes:
+      - ./app:/app
     depends_on:
       - zaak-gateway
       - database
@@ -69,7 +71,9 @@ services:
     container_name: zaken_celery_beat
     hostname: zaken_celery_beat
     entrypoint: /app/deploy/docker-entrypoint.celery.sh
-    command: sh -c "/app/wait-for.sh http://zaak-gateway:8000 -- celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    command: bash -c "/app/wait-for.sh http://zaak-gateway:8000 -- watchmedo auto-restart --directory=/app --pattern='*.py;*.bpmn' --recursive -- celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    volumes:
+      - ./app:/app
     depends_on:
       - zaak-gateway
       - database
