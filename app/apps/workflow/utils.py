@@ -746,6 +746,7 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
     logger.info(data)
 
     found_user_task_name = []
+
     missing_form_data = []
 
     ready_tasks = workflow.get_ready_user_tasks()
