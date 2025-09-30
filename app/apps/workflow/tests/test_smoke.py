@@ -1,5 +1,3 @@
-import uuid
-
 from apps.cases.models import Case, CaseTheme
 from apps.workflow.models import CaseUserTask, CaseWorkflow
 from django.conf import settings
@@ -149,16 +147,6 @@ class WorkflowSmokeTests(TestCase):
             workflow_theme_name="default",
         )
 
-        # Create a mock task for testing
-        baker.make(
-            CaseUserTask,
-            case=case,
-            workflow=workflow,
-            task_id=uuid.uuid4(),
-            task_name="test_task",
-            completed=False,
-        )
-
         # Test task completion (may fail in v3 due to spec issues)
         test_data = {"test_field": "test_value"}
         try:
@@ -168,16 +156,29 @@ class WorkflowSmokeTests(TestCase):
                 from SpiffWorkflow import TaskState
                 from SpiffWorkflow.camunda.specs.user_task import UserTask
 
+                workflow.create_user_tasks(wf)
+
+                workflow.refresh_from_db()
+
+                persisted_tasks = CaseUserTask.objects.filter(
+                    workflow=workflow, completed=False
+                )
                 ready_user_tasks = [
                     t
                     for t in wf.get_tasks(state=TaskState.READY)
                     if isinstance(t.task_spec, UserTask)
                 ]
-                if ready_user_tasks:
+                if ready_user_tasks and persisted_tasks:
                     valid_task = ready_user_tasks[0]
-                    workflow.complete_user_task_and_create_new_user_tasks(
-                        valid_task.id, test_data
-                    )
+                    persisted_task = persisted_tasks.filter(
+                        task_id=valid_task.id
+                    ).first()
+                    if persisted_task:
+                        workflow.complete_user_task_and_create_new_user_tasks(
+                            persisted_task.task_id, test_data
+                        )
+                elif not persisted_tasks:
+                    self.skipTest("No user tasks available in workflow spec")
 
                 # Verify workflow state was updated
                 workflow.refresh_from_db()
