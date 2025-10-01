@@ -292,7 +292,7 @@ class Command(BaseCommand):
         # Save if not dry run
         if not dry_run and not validate_only:
             with transaction.atomic():
-                workflow.serialized_workflow_state = v3_data
+                workflow.serialized_workflow_state = v3_data_str
                 workflow.save(update_fields=["serialized_workflow_state"])
 
                 # Update related user tasks if needed
