@@ -222,13 +222,13 @@
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="Flow_1kzui0d" sourceRef="Gateway_1si19kh" targetRef="Gateway_0je9lyy" />
     <bpmn:sequenceFlow id="Flow_0hq63xi" name="debrief_next_step = digital_surveillance and visit_next_step = debrief_after_visit" sourceRef="Gateway_17f750n" targetRef="service_status_debrief">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "digital_surveillance" and visit_next_step.value == "debrief_after_visit"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("debrief_next_step") == "digital_surveillance" and get_data("visit_next_step") == "debrief_after_visit"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0w089jh" sourceRef="task_create_picture_rapport_2" targetRef="Gateway_0bre241" />
     <bpmn:sequenceFlow id="Flow_1xa193k" name="digitale_surveillance_bepalen_processtap = overleg_met_projecthandhaver" sourceRef="Gateway_0bosnt7" targetRef="script_digitaal_toezicht_next_step_debrief" />
     <bpmn:sequenceFlow id="Flow_0brsjux" sourceRef="task_bepalen_processtap" targetRef="Gateway_0bosnt7" />
     <bpmn:sequenceFlow id="Flow_0spf5l3" name="digitale_surveillance_bepalen_processtap = uitzetten_naar_handhaving" sourceRef="Gateway_0bosnt7" targetRef="Gateway_0g175z9">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">digitale_surveillance_bepalen_processtap.value == "uitzetten_naar_handhaving"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("digitale_surveillance_bepalen_processtap") == "uitzetten_naar_handhaving"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_02uij0x" sourceRef="Gateway_0zapr2k" targetRef="task_extra_inlichtingen" />
     <bpmn:sequenceFlow id="Flow_0cnrig2" sourceRef="Gateway_0je9lyy" targetRef="script_digitaal_toezicht_next_step_summon" />
@@ -237,18 +237,18 @@
     <bpmn:sequenceFlow id="Flow_0z2cckq" sourceRef="Gateway_1f3ywi7" targetRef="Gateway_0zapr2k" />
     <bpmn:sequenceFlow id="Flow_0s4mrid" sourceRef="task_extra_inlichtingen" targetRef="Gateway_059aorr" />
     <bpmn:sequenceFlow id="Flow_0qox8mr" name="extra_inlichtingen_nodig = ja" sourceRef="Gateway_059aorr" targetRef="task_opstellen_verzoek_tot_inlichtingen">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">extra_inlichtingen_nodig.value == "ja"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("extra_inlichtingen_nodig") == "ja"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_040f72a" sourceRef="task_opstellen_verzoek_tot_inlichtingen" targetRef="task_monitoren_reactie_platform" />
     <bpmn:sequenceFlow id="Flow_13p5gby" name="extra_inlichtingen_nodig = nee" sourceRef="Gateway_059aorr" targetRef="Gateway_1si19kh" />
     <bpmn:sequenceFlow id="Flow_0vsc8b1" name="rappelleren_informeren_collegas_beleid = opnieuw_monitoren" sourceRef="gateway_reactie_platform" targetRef="task_monitoren_reactie_platform">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">rappelleren_informeren_collegas_beleid.value == "opnieuw_monitoren"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("rappelleren_informeren_collegas_beleid") == "opnieuw_monitoren"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0f345it" sourceRef="task_monitoren_reactie_platform" targetRef="task_verwerken_informatie_platform">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" />
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1kd271m" name="rappelleren_informeren_collegas_beleid = informatie_ontvangen" sourceRef="gateway_reactie_platform" targetRef="task_verwerken_informatie_platform">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">rappelleren_informeren_collegas_beleid.value == "informatie_ontvangen"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("rappelleren_informeren_collegas_beleid") == "informatie_ontvangen"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_17u0prb" sourceRef="task_verwerken_informatie_platform" targetRef="Gateway_1si19kh" />
     <bpmn:sequenceFlow id="Flow_06oy58t" sourceRef="timer_monitoren_reactie_platform" targetRef="task_rappelleren_informeren_collegas_beleid" />
@@ -258,19 +258,19 @@
     <bpmn:sequenceFlow id="Flow_0oa8006" sourceRef="Gateway_1f3ywi7" targetRef="task_opstelllen_rapport_van_bevindingen_2" />
     <bpmn:sequenceFlow id="Flow_1q1jsb2" sourceRef="Gateway_0bre241" targetRef="Gateway_0je9lyy" />
     <bpmn:sequenceFlow id="Flow_16tpotg" name="debrief_next_step = digital_surveillance and visit_next_step = debrief_after_visit" sourceRef="Gateway_0je9lyy" targetRef="Gateway_1vdfq20">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "digital_surveillance" and visit_next_step.value == "debrief_after_visit"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("debrief_next_step") == "digital_surveillance" and get_data("visit_next_step") == "debrief_after_visit"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0udbkr3" name="debrief_next_step = digital_surveillance and visit_next_step = debrief_after_visit" sourceRef="Gateway_0bre241" targetRef="Gateway_1vdfq20">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "digital_surveillance" and visit_next_step.value == "debrief_after_visit"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("debrief_next_step") == "digital_surveillance" and get_data("visit_next_step") == "debrief_after_visit"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1id3lky" sourceRef="task_opstelllen_rapport_van_bevindingen_2" targetRef="Gateway_0oh4f3m" />
     <bpmn:sequenceFlow id="Flow_0s8mukf" name="debrief_next_step = digital_surveillance and visit_next_step = debrief_after_visit" sourceRef="Gateway_0oh4f3m" targetRef="Gateway_1vdfq20">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "digital_surveillance" and visit_next_step.value == "debrief_after_visit"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("debrief_next_step") == "digital_surveillance" and get_data("visit_next_step") == "debrief_after_visit"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0wvb1te" sourceRef="Gateway_0oh4f3m" targetRef="Gateway_0je9lyy" />
     <bpmn:sequenceFlow id="Flow_174tpfq" sourceRef="Gateway_0g175z9" targetRef="Gateway_0zapr2k" />
     <bpmn:sequenceFlow id="Flow_1e9hjuu" name="debrief_next_step = digital_surveillance" sourceRef="Gateway_08r2oii" targetRef="Gateway_0g175z9">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "digital_surveillance"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("debrief_next_step") == "digital_surveillance"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0v7y8j0" sourceRef="script_digitaal_toezicht_next_step_debrief" targetRef="end_digital_surveillance" />
     <bpmn:sequenceFlow id="Flow_1b4cx5k" sourceRef="script_digitaal_toezicht_next_step_summon" targetRef="end_digital_surveillance" />

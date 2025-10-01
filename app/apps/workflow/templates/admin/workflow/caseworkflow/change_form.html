@@ -13,91 +13,111 @@
 {% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-form{% endblock %}
 
 {% if not is_popup %}
-{% block breadcrumbs %}
-<div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
-&rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
-&rsaquo; {% if add %}{% blocktrans with name=opts.verbose_name %}Add {{ name }}{% endblocktrans %}{% else %}{{ original|truncatewords:"18" }}{% endif %}
-</div>
-{% endblock %}
+    {% block breadcrumbs %}
+        <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+        &rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+        &rsaquo; {% if add %}{% blocktrans with name=opts.verbose_name %}Add {{ name }}{% endblocktrans %}{% else %}{{ original|truncatewords:"18" }}{% endif %}
+        </div>
+    {% endblock %}
 {% endif %}
 
 {% block content %}<div id="content-main">
 {% block object-tools %}
+
 {% if change %}{% if not is_popup %}
-  <ul class="object-tools">
-    {% block object-tools-items %}
-      {% change_form_object_tools %}
-    {% endblock %}
-  </ul>
+    <ul class="object-tools">
+        {% block object-tools-items %}
+            {% change_form_object_tools %}
+        {% endblock %}
+    </ul>
 {% endif %}{% endif %}
 {% endblock %}
-<h2>Migrate to latest report</h2>
-<p>Can be migrated: <b>{{migrate_to_latest_success}}</b></p>
-<p>Director(this workflow) migration: from <b>{{migrate_to_latest_result.workflow_result.current_version}}</b>, to <b>{{migrate_to_latest_result.workflow_result.latest_version}}</b></p>
-<p>Subworkflow: <b>{{migrate_to_latest_result.subworkflow_result.workflow_type}}</b></p>
-<p>Subworkflow migration: from <b>{{migrate_to_latest_result.subworkflow_result.current_version}}</b>, to <b>{{migrate_to_latest_result.subworkflow_result.latest_version}}</b></p>
-<p>{{migrate_to_latest_result}}</p>
 
-{% if migrate_to_latest_result.subworkflow_result.workflow %}
-<h3>Current subworkflow state</h3>
-{% include "./tasks.html" with task=migrate_to_latest_result.subworkflow_result.current_workflow.task_tree task_states=task_states only %}
-<h3>New subworkflow state</h3>
-{% include "./tasks.html" with task=migrate_to_latest_result.subworkflow_result.workflow.task_tree task_states=task_states only %}
-{% endif %}
-<hr>
-<hr>
-<hr>
-<hr>
-<dl>
-  <dt>Last task data</dt>
-  <dd>{{ workflow.last_task.data }}</dd>
-</dl>
+<h3>Migrate to latest report</h3>
+<ul>
+    <li>Can be migrated: <b>{{migrate_to_latest_success}}</b></li>
+    <li>Director (this workflow) migration: from <b>{{migrate_to_latest_result.workflow_result.current_version}}</b>, to <b>{{migrate_to_latest_result.workflow_result.latest_version}}</b></li>
+    <li>Subworkflow: <b>{{migrate_to_latest_result.subworkflow_result.workflow_type}}</b></li>
+    <li>Subworkflow migration: from <b>{{migrate_to_latest_result.subworkflow_result.current_version}}</b>, to <b>{{migrate_to_latest_result.subworkflow_result.latest_version}}</b></li>
+</ul>
+<pre style="color: inherit; white-space: wrap;">{{migrate_to_latest_result}}</pre>
+
+<hr style="margin: 1rem 0;"/>
+
+{% with sub_result=migrate_to_latest_result.subworkflow_result %}
+    {% if sub_result %}
+        {% with current=sub_result.current_workflow new=sub_result.workflow %}
+            {% if current %}
+                <h3>Current subworkflow state</h3>
+                {% include "./tasks.html" with task=current.task_tree task_states=None only %}
+            {% endif %}
+
+            {% if new %}
+                <h3>New subworkflow state</h3>
+                {% include "./tasks.html" with task=new.task_tree task_states=None only %}
+            {% endif %}
+        {% endwith %}
+    {% endif %}
+{% endwith %}
+
+<hr style="margin: 1rem 0;"/>
+
+<h3>Last task data</h3>
+<pre style="color: inherit; white-space: wrap;">{{ workflow.last_task.data }}</pre>
+
+<hr style="margin: 1rem 0;"/>
+
+<h3>Workflow tree</h3>
 {% include "./tasks.html" with task=workflow.task_tree task_states=task_states only %}
+
+<hr style="margin: 1rem 0;"/>
+
 <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}{% block form_top %}{% endblock %}
-<div>
-{% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
-{% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
-{% if save_on_top %}{% block submit_buttons_top %}{% submit_row %}{% endblock %}{% endif %}
-{% if errors %}
-    <p class="errornote">
-    {% if errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
-    </p>
-    {{ adminform.form.non_field_errors }}
-{% endif %}
+    <div>
+    {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+    {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+    {% if save_on_top %}{% block submit_buttons_top %}{% submit_row %}{% endblock %}{% endif %}
+    {% if errors %}
+        <p class="errornote">
+            {% if errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
+        </p>
+        {{ adminform.form.non_field_errors }}
+    {% endif %}
 
-{% block field_sets %}
-{% for fieldset in adminform %}
-  {% include "admin/includes/fieldset.html" %}
-{% endfor %}
-{% endblock %}
+    {% block field_sets %}
+        {% for fieldset in adminform %}
+            {% include "admin/includes/fieldset.html" %}
+        {% endfor %}
+    {% endblock %}
 
-{% block after_field_sets %}{% endblock %}
+    {% block after_field_sets %}{% endblock %}
 
-{% block inline_field_sets %}
-{% for inline_admin_formset in inline_admin_formsets %}
-    {% include inline_admin_formset.opts.template %}
-{% endfor %}
-{% endblock %}
+    {% block inline_field_sets %}
+        {% for inline_admin_formset in inline_admin_formsets %}
+            {% include inline_admin_formset.opts.template %}
+        {% endfor %}
+    {% endblock %}
 
-{% block after_related_objects %}{% endblock %}
+    {% block after_related_objects %}{% endblock %}
 
-{% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
+    {% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
 
-{% block admin_change_form_document_ready %}
-    <script type="text/javascript"
-            id="django-admin-form-add-constants"
-            src="{% static 'admin/js/change_form.js' %}"
-            {% if adminform and add %}
-                data-model-name="{{ opts.model_name }}"
-            {% endif %}>
-    </script>
-{% endblock %}
+    {% block admin_change_form_document_ready %}
+        <script type="text/javascript"
+                id="django-admin-form-add-constants"
+                src="{% static 'admin/js/change_form.js' %}"
+                {% if adminform and add %}
+                    data-model-name="{{ opts.model_name }}"
+                {% endif %}>
+        </script>
+    {% endblock %}
 
-{# JavaScript for prepopulated fields #}
-{% prepopulated_fields_js %}
+    {# JavaScript for prepopulated fields #}
+    {% prepopulated_fields_js %}
 
+    </div>
+</form>
 </div>
-</form></div>
 {% endblock %}
