@@ -229,12 +229,12 @@ def tree_to_flat(task_tree: Dict, parent_id: Optional[str] = None) -> Dict[str, 
     return tasks
 
 
-def detect_format_version(data: str) -> str:
+def detect_format_version(data: Any) -> str:
     """
     Detect if serialized data is v1 or v3 format
 
     Args:
-        data: JSON string of serialized workflow
+        data: JSON string or dict of serialized workflow
 
     Returns:
         "v1", "v3", or "unknown"
@@ -242,15 +242,25 @@ def detect_format_version(data: str) -> str:
     try:
         obj = json.loads(data) if isinstance(data, str) else data
 
+        # Debug: Log what we got
+        logger.debug(
+            f"detect_format_version: data type: {type(data)}, obj type: {type(obj)}"
+        )
+
         # v1 has task_tree, v3 has tasks dict
         if "task_tree" in obj and "tasks" not in obj:
+            logger.debug("detect_format_version: Detected v1 format")
             return "v1"
         elif "tasks" in obj and isinstance(obj["tasks"], dict):
+            logger.debug("detect_format_version: Detected v3 format")
             return "v3"
         else:
+            logger.debug(
+                f"detect_format_version: Unknown format, keys: {list(obj.keys()) if isinstance(obj, dict) else 'not dict'}"
+            )
             return "unknown"
     except Exception as e:
-        logger.error(f"Error detecting format: {e}")
+        logger.error(f"Error detecting format: {e}, data type: {type(data)}")
         return "unknown"
 
 
@@ -327,6 +337,13 @@ def migrate_v1_to_v3(v1_data: str, workflow_spec=None) -> str:
         v1_obj = json.loads(v1_data) if isinstance(v1_data, str) else v1_data
     except json.JSONDecodeError as e:
         raise ValueError(f"Invalid JSON: {e}")
+
+    # Debug: Log what we got
+    logger.info(
+        f"migrate_v1_to_v3: v1_data type: {type(v1_data)}, v1_obj type: {type(v1_obj)}"
+    )
+    if isinstance(v1_obj, dict):
+        logger.info(f"migrate_v1_to_v3: v1_obj keys: {list(v1_obj.keys())}")
 
     # Verify it's v1 format
     if detect_format_version(v1_obj) != "v1":
