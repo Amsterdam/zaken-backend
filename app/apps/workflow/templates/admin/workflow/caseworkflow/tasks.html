@@ -4,7 +4,7 @@
     {% with state=task|task_state_name %}
         {% if not task_states or state in task_states %}
             <li style="line-height: 15px;">
-                <span style="color: {% if state == "READY" %}green{% elif state == "WAITING" %}orange{% else %}inherit{% endif %};">
+                <span style="color: {% if state == "COMPLETED" %}darkgreen{% elif state == "WAITING" %}red{% else %}inherit{% endif %};">
                     {{ task|task_display_name }}{% with spec_name=task|task_spec_name %}{% if spec_name %}: <code style="color: inherit;">{{ spec_name }}</code>{% endif %}{% endwith %} &mdash; state: {{ state }}{% if task.internal_data.start_time %} &mdash; start_time: {{ task.internal_data.start_time }}{% endif %}
                 </span>
                 {% task_children task as children %}
