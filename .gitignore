@@ -2,6 +2,7 @@
 .pyc
 __pycache__/
 .vscode/
+.cursor/
 .DS_Store
 !**/src/main/**/build/
 !**/src/test/**/build/
