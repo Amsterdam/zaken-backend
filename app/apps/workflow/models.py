@@ -553,12 +553,14 @@ class CaseWorkflow(models.Model):
             # Try description (legacy approach)
             if hasattr(task.task_spec, "description") and task.task_spec.description:
                 description = task.task_spec.description
-                if description and description.strip() and description != "User Task":
+                if description and description.strip().lower() != "user task":
                     return Template(description).safe_substitute(task.data)
 
             # Try task_spec.bpmn_name or bpmn_id (newer SpiffWorkflow versions)
             if hasattr(task.task_spec, "bpmn_name") and task.task_spec.bpmn_name:
-                return Template(task.task_spec.bpmn_name).safe_substitute(task.data)
+                bpmn_name = task.task_spec.bpmn_name
+                if bpmn_name and bpmn_name.strip().lower() != "user task":
+                    return Template(bpmn_name).safe_substitute(task.data)
 
             # Try the name field (technical name, but better than "User Task")
             if hasattr(task.task_spec, "name") and task.task_spec.name:
