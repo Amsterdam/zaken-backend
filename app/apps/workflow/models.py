@@ -971,7 +971,7 @@ class CaseWorkflow(models.Model):
     def migrate_to_version(self, workflow_version, test=True):
         wf = self.get_or_restore_workflow_state()
         if not self.parent_workflow or not wf:
-            return False
+            return {"error": "No parent workflow or workflow state"}, False
 
         original_data = copy.deepcopy(wf.last_task.data) if wf.last_task else {}
         expected_user_task_names = [
