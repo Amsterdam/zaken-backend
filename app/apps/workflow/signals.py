@@ -3,6 +3,7 @@ import datetime
 import logging
 from datetime import timezone
 
+import SpiffWorkflow
 from apps.events.models import TaskModelEventEmitter
 from apps.visits.models import Visit
 from apps.workflow.models import CaseUserTask, CaseWorkflow, GenericCompletedTask
@@ -164,6 +165,8 @@ def case_workflow_pre_save(sender, instance, **kwargs):
         serializer = BpmnWorkflowSerializer(registry=reg)
         serialized_wf = serializer.serialize_json(wf)
         instance.serialized_workflow_state = serialized_wf
+        instance.spiff_workflow_version = SpiffWorkflow.__version__
+        instance.spiff_serializer_version = serializer.get_version(serialized_wf)
 
 
 @receiver(post_save, sender=CaseWorkflow, dispatch_uid="start_workflow")

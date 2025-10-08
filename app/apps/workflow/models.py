@@ -3,6 +3,7 @@ import datetime
 import logging
 from string import Template
 
+import SpiffWorkflow
 from apps.cases.models import Case, CaseStateType, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
@@ -119,6 +120,16 @@ class CaseWorkflow(models.Model):
     )
     workflow_version = models.CharField(
         max_length=100,
+    )
+    spiff_workflow_version = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+    )
+    spiff_serializer_version = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
     )
     workflow_theme_name = models.CharField(
         max_length=100,
@@ -683,6 +694,8 @@ class CaseWorkflow(models.Model):
         serializer = BpmnWorkflowSerializer(registry=reg)
         state = serializer.serialize_json(wf)
         self.serialized_workflow_state = state
+        self.spiff_workflow_version = SpiffWorkflow.__version__
+        self.spiff_serializer_version = serializer.get_version(state)
         self.started = True
         self.save()
 
