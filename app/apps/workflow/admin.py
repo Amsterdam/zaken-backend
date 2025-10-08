@@ -142,15 +142,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
                     "migrate_to_latest_success": migrate_to_latest_success,
                     "migrate_to_latest_result": migrate_to_latest_result,
                     "workflow": obj.get_or_restore_workflow_state(),
-                    "task_states": [
-                        "COMPLETED",
-                        "READY",
-                        "WAITING",
-                        "CANCELLED",
-                        "FUTURE",
-                        "LIKELY",
-                        "MAYBE",
-                    ],
+                    "task_states": ["COMPLETED", "READY", "WAITING", "CANCELLED"],
                 }
             )
             obj.reset_subworkflow("debrief")
@@ -231,15 +223,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
                 "caseworkflow": caseworkflow,
                 "result": result,
                 "workflow": caseworkflow.get_or_restore_workflow_state(),
-                "task_states": [
-                    "COMPLETED",
-                    "READY",
-                    "WAITING",
-                    "CANCELLED",
-                    "FUTURE",
-                    "LIKELY",
-                    "MAYBE",
-                ],
+                "task_states": ["COMPLETED", "READY", "WAITING", "CANCELLED"],
                 "title": "Reset subworkflows for director",
             }
         )
@@ -282,15 +266,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
                 "success": success,
                 "result": result,
                 "workflow": caseworkflow.get_or_restore_workflow_state(),
-                "task_states": [
-                    "COMPLETED",
-                    "READY",
-                    "WAITING",
-                    "CANCELLED",
-                    "FUTURE",
-                    "LIKELY",
-                    "MAYBE",
-                ],
+                "task_states": ["COMPLETED", "READY", "WAITING", "CANCELLED"],
                 "title": "Update data for workflow",
             }
         )
