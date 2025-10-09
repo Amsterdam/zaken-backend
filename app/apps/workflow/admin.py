@@ -316,6 +316,7 @@ class CaseTaskAdmin(admin.ModelAdmin):
         "name",
         "task_name",
         "completed",
+        "due_date",
         "workflow",
         "owner",
         "invalid_completed_task_event_emitter",
