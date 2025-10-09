@@ -2,6 +2,7 @@ import base64
 import json
 import pickle
 import traceback
+from io import BytesIO
 
 from apps.workflow.models import CaseWorkflow
 from django.core.management.base import BaseCommand
@@ -11,6 +12,54 @@ from SpiffWorkflow.bpmn.serializer.migration.version_migration import MIGRATIONS
 from SpiffWorkflow.bpmn.serializer.workflow import VERSION as SPIFF_SERIALIZER_VERSION
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.camunda.serializer.config import CAMUNDA_CONFIG
+
+
+class PythonScriptEngine:
+    """
+    A placeholder for the old PythonScriptEngine class that behaves like a dictionary
+    """
+
+
+class Box(dict):
+    """
+    A placeholder for the old Box class that behaves like a dictionary
+    to support unpickling, while also providing a `value` property for
+    compatibility with the migration logic.
+    """
+
+    @property
+    def value(self):
+        return self.get("value")
+
+    @value.setter
+    def value(self, val):
+        self["value"] = val
+
+
+class CustomUnpickler(pickle.Unpickler):
+    """
+    A custom unpickler to handle obsolete classes from SpiffWorkflow v1.
+    """
+
+    def find_class(self, module, name):
+        if module == "SpiffWorkflow.bpmn.PythonScriptEngine":
+            if name == "PythonScriptEngine":
+                return PythonScriptEngine
+            if name == "Box":
+                return Box
+        return super().find_class(module, name)
+
+
+def decode_value(value):
+    """Decode __bytes__ values from the old pickle format using a custom unpickler."""
+    if isinstance(value, dict) and "__bytes__" in value:
+        try:
+            pickled_bytes = base64.b64decode(value["__bytes__"])
+            return CustomUnpickler(BytesIO(pickled_bytes)).load()
+        except Exception:
+            # Re-raise the exception to be caught and logged by the command
+            raise
+    return value
 
 
 class Command(BaseCommand):
@@ -122,7 +171,7 @@ class Command(BaseCommand):
 
     def _migrate_workflow_state(self, workflow):
         state = self._prepare_initial_state(workflow)
-        state = self._restructure_v0_state(state)
+        state = self._restructure_v1_state(state)
         state = self._ensure_spec_is_loaded(workflow, state)
         state = self._find_and_set_root_task(state)
         self._ensure_required_keys(state)
@@ -130,6 +179,9 @@ class Command(BaseCommand):
         # Transform task data in the serialized state to match v3 format BEFORE migrations
         state = self._transform_task_data_in_state(state)
         state = self._apply_migrations(state)
+
+        # Set display names from BPMN spec before further processing
+        state = self._set_display_names_from_spec(workflow, state)
 
         # Add missing top-level keys for v3 compatibility
         state.setdefault("completed", False)
@@ -210,7 +262,7 @@ class Command(BaseCommand):
         state["spec"].setdefault("task_specs", {})
         state.setdefault("subprocess_specs", {})
 
-    def _restructure_v0_state(self, state):
+    def _restructure_v1_state(self, state):
         if "task_tree" not in state:
             return state
 
@@ -248,6 +300,57 @@ class Command(BaseCommand):
 
         return state
 
+    def _set_display_names_from_spec(self, workflow, state):
+        """
+        Set display_name for task specs from the BPMN workflow specification.
+        This ensures that user tasks have proper human-readable names after migration.
+        """
+        workflow_spec = workflow.get_workflow_spec()
+        if not workflow_spec:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"  - No workflow spec found for workflow {workflow.id}"
+                )
+            )
+            return state
+
+        if "spec" not in state or "task_specs" not in state["spec"]:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"  - No spec or task_specs found for workflow {workflow.id}"
+                )
+            )
+            return state
+
+        for task_spec_name, task_spec_data in state["spec"]["task_specs"].items():
+            try:
+                # Find the corresponding task in the parsed BPMN workflow spec
+                bpmn_task = workflow_spec.get_task_spec_from_name(task_spec_name)
+
+                if (
+                    bpmn_task
+                    and hasattr(bpmn_task, "bpmn_name")
+                    and bpmn_task.bpmn_name
+                ):
+                    # Set the `bpmn_name` and `description` fields to the spec data
+                    display_name = bpmn_task.bpmn_name
+                    task_spec_data["description"] = display_name
+                    task_spec_data["bpmn_name"] = display_name
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f"  - Set bpmn_name and description for {task_spec_name}: {display_name}"
+                        )
+                    )
+            except Exception as e:
+                # Log warning but don't fail the migration
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"  - Could not set bpmn_name and description for {task_spec_name}: {e}"
+                    )
+                )
+
+        return state
+
     def _transform_task_data_in_state(self, state):
         """Transform task data in the serialized workflow state to match v3 format."""
         # Also transform the top-level data dictionary, which was previously missed
@@ -266,7 +369,7 @@ class Command(BaseCommand):
 
         return state
 
-    def _transform_data_dict(self, data_dict):
+    def _transform_data_dict(self, data_dict, wrap_values=True):
         """Transforms a v1 data dictionary to a v3 format by decoding __bytes__."""
         if not isinstance(data_dict, dict):
             return data_dict
@@ -278,21 +381,6 @@ class Command(BaseCommand):
             "result_var",
         }
 
-        def decode_value(value):
-            """Decode __bytes__ values from the old pickle format."""
-            if isinstance(value, dict) and "__bytes__" in value:
-                try:
-                    # It's a pickled object that was base64 encoded
-                    pickled_bytes = base64.b64decode(value["__bytes__"])
-                    return pickle.loads(pickled_bytes)
-                except Exception as e:
-                    # Log the error and raise to ensure we catch decode failures
-                    self.stdout.write(
-                        self.style.WARNING(f"Failed to decode __bytes__ value: {e}")
-                    )
-                    raise
-            return value
-
         transformed_data = {}
         for key, value in data_dict.items():
             # Skip obsolete fields that are no longer used in v3
@@ -302,17 +390,23 @@ class Command(BaseCommand):
             # First, decode the value if it's in the __bytes__ format
             decoded_value = decode_value(value)
 
-            # The decoded value itself might be a dict with a 'value' key
+            # The decoded value itself might be a dict with a 'value' key,
+            # or it might be a Box object from the old PythonScriptEngine.
             if isinstance(decoded_value, dict) and "value" in decoded_value:
                 final_value = decoded_value["value"]
+            elif isinstance(decoded_value, Box):
+                final_value = decoded_value.value
             else:
                 final_value = decoded_value
 
-            # Now, apply the wrapping logic
-            if key in raw_value_keys:
-                transformed_data[key] = final_value
+            if wrap_values:
+                # Now, apply the wrapping logic
+                if key in raw_value_keys:
+                    transformed_data[key] = final_value
+                else:
+                    transformed_data[key] = {"value": final_value}
             else:
-                transformed_data[key] = {"value": final_value}
+                transformed_data[key] = final_value
         return transformed_data
 
     def _apply_migrations(self, state):

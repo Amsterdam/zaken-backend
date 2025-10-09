@@ -545,22 +545,19 @@ class CaseWorkflow(models.Model):
         Get the display name for a task, handling SpiffWorkflow 3.x API changes.
         Tries multiple approaches to find the proper human-readable task name.
         """
+
         try:
-            # Try SpiffWorkflow 3.x approach first - check for display_name or description
-            if hasattr(task.task_spec, "display_name") and task.task_spec.display_name:
-                return Template(task.task_spec.display_name).safe_substitute(task.data)
+            # Try task_spec.bpmn_name (newer SpiffWorkflow versions)
+            if hasattr(task.task_spec, "bpmn_name") and task.task_spec.bpmn_name:
+                bpmn_name = task.task_spec.bpmn_name
+                if bpmn_name and bpmn_name.strip().lower() != "user task":
+                    return Template(bpmn_name).safe_substitute(task.data)
 
             # Try description (legacy approach)
             if hasattr(task.task_spec, "description") and task.task_spec.description:
                 description = task.task_spec.description
                 if description and description.strip().lower() != "user task":
                     return Template(description).safe_substitute(task.data)
-
-            # Try task_spec.bpmn_name or bpmn_id (newer SpiffWorkflow versions)
-            if hasattr(task.task_spec, "bpmn_name") and task.task_spec.bpmn_name:
-                bpmn_name = task.task_spec.bpmn_name
-                if bpmn_name and bpmn_name.strip().lower() != "user task":
-                    return Template(bpmn_name).safe_substitute(task.data)
 
             # Try the name field (technical name, but better than "User Task")
             if hasattr(task.task_spec, "name") and task.task_spec.name:
