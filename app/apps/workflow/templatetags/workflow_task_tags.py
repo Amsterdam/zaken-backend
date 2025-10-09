@@ -44,17 +44,13 @@ def task_display_name(task: Any) -> str:
     name_candidates: Iterable[str] = []
     if task_spec is not None:
         name_candidates = (
-            getattr(task_spec, "display_name", ""),
             getattr(task_spec, "description", ""),
             getattr(task_spec, "bpmn_name", ""),
             getattr(task_spec, "name", ""),
             getattr(task_spec.__class__, "__name__", ""),
         )
     else:
-        name_candidates = (
-            getattr(task, "display_name", ""),
-            getattr(task, "name", ""),
-        )
+        name_candidates = (getattr(task, "name", ""),)
 
     for candidate in name_candidates:
         if isinstance(candidate, str) and candidate.strip():
