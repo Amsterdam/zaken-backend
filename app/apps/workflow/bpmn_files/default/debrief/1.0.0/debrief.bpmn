@@ -111,7 +111,7 @@
       <bpmn:outgoing>Flow_19qs7p9</bpmn:outgoing>
       <bpmn:outgoing>Flow_0woi9k1</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:scriptTask id="service_script_set_summon_no" name="next_step.value = &#34;close_case&#34;">
+    <bpmn:scriptTask id="service_script_set_summon_no" name="next_step = &#34;close_case&#34;">
       <bpmn:incoming>Flow_1siw1z9</bpmn:incoming>
       <bpmn:outgoing>Flow_1v0g0l8</bpmn:outgoing>
       <bpmn:script>next_step = {"value": "close_case"}</bpmn:script>
@@ -122,7 +122,7 @@
       <bpmn:incoming>Flow_0z8zmjv</bpmn:incoming>
       <bpmn:incoming>Flow_0x4kfil</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:scriptTask id="service_script_set_summon_yes" name="next_step.value = &#34;summon&#34;">
+    <bpmn:scriptTask id="service_script_set_summon_yes" name="next_step = &#34;summon&#34;">
       <bpmn:incoming>Flow_1emqy6s</bpmn:incoming>
       <bpmn:outgoing>Flow_08m5xl9</bpmn:outgoing>
       <bpmn:script>next_step = {"value": "summon"}</bpmn:script>
@@ -137,17 +137,17 @@
       <bpmn:outgoing>Flow_0x4kfil</bpmn:outgoing>
       <bpmn:script>next_step = {"value": "visit"}; authorization = {"value": "Yes"}</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:sequenceFlow id="Flow_09t0nyr" name="violation.value == ADDITIONAL_VISIT_WITH_AUTHORIZATION" sourceRef="gateway_is_debrief_violation" targetRef="service_script_set_visit_auth_yes">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADDITIONAL_VISIT_WITH_AUTHORIZATION"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_09t0nyr" name="violation == ADDITIONAL_VISIT_WITH_AUTHORIZATION" sourceRef="gateway_is_debrief_violation" targetRef="service_script_set_visit_auth_yes">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "ADDITIONAL_VISIT_WITH_AUTHORIZATION"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0woi9k1" name="violation.value = ADDITIONAL_RESEARCH_REQUIRED" sourceRef="gateway_is_futher_debrief_research_needed" targetRef="task_wait_internal_reasearch">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADDITIONAL_RESEARCH_REQUIRED"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0woi9k1" name="violation = ADDITIONAL_RESEARCH_REQUIRED" sourceRef="gateway_is_futher_debrief_research_needed" targetRef="task_wait_internal_reasearch">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "ADDITIONAL_RESEARCH_REQUIRED"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_09q4ikx" name="violation.value == ADDITIONAL_VISIT_REQUIRED " sourceRef="gateway_is_debrief_violation" targetRef="service_script_set_visit_auth_no">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADDITIONAL_VISIT_REQUIRED"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_09q4ikx" name="violation == ADDITIONAL_VISIT_REQUIRED" sourceRef="gateway_is_debrief_violation" targetRef="service_script_set_visit_auth_no">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "ADDITIONAL_VISIT_REQUIRED"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_09fde08" name="violation.value = no OR To other theme" sourceRef="gateway_is_debrief_violation" targetRef="gateway_parallel_no_violation_yes_in">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "NO" or violation.value == "SEND_TO_OTHER_THEME"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_09fde08" name="violation = no OR To other theme" sourceRef="gateway_is_debrief_violation" targetRef="gateway_parallel_no_violation_yes_in">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "NO" or get_data("violation") == "SEND_TO_OTHER_THEME"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_14629v6" sourceRef="task_wait_internal_reasearch" targetRef="gateway_merge_1t0o489" />
     <bpmn:sequenceFlow id="Flow_0zox8jb" sourceRef="gateway_merge_1t0o489" targetRef="task_create_debrief" />

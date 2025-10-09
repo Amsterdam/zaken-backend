@@ -133,10 +133,10 @@
     <bpmn:sequenceFlow id="Flow_1vk0xad" sourceRef="service_bepalen_processtap_default" targetRef="Gateway_0i97097" />
     <bpmn:sequenceFlow id="Flow_1w441rj" sourceRef="Gateway_1vlqpiy" targetRef="gateway_is_authorisation_required" />
     <bpmn:sequenceFlow id="Flow_15wg2t8" name="visit_next_step = no_visit" sourceRef="Gateway_0i97097" targetRef="service_visit_next_step_debrief_after_no_visit">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">visit_next_step.value == "no_visit"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("visit_next_step") == "no_visit"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_19qcmz2" name="visit_next_step = visit_with_authorization" sourceRef="Gateway_0i97097" targetRef="Gateway_19hfteh">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">visit_next_step.value == "visit_with_authorization"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("visit_next_step") == "visit_with_authorization"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1d4p7zq" sourceRef="task_bepalen_processtap" targetRef="Gateway_1p4utag" />
     <bpmn:sequenceFlow id="Flow_1rtyo5h" sourceRef="gateway_bepalen_processtap" targetRef="Gateway_1vlqpiy" />
@@ -146,11 +146,11 @@
     <bpmn:sequenceFlow id="Flow_07yq2lt" sourceRef="gateway_merge_0h60qot" targetRef="task_create_schedule" />
     <bpmn:sequenceFlow id="Flow_1mmzhem" sourceRef="task_create_visit" targetRef="gateway_what_is_result_visit" />
     <bpmn:sequenceFlow id="Flow_0aiyxmw" name="Machtiging nodig = YES" sourceRef="gateway_is_authorisation_required" targetRef="Gateway_19hfteh">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">authorization.value == "Yes"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("authorization") == "Yes"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1ud05n0" name="Mactiging nodig = NO" sourceRef="gateway_is_authorisation_required" targetRef="gateway_merge_0h60qot" />
     <bpmn:sequenceFlow id="Flow_100ib64" name="situation == &#34;nobody_present&#34; and can_next_visit_go_ahead == True" sourceRef="gateway_what_is_result_visit" targetRef="gateway_merge_1fmcb00">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">situation.value == "nobody_present" and can_next_visit_go_ahead.value == True</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">get_data("situation") == "nobody_present" and get_data("can_next_visit_go_ahead") == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1e7wchj" sourceRef="Activity_1b2tfoc" targetRef="gateway_merge_0h60qot" />
     <bpmn:sequenceFlow id="Flow_0co89x0" sourceRef="task_request_authorization" targetRef="task_monitor_incoming_authorization" />
@@ -210,10 +210,10 @@
     <bpmn:sequenceFlow id="Flow_1tx62ja" sourceRef="service_status_inplannen_huisbezoek_hercontrole" targetRef="gateway_bepalen_processtap" />
     <bpmn:sequenceFlow id="Flow_1921ocy" sourceRef="start_xbisnr1" targetRef="gateway_merge_1fmcb00" />
     <bpmn:sequenceFlow id="Flow_1glf0ko" name="bepalen_processtap = ja" sourceRef="gateway_bepalen_processtap" targetRef="Gateway_1r1i4zw">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">bepalen_processtap.value == "ja"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("bepalen_processtap") == "ja"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_07mixd1" name="theme == theme_ondermijning" sourceRef="Gateway_1r1i4zw" targetRef="task_bepalen_processtap">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">theme.value == "theme_ondermijning"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("theme") == "theme_ondermijning"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1l7o27c" sourceRef="Gateway_1r1i4zw" targetRef="task_bepalen_processtap_standaard" />
   </bpmn:process>

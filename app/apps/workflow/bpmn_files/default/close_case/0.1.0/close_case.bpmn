@@ -17,8 +17,8 @@
         <bpmn:flowNodeRef>service_status_afsluiten_zaak</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:sequenceFlow id="Flow_1wqsk3u" name="next_step.value == &#34;sluiten&#34;" sourceRef="gateway_hercontrole_of_afsluiten" targetRef="service_status_afsluiten_zaak">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "sluiten"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_1wqsk3u" name="next_step == &#34;sluiten&#34;" sourceRef="gateway_hercontrole_of_afsluiten" targetRef="service_status_afsluiten_zaak">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "sluiten"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0kd2iyb" sourceRef="task_set_next_step" targetRef="gateway_hercontrole_of_afsluiten" />
     <bpmn:sequenceFlow id="Flow_0e6gl5c" sourceRef="start_1qt4hub" targetRef="service_status_vervolgstap" />
@@ -72,8 +72,8 @@
       <bpmn:outgoing>Flow_1s97xge</bpmn:outgoing>
       <bpmn:script>set_status("Vervolgstap")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:sequenceFlow id="Flow_00aal58" name="next_step.value == &#34;hercontrole&#34;" sourceRef="gateway_hercontrole_of_afsluiten" targetRef="end_04zl50i">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "hercontrole"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_00aal58" name="next_step == &#34;hercontrole&#34;" sourceRef="gateway_hercontrole_of_afsluiten" targetRef="end_04zl50i">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "hercontrole"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
