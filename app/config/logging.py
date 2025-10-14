@@ -3,13 +3,16 @@ from typing import Any
 
 from azure.monitor.opentelemetry.exporter import (
     AzureMonitorLogExporter,
+    AzureMonitorMetricExporter,
     AzureMonitorTraceExporter,
 )
-from opentelemetry import trace
+from opentelemetry import metrics, trace
 from opentelemetry.instrumentation.django import DjangoInstrumentor
 from opentelemetry.instrumentation.psycopg2 import Psycopg2Instrumentor
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -33,8 +36,6 @@ def start_logging():
         "APPLICATIONINSIGHTS_CONNECTION_STRING"
     )
 
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-
     def response_hook(span, request, response):
         if (
             span
@@ -47,6 +48,16 @@ def start_logging():
             span.set_attributes({"django.user.name": request.user.username})
 
     resource: Resource = Resource.create({"service.name": MONITOR_SERVICE_NAME})
+
+    # Set up metrics
+    metric_reader = PeriodicExportingMetricReader(
+        AzureMonitorMetricExporter(
+            connection_string=APPLICATIONINSIGHTS_CONNECTION_STRING
+        ),
+        export_interval_millis=10000,
+    )
+    meter_provider = MeterProvider(metric_readers=[metric_reader], resource=resource)
+    metrics.set_meter_provider(meter_provider)
 
     tracer_provider: TracerProvider = TracerProvider(resource=resource)
     trace.set_tracer_provider(tracer_provider)

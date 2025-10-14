@@ -1,9 +1,11 @@
-import os
+from config.logging import start_logging
 
-from django.core.wsgi import get_wsgi_application
+start_logging()
 
-from .logging import start_logging
+import os  # noqa: E402
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-start_logging()
+
+from django.core.wsgi import get_wsgi_application  # noqa: E402
+
 application = get_wsgi_application()
