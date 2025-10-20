@@ -45,6 +45,8 @@ class BrpRequest:
             span_context.trace_id if span_context and span_context.trace_id else 0
         )
         operation_id = f"{trace_id_int:032x}" if trace_id_int else uuid.uuid4().hex
+        print(f"------> Operation ID ---------> {operation_id}")
+        logger.debug(f"------> Operation ID ---------> {operation_id}")
         headers = {
             "Authorization": f"Bearer {access_token}" if access_token else "",
             "X-Correlation-ID": operation_id,
