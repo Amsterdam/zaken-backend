@@ -1,5 +1,4 @@
 import logging
-import os
 import uuid
 
 import requests
@@ -45,14 +44,14 @@ class BrpRequest:
             span_context.trace_id if span_context and span_context.trace_id else 0
         )
         operation_id = f"{trace_id_int:032x}" if trace_id_int else uuid.uuid4().hex
-        print(f"------> Operation ID ---------> {operation_id}")
-        logger.debug(f"------> Operation ID ---------> {operation_id}")
+
         headers = {
-            "Authorization": f"Bearer {access_token}" if access_token else "",
             "X-Correlation-ID": operation_id,
             "X-Task-Description": "Wonen",
             "X-User": user_email,
         }
+        if access_token:
+            headers["Authorization"] = f"Bearer {access_token}"
 
         response = getattr(requests, method)(
             url=url,
@@ -61,6 +60,8 @@ class BrpRequest:
             timeout=(3, 10),
         )
         response.raise_for_status()
+        # Add operation_id to response for logging/tracing purposes
+        response.operation_id = operation_id
         return response
 
     def _fetch_ingeschreven_personen(
@@ -71,7 +72,7 @@ class BrpRequest:
             "nummeraanduidingIdentificatie": f"{nummeraanduiding_id}",
             "inclusiefOverledenPersonen": "true",
         }
-        url = os.path.join(self.base_url, "personen")
+        url = f"{self.base_url.rstrip('/')}/personen"
         response = self._perform_api_call(
             url, json=payload, access_token=access_token, user_email=user_email
         )
