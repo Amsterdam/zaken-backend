@@ -76,4 +76,7 @@ class BrpRequest:
         response = self._perform_api_call(
             url, json=payload, access_token=access_token, user_email=user_email
         )
-        return response.json()
+        data = response.json()
+        data["operation_id"] = response.operation_id
+
+        return data
