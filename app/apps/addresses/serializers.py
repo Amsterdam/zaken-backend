@@ -120,6 +120,7 @@ class BrpSerializer(serializers.Serializer):
         child=serializers.DictField(),
         required=True,
     )
+    operation_id = serializers.CharField(required=True)
 
 
 class MeldingenSerializer(serializers.Serializer):
