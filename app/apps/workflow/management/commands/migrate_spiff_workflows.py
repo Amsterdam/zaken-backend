@@ -125,6 +125,10 @@ class Command(BaseCommand):
             f"Processing workflow {workflow.id} for case {workflow.case.id}..."
         )
         try:
+            workflow.data_migration_backup = workflow.data
+            workflow.serialized_workflow_state_migration_backup = (
+                workflow.serialized_workflow_state
+            )
             self._transform_workflow_data(workflow)
             self._migrate_workflow_state(workflow)
 
