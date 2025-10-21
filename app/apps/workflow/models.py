@@ -143,8 +143,12 @@ class CaseWorkflow(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+
     serialized_workflow_state = models.JSONField(null=True)
+    serialized_workflow_state_migration_backup = models.JSONField(null=True, blank=True)
+
     data = models.JSONField(null=True)
+    data_migration_backup = models.JSONField(null=True, blank=True)
 
     case_state_type = models.ForeignKey(
         to="cases.CaseStateType",
