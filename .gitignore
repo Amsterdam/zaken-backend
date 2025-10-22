@@ -11,6 +11,8 @@ app/.env
 app/.coverage
 private_media/
 
+/data
+
 .env.local
 .local.env
 
