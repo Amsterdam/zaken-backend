@@ -85,6 +85,7 @@ class IntArrayFilter(filters.BaseCSVFilter, filters.NumberFilter):
 
 
 class CaseFilter(filters.FilterSet):
+    address_search = filters.CharFilter(method="get_address_search")
     district = filters.ModelMultipleChoiceFilter(
         queryset=District.objects.all(), method="get_district"
     )
@@ -241,6 +242,36 @@ class CaseFilter(filters.FilterSet):
             queryset, "housing_corporation_combiteam", value
         )
         return queryset.filter(last_schedule_field=value)
+
+    def get_address_search(self, queryset, name, value):
+        """
+        Searches for addresses by:
+        - street name (e.g., 'Amstel')
+        - street name + number (e.g., 'Amstel 2')
+        - postal code (e.g., '1011PJ')
+        - postal code + number (e.g., '1011PJ23' or '1011 PJ 23')
+        """
+        value = value.strip()
+        postal_match = re.match(r"^(\d{4}\s?[A-Za-z]{2})(\s*\d+)?$", value)
+        street_match = re.match(r"^([^\d]+)\s*(\d+)?$", value)
+
+        if postal_match:
+            postal_code = postal_match.group(1).replace(" ", "").upper()
+            house_number = postal_match.group(2)
+            filters = Q(address__postal_code__iexact=postal_code)
+            if house_number:
+                filters &= Q(address__number=int(house_number.strip()))
+            return queryset.filter(filters)
+
+        elif street_match:
+            street_name = street_match.group(1).strip()
+            house_number = street_match.group(2)
+            filters = Q(address__street_name__icontains=street_name)
+            if house_number:
+                filters &= Q(address__number=int(house_number))
+            return queryset.filter(filters)
+
+        return queryset.filter(address__street_name__icontains=value)
 
     def get_street_name(self, queryset, name, value):
         """
