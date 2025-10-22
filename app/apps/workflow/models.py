@@ -869,9 +869,15 @@ class CaseWorkflow(models.Model):
             if hasattr(task.task_spec, "event_definition") and isinstance(
                 task.task_spec.event_definition, MessageEventDefinition
             ):
-                message = task.task_spec.event_definition.message
+                message_name = task.task_spec.event_definition.name
+
+                #
+                # TODO: Verify that these `script_{message_name}` tasks are actually found and properly executed.
+                #
                 script_tasks = [
-                    t for t in wf.get_tasks() if t.task_spec.name == f"script_{message}"
+                    t
+                    for t in wf.get_tasks()
+                    if t.task_spec.name == f"script_{message_name}"
                 ]
                 if script_tasks:
                     script_task = script_tasks[0]
