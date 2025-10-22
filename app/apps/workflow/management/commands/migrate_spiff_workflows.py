@@ -149,11 +149,10 @@ class Command(BaseCommand):
         if not workflow.data:
             return
 
-        # Keys that should NOT be wrapped in {"value": ...} structure
-        # These should remain as raw values to match v3 format
+        # Keys that should not be wrapped in {"value": ...} structure.
+        # Note we're doing this for any `_duration` keys later on.
         raw_value_keys = {
             "status_name",
-            "monitoren_reactie_platform_duration",
             "result_var",
         }
 
@@ -163,8 +162,11 @@ class Command(BaseCommand):
             if key == "message_name":
                 continue
 
-            # For keys that should remain raw values
+            # Keep keys that shouldn't be wrapped in {"value": ...} structure
             if key in raw_value_keys:
+                transformed_data[key] = value
+            # Also keep duration keys as raw values (for use in `parse_duration`)
+            elif key.endswith("_duration"):
                 transformed_data[key] = value
             # For other keys, wrap in {"value": ...} if not already wrapped
             elif not isinstance(value, dict) or "value" not in value:
@@ -378,10 +380,10 @@ class Command(BaseCommand):
         if not isinstance(data_dict, dict):
             return data_dict
 
-        # Keys that should NOT be wrapped in {"value": ...} structure
+        # Keys that should not be wrapped in {"value": ...} structure.
+        # Note we're doing this for any `_duration` keys later on.
         raw_value_keys = {
             "status_name",
-            "monitoren_reactie_platform_duration",
             "result_var",
         }
 
@@ -404,8 +406,11 @@ class Command(BaseCommand):
                 final_value = decoded_value
 
             if wrap_values:
-                # Now, apply the wrapping logic
+                # Keep keys that shouldn't be wrapped in {"value": ...} structure
                 if key in raw_value_keys:
+                    transformed_data[key] = final_value
+                # Also keep duration keys as raw values (for use in `parse_duration`)
+                elif key.endswith("_duration"):
                     transformed_data[key] = final_value
                 else:
                     transformed_data[key] = {"value": final_value}
