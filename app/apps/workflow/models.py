@@ -269,17 +269,22 @@ class CaseWorkflow(models.Model):
                 subworkflow_name, workflow_instance.id, cleaned_data
             )
 
-        def parse_duration_string(str_duration):
-            # Convert to timedelta if it's a string
-            if isinstance(str_duration, datetime.timedelta):
-                td = str_duration
-            else:
-                td = parse_duration(str_duration)
+        def parse_duration_string(value):
+            # Handle `{'value': '0:00:20'}` values
+            if isinstance(value, dict) and "value" in value:
+                value = value["value"]
+
+            # Create a timedelta object from the value (if it's not already a timedelta)
+            td = None
+            if isinstance(value, datetime.timedelta):
+                td = value
+            elif isinstance(value, str):
+                td = parse_duration(value)
 
             # Always return ISO 8601 duration format for SpiffWorkflow compatibility
             if td is not None:
                 return timedelta_to_iso_duration(td)
-            return str_duration  # Return original if parsing failed
+            return value  # Return original if parsing failed
 
         def get_data(field_name):
             data_source = None
