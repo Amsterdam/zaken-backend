@@ -166,8 +166,9 @@ class Command(BaseCommand):
         # Keys that should not be wrapped in {"value": ...} structure.
         # Note we're doing this for any `_duration` keys later on.
         raw_value_keys = {
-            "status_name",
+            "completed",
             "result_var",
+            "status_name",
         }
 
         transformed_data = {}
