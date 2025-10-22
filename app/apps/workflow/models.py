@@ -782,7 +782,7 @@ class CaseWorkflow(models.Model):
         if not workflow:
             return
 
-        task = workflow.get_task(task_id)
+        task = workflow.get_task_from_id(task_id)
         sibling = (
             next(iter([t for t in task.parent.children if t.id != task_id]), None)
             if hasattr(task, "parent")
