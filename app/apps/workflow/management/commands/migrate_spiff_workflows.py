@@ -145,9 +145,23 @@ class Command(BaseCommand):
             )
             self.stdout.write(traceback.format_exc())
 
-    def _transform_workflow_data(self, workflow):
-        if not workflow.data:
-            return
+    def _transform_data(
+        self,
+        data_dict,
+        value_processor=None,
+        wrap_conditionally=False,
+        wrap_values=True,
+    ):
+        """
+        Generic helper to transform a v1 data dictionary to a v3 format.
+
+        :param data_dict: The dictionary to transform.
+        :param value_processor: A function to process/decode values before transformation.
+        :param wrap_conditionally: If True, wraps values only if not already wrapped.
+        :param wrap_values: If False, no values are wrapped.
+        """
+        if not isinstance(data_dict, dict):
+            return data_dict
 
         # Keys that should not be wrapped in {"value": ...} structure.
         # Note we're doing this for any `_duration` keys later on.
@@ -157,23 +171,39 @@ class Command(BaseCommand):
         }
 
         transformed_data = {}
-        for key, value in workflow.data.items():
-            # Skip obsolete fields that are no longer used in v3
+        for key, value in data_dict.items():
             if key == "message_name":
                 continue
 
-            # Keep keys that shouldn't be wrapped in {"value": ...} structure
-            if key in raw_value_keys:
+            processed_value = value_processor(value) if value_processor else value
+
+            if not wrap_values:
+                transformed_data[key] = processed_value
+                continue
+
+            if key in raw_value_keys or key.endswith("_duration"):
+                transformed_data[key] = processed_value
+            elif wrap_conditionally and (isinstance(value, dict) and "value" in value):
                 transformed_data[key] = value
-            # Also keep duration keys as raw values (for use in `parse_duration`)
-            elif key.endswith("_duration"):
-                transformed_data[key] = value
-            # For other keys, wrap in {"value": ...} if not already wrapped
-            elif not isinstance(value, dict) or "value" not in value:
-                transformed_data[key] = {"value": value}
             else:
-                transformed_data[key] = value
-        workflow.data = transformed_data
+                transformed_data[key] = {"value": processed_value}
+        return transformed_data
+
+    def _process_and_decode_value(self, value):
+        """Decodes and unwraps a value from a v1 data dictionary."""
+        decoded_value = decode_value(value)
+
+        if isinstance(decoded_value, dict) and "value" in decoded_value:
+            return decoded_value["value"]
+        if isinstance(decoded_value, Box):
+            return decoded_value.value
+        return decoded_value
+
+    def _transform_workflow_data(self, workflow):
+        if not workflow.data:
+            return
+
+        workflow.data = self._transform_data(workflow.data, wrap_conditionally=True)
 
     def _migrate_workflow_state(self, workflow):
         state = self._prepare_initial_state(workflow)
@@ -377,46 +407,11 @@ class Command(BaseCommand):
 
     def _transform_data_dict(self, data_dict, wrap_values=True):
         """Transforms a v1 data dictionary to a v3 format by decoding __bytes__."""
-        if not isinstance(data_dict, dict):
-            return data_dict
-
-        # Keys that should not be wrapped in {"value": ...} structure.
-        # Note we're doing this for any `_duration` keys later on.
-        raw_value_keys = {
-            "status_name",
-            "result_var",
-        }
-
-        transformed_data = {}
-        for key, value in data_dict.items():
-            # Skip obsolete fields that are no longer used in v3
-            if key == "message_name":
-                continue
-
-            # First, decode the value if it's in the __bytes__ format
-            decoded_value = decode_value(value)
-
-            # The decoded value itself might be a dict with a 'value' key,
-            # or it might be a Box object from the old PythonScriptEngine.
-            if isinstance(decoded_value, dict) and "value" in decoded_value:
-                final_value = decoded_value["value"]
-            elif isinstance(decoded_value, Box):
-                final_value = decoded_value.value
-            else:
-                final_value = decoded_value
-
-            if wrap_values:
-                # Keep keys that shouldn't be wrapped in {"value": ...} structure
-                if key in raw_value_keys:
-                    transformed_data[key] = final_value
-                # Also keep duration keys as raw values (for use in `parse_duration`)
-                elif key.endswith("_duration"):
-                    transformed_data[key] = final_value
-                else:
-                    transformed_data[key] = {"value": final_value}
-            else:
-                transformed_data[key] = final_value
-        return transformed_data
+        return self._transform_data(
+            data_dict,
+            value_processor=self._process_and_decode_value,
+            wrap_values=wrap_values,
+        )
 
     def _apply_migrations(self, state):
         for _, migration_func in sorted(MIGRATIONS.items()):
