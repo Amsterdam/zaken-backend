@@ -52,6 +52,17 @@ class AddressViewSet(
     lookup_field = "bag_id"
     http_method_names = ["get", "patch", "post"]
 
+    def retrieve(self, request, bag_id=None):
+        try:
+            address = Address.objects.get(bag_id=bag_id)
+        except Address.DoesNotExist:
+            return Response(
+                {"detail": "Address not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = self.serializer_class(address)
+        return Response(serializer.data)
+
     def update(self, request, bag_id, *args, **kwargs):
         address_instance = Address.objects.get(bag_id=bag_id)
         serializer = self.serializer_class(
