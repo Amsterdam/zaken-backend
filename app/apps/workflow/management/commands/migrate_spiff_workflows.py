@@ -102,6 +102,12 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("Migration complete."))
 
     def _get_workflows_to_migrate(self, options):
+        """
+        Retrieves the workflows that need to be migrated from the database.
+        It filters for workflows that have a spiff_workflow_version of 1 or None,
+        and no spiff_serializer_version. It also applies optional limits and
+        workflow_id filters.
+        """
         limit = options["limit"]
         workflow_id = options["workflow_id"]
 
@@ -121,6 +127,12 @@ class Command(BaseCommand):
         return workflows
 
     def _process_workflow(self, workflow, dry_run):
+        """
+        Processes a single workflow, handling the migration of its data and state.
+        It backs up the original data and serialized state before attempting
+        the migration. If the migration is successful and not in dry-run mode,
+        it saves the changes to the database.
+        """
         self.stdout.write(
             f"Processing workflow {workflow.id} for case {workflow.case.id}..."
         )
@@ -191,7 +203,11 @@ class Command(BaseCommand):
         return transformed_data
 
     def _process_and_decode_value(self, value):
-        """Decodes and unwraps a value from a v1 data dictionary."""
+        """
+        Decodes and unwraps a value from a v1 data dictionary. It handles
+        the custom __bytes__ format, unwraps values from dictionaries
+        containing a 'value' key, and handles the old Box class.
+        """
         decoded_value = decode_value(value)
 
         if isinstance(decoded_value, dict) and "value" in decoded_value:
@@ -201,12 +217,23 @@ class Command(BaseCommand):
         return decoded_value
 
     def _transform_workflow_data(self, workflow):
+        """
+        Transforms the top-level data dictionary of a workflow to the v3 format.
+        It uses a conditional wrap to ensure that values are not double-wrapped.
+        """
         if not workflow.data:
             return
 
         workflow.data = self._transform_data(workflow.data, wrap_conditionally=True)
 
     def _migrate_workflow_state(self, workflow):
+        """
+        Orchestrates the migration of the serialized workflow state from v1 to v3.
+        This involves preparing the initial state, restructuring it, ensuring the
+        spec is loaded, setting the root task, transforming task data, applying
+        migrations, setting display names, and finally re-serializing the state
+        in the v3 format.
+        """
         state = self._prepare_initial_state(workflow)
         state = self._restructure_v1_state(state)
         state = self._ensure_spec_is_loaded(workflow, state)
@@ -256,6 +283,11 @@ class Command(BaseCommand):
             workflow.spiff_serializer_version = SPIFF_SERIALIZER_VERSION
 
     def _prepare_initial_state(self, workflow):
+        """
+        Prepares the initial state for migration. It loads the serialized state
+        from the workflow, handling both string and dictionary formats, and
+        unwraps the v1 state from the 'workflow' key if present.
+        """
         state = workflow.serialized_workflow_state
         if isinstance(state, str):
             state = json.loads(state)
@@ -265,6 +297,12 @@ class Command(BaseCommand):
         return state
 
     def _ensure_spec_is_loaded(self, workflow, state):
+        """
+        Ensures that the workflow specification is loaded into the state.
+        If the spec or its task_specs are missing, it loads them from the
+        workflow's BPMN definition by creating a dummy workflow and
+        serializing it to extract the spec.
+        """
         if "spec" not in state or not state["spec"].get("task_specs"):
             workflow_spec = workflow.get_workflow_spec()
             if workflow_spec:
@@ -278,6 +316,12 @@ class Command(BaseCommand):
         return state
 
     def _find_and_set_root_task(self, state):
+        """
+        Finds and sets the root task in the workflow state. It iterates over
+        the tasks to find the one with no parent and sets it as the root.
+        It also includes a fallback for older states that use a 'start'
+        key in the spec.
+        """
         root_task_id = None
         if "tasks" in state and state["tasks"]:
             for task_id, task_data in state["tasks"].items():
@@ -292,6 +336,10 @@ class Command(BaseCommand):
         return state
 
     def _ensure_required_keys(self, state):
+        """
+        Ensures that all required keys for the v3 format are present in the
+        workflow state, adding them with default values if they are missing.
+        """
         state.setdefault("subprocesses", {})
         state.setdefault("tasks", {})
         if "spec" not in state:
@@ -300,6 +348,11 @@ class Command(BaseCommand):
         state.setdefault("subprocess_specs", {})
 
     def _restructure_v1_state(self, state):
+        """
+        Restructures the v1 task_tree into the flat 'tasks' dictionary format
+        used in v3. It recursively flattens the tree structure and updates
+        parent/child references to use UUIDs.
+        """
         if "task_tree" not in state:
             return state
 
@@ -389,7 +442,11 @@ class Command(BaseCommand):
         return state
 
     def _transform_task_data_in_state(self, state):
-        """Transform task data in the serialized workflow state to match v3 format."""
+        """
+        Transform task data in the serialized workflow state to match v3 format.
+        It processes the data dictionaries for the top-level state and for each
+        individual task, and ensures that each task has a 'typename' field.
+        """
         # Also transform the top-level data dictionary, which was previously missed
         if "data" in state:
             state["data"] = self._transform_data_dict(state["data"])
@@ -407,7 +464,11 @@ class Command(BaseCommand):
         return state
 
     def _transform_data_dict(self, data_dict, wrap_values=True):
-        """Transforms a v1 data dictionary to a v3 format by decoding __bytes__."""
+        """
+        Transforms a v1 data dictionary to a v3 format by decoding __bytes__.
+        This is a helper function that calls the more generic _transform_data
+        with a specific value processor for decoding.
+        """
         return self._transform_data(
             data_dict,
             value_processor=self._process_and_decode_value,
@@ -415,12 +476,20 @@ class Command(BaseCommand):
         )
 
     def _apply_migrations(self, state):
+        """
+        Applies the SpiffWorkflow migrations to the workflow state. It iterates
+        over the registered migrations in order and applies each one.
+        """
         for _, migration_func in sorted(MIGRATIONS.items()):
             migration_func(state)
         return state
 
     def _validate_migration(self, state):
-        """Validate that the migration completed correctly."""
+        """
+        Validate that the migration completed correctly. This includes checking
+        that no __bytes__ fields remain, that all tasks have a 'typename',
+        and that all required v3 top-level keys are present.
+        """
 
         # Check that no __bytes__ fields remain
         def check_for_bytes(obj, path=""):
