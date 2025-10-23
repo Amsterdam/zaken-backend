@@ -16,7 +16,9 @@ from SpiffWorkflow.camunda.serializer.config import CAMUNDA_CONFIG
 
 class PythonScriptEngine:
     """
-    A placeholder for the old PythonScriptEngine class that behaves like a dictionary
+    A placeholder for the old PythonScriptEngine class that behaves like a dictionary.
+
+    See: https://github.com/sartography/SpiffWorkflow/blob/v2.0.1/RELEASE_NOTES.md#flexible-data-management
     """
 
 
@@ -25,6 +27,8 @@ class Box(dict):
     A placeholder for the old Box class that behaves like a dictionary
     to support unpickling, while also providing a `value` property for
     compatibility with the migration logic.
+
+    See: https://github.com/sartography/SpiffWorkflow/blob/v3.1.2/RELEASE_NOTES.md#other-changes
     """
 
     @property
@@ -451,12 +455,22 @@ class Command(BaseCommand):
         if "data" in state:
             state["data"] = self._transform_data_dict(state["data"])
 
+        if "internal_data" in state:
+            state["internal_data"] = self._transform_internal_data(
+                state["internal_data"]
+            )
+
         if "tasks" not in state:
             return state
 
         for task_id, task_data in state["tasks"].items():
             if "data" in task_data:
                 task_data["data"] = self._transform_data_dict(task_data["data"])
+
+            if "internal_data" in task_data:
+                task_data["internal_data"] = self._transform_internal_data(
+                    task_data["internal_data"]
+                )
 
             # Add typename field required for v3 format
             task_data.setdefault("typename", "Task")
@@ -474,6 +488,42 @@ class Command(BaseCommand):
             value_processor=self._process_and_decode_value,
             wrap_values=wrap_values,
         )
+
+    def _transform_internal_data(self, internal_data):
+        """
+        Converts legacy internal_data keys to their v3 equivalents.
+
+        Specifically, any key from the `key_mapping` dictionary is renamed to the value
+        of the key in the dictionary unless the latter already exists. The transformation
+        is applied recursively to nested structures to ensure consistency throughout
+        the payload.
+        """
+
+        key_mapping = {
+            "start_time": "event_value",
+        }
+
+        if isinstance(internal_data, dict):
+            transformed = {}
+            for key, value in internal_data.items():
+                processed_value = self._transform_internal_data(value)
+
+                if key in key_mapping:
+                    mapped_key = key_mapping[key]
+                    if mapped_key in internal_data:
+                        continue
+                    transformed_key = mapped_key
+                else:
+                    transformed_key = key
+
+                transformed[transformed_key] = processed_value
+
+            return transformed
+
+        if isinstance(internal_data, list):
+            return [self._transform_internal_data(item) for item in internal_data]
+
+        return internal_data
 
     def _apply_migrations(self, state):
         """
