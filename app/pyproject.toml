@@ -47,8 +47,9 @@ dependencies = [
     "redis (~=6.4)",
     "Requests (~=2.32)",
     "requests-mock (~=1.12)",
-    "spiffworkflow (==1.1.0)",
+    "spiffworkflow (~=3.1.0)",
     "tenacity (~=9.0)",
+    "watchdog (>=6.0.0,<7.0.0)",
 ]
 
 [tool.poetry]

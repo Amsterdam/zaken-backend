@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -e
 
-celery -A config worker -l info
+watchmedo auto-restart --directory=./ --pattern="*.py;*.bpmn" --recursive -- celery -A config worker -l info

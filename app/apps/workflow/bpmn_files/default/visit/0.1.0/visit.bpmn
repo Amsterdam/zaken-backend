@@ -168,12 +168,12 @@
       <bpmn:incoming>Flow_0aiyxmw</bpmn:incoming>
       <bpmn:outgoing>Flow_0co89x0</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:scriptTask id="Activity_1es16cn" name="summon.value = &#34;Yes&#34;">
+    <bpmn:scriptTask id="Activity_1es16cn" name="summon = &#34;Yes&#34;">
       <bpmn:incoming>Flow_1erggxk</bpmn:incoming>
       <bpmn:outgoing>Flow_08m5xl9</bpmn:outgoing>
       <bpmn:script>summon = {"value": "Yes"}</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="Activity_1ijz5ow" name="summon.value = &#34;No&#34;">
+    <bpmn:scriptTask id="Activity_1ijz5ow" name="summon = &#34;No&#34;">
       <bpmn:incoming>Flow_1c3b8q1</bpmn:incoming>
       <bpmn:outgoing>Flow_1v0g0l8</bpmn:outgoing>
       <bpmn:script>summon = {"value": "No"}</bpmn:script>
@@ -229,20 +229,20 @@
     <bpmn:sequenceFlow id="Flow_07yq2lt" sourceRef="Gateway_0h60qot" targetRef="task_create_schedule" />
     <bpmn:sequenceFlow id="Flow_0co89x0" sourceRef="Activity_03lt0e7" targetRef="Activity_1lv323s" />
     <bpmn:sequenceFlow id="Flow_0aiyxmw" name="Machtiging nodig = YES" sourceRef="is_authorisation_required" targetRef="Activity_03lt0e7">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADDITIONAL_VISIT_WITH_AUTHORIZATION"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "ADDITIONAL_VISIT_WITH_AUTHORIZATION"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1ud05n0" name="Mactiging nodig = NO" sourceRef="is_authorisation_required" targetRef="Gateway_136vx0p" />
-    <bpmn:sequenceFlow id="Flow_09q4ikx" name="violation.value == ADDITIONAL_VISIT_REQUIRED or violation.value == ADDITIONAL_VISIT_WITH_AUTHORIZATION" sourceRef="is_debrief_violation" targetRef="Activity_1fle1xm">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADDITIONAL_VISIT_REQUIRED" or violation.value == "ADDITIONAL_VISIT_WITH_AUTHORIZATION"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_09q4ikx" name="violation == ADDITIONAL_VISIT_REQUIRED or violation == ADDITIONAL_VISIT_WITH_AUTHORIZATION" sourceRef="is_debrief_violation" targetRef="Activity_1fle1xm">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "ADDITIONAL_VISIT_REQUIRED" or get_data("violation") == "ADDITIONAL_VISIT_WITH_AUTHORIZATION"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0oi0xmk" sourceRef="Gateway_1odl5bp" targetRef="Activity_1s4ejxs" />
     <bpmn:sequenceFlow id="Flow_1c3b8q1" sourceRef="task_prepare_abbreviated_visit_rapport" targetRef="Activity_1ijz5ow" />
     <bpmn:sequenceFlow id="Flow_090pn4r" name="violation = yes" sourceRef="is_debrief_violation" targetRef="Gateway_0289ucr" />
-    <bpmn:sequenceFlow id="Flow_09fde08" name="violation.value = no OR To other theme" sourceRef="is_debrief_violation" targetRef="task_prepare_abbreviated_visit_rapport">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "NO" or violation.value == "SEND_TO_OTHER_THEME"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_09fde08" name="violation = no OR To other theme" sourceRef="is_debrief_violation" targetRef="task_prepare_abbreviated_visit_rapport">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "NO" or get_data("violation") == "SEND_TO_OTHER_THEME"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_100ib64" name="situation == &#34;nobody_present&#34; and can_next_visit_go_ahead == True" sourceRef="Gateway_1odl5bp" targetRef="Activity_1tij9d7">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">situation.value == "nobody_present" and can_next_visit_go_ahead.value == True</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">get_data("situation") == "nobody_present" and get_data("can_next_visit_go_ahead") == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0c7fpqp" sourceRef="Gateway_136vx0p" targetRef="Gateway_0h60qot" />
     <bpmn:sequenceFlow id="Flow_14k2xx3" sourceRef="Activity_1s4ejxs" targetRef="Gateway_1t0o489" />
@@ -256,8 +256,8 @@
     <bpmn:sequenceFlow id="Flow_1bb4c8d" sourceRef="Activity_0hjc13h" targetRef="task_create_concept_summons" />
     <bpmn:sequenceFlow id="Flow_0zox8jb" sourceRef="Gateway_1t0o489" targetRef="task_create_debrief" />
     <bpmn:sequenceFlow id="Flow_19qs7p9" name="Nee" sourceRef="Gateway_0et8kzm" targetRef="is_debrief_violation" />
-    <bpmn:sequenceFlow id="Flow_0woi9k1" name="violation.value = ADDITIONAL_RESEARCH_REQUIRED" sourceRef="Gateway_0et8kzm" targetRef="Gateway_1t0o489">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">violation.value == "ADDITIONAL_RESEARCH_REQUIRED"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0woi9k1" name="violation = ADDITIONAL_RESEARCH_REQUIRED" sourceRef="Gateway_0et8kzm" targetRef="Gateway_1t0o489">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "ADDITIONAL_RESEARCH_REQUIRED"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1uubcnv" sourceRef="Activity_1tij9d7" targetRef="Gateway_136vx0p" />
     <bpmn:sequenceFlow id="Flow_0inuwm0" sourceRef="StartEvent_1" targetRef="Activity_1u23sd7" />
