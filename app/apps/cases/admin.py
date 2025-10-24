@@ -208,6 +208,11 @@ class CaseAdmin(admin.ModelAdmin):
         "address__street_name",
         "address__postal_code",
     )
+    autocomplete_fields = (
+        "address",
+        "author",
+        "previous_case",
+    )
     actions = [create_main_worflow_for_case, export_queryset_to_excel]
 
 
