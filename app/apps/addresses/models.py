@@ -153,3 +153,7 @@ class Address(models.Model):
         if not self.bag_id or not self.nummeraanduiding_id:
             self.update_bag_data()
         return super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Address"
+        verbose_name_plural = "Addresses"
