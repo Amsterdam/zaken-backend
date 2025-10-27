@@ -115,7 +115,6 @@ class GetResidentsSerializer(serializers.Serializer):
 
 
 class BrpSerializer(serializers.Serializer):
-    type = serializers.CharField(required=True)
     personen = serializers.ListField(
         child=serializers.DictField(),
         required=True,
