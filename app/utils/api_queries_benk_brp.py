@@ -28,7 +28,10 @@ class BrpRequest:
 
         if not burgerservicenummers:
             logger.warning("No BSNs found in BRP response")
-            return ingeschreven_personen
+            return {
+                "personen": personen,
+                "operation_ids": [ingeschreven_personen.get("operation_id")],
+            }
 
         # Perform a second API call using all BSNs
         personen_met_bsn = self._fetch_personen_met_bsn(
