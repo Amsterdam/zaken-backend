@@ -19,8 +19,11 @@ class FinesViewSet(ViewSet):
     def retrieve(self, request, pk):
         try:
             fines = get_fines(pk)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response(
+                {"error": "Onverwachte fout bij het ophalen van boetes"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         serializer = FineListSerializer(data=fines)
 

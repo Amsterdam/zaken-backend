@@ -25,5 +25,8 @@ class CaseEventsMixin:
             return Response(serialized_events.data)
 
         except Exception as e:
-            logger.error(f"Could not retrieve events for pk {pk}: {e}")
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            logger.error(f"Failed to retrieve events for pk {pk}: {e}")
+            return Response(
+                {"error": "Failed to fetch events for the given case ID."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
