@@ -60,4 +60,7 @@ class PermitDetailsMixin:
             logger.error(
                 f"Failed to fetch permits Powerbrowser for bag id {bag_id}: {e}"
             )
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Failed to fetch permits Powerbrowser for bag id"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )

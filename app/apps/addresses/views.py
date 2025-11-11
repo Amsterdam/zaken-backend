@@ -153,7 +153,10 @@ class AddressViewSet(
                 return Response(serialized_residents.data)
             except Exception as e:
                 logger.error(f"Failed to fetch residents for bag id {bag_id}: {e}")
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "Failed to fetch residents for bag_id"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         return Response(
             {"error": "no nummeraanduiding_id found"}, status=status.HTTP_404_NOT_FOUND
@@ -195,7 +198,10 @@ class AddressViewSet(
         except Exception as e:
             logger.error(f"Could not retrieve cases for bag id {bag_id}: {e}")
 
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Could not retrieve cases for bag id"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     @extend_schema(
         description="Gets the Advertisements associated with this address",
