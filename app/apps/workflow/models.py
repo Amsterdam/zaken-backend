@@ -981,9 +981,9 @@ class CaseWorkflow(models.Model):
             )
             return result
         else:
-            state = self.get_serializer().serialize_workflow(
-                workflow_result.get("workflow"), include_spec=False
-            )
+            reg = self.get_serializer().configure(CAMUNDA_CONFIG)
+            serializer = BpmnWorkflowSerializer(registry=reg)
+            state = serializer.serialize_json(workflow_result.get("workflow"))
             self.workflow_theme_name = latest_theme_name
             self.workflow_version = latest_version
             self.serialized_workflow_state = state
@@ -1202,15 +1202,15 @@ class CaseWorkflow(models.Model):
             if subworkflow_success:
                 success = True
         if not test and success:
-            state = self.get_serializer().serialize_workflow(
-                workflow_result.get("workflow"), include_spec=False
-            )
+            reg = self.get_serializer().configure(CAMUNDA_CONFIG)
+            serializer = BpmnWorkflowSerializer(registry=reg)
+            state = serializer.serialize_json(workflow_result.get("workflow"))
             self.workflow_theme_name = latest_theme_name
             self.workflow_version = latest_version
             self.serialized_workflow_state = state
 
-            subworkflow_state = self.get_serializer().serialize_workflow(
-                subworkflow_result.get("workflow"), include_spec=False
+            subworkflow_state = serializer.serialize_json(
+                subworkflow_result.get("workflow")
             )
             subworkflow.workflow_theme_name = subworkflow_result.get(
                 "latest_theme_name"
