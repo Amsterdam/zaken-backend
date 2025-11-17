@@ -360,7 +360,13 @@ class CaseCloseAdmin(admin.ModelAdmin):
     )
     search_fields = ("case__id",)
     list_editable = ("reason",)
-    list_filter = ("reason",)
+    list_filter = ("reason", "date_added")
+    autocomplete_fields = ("case",)
+    ordering = ("-date_added", "-id")
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related("case", "reason", "result", "author")
 
 
 @admin.register(Advertisement)
