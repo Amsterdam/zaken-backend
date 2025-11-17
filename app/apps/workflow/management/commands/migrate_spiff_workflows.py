@@ -100,10 +100,22 @@ class Command(BaseCommand):
         workflows_to_migrate = self._get_workflows_to_migrate(options)
         self.stdout.write(f"Found {workflows_to_migrate.count()} workflows to migrate.")
 
-        for workflow in workflows_to_migrate:
-            self._process_workflow(workflow, dry_run)
+        success_count = 0
+        error_count = 0
 
-        self.stdout.write(self.style.SUCCESS("Migration complete."))
+        for workflow in workflows_to_migrate:
+            success = self._process_workflow(workflow, dry_run)
+            if success:
+                success_count += 1
+            else:
+                error_count += 1
+
+        self.stdout.write(self.style.SUCCESS("\nMigration complete."))
+        self.stdout.write(f"Successfully migrated: {success_count} workflows")
+        if error_count > 0:
+            self.stdout.write(
+                self.style.ERROR(f"Failed to migrate: {error_count} workflows")
+            )
 
     def _get_workflows_to_migrate(self, options):
         """
@@ -136,9 +148,12 @@ class Command(BaseCommand):
         It backs up the original data and serialized state before attempting
         the migration. If the migration is successful and not in dry-run mode,
         it saves the changes to the database.
+
+        Returns True if successful, False otherwise.
         """
+        workflow_type = workflow.workflow_type or "unknown"
         self.stdout.write(
-            f"Processing workflow {workflow.id} for case {workflow.case.id}..."
+            f"\nProcessing workflow {workflow.id} ({workflow_type}) for case {workflow.case.id}..."
         )
         try:
             workflow.data_migration_backup = workflow.data
@@ -153,13 +168,15 @@ class Command(BaseCommand):
                     workflow.save()
 
             self.stdout.write(
-                self.style.SUCCESS(f"  - Successfully migrated workflow {workflow.id}")
+                self.style.SUCCESS(f"  ✅ Successfully migrated workflow {workflow.id}")
             )
+            return True
         except Exception as e:
             self.stdout.write(
-                self.style.ERROR(f"  - Failed to migrate workflow {workflow.id}: {e}")
+                self.style.ERROR(f"  ❌ Failed to migrate workflow {workflow.id}: {e}")
             )
             self.stdout.write(traceback.format_exc())
+            return False
 
     def _transform_data(
         self,
@@ -430,11 +447,6 @@ class Command(BaseCommand):
                     display_name = bpmn_task.bpmn_name
                     task_spec_data["description"] = display_name
                     task_spec_data["bpmn_name"] = display_name
-                    self.stdout.write(
-                        self.style.SUCCESS(
-                            f"  - Set bpmn_name and description for {task_spec_name}: {display_name}"
-                        )
-                    )
             except Exception as e:
                 # Log warning but don't fail the migration
                 self.stdout.write(
