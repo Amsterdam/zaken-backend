@@ -886,17 +886,33 @@ class CaseWorkflow(models.Model):
                 ]
                 if script_tasks:
                     script_task = script_tasks[0]
-                    # Get the data to execute the script against
-                    data = wf.last_task.data if wf.last_task else {}
-                    # Execute the script - it modifies the data dict in place
-                    script_task.workflow.script_engine.execute(
-                        script_task,
-                        script_task.task_spec.script,
-                        data,
+                    # Execute the script
+                    logger.debug(
+                        f"[Workflow {self.id}] Executing script '{script_task.task_spec.name}' "
+                        f"with script: '{script_task.task_spec.script}'"
                     )
-                    # The execute method modifies the data dict in place,
-                    # but we need to ensure the script_task's data is also updated
-                    script_task.data.update(data)
+
+                    # Execute the script - it modifies task.data in place
+                    # IMPORTANT: Don't pass data as external_context - task.data is already used as context
+                    # Passing data as external_context causes check_for_overwrite to compare data keys
+                    # against themselves, triggering false conflicts
+                    try:
+                        script_task.workflow.script_engine.execute(
+                            script_task,
+                            script_task.task_spec.script,
+                            None,  # external_context should be empty, not the data dict
+                        )
+                    except Exception as e:
+                        logger.error(
+                            f"[Workflow {self.id}] Script execution failed: {type(e).__name__}: {e}"
+                        )
+                        logger.error(
+                            f"[Workflow {self.id}] Script: '{script_task.task_spec.script}'"
+                        )
+                        logger.error(
+                            f"[Workflow {self.id}] Task data keys: {list(script_task.data.keys()) if isinstance(script_task.data, dict) else 'Not a dict'}"
+                        )
+                        raise
 
                     # After executing message event scripts, run engine steps to process any changes
                     wf.refresh_waiting_tasks()
