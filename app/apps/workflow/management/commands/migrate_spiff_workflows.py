@@ -202,6 +202,8 @@ class Command(BaseCommand):
             "completed",
             "result_var",
             "status_name",
+            "CITIZEN_REPORT_FEEDBACK_FIRST_PERIOD",
+            "CITIZEN_REPORT_FEEDBACK_SECOND_PERIOD",
         }
 
         transformed_data = {}

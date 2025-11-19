@@ -1,5 +1,6 @@
 import copy
 import datetime
+import json
 import logging
 from string import Template
 
@@ -333,6 +334,16 @@ class CaseWorkflow(models.Model):
             return data
         return False
 
+    def _get_data_value(self, data, key, default=None):
+        """
+        Helper to extract value from workflow data.
+        Handles both old format (direct value) and new format (dict with 'value' key).
+        """
+        value = data.get(key, default)
+        if isinstance(value, dict) and "value" in value:
+            return value["value"]
+        return value
+
     def handle_citizen_report_feedback_2(self, extra_data={}):
         data = {}
         data.update(extra_data)
@@ -340,10 +351,13 @@ class CaseWorkflow(models.Model):
         feedback_period_exeeded = False
 
         if data.get("1_feedback", {}).get("value") is True:
-            feedback_period_exeeded = (
-                self.date_modified
-                + parse_duration(data.get("CITIZEN_REPORT_FEEDBACK_SECOND_PERIOD"))
-            ) < timezone.now()
+            period_value = self._get_data_value(
+                data, "CITIZEN_REPORT_FEEDBACK_SECOND_PERIOD"
+            )
+            if period_value:
+                feedback_period_exeeded = (
+                    self.date_modified + parse_duration(period_value)
+                ) < timezone.now()
 
         force_citizen_report_feedback = bool(
             data.get("force_citizen_report_feedback", {}).get("value")
@@ -357,10 +371,14 @@ class CaseWorkflow(models.Model):
         data = {}
         data.update(extra_data)
 
-        feedback_period_exeeded = (
-            self.date_modified
-            + parse_duration(data.get("CITIZEN_REPORT_FEEDBACK_FIRST_PERIOD"))
-        ) < timezone.now()
+        period_value = self._get_data_value(
+            data, "CITIZEN_REPORT_FEEDBACK_FIRST_PERIOD"
+        )
+        feedback_period_exeeded = False
+        if period_value:
+            feedback_period_exeeded = (
+                self.date_modified + parse_duration(period_value)
+            ) < timezone.now()
 
         force_citizen_report_feedback = bool(
             data.get("force_citizen_report_feedback", {}).get("value")
@@ -727,7 +745,12 @@ class CaseWorkflow(models.Model):
             try:
                 reg = self.get_serializer().configure(CAMUNDA_CONFIG)
                 serializer = BpmnWorkflowSerializer(registry=reg)
-                wf = serializer.deserialize_json(self.serialized_workflow_state)
+                # SpiffWorkflow's deserialize_json expects a JSON string, but Django's JSONField
+                # returns a dict when accessed. Convert to string if needed.
+                state = self.serialized_workflow_state
+                if isinstance(state, dict):
+                    state = json.dumps(state)
+                wf = serializer.deserialize_json(state)
                 wf = self.get_script_engine(wf)
 
             except Exception as e:
