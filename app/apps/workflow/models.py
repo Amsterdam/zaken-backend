@@ -514,8 +514,8 @@ class CaseWorkflow(models.Model):
 
         if wf.last_task:
             wf.last_task.data.update(data)
-        for t in wf.last_task.children:
-            t.data.update(data)
+            for t in wf.last_task.children:
+                t.data.update(data)
         self._execute_scripts_if_needed(wf)
 
         serialize_wf = self.get_serializer().serialize_json(wf)
