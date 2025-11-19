@@ -233,6 +233,22 @@ class CaseWorkflow(models.Model):
         )
         self.save()
 
+    @staticmethod
+    def _clean_data_for_serialization(obj):
+        """Filter out non-serializable objects (like functions) from data."""
+        if isinstance(obj, dict):
+            return {
+                k: CaseWorkflow._clean_data_for_serialization(v)
+                for k, v in obj.items()
+                if not callable(v) and k != "__builtins__"
+            }
+        elif isinstance(obj, (list, tuple)):
+            return [CaseWorkflow._clean_data_for_serialization(item) for item in obj]
+        elif callable(obj):
+            return None  # Skip function objects
+        else:
+            return obj
+
     def get_script_engine(self, wf):
         # injects functions in workflow
         workflow_instance = self
@@ -246,25 +262,14 @@ class CaseWorkflow(models.Model):
             )
 
         def script_wait(message, data={}):
-            task_script_wait.delay(workflow_instance.id, message, data)
+            # Filter out non-serializable objects (like functions) from vars() output
+            # This prevents Celery serialization errors and conflicts with SpiffWorkflow's predefined functions
+            cleaned_data = CaseWorkflow._clean_data_for_serialization(data)
+            task_script_wait.delay(workflow_instance.id, message, cleaned_data)
 
         def start_subworkflow(subworkflow_name, data={}):
             # Filter out non-serializable objects (like functions) from the data
-            def clean_data_for_serialization(obj):
-                if isinstance(obj, dict):
-                    return {
-                        k: clean_data_for_serialization(v)
-                        for k, v in obj.items()
-                        if not callable(v) and k != "__builtins__"
-                    }
-                elif isinstance(obj, (list, tuple)):
-                    return [clean_data_for_serialization(item) for item in obj]
-                elif callable(obj):
-                    return None  # Skip function objects
-                else:
-                    return obj
-
-            cleaned_data = clean_data_for_serialization(data)
+            cleaned_data = CaseWorkflow._clean_data_for_serialization(data)
             task_start_subworkflow.delay(
                 subworkflow_name, workflow_instance.id, cleaned_data
             )
