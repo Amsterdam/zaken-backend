@@ -673,7 +673,16 @@ class CaseWorkflow(models.Model):
     def complete_user_task(id, data, wait=False):
         task = task_complete_user_task_and_create_new_user_tasks.delay(id, data)
         if wait:
-            task.wait(timeout=None, interval=0.5)
+            try:
+                # Wait up to 55 seconds (safely under uWSGI harakiri limit of 60 seconds)
+                # If timeout occurs, task will still complete asynchronously
+                task.wait(timeout=55, interval=0.5)
+            except Exception as e:
+                # Task is already queued and will complete asynchronously
+                logger.warning(
+                    f"Task completion wait timed out for task {id}: {e}. "
+                    "Task will complete asynchronously."
+                )
 
     def check_for_issues(self):
         wf = self.get_or_restore_workflow_state()
