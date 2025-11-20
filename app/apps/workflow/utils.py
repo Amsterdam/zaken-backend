@@ -4,6 +4,7 @@ import itertools
 import json
 import logging
 import os
+from functools import lru_cache
 
 from deepdiff import DeepDiff
 from django.conf import settings
@@ -347,7 +348,12 @@ def is_bpmn_file(file_name):
     return file_name.split(".")[-1] == "bpmn"
 
 
+@lru_cache(maxsize=200)
 def get_workflow_spec(path, workflow_type):
+    """
+    Get a workflow spec from a file path.
+    We're using a cache to speed up the process, since workflow specs don't change and parsing them every time takes roughly 0.5 to 1 second (which happens in every workflow update, e.g. via Celery tasks).
+    """
     x = CamundaParser()
 
     for f in get_workflow_spec_files(path):
