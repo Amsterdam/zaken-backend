@@ -2,6 +2,7 @@ import copy
 import datetime
 import json
 import logging
+import time
 from string import Template
 
 import SpiffWorkflow
@@ -671,16 +672,40 @@ class CaseWorkflow(models.Model):
 
     @staticmethod
     def complete_user_task(id, data, wait=False):
+        start_time = time.time()
         task = task_complete_user_task_and_create_new_user_tasks.delay(id, data)
+        queue_duration = time.time() - start_time
+        logger.info(
+            f"[TIMING] Task {id} queued in {queue_duration:.2f}s, "
+            f"celery_task_id={task.id}, celery_state={task.state}"
+        )
+
         if wait:
             try:
                 # Wait up to 55 seconds (safely under uWSGI harakiri limit of 60 seconds)
                 # If timeout occurs, task will still complete asynchronously
+                wait_start = time.time()
                 task.wait(timeout=55, interval=0.5)
+                wait_duration = time.time() - wait_start
+                logger.info(
+                    f"[TIMING] Task {id} completed in {wait_duration:.2f}s (total: {time.time() - start_time:.2f}s)"
+                )
             except Exception as e:
+                wait_duration = (
+                    time.time() - wait_start if "wait_start" in locals() else 0
+                )
+                # Check task state to see if it's still running
+                try:
+                    task_state = task.state
+                    task_result = task.result if hasattr(task, "result") else None
+                except Exception:
+                    task_state = "unknown"
+                    task_result = None
+
                 # Task is already queued and will complete asynchronously
                 logger.warning(
-                    f"Task completion wait timed out for task {id}: {e}. "
+                    f"[TIMING] Task completion wait timed out for task {id} after {wait_duration:.2f}s (total: {time.time() - start_time:.2f}s): {e}. "
+                    f"Celery task state: {task_state}, celery_task_id={task.id}. "
                     "Task will complete asynchronously."
                 )
 
@@ -695,8 +720,20 @@ class CaseWorkflow(models.Model):
         return "no issues"
 
     def complete_user_task_and_create_new_user_tasks(self, task_id=None, data=None):
+        start_time = time.time()
+        logger.info(
+            f"[TIMING] Starting complete_user_task_and_create_new_user_tasks for task {task_id}, workflow {self.id}"
+        )
+
+        restore_start = time.time()
         wf = self.get_or_restore_workflow_state()
+        restore_duration = time.time() - restore_start
+        logger.info(
+            f"[TIMING] Workflow {self.id} state restored in {restore_duration:.2f}s"
+        )
+
         if not wf:
+            logger.warning(f"[TIMING] Workflow {self.id} state restoration failed")
             return
 
         task = wf.get_task_from_id(task_id)
@@ -709,13 +746,23 @@ class CaseWorkflow(models.Model):
             )
         else:
             logger.info(f"COMPLETE TASK NOT FOUND: {task_id}")
+
         # changes the workflow
+        update_start = time.time()
         wf = self._update_workflow(wf)
+        update_duration = time.time() - update_start
+        logger.info(f"[TIMING] Workflow {self.id} updated in {update_duration:.2f}s")
 
         # no changes to the workflow after this point
+        db_start = time.time()
         self._update_db(wf)
+        db_duration = time.time() - db_start
+        logger.info(
+            f"[TIMING] Workflow {self.id} database update completed in {db_duration:.2f}s (total: {time.time() - start_time:.2f}s)"
+        )
 
     def save_workflow_state(self, wf):
+        save_start = time.time()
         self.ensure_data_dict()
         if wf.last_task:
             data = wf.last_task.data
@@ -730,14 +777,26 @@ class CaseWorkflow(models.Model):
             if hasattr(task, "data") and task.data:
                 task.data = data
 
+        serialize_start = time.time()
         reg = self.get_serializer().configure(CAMUNDA_CONFIG)
         serializer = BpmnWorkflowSerializer(registry=reg)
         state = serializer.serialize_json(wf)
+        serialize_duration = time.time() - serialize_start
+        logger.info(
+            f"[TIMING] Workflow {self.id} serialized in {serialize_duration:.2f}s"
+        )
+
         self.serialized_workflow_state = state
         self.spiff_workflow_version = SpiffWorkflow.__version__
         self.spiff_serializer_version = serializer.get_version(state)
         self.started = True
+
+        db_save_start = time.time()
         self.save()
+        db_save_duration = time.time() - db_save_start
+        logger.info(
+            f"[TIMING] Workflow {self.id} saved to database in {db_save_duration:.2f}s (total save: {time.time() - save_start:.2f}s)"
+        )
 
         if completed:
             data = copy.deepcopy(wf.last_task.data) if wf.last_task else {}
@@ -746,21 +805,40 @@ class CaseWorkflow(models.Model):
     def get_or_restore_workflow_state(self):
         # Get the unserialized workflow from this workflow instance, it has to use an workflow_spec,
         # which in this case will be load from filesystem.
+        spec_start = time.time()
         workflow_spec = self.get_workflow_spec()
+        spec_duration = time.time() - spec_start
+        if spec_duration > 0.1:
+            logger.info(
+                f"[TIMING] Workflow {self.id} spec loaded in {spec_duration:.2f}s"
+            )
+
         if not workflow_spec:
             return
 
         if self.serialized_workflow_state:
             try:
+                deserialize_start = time.time()
                 reg = self.get_serializer().configure(CAMUNDA_CONFIG)
                 serializer = BpmnWorkflowSerializer(registry=reg)
                 # SpiffWorkflow's deserialize_json expects a JSON string, but Django's JSONField
                 # returns a dict when accessed. Convert to string if needed.
                 state = self.serialized_workflow_state
                 if isinstance(state, dict):
+                    json_dump_start = time.time()
                     state = json.dumps(state)
+                    json_dump_duration = time.time() - json_dump_start
+                    if json_dump_duration > 0.1:
+                        logger.info(
+                            f"[TIMING] Workflow {self.id} JSON dump took {json_dump_duration:.2f}s"
+                        )
+
                 wf = serializer.deserialize_json(state)
                 wf = self.get_script_engine(wf)
+                deserialize_duration = time.time() - deserialize_start
+                logger.info(
+                    f"[TIMING] Workflow {self.id} deserialized in {deserialize_duration:.2f}s"
+                )
 
             except Exception as e:
                 logger.error(f"deserialize workflow failed: {e}")
@@ -952,8 +1030,22 @@ class CaseWorkflow(models.Model):
         return wf
 
     def _update_workflow(self, wf):
+        refresh_start = time.time()
         wf.refresh_waiting_tasks()
+        refresh_duration = time.time() - refresh_start
+        if refresh_duration > 0.1:
+            logger.info(
+                f"[TIMING] Workflow {self.id} refresh_waiting_tasks took {refresh_duration:.2f}s"
+            )
+
+        engine_start = time.time()
         wf.do_engine_steps()
+        engine_duration = time.time() - engine_start
+        if engine_duration > 0.1:
+            logger.info(
+                f"[TIMING] Workflow {self.id} do_engine_steps took {engine_duration:.2f}s"
+            )
+
         return wf
 
     def _update_db(self, wf):

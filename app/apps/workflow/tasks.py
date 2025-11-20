@@ -253,16 +253,47 @@ def task_complete_worflow(self, worklow_id, data):
 
 @shared_task(bind=True, base=BaseTaskWithRetry, priority=TASK_PRIORITY_HIGH)
 def task_complete_user_task_and_create_new_user_tasks(self, task_id, data={}):
+    import time
+
     from apps.workflow.models import CaseUserTask
+
+    # Log retry attempts
+    if self.request.retries > 0:
+        logger.warning(
+            f"[TIMING] Celery task RETRY #{self.request.retries} for task_id {task_id} "
+            f"(attempt {self.request.retries + 1}/{MAX_RETRIES + 1})"
+        )
+
+    task_start = time.time()
+    logger.info(f"[TIMING] Celery task started for task_id {task_id}")
 
     task = CaseUserTask.objects.filter(id=task_id, completed=False).first()
     if not task:
+        logger.warning(f"[TIMING] Task {task_id} not found or already completed")
         return f"task_complete_user_task_and_create_new_user_tasks: task '{task_id}' not found or already completed, skipping"
 
+    lock_start = time.time()
     if task.workflow.get_lock():
+        lock_duration = time.time() - lock_start
+        logger.info(
+            f"[TIMING] Lock acquired for workflow {task.workflow.id} in {lock_duration:.2f}s"
+        )
+
+        complete_start = time.time()
         task.workflow.complete_user_task_and_create_new_user_tasks(task.task_id, data)
+        complete_duration = time.time() - complete_start
+        total_duration = time.time() - task_start
+
+        logger.info(
+            f"[TIMING] Celery task completed: task '{task.task_name}' for workflow {task.workflow.id} "
+            f"in {complete_duration:.2f}s (total: {total_duration:.2f}s)"
+        )
         return f"task_complete_user_task_and_create_new_user_tasks: complete task with name '{task.task_name}' for workflow with id '{task.workflow.id}', is completed"
 
+    lock_duration = time.time() - lock_start
+    logger.warning(
+        f"[TIMING] Failed to acquire lock for workflow {task.workflow.id} after {lock_duration:.2f}s"
+    )
     raise Exception(
         f"task_complete_user_task_and_create_new_user_tasks: complete task with name '{task.task_name}' for workflow with id '{task.workflow.id}', is busy"
     )
