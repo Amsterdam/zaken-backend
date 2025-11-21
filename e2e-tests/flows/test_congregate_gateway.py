@@ -10,6 +10,7 @@ from api.tasks.summon import (
 )
 from api.tasks.visit import test_inplannen_status
 from api.test import DefaultAPITest
+from api.timers import WaitForTimer
 from api.validators import ValidateOpenTasks
 
 
@@ -82,5 +83,6 @@ class TestCongregateGateway(DefaultAPITest):
             test_afzien_concept_aanschrijving(
                 renounce_concept_summon=RenounceConceptSummon.NEW_VISIT_REQUIRED
             ),
+            WaitForTimer(),
             ValidateOpenTasks(test_inplannen_status),
         )

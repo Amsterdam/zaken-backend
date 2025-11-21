@@ -2,6 +2,8 @@ import copy
 import json
 
 from django import forms
+from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
+from SpiffWorkflow.camunda.serializer.config import CAMUNDA_CONFIG
 
 from .models import CaseWorkflow
 from .tasks import task_update_workflow
@@ -71,12 +73,12 @@ class UpdateDataForWorkflowsForm(forms.Form):
         )
 
         if not test:
-            wf.last_task.update_data(data)
+            wf.last_task.data.update(data)
             for t in wf.last_task.children:
-                t.update_data(data)
-            serialize_wf = caseworkflow.get_serializer().serialize_workflow(
-                wf, include_spec=False
-            )
+                t.data.update(data)
+            reg = caseworkflow.get_serializer().configure(CAMUNDA_CONFIG)
+            serializer = BpmnWorkflowSerializer(registry=reg)
+            serialize_wf = serializer.serialize_json(wf)
             caseworkflow.serialized_workflow_state = serialize_wf
             caseworkflow.save()
             task_update_workflow.delay(caseworkflow.id)

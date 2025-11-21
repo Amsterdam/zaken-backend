@@ -11,8 +11,12 @@ app/.env
 app/.coverage
 private_media/
 
+/data
+
 .env.local
 .local.env
+
+docker-compose.override.yml
 
 # Data folders for local development (e.g. imports/SpiffWorkflow data diffs)
 /data/*

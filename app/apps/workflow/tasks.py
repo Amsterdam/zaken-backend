@@ -16,6 +16,9 @@ MAX_RETRIES = 6
 
 LOCK_EXPIRE = 5
 
+TASK_PRIORITY_LOW = 1  # Periodic/maintenance tasks (low)
+TASK_PRIORITY_HIGH = 9  # User-facing actions (high)
+
 
 def redis_lock(lock_id):
     status = cache.add(lock_id, "lock", timeout=LOCK_EXPIRE)
@@ -34,7 +37,7 @@ class BaseTaskWithRetry(celery.Task):
     default_retry_delay = DEFAULT_RETRY_DELAY
 
 
-@shared_task(bind=True, base=BaseTaskWithRetry)
+@shared_task(bind=True, base=BaseTaskWithRetry, priority=TASK_PRIORITY_LOW)
 def task_update_workflows(self):
     from apps.workflow.models import CaseWorkflow
 
@@ -62,7 +65,7 @@ def task_update_workflow(self, workflow_id):
     )
 
 
-@shared_task(bind=True, base=BaseTaskWithRetry)
+@shared_task(bind=True, base=BaseTaskWithRetry, priority=TASK_PRIORITY_HIGH)
 def task_accept_message_for_workflow(self, workflow_id, message, extra_data):
     from apps.workflow.models import CaseWorkflow
 
@@ -77,7 +80,7 @@ def task_accept_message_for_workflow(self, workflow_id, message, extra_data):
     )
 
 
-@shared_task(bind=True, base=BaseTaskWithRetry)
+@shared_task(bind=True, base=BaseTaskWithRetry, priority=TASK_PRIORITY_HIGH)
 def task_start_subworkflow(self, subworkflow_name, parent_workflow_id, extra_data={}):
     from apps.workflow.models import CaseWorkflow
 
@@ -95,7 +98,7 @@ def task_start_subworkflow(self, subworkflow_name, parent_workflow_id, extra_dat
     return f"task_start_subworkflow:  subworkflow id '{subworkflow.id}', for parent workflow with id '{parent_workflow_id}', created"
 
 
-@shared_task(bind=True, base=BaseTaskWithRetry)
+@shared_task(bind=True, base=BaseTaskWithRetry, priority=TASK_PRIORITY_HIGH)
 def task_create_main_worflow_for_case(self, case_id, data={}):
     from apps.workflow.models import CaseWorkflow
 
@@ -158,7 +161,7 @@ def task_create_citizen_report_worflow_for_case(self, citizen_report_id, data={}
     return f"task_create_citizen_report_worflow_for_case: workflow id '{workflow_instance.id}', for citizen_report with id '{citizen_report_id}', created"
 
 
-@shared_task(bind=True, base=BaseTaskWithRetry)
+@shared_task(bind=True, base=BaseTaskWithRetry, priority=TASK_PRIORITY_HIGH)
 def task_start_worflow(self, worklow_id):
     from apps.workflow.models import CaseWorkflow
 
@@ -248,7 +251,7 @@ def task_complete_worflow(self, worklow_id, data):
     raise Exception(f"task_complete_worflow: workflow id '{worklow_id}', is busy")
 
 
-@shared_task(bind=True, base=BaseTaskWithRetry)
+@shared_task(bind=True, base=BaseTaskWithRetry, priority=TASK_PRIORITY_HIGH)
 def task_complete_user_task_and_create_new_user_tasks(self, task_id, data={}):
     from apps.workflow.models import CaseUserTask
 
