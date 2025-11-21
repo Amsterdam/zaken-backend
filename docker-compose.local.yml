@@ -61,7 +61,9 @@ services:
       - database
       - zaak-redis
     env_file:
-      - .env
+      - path: .env
+      - path: .env.local
+        required: false
     networks:
       - zaken_network
     restart: on-failure
@@ -79,7 +81,9 @@ services:
       - database
       - zaak-redis
     env_file:
-      - .env
+      - path: .env
+      - path: .env.local
+        required: false
     networks:
       - zaken_network
     restart: on-failure

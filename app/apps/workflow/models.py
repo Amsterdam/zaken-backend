@@ -1,5 +1,6 @@
 import copy
 import datetime
+import json
 import logging
 from string import Template
 
@@ -233,6 +234,22 @@ class CaseWorkflow(models.Model):
         )
         self.save()
 
+    @staticmethod
+    def _clean_data_for_serialization(obj):
+        """Filter out non-serializable objects (like functions) from data."""
+        if isinstance(obj, dict):
+            return {
+                k: CaseWorkflow._clean_data_for_serialization(v)
+                for k, v in obj.items()
+                if not callable(v) and k != "__builtins__"
+            }
+        elif isinstance(obj, (list, tuple)):
+            return [CaseWorkflow._clean_data_for_serialization(item) for item in obj]
+        elif callable(obj):
+            return None  # Skip function objects
+        else:
+            return obj
+
     def get_script_engine(self, wf):
         # injects functions in workflow
         workflow_instance = self
@@ -246,25 +263,14 @@ class CaseWorkflow(models.Model):
             )
 
         def script_wait(message, data={}):
-            task_script_wait.delay(workflow_instance.id, message, data)
+            # Filter out non-serializable objects (like functions) from vars() output
+            # This prevents Celery serialization errors and conflicts with SpiffWorkflow's predefined functions
+            cleaned_data = CaseWorkflow._clean_data_for_serialization(data)
+            task_script_wait.delay(workflow_instance.id, message, cleaned_data)
 
         def start_subworkflow(subworkflow_name, data={}):
             # Filter out non-serializable objects (like functions) from the data
-            def clean_data_for_serialization(obj):
-                if isinstance(obj, dict):
-                    return {
-                        k: clean_data_for_serialization(v)
-                        for k, v in obj.items()
-                        if not callable(v) and k != "__builtins__"
-                    }
-                elif isinstance(obj, (list, tuple)):
-                    return [clean_data_for_serialization(item) for item in obj]
-                elif callable(obj):
-                    return None  # Skip function objects
-                else:
-                    return obj
-
-            cleaned_data = clean_data_for_serialization(data)
+            cleaned_data = CaseWorkflow._clean_data_for_serialization(data)
             task_start_subworkflow.delay(
                 subworkflow_name, workflow_instance.id, cleaned_data
             )
@@ -328,6 +334,16 @@ class CaseWorkflow(models.Model):
             return data
         return False
 
+    def _get_data_value(self, data, key, default=None):
+        """
+        Helper to extract value from workflow data.
+        Handles both old format (direct value) and new format (dict with 'value' key).
+        """
+        value = data.get(key, default)
+        if isinstance(value, dict) and "value" in value:
+            return value["value"]
+        return value
+
     def handle_citizen_report_feedback_2(self, extra_data={}):
         data = {}
         data.update(extra_data)
@@ -335,10 +351,13 @@ class CaseWorkflow(models.Model):
         feedback_period_exeeded = False
 
         if data.get("1_feedback", {}).get("value") is True:
-            feedback_period_exeeded = (
-                self.date_modified
-                + parse_duration(data.get("CITIZEN_REPORT_FEEDBACK_SECOND_PERIOD"))
-            ) < timezone.now()
+            period_value = self._get_data_value(
+                data, "CITIZEN_REPORT_FEEDBACK_SECOND_PERIOD"
+            )
+            if period_value:
+                feedback_period_exeeded = (
+                    self.date_modified + parse_duration(period_value)
+                ) < timezone.now()
 
         force_citizen_report_feedback = bool(
             data.get("force_citizen_report_feedback", {}).get("value")
@@ -352,10 +371,14 @@ class CaseWorkflow(models.Model):
         data = {}
         data.update(extra_data)
 
-        feedback_period_exeeded = (
-            self.date_modified
-            + parse_duration(data.get("CITIZEN_REPORT_FEEDBACK_FIRST_PERIOD"))
-        ) < timezone.now()
+        period_value = self._get_data_value(
+            data, "CITIZEN_REPORT_FEEDBACK_FIRST_PERIOD"
+        )
+        feedback_period_exeeded = False
+        if period_value:
+            feedback_period_exeeded = (
+                self.date_modified + parse_duration(period_value)
+            ) < timezone.now()
 
         force_citizen_report_feedback = bool(
             data.get("force_citizen_report_feedback", {}).get("value")
@@ -514,8 +537,8 @@ class CaseWorkflow(models.Model):
 
         if wf.last_task:
             wf.last_task.data.update(data)
-        for t in wf.last_task.children:
-            t.data.update(data)
+            for t in wf.last_task.children:
+                t.data.update(data)
         self._execute_scripts_if_needed(wf)
 
         serialize_wf = self.get_serializer().serialize_json(wf)
@@ -722,7 +745,12 @@ class CaseWorkflow(models.Model):
             try:
                 reg = self.get_serializer().configure(CAMUNDA_CONFIG)
                 serializer = BpmnWorkflowSerializer(registry=reg)
-                wf = serializer.deserialize_json(self.serialized_workflow_state)
+                # SpiffWorkflow's deserialize_json expects a JSON string, but Django's JSONField
+                # returns a dict when accessed. Convert to string if needed.
+                state = self.serialized_workflow_state
+                if isinstance(state, dict):
+                    state = json.dumps(state)
+                wf = serializer.deserialize_json(state)
                 wf = self.get_script_engine(wf)
 
             except Exception as e:
@@ -881,17 +909,33 @@ class CaseWorkflow(models.Model):
                 ]
                 if script_tasks:
                     script_task = script_tasks[0]
-                    # Get the data to execute the script against
-                    data = wf.last_task.data if wf.last_task else {}
-                    # Execute the script - it modifies the data dict in place
-                    script_task.workflow.script_engine.execute(
-                        script_task,
-                        script_task.task_spec.script,
-                        data,
+                    # Execute the script
+                    logger.debug(
+                        f"[Workflow {self.id}] Executing script '{script_task.task_spec.name}' "
+                        f"with script: '{script_task.task_spec.script}'"
                     )
-                    # The execute method modifies the data dict in place,
-                    # but we need to ensure the script_task's data is also updated
-                    script_task.data.update(data)
+
+                    # Execute the script - it modifies task.data in place
+                    # IMPORTANT: Don't pass data as external_context - task.data is already used as context
+                    # Passing data as external_context causes check_for_overwrite to compare data keys
+                    # against themselves, triggering false conflicts
+                    try:
+                        script_task.workflow.script_engine.execute(
+                            script_task,
+                            script_task.task_spec.script,
+                            None,  # external_context should be empty, not the data dict
+                        )
+                    except Exception as e:
+                        logger.error(
+                            f"[Workflow {self.id}] Script execution failed: {type(e).__name__}: {e}"
+                        )
+                        logger.error(
+                            f"[Workflow {self.id}] Script: '{script_task.task_spec.script}'"
+                        )
+                        logger.error(
+                            f"[Workflow {self.id}] Task data keys: {list(script_task.data.keys()) if isinstance(script_task.data, dict) else 'Not a dict'}"
+                        )
+                        raise
 
                     # After executing message event scripts, run engine steps to process any changes
                     wf.refresh_waiting_tasks()
