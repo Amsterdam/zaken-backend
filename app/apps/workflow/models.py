@@ -541,7 +541,9 @@ class CaseWorkflow(models.Model):
                 t.data.update(data)
         self._execute_scripts_if_needed(wf)
 
-        serialize_wf = self.get_serializer().serialize_json(wf)
+        reg = self.get_serializer().configure(CAMUNDA_CONFIG)
+        serializer = BpmnWorkflowSerializer(registry=reg)
+        serialize_wf = serializer.serialize_json(wf)
         self.serialized_workflow_state = serialize_wf
 
         self.save()
