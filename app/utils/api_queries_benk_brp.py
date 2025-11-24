@@ -33,6 +33,7 @@ class BrpRequest:
         ingeschreven_personen = self._fetch_ingeschreven_personen(
             access_token, nummeraanduiding_id, user_email, operation_id
         )
+        logger.error(f"Fetched ingeschreven personen: {ingeschreven_personen}")
 
         personen = ingeschreven_personen.get("personen", [])
         burgerservicenummers = [
@@ -53,6 +54,7 @@ class BrpRequest:
         personen_met_bsn = self._fetch_personen_met_bsn(
             access_token, burgerservicenummers, user_email, operation_id
         )
+        logger.error(f"Fetched personen met bsn: {personen_met_bsn}")
 
         return {
             "personen": personen_met_bsn.get("personen", []),
@@ -70,7 +72,16 @@ class BrpRequest:
             "grant_type": "client_credentials",
         }
 
-        response = self.session.post(url, headers=headers, data=data, timeout=(2, 5))
+        try:
+            response = self.session.post(
+                url, headers=headers, data=data, timeout=(2, 5)
+            )
+        except Exception:
+            logger.error("Failed to POST token request")
+            raise
+
+        logger.error(f"Token endpoint response {response.status_code}: {response.text}")
+
         response.raise_for_status()
         return response.json().get("access_token")
 
@@ -95,14 +106,45 @@ class BrpRequest:
         if access_token:
             headers["Authorization"] = f"Bearer {access_token}"
 
-        response = self.session.request(
-            method=method,
-            url=url,
-            json=json,
-            headers=headers,
-            timeout=(3, 10),
+        logger.error(
+            f"BRP API call\n"
+            f"URL: {url}\n"
+            f"Method: {method}\n"
+            f"Operation-ID: {operation_id}\n"
+            f"User: {user_email}\n"
+            f"Headers: {headers}\n"
+            f"Payload: {json}"
         )
-        response.raise_for_status()
+
+        try:
+            response = self.session.request(
+                method=method,
+                url=url,
+                json=json,
+                headers=headers,
+                timeout=(3, 10),
+            )
+        except Exception:
+            logger.error(
+                f"HTTP request failed before response for URL {url} operation_id {operation_id}"
+            )
+            raise
+
+        logger.error(
+            f"BRP response received\n"
+            f"URL: {url}\n"
+            f"Status: {response.status_code}\n"
+            f"Body: {response.text}\n"
+            f"Operation-ID: {operation_id}"
+        )
+
+        try:
+            response.raise_for_status()
+        except Exception:
+            logger.error(
+                f"BRP API call returned error status {response.status_code} for operation_id {operation_id}. Body: {response.text}"
+            )
+            raise
 
         # Attach operation_id to the response for debugging if needed
         response.operation_id = operation_id
