@@ -95,16 +95,38 @@ class BrpRequest:
         if access_token:
             headers["Authorization"] = f"Bearer {access_token}"
 
-        response = self.session.request(
-            method=method,
-            url=url,
-            json=json,
-            headers=headers,
-            timeout=(3, 10),
-        )
-        response.raise_for_status()
+        try:
+            response = self.session.request(
+                method=method,
+                url=url,
+                json=json,
+                headers=headers,
+                timeout=(3, 10),
+            )
 
-        # Attach operation_id to the response for debugging if needed
+        except Exception as e:
+            logger.error(
+                f"BRP request failed "
+                f"url={url} "
+                f"operation_id={operation_id} "
+                f"error={e}"
+            )
+            raise
+
+        if not response.ok:
+            logger.error(
+                f"BRP returned error "
+                f"status={response.status_code} "
+                f"url={url} "
+                f"operation_id={operation_id} "
+                f"body={response.text}"
+            )
+
+        try:
+            response.raise_for_status()
+        except Exception:
+            raise
+
         response.operation_id = operation_id
         return response
 
@@ -115,7 +137,7 @@ class BrpRequest:
         payload = {
             "type": "ZoekMetNummeraanduidingIdentificatie",
             "nummeraanduidingIdentificatie": f"{nummeraanduiding_id}",
-            "inclusiefOverledenPersonen": "true",
+            "inclusiefOverledenPersonen": True,
         }
         url = f"{self.base_url.rstrip('/')}/personen"
         response = self._perform_api_call(

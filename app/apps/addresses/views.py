@@ -146,7 +146,6 @@ class AddressViewSet(
                 response = BrpRequest().get_brp_with_nummeraanduiding_id(
                     address.nummeraanduiding_id, request.user.email
                 )
-
                 serialized_residents = BrpSerializer(data=response)
                 serialized_residents.is_valid(raise_exception=True)
                 # return Response(serialized_residents.data, status=status_code)
