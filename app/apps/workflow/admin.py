@@ -112,6 +112,12 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
     )
     search_fields = ("case__id",)
 
+    autocomplete_fields = ("case_state_type",)
+    readonly_fields = (
+        "case",
+        "parent_workflow",
+    )
+
     actions = (
         migrate_worflows_to_latest,
         force_update_workflows,
@@ -322,6 +328,8 @@ class CaseTaskAdmin(admin.ModelAdmin):
         "name",
         "task_name",
     )
+    autocomplete_fields = ("case", "workflow", "owner")
+
     actions = [resolve_invalid_completed_task_emitter]
 
     def invalid_completed_task_event_emitter(self, obj):
@@ -380,6 +388,7 @@ class GenericCompletedTaskAdmin(admin.ModelAdmin):
         "case__id",
         "description",
     )
+    autocomplete_fields = ("case", "author")
     list_filter = (
         "date_added",
         "description",
