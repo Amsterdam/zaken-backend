@@ -74,14 +74,14 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_005h6w2" sourceRef="service_script_next_step_close_case" targetRef="end_14226b3" />
     <bpmn:sequenceFlow id="Flow_15jrvwj" name="Besluit = sanctie (boete, invordering dwangsom, meldplicht beschikking boete)" sourceRef="gateway_parallel_0h8vjtw" targetRef="task_send_tax_collection">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_besluit.value == "boete" or type_besluit.value == "last_onder_dwangsom" or type_besluit.value == "meldplicht_beschikking_boete" or type_besluit.value == "invordering_dwangsom"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("type_besluit") == "boete" or get_data("type_besluit") == "last_onder_dwangsom" or get_data("type_besluit") == "meldplicht_beschikking_boete" or get_data("type_besluit") == "invordering_dwangsom"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0tzy074" sourceRef="gateway_merge_0f59geq" targetRef="service_script_next_step_close_case" />
     <bpmn:sequenceFlow id="Flow_1r2nz2z" sourceRef="task_contact_city_district" targetRef="gateway_merge_0f59geq" />
     <bpmn:sequenceFlow id="Flow_10vmiho" sourceRef="task_send_tax_collection" targetRef="gateway_merge_0f59geq" />
     <bpmn:sequenceFlow id="Flow_0p5ojnr" sourceRef="service_script_next_step_renounce" targetRef="end_1hipcpo" />
     <bpmn:sequenceFlow id="Flow_0azm62q" name="Afzien van besluit" sourceRef="gateway_which_type_of_decision" targetRef="service_script_next_step_renounce">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_besluit.value == "no_decision"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("type_besluit") == "no_decision"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1fjclix" name="Definitief besluit" sourceRef="gateway_which_type_of_decision" targetRef="gateway_parallel_0h8vjtw" />
     <bpmn:sequenceFlow id="Flow_1iai8dg" sourceRef="service_status_besluit" targetRef="task_make_concept_decision" />
@@ -95,10 +95,10 @@
       <bpmn:script>set_status("Besluit")</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_0bjw3py" name="Besluit = Intrekken vergunning *3" sourceRef="gateway_parallel_0h8vjtw" targetRef="task_contact_city_district">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_besluit.value == "intrekken_vv_vergunning" or type_besluit.value == "intrekken_bb_vergunning" or type_besluit.value == "intrekken_shortstay_vergunning"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("type_besluit") == "intrekken_vv_vergunning" or get_data("type_besluit") == "intrekken_bb_vergunning" or get_data("type_besluit") == "intrekken_shortstay_vergunning"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_00nt5t7" name="Last onder dwangsom of Preventieve last" sourceRef="gateway_which_type_of_decision" targetRef="Activity_0f7x7aq">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">type_besluit.value == "last_onder_dwangsom" or type_besluit.value == "preventieve_last"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("type_besluit") == "last_onder_dwangsom" or get_data("type_besluit") == "preventieve_last"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:scriptTask id="Activity_0f7x7aq" name="next_step = {&#34;value&#34;: &#34;close_case&#34;}">
       <bpmn:incoming>Flow_00nt5t7</bpmn:incoming>

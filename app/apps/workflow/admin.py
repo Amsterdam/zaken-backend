@@ -96,6 +96,8 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         "completed",
         "parent_workflow",
         "case_state_type",
+        "spiff_workflow_version",
+        "spiff_serializer_version",
         "reset_subworkflows",
         "date_modified",
         "created",
@@ -109,6 +111,8 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         "case_state_type",
         "workflow_type",
         "workflow_version",
+        "spiff_workflow_version",
+        "spiff_serializer_version",
     )
     search_fields = ("case__id",)
 
@@ -318,6 +322,7 @@ class CaseTaskAdmin(admin.ModelAdmin):
         "name",
         "task_name",
         "completed",
+        "due_date",
         "workflow",
         "owner",
         "invalid_completed_task_event_emitter",

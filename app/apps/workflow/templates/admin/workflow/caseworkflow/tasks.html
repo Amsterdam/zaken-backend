@@ -1,13 +1,21 @@
-<li style="line-height: 15px;"><span{% if task.get_state_name == "READY" %} style="color: red;"{% endif %}>{{ task.task_spec.name }}, state: {{task.get_state_name}}{% if task.internal_data.start_time %}, start_time: {{task.internal_data.start_time}}{% endif %}</span>
-    {%if task.children %}
-        <ul style="padding-inline-start: 20px;">
-         {%for sub_task in task.children %}
-            {% if sub_task.get_state_name in task_states %}
-              {% with task=sub_task task_states=task_states template_name="admin/workflow/caseworkflow/tasks.html" %}
-                   {% include template_name %}
-              {%endwith%}
-            {%endif%}
-         {%endfor%}
-         </ul>
-    {%endif%}
-</li>
+{% load workflow_task_tags %}
+
+{% if task %}
+    {% with state=task|task_state_name %}
+        {% if not task_states or state in task_states %}
+            <li style="line-height: 15px;">
+                <span style="color: {% if state == "COMPLETED" %}darkgreen{% elif state == "WAITING" %}red{% else %}inherit{% endif %};">
+                    {{ task|task_display_name }}{% with spec_name=task|task_spec_name %}{% if spec_name %}: <code style="color: inherit;">{{ spec_name }}</code>{% endif %}{% endwith %} &mdash; state: {{ state }}{% if task.internal_data.start_time %} &mdash; start_time: {{ task.internal_data.start_time }}{% endif %}
+                </span>
+                {% task_children task as children %}
+                {% if children %}
+                    <ul style="padding-inline-start: 20px;">
+                        {% for sub_task in children %}
+                            {% include "admin/workflow/caseworkflow/tasks.html" with task=sub_task task_states=task_states only %}
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </li>
+        {% endif %}
+    {% endwith %}
+{% endif %}

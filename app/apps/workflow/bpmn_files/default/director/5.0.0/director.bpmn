@@ -7,7 +7,7 @@
       <bpmn:outgoing>Flow_1bizv1n</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1sswvpm" name="Ja" sourceRef="gateway_do_we_need_a_hercontrole" targetRef="Activity_1vaddj9">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "hercontrole"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "hercontrole"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1bizv1n" name="Nee" sourceRef="gateway_do_we_need_a_hercontrole" targetRef="end_0ins2a3" />
     <bpmn:endEvent id="end_0ins2a3">
@@ -45,7 +45,7 @@
       <bpmn:outgoing>Flow_1806n6d</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_19fjsci" name="debrief_next_step = Close Case" sourceRef="gateway_merge_0wumcd2" targetRef="gateway_merge_17juvrg">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "close_case"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("debrief_next_step") == "close_case"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="gateway_next_step_is_renounce_or_close" name="Wat is de volgende stap" default="Flow_1e320ch">
       <bpmn:incoming>Flow_10huie7</bpmn:incoming>
@@ -63,14 +63,14 @@
       <bpmn:outgoing>Flow_15yj673</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0bq1d3y" name="Afsluiten zaak" sourceRef="gateway_what_is_next_step" targetRef="gateway_merge_17juvrg">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon_next_step.value == "close_case"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("summon_next_step") == "close_case"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_02ymmf5" name="Besluit" sourceRef="gateway_what_is_next_step" targetRef="script_start_decision_subworkflow">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon_next_step.value == "decision"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("summon_next_step") == "decision"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1e320ch" sourceRef="gateway_next_step_is_renounce_or_close" targetRef="gateway_merge_17juvrg" />
     <bpmn:sequenceFlow id="Flow_0ysd6yg" sourceRef="gateway_merge_0wumcd2" targetRef="Gateway_0ztrrmo">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "summon" or debrief_next_step.value == "unoccupied"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("debrief_next_step") == "summon" or get_data("debrief_next_step") == "unoccupied"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="gateway_merge_1obmbig" default="Flow_1t3hdny">
       <bpmn:incoming>Flow_0dzqcwg</bpmn:incoming>
@@ -152,10 +152,10 @@
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_1dztw7t" sourceRef="resume_after_renounce_decision" targetRef="gateway_merge_17juvrg" />
     <bpmn:sequenceFlow id="Flow_104a0sv" name="Afzien besluit" sourceRef="gateway_what_is_next_step" targetRef="script_start_renounce_decision_subworkflow">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon_next_step.value == "renounce"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("summon_next_step") == "renounce"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0nnxs73" name="Alsnog afzien besluit" sourceRef="gateway_next_step_is_renounce_or_close" targetRef="script_start_renounce_decision_subworkflow">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "renounce"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "renounce"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1wwhp76" sourceRef="script_start_close_case_subworkflow" targetRef="resume_after_close_case" />
     <bpmn:scriptTask id="script_start_close_case_subworkflow" name="script_start_close_case_subworkflow">
@@ -182,7 +182,7 @@
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_0s3mvda" sourceRef="Event_1k7mwzt" targetRef="gateway_merge_0wumcd2" />
     <bpmn:sequenceFlow id="Flow_161irhq" name="debrief_next_step = Visit or debrief_next_step = digital_surveillance" sourceRef="gateway_merge_0wumcd2" targetRef="Gateway_1sarvet">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "visit" or debrief_next_step.value == "digital_surveillance"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("debrief_next_step") == "visit" or get_data("debrief_next_step") == "digital_surveillance"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:scriptTask id="script_start_closing_procedure_subworkflow" name="script_start_closing_procedure_subworkflow">
       <bpmn:incoming>Flow_0wmhmgd</bpmn:incoming>
@@ -190,7 +190,7 @@
       <bpmn:script>start_subworkflow("closing_procedure", vars())</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_0wmhmgd" name="Sluiten Pand" sourceRef="gateway_what_is_next_step" targetRef="script_start_closing_procedure_subworkflow">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon_next_step.value == "closing_procedure"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("summon_next_step") == "closing_procedure"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:intermediateCatchEvent id="resume_after_closing_procedure" name="resume_after_closing_procedure">
       <bpmn:incoming>Flow_0pr3ioo</bpmn:incoming>
@@ -201,7 +201,7 @@
     <bpmn:sequenceFlow id="Flow_1clv0pm" sourceRef="resume_after_closing_procedure" targetRef="gateway_merge_17juvrg" />
     <bpmn:sequenceFlow id="Flow_1x0oeqr" name="Aanschrijving" sourceRef="gateway_what_is_next_step" targetRef="gateway_merge_1obmbig" />
     <bpmn:sequenceFlow id="Flow_1hd9vm8" name="summon_next_step = visit" sourceRef="gateway_what_is_next_step" targetRef="gateway_merge_17juvrg">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon_next_step.value == "visit"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("summon_next_step") == "visit"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_1ghwpqi" default="Flow_12zuc9d">
       <bpmn:incoming>Flow_0fip1hz</bpmn:incoming>
@@ -225,7 +225,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1ce0ocf" sourceRef="gateway_reason_toezicht" targetRef="Gateway_1sarvet" />
     <bpmn:sequenceFlow id="Flow_19p0suh" name="theme = onderhuur" sourceRef="gateway_theme_pre_toezicht" targetRef="script_start_housing_corporation_subworkflow">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">theme.value == "theme_onderhuur"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("theme") == "theme_onderhuur"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:intermediateCatchEvent id="resume_after_housing_corporation" name="resume_after_housing_corporation">
       <bpmn:incoming>Flow_16wkjh5</bpmn:incoming>
@@ -240,7 +240,7 @@
       <bpmn:script>start_subworkflow("housing_corporation", vars())</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_0yz93jc" name="reason = digitaal_toezicht" sourceRef="gateway_reason_toezicht" targetRef="Gateway_13f3cii">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reason.value == "reason_digitaal_toezicht"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("reason") == "reason_digitaal_toezicht"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_188gtgc" sourceRef="script_start_digital_surveillance_subworkflow" targetRef="resume_after_digital_surveillance" />
     <bpmn:sequenceFlow id="Flow_186kb5e" sourceRef="resume_after_digital_surveillance" targetRef="Gateway_1vdnxbk" />
@@ -261,7 +261,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1x8zzjk" sourceRef="gateway_next_step_visit_and_no_violation" targetRef="script_start_close_case_subworkflow" />
     <bpmn:sequenceFlow id="Flow_0bgyjfv" name="summon_next_step = visit" sourceRef="gateway_next_step_visit_and_no_violation" targetRef="Gateway_0qxxy8v">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">next_step.value == "visit" and decision_count.value == 0</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("next_step") == "visit" and get_data("decision_count") == 0</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_1sarvet" default="Flow_1dcoqd4">
       <bpmn:incoming>Flow_1ce0ocf</bpmn:incoming>
@@ -277,7 +277,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1whc19q" sourceRef="Gateway_1vdnxbk" targetRef="Gateway_1ghwpqi" />
     <bpmn:sequenceFlow id="Flow_0rtnb42" name="digitaal_toezicht_next_step = summon" sourceRef="Gateway_1vdnxbk" targetRef="gateway_merge_1obmbig">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">digitaal_toezicht_next_step.value == "summon"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("digitaal_toezicht_next_step") == "summon"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_13f3cii">
       <bpmn:incoming>Flow_0yz93jc</bpmn:incoming>
@@ -286,7 +286,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0lficrx" sourceRef="Gateway_13f3cii" targetRef="script_start_digital_surveillance_subworkflow" />
     <bpmn:sequenceFlow id="Flow_0cfknxr" name="debrief_next_step = digital_surveillance" sourceRef="Gateway_1sarvet" targetRef="Gateway_13f3cii">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "digital_surveillance"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("debrief_next_step") == "digital_surveillance"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_0qxxy8v">
       <bpmn:incoming>Flow_1dcoqd4</bpmn:incoming>
@@ -309,7 +309,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1j6e4oc" sourceRef="Gateway_0ztrrmo" targetRef="gateway_merge_1obmbig" />
     <bpmn:sequenceFlow id="Flow_0ak5tur" name="debrief_next_step == unoccupied or summon_next_step == unoccupied" sourceRef="Gateway_0ztrrmo" targetRef="Gateway_1ki8kfv">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">debrief_next_step.value == "unoccupied" or summon_next_step.value == "unoccupied"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("debrief_next_step") == "unoccupied" or get_data("summon_next_step") == "unoccupied"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0am0ivs" sourceRef="resume_after_unoccupied" targetRef="Gateway_0lqhmu2" />
     <bpmn:exclusiveGateway id="Gateway_0lqhmu2">
@@ -319,7 +319,7 @@
       <bpmn:outgoing>Flow_1tss8a3</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_133ivwt" name="unoccupied_next_step == summon" sourceRef="Gateway_0lqhmu2" targetRef="gateway_merge_1obmbig">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">unoccupied_next_step.value == "summon"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("unoccupied_next_step") == "summon"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:scriptTask id="script_start_unoccupied_subworkflow" name="script_start_unoccupied_subworkflow">
       <bpmn:incoming>Flow_0k7tb8q</bpmn:incoming>
@@ -333,13 +333,13 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_11pb2e0" sourceRef="Gateway_03n10o4" targetRef="Activity_1pin55w" />
     <bpmn:sequenceFlow id="Flow_0xv24sz" name="unoccupied_next_step == debrief" sourceRef="Gateway_0lqhmu2" targetRef="Gateway_03n10o4">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">unoccupied_next_step.value == "debrief"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("unoccupied_next_step") == "debrief"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1tss8a3" sourceRef="Gateway_0lqhmu2" targetRef="Gateway_0p3o55j">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">unoccupied_next_step.value == "close_case"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("unoccupied_next_step") == "close_case"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_15yj673" name="summon_next_step == unoccupied" sourceRef="gateway_what_is_next_step" targetRef="Gateway_0ztrrmo">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">summon_next_step.value == "unoccupied"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("summon_next_step") == "unoccupied"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_1ki8kfv">
       <bpmn:incoming>Flow_0ak5tur</bpmn:incoming>
@@ -354,7 +354,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0mhbkmb" sourceRef="Gateway_1aj0uyd" targetRef="script_start_visit_subworkflow" />
     <bpmn:sequenceFlow id="Flow_1y6m8zg" name="leegstandsmelding_eigenaar == ja" sourceRef="Gateway_1aj0uyd" targetRef="Gateway_1ki8kfv">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">leegstandsmelding_eigenaar.value == "ja"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("leegstandsmelding_eigenaar") == "ja"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_0svb5pa" default="Flow_0av4c69">
       <bpmn:incoming>Flow_03aynvp</bpmn:incoming>
@@ -370,7 +370,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_01ofopc" sourceRef="Gateway_0p3o55j" targetRef="gateway_merge_17juvrg" />
     <bpmn:sequenceFlow id="Flow_1wfa7hv" name="housing_corporation_next_step == close_case" sourceRef="Gateway_0svb5pa" targetRef="Gateway_0p3o55j">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">housing_corporation_next_step.value == "close_case"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("housing_corporation_next_step") == "close_case"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmn:message id="Message_053q3rk" name="aanschrijving_toevoegen" />

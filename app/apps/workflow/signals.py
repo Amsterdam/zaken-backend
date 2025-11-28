@@ -3,6 +3,7 @@ import datetime
 import logging
 from datetime import timezone
 
+import SpiffWorkflow
 from apps.events.models import TaskModelEventEmitter
 from apps.visits.models import Visit
 from apps.workflow.models import CaseUserTask, CaseWorkflow, GenericCompletedTask
@@ -11,7 +12,9 @@ from django.core.cache import cache
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone as django_timezone
+from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.camunda.serializer.config import CAMUNDA_CONFIG
 from utils.exceptions import EventEmitterExistsError
 
 from .user_tasks import DEFAULT_USER_TASK_DUE_DATE, get_task_by_name
@@ -158,8 +161,12 @@ def case_workflow_pre_save(sender, instance, **kwargs):
         )
         workflow_spec = instance.get_workflow_spec()
         wf = BpmnWorkflow(workflow_spec)
-        wf = instance.get_serializer().serialize_workflow(wf, include_spec=False)
-        instance.serialized_workflow_state = wf
+        reg = instance.get_serializer().configure(CAMUNDA_CONFIG)
+        serializer = BpmnWorkflowSerializer(registry=reg)
+        serialized_wf = serializer.serialize_json(wf)
+        instance.serialized_workflow_state = serialized_wf
+        instance.spiff_workflow_version = SpiffWorkflow.__version__
+        instance.spiff_serializer_version = serializer.get_version(serialized_wf)
 
 
 @receiver(post_save, sender=CaseWorkflow, dispatch_uid="start_workflow")
@@ -188,4 +195,5 @@ def complete_generic_user_task_and_create_new_user_tasks(
         user_task_type = get_task_by_name(task.task_name)
         user_task_instance = user_task_type(task)
         data.update(user_task_instance.get_data())
+
         CaseWorkflow.complete_user_task(task.id, data, wait=True)

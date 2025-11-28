@@ -108,7 +108,7 @@
     <bpmn:sequenceFlow id="Flow_1l76fkr" sourceRef="start_housing_corporation" targetRef="service_status_afstemmen_corporatie" />
     <bpmn:sequenceFlow id="Flow_03venu5" sourceRef="Gateway_0s1f81q" targetRef="Gateway_0orgca0" />
     <bpmn:sequenceFlow id="Flow_1wieqjy" name="reactie_ontvangen_voor_huisbezoek == corporatie_gaat_lopen" sourceRef="Gateway_0orgca0" targetRef="service_status_huisbezoek_corporatie">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reactie_ontvangen_voor_huisbezoek.value == "corporatie_gaat_lopen"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("reactie_ontvangen_voor_huisbezoek") == "corporatie_gaat_lopen"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0ywq58m" sourceRef="task_afwachten_besluit_corporatie_na_huisbezoek_1" targetRef="Gateway_0kherui">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" />
@@ -116,7 +116,7 @@
     <bpmn:sequenceFlow id="Flow_1x0h4n0" sourceRef="service_status_huisbezoek_corporatie" targetRef="task_afwachten_besluit_corporatie_na_huisbezoek_1" />
     <bpmn:sequenceFlow id="Flow_1sarw53" sourceRef="Gateway_1vb2wgi" targetRef="Gateway_0sz7vpd" />
     <bpmn:sequenceFlow id="Flow_14od47u" name="reactie_ontvangen_voor_huisbezoek == direct_naar_debrief" sourceRef="Gateway_0orgca0" targetRef="service_housing_corporation_next_step_debrief">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reactie_ontvangen_voor_huisbezoek.value == "direct_naar_debrief"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("reactie_ontvangen_voor_huisbezoek") == "direct_naar_debrief"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0r1gbsz" sourceRef="service_housing_corporation_next_step_debrief" targetRef="Gateway_1vb2wgi" />
     <bpmn:scriptTask id="service_housing_corporation_next_step_debrief" name="housing_corporation_next_step = debrief">
@@ -182,7 +182,7 @@
     <bpmn:sequenceFlow id="Flow_09zo0ia" sourceRef="event_timer_monitoren_reactie_corporatie_voor_huisbezoek" targetRef="task_contacteren_corporatie_voor_huisbezoek" />
     <bpmn:sequenceFlow id="Flow_00uz88f" sourceRef="task_contacteren_corporatie_voor_huisbezoek" targetRef="Gateway_1x7xgjp" />
     <bpmn:sequenceFlow id="Flow_0pm8kve" name="reactie_ontvangen_voor_huisbezoek == geen_reactie" sourceRef="Gateway_1x7xgjp" targetRef="Gateway_0kr3sgh">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reactie_ontvangen_voor_huisbezoek.value == "geen_reactie"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("reactie_ontvangen_voor_huisbezoek") == "geen_reactie"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0015sc9" sourceRef="Gateway_0kr3sgh" targetRef="task_monitoren_reactie_corporatie_voor_huisbezoek" />
     <bpmn:sequenceFlow id="Flow_0jz7wu4" sourceRef="Gateway_1x7xgjp" targetRef="Gateway_0s1f81q" />
@@ -224,7 +224,7 @@
       <bpmn:outgoing>Flow_02qqxu0</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_0kyzj1m" name="reactie_ontvangen_na_huisbezoek == woonfraude" sourceRef="Gateway_0kherui" targetRef="task_verwerken_constatering_corporatie">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reactie_ontvangen_na_huisbezoek.value == "woonfraude"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("reactie_ontvangen_na_huisbezoek") == "woonfraude"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1dchak4" sourceRef="Gateway_0kherui" targetRef="Gateway_02qx0ws" />
     <bpmn:sequenceFlow id="Flow_02qqxu0" sourceRef="task_verwerken_constatering_corporatie" targetRef="Gateway_02qx0ws" />
@@ -293,13 +293,13 @@
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="Flow_12oxnd5" name="reactie_ontvangen_na_huisbezoek == geen_reactie" sourceRef="Gateway_0tov9p7" targetRef="Gateway_1v6luyf">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reactie_ontvangen_na_huisbezoek.value == "geen_reactie"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("reactie_ontvangen_na_huisbezoek") == "geen_reactie"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0yw74dt" sourceRef="Gateway_1v6luyf" targetRef="task_contacteren_corporatie_na_huisbezoek" />
     <bpmn:sequenceFlow id="Flow_0d7mcmg" sourceRef="task_contacteren_corporatie_na_huisbezoek" targetRef="Gateway_0fxi98t" />
     <bpmn:sequenceFlow id="Flow_0j5d6gq" sourceRef="Gateway_0fxi98t" targetRef="Gateway_0vk1sha" />
     <bpmn:sequenceFlow id="Flow_1c6bg2m" name="reactie_ontvangen_na_huisbezoek == geen_reactie" sourceRef="Gateway_0fxi98t" targetRef="task_afwachten_besluit_corporatie_na_huisbezoek_2">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">reactie_ontvangen_na_huisbezoek.value == "geen_reactie"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("reactie_ontvangen_na_huisbezoek") == "geen_reactie"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_12as5u4" sourceRef="task_afwachten_besluit_corporatie_na_huisbezoek_2" targetRef="Gateway_0mg3exo">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" />

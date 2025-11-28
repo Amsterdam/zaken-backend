@@ -99,12 +99,12 @@
     <bpmn:sequenceFlow id="Flow_0sshlu1" sourceRef="script_citizen_report_feedback_2" targetRef="task_1_sia_terugkoppeling_melders" />
     <bpmn:sequenceFlow id="Flow_1tukm2w" name="period exceeded" sourceRef="Gateway_1p78371" targetRef="script_citizen_report_feedback_2" />
     <bpmn:sequenceFlow id="Flow_1o68q01" name="force_citizen_report_feedback" sourceRef="Gateway_1p78371" targetRef="Gateway_1wphfcu">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">force_citizen_report_feedback.value == True</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("force_citizen_report_feedback") == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1i71ic1" sourceRef="Gateway_1wphfcu" targetRef="Gateway_0yap9qy" />
     <bpmn:sequenceFlow id="Flow_04cccsy" sourceRef="Gateway_1kv5oje" targetRef="script_citizen_report_feedback_3" />
     <bpmn:sequenceFlow id="Flow_0hb8y6t" name="force_citizen_report_feedback" sourceRef="Gateway_1kv5oje" targetRef="Gateway_1wphfcu">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">force_citizen_report_feedback.value == True</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("force_citizen_report_feedback") == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:userTask id="task_2_sia_terugkoppeling_melders" name="2e SIG terugkoppeling melder" camunda:formKey="form">
       <bpmn:extensionElements>
@@ -150,7 +150,7 @@
     <bpmn:sequenceFlow id="Flow_1nqle2x" sourceRef="Gateway_0yap9qy" targetRef="task_sia_terugkoppeling_melders" />
     <bpmn:sequenceFlow id="Flow_1m0upk1" sourceRef="message_event_citizen_report_feedback_3b" targetRef="Gateway_0cdun7e" />
     <bpmn:sequenceFlow id="Flow_102ahgo" name="force_citizen_report_feedback" sourceRef="Gateway_0cdun7e" targetRef="Gateway_0yap9qy">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">force_citizen_report_feedback.value == True</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("force_citizen_report_feedback") == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:boundaryEvent id="message_event_citizen_report_feedback_3a" name="citizen_report_feedback_3" attachedToRef="task_2_sia_terugkoppeling_melders">
       <bpmn:outgoing>Flow_1q4jjwd</bpmn:outgoing>

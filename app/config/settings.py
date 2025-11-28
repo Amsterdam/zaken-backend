@@ -453,6 +453,8 @@ BROKER_URL = CELERY_BROKER_URL
 CELERY_TASK_TRACK_STARTED = True
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_TASK_TIME_LIMIT = 5400  # 1,5 hours
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_TASK_DEFAULT_PRIORITY = 5
 CELERY_BEAT_SCHEDULE = {
     "queue_every_five_mins": {
         "task": "apps.health.tasks.query_every_five_mins",
@@ -516,7 +518,7 @@ CITIZEN_REPORT_FEEDBACK_PERIODS = (
     {
         "themes": (2,),
         "periods": (
-            CITIZEN_REPORT_FEEDBACK_DEFAULT_SECOND_PERIOD,
+            CITIZEN_REPORT_FEEDBACK_DEFAULT_FIRST_PERIOD,
             CITIZEN_REPORT_FEEDBACK_DEFAULT_SECOND_PERIOD,
         ),
     },
@@ -1308,6 +1310,7 @@ WORKFLOW_SPEC_CONFIG = {
         "visit": {
             "initial_data": {
                 "bepalen_processtap": {"value": "default"},
+                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
             },
             "versions": {
                 "0.1.0": {},

@@ -4,26 +4,120 @@ import itertools
 import json
 import logging
 import os
+from functools import lru_cache
 
-from apps.events.models import TaskModelEventEmitter
 from deepdiff import DeepDiff
 from django.conf import settings
 from prettyprinter import pprint
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
-from SpiffWorkflow.bpmn.specs.BoundaryEvent import BoundaryEvent
-from SpiffWorkflow.bpmn.specs.event_definitions import TimerEventDefinition
-from SpiffWorkflow.bpmn.specs.ScriptTask import ScriptTask
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnEvent
+from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine, TaskDataEnvironment
+from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
+from SpiffWorkflow.bpmn.specs.control import BoundaryEvent
+from SpiffWorkflow.bpmn.specs.defaults import ScriptTask
+from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
-from SpiffWorkflow.camunda.specs.UserTask import UserTask
+from SpiffWorkflow.camunda.serializer.config import CAMUNDA_CONFIG
+from SpiffWorkflow.camunda.specs.event_definitions import MessageEventDefinition
+from SpiffWorkflow.camunda.specs.user_task import UserTask
 from SpiffWorkflow.specs.StartTask import StartTask
-from SpiffWorkflow.task import Task
 
 logger = logging.getLogger(__name__)
 
 
+def create_script_engine(
+    set_status=None,
+    wait_for_workflows_and_send_message=None,
+    script_wait=None,
+    start_subworkflow=None,
+    parse_duration=None,
+    get_data=None,
+    start_workflow=None,
+    close_case=None,
+):
+    """
+    Factory function to create a PythonScriptEngine with the specified environment globals.
+
+    Args:
+        set_status: Function to set workflow status (optional)
+        wait_for_workflows_and_send_message: Function to wait for workflows and send messages (optional)
+        script_wait: Function for script waiting (optional)
+        start_subworkflow: Function to start subworkflows (optional)
+        parse_duration: Function to parse duration strings (optional)
+        get_data: Function to get data from workflow (optional)
+        start_workflow: Function to start workflows (optional)
+        close_case: Function to close cases (optional)
+
+    Returns:
+        PythonScriptEngine: Configured script engine instance
+    """
+
+    return PythonScriptEngine(
+        environment=TaskDataEnvironment(
+            environment_globals={
+                "set_status": (
+                    set_status if set_status is not None else lambda *args: None
+                ),
+                "wait_for_workflows_and_send_message": (
+                    wait_for_workflows_and_send_message
+                    if wait_for_workflows_and_send_message is not None
+                    else lambda *args: None
+                ),
+                "script_wait": (
+                    script_wait if script_wait is not None else lambda *args: None
+                ),
+                "start_subworkflow": (
+                    start_subworkflow
+                    if start_subworkflow is not None
+                    else lambda *args: None
+                ),
+                "parse_duration": (
+                    parse_duration if parse_duration is not None else lambda *args: None
+                ),
+                "get_data": get_data if get_data is not None else lambda *args: None,
+                "start_workflow": (
+                    start_workflow if start_workflow is not None else lambda *args: None
+                ),
+                "close_case": (
+                    close_case if close_case is not None else lambda *args: None
+                ),
+            }
+        )
+    )
+
+
+def timedelta_to_iso_duration(td):
+    """Convert a timedelta object to ISO 8601 duration format."""
+    total_seconds = int(td.total_seconds())
+    days, remainder = divmod(total_seconds, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    # Build date part (P...D)
+    date_part = f"{days}D" if days else ""
+
+    # Build time part (T...H...M...S)
+    time_parts = []
+    if hours:
+        time_parts.append(f"{hours}H")
+    if minutes:
+        time_parts.append(f"{minutes}M")
+    if seconds:
+        time_parts.append(f"{seconds}S")
+
+    time_part = "T" + "".join(time_parts) if time_parts else ""
+
+    # Combine parts - always starts with P, date part, then time part if present
+    result = f"P{date_part}{time_part}"
+
+    # If we have no parts at all, return PT0S (zero duration)
+    return result if (date_part or time_part) else "PT0S"
+
+
 def complete_uncompleted_task_for_event_emitters(event_emmitter, data={}):
+    from apps.events.models import TaskModelEventEmitter
+
     from .models import CaseWorkflow
 
     if not issubclass(event_emmitter.__class__, TaskModelEventEmitter):
@@ -139,13 +233,14 @@ def check_for_duplicate_task_spec_ids(workflow_spec):
 
 
 def get_workflow_spec_user_tasks(workflow_spec):
-    workflow_specs = workflow_spec.get_specs_depth_first()
-    return [
-        ts
-        for workflow_spec in workflow_specs
-        for k, ts in workflow_spec.task_specs.items()
-        if isinstance(ts, UserTask)
-    ]
+    # In v3, BpmnProcessSpec has task_specs directly accessible
+    if hasattr(workflow_spec, "task_specs"):
+        return [
+            ts for k, ts in workflow_spec.task_specs.items() if isinstance(ts, UserTask)
+        ]
+    else:
+        # Fallback for older versions or different spec types
+        return []
 
 
 def get_base_path():
@@ -253,7 +348,12 @@ def is_bpmn_file(file_name):
     return file_name.split(".")[-1] == "bpmn"
 
 
+@lru_cache(maxsize=200)
 def get_workflow_spec(path, workflow_type):
+    """
+    Get a workflow spec from a file path.
+    We're using a cache to speed up the process, since workflow specs don't change and parsing them every time takes roughly 0.5 to 1 second (which happens in every workflow update, e.g. via Celery tasks).
+    """
     x = CamundaParser()
 
     for f in get_workflow_spec_files(path):
@@ -551,45 +651,45 @@ def ff_workflow(
     timer_event_task_start_times={},
     message_name=None,
 ):
-    script_engine = PythonScriptEngine(
-        scriptingAdditions={
-            "set_status": lambda *args: None,
-            "wait_for_workflows_and_send_message": lambda *args: None,
-            "script_wait": lambda *args: None,
-            "start_subworkflow": lambda *args: None,
-            "parse_duration": lambda *args: None,
-        }
-    )
+    script_engine = create_script_engine()
     workflow = BpmnWorkflow(spec, script_engine=script_engine)
 
-    first_task = workflow.get_tasks(Task.READY)[0]
-    first_task.update_data(data)
+    first_task = workflow.get_tasks(state=TaskState.READY)[0]
+    first_task.data.update(data)
 
     workflow.refresh_waiting_tasks()
     workflow.do_engine_steps()
 
     if message_name:
         logger.info(f" - message: {message_name}")
-        workflow.message(message_name, message_name, "message_name")
+        workflow.catch(
+            BpmnEvent(
+                # Only the message name is relevant here, the other parameters are not used but the docs don't really specify what they are used for.
+                MessageEventDefinition(message_name),
+                {"result_var": "result_var", "payload": "payload"},
+            )
+        )
         workflow.refresh_waiting_tasks()
         workflow.do_engine_steps()
 
     def complete_task_and_get_workflow_clone(wf, user_task_data, user_task):
         data = copy.deepcopy(wf.last_task.data)
         data.update(user_task_data)
-        workflow_clone_serialized = BpmnSerializer().serialize_workflow(
-            wf, include_spec=True
-        )
-        workflow_clone = BpmnSerializer().deserialize_workflow(
-            workflow_clone_serialized
-        )
+        reg = BpmnWorkflowSerializer.configure(CAMUNDA_CONFIG)
+        serializer = BpmnWorkflowSerializer(registry=reg)
+        workflow_clone_serialized = serializer.serialize_json(wf)
+        workflow_clone = serializer.deserialize_json(workflow_clone_serialized)
         workflow_clone.script_engine = script_engine
         if user_task:
-            tasks = workflow_clone.get_tasks_from_spec_name(user_task.task_spec.name)
+            tasks = [
+                t
+                for t in workflow_clone.get_tasks()
+                if t.task_spec.name == user_task.task_spec.name
+            ]
             if tasks:
                 completed_tasks.append(tasks[0].task_spec.name)
-                tasks[0].update_data(data)
-                workflow_clone.complete_task_from_id(tasks[0].id)
+                tasks[0].set_data(**data)
+                tasks[0].complete()
                 try:
                     workflow_clone.refresh_waiting_tasks()
                     workflow_clone.do_engine_steps()
@@ -600,13 +700,17 @@ def ff_workflow(
     completed_tasks = []
 
     def check_tasks_found(wf):
-        found_user_task_names = [t.task_spec.name for t in wf.get_ready_user_tasks()]
+        found_user_task_names = [
+            t.task_spec.name
+            for t in wf.get_tasks(state=TaskState.READY)
+            if isinstance(t.task_spec, UserTask)
+        ]
         return sorted(found_user_task_names) == sorted(expected_user_task_names)
 
     def get_ready_tasks(wf):
         return [
             t
-            for t in wf.get_tasks(Task.WAITING | Task.READY)
+            for t in wf.get_tasks(state=TaskState.WAITING | TaskState.READY)
             if t.task_spec.name not in completed_tasks
             and (
                 isinstance(t.task_spec, UserTask)
@@ -647,31 +751,29 @@ def ff_workflow(
 
 
 def ff_to_subworkflow(subworkflow, spec, message_name, data):
-    script_engine = PythonScriptEngine(
-        scriptingAdditions={
-            "set_status": lambda *args: None,
-            "wait_for_workflows_and_send_message": lambda *args: None,
-            "script_wait": lambda *args: None,
-            "start_subworkflow": lambda *args: None,
-            "parse_duration": lambda *args: None,
-        }
-    )
+    script_engine = create_script_engine()
     workflow = BpmnWorkflow(spec, script_engine=script_engine)
 
-    first_task = workflow.get_tasks(Task.READY)[0]
-    first_task.update_data(data)
+    first_task = workflow.get_tasks(state=TaskState.READY)[0]
+    first_task.data.update(data)
 
     workflow.refresh_waiting_tasks()
     workflow.do_engine_steps()
 
-    workflow.message(message_name, message_name, "message_name")
+    workflow.catch(
+        BpmnEvent(
+            # Only the message name is relevant here, the other parameters are not used but the docs don't really specify what they are used for.
+            MessageEventDefinition(message_name),
+            {"result_var": "result_var", "payload": "payload"},
+        )
+    )
     workflow.refresh_waiting_tasks()
     workflow.do_engine_steps()
 
     def get_waiting_tasks(wf):
         return [
             t
-            for t in wf.get_tasks(Task.WAITING)
+            for t in wf.get_tasks(state=TaskState.WAITING)
             if t.task_spec.inputs and not isinstance(t.task_spec.inputs[0], StartTask)
         ]
 
@@ -681,7 +783,7 @@ def ff_to_subworkflow(subworkflow, spec, message_name, data):
     while len(ready_tasks) > 0:
         for task in ready_tasks:
             if (
-                task.task_spec.description == f"resume_after_{subworkflow}"
+                task.task_spec.name == f"resume_after_{subworkflow}"
                 and isinstance(workflow.last_task.task_spec, ScriptTask)
                 and workflow.last_task.task_spec.script
                 == f'start_subworkflow("{subworkflow}", vars())'
@@ -692,14 +794,14 @@ def ff_to_subworkflow(subworkflow, spec, message_name, data):
                 if (
                     task.task_spec.inputs
                     and not isinstance(task.task_spec.inputs[0], StartTask)
-                    and task.task_spec.description not in completed
+                    and task.task_spec.name not in completed
                 ):
                     try:
-                        task.update_data(data)
-                        workflow.complete_task_from_id(task.id)
+                        task.set_data(**data)
+                        task.complete()
                         workflow.refresh_waiting_tasks()
                         workflow.do_engine_steps()
-                        completed.append(task.task_spec.description)
+                        completed.append(task.task_spec.name)
                         ready_tasks = get_waiting_tasks(workflow)
                     except Exception as e:
                         ready_tasks = []
@@ -724,20 +826,24 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
     def wait_for_workflows_and_send_message(message):
         logger.info(f"wait_for_workflows_and_send_message: {message}")
 
-    script_engine = PythonScriptEngine(
-        scriptingAdditions={
-            "set_status": set_status,
-            "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
-        }
+    script_engine = create_script_engine(
+        set_status=set_status,
+        wait_for_workflows_and_send_message=wait_for_workflows_and_send_message,
     )
 
     workflow = BpmnWorkflow(workflow_spec, script_engine=script_engine)
 
-    first_task = workflow.get_tasks(Task.READY)[0]
-    first_task.update_data(data)
+    first_task = workflow.get_tasks(state=TaskState.READY)[0]
+    first_task.data.update(data)
 
     workflow.do_engine_steps()
-    workflow.message("start_signal_process", {"value": "test"}, "next_step")
+    workflow.catch(
+        BpmnEvent(
+            # Only the message name is relevant here, the other parameters are not used but the docs don't really specify what they are used for.
+            MessageEventDefinition("start_signal_process"),
+            {"result_var": "result_var", "payload": {"value": "test"}},
+        )
+    )
     workflow.do_engine_steps()
 
     logger.info("expected_user_task_names")
@@ -746,9 +852,14 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
     logger.info(data)
 
     found_user_task_name = []
+
     missing_form_data = []
 
-    ready_tasks = workflow.get_ready_user_tasks()
+    ready_tasks = [
+        t
+        for t in workflow.get_tasks(state=TaskState.READY)
+        if isinstance(t.task_spec, UserTask)
+    ]
     success = False
     logger.info(ready_tasks)
     while len(ready_tasks) > 0:
@@ -764,7 +875,7 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
                 workflow.refresh_waiting_tasks()
                 workflow.do_engine_steps()
 
-                waiting_tasks = workflow.get_tasks(Task.WAITING)
+                waiting_tasks = workflow.get_tasks(state=TaskState.WAITING)
 
                 if waiting_tasks:
                     logger.info(waiting_tasks[-1].__dict__)
@@ -794,17 +905,21 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
                                 mk: "VALUE_FOR_MISSING_KEY",
                             }
                         )
-                task.update_data(data)
-                workflow.complete_task_from_id(task.id)
+                task.set_data(**data)
+                task.complete()
                 workflow.refresh_waiting_tasks()
                 workflow.do_engine_steps()
-                ready_tasks = workflow.get_ready_user_tasks()
+                ready_tasks = [
+                    t
+                    for t in workflow.get_tasks(state=TaskState.READY)
+                    if isinstance(t.task_spec, UserTask)
+                ]
 
         if not ready_tasks and not success:
             logger.info(
                 "Nothing found, have to check for waiting tasks to complete. Try to run further when waiting tasks are completed"
             )
-            waiting_tasks = workflow.get_tasks(Task.WAITING)
+            waiting_tasks = workflow.get_tasks(state=TaskState.WAITING)
             if waiting_tasks:
                 logger.info(waiting_tasks[-1].task_spec.name)
                 logger.info(type(waiting_tasks[-1].task_spec))
@@ -814,10 +929,14 @@ def workflow_health_check(workflow_spec, data, expected_user_task_names):
                 if isinstance(wt.parent.task_spec, StartTask):
                     pass
                 else:
-                    workflow.complete_task_from_id(wt.id)
+                    wt.complete()
                     workflow.refresh_waiting_tasks()
                     workflow.do_engine_steps()
-                    ready_tasks = workflow.get_ready_user_tasks()
+                    ready_tasks = [
+                        t
+                        for t in workflow.get_tasks(state=TaskState.READY)
+                        if isinstance(t.task_spec, UserTask)
+                    ]
 
     return {
         "success": success,
@@ -830,16 +949,14 @@ def workflow_test_message(message, workflow_spec, script_engine, initial_data={}
     try:
 
         workflow_a = BpmnWorkflow(workflow_spec)
-        first_task_a = workflow_a.get_tasks(Task.READY)
-        first_task_a[0].update_data(initial_data)
-        workflow_a_serialized = BpmnSerializer().serialize_workflow(
-            workflow_a, include_spec=False
-        )
-        workflow_b = BpmnSerializer().deserialize_workflow(
-            workflow_a_serialized, workflow_spec
-        )
-        first_task_b = workflow_a.get_tasks(Task.READY)
-        first_task_b[0].update_data(initial_data)
+        first_task_a = workflow_a.get_tasks(state=TaskState.READY)
+        first_task_a[0].data.update(initial_data)
+        reg = BpmnWorkflowSerializer.configure(CAMUNDA_CONFIG)
+        serializer = BpmnWorkflowSerializer(registry=reg)
+        workflow_a_serialized = serializer.serialize_json(workflow_a)
+        workflow_b = serializer.deserialize_json(workflow_a_serialized, workflow_spec)
+        first_task_b = workflow_a.get_tasks(state=TaskState.READY)
+        first_task_b[0].data.update(initial_data)
         workflow_a.script_engine = script_engine
         workflow_b.script_engine = script_engine
 
@@ -861,10 +978,10 @@ def workflow_test_message(message, workflow_spec, script_engine, initial_data={}
 def workflow_tree_inspect(
     workflow_org, initial_data, script_engine, message_name=None, spec_user_tasks=[]
 ):
-    workflow_serialized = BpmnSerializer().serialize_workflow(
-        workflow_org, include_spec=True
-    )
-    workflow = BpmnSerializer().deserialize_workflow(workflow_serialized)
+    reg = BpmnWorkflowSerializer.configure(CAMUNDA_CONFIG)
+    serializer = BpmnWorkflowSerializer(registry=reg)
+    workflow_serialized = serializer.serialize_json(workflow_org)
+    workflow = serializer.deserialize_json(workflow_serialized)
     workflow.script_engine = script_engine
 
     def get_valid_fields(user_task):
@@ -903,33 +1020,41 @@ def workflow_tree_inspect(
             out.append(o)
         return out
 
-    tasks = workflow.get_tasks(Task.READY)
+    tasks = workflow.get_tasks(state=TaskState.READY)
     if tasks:
-        tasks[0].update_data(initial_data)
+        tasks[0].data.update(initial_data)
     workflow.refresh_waiting_tasks()
     workflow.do_engine_steps()
 
     if message_name:
         logger.info(f" - message: {message_name}")
-        workflow.message(message_name, message_name, "message_name")
+        workflow.catch(
+            BpmnEvent(
+                # Only the message name is relevant here, the other parameters are not used but the docs don't really specify what they are used for.
+                MessageEventDefinition(message_name),
+                {"result_var": "result_var", "payload": "payload"},
+            )
+        )
         workflow.refresh_waiting_tasks()
         workflow.do_engine_steps()
 
     def complete_task_and_get_workflow_clone(workflow, user_task_data, user_task):
         data = copy.deepcopy(workflow.last_task.data)
         data.update(user_task_data)
-        workflow_clone_serialized = BpmnSerializer().serialize_workflow(
-            workflow, include_spec=True
-        )
-        workflow_clone = BpmnSerializer().deserialize_workflow(
-            workflow_clone_serialized
-        )
+        reg = BpmnWorkflowSerializer.configure(CAMUNDA_CONFIG)
+        serializer = BpmnWorkflowSerializer(registry=reg)
+        workflow_clone_serialized = serializer.serialize_json(workflow)
+        workflow_clone = serializer.deserialize_json(workflow_clone_serialized)
         workflow_clone.script_engine = script_engine
         if user_task:
-            tasks = workflow_clone.get_tasks_from_spec_name(user_task.task_spec.name)
+            tasks = [
+                t
+                for t in workflow_clone.get_tasks()
+                if t.task_spec.name == user_task.task_spec.name
+            ]
             if tasks:
-                tasks[0].update_data(data)
-                workflow_clone.complete_task_from_id(tasks[0].id)
+                tasks[0].set_data(**data)
+                tasks[0].complete()
                 workflow_clone.refresh_waiting_tasks()
                 workflow_clone.do_engine_steps()
                 completed_tasks.append(tasks[0].task_spec.name)
@@ -940,8 +1065,9 @@ def workflow_tree_inspect(
     def start_workflow(workflow):
         ready_tasks = [
             t
-            for t in workflow.get_ready_user_tasks()
-            if t.task_spec.name not in completed_tasks
+            for t in workflow.get_tasks(state=TaskState.READY)
+            if isinstance(t.task_spec, UserTask)
+            and t.task_spec.name not in completed_tasks
         ]
         while len(ready_tasks) > 0:
             for task in ready_tasks:
@@ -960,14 +1086,15 @@ def workflow_tree_inspect(
                             )
                         )
                 else:
-                    workflow.complete_task_from_id(task.id)
+                    task.complete()
                     workflow.refresh_waiting_tasks()
                     workflow.do_engine_steps()
                     completed_tasks.append(task.task_spec.name)
                 ready_tasks = [
                     t
-                    for t in workflow.get_ready_user_tasks()
-                    if t.task_spec.name not in completed_tasks
+                    for t in workflow.get_tasks(state=TaskState.READY)
+                    if isinstance(t.task_spec, UserTask)
+                    and t.task_spec.name not in completed_tasks
                 ]
 
     try:
@@ -1057,14 +1184,16 @@ def workflow_spec_paths_inspect(workflow_spec_conf):
     def parse_duration_string(duration_str):
         pass
 
-    script_engine = PythonScriptEngine(
-        scriptingAdditions={
-            "set_status": set_status,
-            "wait_for_workflows_and_send_message": wait_for_workflows_and_send_message,
-            "script_wait": script_wait,
-            "start_subworkflow": start_subworkflow,
-            "parse_duration": parse_duration_string,
-        }
+    def get_data(field_name):
+        pass
+
+    script_engine = create_script_engine(
+        set_status=set_status,
+        wait_for_workflows_and_send_message=wait_for_workflows_and_send_message,
+        script_wait=script_wait,
+        start_subworkflow=start_subworkflow,
+        parse_duration=parse_duration_string,
+        get_data=get_data,
     )
     paths = [
         {

@@ -98,12 +98,12 @@
     <bpmn:sequenceFlow id="Flow_1mmzhem" sourceRef="task_create_visit" targetRef="gateway_what_is_result_visit" />
     <bpmn:sequenceFlow id="Flow_0co89x0" sourceRef="task_request_authorization" targetRef="task_monitor_incoming_authorization" />
     <bpmn:sequenceFlow id="Flow_0aiyxmw" name="Machtiging nodig = YES" sourceRef="gateway_is_authorisation_required" targetRef="task_request_authorization">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">authorization.value == "Yes"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("authorization") == "Yes"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1ud05n0" name="Mactiging nodig = NO" sourceRef="gateway_is_authorisation_required" targetRef="gateway_merge_0h60qot" />
     <bpmn:sequenceFlow id="Flow_0oi0xmk" sourceRef="gateway_what_is_result_visit" targetRef="Event_0ii0awz" />
     <bpmn:sequenceFlow id="Flow_100ib64" name="situation == &#34;nobody_present&#34; and can_next_visit_go_ahead == True" sourceRef="gateway_what_is_result_visit" targetRef="gateway_merge_1fmcb00">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">situation.value == "nobody_present" and can_next_visit_go_ahead.value == True</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">get_data("situation") == "nobody_present" and get_data("can_next_visit_go_ahead") == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmn:signal id="Signal_039rhog" name="S" />
