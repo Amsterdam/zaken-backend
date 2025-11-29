@@ -41,14 +41,29 @@ class BaseTaskWithRetry(celery.Task):
 def task_update_workflows(self):
     from apps.workflow.models import CaseWorkflow
 
-    workflow_instances = CaseWorkflow.objects.filter(completed=False)
-    for workflow in workflow_instances:
-        if workflow.has_a_timer_event_fired():
+    # Use iterator() to stream results and defer large JSON fields to avoid OOM (Out of Memory) errors.
+    # Only load 'id' initially - `serialized_workflow_state` and `data` fields can be very large.
+    workflow_instances = CaseWorkflow.objects.filter(completed=False).only("id")
+
+    batch_size = 100
+    processed_count = 0
+    triggered_count = 0
+
+    for workflow in workflow_instances.iterator(chunk_size=batch_size):
+        processed_count += 1
+        # Reload the full object only when needed for the timer check.
+        full_workflow = CaseWorkflow.objects.get(id=workflow.id)
+        if full_workflow.has_a_timer_event_fired():
             logger.warning(
-                f"task_update_workflows: workflow with id '{workflow.id}', has a timer event fired"
+                f"task_update_workflows: workflow with id '{full_workflow.id}', has a timer event fired"
             )
-            task_update_workflow.delay(workflow.id)
-    return f"task_update_workflows complete: count '{workflow_instances.count()}'"
+            task_update_workflow.delay(full_workflow.id)
+            triggered_count += 1
+
+        # Clear references to allow garbage collection
+        del full_workflow
+
+    return f"task_update_workflows complete: processed '{processed_count}', triggered '{triggered_count}'"
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
