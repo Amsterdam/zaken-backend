@@ -74,7 +74,7 @@ LOCAL_DEVELOPMENT_AUTHENTICATION=False
 
 ### Django admin & services
 
-Visit the Admin at http://localhost:8081/admin/
+Visit the Admin at http://localhost:8080/admin/
 
 Check the health page to see if all services are up and running:
 http://localhost:8080/health
