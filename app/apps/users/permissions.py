@@ -1,5 +1,6 @@
 from apps.cases.models import Case
 from apps.users.auth_apps import TonKeyAuth, TopKeyAuth
+from django.conf import settings
 from rest_framework.permissions import BasePermission, IsAuthenticated
 
 
@@ -43,6 +44,9 @@ class CanAccessBRP(BasePermission):
     """
 
     def has_permission(self, request, view):
+        # Super users should not be allowed to access BRP in production
+        if request.user.is_superuser and settings.ENVIRONMENT == "production":
+            return False
         return request.user.has_perm("users.access_personal_data_register")
 
 
