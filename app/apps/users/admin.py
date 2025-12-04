@@ -91,7 +91,7 @@ class UserGroupAdmin(GroupAdmin):
 
 @admin.register(User)
 class UserAdmin(UserAdmin):
-    actions = [assign_brp_gegevens_inzien]
+    actions = [assign_brp_gegevens_inzien, export_selected_users_to_excel]
     fieldsets = (
         (
             "None",
