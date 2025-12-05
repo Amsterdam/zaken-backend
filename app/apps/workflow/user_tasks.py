@@ -130,6 +130,12 @@ class task_bepalen_processtap_standaard(user_task):
     due_date = relativedelta(days=2)
 
 
+class task_bepalen_processtap_huisvestingsvergunning(user_task):
+    """Bepalen processtap"""
+
+    due_date = relativedelta(days=2)
+
+
 class task_aanvragen_machtiging(user_task):
     """Aanvragen machtiging"""
 
@@ -273,6 +279,13 @@ class task_opstellen_beeldverslag(user_task):
 
     _task_name = "task_create_picture_rapport"
     due_date = relativedelta(days=3)
+
+
+class task_opstellen_rapport_van_bevindingen_hv(user_task):
+    """Opstellen rapport van bevindingen"""
+
+    _task_name = "task_create_report_of_findings_hv"
+    due_date = relativedelta(days=333)
 
 
 class task_opstellen_rapport_van_bevindingen(user_task):
@@ -1030,6 +1043,10 @@ class task_bepalen_processtap_vv(user_task):
 
 
 class task_digitaal_rapport_th(user_task):
+    due_date = relativedelta(days=3)
+
+
+class task_investigate_case(user_task):
     due_date = relativedelta(days=3)
 
 

@@ -169,7 +169,6 @@
       "is_sanction": false
     }
   },
-
   {
     "model": "decisions.decisiontype",
     "pk": 26,
@@ -397,6 +396,56 @@
       "theme": 5,
       "name": "Invordering dwangsom",
       "workflow_option": "invordering_dwangsom",
+      "is_sanction": true
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 49,
+    "fields": {
+      "theme": 9,
+      "name": "Afzien voornemen",
+      "workflow_option": "no_decision",
+      "is_sanction": false
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 50,
+    "fields": {
+      "theme": 9,
+      "name": "Invordering dwangsom",
+      "workflow_option": "invordering_dwangsom",
+      "is_sanction": true
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 51,
+    "fields": {
+      "theme": 9,
+      "name": "Boete",
+      "workflow_option": "boete",
+      "is_sanction": true
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 52,
+    "fields": {
+      "theme": 9,
+      "name": "Last onder dwangsom",
+      "workflow_option": "last_onder_dwangsom",
+      "is_sanction": false
+    }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 53,
+    "fields": {
+      "theme": 9,
+      "name": "Recidive boete",
+      "workflow_option": "boete",
       "is_sanction": true
     }
   }
