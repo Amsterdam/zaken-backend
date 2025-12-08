@@ -159,7 +159,7 @@ class DecosJoinRequest:
                     }
                 )
             response = requests.get(url, **request_params)
-
+            print(response.json())
             return response.json()
         except requests.exceptions.Timeout:
             logger.error("Request to Decos Join timed out")

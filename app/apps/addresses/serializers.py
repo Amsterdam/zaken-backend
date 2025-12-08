@@ -95,25 +95,6 @@ class AddressSimplifiedSerializer(serializers.ModelSerializer):
         )
 
 
-class ResidentSerializer(serializers.Serializer):
-    geboortedatum = serializers.DateTimeField(required=True)
-    geslachtsaanduiding = serializers.ChoiceField(choices=("M", "V", "X"))
-    geslachtsnaam = serializers.CharField(required=True)
-    voorletters = serializers.CharField(required=True)
-    voornamen = serializers.CharField(required=True)
-    voorvoegsel_geslachtsnaam = serializers.CharField(required=False)
-    datum_begin_relatie_verblijfadres = serializers.DateTimeField(required=True)
-
-
-class ResidentsSerializer(serializers.Serializer):
-    _links = serializers.DictField()
-    _embedded = serializers.DictField()
-
-
-class GetResidentsSerializer(serializers.Serializer):
-    obo_access_token = serializers.DictField()
-
-
 class BrpSerializer(serializers.Serializer):
     personen = serializers.ListField(
         child=serializers.DictField(),

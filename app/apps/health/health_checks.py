@@ -72,23 +72,18 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
         return self.__class__.__name__
 
 
-class BRPServiceCheck(APIServiceCheckBackend):
-    """
-    Endpoint for checking the BRP Service API Endpoint
-    """
-
-    critical_service = True
-    api_url = settings.BRP_API_URL
-    verbose_name = "BRP"
-
-
 class BRPNewServiceCheck(APIServiceCheckBackend):
     """
     Endpoint for checking the BRP Service API Endpoint
     """
 
     critical_service = True
-    api_url = settings.BENK_BRP_API_URL
+    # Trailing / returns 404
+    api_url = (
+        settings.BENK_BRP_API_URL[:-1]
+        if settings.BENK_BRP_API_URL.endswith("/")
+        else settings.BENK_BRP_API_URL
+    )
     verbose_name = "BRP BENK"
 
 

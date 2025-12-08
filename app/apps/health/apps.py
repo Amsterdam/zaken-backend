@@ -11,7 +11,6 @@ class HealthConfig(AppConfig):
             BAGPdokServiceCheck,
             Belastingdienst,
             BRPNewServiceCheck,
-            BRPServiceCheck,
             CeleryExecuteTask,
             DecosJoinCheck,
             KeycloakCheck,
@@ -22,7 +21,6 @@ class HealthConfig(AppConfig):
         plugin_dir.register(BAGBenkaggNummeraanduidingenServiceCheck)
         plugin_dir.register(BAGPdokServiceCheck)
         plugin_dir.register(BRPNewServiceCheck)
-        plugin_dir.register(BRPServiceCheck)
         plugin_dir.register(Belastingdienst)
         plugin_dir.register(CeleryExecuteTask)
         plugin_dir.register(DecosJoinCheck)

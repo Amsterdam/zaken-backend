@@ -277,14 +277,6 @@ BELASTING_API_URL = os.getenv(
 )
 BELASTING_API_ACCESS_TOKEN = os.getenv("BELASTING_API_ACCESS_TOKEN", None)
 
-BRP_API_URL = "/".join(
-    [
-        os.getenv(
-            "BRP_API_URL", "https://brpproxy.benk-a.azure.amsterdam.nl/entra/brp"
-        ),
-        "ingeschrevenpersonen",
-    ]
-)
 
 BRP_CLIENT_ID = os.getenv("BRP_CLIENT_ID", "BRP_CLIENT_ID")
 BRP_CLIENT_SECRET = os.getenv("BRP_CLIENT_SECRET", "BRP_CLIENT_SECRET")

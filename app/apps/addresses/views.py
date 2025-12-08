@@ -5,12 +5,10 @@ from apps.addresses.serializers import (
     AddressSerializer,
     BrpSerializer,
     DistrictSerializer,
-    GetResidentsSerializer,
     HousingCorporationSerializer,
     MeldingenSerializer,
     RegistrationDetailsSerializer,
     RegistrationNumberSerializer,
-    ResidentsSerializer,
 )
 from apps.cases.models import Advertisement
 from apps.cases.serializers import AdvertisementSerializer, CaseSerializer
@@ -25,7 +23,6 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from utils.api_queries_benk_brp import BrpRequest
-from utils.api_queries_brp import get_brp_by_nummeraanduiding_id
 from utils.api_queries_toeristische_verhuur import (
     get_vakantieverhuur_meldingen,
     get_vakantieverhuur_registration,
@@ -74,45 +71,7 @@ class AddressViewSet(
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(
-        detail=True,
-        methods=["post"],
-        serializer_class=ResidentsSerializer,
-        url_path="residents",
-        permission_classes=[permissions.CanAccessBRP],
-    )
-    @extend_schema(request={GetResidentsSerializer})
-    def residents_by_bag_id(self, request, bag_id):
-        # Get address
-        try:
-            address = Address.objects.get(bag_id=bag_id)
-        except Address.DoesNotExist:
-            address = Address(bag_id=bag_id)
-
-        # If no nummeraanduiding_id, get it!
-        if not address.nummeraanduiding_id:
-            try:
-                address.update_bag_data()
-            except Exception:
-                return Response(
-                    {"error": "BAG data could not be obtained"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-
-        # nummeraanduiding_id should have been retrieved, so get BRP data
-        if address.nummeraanduiding_id:
-            obo_access_token = request.data.get("obo_access_token")
-            brp_data, status_code = get_brp_by_nummeraanduiding_id(
-                request, address.nummeraanduiding_id, obo_access_token
-            )
-            serialized_residents = ResidentsSerializer(data=brp_data)
-            serialized_residents.is_valid(raise_exception=True)
-            return Response(serialized_residents.data, status=status_code)
-
-        return Response(
-            {"error": "no nummeraanduiding_id found"}, status=status.HTTP_404_NOT_FOUND
-        )
-
+    # Temp endpoint until frontend has been updated
     @action(
         detail=True,
         methods=["get"],
@@ -121,9 +80,22 @@ class AddressViewSet(
         permission_classes=[permissions.CanAccessBRP],
     )
     @extend_schema(
+        description="Backwards compatible endpoint to get residents associated with this address",
+    )
+    def residents_new_by_bag_id(self, request, bag_id):
+        return self.residents_by_bag_id(request, bag_id)
+
+    @action(
+        detail=True,
+        methods=["get"],
+        serializer_class=BrpSerializer,
+        url_path="residents",
+        permission_classes=[permissions.CanAccessBRP],
+    )
+    @extend_schema(
         description="Gets the residents associated with this address",
     )
-    def residents_by_bag_id_new_api(self, request, bag_id):
+    def residents_by_bag_id(self, request, bag_id):
         # Get address
         try:
             address = Address.objects.get(bag_id=bag_id)
