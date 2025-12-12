@@ -1297,5 +1297,25 @@
       "message_name": "start_aanvullend_huisbezoek",
       "to_directing_proccess": false
     }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 147,
+    "fields": {
+      "theme": 4,
+      "name": "Handhaving door het stadsdeel",
+      "message_name": "start_handhaving_door_het_stadsdeel",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 148,
+    "fields": {
+      "theme": 4,
+      "name": "Versturen van waarschuwingsbrief",
+      "message_name": "start_versturen_van_waarschuwingsbrief",
+      "to_directing_proccess": false
+    }
   }
 ]
