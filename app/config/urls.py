@@ -1,3 +1,5 @@
+import os
+
 from apps.addresses.views import AddressViewSet
 from apps.cases.views import (
     CaseCloseReasonViewSet,
@@ -94,6 +96,10 @@ class MyView(View):
     def get(self, request, *args, **kwargs):
         return JsonResponse({}, status=204)
 
+
+admin.site.site_header = "Amsterdamse Zaken Administratie"
+admin.site.site_title = "AZA Admin"
+admin.site.index_title = os.getenv("ENVIRONMENT", "").upper()
 
 urlpatterns = [
     path("oidc/", include("mozilla_django_oidc.urls")),

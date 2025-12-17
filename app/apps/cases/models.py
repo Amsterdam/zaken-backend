@@ -68,11 +68,15 @@ class CaseProject(models.Model):
     theme = models.ForeignKey(to=CaseTheme, on_delete=models.PROTECT)
     active = models.BooleanField(default=True)
 
-    class Meta:
-        ordering = ["theme", "name"]
+    @property
+    def snake_case_name(self):
+        return snake_case(self.name)
 
     def __str__(self):
         return f"{self.name} ({self.theme.name})"
+
+    class Meta:
+        ordering = ["theme", "name"]
 
 
 class Subject(models.Model):
