@@ -294,6 +294,7 @@ class WorkflowSpecConfigThemeTypeSerializer(serializers.Serializer):
     digital_surveillance = WorkflowSpecConfigThemeSerializer(required=False)
     director = WorkflowSpecConfigThemeSerializer(required=False)
     housing_corporation = WorkflowSpecConfigThemeSerializer(required=False)
+    omzettingsvergunning = WorkflowSpecConfigThemeSerializer(required=False)
     renounce_decision = WorkflowSpecConfigThemeSerializer(required=False)
     sub_workflow = WorkflowSpecConfigThemeSerializer(required=False)
     summon = WorkflowSpecConfigThemeSerializer(required=False)

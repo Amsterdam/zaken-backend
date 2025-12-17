@@ -789,6 +789,14 @@ class task_ontvangen_reactie_corporatie(user_task):
     due_date = relativedelta(months=1)
 
 
+class task_monitoren_binnenkomen_reactie(user_task):
+    due_date = relativedelta(weeks=3)
+
+
+class task_monitoren_binnenkomen_reactie_2(user_task):
+    due_date = relativedelta(weeks=2)
+
+
 class task_close_case_concept(user_task):
     @staticmethod
     def get_due_date(case_user_task):
