@@ -112,7 +112,9 @@ def case_workflow_pre_save(sender, instance, **kwargs):
 
         theme = instance.case.theme.snake_case_name
         reason = instance.case.reason.snake_case_name
-        project = instance.case.project.snake_case_name
+        project = (
+            instance.case.project.snake_case_name if instance.case.project else None
+        )
         if instance.main_workflow:
             instance.data.update(
                 {
