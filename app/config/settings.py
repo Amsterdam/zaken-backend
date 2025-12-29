@@ -1393,7 +1393,6 @@ WORKFLOW_SPEC_CONFIG = {
                 "type_concept_aanschrijving": {"value": "default"},
                 "aanschrijving_valide": {"value": "default"},
                 "direct_to_check_summons": {"value": "No"},
-                "direct_to_monitoren_zienswijze": {"value": "No"},
             },
             "versions": {
                 "0.1.0": {},
