@@ -323,3 +323,17 @@ bpmn_models/default/
 ### User tasks
 - ADDING a user_task to the model: it must be created as a class in user_tasks.py as well. The ID of the User task must match with the _task_name of the class.
 - DELETING a user_task from the model: do NOT immediately remove it from user_tasks.py There may be an old version of this model running in production that needs this user_task. Removing this user_task will then create an error.
+
+## Import cases from Excel
+
+Management command to import cases using a `bag_id` column from an Excel file.
+
+### Dry run (validate only)
+
+```bash
+python manage.py case_importer cases.xlsx \
+  --username import_user@amsterdam.nl \
+  --theme 3 "Kamerverhuur" \
+  --reason 32 "Eigen onderzoek" \
+  --subject 69 "Doorzon" \
+  --dry-run
