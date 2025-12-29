@@ -445,8 +445,8 @@
       <bpmn:outgoing>Flow_1t9lv2f</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1kd528k" sourceRef="gateway_theme_pre_toezicht" targetRef="Gateway_0tib2nq" />
-    <bpmn:sequenceFlow id="Flow_1t9lv2f" name="Kamerverhuur AND project omzettingsvergunning" sourceRef="Gateway_0tib2nq" targetRef="script_start_omzettingsvergunning_subworkflow">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("theme") == "theme_kamerverhuur" and get_data("project") == "project_project_omzettingsvergunning"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_1t9lv2f" name="Kamerverhuur AND project Kairos (Omzettingsvergunning)" sourceRef="Gateway_0tib2nq" targetRef="script_start_omzettingsvergunning_subworkflow">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("theme") == "theme_kamerverhuur" and get_data("project") == "project_project_kairos"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:scriptTask id="script_start_omzettingsvergunning_subworkflow" name="script_start_omzettingsvergunning_subworkflow">
       <bpmn:incoming>Flow_1t9lv2f</bpmn:incoming>
@@ -1172,7 +1172,7 @@
         <di:waypoint x="560" y="505" />
         <di:waypoint x="560" y="1040" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="517" y="736" width="87" height="53" />
+          <dc:Bounds x="519" y="736" width="87" height="66" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1kszigl_di" bpmnElement="Flow_1kszigl">
