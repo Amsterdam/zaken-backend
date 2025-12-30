@@ -1218,7 +1218,7 @@
     <bpmn:sequenceFlow id="Flow_1vy94j9" sourceRef="task_close_case" targetRef="end_afsluiten_zaak" />
     <bpmn:sequenceFlow id="Flow_1ggc19w" sourceRef="Activity_1a9iu2s" targetRef="task_close_case" />
     <bpmn:sequenceFlow id="Flow_08x4qup" name="situation == &#34;nobody_present&#34; and can_next_visit_go_ahead == True" sourceRef="Gateway_0p42dpk" targetRef="Gateway_1cow63g">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">get_data("situation") == "nobody_present" and get_data("can_next_visit_go_ahead" == True</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python">get_data("situation") == "nobody_present" and get_data("can_next_visit_go_ahead") == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0uc9ofo" sourceRef="Gateway_1cow63g" targetRef="service_status_inplannen_aanvullend_huisbezoek" />
     <bpmn:sequenceFlow id="Flow_0pawwsb" sourceRef="service_status_inplannen_aanvullend_huisbezoek" targetRef="task_create_schedule" />
