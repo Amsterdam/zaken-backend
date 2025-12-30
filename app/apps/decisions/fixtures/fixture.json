@@ -399,5 +399,15 @@
       "workflow_option": "invordering_dwangsom",
       "is_sanction": true
     }
+  },
+  {
+    "model": "decisions.decisiontype",
+    "pk": 49,
+    "fields": {
+      "theme": 3,
+      "name": "Intrekking omzettingsvergunning",
+      "workflow_option": "intrekking_omzettingsvergunning",
+      "is_sanction": false
+    }
   }
 ]

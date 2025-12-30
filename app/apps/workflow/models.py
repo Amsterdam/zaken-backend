@@ -60,6 +60,7 @@ class CaseWorkflow(models.Model):
     WORKFLOW_TYPE_VISIT = "visit"
     WORKFLOW_TYPE_SUMMON = "summon"
     WORKFLOW_TYPE_DECISION = "decision"
+    WORKFLOW_TYPE_OMZETTINGSVERGUNNING = "omzettingsvergunning"
     WORKFLOW_TYPE_RENOUNCE_DECISION = "renounce_decision"
     WORKFLOW_TYPE_CLOSE_CASE = "close_case"
     WORKFLOW_TYPE_DIGITAL_SURVEILLANCE = "digital_surveillance"
@@ -75,6 +76,7 @@ class CaseWorkflow(models.Model):
         (WORKFLOW_TYPE_VISIT, WORKFLOW_TYPE_VISIT),
         (WORKFLOW_TYPE_SUMMON, WORKFLOW_TYPE_SUMMON),
         (WORKFLOW_TYPE_DECISION, WORKFLOW_TYPE_DECISION),
+        (WORKFLOW_TYPE_OMZETTINGSVERGUNNING, WORKFLOW_TYPE_OMZETTINGSVERGUNNING),
         (WORKFLOW_TYPE_RENOUNCE_DECISION, WORKFLOW_TYPE_RENOUNCE_DECISION),
         (WORKFLOW_TYPE_CLOSE_CASE, WORKFLOW_TYPE_CLOSE_CASE),
         (WORKFLOW_TYPE_DIGITAL_SURVEILLANCE, WORKFLOW_TYPE_DIGITAL_SURVEILLANCE),
@@ -90,6 +92,7 @@ class CaseWorkflow(models.Model):
         "debrief",
         "summon",
         "decision",
+        "omzettingsvergunning",
         "renounce_decision",
         "closing_procedure",
         "close_case",
