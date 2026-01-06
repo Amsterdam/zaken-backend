@@ -88,7 +88,12 @@ class BRPNewServiceCheck(APIServiceCheckBackend):
     """
 
     critical_service = True
-    api_url = settings.BENK_BRP_API_URL
+    # Trailing / returns 404 and makes the health check fail
+    api_url = (
+        settings.BENK_BRP_API_URL[:-1]
+        if settings.BENK_BRP_API_URL.endswith("/")
+        else settings.BENK_BRP_API_URL
+    )
     verbose_name = "BRP BENK"
 
 
