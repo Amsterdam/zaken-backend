@@ -173,6 +173,10 @@ class CaseWorkflowBaseSerializer(serializers.ModelSerializer):
             "workflow_message_name",
             "case_state_type",
             "date_modified",
+            "spiff_workflow_version",
+            "spiff_serializer_version",
+            "serialized_workflow_state_migration_backup",
+            "data_migration_backup",
         ]
 
 
