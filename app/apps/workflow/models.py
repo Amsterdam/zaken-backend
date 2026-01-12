@@ -348,47 +348,59 @@ class CaseWorkflow(models.Model):
         data = {}
         data.update(extra_data)
 
-        print("----- START HANDLE_CITIZEN_REPORT_FEEDBACK_2 -----")
-        print("Incoming extra_data:", extra_data)
-        print("Merged data:", data)
+        should_print = self.id == 110319
+
+        if should_print:
+            print("----- START HANDLE_CITIZEN_REPORT_FEEDBACK_2 -----")
+            print("Incoming extra_data:", extra_data)
+            print("Merged data:", data)
 
         feedback_period_exeeded = False
 
         first_feedback_value = data.get("1_feedback", {}).get("value")
-        print("1_feedback value:", first_feedback_value)
+        if should_print:
+            print("1_feedback value:", first_feedback_value)
 
         if first_feedback_value is True:
             period_value = self._get_data_value(
                 data, "CITIZEN_REPORT_FEEDBACK_SECOND_PERIOD"
             )
-            print("Period value:", period_value)
+            if should_print:
+                print("Period value:", period_value)
 
             if period_value:
                 calculated_date = self.date_modified + parse_duration(period_value)
                 now = timezone.now()
 
-                print("date_modified:", self.date_modified)
-                print("calculated_date:", calculated_date)
-                print("now:", now)
+                if should_print:
+                    print("date_modified:", self.date_modified)
+                    print("calculated_date:", calculated_date)
+                    print("now:", now)
 
                 feedback_period_exeeded = calculated_date < now
-                print("feedback_period_exeeded:", feedback_period_exeeded)
+                if should_print:
+                    print("feedback_period_exeeded:", feedback_period_exeeded)
             else:
-                print("No period_value found")
+                if should_print:
+                    print("No period_value found")
         else:
-            print("1_feedback is not True, skipping period check")
+            if should_print:
+                print("1_feedback is not True, skipping period check")
 
         force_citizen_report_feedback = bool(
             data.get("force_citizen_report_feedback", {}).get("value")
         )
-        print("force_citizen_report_feedback:", force_citizen_report_feedback)
+        if should_print:
+            print("force_citizen_report_feedback:", force_citizen_report_feedback)
 
         if feedback_period_exeeded or force_citizen_report_feedback:
-            print("----- RETURN DATA -----")
-            print("Final data:", data)
+            if should_print:
+                print("----- RETURN DATA -----")
+                print("Final data:", data)
             return data
 
-        print("----- RETURN FALSE -----")
+        if should_print:
+            print("----- RETURN FALSE -----")
         return False
 
     def handle_citizen_report_feedback_1(self, extra_data={}):
