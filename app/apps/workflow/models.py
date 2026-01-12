@@ -348,43 +348,88 @@ class CaseWorkflow(models.Model):
         data = {}
         data.update(extra_data)
 
+        print("----- START HANDLE_CITIZEN_REPORT_FEEDBACK_2 -----")
+        print("Incoming extra_data:", extra_data)
+        print("Merged data:", data)
+
         feedback_period_exeeded = False
 
-        if data.get("1_feedback", {}).get("value") is True:
+        first_feedback_value = data.get("1_feedback", {}).get("value")
+        print("1_feedback value:", first_feedback_value)
+
+        if first_feedback_value is True:
             period_value = self._get_data_value(
                 data, "CITIZEN_REPORT_FEEDBACK_SECOND_PERIOD"
             )
+            print("Period value:", period_value)
+
             if period_value:
-                feedback_period_exeeded = (
-                    self.date_modified + parse_duration(period_value)
-                ) < timezone.now()
+                calculated_date = self.date_modified + parse_duration(period_value)
+                now = timezone.now()
+
+                print("date_modified:", self.date_modified)
+                print("calculated_date:", calculated_date)
+                print("now:", now)
+
+                feedback_period_exeeded = calculated_date < now
+                print("feedback_period_exeeded:", feedback_period_exeeded)
+            else:
+                print("No period_value found")
+        else:
+            print("1_feedback is not True, skipping period check")
 
         force_citizen_report_feedback = bool(
             data.get("force_citizen_report_feedback", {}).get("value")
         )
+        print("force_citizen_report_feedback:", force_citizen_report_feedback)
 
         if feedback_period_exeeded or force_citizen_report_feedback:
+            print("----- RETURN DATA -----")
+            print("Final data:", data)
             return data
+
+        print("----- RETURN FALSE -----")
         return False
 
     def handle_citizen_report_feedback_1(self, extra_data={}):
         data = {}
         data.update(extra_data)
 
+        print("----- START HANDLE_CITIZEN_REPORT_FEEDBACK_1 -----")
+        print("Incoming extra_data:", extra_data)
+        print("Merged data:", data)
+
         period_value = self._get_data_value(
             data, "CITIZEN_REPORT_FEEDBACK_FIRST_PERIOD"
         )
+        print("Period value:", period_value)
+
         feedback_period_exeeded = False
+
         if period_value:
-            feedback_period_exeeded = (
-                self.date_modified + parse_duration(period_value)
-            ) < timezone.now()
+            calculated_date = self.date_modified + parse_duration(period_value)
+            now = timezone.now()
+
+            print("date_modified:", self.date_modified)
+            print("calculated_date:", calculated_date)
+            print("now:", now)
+
+            feedback_period_exeeded = calculated_date < now
+            print("feedback_period_exeeded:", feedback_period_exeeded)
+        else:
+            print("No period_value found")
 
         force_citizen_report_feedback = bool(
             data.get("force_citizen_report_feedback", {}).get("value")
         )
+        print("force_citizen_report_feedback:", force_citizen_report_feedback)
+
         if feedback_period_exeeded or force_citizen_report_feedback:
+            print("----- RETURN DATA -----")
+            print("Final data:", data)
             return data
+
+        print("----- RETURN FALSE -----")
         return False
 
     def handle_message_wait_for_summons(self, workflow_instance):
