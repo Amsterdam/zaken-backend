@@ -99,7 +99,6 @@ class CaseSerializer(serializers.ModelSerializer):
     theme = CaseThemeSerializer(read_only=True)
     advertisements = AdvertisementSerializer(many=True, required=False)
     subjects = SubjectSerializer(many=True, read_only=True)
-    tags = TagSerializer(many=True, read_only=True)
     project = CaseProjectSerializer(read_only=True)
 
     class Meta:

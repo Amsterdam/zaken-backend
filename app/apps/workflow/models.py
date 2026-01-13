@@ -348,23 +348,41 @@ class CaseWorkflow(models.Model):
         data = {}
         data.update(extra_data)
 
-        feedback_period_exeeded = False
+        force_citizen_report_feedback = bool(
+            data.get("force_citizen_report_feedback", {}).get("value")
+        )
+
+        if force_citizen_report_feedback:
+            return data
 
         if data.get("1_feedback", {}).get("value") is True:
             period_value = self._get_data_value(
                 data, "CITIZEN_REPORT_FEEDBACK_SECOND_PERIOD"
             )
             if period_value:
-                feedback_period_exeeded = (
-                    self.date_modified + parse_duration(period_value)
-                ) < timezone.now()
-
-        force_citizen_report_feedback = bool(
-            data.get("force_citizen_report_feedback", {}).get("value")
-        )
-
-        if feedback_period_exeeded or force_citizen_report_feedback:
-            return data
+                sia_completed_tasks = self.case.generic_completed_tasks.filter(
+                    task_name__in=("task_1_sia_terugkoppeling_melders",)
+                )
+                for completed_sia_task in sia_completed_tasks:
+                    case_user_task_id = completed_sia_task.case_user_task_id
+                    case_user_task = CaseUserTask.objects.filter(
+                        id=case_user_task_id
+                    ).first()
+                    if not case_user_task:
+                        continue
+                    workflow = (
+                        case_user_task.workflow
+                        if hasattr(case_user_task, "workflow")
+                        else None
+                    )
+                    if not workflow:
+                        continue
+                    if workflow.id == self.id:
+                        feedback_period_exeeded = (
+                            completed_sia_task.date_added + parse_duration(period_value)
+                        ) < timezone.now()
+                        if feedback_period_exeeded:
+                            return data
         return False
 
     def handle_citizen_report_feedback_1(self, extra_data={}):
@@ -377,7 +395,7 @@ class CaseWorkflow(models.Model):
         feedback_period_exeeded = False
         if period_value:
             feedback_period_exeeded = (
-                self.date_modified + parse_duration(period_value)
+                self.created + parse_duration(period_value)
             ) < timezone.now()
 
         force_citizen_report_feedback = bool(
