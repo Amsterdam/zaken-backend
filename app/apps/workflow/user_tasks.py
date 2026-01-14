@@ -369,7 +369,7 @@ class task_monitoren_binnenkomen_zienswijze(user_task):
     """Monitoren binnenkomen zienswijze"""
 
     _task_name = "task_monitor_incoming_point_of_view"
-    due_date = relativedelta(days=0)
+    due_date = relativedelta(days=17)
 
 
 class task_controleren_binnenkomst_zienswijze(user_task):
