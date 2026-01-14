@@ -42,7 +42,7 @@ from apps.workflow.serializers import (
     WorkflowOptionSerializer,
 )
 from apps.workflow.utils import filter_messages_by_max_major_version
-from django.db.models import OuterRef, Q, Subquery
+from django.db.models import OuterRef, Prefetch, Q, Subquery
 from django.forms.fields import CharField, MultipleChoiceField
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
@@ -550,9 +550,20 @@ class CaseViewSet(
     def get_workflows(self, request, pk):
         case = self.get_object()
         request.user
-        queryset = CaseWorkflow.objects.filter(
-            case=case, tasks__isnull=False, tasks__completed=False
-        ).distinct()
+        queryset = (
+            CaseWorkflow.objects.filter(case=case, tasks__completed=False)
+            .distinct()
+            .prefetch_related(
+                Prefetch(
+                    "tasks",
+                    queryset=CaseUserTask.objects.filter(completed=False).order_by(
+                        "id"
+                    ),
+                    to_attr="open_tasks",
+                )
+            )
+        )
+
         paginator = LimitOffsetPagination()
         context = paginator.paginate_queryset(queryset, request)
         serializer = CaseWorkflowSerializer(

@@ -222,9 +222,6 @@ class CaseDataSerializer(serializers.ModelSerializer):
 class CaseDetailSerializer(serializers.ModelSerializer):
     address = AddressSerializer(read_only=True)
     state = serializers.CharField(source="get_state", read_only=True)
-    workflows = CaseWorkflowSerializer(
-        source="get_workflows", many=True, read_only=True
-    )
     subjects = SubjectSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     project = CaseProjectSerializer(read_only=True)

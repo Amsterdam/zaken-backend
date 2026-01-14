@@ -202,21 +202,12 @@ class CaseWorkflowSerializer(CaseWorkflowBaseSerializer):
         ).data
 
     class Meta:
-        model = CaseWorkflow
-        exclude = [
-            "id",
-            "case",
-            "started",
-            "serialized_workflow_state",
-            "main_workflow",
-            "workflow_type",
-            "workflow_version",
-            "workflow_theme_name",
-            "parent_workflow",
-            "data",
-            "workflow_message_name",
-            "case_state_type",
+        fields = [
+            "state",
+            "tasks",
+            "information",
         ]
+        model = CaseWorkflow
 
 
 class GenericCompletedTaskSerializer(serializers.ModelSerializer):
