@@ -225,6 +225,9 @@ class CaseDetailSerializer(serializers.ModelSerializer):
     subjects = SubjectSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     project = CaseProjectSerializer(read_only=True)
+    workflows = CaseWorkflowSerializer(
+        source="get_workflows", many=True, read_only=True
+    )
     theme = CaseThemeSerializer(read_only=True)
     reason = CaseReasonSerializer(read_only=True)
     schedules = ScheduleSerializer(source="get_schedules", many=True, read_only=True)
