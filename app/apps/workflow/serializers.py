@@ -184,30 +184,22 @@ class CaseWorkflowSerializer(CaseWorkflowBaseSerializer):
     tasks = serializers.SerializerMethodField()
     information = serializers.SerializerMethodField()
 
-    def get_information(self, obj) -> str:
-        """
-        Retrieves information from the object. Value from names.
-        """
+    def get_information(self, obj):
         return obj.data.get("names", {}).get("value", "")
 
-    @extend_schema_field(CaseUserTaskWorkdflowSerializer(many=True))
     def get_tasks(self, obj):
+        tasks = getattr(obj, "open_tasks", None)
+        if tasks is None:
+            tasks = CaseUserTask.objects.filter(workflow=obj, completed=False).order_by(
+                "id"
+            )
         return CaseUserTaskWorkdflowSerializer(
-            CaseUserTask.objects.filter(
-                workflow=obj,
-                completed=False,
-            ).order_by("id"),
-            many=True,
-            context=self.context,
+            tasks, many=True, context=self.context
         ).data
 
     class Meta:
-        fields = [
-            "state",
-            "tasks",
-            "information",
-        ]
         model = CaseWorkflow
+        fields = ["state", "tasks", "information"]
 
 
 class GenericCompletedTaskSerializer(serializers.ModelSerializer):
