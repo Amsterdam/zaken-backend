@@ -790,7 +790,7 @@ class task_ontvangen_reactie_corporatie(user_task):
 
 
 class task_monitoren_binnenkomen_reactie(user_task):
-    due_date = relativedelta(weeks=3)
+    due_date = relativedelta(months=3)
 
 
 class task_monitoren_binnenkomen_reactie_2(user_task):

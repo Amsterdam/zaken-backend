@@ -1052,8 +1052,7 @@ WORKFLOW_SPEC_CONFIG = {
         },
         "omzettingsvergunning": {
             "initial_data": {
-                "timer_monitoren_binnenkomen_reactie_duration": timedelta(days=21),
-                "timer_monitoren_binnenkomen_reactie_duration_2": timedelta(days=14),
+                "timer_monitoren_binnenkomen_reactie_duration": timedelta(days=91),
                 "omzettingsvergunning_next_step": {"value": "default"},
             },
             "versions": {
