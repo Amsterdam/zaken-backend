@@ -99,6 +99,7 @@ class CaseSerializer(serializers.ModelSerializer):
     theme = CaseThemeSerializer(read_only=True)
     advertisements = AdvertisementSerializer(many=True, required=False)
     subjects = SubjectSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
     project = CaseProjectSerializer(read_only=True)
 
     class Meta:
@@ -222,12 +223,12 @@ class CaseDataSerializer(serializers.ModelSerializer):
 class CaseDetailSerializer(serializers.ModelSerializer):
     address = AddressSerializer(read_only=True)
     state = serializers.CharField(source="get_state", read_only=True)
-    workflows = CaseWorkflowSerializer(
-        source="get_workflows", many=True, read_only=True
-    )
     subjects = SubjectSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     project = CaseProjectSerializer(read_only=True)
+    workflows = CaseWorkflowSerializer(
+        source="get_workflows", many=True, read_only=True
+    )
     theme = CaseThemeSerializer(read_only=True)
     reason = CaseReasonSerializer(read_only=True)
     schedules = ScheduleSerializer(source="get_schedules", many=True, read_only=True)
