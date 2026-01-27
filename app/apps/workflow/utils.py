@@ -31,6 +31,7 @@ def create_script_engine(
     wait_for_workflows_and_send_message=None,
     script_wait=None,
     start_subworkflow=None,
+    create_and_start_subworkflow=None,
     parse_duration=None,
     get_data=None,
     start_workflow=None,
@@ -44,6 +45,7 @@ def create_script_engine(
         wait_for_workflows_and_send_message: Function to wait for workflows and send messages (optional)
         script_wait: Function for script waiting (optional)
         start_subworkflow: Function to start subworkflows (optional)
+        create_and_start_subworkflow: Function to create and start subworkflows in sub_workflow.bpmn (optional)
         parse_duration: Function to parse duration strings (optional)
         get_data: Function to get data from workflow (optional)
         start_workflow: Function to start workflows (optional)
@@ -70,6 +72,11 @@ def create_script_engine(
                 "start_subworkflow": (
                     start_subworkflow
                     if start_subworkflow is not None
+                    else lambda *args: None
+                ),
+                "create_and_start_subworkflow": (
+                    create_and_start_subworkflow
+                    if create_and_start_subworkflow is not None
                     else lambda *args: None
                 ),
                 "parse_duration": (
@@ -1181,6 +1188,9 @@ def workflow_spec_paths_inspect(workflow_spec_conf):
     def start_subworkflow(subflow, data={}):
         pass
 
+    def create_and_start_subworkflow(subworkflow_name):
+        pass
+
     def parse_duration_string(duration_str):
         pass
 
@@ -1192,6 +1202,7 @@ def workflow_spec_paths_inspect(workflow_spec_conf):
         wait_for_workflows_and_send_message=wait_for_workflows_and_send_message,
         script_wait=script_wait,
         start_subworkflow=start_subworkflow,
+        create_and_start_subworkflow=create_and_start_subworkflow,
         parse_duration=parse_duration_string,
         get_data=get_data,
     )

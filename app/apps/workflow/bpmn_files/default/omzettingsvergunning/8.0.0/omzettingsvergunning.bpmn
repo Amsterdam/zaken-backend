@@ -6,9 +6,6 @@
   <bpmn:process id="omzettingsvergunning" isExecutable="true">
     <bpmn:laneSet id="LaneSet_1eilogl">
       <bpmn:lane id="lane_projecthandhaver" name="Projecthandhaver">
-        <bpmn:flowNodeRef>Event_10vb4al</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_1bu58gz</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>script_omzettingsvergunning_next_step_summon</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1ywx0r3</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0eytppl</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>task_reactie_verwerken</bpmn:flowNodeRef>
@@ -17,6 +14,11 @@
         <bpmn:flowNodeRef>gateway_reactie_platform</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0qp1hkg</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0blqoab</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_1dwu8cg</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0lt411b</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_10vb4al</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>script_omzettingsvergunning_next_step_summon</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1bu58gz</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="lane_projectmedewerker" name="Projectmedewerker">
         <bpmn:flowNodeRef>start_omzettingsvergunning</bpmn:flowNodeRef>
@@ -25,18 +27,6 @@
         <bpmn:flowNodeRef>timer_monitoren_binnenkomen_reactie</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:endEvent id="Event_10vb4al" name="SUMMON">
-      <bpmn:incoming>Flow_0seltp6</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:endEvent id="Event_1bu58gz" name="UITZETTEN VERVOLGSTAP">
-      <bpmn:incoming>Flow_0c775u9</bpmn:incoming>
-      <bpmn:incoming>Flow_13w67mh</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:scriptTask id="script_omzettingsvergunning_next_step_summon" name="omzettingsvergunning_next_step = summon">
-      <bpmn:incoming>Flow_19he1q5</bpmn:incoming>
-      <bpmn:outgoing>Flow_0seltp6</bpmn:outgoing>
-      <bpmn:script>omzettingsvergunning_next_step = {"value": "summon"}</bpmn:script>
-    </bpmn:scriptTask>
     <bpmn:exclusiveGateway id="Gateway_1ywx0r3" default="Flow_0c775u9">
       <bpmn:incoming>Flow_15agawa</bpmn:incoming>
       <bpmn:outgoing>Flow_0c775u9</bpmn:outgoing>
@@ -124,8 +114,8 @@
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="Flow_0seltp6" sourceRef="script_omzettingsvergunning_next_step_summon" targetRef="Event_10vb4al" />
-    <bpmn:sequenceFlow id="Flow_0c775u9" name="Vergunning is in gebruik" sourceRef="Gateway_1ywx0r3" targetRef="Event_1bu58gz" />
-    <bpmn:sequenceFlow id="Flow_13w67mh" sourceRef="Gateway_0blqoab" targetRef="Event_1bu58gz">
+    <bpmn:sequenceFlow id="Flow_0c775u9" name="Vergunning is in gebruik" sourceRef="Gateway_1ywx0r3" targetRef="Gateway_1dwu8cg" />
+    <bpmn:sequenceFlow id="Flow_13w67mh" sourceRef="Gateway_0blqoab" targetRef="Gateway_1dwu8cg">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("form_controleren_brp") == "yes"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_19he1q5" sourceRef="Gateway_0eytppl" targetRef="script_omzettingsvergunning_next_step_summon" />
@@ -147,34 +137,41 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("controleren_binnenkomst_reactie") == "no"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0etxi6x" sourceRef="Activity_0qp1hkg" targetRef="Gateway_0blqoab" />
+    <bpmn:sequenceFlow id="Flow_1mmxs6l" sourceRef="Gateway_1dwu8cg" targetRef="Activity_0lt411b" />
+    <bpmn:exclusiveGateway id="Gateway_1dwu8cg">
+      <bpmn:incoming>Flow_13w67mh</bpmn:incoming>
+      <bpmn:incoming>Flow_0c775u9</bpmn:incoming>
+      <bpmn:outgoing>Flow_1mmxs6l</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="Activity_0lt411b" name="script_create_and_start_subworkflow_afsluiten_zaak">
+      <bpmn:incoming>Flow_1mmxs6l</bpmn:incoming>
+      <bpmn:outgoing>Flow_1pqmcp7</bpmn:outgoing>
+      <bpmn:script>create_and_start_subworkflow("start_afsluiten_zaak")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_1pqmcp7" sourceRef="Activity_0lt411b" targetRef="Event_1bu58gz" />
+    <bpmn:endEvent id="Event_10vb4al" name="SUMMON">
+      <bpmn:incoming>Flow_0seltp6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="script_omzettingsvergunning_next_step_summon" name="omzettingsvergunning_next_step = summon">
+      <bpmn:incoming>Flow_19he1q5</bpmn:incoming>
+      <bpmn:outgoing>Flow_0seltp6</bpmn:outgoing>
+      <bpmn:script>omzettingsvergunning_next_step = {"value": "summon"}</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="Event_1bu58gz" name="TO DIRECTOR TO CLOSE CASE">
+      <bpmn:incoming>Flow_1pqmcp7</bpmn:incoming>
+    </bpmn:endEvent>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0j54iub">
       <bpmndi:BPMNShape id="Participant_026qmxw_di" bpmnElement="Participant_026qmxw" isHorizontal="true">
-        <dc:Bounds x="190" y="80" width="1670" height="570" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_0zdp9t3_di" bpmnElement="lane_projecthandhaver" isHorizontal="true">
-        <dc:Bounds x="220" y="250" width="1640" height="400" />
-        <bpmndi:BPMNLabel />
+        <dc:Bounds x="190" y="80" width="1780" height="570" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1lrt5fw_di" bpmnElement="lane_projectmedewerker" isHorizontal="true">
-        <dc:Bounds x="220" y="80" width="1640" height="170" />
+        <dc:Bounds x="220" y="80" width="1750" height="170" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_10vb4al_di" bpmnElement="Event_10vb4al">
-        <dc:Bounds x="1742" y="532" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1735" y="575" width="51" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1bu58gz_di" bpmnElement="Event_1bu58gz">
-        <dc:Bounds x="1742" y="332" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1721" y="375" width="81" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0pqptz9" bpmnElement="script_omzettingsvergunning_next_step_summon">
-        <dc:Bounds x="1560" y="510" width="100" height="80" />
+      <bpmndi:BPMNShape id="Lane_0zdp9t3_di" bpmnElement="lane_projecthandhaver" isHorizontal="true">
+        <dc:Bounds x="220" y="250" width="1750" height="400" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1ywx0r3_di" bpmnElement="Gateway_1ywx0r3" isMarkerVisible="true">
@@ -215,6 +212,29 @@
       <bpmndi:BPMNShape id="Gateway_0blqoab_di" bpmnElement="Gateway_0blqoab" isMarkerVisible="true">
         <dc:Bounds x="1265" y="525" width="50" height="50" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1dwu8cg_di" bpmnElement="Gateway_1dwu8cg" isMarkerVisible="true">
+        <dc:Bounds x="1555" y="325" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0wjezry" bpmnElement="Activity_0lt411b">
+        <dc:Bounds x="1670" y="310" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_10vb4al_di" bpmnElement="Event_10vb4al">
+        <dc:Bounds x="1852" y="532" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1845" y="575" width="51" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0pqptz9" bpmnElement="script_omzettingsvergunning_next_step_summon">
+        <dc:Bounds x="1670" y="510" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1pvklcq_di" bpmnElement="Event_1bu58gz">
+        <dc:Bounds x="1852" y="332" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1829" y="375" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0srmjul_di" bpmnElement="timer_monitoren_binnenkomen_reactie">
         <dc:Bounds x="712" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -222,28 +242,28 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0seltp6_di" bpmnElement="Flow_0seltp6">
-        <di:waypoint x="1660" y="550" />
-        <di:waypoint x="1742" y="550" />
+        <di:waypoint x="1770" y="550" />
+        <di:waypoint x="1852" y="550" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2240" y="412" width="67" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0c775u9_di" bpmnElement="Flow_0c775u9">
         <di:waypoint x="1455" y="350" />
-        <di:waypoint x="1742" y="350" />
+        <di:waypoint x="1555" y="350" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1531" y="316" width="78" height="27" />
+          <dc:Bounds x="1456" y="316" width="78" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_13w67mh_di" bpmnElement="Flow_13w67mh">
         <di:waypoint x="1290" y="525" />
-        <di:waypoint x="1290" y="420" />
-        <di:waypoint x="1670" y="420" />
-        <di:waypoint x="1746" y="361" />
+        <di:waypoint x="1290" y="430" />
+        <di:waypoint x="1500" y="430" />
+        <di:waypoint x="1558" y="353" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_19he1q5_di" bpmnElement="Flow_19he1q5">
         <di:waypoint x="1455" y="550" />
-        <di:waypoint x="1560" y="550" />
+        <di:waypoint x="1670" y="550" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_15agawa_di" bpmnElement="Flow_15agawa">
         <di:waypoint x="1300" y="350" />
@@ -306,6 +326,14 @@
       <bpmndi:BPMNEdge id="Flow_0etxi6x_di" bpmnElement="Flow_0etxi6x">
         <di:waypoint x="1150" y="550" />
         <di:waypoint x="1265" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1mmxs6l_di" bpmnElement="Flow_1mmxs6l">
+        <di:waypoint x="1605" y="350" />
+        <di:waypoint x="1670" y="350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pqmcp7_di" bpmnElement="Flow_1pqmcp7">
+        <di:waypoint x="1770" y="350" />
+        <di:waypoint x="1852" y="350" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

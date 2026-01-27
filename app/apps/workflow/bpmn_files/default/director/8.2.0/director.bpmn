@@ -249,7 +249,6 @@
     </bpmn:intermediateCatchEvent>
     <bpmn:exclusiveGateway id="gateway_next_step_visit_and_no_violation" default="Flow_1x8zzjk">
       <bpmn:incoming>Flow_083v05b</bpmn:incoming>
-      <bpmn:incoming>Flow_1xl1d5n</bpmn:incoming>
       <bpmn:outgoing>Flow_1x8zzjk</bpmn:outgoing>
       <bpmn:outgoing>Flow_0bgyjfv</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -455,20 +454,30 @@
     </bpmn:scriptTask>
     <bpmn:intermediateCatchEvent id="Event_1buhyv7" name="resume_after_omzettingsvergunning">
       <bpmn:incoming>Flow_1kszigl</bpmn:incoming>
-      <bpmn:outgoing>Flow_1iv3zrw</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1pstax5</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0g9d7xh" />
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_1kszigl" sourceRef="script_start_omzettingsvergunning_subworkflow" targetRef="Event_1buhyv7" />
-    <bpmn:sequenceFlow id="Flow_1xl1d5n" sourceRef="Gateway_07ij89k" targetRef="gateway_next_step_visit_and_no_violation" />
+    <bpmn:sequenceFlow id="Flow_1pstax5" sourceRef="Event_1buhyv7" targetRef="Gateway_07ij89k" />
     <bpmn:exclusiveGateway id="Gateway_07ij89k" default="Flow_1xl1d5n">
-      <bpmn:incoming>Flow_1iv3zrw</bpmn:incoming>
-      <bpmn:outgoing>Flow_1xl1d5n</bpmn:outgoing>
+      <bpmn:incoming>Flow_1pstax5</bpmn:incoming>
       <bpmn:outgoing>Flow_130708c</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1xl1d5n</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1iv3zrw" sourceRef="Event_1buhyv7" targetRef="Gateway_07ij89k" />
     <bpmn:sequenceFlow id="Flow_130708c" name="omzettingsvergunning_next_step = summon" sourceRef="Gateway_07ij89k" targetRef="gateway_merge_1obmbig">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("omzettingsvergunning_next_step") == "summon"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:scriptTask id="Activity_0lt411b" name="script_create_and_start_subworkflow_afsluiten_zaak">
+      <bpmn:incoming>Flow_1xl1d5n</bpmn:incoming>
+      <bpmn:outgoing>Flow_0b4otj7</bpmn:outgoing>
+      <bpmn:script>create_and_start_subworkflow("start_afsluiten_zaak")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_1xl1d5n" sourceRef="Gateway_07ij89k" targetRef="Activity_0lt411b" />
+    <bpmn:endEvent id="Event_0vzwu7z">
+      <bpmn:incoming>Flow_0b4otj7</bpmn:incoming>
+      <bpmn:terminateEventDefinition id="TerminateEventDefinition_12u641u" />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0b4otj7" sourceRef="Activity_0lt411b" targetRef="Event_0vzwu7z" />
   </bpmn:process>
   <bpmn:message id="Message_053q3rk" name="aanschrijving_toevoegen" />
   <bpmn:message id="Message_1jr43p4" name="zaak_compleet_afsluiten" />
@@ -712,6 +721,13 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_07ij89k_di" bpmnElement="Gateway_07ij89k" isMarkerVisible="true">
         <dc:Bounds x="2645" y="1055" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0wjezry" bpmnElement="Activity_0lt411b">
+        <dc:Bounds x="2800" y="1040" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ou59dp_di" bpmnElement="Event_0vzwu7z">
+        <dc:Bounds x="2952" y="1062" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1sswvpm_di" bpmnElement="Flow_1sswvpm">
         <di:waypoint x="4220" y="455" />
@@ -1181,12 +1197,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1xl1d5n_di" bpmnElement="Flow_1xl1d5n">
         <di:waypoint x="2695" y="1080" />
-        <di:waypoint x="3860" y="1080" />
-        <di:waypoint x="3860" y="505" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1iv3zrw_di" bpmnElement="Flow_1iv3zrw">
-        <di:waypoint x="718" y="1080" />
-        <di:waypoint x="2645" y="1080" />
+        <di:waypoint x="2800" y="1080" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_130708c_di" bpmnElement="Flow_130708c">
         <di:waypoint x="2670" y="1055" />
@@ -1195,6 +1206,17 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2629" y="1010" width="82" height="40" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pstax5_di" bpmnElement="Flow_1pstax5">
+        <di:waypoint x="718" y="1080" />
+        <di:waypoint x="2645" y="1080" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2682" y="837" width="6" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0b4otj7_di" bpmnElement="Flow_0b4otj7">
+        <di:waypoint x="2900" y="1080" />
+        <di:waypoint x="2952" y="1080" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
