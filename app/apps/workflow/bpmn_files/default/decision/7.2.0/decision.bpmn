@@ -312,7 +312,6 @@
     <bpmn:sequenceFlow id="Flow_0z6lqna" sourceRef="Activity_1o2sab5" targetRef="Event_0kmsvit" />
     <bpmn:endEvent id="Event_0kmsvit">
       <bpmn:incoming>Flow_0z6lqna</bpmn:incoming>
-      <bpmn:terminateEventDefinition id="TerminateEventDefinition_13uyej5" />
     </bpmn:endEvent>
   </bpmn:process>
   <bpmn:message id="Message_1k5s52q" name="start_decision_process" />
@@ -440,7 +439,7 @@
         <dc:Bounds x="1270" y="240" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1v1ouou_di" bpmnElement="Event_0kmsvit">
+      <bpmndi:BPMNShape id="Event_0n8uc9h_di" bpmnElement="Event_0kmsvit">
         <dc:Bounds x="2022" y="262" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1g7ifgs_di" bpmnElement="event_timer_wait_response_publicate_names">
