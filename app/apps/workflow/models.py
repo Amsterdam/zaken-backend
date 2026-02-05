@@ -60,6 +60,7 @@ class CaseWorkflow(models.Model):
     WORKFLOW_TYPE_VISIT = "visit"
     WORKFLOW_TYPE_SUMMON = "summon"
     WORKFLOW_TYPE_DECISION = "decision"
+    WORKFLOW_TYPE_OMZETTINGSVERGUNNING = "omzettingsvergunning"
     WORKFLOW_TYPE_RENOUNCE_DECISION = "renounce_decision"
     WORKFLOW_TYPE_CLOSE_CASE = "close_case"
     WORKFLOW_TYPE_DIGITAL_SURVEILLANCE = "digital_surveillance"
@@ -75,6 +76,7 @@ class CaseWorkflow(models.Model):
         (WORKFLOW_TYPE_VISIT, WORKFLOW_TYPE_VISIT),
         (WORKFLOW_TYPE_SUMMON, WORKFLOW_TYPE_SUMMON),
         (WORKFLOW_TYPE_DECISION, WORKFLOW_TYPE_DECISION),
+        (WORKFLOW_TYPE_OMZETTINGSVERGUNNING, WORKFLOW_TYPE_OMZETTINGSVERGUNNING),
         (WORKFLOW_TYPE_RENOUNCE_DECISION, WORKFLOW_TYPE_RENOUNCE_DECISION),
         (WORKFLOW_TYPE_CLOSE_CASE, WORKFLOW_TYPE_CLOSE_CASE),
         (WORKFLOW_TYPE_DIGITAL_SURVEILLANCE, WORKFLOW_TYPE_DIGITAL_SURVEILLANCE),
@@ -90,6 +92,7 @@ class CaseWorkflow(models.Model):
         "debrief",
         "summon",
         "decision",
+        "omzettingsvergunning",
         "renounce_decision",
         "closing_procedure",
         "close_case",
@@ -269,10 +272,19 @@ class CaseWorkflow(models.Model):
             task_script_wait.delay(workflow_instance.id, message, cleaned_data)
 
         def start_subworkflow(subworkflow_name, data={}):
+            # Start a child workflow
             # Filter out non-serializable objects (like functions) from the data
             cleaned_data = CaseWorkflow._clean_data_for_serialization(data)
             task_start_subworkflow.delay(
                 subworkflow_name, workflow_instance.id, cleaned_data
+            )
+
+        def create_and_start_subworkflow(subworkflow_message_name):
+            # Start a real subworkflow in the sub_workflow.bpmn
+            CaseWorkflow.objects.create(
+                case=self.case,
+                workflow_type=CaseWorkflow.WORKFLOW_TYPE_SUB,
+                workflow_message_name=subworkflow_message_name,
             )
 
         def parse_duration_string(value):
@@ -311,6 +323,7 @@ class CaseWorkflow(models.Model):
             wait_for_workflows_and_send_message=wait_for_workflows_and_send_message,
             script_wait=script_wait,
             start_subworkflow=start_subworkflow,
+            create_and_start_subworkflow=create_and_start_subworkflow,
             parse_duration=parse_duration_string,
             get_data=get_data,
         )

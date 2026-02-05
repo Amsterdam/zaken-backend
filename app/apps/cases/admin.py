@@ -359,7 +359,6 @@ class CaseCloseAdmin(admin.ModelAdmin):
         "case_user_task_id",
     )
     search_fields = ("case__id",)
-    list_editable = ("reason",)
     list_filter = ("reason", "date_added")
     autocomplete_fields = ("case",)
     ordering = ("-date_added", "-id")
