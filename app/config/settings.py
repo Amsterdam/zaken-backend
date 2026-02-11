@@ -518,7 +518,8 @@ CITIZEN_REPORT_FEEDBACK_PERIODS = (
     {
         "themes": (2,),
         "periods": (
-            CITIZEN_REPORT_FEEDBACK_DEFAULT_FIRST_PERIOD,
+            # Having these values twice is correct for VV, these are later used in task_create_citizen_report_worflow_for_case
+            CITIZEN_REPORT_FEEDBACK_DEFAULT_SECOND_PERIOD,
             CITIZEN_REPORT_FEEDBACK_DEFAULT_SECOND_PERIOD,
         ),
     },
