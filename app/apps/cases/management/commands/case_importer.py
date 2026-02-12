@@ -1,3 +1,4 @@
+from apps.cases.models import Case
 from apps.cases.serializers import CaseCreateSerializer
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
@@ -14,6 +15,7 @@ class Command(BaseCommand):
         '    --theme 3 "Kamerverhuur" \\\n'
         '    --reason 32 "Eigen onderzoek" \\\n'
         '    --subject 69 "Doorzon" \\\n'
+        '    --project 5 "Project"\\\n'
         "    --dry-run"
     )
 
@@ -43,7 +45,19 @@ class Command(BaseCommand):
             required=True,
         )
 
-        parser.add_argument("--dry-run", action="store_true")
+        parser.set_defaults(dry_run=True)
+        parser.add_argument(
+            "--no-dry-run",
+            action="store_false",
+            dest="dry_run",
+        )
+
+        parser.add_argument(
+            "--project",
+            nargs=2,
+            metavar=("ID", "NAME"),
+            required=True,
+        )
 
     def handle(self, *args, **options):
         excel_file = options["file"]
@@ -59,6 +73,9 @@ class Command(BaseCommand):
         subjects = [{"id": int(sid), "name": name} for sid, name in options["subject"]]
         subject_ids = [s["id"] for s in subjects]
 
+        project_id, project_name = options["project"]
+        project_id = int(project_id)
+
         try:
             wb = load_workbook(excel_file)
             ws = wb.active
@@ -68,8 +85,11 @@ class Command(BaseCommand):
         headers = [cell.value for cell in ws[1]]
         try:
             bag_id_idx = headers.index("bag_id")
+            description_idx = headers.index("Omschrijving zaak")
         except ValueError:
-            raise CommandError("Excel file must contain a 'bag_id' column")
+            raise CommandError(
+                "Excel file must contain 'bag_id' and 'Omschrijving zaak' columns"
+            )
 
         User = get_user_model()
         user = User.objects.get(username=username)
@@ -83,7 +103,7 @@ class Command(BaseCommand):
 
         for row in ws.iter_rows(min_row=2, values_only=True):
             bag_id = row[bag_id_idx]
-
+            description = row[description_idx]
             if not bag_id:
                 self.stdout.write(self.style.WARNING("Skipping row with empty bag_id"))
                 continue
@@ -91,13 +111,25 @@ class Command(BaseCommand):
             processed += 1
 
             data = {
-                "theme": {"id": theme_id, "name": theme_name},
-                "reason": {"id": reason_id, "name": reason_name},
-                "subjects": subjects,
                 "bag_id": bag_id,
-                "theme_id": theme_id,
+                "description": description,
+                "project": {
+                    "id": project_id,
+                    "name": project_name,
+                },
+                "project_id": project_id,
+                "reason": {
+                    "id": reason_id,
+                    "name": reason_name,
+                },
                 "reason_id": reason_id,
                 "subject_ids": subject_ids,
+                "subjects": subjects,
+                "theme": {
+                    "id": theme_id,
+                    "name": theme_name,
+                },
+                "theme_id": theme_id,
             }
 
             serializer = CaseCreateSerializer(
@@ -105,9 +137,14 @@ class Command(BaseCommand):
                 context={"request": request},
             )
             serializer.is_valid(raise_exception=True)
-            self.stdout.write(
-                f"Creating case for bag_id={bag_id}... with data {data}", ending=""
-            )
+            self.stdout.write(f"Creating case for bag_id={bag_id}", ending="")
+            case_exists = Case.objects.filter(
+                address__bag_id=bag_id,
+                description=description,
+            ).exists()
+            if case_exists:
+                self.stdout.write(self.style.WARNING("SKIPPED (case already exists)"))
+                continue
             if not dry_run:
                 serializer.save()
                 created += 1
