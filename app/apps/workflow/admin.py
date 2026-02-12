@@ -16,6 +16,8 @@ from .tasks import task_update_workflow
 @admin.action(description="Force update workflows")
 def force_update_workflows(modeladmin, request, queryset):
     for workflow in queryset.all():
+        wf = workflow.get_or_restore_workflow_state()
+        workflow._execute_scripts_if_needed(wf)
         task_update_workflow.delay(workflow.id)
 
 
