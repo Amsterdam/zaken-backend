@@ -3,6 +3,28 @@ import os
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry.instrumentation.django import DjangoInstrumentor
 from opentelemetry.instrumentation.psycopg2 import Psycopg2Instrumentor
+from opentelemetry.sdk.trace.sampling import Decision, Sampler, SamplingResult
+
+
+class ExcludeHealthCheckSampler(Sampler):
+    def should_sample(
+        self,
+        context,
+        trace_id,
+        name,
+        kind=None,
+        attributes=None,
+        links=None,
+        trace_state=None,
+    ):
+        if attributes:
+            url = attributes.get("http.target") or attributes.get("url.path", "")
+            if url in ("/", "/health"):
+                return SamplingResult(Decision.DROP)
+        return SamplingResult(Decision.RECORD_AND_SAMPLE)
+
+    def get_description(self):
+        return "ExcludeHealthCheckSampler"
 
 
 def start_logging():
@@ -14,12 +36,10 @@ def start_logging():
     if APPLICATIONINSIGHTS_CONNECTION_STRING is None:
         return
 
-    os.environ["OTEL_PYTHON_DJANGO_EXCLUDED_URLS"] = "/health,/"
-    os.environ["OTEL_PYTHON_WSGI_EXCLUDED_URLS"] = "/health,/"
-
     configure_azure_monitor(
         connection_string=APPLICATIONINSIGHTS_CONNECTION_STRING,
         service_name="zaken-backend",
+        sampler=ExcludeHealthCheckSampler(),
     )
 
     def response_hook(span, request, response):
