@@ -14,6 +14,7 @@ def start_logging():
     if APPLICATIONINSIGHTS_CONNECTION_STRING is None:
         return
 
+    os.environ["OTEL_PYTHON_DJANGO_EXCLUDED_URLS"] = "^/$|^/health$"
     configure_azure_monitor(
         connection_string=APPLICATIONINSIGHTS_CONNECTION_STRING,
         service_name="zaken-backend",
@@ -21,12 +22,6 @@ def start_logging():
 
     def response_hook(span, request, response):
         if not span or not span.is_recording():
-            return
-
-        # Do not log health checks
-        if request.path in ("/"):
-            span.set_attribute("otel.status_code", "UNSET")
-            span.end()
             return
 
         if hasattr(request, "user") and getattr(
