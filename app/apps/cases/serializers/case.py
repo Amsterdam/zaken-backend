@@ -255,6 +255,7 @@ class CaseSimplifiedSerializer(serializers.ModelSerializer):
         source="get_workflows", many=True, read_only=True
     )
     reason = CaseReasonSerializer(read_only=True)
+    project = CaseProjectSerializer(read_only=True)
 
     class Meta:
         model = Case
@@ -266,7 +267,15 @@ class CaseSimplifiedSerializer(serializers.ModelSerializer):
             "workflows",
             "start_date",
             "last_updated",
+            "project",
         )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Display the project name instead of "Project" if the reason is "Project"
+        if instance.reason and instance.reason.name == "Project" and instance.project:
+            data["reason"]["name"] = instance.project.name
+        return data
 
 
 class CaseBagIdsSerializer(serializers.ModelSerializer):
