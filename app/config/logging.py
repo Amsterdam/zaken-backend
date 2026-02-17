@@ -14,8 +14,8 @@ def start_logging():
     if APPLICATIONINSIGHTS_CONNECTION_STRING is None:
         return
 
-    os.environ["OTEL_PYTHON_DJANGO_EXCLUDED_URLS"] = "^/$|^/health$"
-    os.environ["OTEL_PYTHON_WSGI_EXCLUDED_URLS"] = "^/$|^/health$"
+    os.environ["OTEL_PYTHON_DJANGO_EXCLUDED_URLS"] = "/health,/"
+    os.environ["OTEL_PYTHON_WSGI_EXCLUDED_URLS"] = "/health,/"
 
     configure_azure_monitor(
         connection_string=APPLICATIONINSIGHTS_CONNECTION_STRING,
