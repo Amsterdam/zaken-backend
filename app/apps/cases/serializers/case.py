@@ -270,13 +270,6 @@ class CaseSimplifiedSerializer(serializers.ModelSerializer):
             "project",
         )
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        # Display the project name instead of "Project" if the reason is "Project"
-        if instance.reason and instance.reason.name == "Project" and instance.project:
-            data["reason"]["name"] = instance.project.name
-        return data
-
 
 class CaseBagIdsSerializer(serializers.ModelSerializer):
     bag_id = serializers.CharField(source="address.bag_id", read_only=True)
