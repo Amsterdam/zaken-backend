@@ -20,11 +20,17 @@ def start_logging():
     )
 
     def response_hook(span, request, response):
-        if (
-            span
-            and span.is_recording()
-            and hasattr(request, "user")
-            and getattr(request.user, "is_authenticated", False)
+        if not span or not span.is_recording():
+            return
+
+        # Do not log health checks
+        if request.path in ("/"):
+            span.set_attribute("otel.status_code", "UNSET")
+            span.end()
+            return
+
+        if hasattr(request, "user") and getattr(
+            request.user, "is_authenticated", False
         ):
             span.set_attribute("django.user.name", request.user.username)
 
