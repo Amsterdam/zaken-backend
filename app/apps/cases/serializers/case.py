@@ -255,6 +255,7 @@ class CaseSimplifiedSerializer(serializers.ModelSerializer):
         source="get_workflows", many=True, read_only=True
     )
     reason = CaseReasonSerializer(read_only=True)
+    project = CaseProjectSerializer(read_only=True)
 
     class Meta:
         model = Case
@@ -266,6 +267,7 @@ class CaseSimplifiedSerializer(serializers.ModelSerializer):
             "workflows",
             "start_date",
             "last_updated",
+            "project",
         )
 
 
