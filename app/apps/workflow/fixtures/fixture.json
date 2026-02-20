@@ -1317,5 +1317,82 @@
       "message_name": "start_versturen_van_waarschuwingsbrief",
       "to_directing_proccess": false
     }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 149,
+    "fields": {
+      "theme": 2,
+      "name": "Heropenen zaak",
+      "message_name": "start_heropenen_zaak",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 150,
+    "fields": {
+      "theme": 3,
+      "name": "Heropenen zaak",
+      "message_name": "start_heropenen_zaak",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 151,
+    "fields": {
+      "theme": 4,
+      "name": "Heropenen zaak",
+      "message_name": "start_heropenen_zaak",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 152,
+    "fields": {
+      "theme": 5,
+      "name": "Heropenen zaak",
+      "message_name": "start_heropenen_zaak",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 153,
+    "fields": {
+      "theme": 6,
+      "name": "Heropenen zaak",
+      "message_name": "start_heropenen_zaak",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 154,
+    "fields": {
+      "theme": 7,
+      "name": "Heropenen zaak",
+      "message_name": "start_heropenen_zaak",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 155,
+    "fields": {
+      "theme": 8,
+      "name": "Heropenen zaak",
+      "message_name": "start_heropenen_zaak",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
   }
 ]

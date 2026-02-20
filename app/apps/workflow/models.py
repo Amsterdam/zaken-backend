@@ -5,7 +5,7 @@ import logging
 from string import Template
 
 import SpiffWorkflow
-from apps.cases.models import Case, CaseStateType, CaseTheme
+from apps.cases.models import Case, CaseState, CaseStateType, CaseTheme
 from apps.events.models import CaseEvent, TaskModelEventEmitter
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -287,6 +287,22 @@ class CaseWorkflow(models.Model):
                 workflow_message_name=subworkflow_message_name,
             )
 
+        def reopen_case_and_start_main_workflow():
+            with transaction.atomic():
+                self.case.end_date = None
+                self.case.save()
+                CaseState.objects.create(
+                    case=self.case,
+                )
+
+                CaseWorkflow.objects.create(
+                    case=self.case,
+                    workflow_type=settings.DEFAULT_WORKFLOW_TYPE,
+                    main_workflow=True,
+                    workflow_message_name="main_process",
+                    data={},
+                )
+
         def parse_duration_string(value):
             # Handle `{'value': '0:00:20'}` values
             if isinstance(value, dict) and "value" in value:
@@ -326,6 +342,7 @@ class CaseWorkflow(models.Model):
             create_and_start_subworkflow=create_and_start_subworkflow,
             parse_duration=parse_duration_string,
             get_data=get_data,
+            reopen_case_and_start_main_workflow=reopen_case_and_start_main_workflow,
         )
         return wf
 
