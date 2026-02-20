@@ -36,6 +36,7 @@ def create_script_engine(
     get_data=None,
     start_workflow=None,
     close_case=None,
+    reopen_case_and_start_main_workflow=None,
 ):
     """
     Factory function to create a PythonScriptEngine with the specified environment globals.
@@ -88,6 +89,11 @@ def create_script_engine(
                 ),
                 "close_case": (
                     close_case if close_case is not None else lambda *args: None
+                ),
+                "reopen_case_and_start_main_workflow": (
+                    reopen_case_and_start_main_workflow
+                    if reopen_case_and_start_main_workflow is not None
+                    else lambda *args: None
                 ),
             }
         )
