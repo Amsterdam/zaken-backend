@@ -288,19 +288,20 @@ class CaseWorkflow(models.Model):
             )
 
         def reopen_case_and_start_main_workflow():
-            self.case.end_date = None
-            self.case.save()
-            CaseState.objects.create(
-                case=self.case,
-            )
+            with transaction.atomic():
+                self.case.end_date = None
+                self.case.save()
+                CaseState.objects.create(
+                    case=self.case,
+                )
 
-            CaseWorkflow.objects.create(
-                case=self.case,
-                workflow_type=settings.DEFAULT_WORKFLOW_TYPE,
-                main_workflow=True,
-                workflow_message_name="main_process",
-                data={},
-            )
+                CaseWorkflow.objects.create(
+                    case=self.case,
+                    workflow_type=settings.DEFAULT_WORKFLOW_TYPE,
+                    main_workflow=True,
+                    workflow_message_name="main_process",
+                    data={},
+                )
 
         def parse_duration_string(value):
             # Handle `{'value': '0:00:20'}` values
