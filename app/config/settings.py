@@ -1407,7 +1407,7 @@ WORKFLOW_SPEC_CONFIG = {
                         "start_uitkomst_corporatie_proces": {},
                         "start_versturen_van_waarschuwingsbrief": {},
                         "start_verzoek_opheffing_openbaarmaking_namen": {},
-                        "start_heropen_zaak": {},
+                        "start_heropenen_zaak": {},
                     },
                 },
             },
