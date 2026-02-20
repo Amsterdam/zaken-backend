@@ -1372,5 +1372,27 @@
       "to_directing_proccess": false,
       "enabled_on_case_closed": true
     }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 154,
+    "fields": {
+      "theme": 7,
+      "name": "Heropenen zaak",
+      "message_name": "start_heropenen_zaak",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 155,
+    "fields": {
+      "theme": 8,
+      "name": "Heropenen zaak",
+      "message_name": "start_heropenen_zaak",
+      "to_directing_proccess": false,
+      "enabled_on_case_closed": true
+    }
   }
 ]

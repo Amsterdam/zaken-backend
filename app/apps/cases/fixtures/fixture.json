@@ -734,6 +734,69 @@
     }
   },
   {
+    "model": "cases.caseclosereason",
+    "pk": 56,
+    "fields": {
+      "name": "Geen overtreding",
+      "case_theme": 2,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 57,
+    "fields": {
+      "name": "Geen overtreding",
+      "case_theme": 3,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 58,
+    "fields": {
+      "name": "Geen overtreding",
+      "case_theme": 4,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 59,
+    "fields": {
+      "name": "Geen overtreding",
+      "case_theme": 5,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 60,
+    "fields": {
+      "name": "Geen overtreding",
+      "case_theme": 6,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 61,
+    "fields": {
+      "name": "Geen overtreding",
+      "case_theme": 7,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 62,
+    "fields": {
+      "name": "Geen overtreding",
+      "case_theme": 8,
+      "result": false
+    }
+  },
+  {
     "model": "cases.casecloseresult",
     "pk": 4,
     "fields": {
