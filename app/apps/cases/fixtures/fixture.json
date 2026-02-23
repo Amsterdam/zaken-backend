@@ -797,6 +797,24 @@
     }
   },
   {
+    "model": "cases.caseclosereason",
+    "pk": 63,
+    "fields": {
+      "name": "Gemeld omzettingsvergunning in gebruik",
+      "case_theme": 3,
+      "result": false
+    }
+  },
+  {
+    "model": "cases.caseclosereason",
+    "pk": 64,
+    "fields": {
+      "name": "Omzettingsvergunning is ingetrokken",
+      "case_theme": 3,
+      "result": false
+    }
+  },
+  {
     "model": "cases.casecloseresult",
     "pk": 4,
     "fields": {
