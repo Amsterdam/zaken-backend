@@ -632,6 +632,11 @@ class CaseViewSet(
             options = options.filter(
                 enabled_on_case_closed=True,
             )
+        # This is currently the only option that should be excluded on open cases and visible on closed cases.
+        else:
+            options = options.exclude(
+                name="Heropenen zaak",
+            )
 
         serializer = WorkflowOptionSerializer(
             options,
