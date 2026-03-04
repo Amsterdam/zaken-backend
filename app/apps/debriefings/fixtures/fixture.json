@@ -478,5 +478,45 @@
       "enabled": true,
       "theme": 8
     }
+  },
+  {
+    "pk": 54,
+    "model": "debriefings.violationtype",
+    "fields": {
+      "name": "Naar ander thema",
+      "value": "SEND_TO_OTHER_THEME",
+      "enabled": true,
+      "theme": 9
+    }
+  },
+  {
+    "pk": 55,
+    "model": "debriefings.violationtype",
+    "fields": {
+      "name": "Geen overtreding",
+      "value": "NO",
+      "enabled": true,
+      "theme": 9
+    }
+  },
+  {
+    "pk": 56,
+    "model": "debriefings.violationtype",
+    "fields": {
+      "name": "Overtreding",
+      "value": "YES",
+      "enabled": true,
+      "theme": 9
+    }
+  },
+  {
+    "pk": 57,
+    "model": "debriefings.violationtype",
+    "fields": {
+      "name": "Inplannen gesprek",
+      "value": "SCHEDULE_CONVERSATION",
+      "enabled": true,
+      "theme": 9
+    }
   }
 ]
