@@ -161,7 +161,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("visit_next_step") == "digital_surveillance"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0keh3l4" name="thema = huisvestingsvergunning" sourceRef="Gateway_1r1i4zw" targetRef="task_bepalen_processtap_huisvestingsvergunning">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">theme.value == "theme_huisvestingsvergunning"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("theme") == "theme_huisvestingsvergunning"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:userTask id="task_bepalen_processtap_standaard" name="Bepalen processtap" camunda:formKey="from_bepalen_processtap_standaard">
       <bpmn:extensionElements>
@@ -312,7 +312,7 @@
       <bpmn:outgoing>Flow_0got3fs</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1bcln9y" name="Case investigation" sourceRef="Gateway_0zsp12i" targetRef="task_investigate_case">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">visit_next_step.value == "case_investigation"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("visit_next_step") == "case_investigation"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1hxjm8v" sourceRef="task_investigate_case" targetRef="Gateway_0uy6u1f" />
     <bpmn:userTask id="task_request_authorization" name="Aanvragen machtiging" camunda:candidateGroups="Projectmedewerker" camunda:dueDate="${dateTime().toDate()}">
