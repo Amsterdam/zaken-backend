@@ -12,9 +12,12 @@ class SensitiveCaseMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        match = re.match(r"^/api/v1/cases/(\d+)/", request.path)
-        if request.path.startswith("/api/v1/cases/") and match:
-            case_id = match.group(1)
+
+        # Controleer beide endpoints
+        pattern = r"^/api/v1/(cases|data/cases)/(\d+)/"
+        match = re.match(pattern, request.path)
+        if match:
+            case_id = match.group(2)
             case = Case.objects.filter(pk=case_id).first()
             if (
                 case
