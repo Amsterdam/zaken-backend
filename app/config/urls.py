@@ -1,6 +1,7 @@
 import os
 
 from apps.addresses.views import AddressViewSet
+from apps.cases.data_team.views import DataTeamCaseViewSet
 from apps.cases.views import (
     CaseCloseReasonViewSet,
     CaseCloseResultViewSet,
@@ -53,6 +54,7 @@ def admin_redirect(request):
 router = DefaultRouter()
 router.register(r"addresses", AddressViewSet, basename="addresses")
 router.register(r"cases", CaseViewSet, basename="cases")
+router.register(r"data/cases", DataTeamCaseViewSet, basename="data-cases")
 router.register(r"tasks", CaseUserTaskViewSet, basename="tasks")
 router.register(r"themes", CaseThemeViewSet, basename="themes")
 router.register(r"debriefings", DebriefingViewSet, basename="debriefings")
