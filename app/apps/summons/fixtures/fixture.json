@@ -538,5 +538,14 @@
       "workflow_option": "aanschrijvingen",
       "name": "Voornemen besluit"
     }
+  },
+  {
+    "model": "summons.summontype",
+    "pk": 74,
+    "fields": {
+      "theme": 9,
+      "workflow_option": "aanschrijvingen",
+      "name": "Voornemen boete"
+    }
   }
 ]
