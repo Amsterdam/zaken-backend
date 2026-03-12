@@ -1394,5 +1394,35 @@
       "to_directing_proccess": false,
       "enabled_on_case_closed": true
     }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 156,
+    "fields": {
+      "theme": 9,
+      "name": "Extra aanschrijving",
+      "message_name": "aanschrijving_toevoegen",
+      "to_directing_proccess": true
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 157,
+    "fields": {
+      "theme": 9,
+      "name": "Afsluiten zaak",
+      "message_name": "start_afsluiten_zaak",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 158,
+    "fields": {
+      "theme": 9,
+      "name": "Aanvullend huisbezoek",
+      "message_name": "start_aanvullend_huisbezoek",
+      "to_directing_proccess": false
+    }
   }
 ]
