@@ -71,7 +71,17 @@ class AddressViewSet(
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def _get_residents_by_bag_id(self, request, bag_id):
+    @extend_schema(
+        description="Gets the residents associated with this address",
+    )
+    @action(
+        detail=True,
+        methods=["get"],
+        serializer_class=BrpSerializer,
+        url_path="residents",
+        permission_classes=[permissions.CanAccessBRP],
+    )
+    def residents_by_bag_id(self, request, bag_id):
         try:
             address = Address.objects.get(bag_id=bag_id)
         except Address.DoesNotExist:
@@ -105,32 +115,6 @@ class AddressViewSet(
             {"error": "no nummeraanduiding_id found"},
             status=status.HTTP_404_NOT_FOUND,
         )
-
-    @extend_schema(
-        description="Gets the residents associated with this address",
-    )
-    @action(
-        detail=True,
-        methods=["get"],
-        serializer_class=BrpSerializer,
-        url_path="residents",
-        permission_classes=[permissions.CanAccessBRP],
-    )
-    def residents_by_bag_id(self, request, bag_id):
-        return self._get_residents_by_bag_id(request, bag_id)
-
-    @extend_schema(
-        description="Gets the residents associated with this address",
-    )
-    @action(
-        detail=True,
-        methods=["get"],
-        serializer_class=BrpSerializer,
-        url_path="residents-new",
-        permission_classes=[permissions.CanAccessBRP],
-    )
-    def residents_by_bag_id_new_api(self, request, bag_id):
-        return self._get_residents_by_bag_id(request, bag_id)
 
     @extend_schema(
         parameters=[open_cases],
