@@ -45,7 +45,7 @@ dependencies = [
     "requests~=2.32",
     "requests-mock~=1.12",
     "spiffworkflow~=3.1.0",
-    "tenacity~=9.0",
+    "tenacity~=9.1",
     "watchdog>=6.0.0,<7.0.0",
 ]
 
