@@ -72,6 +72,7 @@ class ScheduleCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule
         fields = (
+            "id",
             "action",
             "author",
             "case",
@@ -85,6 +86,17 @@ class ScheduleCreateSerializer(serializers.ModelSerializer):
             "housing_corporation_combiteam",
         )
         read_only_fields = ("id",)
+
+
+class SchedulePriorityUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Schedule
+        fields = ["priority"]
+
+    def validate(self, data):
+        if "priority" not in data:
+            raise serializers.ValidationError({"priority": "This field is required."})
+        return data
 
 
 class ThemeScheduleTypesSerializer(serializers.ModelSerializer):

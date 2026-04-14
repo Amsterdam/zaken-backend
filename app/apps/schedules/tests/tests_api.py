@@ -59,3 +59,61 @@ class ScheduleCreateAPITest(APITestCase):
 
         self.assertEqual(Schedule.objects.count(), 1)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_authenticated_patch_priority(self):
+        schedule = baker.make(Schedule)
+
+        new_priority = baker.make(Priority)
+
+        client = get_authenticated_client()
+        url = reverse("schedules-detail", args=[schedule.id])
+
+        response = client.patch(
+            url,
+            {"priority": new_priority.id},
+            format="json",
+        )
+
+        schedule.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(schedule.priority.id, new_priority.id)
+
+    def test_patch_only_updates_priority(self):
+        schedule = baker.make(Schedule)
+        original_action = schedule.action
+
+        new_priority = baker.make(Priority)
+        new_action = baker.make(Action)
+
+        client = get_authenticated_client()
+        url = reverse("schedules-detail", args=[schedule.id])
+
+        response = client.patch(
+            url,
+            {
+                "priority": new_priority.id,
+                "action": new_action.id,  # Can be ignored, should not update the action
+            },
+            format="json",
+        )
+
+        schedule.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(schedule.priority.id, new_priority.id)
+        self.assertEqual(schedule.action, original_action)  # unchanged
+
+    def test_patch_invalid_priority(self):
+        schedule = baker.make(Schedule)
+        client = get_authenticated_client()
+
+        url = reverse("schedules-detail", args=[schedule.id])
+
+        response = client.patch(
+            url,
+            {"priority": 999999},  # does not exist
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
