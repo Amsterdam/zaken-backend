@@ -108,3 +108,11 @@ class ThemeScheduleTypesSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaseTheme
         fields = ["actions", "week_segments", "day_segments", "priorities"]
+
+
+class ScheduleListSerializer(serializers.ModelSerializer):
+    priority = PrioritySerializer(read_only=True)
+
+    class Meta:
+        model = Schedule
+        fields = "__all__"
