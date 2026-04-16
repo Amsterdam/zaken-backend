@@ -6,26 +6,38 @@ from apps.schedules.serializers import (
     DaySegmentSerializer,
     PrioritySerializer,
     ScheduleCreateSerializer,
+    SchedulePriorityUpdateSerializer,
     WeekSegmentSerializer,
 )
 from apps.users.permissions import CanPerformTask, rest_permission_classes_for_top
 from apps.workflow.models import CaseWorkflow
-from rest_framework.mixins import CreateModelMixin, ListModelMixin
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, UpdateModelMixin
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.viewsets import GenericViewSet
 
 logger = logging.getLogger(__name__)
 
 
-class ScheduleViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
+class ScheduleViewSet(
+    GenericViewSet, CreateModelMixin, ListModelMixin, UpdateModelMixin
+):
     permission_classes = rest_permission_classes_for_top()
     serializer_class = ScheduleCreateSerializer
     queryset = Schedule.objects.all()
+    http_method_names = ["get", "patch", "post"]
 
     def get_permissions(self):
+        permission_classes = list(self.permission_classes)
+
         if self.request.method not in SAFE_METHODS:
-            self.permission_classes.append(CanPerformTask)
-        return super(ScheduleViewSet, self).get_permissions()
+            permission_classes.append(CanPerformTask)
+
+        return [permission() for permission in permission_classes]
+
+    def get_serializer_class(self):
+        if self.action == "partial_update":
+            return SchedulePriorityUpdateSerializer
+        return super().get_serializer_class()
 
     def perform_create(self, serializer):
         case = serializer.validated_data.get("case")

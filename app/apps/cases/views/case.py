@@ -28,6 +28,7 @@ from apps.events.mixins import CaseEventsMixin
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
 from apps.schedules.models import DaySegment, Priority, Schedule, WeekSegment
+from apps.schedules.serializers import ScheduleListSerializer
 from apps.users.auth_apps import TopKeyAuth
 from apps.users.models import ScopedTokenAuth
 from apps.users.permissions import (
@@ -570,6 +571,27 @@ class CaseViewSet(
             context, many=True, context={"request": request}
         )
         return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Get schedules for this Case",
+        responses={status.HTTP_200_OK: ScheduleListSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        url_path="schedules",
+        methods=["get"],
+    )
+    def get_schedules(self, request, pk):
+        case = self.get_object()
+
+        queryset = (
+            Schedule.objects.filter(case=case)
+            .select_related("priority", "action", "week_segment", "day_segment")
+            .order_by("date_added")
+        )
+
+        serializer = ScheduleListSerializer(queryset, many=True)
+        return Response(serializer.data)
 
     @extend_schema(
         description="Gets the Subjects associated with the given theme",
