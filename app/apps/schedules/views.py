@@ -6,7 +6,7 @@ from apps.schedules.serializers import (
     DaySegmentSerializer,
     PrioritySerializer,
     ScheduleCreateSerializer,
-    SchedulePriorityUpdateSerializer,
+    ScheduleUpdateSerializer,
     WeekSegmentSerializer,
 )
 from apps.users.permissions import CanPerformTask, rest_permission_classes_for_top
@@ -36,7 +36,7 @@ class ScheduleViewSet(
 
     def get_serializer_class(self):
         if self.action == "partial_update":
-            return SchedulePriorityUpdateSerializer
+            return ScheduleUpdateSerializer
         return super().get_serializer_class()
 
     def perform_create(self, serializer):

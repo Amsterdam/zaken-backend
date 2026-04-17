@@ -79,12 +79,14 @@ class ScheduleCreateAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(schedule.priority.id, new_priority.id)
 
-    def test_patch_only_updates_priority(self):
+    def test_patch_updates_allowed_fields(self):
         schedule = baker.make(Schedule)
-        original_action = schedule.action
 
         new_priority = baker.make(Priority)
-        new_action = baker.make(Action)
+        new_day_segment = baker.make(DaySegment)
+        new_week_segment = baker.make(WeekSegment)
+
+        original_action = schedule.action
 
         client = get_authenticated_client()
         url = reverse("schedules-detail", args=[schedule.id])
@@ -93,7 +95,9 @@ class ScheduleCreateAPITest(APITestCase):
             url,
             {
                 "priority": new_priority.id,
-                "action": new_action.id,  # Can be ignored, should not update the action
+                "day_segment": new_day_segment.id,
+                "week_segment": new_week_segment.id,
+                "action": baker.make(Action).id,  # should still be ignored
             },
             format="json",
         )
@@ -102,6 +106,8 @@ class ScheduleCreateAPITest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(schedule.priority.id, new_priority.id)
+        self.assertEqual(schedule.day_segment.id, new_day_segment.id)
+        self.assertEqual(schedule.week_segment.id, new_week_segment.id)
         self.assertEqual(schedule.action, original_action)  # unchanged
 
     def test_patch_invalid_priority(self):

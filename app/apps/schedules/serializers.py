@@ -88,14 +88,22 @@ class ScheduleCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ("id",)
 
 
-class SchedulePriorityUpdateSerializer(serializers.ModelSerializer):
+class ScheduleUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule
-        fields = ["priority"]
+        fields = [
+            "priority",
+            "day_segment",
+            "week_segment",
+            "visit_from_datetime",
+        ]
+        extra_kwargs = {
+            "visit_from_datetime": {"allow_null": True},
+        }
 
     def validate(self, data):
-        if "priority" not in data:
-            raise serializers.ValidationError({"priority": "This field is required."})
+        if not data:
+            raise serializers.ValidationError("At least one field must be provided.")
         return data
 
 
