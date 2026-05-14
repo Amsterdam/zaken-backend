@@ -37,6 +37,7 @@ class AddressAdmin(admin.ModelAdmin):
         "suffix_letter",
         "suffix",
         "district",
+        "wijk",
         "housing_corporation",
     )
     list_editable = ("housing_corporation",)
