@@ -1,5 +1,6 @@
 import logging
 
+from apps.addresses.constants import FIFTEEN_NIGHTS_RULE_WIJKEN
 from apps.addresses.models import Address, District, HousingCorporation
 from apps.addresses.serializers import (
     AddressSerializer,
@@ -22,6 +23,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
+from utils.api_queries_bag import do_bag_search_pdok_by_bag_id
 from utils.api_queries_benk_brp import BrpRequest
 from utils.api_queries_toeristische_verhuur import (
     get_vakantieverhuur_meldingen,
@@ -252,6 +254,15 @@ class AddressViewSet(
             vakantieverhuur_meldingen_data, status_code = get_vakantieverhuur_meldingen(
                 bag_id, query_params=params
             )
+
+            bag_data = do_bag_search_pdok_by_bag_id(bag_id)
+            docs = bag_data.get("response", {}).get("docs", [])
+            wijk = docs[0].get("wijknaam", "") if docs else ""
+
+            vakantieverhuur_meldingen_data["fifteen_nights_rule_applicable"] = (
+                wijk in FIFTEEN_NIGHTS_RULE_WIJKEN
+            )
+
             serialized_meldingen = MeldingenSerializer(
                 data=vakantieverhuur_meldingen_data
             )
