@@ -52,7 +52,6 @@ class Address(models.Model):
         blank=True,
         null=True,
     )
-    wijk = models.CharField(max_length=255, null=True, blank=True)
 
     @property
     def full_address(self) -> str:
@@ -95,7 +94,6 @@ class Address(models.Model):
             if centroid:
                 self.lng = centroid[0]
                 self.lat = centroid[1]
-            self.wijk = found_bag_data.get("wijknaam", "")
 
     def _parse_centroid(self, centroid):
         # Check if the string starts with 'POINT(' and ends with ')'

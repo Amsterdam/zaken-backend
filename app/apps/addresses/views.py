@@ -255,14 +255,9 @@ class AddressViewSet(
                 bag_id, query_params=params
             )
 
-            # Get wijk: Check DB first, then PDOK as fallback
-            address = Address.objects.filter(bag_id=bag_id).first()
-            if address and address.wijk:
-                wijk = address.wijk
-            else:
-                bag_data = do_bag_search_pdok_by_bag_id(bag_id)
-                docs = bag_data.get("response", {}).get("docs", [])
-                wijk = docs[0].get("wijknaam", "") if docs else ""
+            bag_data = do_bag_search_pdok_by_bag_id(bag_id)
+            docs = bag_data.get("response", {}).get("docs", [])
+            wijk = docs[0].get("wijknaam", "") if docs else ""
 
             vakantieverhuur_meldingen_data["fifteen_nights_rule_applicable"] = (
                 wijk in FIFTEEN_NIGHTS_RULE_WIJKEN
