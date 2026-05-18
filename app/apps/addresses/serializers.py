@@ -109,7 +109,7 @@ class MeldingenSerializer(serializers.Serializer):
     totalPages = serializers.IntegerField()
     totalRecords = serializers.IntegerField()
     data = serializers.ListField(child=serializers.DictField())
-    fifteen_nights_rule_applicable = serializers.BooleanField()
+    fifteenNightsRuleApplicable = serializers.BooleanField()
 
 
 class RegistrationNumberSerializer(serializers.Serializer):
