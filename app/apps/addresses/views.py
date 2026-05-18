@@ -259,7 +259,7 @@ class AddressViewSet(
             docs = bag_data.get("response", {}).get("docs", [])
             wijk = docs[0].get("wijknaam", "") if docs else ""
 
-            vakantieverhuur_meldingen_data["fifteen_nights_rule_applicable"] = (
+            vakantieverhuur_meldingen_data["fifteenNightsRuleApplicable"] = (
                 wijk in FIFTEEN_NIGHTS_RULE_WIJKEN
             )
 
