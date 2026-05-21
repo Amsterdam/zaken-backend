@@ -866,23 +866,24 @@ drf = ["djangorestframework"]
 
 [[package]]
 name = "django-health-check"
-version = "3.20.0"
+version = "3.24.0"
 description = "Monitor the health of your Django app and its connected services."
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "django_health_check-3.20.0-py3-none-any.whl", hash = "sha256:bcb2b8f36f463cead0564a028345c5b17e2a2d18e9cc88ecd611b13a26521926"},
-    {file = "django_health_check-3.20.0.tar.gz", hash = "sha256:cd69ac5facf73fe7241d9492d939b57bd20e24f46c4edea91e6a900bf22c2d8e"},
+    {file = "django_health_check-3.24.0-py3-none-any.whl", hash = "sha256:bd568d7d3813980668dfbe730214aef5da7c8da73bc2aa60ec2eeca8a3788da6"},
+    {file = "django_health_check-3.24.0.tar.gz", hash = "sha256:b5e01d2013a254cc5a2c7b19c62f11ea6fd2624c87a9d990e11a1b3874df78b5"},
 ]
 
 [package.dependencies]
 Django = ">=4.2"
+psutil = "*"
 
 [package.extras]
-docs = ["sphinx"]
-lint = ["ruff (==0.11.13)"]
-test = ["boto3", "celery", "django-storages", "pytest", "pytest-cov", "pytest-django", "redis"]
+celery = ["celery (>=5.0.0)"]
+rabbitmq = ["kombu (>=5.0.0)"]
+redis = ["redis (>=3.0.0)"]
 
 [[package]]
 name = "django-permissions-policy"
@@ -2785,4 +2786,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "~=3.13"
-content-hash = "a62325b20da9c24761b27e48a68cfa594b24263f5a002d6d44e73453efa36add"
+content-hash = "57ddff9921e9c2e6f1d2c8416e7238e75f6fe38acbe39de921736e646c036cd2"
