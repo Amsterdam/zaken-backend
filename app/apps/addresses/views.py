@@ -313,6 +313,7 @@ class AddressViewSet(
                     if detail_status_code == 200:  # Only append if successful
                         detailed_registrations.append(registration_details)
                     else:
+
                         print(
                             f"Failed to fetch details for {registration_number}. Status: {detail_status_code}"
                         )
@@ -331,7 +332,10 @@ class AddressViewSet(
             )
 
             return Response(serializer.data, status=status_code)
-        except Exception:
+        except Exception as e:
+            logger.error(
+                f"Toeristische verhuur registrations could not be obtained: {e}"
+            )
             return Response(
                 {"error": "Toeristische verhuur registrations could not be obtained"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
