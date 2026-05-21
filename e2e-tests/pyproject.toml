@@ -11,7 +11,7 @@ dependencies = [
     "python-dateutil (~=2.9)",
 
     # For making requests to the api
-    "requests (~=2.32)",
+    "requests (~=2.33)",
     "requests-futures (~=1.0)",
 
     # For generating fake data
