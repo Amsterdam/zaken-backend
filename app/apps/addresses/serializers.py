@@ -121,6 +121,5 @@ class RegistrationDetailsSerializer(serializers.Serializer):
     requester = serializers.DictField()
     rentalHouse = serializers.DictField()
     requestForOther = serializers.BooleanField()
-    requestForBedAndBreakfast = serializers.BooleanField()
     createdAt = serializers.DateTimeField()
     agreementDate = serializers.DateTimeField()
