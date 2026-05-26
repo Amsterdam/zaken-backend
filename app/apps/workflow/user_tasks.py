@@ -1068,3 +1068,10 @@ class task_verwerken_informatiebrief(user_task):
     """task_nakijken_informatiebrief"""
 
     _task_name = "task_verwerken_informatiebrief"
+
+
+class task_monitoren_binnenkomen_inlichtingen(user_task):
+    """Monitoren binnenkomen inlichtingen"""
+
+    _task_name = "task_monitoren_binnenkomen_inlichtingen"
+    due_date = relativedelta(weeks=2)
