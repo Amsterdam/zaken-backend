@@ -1440,6 +1440,8 @@ WORKFLOW_SPEC_CONFIG = {
                         "start_mma_signal_process": {},
                         "start_nuisance_process": {},
                         "start_objectionfile_process": {},
+                        "start_ontbinding_particuliere_pandeigenaar": {},
+                        "start_ontbinding_woningcorporatie": {},
                         "start_opstellen_digitale_analyse_proces": {},
                         "start_rapport_bewoners": {},
                         "start_signal_process": {},

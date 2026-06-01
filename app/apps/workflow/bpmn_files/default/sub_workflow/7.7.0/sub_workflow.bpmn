@@ -130,6 +130,14 @@
         <bpmn:flowNodeRef>Event_174dgqj</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0n0rh4l</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1rqq6fp</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_status_ontbinding_woningcorporatie</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0lf701n</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_0hqcexm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>service_status_ontbinding_particuliere_pandeigenaar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0lpz6oa</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_16gb1l6</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>event_start_ontbinding_woningcorporatie</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>event_start_ontbinding_particuliere_pandeigenaar</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="lane_projectmedewerker_1bcs10e" name="Projectmedewerker">
         <bpmn:flowNodeRef>event_start_signal_process</bpmn:flowNodeRef>
@@ -1441,6 +1449,54 @@
       <bpmn:outgoing>Flow_1jian2p</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1jian2p" name="Niets ontvangen" sourceRef="Gateway_1rqq6fp" targetRef="Event_174dgqj" />
+    <bpmn:scriptTask id="service_status_ontbinding_woningcorporatie" name="Bijwerken status: Ontbinding woningcorporatie">
+      <bpmn:incoming>Flow_02kamib</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ncr9y0</bpmn:outgoing>
+      <bpmn:script>set_status("Ontbinding woningcorporatie")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="Activity_0lf701n" name="Ontbinding woningcorporatie" camunda:formKey="form_ontbinding_woningcorporatie" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="extra_informatie" label="Toelichting" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0ncr9y0</bpmn:incoming>
+      <bpmn:outgoing>Flow_1j5w2gw</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_0hqcexm">
+      <bpmn:incoming>Flow_1j5w2gw</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0ncr9y0" sourceRef="service_status_ontbinding_woningcorporatie" targetRef="Activity_0lf701n" />
+    <bpmn:sequenceFlow id="Flow_1j5w2gw" sourceRef="Activity_0lf701n" targetRef="Event_0hqcexm" />
+    <bpmn:scriptTask id="service_status_ontbinding_particuliere_pandeigenaar" name="Bijwerken status: Ontbinding particuliere pandeigenaar">
+      <bpmn:incoming>Flow_1af6cc3</bpmn:incoming>
+      <bpmn:outgoing>Flow_0n00007</bpmn:outgoing>
+      <bpmn:script>set_status("Ontbinding particuliere pandeigenaar")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="Activity_0lpz6oa" name="Ontbinding particuliere pandeigenaar" camunda:formKey="form_ontbinding_particuliere_pandeigenaar" camunda:candidateGroups="Projecthandhaver" camunda:dueDate="${dateTime().toDate()}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="extra_informatie" label="Toelichting" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0n00007</bpmn:incoming>
+      <bpmn:outgoing>Flow_10jym1p</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_16gb1l6">
+      <bpmn:incoming>Flow_10jym1p</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0n00007" sourceRef="service_status_ontbinding_particuliere_pandeigenaar" targetRef="Activity_0lpz6oa" />
+    <bpmn:sequenceFlow id="Flow_10jym1p" sourceRef="Activity_0lpz6oa" targetRef="Event_16gb1l6" />
+    <bpmn:sequenceFlow id="Flow_02kamib" sourceRef="event_start_ontbinding_woningcorporatie" targetRef="service_status_ontbinding_woningcorporatie" />
+    <bpmn:startEvent id="event_start_ontbinding_woningcorporatie" name="Start ontbinding woningcorporatie">
+      <bpmn:outgoing>Flow_02kamib</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1vldmif" messageRef="Message_0u4mem3" />
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1af6cc3" sourceRef="event_start_ontbinding_particuliere_pandeigenaar" targetRef="service_status_ontbinding_particuliere_pandeigenaar" />
+    <bpmn:startEvent id="event_start_ontbinding_particuliere_pandeigenaar" name="Start ontbinding particuliere pandeigenaar">
+      <bpmn:outgoing>Flow_1af6cc3</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_08ej4ue" messageRef="Message_0kojva8" />
+    </bpmn:startEvent>
   </bpmn:process>
   <bpmn:message id="Message_1wpa49m" name="start_verzoek_opheffing_openbaarmaking_namen" />
   <bpmn:message id="Message_0f7jpp5" name="start_signal_process" />
@@ -1477,6 +1533,8 @@
   <bpmn:message id="Message_0j0ns18" name="start_versturen_van_waarschuwingsbrief" />
   <bpmn:message id="Message_0sctmqr" name="start_heropenen_zaak" />
   <bpmn:message id="Message_3rue1s0" name="start_vorderen_inlichtingen" />
+  <bpmn:message id="Message_0u4mem3" name="start_ontbinding_woningcorporatie" />
+  <bpmn:message id="Message_0kojva8" name="start_ontbinding_particuliere_pandeigenaar" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1nd8xuu">
       <bpmndi:BPMNShape id="Participant_03i0kl2_di" bpmnElement="Participant_03i0kl2" isHorizontal="true">
@@ -2142,6 +2200,40 @@
       <bpmndi:BPMNShape id="Gateway_1rqq6fp_di" bpmnElement="Gateway_1rqq6fp" isMarkerVisible="true">
         <dc:Bounds x="1695" y="1535" width="50" height="50" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0ly451b" bpmnElement="service_status_ontbinding_woningcorporatie">
+        <dc:Bounds x="1130" y="1610" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1ybz6sy" bpmnElement="Activity_0lf701n">
+        <dc:Bounds x="1300" y="1610" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1yk97ri" bpmnElement="Event_0hqcexm">
+        <dc:Bounds x="1452" y="1632" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1oqxxvp" bpmnElement="service_status_ontbinding_particuliere_pandeigenaar">
+        <dc:Bounds x="1130" y="1740" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1s65qpb" bpmnElement="Activity_0lpz6oa">
+        <dc:Bounds x="1300" y="1740" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_15eaxnx" bpmnElement="Event_16gb1l6">
+        <dc:Bounds x="1452" y="1762" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1idwu6s_di" bpmnElement="event_start_ontbinding_woningcorporatie">
+        <dc:Bounds x="1032" y="1632" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1009" y="1675" width="83" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_06f7qfd_di" bpmnElement="event_start_ontbinding_particuliere_pandeigenaar">
+        <dc:Bounds x="1032" y="1762" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1013" y="1805" width="78" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_0vuyz50" bpmnElement="Event_0l4b5aw">
         <dc:Bounds x="1452" y="1402" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -2793,6 +2885,33 @@
         <di:waypoint x="1850" y="1398" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1810" y="1482" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0k7x8yk" bpmnElement="Flow_0ncr9y0">
+        <di:waypoint x="1230" y="1650" />
+        <di:waypoint x="1300" y="1650" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0m1s43n" bpmnElement="Flow_1j5w2gw">
+        <di:waypoint x="1400" y="1650" />
+        <di:waypoint x="1452" y="1650" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0z0nqt6" bpmnElement="Flow_0n00007">
+        <di:waypoint x="1230" y="1780" />
+        <di:waypoint x="1300" y="1780" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0tbh73n" bpmnElement="Flow_10jym1p">
+        <di:waypoint x="1400" y="1780" />
+        <di:waypoint x="1452" y="1780" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02kamib_di" bpmnElement="Flow_02kamib">
+        <di:waypoint x="1068" y="1650" />
+        <di:waypoint x="1130" y="1650" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1af6cc3_di" bpmnElement="Flow_1af6cc3">
+        <di:waypoint x="1068" y="1780" />
+        <di:waypoint x="1130" y="1780" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1011" y="1800" width="78" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>

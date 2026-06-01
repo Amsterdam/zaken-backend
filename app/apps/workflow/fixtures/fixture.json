@@ -1434,5 +1434,25 @@
       "message_name": "start_vorderen_inlichtingen",
       "to_directing_proccess": false
     }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 160,
+    "fields": {
+      "theme": 4,
+      "name": "Ontbinding woningcorporatie",
+      "message_name": "start_ontbinding_woningcorporatie",
+      "to_directing_proccess": false
+    }
+  },
+  {
+    "model": "workflow.workflowoption",
+    "pk": 161,
+    "fields": {
+      "theme": 4,
+      "name": "Ontbinding particuliere pandeigenaar",
+      "message_name": "start_ontbinding_particuliere_pandeigenaar",
+      "to_directing_proccess": false
+    }
   }
 ]
