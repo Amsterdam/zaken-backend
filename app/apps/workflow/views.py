@@ -12,7 +12,9 @@ from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
+from apps.users.models import User
 from apps.users.permissions import CanAccessSensitiveCases, IsInAuthorizedRealm
+from apps.users.serializers import UserSerializer
 from apps.workflow.serializers import (
     CaseUserTaskSerializer,
     CaseUserTaskTaskNameSerializer,
@@ -375,6 +377,26 @@ class CaseUserTaskViewSet(
             .values_list("case__address__district__name", flat=True)
         )
         serializer = serializers.ListSerializer(queryset, child=serializers.CharField())
+        return Response(serializer.data)
+
+    @extend_schema(
+        description="Gets all users that are owner of at least one task",
+        responses={status.HTTP_200_OK: UserSerializer(many=True)},
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="owners",
+    )
+    def owners(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        user_ids = (
+            queryset.exclude(owner__isnull=True)
+            .values_list("owner_id", flat=True)
+            .distinct()
+        )
+        users = User.objects.filter(id__in=user_ids).order_by("full_name")
+        serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
     @extend_schema(
