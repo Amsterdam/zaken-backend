@@ -395,7 +395,7 @@ class CaseUserTaskViewSet(
             .values_list("owner_id", flat=True)
             .distinct()
         )
-        users = User.objects.filter(id__in=user_ids).order_by("full_name")
+        users = User.objects.filter(id__in=user_ids).order_by("first_name", "last_name")
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
