@@ -90,6 +90,10 @@ class CaseUserTaskFilter(filters.FilterSet):
     )
     number = filters.CharFilter(method="get_number")
     open_cases = filters.BooleanFilter(method="get_open_cases")
+    owner = filters.ModelMultipleChoiceFilter(
+        queryset=User.objects.all(),
+        method="get_owner",
+    )
     postal_code = filters.CharFilter(method="get_postal_code")
     project = filters.ModelMultipleChoiceFilter(
         queryset=CaseProject.objects.all(), method="get_project"
@@ -150,6 +154,11 @@ class CaseUserTaskFilter(filters.FilterSet):
 
     def get_number(self, queryset, name, value):
         return queryset.filter(case__address__number=value)
+
+    def get_owner(self, queryset, name, value):
+        if value:
+            return queryset.filter(owner__in=value)
+        return queryset
 
     def get_suffix(self, queryset, name, value):
         return queryset.filter(
@@ -230,20 +239,19 @@ class CaseUserTaskFilter(filters.FilterSet):
     class Meta:
         model = CaseUserTask
         fields = [
-            "start_date",
-            "from_start_date",
-            "theme",
-            "reason",
-            "sensitive",
-            "ton_ids",
-            "street_name",
-            "number",
-            "suffix",
-            "postal_code",
             "completed",
-            "role",
-            "owner",
+            "from_start_date",
             "name",
+            "number",
+            "postal_code",
+            "reason",
+            "role",
+            "sensitive",
+            "start_date",
+            "street_name",
+            "suffix",
+            "theme",
+            "ton_ids",
         ]
 
 
