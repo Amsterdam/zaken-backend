@@ -12,7 +12,9 @@ from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
+from apps.users.models import User
 from apps.users.permissions import CanAccessSensitiveCases, IsInAuthorizedRealm
+from apps.users.serializers import UserSerializer
 from apps.workflow.serializers import (
     CaseUserTaskSerializer,
     CaseUserTaskTaskNameSerializer,
@@ -88,6 +90,10 @@ class CaseUserTaskFilter(filters.FilterSet):
     )
     number = filters.CharFilter(method="get_number")
     open_cases = filters.BooleanFilter(method="get_open_cases")
+    owner = filters.ModelMultipleChoiceFilter(
+        queryset=User.objects.all(),
+        method="get_owner",
+    )
     postal_code = filters.CharFilter(method="get_postal_code")
     project = filters.ModelMultipleChoiceFilter(
         queryset=CaseProject.objects.all(), method="get_project"
@@ -148,6 +154,11 @@ class CaseUserTaskFilter(filters.FilterSet):
 
     def get_number(self, queryset, name, value):
         return queryset.filter(case__address__number=value)
+
+    def get_owner(self, queryset, name, value):
+        if value:
+            return queryset.filter(owner__in=value)
+        return queryset
 
     def get_suffix(self, queryset, name, value):
         return queryset.filter(
@@ -228,20 +239,19 @@ class CaseUserTaskFilter(filters.FilterSet):
     class Meta:
         model = CaseUserTask
         fields = [
-            "start_date",
-            "from_start_date",
-            "theme",
-            "reason",
-            "sensitive",
-            "ton_ids",
-            "street_name",
-            "number",
-            "suffix",
-            "postal_code",
             "completed",
-            "role",
-            "owner",
+            "from_start_date",
             "name",
+            "number",
+            "postal_code",
+            "reason",
+            "role",
+            "sensitive",
+            "start_date",
+            "street_name",
+            "suffix",
+            "theme",
+            "ton_ids",
         ]
 
 
@@ -375,6 +385,26 @@ class CaseUserTaskViewSet(
             .values_list("case__address__district__name", flat=True)
         )
         serializer = serializers.ListSerializer(queryset, child=serializers.CharField())
+        return Response(serializer.data)
+
+    @extend_schema(
+        description="Gets all users that are owner of at least one task",
+        responses={status.HTTP_200_OK: UserSerializer(many=True)},
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="owners",
+    )
+    def owners(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        user_ids = (
+            queryset.exclude(owner__isnull=True)
+            .values_list("owner_id", flat=True)
+            .distinct()
+        )
+        users = User.objects.filter(id__in=user_ids).order_by("first_name", "last_name")
+        serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
     @extend_schema(
