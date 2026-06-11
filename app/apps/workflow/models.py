@@ -287,6 +287,17 @@ class CaseWorkflow(models.Model):
                 workflow_message_name=subworkflow_message_name,
             )
 
+        def create_and_start_director_workflow(message_name):
+            if not message_name:
+                raise ValueError(
+                    "create_and_start_director_workflow requires a message_name"
+                )
+            CaseWorkflow.objects.create(
+                case=self.case,
+                workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
+                workflow_message_name=message_name,
+            )
+
         def reopen_case_and_start_main_workflow():
             with transaction.atomic():
                 self.case.end_date = None
@@ -339,6 +350,7 @@ class CaseWorkflow(models.Model):
             wait_for_workflows_and_send_message=wait_for_workflows_and_send_message,
             script_wait=script_wait,
             start_subworkflow=start_subworkflow,
+            create_and_start_director_workflow=create_and_start_director_workflow,
             create_and_start_subworkflow=create_and_start_subworkflow,
             parse_duration=parse_duration_string,
             get_data=get_data,
