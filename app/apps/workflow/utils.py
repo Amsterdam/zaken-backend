@@ -31,6 +31,7 @@ def create_script_engine(
     wait_for_workflows_and_send_message=None,
     script_wait=None,
     start_subworkflow=None,
+    create_and_start_director_workflow=None,
     create_and_start_subworkflow=None,
     parse_duration=None,
     get_data=None,
@@ -46,6 +47,7 @@ def create_script_engine(
         wait_for_workflows_and_send_message: Function to wait for workflows and send messages (optional)
         script_wait: Function for script waiting (optional)
         start_subworkflow: Function to start subworkflows (optional)
+        create_and_start_director_workflow: Function to create and start director workflows (optional) with a message name
         create_and_start_subworkflow: Function to create and start subworkflows in sub_workflow.bpmn (optional)
         parse_duration: Function to parse duration strings (optional)
         get_data: Function to get data from workflow (optional)
@@ -73,6 +75,11 @@ def create_script_engine(
                 "start_subworkflow": (
                     start_subworkflow
                     if start_subworkflow is not None
+                    else lambda *args: None
+                ),
+                "create_and_start_director_workflow": (
+                    create_and_start_director_workflow
+                    if create_and_start_director_workflow is not None
                     else lambda *args: None
                 ),
                 "create_and_start_subworkflow": (
