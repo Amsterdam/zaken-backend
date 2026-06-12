@@ -12,7 +12,8 @@ from apps.addresses.serializers import (
     RegistrationNumberSerializer,
 )
 from apps.cases.models import Advertisement
-from apps.cases.serializers import AdvertisementSerializer, CaseSerializer
+from apps.cases.serializers import AdvertisementSerializer
+from apps.cases.serializers.case import CaseAddressSerializer
 from apps.permits.mixins import PermitDetailsMixin
 from apps.users import permissions
 from drf_spectacular.types import OpenApiTypes
@@ -120,13 +121,17 @@ class AddressViewSet(
 
     @extend_schema(
         parameters=[open_cases],
-        description="Get cases for given BAG ID",
-        responses={200: CaseSerializer(many=True)},
+        description=(
+            "Get cases for given BAG ID. Returns a deliberately limited field "
+            "set: users without `users.access_sensitive_dossiers` may see that "
+            "(sensitive) cases exist on an address, but not their details."
+        ),
+        responses={200: CaseAddressSerializer(many=True)},
     )
     @action(
         detail=True,
         methods=["get"],
-        serializer_class=CaseSerializer,
+        serializer_class=CaseAddressSerializer,
         url_path="cases",
     )
     def cases(self, request, bag_id, **kwargs):
@@ -147,7 +152,7 @@ class AddressViewSet(
 
             paginator = LimitOffsetPagination()
             context = paginator.paginate_queryset(query_set, request)
-            serializer = CaseSerializer(context, many=True)
+            serializer = CaseAddressSerializer(context, many=True)
 
             return paginator.get_paginated_response(serializer.data)
 

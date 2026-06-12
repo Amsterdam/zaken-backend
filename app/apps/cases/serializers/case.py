@@ -285,3 +285,38 @@ class CaseBagIdsSerializer(serializers.ModelSerializer):
             "bag_id",
             "nummeraanduiding_id",
         )
+
+
+class CaseAddressSerializer(serializers.ModelSerializer):
+    """
+    Beperkte zaak-weergave, uitsluitend voor het adres-endpoint
+    (AddressViewSet.cases).
+
+    BEWUSTE KEUZE: medewerkers zonder het recht
+    `users.access_sensitive_dossiers` mogen op adresniveau zien
+    dat er zaken (incl. sensitive) lopen, maar niet de details. Daarom
+    bevat deze serializer alleen een minimale veldenset. Voeg hier geen
+    velden toe zonder te toetsen of die informatie over sensitive zaken
+    mag lekken naar gebruikers zonder dat recht. Detailtoegang blijft
+    afgeschermd via CaseViewSet.get_queryset (exclude sensitive) en
+    CanAccessSensitiveCases.
+    """
+
+    advertisements = AdvertisementSerializer(many=True, required=False)
+    reason = CaseReasonSerializer(read_only=True)
+    theme = CaseThemeSerializer(read_only=True)
+    workflows = CaseWorkflowBaseSerializer(
+        source="get_workflows", many=True, read_only=True
+    )
+
+    class Meta:
+        model = Case
+        fields = (
+            "id",
+            "advertisements",
+            "start_date",
+            "end_date",
+            "theme",
+            "workflows",
+            "reason",
+        )

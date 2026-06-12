@@ -108,3 +108,55 @@ class AddressCasesApiTest(APITestCase):
         data = response.json()
 
         self.assertEqual(len(data["results"]), NUMBER_OF_CLOSED_CASES)
+
+    def test_authenticated_get_includes_sensitive_cases(self):
+        """
+        DELIBERATE DESIGN: users without the `users.access_sensitive_dossiers`
+        permission should still see THAT sensitive cases exist on an address
+        (so they know what is going on at the address), but only with the
+        limited field set of CaseAddressSerializer. Detail access to
+        sensitive cases remains restricted via CaseViewSet.
+        """
+        BAG_ID = "foo"
+
+        address = baker.make(Address, bag_id=BAG_ID)
+        baker.make(Case, address=address, sensitive=True)
+        baker.make(Case, address=address, sensitive=False)
+
+        url = reverse("addresses-cases", kwargs={"bag_id": BAG_ID})
+        client = get_authenticated_client()
+        response = client.get(url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(data["results"]), 2)
+
+    def test_authenticated_get_returns_only_limited_fields(self):
+        """
+        The address endpoint must never expose the full CaseSerializer
+        representation. Only this limited field set is allowed, so that
+        details of sensitive cases do not leak to users without the
+        `users.access_sensitive_dossiers` permission. Do not add fields
+        here without reviewing what they reveal about sensitive cases.
+        """
+        BAG_ID = "foo"
+        EXPECTED_FIELDS = {
+            "id",
+            "advertisements",
+            "start_date",
+            "end_date",
+            "theme",
+            "workflows",
+            "reason",
+        }
+
+        address = baker.make(Address, bag_id=BAG_ID)
+        baker.make(Case, address=address, sensitive=True)
+
+        url = reverse("addresses-cases", kwargs={"bag_id": BAG_ID})
+        client = get_authenticated_client()
+        response = client.get(url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(set(data["results"][0].keys()), EXPECTED_FIELDS)
