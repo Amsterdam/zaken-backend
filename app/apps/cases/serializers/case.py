@@ -287,7 +287,7 @@ class CaseBagIdsSerializer(serializers.ModelSerializer):
         )
 
 
-class CaseAddressSerializer(serializers.ModelSerializer):
+class AddressCaseListSerializer(serializers.ModelSerializer):
     """
     Beperkte zaak-weergave, uitsluitend voor het adres-endpoint
     (AddressViewSet.cases).
