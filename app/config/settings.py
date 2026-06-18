@@ -1072,7 +1072,11 @@ WORKFLOW_SPEC_CONFIG = {
             },
         },
         "sub_workflow": {
-            "initial_data": {},
+            "initial_data": {
+                "task_monitoren_binnenkomen_inlichtingen_timer_duration": timedelta(
+                    days=14
+                ),
+            },
             "versions": {
                 "0.1.0": {
                     "messages": {
@@ -1410,6 +1414,44 @@ WORKFLOW_SPEC_CONFIG = {
                         "start_versturen_van_waarschuwingsbrief": {},
                         "start_verzoek_opheffing_openbaarmaking_namen": {},
                         "start_heropenen_zaak": {},
+                    },
+                },
+                "7.7.0": {
+                    "messages": {
+                        "start_aanleveren_wob_dossier": {},
+                        "start_aanvullend_huisbezoek": {},
+                        "start_afsluiten_zaak": {},
+                        "start_bewustwordingsgesprek_eigenaar": {},
+                        "start_callbackrequest_process": {},
+                        "start_casus_overleg_proces": {},
+                        "start_correspondence_process": {},
+                        "start_doorzetten_bestuurlijk_prostitutie": {},
+                        "start_doorzetten_stukken_stadsdeel": {},
+                        "start_doorzetten_stukken_woningcorporatie": {},
+                        "start_doorzon_pv": {},
+                        "start_doorzon_signal_process": {},
+                        "start_extra_information": {},
+                        "start_handhaving_door_het_stadsdeel": {},
+                        "start_handhavingsverzoek": {},
+                        "start_heropenen_zaak": {},
+                        "start_ingebrekestelling": {},
+                        "start_informatieverzoek": {},
+                        "start_lod_verzoek_tot_opheffing": {},
+                        "start_mma_signal_process": {},
+                        "start_nuisance_process": {},
+                        "start_objectionfile_process": {},
+                        "start_ontbinding_particuliere_pandeigenaar": {},
+                        "start_ontbinding_woningcorporatie": {},
+                        "start_opstellen_digitale_analyse_proces": {},
+                        "start_rapport_bewoners": {},
+                        "start_signal_process": {},
+                        "start_terugkoppelen_bi": {},
+                        "start_terugmelding_bag": {},
+                        "start_uit_termijn_lopen": {},
+                        "start_uitkomst_corporatie_proces": {},
+                        "start_versturen_van_waarschuwingsbrief": {},
+                        "start_verzoek_opheffing_openbaarmaking_namen": {},
+                        "start_vorderen_inlichtingen": {},
                     },
                 },
             },

@@ -31,6 +31,7 @@ def create_script_engine(
     wait_for_workflows_and_send_message=None,
     script_wait=None,
     start_subworkflow=None,
+    create_and_start_director_workflow=None,
     create_and_start_subworkflow=None,
     parse_duration=None,
     get_data=None,
@@ -46,6 +47,7 @@ def create_script_engine(
         wait_for_workflows_and_send_message: Function to wait for workflows and send messages (optional)
         script_wait: Function for script waiting (optional)
         start_subworkflow: Function to start subworkflows (optional)
+        create_and_start_director_workflow: Function to create and start director workflows (optional) with a message name
         create_and_start_subworkflow: Function to create and start subworkflows in sub_workflow.bpmn (optional)
         parse_duration: Function to parse duration strings (optional)
         get_data: Function to get data from workflow (optional)
@@ -73,6 +75,11 @@ def create_script_engine(
                 "start_subworkflow": (
                     start_subworkflow
                     if start_subworkflow is not None
+                    else lambda *args: None
+                ),
+                "create_and_start_director_workflow": (
+                    create_and_start_director_workflow
+                    if create_and_start_director_workflow is not None
                     else lambda *args: None
                 ),
                 "create_and_start_subworkflow": (
@@ -1313,7 +1320,8 @@ def extract_subworkflow_message_versions():
 def filter_messages_by_max_major_version(max_version):
     """
     Filters the message versions extracted from the subworkflow,
-    keeping only those with a major version number lower than the given max_version.
+    keeping only those with a major version number lower than or equal to
+    the major version of the given max_version.
     Returns a dictionary of message names and their versions.
     """
 
@@ -1324,8 +1332,10 @@ def filter_messages_by_max_major_version(max_version):
 
     all_versions = extract_subworkflow_message_versions()
 
-    return {
+    versions_up_to_max_major = {
         name: version
         for name, version in all_versions.items()
-        if get_major(version) < max_major
+        if get_major(version) <= max_major
     }
+
+    return versions_up_to_max_major
