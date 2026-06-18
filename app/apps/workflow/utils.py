@@ -1320,7 +1320,8 @@ def extract_subworkflow_message_versions():
 def filter_messages_by_max_major_version(max_version):
     """
     Filters the message versions extracted from the subworkflow,
-    keeping only those with a major version number lower than the given max_version.
+    keeping only those with a major version number lower than or equal to
+    the major version of the given max_version.
     Returns a dictionary of message names and their versions.
     """
 
@@ -1331,8 +1332,10 @@ def filter_messages_by_max_major_version(max_version):
 
     all_versions = extract_subworkflow_message_versions()
 
-    return {
+    versions_up_to_max_major = {
         name: version
         for name, version in all_versions.items()
-        if get_major(version) < max_major
+        if get_major(version) <= max_major
     }
+
+    return versions_up_to_max_major
