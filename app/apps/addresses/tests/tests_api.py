@@ -152,6 +152,7 @@ class AddressCasesApiTest(APITestCase):
             "theme",
             "workflows",
             "reason",
+            "ton_ids",
         }
 
         address = baker.make(Address, bag_id=BAG_ID)
