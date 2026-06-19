@@ -319,4 +319,5 @@ class AddressCaseListSerializer(serializers.ModelSerializer):
             "theme",
             "workflows",
             "reason",
+            "ton_ids",
         )
