@@ -27,6 +27,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 USE_TZ = True
 TIME_ZONE = "Europe/Amsterdam"
+LANGUAGE_CODE = "nl"
 
 ZAKEN_CONTAINER_HOST = os.getenv("ZAKEN_CONTAINER_HOST")
 

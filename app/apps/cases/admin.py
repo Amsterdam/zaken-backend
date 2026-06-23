@@ -102,11 +102,85 @@ def remove_advertisement_linklist_items(modeladmin, request, queryset):
         citizen_report.save()
 
 
+# ---------------------------------------------------------------------------
+# Bewaartermijnen / vernietigingsprotocol (informatiebeheer)
+# ---------------------------------------------------------------------------
+#
+# Bewaartermijnen in jaren voor toezicht en handhaving.
+BEWAARTERMIJN_TOEZICHT_JAREN = 5
+BEWAARTERMIJN_HANDHAVING_JAREN = 10
+
+# Hardcoded selectiecategorieën t.b.v. het vernietigingsprotocol.
+SELECTIECATEGORIE_TOEZICHT = "12.1"
+SELECTIECATEGORIE_HANDHAVING = "12.2"
+
+
+def _has_handhaving_state(case):
+    """
+    Geeft True terug als deze case ooit een CaseState met status
+    HANDHAVING heeft gehad.
+    """
+    return any(
+        case_state.status == CaseState.CaseStateChoice.HANDHAVING
+        for case_state in case.case_states.all()
+    )
+
+
+def get_bewaartermijn_status_label(case):
+    """
+    Status t.b.v. het vernietigingsprotocol: 'Handhaving' of 'Toezicht'.
+    Casten naar str voor Excel.
+    """
+    if _has_handhaving_state(case):
+        return str(_("Handhaving"))
+    return str(_("Toezicht"))
+
+
+def get_selectiecategorie(case):
+    """Hardcoded selectiecategorie op basis van de bewaartermijn-status."""
+    if _has_handhaving_state(case):
+        return SELECTIECATEGORIE_HANDHAVING
+    return SELECTIECATEGORIE_TOEZICHT
+
+
+def get_case_result_label(case):
+    """
+    Resultaat van de zaak, indien beschikbaar: het resultaat van de meest
+    recente CaseClose (op date_added). Geeft "" terug als er geen
+    CaseClose is, of als die geen result heeft.
+    """
+    case_close = max(
+        case.caseclose_set.all(),
+        key=lambda cc: cc.date_added
+        or timezone.datetime.min.replace(tzinfo=timezone.utc),
+        default=None,
+    )
+    if not case_close:
+        return ""
+    if case_close.result:
+        return case_close.result.name
+    return case_close.reason.name
+
+
 def export_queryset_to_excel(modeladmin, request, queryset):
+    queryset = queryset.select_related("address", "theme", "reason").prefetch_related(
+        "case_states", "caseclose_set__result", "caseclose_set__reason"
+    )
+
     wb = Workbook()
     ws = wb.active
     ws.title = "Zaken"
-    headers = ["Zaak ID", "Address", "Thema", "Aanleiding", "Startdatum", "Einddatum"]
+    headers = [
+        "Zaak ID",
+        "Address",
+        "Thema",
+        "Aanleiding",
+        "Startdatum",
+        "Einddatum",
+        "Status",
+        "Selectiecategorie",
+        "Resultaat",
+    ]
     ws.append(headers)
 
     for case in queryset:
@@ -124,6 +198,9 @@ def export_queryset_to_excel(modeladmin, request, queryset):
                 case.reason.name,
                 start_date_formatted,
                 end_date_formatted,
+                get_bewaartermijn_status_label(case),
+                get_selectiecategorie(case),
+                get_case_result_label(case),
             ]
         )
 
@@ -148,33 +225,69 @@ class BewaartermijnFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         """Options that will appear in the filter dropdown."""
         return (
+            (
+                "verlopen",
+                _("Alle verlopen bewaartermijnen (toezicht + handhaving)"),
+            ),
             ("toezicht_5_jaar", _("Toezicht bewaartermijn (5 jaar)")),
             ("handhaving_10_jaar", _("Handhaving bewaartermijn (10 jaar)")),
+        )
+
+    def _toezicht_queryset(self, queryset):
+        """
+        Cases die meer dan 5 jaar geleden zijn beëindigd en NOOIT
+        status HANDHAVING hebben gehad.
+        """
+        five_years_ago = timezone.now().date() - timedelta(
+            days=BEWAARTERMIJN_TOEZICHT_JAREN * 365
+        )
+        return queryset.exclude(
+            Exists(
+                CaseState.objects.filter(
+                    case=OuterRef("pk"),
+                    status=CaseState.CaseStateChoice.HANDHAVING,
+                )
+            )
+        ).filter(end_date__lt=five_years_ago)
+
+    def _handhaving_queryset(self, queryset):
+        """
+        Cases die meer dan 10 jaar geleden zijn beëindigd en OOIT
+        status HANDHAVING hebben gehad.
+        """
+        ten_years_ago = timezone.now().date() - timedelta(
+            days=BEWAARTERMIJN_HANDHAVING_JAREN * 365
+        )
+        return queryset.filter(
+            Exists(
+                CaseState.objects.filter(
+                    case=OuterRef("pk"),
+                    status=CaseState.CaseStateChoice.HANDHAVING,
+                )
+            ),
+            end_date__lt=ten_years_ago,
         )
 
     def queryset(self, request, queryset):
         """Filter the queryset based on the selected filter option."""
         if self.value() == "toezicht_5_jaar":
-            # Filter cases that ended more than 5 years ago and have NO status HANDHAVING
-            five_years_ago = timezone.now().date() - timedelta(days=5 * 365)
-            return queryset.exclude(
-                Exists(
-                    CaseState.objects.filter(
-                        case=OuterRef("pk"), status=CaseState.CaseStateChoice.HANDHAVING
-                    )
-                )
-            ).filter(end_date__lt=five_years_ago)
+            return self._toezicht_queryset(queryset)
         elif self.value() == "handhaving_10_jaar":
-            # Filter cases that ended more than 10 years ago and have a status HANDHAVING
-            ten_years_ago = timezone.now().date() - timedelta(days=10 * 365)
-            return queryset.filter(
-                Exists(
-                    CaseState.objects.filter(
-                        case=OuterRef("pk"), status=CaseState.CaseStateChoice.HANDHAVING
-                    )
-                ),
-                end_date__lt=ten_years_ago,
+            return self._handhaving_queryset(queryset)
+        elif self.value() == "verlopen":
+            # Combinatie van beide bewaartermijnen in één resultaat, zodat
+            # er voor het vernietigingsprotocol één Excel-export gemaakt
+            # kan worden i.p.v. twee losse. We combineren op pk omdat de
+            # twee deelquerysets allebei een eigen Exists()-subquery
+            # bevatten; los van elkaar |-en op querysetniveau zou tot
+            # dubbele JOINs/onverwachte resultaten kunnen leiden.
+            toezicht_ids = self._toezicht_queryset(queryset).values_list(
+                "pk", flat=True
             )
+            handhaving_ids = self._handhaving_queryset(queryset).values_list(
+                "pk", flat=True
+            )
+            return queryset.filter(pk__in=set(toezicht_ids) | set(handhaving_ids))
         return queryset
 
 
