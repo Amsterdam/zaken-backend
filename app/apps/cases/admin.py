@@ -127,8 +127,8 @@ def _has_handhaving_state(case):
 
 
 def get_bewaartermijn_status_label(case):
-    """Status t.b.v. het vernietigingsprotocol: 'Handhaving' of 'Toezicht'.
-
+    """
+    Status t.b.v. het vernietigingsprotocol: 'Handhaving' of 'Toezicht'.
     Casten naar str voor Excel.
     """
     if _has_handhaving_state(case):
@@ -137,7 +137,7 @@ def get_bewaartermijn_status_label(case):
 
 
 def get_selectiecategorie(case):
-    """Hardcoded selectiecategorie op basis van 'Handhaving' of 'Toezicht'."""
+    """Hardcoded selectiecategorie op basis van de bewaartermijn-status."""
     if _has_handhaving_state(case):
         return SELECTIECATEGORIE_HANDHAVING
     return SELECTIECATEGORIE_TOEZICHT
@@ -155,14 +155,16 @@ def get_case_result_label(case):
         or timezone.datetime.min.replace(tzinfo=timezone.utc),
         default=None,
     )
-    if case_close and case_close.result:
+    if not case_close:
+        return ""
+    if case_close.result:
         return case_close.result.name
-    return ""
+    return case_close.reason.name
 
 
 def export_queryset_to_excel(modeladmin, request, queryset):
     queryset = queryset.select_related("address", "theme", "reason").prefetch_related(
-        "case_states", "caseclose_set__result"
+        "case_states", "caseclose_set__result", "caseclose_set__reason"
     )
 
     wb = Workbook()
@@ -232,8 +234,10 @@ class BewaartermijnFilter(admin.SimpleListFilter):
         )
 
     def _toezicht_queryset(self, queryset):
-        """Cases die meer dan 5 jaar geleden zijn beëindigd en NOOIT
-        status HANDHAVING hebben gehad."""
+        """
+        Cases die meer dan 5 jaar geleden zijn beëindigd en NOOIT
+        status HANDHAVING hebben gehad.
+        """
         five_years_ago = timezone.now().date() - timedelta(
             days=BEWAARTERMIJN_TOEZICHT_JAREN * 365
         )
@@ -247,8 +251,10 @@ class BewaartermijnFilter(admin.SimpleListFilter):
         ).filter(end_date__lt=five_years_ago)
 
     def _handhaving_queryset(self, queryset):
-        """Cases die meer dan 10 jaar geleden zijn beëindigd en OOIT
-        status HANDHAVING hebben gehad."""
+        """
+        Cases die meer dan 10 jaar geleden zijn beëindigd en OOIT
+        status HANDHAVING hebben gehad.
+        """
         ten_years_ago = timezone.now().date() - timedelta(
             days=BEWAARTERMIJN_HANDHAVING_JAREN * 365
         )
