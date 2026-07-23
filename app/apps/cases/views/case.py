@@ -267,12 +267,12 @@ class CaseFilter(filters.FilterSet):
         elif street_match:
             street_name = street_match.group(1).strip()
             house_number = street_match.group(2)
-            filters = Q(address__street_name__icontains=street_name)
+            filters = Q(address__street_name__unaccent__icontains=street_name)
             if house_number:
                 filters &= Q(address__number=int(house_number))
             return queryset.filter(filters)
 
-        return queryset.filter(address__street_name__icontains=value)
+        return queryset.filter(address__street_name__unaccent__icontains=value)
 
     def get_street_name(self, queryset, name, value):
         """
@@ -291,7 +291,7 @@ class CaseFilter(filters.FilterSet):
             )
 
         # Search for street name
-        return queryset.filter(address__street_name__icontains=value)
+        return queryset.filter(address__street_name__unaccent__icontains=value)
 
     def get_number(self, queryset, name, value):
         return queryset.filter(address__number=value)
