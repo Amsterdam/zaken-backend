@@ -41,7 +41,10 @@ class FeedbackViewset(GenericAPIView):
                 {
                     "type": "section",
                     "fields": [
-                        {"type": "mrkdwn", "text": "*Applicatie:*\n:house: AZA"},
+                        {
+                            "type": "mrkdwn",
+                            "text": f"*Applicatie:*\n:house: {data['app_name']}",
+                        },
                         {"type": "mrkdwn", "text": f"*E-mail:*\n {data['user'].email}"},
                     ],
                 },

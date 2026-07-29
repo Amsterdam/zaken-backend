@@ -9,3 +9,4 @@ class FeedbackSerializer(serializers.Serializer):
     screen = serializers.CharField(
         required=False
     )  # Optional field for screen (viewport browser)
+    app_name = serializers.CharField(required=False, default="AZA")
