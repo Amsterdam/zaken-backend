@@ -22,7 +22,7 @@ class ScheduleAdmin(admin.ModelAdmin):
         "priority",
         "visit_from_datetime",
     )
-    search_fields = ("case__id",)
+    search_fields = ("=case__id",)
 
     list_filter = (
         "date_added",

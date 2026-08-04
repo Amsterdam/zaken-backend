@@ -116,7 +116,7 @@ class CaseWorkflowAdmin(admin.ModelAdmin):
         "spiff_workflow_version",
         "spiff_serializer_version",
     )
-    search_fields = ("case__id",)
+    search_fields = ("=case__id",)
 
     autocomplete_fields = ("case_state_type",)
     readonly_fields = (
@@ -331,7 +331,7 @@ class CaseTaskAdmin(admin.ModelAdmin):
     )
     search_fields = (
         "id",
-        "case__id",
+        "=case__id",
         "name",
         "task_name",
     )
@@ -392,7 +392,7 @@ class GenericCompletedTaskAdmin(admin.ModelAdmin):
         "case_user_task_id",
     )
     search_fields = (
-        "case__id",
+        "=case__id",
         "description",
     )
     autocomplete_fields = ("case", "author")
