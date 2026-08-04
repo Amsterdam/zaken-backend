@@ -18,4 +18,4 @@ class VisitAdmin(admin.ModelAdmin):
         "start_time",
         "case__theme",
     )
-    search_fields = ("case__id",)
+    search_fields = ("=case__id",)

@@ -316,8 +316,7 @@ class CaseAdmin(admin.ModelAdmin):
         "tags",
     )
     search_fields = (
-        "id",
-        "legacy_bwv_case_id",
+        "=id",
         "address__street_name",
         "address__postal_code",
     )
@@ -354,7 +353,7 @@ class CaseStateAdmin(admin.ModelAdmin):
         "created",
         "last_updated",
     )
-    search_fields = ("case__id",)
+    search_fields = ("=case__id",)
 
 
 @admin.register(CaseStateType)
@@ -382,7 +381,7 @@ class CitizenReportAdmin(admin.ModelAdmin):
         "case_user_task_id",
         "advertisement_linklist",
     )
-    search_fields = ("case__id",)
+    search_fields = ("=case__id",)
     actions = (
         migrate_advertisement_linklist_items,
         remove_advertisement_linklist_items,
@@ -471,7 +470,7 @@ class CaseCloseAdmin(admin.ModelAdmin):
         "date_added",
         "case_user_task_id",
     )
-    search_fields = ("case__id",)
+    search_fields = ("=case__id",)
     list_filter = ("reason", "date_added")
     autocomplete_fields = ("case",)
     ordering = ("-date_added", "-id")
@@ -489,4 +488,4 @@ class AdvertisementAdmin(admin.ModelAdmin):
         "link",
         "related_object",
     )
-    search_fields = ("case__id",)
+    search_fields = ("=case__id",)

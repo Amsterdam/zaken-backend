@@ -13,8 +13,14 @@ class QuickDecisionAdmin(admin.ModelAdmin):
     )
     list_filter = ("date_added",)
     date_hierarchy = "date_added"
-    search_fields = ("case__id",)
-    list_editable = ("quick_decision_type",)
+    search_fields = ("=case__id",)
+    list_select_related = (
+        "case",
+        "quick_decision_type",
+        "quick_decision_type__theme",
+        "author",
+    )
+    autocomplete_fields = ("case", "quick_decision_type", "summon")
 
 
 class QuickDecisionTypeAdmin(admin.ModelAdmin):

@@ -27,8 +27,9 @@ class SummonAdmin(admin.ModelAdmin):
         "case__theme",
         "type",
     )
-    search_fields = ("case__id",)
-    list_editable = ("type",)
+    search_fields = ("=case__id",)
+    list_select_related = ("case", "type", "type__theme")
+    autocomplete_fields = ("case", "type")
 
 
 admin.site.register(
