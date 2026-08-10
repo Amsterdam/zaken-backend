@@ -771,7 +771,11 @@ def ff_workflow(
 
 
 def ff_to_subworkflow(subworkflow, spec, message_name, data):
-    script_engine = create_script_engine()
+    def get_data(field_name):
+        value = data.get(field_name)
+        return value.get("value") if isinstance(value, dict) else value
+
+    script_engine = create_script_engine(get_data=get_data)
     workflow = BpmnWorkflow(spec, script_engine=script_engine)
 
     first_task = workflow.get_tasks(state=TaskState.READY)[0]
@@ -800,6 +804,7 @@ def ff_to_subworkflow(subworkflow, spec, message_name, data):
     ready_tasks = get_waiting_tasks(workflow)
     completed = []
     success = False
+
     while len(ready_tasks) > 0:
         for task in ready_tasks:
             if (
