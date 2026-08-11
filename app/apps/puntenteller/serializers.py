@@ -6,7 +6,7 @@ class GebouwDataSerializer(serializers.Serializer):
     straat = serializers.CharField(allow_null=True)
     huisnummer = serializers.CharField(allow_null=True)
     bouwjaar = serializers.IntegerField(allow_null=True)
-    oppervlakte = serializers.IntegerField(allow_null=True)
+    gebruiksoppervlakte = serializers.IntegerField(allow_null=True)
     woz = serializers.IntegerField(allow_null=True)
     woz_jaar = serializers.IntegerField(allow_null=True)
     wozobjectnummer = serializers.IntegerField(allow_null=True)

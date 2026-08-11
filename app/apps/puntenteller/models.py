@@ -166,6 +166,21 @@ class Kengetal(models.Model):
     bijzondere_voorziening_laadpaal_factor = models.DecimalField(
         max_digits=8, decimal_places=2, default=1.00
     )
+    woz_gemiddelde_regio_per_m2 = models.DecimalField(
+        max_digits=8, decimal_places=2, default=7111.00
+    )
+    woz_percentage_grens = models.DecimalField(
+        max_digits=5, decimal_places=2, default=10.00
+    )
+    woz_punten_boven_grens = models.DecimalField(
+        max_digits=8, decimal_places=2, default=14.00
+    )
+    woz_punten_binnen_grens = models.DecimalField(
+        max_digits=8, decimal_places=2, default=12.00
+    )
+    woz_punten_onder_grens = models.DecimalField(
+        max_digits=8, decimal_places=2, default=10.00
+    )
 
     class Meta:
         ordering = ["-id"]
@@ -252,6 +267,7 @@ class Gebruikersinvoer(models.Model):
     parkeerruimte_buiten_bij_complex_met_dak = models.PositiveIntegerField(default=0)
     parkeerruimte_buiten_bij_complex_zonder_dak = models.PositiveIntegerField(default=0)
     energielabel_klasse = models.CharField(max_length=10, null=True, blank=True)
+    gebruiksoppervlakte = models.PositiveIntegerField(default=0)
     woz_waarde = models.PositiveIntegerField(default=0)
     woz_peildatum_jaar = models.PositiveIntegerField(default=2025)
     monument = models.BooleanField(default=False)

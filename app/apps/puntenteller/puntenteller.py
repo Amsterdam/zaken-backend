@@ -28,6 +28,7 @@ class Puntenteller:
         totaal += self._verkoeling_punten()
         totaal += self._buitenruimte_punten()
         totaal += self._parkeerruimte_punten()
+        totaal += self._woz_punten()
         totaal += self._bijzondere_voorzieningen_punten()
         return float(totaal)
 
@@ -279,6 +280,27 @@ class Puntenteller:
             * self.kengetal.parkeerruimte_buiten_bij_complex_zonder_dak_factor
         )
         return totaal
+
+    # Bepaalt WOZ-punten door de WOZ-waarde per m2 te vergelijken met het
+    # regionale gemiddelde en daarna de geconfigureerde puntstaffel toe te passen.
+    def _woz_punten(self):
+        gebruiksoppervlakte = self._aantal_of_nul(
+            self.gebruikersinvoer.gebruiksoppervlakte
+        )
+        woz_waarde = self._aantal_of_nul(self.gebruikersinvoer.woz_waarde)
+        if gebruiksoppervlakte <= 0 or woz_waarde <= 0:
+            return Decimal("0")
+
+        woz_per_m2 = self._waarde(woz_waarde) / Decimal(gebruiksoppervlakte)
+        gemiddelde = self.kengetal.woz_gemiddelde_regio_per_m2
+        grens_factor = self.kengetal.woz_percentage_grens / Decimal("100")
+        ondergrens = gemiddelde * (Decimal("1") - grens_factor)
+        bovengrens = gemiddelde * (Decimal("1") + grens_factor)
+        if woz_per_m2 > bovengrens:
+            return self.kengetal.woz_punten_boven_grens
+        if woz_per_m2 < ondergrens:
+            return self.kengetal.woz_punten_onder_grens
+        return self.kengetal.woz_punten_binnen_grens
 
     def _bijzondere_voorzieningen_punten(self):
         totaal = Decimal("0")

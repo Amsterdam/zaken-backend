@@ -62,7 +62,7 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
 
         try:
             energie_data = get_energie_label(adres.bag_id)
-            oppervlakte = get_oppervlakte(adres.bag_id)
+            gebruiksoppervlakte = get_oppervlakte(adres.bag_id)
             woz_data = get_woz(adres.nummeraanduiding_id)
         except Exception as exception:
             logger.exception("Fout bij ophalen van externe gebouwdata", exception)
@@ -76,7 +76,7 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
                 "straat": adres.street_name,
                 "huisnummer": adres.number,
                 "bouwjaar": energie_data.get("bouwjaar") if energie_data else None,
-                "oppervlakte": oppervlakte,
+                "gebruiksoppervlakte": gebruiksoppervlakte,
                 "woz": woz_data.get("woz") if woz_data else None,
                 "woz_jaar": woz_data.get("woz_jaar") if woz_data else None,
                 "wozobjectnummer": (
