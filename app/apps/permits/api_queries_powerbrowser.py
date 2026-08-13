@@ -8,16 +8,18 @@ from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
-BED_AND_BREAKFAST_PRODUCT = "bed en breakfast"
-
 
 def is_valid_bed_and_breakfast_permit(permit, reference_dt=None):
+    BED_AND_BREAKFAST_PRODUCT = "bed en breakfast"
+
     if reference_dt is None:
         reference_dt = timezone.now()
 
-    if not _contains_bed_and_breakfast_marker(permit):
+    if not (permit.get("product") or "").lower() == BED_AND_BREAKFAST_PRODUCT:
         return False
 
+    # PowerBrowser maps the permit start date into `einddatum`, and only
+    # permits with verleend should only count as valid B&B permits.
     result = (permit.get("resultaat") or "").lower()
     permit_start_dt = permit.get("einddatum")
     # permit_end_dt = permit.get("datuM_TOT")
@@ -92,7 +94,3 @@ class PowerbrowserRequest:
         url = os.path.join(self.base_url, "report/runsavedreport")
         response = self._perform_api_call(url, json=json, bearer_token=bearer_token)
         return response.json()
-
-
-def _contains_bed_and_breakfast_marker(permit):
-    return (permit.get("product") or "").lower() == BED_AND_BREAKFAST_PRODUCT
