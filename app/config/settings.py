@@ -461,6 +461,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "apps.health.tasks.query_every_five_mins",
         "schedule": crontab(minute=5),
     },
+    "update_is_bed_and_breakfast_cases_daily": {
+        "task": "apps.cases.tasks.task_update_is_bed_and_breakfast_cases",
+        "schedule": crontab(hour=1, minute=0),
+    },
 }
 
 
@@ -475,8 +479,8 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
 
 
 LOGOUT_REDIRECT_URL = "/admin"
-
-DEFAULT_THEME = os.getenv("DEFAULT_THEME", "Vakantieverhuur")
+VAKANTIEVERHUUR_THEME = "Vakantieverhuur"
+DEFAULT_THEME = os.getenv("DEFAULT_THEME", VAKANTIEVERHUUR_THEME)
 DEFAULT_REASON = os.getenv("DEFAULT_REASON", "SIG melding")
 
 DEFAULT_SCHEDULE_ACTIONS = os.getenv("DEFAULT_SCHEDULE_ACTIONS").split(",")

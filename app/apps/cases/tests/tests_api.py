@@ -253,6 +253,18 @@ class CaseListApiTest(APITestCase):
         results = response.data["results"]
         self.assertEqual(len(results), CLOSED_CASES_QUANTITY)
 
+    def test_filter_is_bed_and_breakfast(self):
+        baker.make(Case, is_bed_and_breakfast=True)
+        baker.make(Case, is_bed_and_breakfast=False)
+
+        url = reverse("cases-list")
+        client = get_authenticated_client()
+        response = client.get(url, {"is_bed_and_breakfast": "true"})
+
+        results = response.data["results"]
+        self.assertEqual(len(results), 1)
+        self.assertTrue(results[0]["is_bed_and_breakfast"])
+
     def test_filter_theme(self):
         THEME_A = "THEME A"
         THEME_B = "THEME B"
