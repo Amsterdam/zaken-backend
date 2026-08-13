@@ -104,6 +104,7 @@ class CaseFilter(filters.FilterSet):
         method="filter_housing_corporation_isnull"
     )
     ids = IntArrayFilter(field_name="id", lookup_expr="in")
+    is_bed_and_breakfast = filters.BooleanFilter(field_name="is_bed_and_breakfast")
     is_enforcement_request = filters.BooleanFilter(
         method="get_enforcement_request_cases"
     )
@@ -427,6 +428,9 @@ class StandardResultsSetPagination(EmptyPagination):
             "housing_corporation_isnull", OpenApiTypes.BOOL, OpenApiParameter.QUERY
         ),
         OpenApiParameter("ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter(
+            "is_bed_and_breakfast", OpenApiTypes.BOOL, OpenApiParameter.QUERY
+        ),
         OpenApiParameter(
             "is_enforcement_request", OpenApiTypes.BOOL, OpenApiParameter.QUERY
         ),

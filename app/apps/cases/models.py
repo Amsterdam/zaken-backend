@@ -161,6 +161,7 @@ class Case(ModelEventEmitter):
         blank=True,
         help_text="This field determines if the case is deleted in openzaak.",
     )
+    is_bed_and_breakfast = models.BooleanField(default=False)
 
     def __get_event_values__(self):
         reason = self.reason.name
