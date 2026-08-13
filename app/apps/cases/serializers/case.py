@@ -1,3 +1,5 @@
+import logging
+
 from apps.addresses.models import Address, HousingCorporation
 from apps.addresses.serializers import (
     AddressSerializer,
@@ -22,10 +24,14 @@ from apps.cases.serializers.main import (
     SubjectSerializer,
     TagSerializer,
 )
+from apps.permits.api_queries_powerbrowser import get_is_bed_and_breakfast_for_bag_id
 from apps.schedules.serializers import ScheduleDataSerializer, ScheduleSerializer
 from apps.workflow.serializers import CaseWorkflowBaseSerializer, CaseWorkflowSerializer
+from django.conf import settings
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from rest_framework import serializers
+
+logger = logging.getLogger(__name__)
 
 
 class BaseCaseSerializer(serializers.ModelSerializer):
@@ -72,6 +78,7 @@ class BaseCaseSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         bag_id = validated_data.pop("bag_id")
         housing_corporation = validated_data.pop("housing_corporation", None)
+        theme = validated_data.get("theme")
         address = Address.get_or_create_by_bag_id(bag_id)
         if housing_corporation and not address.housing_corporation:
             address.housing_corporation = housing_corporation
@@ -80,6 +87,18 @@ class BaseCaseSerializer(serializers.ModelSerializer):
             raise Exception(
                 f"You can not change the housing_corporation for a existing address: {address.housing_corporation}, new {housing_corporation}"
             )
+
+        if theme and theme.name == settings.VAKANTIEVERHUUR_THEME:
+            try:
+                validated_data["is_bed_and_breakfast"] = (
+                    get_is_bed_and_breakfast_for_bag_id(bag_id)
+                )
+            except Exception as exc:
+                logger.exception(
+                    "Failed to determine is_bed_and_breakfast for case creation with bag_id=%s: %s",
+                    bag_id,
+                    exc,
+                )
 
         case = super().create(validated_data)
 
