@@ -811,19 +811,7 @@ class task_monitoren_binnenkomen_reactie_2(user_task):
 
 
 class task_close_case_concept(user_task):
-    @staticmethod
-    def get_due_date(case_user_task):
-        from apps.decisions.models import Decision
-
-        non_renounced_decisions = Decision.objects.filter(
-            case=case_user_task.case
-        ).exclude(decision_type__workflow_option="no_decision")
-
-        return (
-            relativedelta(months=13)
-            if non_renounced_decisions.count()
-            else relativedelta(weeks=1)
-        )
+    due_date = relativedelta(weeks=1)
 
 
 class task_opstellen_intrekkingen(user_task):
