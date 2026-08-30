@@ -38,21 +38,21 @@ def get_woz(nummeraanduiding_id):
         headers={"Accept": "application/json"},
     )
     response.raise_for_status()
-    response_data = response.json()
-    waarden = response_data.get("wozWaarden", [])
-    woz_object = response_data.get("wozObject", {})
-    if not waarden:
-        return {
-            "woz": None,
-            "woz_jaar": None,
-            "wozobjectnummer": woz_object.get("wozobjectnummer"),
-        }
 
-    laatste_waarde = max(waarden, key=lambda item: item.get("peildatum") or "")
-    peildatum = laatste_waarde.get("peildatum")
+    response_data = response.json()
+
+    woz_object = response_data.get("wozObject", {})
+    woz_waarden = response_data.get("wozWaarden", [])
+
     return {
-        "woz": laatste_waarde.get("vastgesteldeWaarde"),
-        "woz_jaar": int(peildatum.split("-")[0]) if peildatum else None,
+        "woz_waarden": [
+            {
+                "peildatum": waarde["peildatum"],
+                "vastgestelde_waarde": waarde["vastgesteldeWaarde"],
+            }
+            for waarde in woz_waarden
+        ]
+        or None,
         "wozobjectnummer": woz_object.get("wozobjectnummer"),
     }
 

@@ -77,8 +77,7 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
                 "huisnummer": adres.number,
                 "bouwjaar": energie_data.get("bouwjaar") if energie_data else None,
                 "gebruiksoppervlakte": gebruiksoppervlakte,
-                "woz": woz_data.get("woz") if woz_data else None,
-                "woz_jaar": woz_data.get("woz_jaar") if woz_data else None,
+                "woz_waarden": woz_data.get("woz_waarden") if woz_data else None,
                 "wozobjectnummer": (
                     woz_data.get("wozobjectnummer") if woz_data else None
                 ),
