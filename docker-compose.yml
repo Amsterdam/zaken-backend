@@ -3,7 +3,7 @@ services:
   zaak-gateway:
     build: app
     hostname: zaak-gateway
-    image: ${REGISTRY:-127.0.0.1:5001}/${REPOSITORY:-ams-woon/zaken/backend}:${VERSION:-latest}
+    image: ${REGISTRY:-127.0.0.1:5001}/${REPOSITORY:-ams-woon/aza/backend}:${VERSION:-latest}
     ports:
       - 8080:8000
       - 5678:5678
