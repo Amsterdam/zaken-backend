@@ -116,5 +116,7 @@ class PuntentellingViewSet(GenericViewSet, RetrieveModelMixin):
 
 def _met_punten(gebruikersinvoer):
     response_data = GebruikersinvoerSerializer(gebruikersinvoer).data
-    response_data["punten"] = Puntenteller(gebruikersinvoer).bereken()
+    resultaat = Puntenteller(gebruikersinvoer).bereken_resultaat()
+    response_data["punten"] = resultaat.totaal_punten_na_caps
+    response_data["punten_resultaat"] = resultaat.as_dict()
     return response_data

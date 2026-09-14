@@ -2,6 +2,33 @@ from apps.addresses.models import Address
 from django.conf import settings
 from django.db import models
 
+DEFAULT_WOZ_KENGETALLEN_PER_PEILJAAR = {
+    "2025": {
+        "onderdeel_1": "16954",
+        "onderdeel_2": "268",
+        "onderdeel_2_kleine_nieuwbouwwoning": "114",
+    },
+    "2024": {
+        "onderdeel_1": "15329",
+        "onderdeel_2": "242",
+        "onderdeel_2_kleine_nieuwbouwwoning": "103",
+    },
+    "2023": {
+        "onderdeel_1": "14543",
+        "onderdeel_2": "229",
+        "onderdeel_2_kleine_nieuwbouwwoning": "97",
+    },
+    "2022": {
+        "onderdeel_1": "14146",
+        "onderdeel_2": "222",
+        "onderdeel_2_kleine_nieuwbouwwoning": "94",
+    },
+}
+
+
+def default_woz_kengetallen_per_peiljaar():
+    return DEFAULT_WOZ_KENGETALLEN_PER_PEILJAAR.copy()
+
 
 class Kengetal(models.Model):
     badkamer_toilet_hangend_factor = models.DecimalField(
@@ -166,6 +193,9 @@ class Kengetal(models.Model):
     bijzondere_voorziening_laadpaal_factor = models.DecimalField(
         max_digits=8, decimal_places=2, default=1.00
     )
+    woz_kengetallen_per_peiljaar = models.JSONField(
+        default=default_woz_kengetallen_per_peiljaar
+    )
     woz_gemiddelde_regio_per_m2 = models.DecimalField(
         max_digits=8, decimal_places=2, default=7111.00
     )
@@ -270,6 +300,11 @@ class Gebruikersinvoer(models.Model):
     gebruiksoppervlakte = models.PositiveIntegerField(default=0)
     woz_waarde = models.PositiveIntegerField(default=0)
     woz_peildatum_jaar = models.PositiveIntegerField(default=2025)
+    woz_kleine_nieuwbouwwoning = models.BooleanField(default=False)
+    woz_nieuwbouw_2015_2019 = models.BooleanField(default=False)
+    woz_bouwvoltooiingspercentage = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True
+    )
     monument = models.BooleanField(default=False)
     monument_soort = models.CharField(max_length=255, null=True, blank=True)
     bijzondere_voorziening_intercom_met_beeld = models.PositiveIntegerField(default=0)
