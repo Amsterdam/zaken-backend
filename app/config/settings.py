@@ -78,6 +78,7 @@ INSTALLED_APPS = (
     "apps.schedules",
     "apps.workflow",
     "apps.feedback",
+    "apps.puntenteller",
 )
 
 DATABASE_HOST = os.getenv("DATABASE_HOST", "database")
@@ -263,6 +264,19 @@ BAG_API_BENKAGG_SEARCH_URL = os.getenv(
     "BAG_API_BENKAGG_SEARCH_URL",
     "https://api.data.amsterdam.nl/v1/benkagg/adresseerbareobjecten/",
 )
+PUNTENTELLER_ENERGIELABEL_API_URL = os.getenv(
+    "PUNTENTELLER_ENERGIELABEL_API_URL",
+    "https://api.data.amsterdam.nl/v1/duurzaamheid/energielabel",
+)
+PUNTENTELLER_VERBLIJFSOBJECT_API_URL = os.getenv(
+    "PUNTENTELLER_VERBLIJFSOBJECT_API_URL",
+    "https://api.data.amsterdam.nl/v1/bag/v1/verblijfsobjecten",
+)
+PUNTENTELLER_WOZ_API_URL = os.getenv(
+    "PUNTENTELLER_WOZ_API_URL",
+    "https://",
+)
+
 # Bag_id of Amstel 1 for testing purposes.
 BAG_ID_AMSTEL_1 = os.getenv(
     "BAG_ID_AMSTEL_1",
