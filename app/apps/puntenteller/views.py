@@ -36,7 +36,9 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         gebruikersinvoer = serializer.save(adres=adres, gebruiker=request.user)
-        return Response(_met_punten(gebruikersinvoer), status=status.HTTP_201_CREATED)
+        return Response(
+            _alleen_resultaten(gebruikersinvoer), status=status.HTTP_201_CREATED
+        )
 
     @action(
         detail=False,
@@ -120,3 +122,7 @@ def _met_punten(gebruikersinvoer):
     response_data["punten"] = resultaat.totaal_punten_na_caps
     response_data["punten_resultaat"] = resultaat.as_dict()
     return response_data
+
+
+def _alleen_resultaten(gebruikersinvoer):
+    return Puntenteller(gebruikersinvoer).bereken_resultaat().as_dict()

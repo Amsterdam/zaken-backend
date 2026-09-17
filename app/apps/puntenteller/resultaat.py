@@ -8,20 +8,8 @@ class PuntentellerResultaat:
     totaal_punten_bruto: float
     correcties: dict[str, float | bool | str | None]
     totaal_punten_na_caps: float
-    huurprijs_opslagen: dict[str, dict[str, float | bool | str]]
-    toelichting: dict[str, dict[str, float | bool | str | None]]
-    beleid_context: dict[str, str | None]
 
     def as_dict(self) -> dict:
-        return asdict(self)
-
-
-@dataclass
-class BeleidsContext:
-    peildatum: str | None = None
-    stelsel_versie: str = "2026-01-01"
-
-    def as_dict(self) -> dict[str, str | None]:
         return asdict(self)
 
 

@@ -1,12 +1,21 @@
 from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal
 from typing import TYPE_CHECKING
 
-from apps.puntenteller.models import Kengetal
+from apps.puntenteller.models import Kengetal, RuimteNaam
 from apps.puntenteller.resultaat import (
-    BeleidsContext,
     PuntentellerResultaat,
     WozBerekening,
     WozCapBerekening,
+)
+from apps.puntenteller.ruimte_types import (
+    BadkamerRuimte,
+    KeukenRuimte,
+    OverigeRuimte,
+    VerkeersRuimte,
+    ZolderRuimte,
+    maak_overige_ruimte,
+    maak_verkeersruimte,
+    maak_vertrek_ruimte,
 )
 
 if TYPE_CHECKING:
@@ -19,15 +28,9 @@ WOZ_CAP_PERCENTAGE = Decimal("0.33")
 class Puntenteller:
     gebruikersinvoer: "Gebruikersinvoer"
     kengetal: Kengetal
-    beleidscontext: BeleidsContext
 
-    def __init__(
-        self,
-        gebruikersinvoer: "Gebruikersinvoer",
-        beleidscontext: BeleidsContext | None = None,
-    ):
+    def __init__(self, gebruikersinvoer: "Gebruikersinvoer"):
         self.gebruikersinvoer = gebruikersinvoer
-        self.beleidscontext = beleidscontext or BeleidsContext()
         self.kengetal = Kengetal.objects.first()
         if not self.kengetal:
             raise Kengetal.DoesNotExist("Geen kengetal configuratie gevonden")
@@ -49,6 +52,9 @@ class Puntenteller:
                 "woz_cap_toegepast": woz_cap_berekening.toegepast,
                 "woz_cap_reden": woz_cap_berekening.reden,
                 "woz_voor_cap": float(woz_cap_berekening.woz_voor_cap),
+                "totaal_zonder_woz": float(
+                    totaal_bruto - rubrieken_decimal.get("woz", Decimal("0"))
+                ),
                 "woz_na_cap": float(woz_cap_berekening.woz_na_cap),
                 "woz_cap_uitgesloten": woz_cap_berekening.cap_uitgesloten,
                 "woz_cap_uitsluiting_reden": woz_cap_berekening.cap_uitsluiting_reden,
@@ -57,15 +63,6 @@ class Puntenteller:
                 ),
             },
             totaal_punten_na_caps=float(woz_cap_berekening.totaal_na_woz_correcties),
-            huurprijs_opslagen={},
-            toelichting={
-                "beleid_context": {
-                    "status": "voorbereid_op_gestructureerde_output",
-                },
-                "woz": woz_berekening.as_dict(),
-                "woz_cap": woz_cap_berekening.as_dict(),
-            },
-            beleid_context=self.beleidscontext.as_dict(),
         )
 
     def _rubriek_totalen(self) -> dict[str, Decimal]:
@@ -86,142 +83,29 @@ class Puntenteller:
 
     def _badkamer_punten(self):
         # Beleidsboek 2.6.1 en 2.6.2: sanitair in badkamer en extra sanitaire voorzieningen.
-        subtotal = Decimal("0")
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.badkamer_toilet_hangend)
-            * self.kengetal.badkamer_toilet_hangend_factor
+        return sum(
+            (
+                self._badkamer_punten_per_ruimte(badkamer)
+                for badkamer in self._badkamer_ruimten()
+            ),
+            Decimal("0"),
         )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.badkamer_toilet_normaal)
-            * self.kengetal.badkamer_toilet_normaal_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.badkamer_wastafel)
-            * self.kengetal.badkamer_wastafel_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.badkamer_meerpersoons_wastafel)
-            * self.kengetal.badkamer_meerpersoons_wastafel_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.badkamer_douche)
-            * self.kengetal.badkamer_douche_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.badkamer_bad)
-            * self.kengetal.badkamer_bad_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.badkamer_baddouche)
-            * self.kengetal.badkamer_baddouche_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.badkamer_bubbelfunctie_bad)
-            * self.kengetal.badkamer_bubbelfunctie_bad_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.badkamer_volledige_afscheiding_douche)
-            * self.kengetal.badkamer_volledige_afscheiding_douche_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.badkamer_handdoekenradiator)
-            * self.kengetal.badkamer_handdoekenradiator_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.badkamer_kast_bij_wastafel)
-            * self.kengetal.badkamer_kast_bij_wastafel_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.badkamer_kastruimte)
-            * self.kengetal.badkamer_kastruimte_factor
-        )
-        # Beleidsboek 2.6.2: stopcontacten tellen maximaal twee per
-        # (meerpersoons)wastafel mee. De huidige implementatie gebruikt nog een globale cap.
-        subtotal += (
-            Decimal(
-                min(
-                    self._aantal_of_nul(self.gebruikersinvoer.badkamer_stopcontacten),
-                    self.kengetal.badkamer_stopcontacten_max,
-                )
-            )
-            * self.kengetal.badkamer_stopcontacten_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.badkamer_eenhandsmengkraan)
-            * self.kengetal.badkamer_eenhandsmengkraan_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.badkamer_thermostatische_mengkraan)
-            * self.kengetal.badkamer_thermostatische_mengkraan_factor
-        )
-        return subtotal * self._waarde(self.gebruikersinvoer.badkamer_aantal_adressen)
 
     def _keuken_punten(self):
         # Beleidsboek 2.5.3: extra keukenvoorzieningen worden gewaardeerd naast het aanrecht.
         # De cap op extra keukenpunten is nog niet geïmplementeerd.
-        subtotal = self._keuken_aanrecht_punten()
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.keuken_inbouw_afzuiginstallatie)
-            * self.kengetal.keuken_inbouw_afzuiginstallatie_factor
+        return sum(
+            (
+                self._keuken_punten_per_ruimte(keuken)
+                for keuken in self._keuken_ruimten()
+            ),
+            Decimal("0"),
         )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.keuken_inbouw_kookplaat_inductie)
-            * self.kengetal.keuken_inbouw_kookplaat_inductie_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.keuken_inbouw_kookplaat_keramisch)
-            * self.kengetal.keuken_inbouw_kookplaat_keramisch_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.keuken_inbouw_kookplaat_gas)
-            * self.kengetal.keuken_inbouw_kookplaat_gas_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.keuken_inbouw_koelkast)
-            * self.kengetal.keuken_inbouw_koelkast_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.keuken_inbouw_vrieskast)
-            * self.kengetal.keuken_inbouw_vrieskast_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.keuken_inbouw_oven_elektrisch)
-            * self.kengetal.keuken_inbouw_oven_elektrisch_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.keuken_inbouw_oven_gas)
-            * self.kengetal.keuken_inbouw_oven_gas_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.keuken_inbouw_magnetron)
-            * self.kengetal.keuken_inbouw_magnetron_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.keuken_inbouw_vaatwasmachine)
-            * self.kengetal.keuken_inbouw_vaatwasmachine_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.keuken_extra_kastruimte)
-            * self.kengetal.keuken_extra_kastruimte_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.keuken_eenhandsmengkraan)
-            * self.kengetal.keuken_eenhandsmengkraan_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.keuken_thermostatische_mengkraan)
-            * self.kengetal.keuken_thermostatische_mengkraan_factor
-        )
-        subtotal += (
-            self._waarde(self.gebruikersinvoer.keuken_kokendwaterfunctie)
-            * self.kengetal.keuken_kokendwaterfunctie_factor
-        )
-        return subtotal * self._waarde(self.gebruikersinvoer.keuken_aantal_adressen)
 
-    def _keuken_aanrecht_punten(self):
+    def _keuken_aanrecht_punten(self, keuken: KeukenRuimte):
         # Beleidsboek 2.5.2: aanrechtlengte bepaalt de basispunten voor de keuken.
         # Let op: deze staffel volgt nog niet volledig de versie januari 2026 van het beleidsboek.
-        meters = self._waarde(self.gebruikersinvoer.keuken_aanrechtlengte_meters)
+        meters = keuken.aanrechtlengte_meters or Decimal("0")
         if meters < self.kengetal.keuken_aanrecht_grens_1:
             return self.kengetal.keuken_aanrecht_punten_1
         if meters < self.kengetal.keuken_aanrecht_grens_2:
@@ -246,41 +130,36 @@ class Puntenteller:
         return totaal
 
     def _vertrekken_punten(self):
-        # Beleidsboek 2.2: vertrekken worden op oppervlakte gewaardeerd.
-        factor = self.kengetal.vertrekken_factor
-        totaal = self._waarde(self.gebruikersinvoer.vertrekken_oppervlakte) * factor
-        totaal += self._waarde(self.gebruikersinvoer.vertrekken_1) * factor
-        totaal += self._waarde(self.gebruikersinvoer.vertrekken_2) * factor
-        totaal += self._waarde(self.gebruikersinvoer.vertrekken_3) * factor
-        totaal += self._waarde(self.gebruikersinvoer.vertrekken_4) * factor
-        totaal += self._waarde(self.gebruikersinvoer.vertrekken_5) * factor
-        totaal += self._waarde(self.gebruikersinvoer.vertrekken_6) * factor
-        return totaal
+        # Beleidsboek hoofdstuk 2, rubriek 1 en paragraaf 2.2:
+        # vertrekken tellen mee tegen 1 punt per m2 op basis van de lijst met
+        # vertrekobjecten met naam en oppervlakte.
+        return Decimal(str(self._vertrekken_berekening()["totaal"]))
 
     def _overige_ruimten_punten(self):
-        # Beleidsboek 2.2: overige ruimten hebben een eigen waardering per m2.
-        factor = self.kengetal.overige_ruimte_factor
-        totaal = self._waarde(self.gebruikersinvoer.overige_ruimte_oppervlakte) * factor
-        totaal += self._waarde(self.gebruikersinvoer.overige_ruimte_1) * factor
-        totaal += self._waarde(self.gebruikersinvoer.overige_ruimte_2) * factor
-        totaal += self._waarde(self.gebruikersinvoer.overige_ruimte_3) * factor
-        totaal += self._waarde(self.gebruikersinvoer.overige_ruimte_4) * factor
-        totaal += self._waarde(self.gebruikersinvoer.overige_ruimte_5) * factor
-        return totaal
+        # Beleidsboek hoofdstuk 2, rubriek 2 en paragraaf 2.2:
+        # overige ruimten tellen mee tegen 0,75 punt per m2 op basis van de lijst
+        # met objecten met naam en oppervlakte.
+        return Decimal(str(self._overige_ruimten_berekening()["totaal"]))
 
     def _verwarming_punten(self):
-        # Beleidsboek 2.3.1: verwarming in vertrekken telt mee.
+        # Beleidsboek 2.3.1: verwarmde vertrekken krijgen 2 punten per vertrek.
+        # Verwarmde overige ruimten en verkeersruimten krijgen 1 punt per ruimte,
+        # samen gemaximeerd op vier punten.
+        verwarmde_vertrekken = sum(
+            1 for ruimte in self._vertrek_ruimten() if ruimte.verwarmd
+        )
+        verwarmde_overige_en_verkeersruimten = sum(
+            1 for ruimte in self._overige_ruimten() if ruimte.verwarmd
+        ) + sum(1 for ruimte in self._verkeersruimten() if ruimte.verwarmd)
+
         totaal = (
-            self._waarde(self.gebruikersinvoer.verwarming_aantal_vertrekken)
+            Decimal(verwarmde_vertrekken)
             * self.kengetal.verwarming_aantal_vertrekken_factor
         )
-        # Beleidsboek 2.3.1: overige ruimten en verkeersruimten hebben een maximum van vier punten.
         totaal += (
             Decimal(
                 min(
-                    self._aantal_of_nul(
-                        self.gebruikersinvoer.verwarming_aantal_overige_ruimten
-                    ),
+                    verwarmde_overige_en_verkeersruimten,
                     self.kengetal.verwarming_aantal_overige_ruimten_max,
                 )
             )
@@ -289,12 +168,15 @@ class Puntenteller:
         return totaal
 
     def _verkoeling_punten(self):
-        # Beleidsboek 2.3.3: verkoeling telt alleen voor vertrekken mee en maximaal twee punten.
+        # Beleidsboek 2.3.3: alleen vertrekken met zowel een verwarmings-
+        # als verkoelingsfunctie tellen mee, tot maximaal twee punten.
         return (
             Decimal(
                 min(
-                    self._aantal_of_nul(
-                        self.gebruikersinvoer.verkoeling_aantal_vertrekken
+                    sum(
+                        1
+                        for ruimte in self._vertrek_ruimten()
+                        if ruimte.verwarmd and ruimte.gekoeld
                     ),
                     self.kengetal.verkoeling_aantal_vertrekken_max,
                 )
@@ -367,11 +249,11 @@ class Puntenteller:
         )
         kleine_nieuwbouwwoning = self.gebruikersinvoer.woz_kleine_nieuwbouwwoning
         nieuwbouw_2015_2019 = self.gebruikersinvoer.woz_nieuwbouw_2015_2019
-        oppervlakte_vertrekken = self._waarde(
-            self.gebruikersinvoer.vertrekken_oppervlakte
+        oppervlakte_vertrekken = Decimal(
+            str(self._vertrekken_berekening()["oppervlakte"])
         )
-        oppervlakte_overige_ruimten = self._waarde(
-            self.gebruikersinvoer.overige_ruimte_oppervlakte
+        oppervlakte_overige_ruimten = Decimal(
+            str(self._overige_ruimten_berekening()["oppervlakte"])
         )
         oppervlakte_parkeer_type_1 = Decimal(
             self._aantal_of_nul(
@@ -586,6 +468,344 @@ class Puntenteller:
 
     def _waarde(self, waarde: Decimal | int | None) -> Decimal:
         return Decimal(str(waarde or 0))
+
+    def _som_van_ruimten(self, ruimten: list[dict] | None, factor: Decimal) -> Decimal:
+        totaal = Decimal("0")
+        for ruimte in ruimten or []:
+            totaal += self._ruimte_oppervlakte(ruimte) * factor
+        return totaal
+
+    def _vertrekken_berekening(self) -> dict[str, float | list[dict] | str]:
+        # Beleidsboek hoofdstuk 2, rubriek 1 en paragraaf 2.2:
+        # de waardering van vertrekken volgt uit de som van de vloeroppervlaktes
+        # van de ruimten die door de gebruiker als vertrek zijn opgegeven.
+        factor = self.kengetal.vertrekken_factor
+        ruimten = [
+            maak_vertrek_ruimte(ruimte)
+            for ruimte in (self.gebruikersinvoer.vertrekken or [])
+        ]
+        oppervlakte = sum(
+            (ruimte.ruimte_m2 for ruimte in ruimten),
+            Decimal("0"),
+        )
+        oppervlakte_punten = oppervlakte * factor
+        totaal = oppervlakte_punten
+        return {
+            "factor": float(factor),
+            "oppervlakte": float(oppervlakte),
+            "oppervlakte_punten": float(oppervlakte_punten),
+            "ruimten": [ruimte.as_dict() for ruimte in ruimten],
+            "ruimten_punten": float(totaal),
+            "totaal": float(totaal),
+        }
+
+    def _overige_ruimten_berekening(self) -> dict[str, float | list[dict] | str]:
+        # Beleidsboek hoofdstuk 2, rubriek 2 en paragrafen 2.2.2.2 t/m 2.2.2.5:
+        # overige ruimten moeten begaanbaar zijn, minimaal 2,00 m2 meten en mogen
+        # geen vertrek of verkeersruimte zijn. De selectie van overige ruimten komt
+        # hier rechtstreeks uit de door de gebruiker ingevulde lijst. Voor zolderruimte zonder vaste trap
+        # geldt een aftrek van 5 punten, gemaximeerd op de waarde van die zolder.
+        # Loopruimte naar een andere ruimte via zolder telt niet mee in de zolderoppervlakte.
+        factor = self.kengetal.overige_ruimte_factor
+        ruimten = [
+            maak_overige_ruimte(ruimte)
+            for ruimte in (self.gebruikersinvoer.overige_ruimten or [])
+        ]
+        ruimte_berekeningen = [
+            self._overige_ruimte_berekening_per_ruimte(ruimte, factor)
+            for ruimte in ruimten
+        ]
+        oppervlakte = sum(
+            (ruimte["effectieve_oppervlakte"] for ruimte in ruimte_berekeningen),
+            Decimal("0"),
+        )
+        oppervlakte_punten = sum(
+            (ruimte["punten_voor_aftrek"] for ruimte in ruimte_berekeningen),
+            Decimal("0"),
+        )
+        totaal = sum(
+            (ruimte["punten_na_aftrek"] for ruimte in ruimte_berekeningen),
+            Decimal("0"),
+        )
+        return {
+            "bron": "beleidsboek hoofdstuk 2, rubriek 2, paragraaf 2.2",
+            "factor": float(factor),
+            "oppervlakte": float(oppervlakte),
+            "oppervlakte_punten": float(oppervlakte_punten),
+            "ruimten": [
+                self._serialiseer_overige_ruimte_berekening(ruimte)
+                for ruimte in ruimte_berekeningen
+            ],
+            "ruimten_punten": float(totaal),
+            "totaal": float(totaal),
+        }
+
+    def _som_oppervlakten(self, ruimten: list[dict] | None) -> Decimal:
+        totaal = Decimal("0")
+        for ruimte in ruimten or []:
+            totaal += self._ruimte_oppervlakte(ruimte)
+        return totaal
+
+    def _overige_ruimte_berekening_per_ruimte(
+        self, ruimte: OverigeRuimte, factor: Decimal
+    ) -> dict[str, Decimal | str | bool | None]:
+        naam = ruimte.naam
+        oppervlakte = ruimte.ruimte_m2
+        loopruimte_aftrek = self._zolder_loopruimte_aftrek(ruimte)
+        effectieve_oppervlakte = max(oppervlakte - loopruimte_aftrek, Decimal("0"))
+        vloer_begaanbaar = ruimte.vloer_begaanbaar
+        is_zolderruimte = isinstance(ruimte, ZolderRuimte)
+        heeft_vaste_trap = self._zolder_heeft_vaste_trap(ruimte)
+        is_prive_parkeerruimte = naam == RuimteNaam.PRIVE_PARKEERRUIMTE
+
+        uitsluiting_reden = None
+        if not vloer_begaanbaar:
+            # Beleidsboek 2.2.2.2 lid 1.
+            uitsluiting_reden = "vloer_niet_begaanbaar"
+        elif effectieve_oppervlakte < Decimal("2.00"):
+            # Beleidsboek 2.2.2.2 lid 2 en 2.2.2.4.
+            uitsluiting_reden = "oppervlakte_kleiner_dan_2m2"
+
+        punten_voor_aftrek = Decimal("0")
+        aftrek_zolder_zonder_vaste_trap = Decimal("0")
+        punten_na_aftrek = Decimal("0")
+        if uitsluiting_reden is None:
+            punten_voor_aftrek = effectieve_oppervlakte * factor
+            if is_zolderruimte and not heeft_vaste_trap:
+                # Beleidsboek 2.2.2.3.
+                aftrek_zolder_zonder_vaste_trap = min(Decimal("5"), punten_voor_aftrek)
+            punten_na_aftrek = max(
+                punten_voor_aftrek - aftrek_zolder_zonder_vaste_trap,
+                Decimal("0"),
+            )
+
+        return {
+            "naam": naam,
+            "ruimte_m2": oppervlakte,
+            "loopruimte_aftrek_m2": loopruimte_aftrek,
+            "effectieve_oppervlakte": (
+                effectieve_oppervlakte if uitsluiting_reden is None else Decimal("0")
+            ),
+            "vloer_begaanbaar": vloer_begaanbaar,
+            "is_zolderruimte": is_zolderruimte,
+            "heeft_vaste_trap": heeft_vaste_trap,
+            "is_prive_parkeerruimte": is_prive_parkeerruimte,
+            "uitsluiting_reden": uitsluiting_reden,
+            "punten_voor_aftrek": punten_voor_aftrek,
+            "aftrek_zolder_zonder_vaste_trap": aftrek_zolder_zonder_vaste_trap,
+            "punten_na_aftrek": punten_na_aftrek,
+        }
+
+    def _serialiseer_overige_ruimte_berekening(
+        self, ruimte: dict[str, Decimal | str | bool | None]
+    ) -> dict[str, float | str | bool | None]:
+        return {
+            "naam": ruimte["naam"],
+            "ruimte_m2": float(ruimte["ruimte_m2"]),
+            "loopruimte_aftrek_m2": float(ruimte["loopruimte_aftrek_m2"]),
+            "effectieve_oppervlakte": float(ruimte["effectieve_oppervlakte"]),
+            "vloer_begaanbaar": ruimte["vloer_begaanbaar"],
+            "is_zolderruimte": ruimte["is_zolderruimte"],
+            "heeft_vaste_trap": ruimte["heeft_vaste_trap"],
+            "is_prive_parkeerruimte": ruimte["is_prive_parkeerruimte"],
+            "uitsluiting_reden": ruimte["uitsluiting_reden"],
+            "punten_voor_aftrek": float(ruimte["punten_voor_aftrek"]),
+            "aftrek_zolder_zonder_vaste_trap": float(
+                ruimte["aftrek_zolder_zonder_vaste_trap"]
+            ),
+            "punten_na_aftrek": float(ruimte["punten_na_aftrek"]),
+        }
+
+    def _ruimte_oppervlakte(self, ruimte: dict | None) -> Decimal:
+        if not isinstance(ruimte, dict):
+            return Decimal("0")
+        return self._waarde(ruimte.get("ruimte_m2"))
+
+    def _ruimte_naam(self, ruimte: dict | None) -> str:
+        if not isinstance(ruimte, dict):
+            return "onbekende_ruimte"
+        return str(ruimte.get("naam") or "onbekende_ruimte")
+
+    def _ruimte_is_zolderruimte(self, ruimte: dict | None) -> bool:
+        return self._ruimte_naam(ruimte) == RuimteNaam.ZOLDER
+
+    def _ruimte_is_prive_parkeerruimte(self, ruimte: dict | None) -> bool:
+        return self._ruimte_naam(ruimte) == RuimteNaam.PRIVE_PARKEERRUIMTE
+
+    def _badkamer_ruimten(self) -> list[BadkamerRuimte]:
+        return [
+            vertrek
+            for vertrek in self._vertrek_ruimten()
+            if isinstance(vertrek, BadkamerRuimte)
+        ]
+
+    def _badkamer_punten_per_ruimte(self, badkamer: BadkamerRuimte) -> Decimal:
+        subtotal = Decimal("0")
+        subtotal += (
+            self._waarde(badkamer.toilet_hangend)
+            * self.kengetal.badkamer_toilet_hangend_factor
+        )
+        subtotal += (
+            self._waarde(badkamer.toilet_normaal)
+            * self.kengetal.badkamer_toilet_normaal_factor
+        )
+        subtotal += (
+            self._waarde(badkamer.wastafel) * self.kengetal.badkamer_wastafel_factor
+        )
+        subtotal += (
+            self._waarde(badkamer.meerpersoons_wastafel)
+            * self.kengetal.badkamer_meerpersoons_wastafel_factor
+        )
+        subtotal += self._waarde(badkamer.douche) * self.kengetal.badkamer_douche_factor
+        subtotal += self._waarde(badkamer.bad) * self.kengetal.badkamer_bad_factor
+        subtotal += (
+            self._waarde(badkamer.baddouche) * self.kengetal.badkamer_baddouche_factor
+        )
+        subtotal += (
+            self._waarde(badkamer.bubbelfunctie_bad)
+            * self.kengetal.badkamer_bubbelfunctie_bad_factor
+        )
+        subtotal += (
+            self._waarde(badkamer.volledige_afscheiding_douche)
+            * self.kengetal.badkamer_volledige_afscheiding_douche_factor
+        )
+        subtotal += (
+            self._waarde(badkamer.handdoekenradiator)
+            * self.kengetal.badkamer_handdoekenradiator_factor
+        )
+        subtotal += (
+            self._waarde(badkamer.kast_bij_wastafel)
+            * self.kengetal.badkamer_kast_bij_wastafel_factor
+        )
+        subtotal += (
+            self._waarde(badkamer.kastruimte) * self.kengetal.badkamer_kastruimte_factor
+        )
+        subtotal += (
+            Decimal(
+                min(
+                    self._aantal_of_nul(badkamer.stopcontacten),
+                    self.kengetal.badkamer_stopcontacten_max,
+                )
+            )
+            * self.kengetal.badkamer_stopcontacten_factor
+        )
+        subtotal += (
+            self._waarde(badkamer.eenhandsmengkraan)
+            * self.kengetal.badkamer_eenhandsmengkraan_factor
+        )
+        subtotal += (
+            self._waarde(badkamer.thermostatische_mengkraan)
+            * self.kengetal.badkamer_thermostatische_mengkraan_factor
+        )
+        return subtotal
+
+    def _keuken_ruimten(self) -> list[KeukenRuimte]:
+        return [
+            vertrek
+            for vertrek in self._vertrek_ruimten()
+            if isinstance(vertrek, KeukenRuimte)
+        ]
+
+    def _keuken_punten_per_ruimte(self, keuken: KeukenRuimte) -> Decimal:
+        subtotal = self._keuken_aanrecht_punten(keuken)
+        subtotal += (
+            self._waarde(keuken.inbouw_afzuiginstallatie)
+            * self.kengetal.keuken_inbouw_afzuiginstallatie_factor
+        )
+        subtotal += (
+            self._waarde(keuken.inbouw_kookplaat_inductie)
+            * self.kengetal.keuken_inbouw_kookplaat_inductie_factor
+        )
+        subtotal += (
+            self._waarde(keuken.inbouw_kookplaat_keramisch)
+            * self.kengetal.keuken_inbouw_kookplaat_keramisch_factor
+        )
+        subtotal += (
+            self._waarde(keuken.inbouw_kookplaat_gas)
+            * self.kengetal.keuken_inbouw_kookplaat_gas_factor
+        )
+        subtotal += (
+            self._waarde(keuken.inbouw_koelkast)
+            * self.kengetal.keuken_inbouw_koelkast_factor
+        )
+        subtotal += (
+            self._waarde(keuken.inbouw_vrieskast)
+            * self.kengetal.keuken_inbouw_vrieskast_factor
+        )
+        subtotal += (
+            self._waarde(keuken.inbouw_oven_elektrisch)
+            * self.kengetal.keuken_inbouw_oven_elektrisch_factor
+        )
+        subtotal += (
+            self._waarde(keuken.inbouw_oven_gas)
+            * self.kengetal.keuken_inbouw_oven_gas_factor
+        )
+        subtotal += (
+            self._waarde(keuken.inbouw_magnetron)
+            * self.kengetal.keuken_inbouw_magnetron_factor
+        )
+        subtotal += (
+            self._waarde(keuken.inbouw_vaatwasmachine)
+            * self.kengetal.keuken_inbouw_vaatwasmachine_factor
+        )
+        subtotal += (
+            self._waarde(keuken.extra_kastruimte)
+            * self.kengetal.keuken_extra_kastruimte_factor
+        )
+        subtotal += (
+            self._waarde(keuken.eenhandsmengkraan)
+            * self.kengetal.keuken_eenhandsmengkraan_factor
+        )
+        subtotal += (
+            self._waarde(keuken.thermostatische_mengkraan)
+            * self.kengetal.keuken_thermostatische_mengkraan_factor
+        )
+        subtotal += (
+            self._waarde(keuken.kokendwaterfunctie)
+            * self.kengetal.keuken_kokendwaterfunctie_factor
+        )
+        return subtotal
+
+    def _zolder_loopruimte_aftrek(self, ruimte: OverigeRuimte) -> Decimal:
+        if isinstance(ruimte, ZolderRuimte) and ruimte.aftrek_loopruimte_m2 is not None:
+            return ruimte.aftrek_loopruimte_m2
+        return Decimal("0")
+
+    def _zolder_heeft_vaste_trap(self, ruimte: OverigeRuimte) -> bool:
+        if isinstance(ruimte, ZolderRuimte):
+            return ruimte.heeft_vaste_trap
+        return True
+
+    def _vertrek_ruimten(self) -> list:
+        return [
+            maak_vertrek_ruimte(ruimte)
+            for ruimte in (self.gebruikersinvoer.vertrekken or [])
+        ]
+
+    def _overige_ruimten(self) -> list[OverigeRuimte]:
+        return [
+            maak_overige_ruimte(ruimte)
+            for ruimte in (self.gebruikersinvoer.overige_ruimten or [])
+        ]
+
+    def _verkeersruimten(self) -> list[VerkeersRuimte]:
+        return [
+            maak_verkeersruimte(ruimte)
+            for ruimte in (self.gebruikersinvoer.verkeersruimten or [])
+        ]
+
+    def _ruimte_bool(
+        self, ruimte: dict | None, veld: str, default: bool = False
+    ) -> bool:
+        if not isinstance(ruimte, dict):
+            return default
+        waarde = ruimte.get(veld, default)
+        return bool(waarde)
+
+    def _ruimte_waarde(self, ruimte: dict | None, veld: str):
+        if not isinstance(ruimte, dict):
+            return None
+        return ruimte.get(veld)
 
     def _decimaal_of_none(self, waarde: Decimal | int | None) -> Decimal | None:
         if waarde is None:
