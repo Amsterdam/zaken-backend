@@ -65,7 +65,7 @@ class KeukenRuimte(VertrekRuimte):
 
 @dataclass(frozen=True)
 class OverigeRuimte(BasisRuimte):
-    vloer_begaanbaar: bool = True
+    pass
 
 
 @dataclass(frozen=True)
@@ -148,13 +148,11 @@ def maak_overige_ruimte(data: dict | None) -> OverigeRuimte:
     naam = str(ruimte.get("naam") or "onbekende_ruimte")
     ruimte_m2 = Decimal(str(ruimte.get("ruimte_m2") or 0))
     verwarmd = bool(ruimte.get("verwarmd", False))
-    vloer_begaanbaar = bool(ruimte.get("vloer_begaanbaar", True))
     if naam == RuimteNaam.ZOLDER:
         return ZolderRuimte(
             naam=naam,
             ruimte_m2=ruimte_m2,
             verwarmd=verwarmd,
-            vloer_begaanbaar=vloer_begaanbaar,
             heeft_vaste_trap=bool(ruimte.get("heeft_vaste_trap", True)),
             aftrek_loopruimte_m2=_decimaal_of_none(ruimte.get("aftrek_loopruimte_m2")),
         )
@@ -162,7 +160,6 @@ def maak_overige_ruimte(data: dict | None) -> OverigeRuimte:
         naam=naam,
         ruimte_m2=ruimte_m2,
         verwarmd=verwarmd,
-        vloer_begaanbaar=vloer_begaanbaar,
     )
 
 

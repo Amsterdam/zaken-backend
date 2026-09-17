@@ -553,16 +553,13 @@ class Puntenteller:
         oppervlakte = ruimte.ruimte_m2
         loopruimte_aftrek = self._zolder_loopruimte_aftrek(ruimte)
         effectieve_oppervlakte = max(oppervlakte - loopruimte_aftrek, Decimal("0"))
-        vloer_begaanbaar = ruimte.vloer_begaanbaar
         is_zolderruimte = isinstance(ruimte, ZolderRuimte)
         heeft_vaste_trap = self._zolder_heeft_vaste_trap(ruimte)
         is_prive_parkeerruimte = naam == RuimteNaam.PRIVE_PARKEERRUIMTE
 
         uitsluiting_reden = None
-        if not vloer_begaanbaar:
-            # Beleidsboek 2.2.2.2 lid 1.
-            uitsluiting_reden = "vloer_niet_begaanbaar"
-        elif effectieve_oppervlakte < Decimal("2.00"):
+        if effectieve_oppervlakte < Decimal("2.00"):
+            # Beleidsboek 2.2.2.2 lid 2. Niet-begaanbare ruimten worden niet meer ingevoerd.
             # Beleidsboek 2.2.2.2 lid 2 en 2.2.2.4.
             uitsluiting_reden = "oppervlakte_kleiner_dan_2m2"
 
@@ -586,7 +583,6 @@ class Puntenteller:
             "effectieve_oppervlakte": (
                 effectieve_oppervlakte if uitsluiting_reden is None else Decimal("0")
             ),
-            "vloer_begaanbaar": vloer_begaanbaar,
             "is_zolderruimte": is_zolderruimte,
             "heeft_vaste_trap": heeft_vaste_trap,
             "is_prive_parkeerruimte": is_prive_parkeerruimte,
@@ -604,7 +600,6 @@ class Puntenteller:
             "ruimte_m2": float(ruimte["ruimte_m2"]),
             "loopruimte_aftrek_m2": float(ruimte["loopruimte_aftrek_m2"]),
             "effectieve_oppervlakte": float(ruimte["effectieve_oppervlakte"]),
-            "vloer_begaanbaar": ruimte["vloer_begaanbaar"],
             "is_zolderruimte": ruimte["is_zolderruimte"],
             "heeft_vaste_trap": ruimte["heeft_vaste_trap"],
             "is_prive_parkeerruimte": ruimte["is_prive_parkeerruimte"],

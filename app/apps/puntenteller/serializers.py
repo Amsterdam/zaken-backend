@@ -4,14 +4,37 @@ from apps.puntenteller.ruimte_types import (
     maak_verkeersruimte,
     maak_vertrek_ruimte,
 )
+from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema_field
 from rest_framework import serializers
 
 
-class RuimteSerializer(serializers.Serializer):
+def _ruimte_keuzes(*ruimtenamen):
+    return [(ruimtenaam, ruimtenaam.label) for ruimtenaam in ruimtenamen]
+
+
+class BasisRuimteSerializer(serializers.Serializer):
     naam = serializers.ChoiceField(choices=RuimteNaam.choices)
     ruimte_m2 = serializers.DecimalField(max_digits=8, decimal_places=2)
     verwarmd = serializers.BooleanField(required=False, default=False)
+
+
+class BasisVertrekSerializer(BasisRuimteSerializer):
     gekoeld = serializers.BooleanField(required=False, default=False)
+
+
+class StandaardVertrekSerializer(BasisVertrekSerializer):
+    naam = serializers.ChoiceField(
+        choices=_ruimte_keuzes(
+            RuimteNaam.WOONKAMER,
+            RuimteNaam.SLAAPKAMER,
+            RuimteNaam.TOILETRUIMTE,
+            RuimteNaam.WASRUIMTE_BIJKEUKEN,
+        )
+    )
+
+
+class BadkamerRuimteSerializer(BasisVertrekSerializer):
+    naam = serializers.ChoiceField(choices=_ruimte_keuzes(RuimteNaam.BADKAMER))
     toilet_hangend = serializers.IntegerField(required=False, default=0)
     toilet_normaal = serializers.IntegerField(required=False, default=0)
     wastafel = serializers.IntegerField(required=False, default=0)
@@ -27,11 +50,10 @@ class RuimteSerializer(serializers.Serializer):
     stopcontacten = serializers.IntegerField(required=False, default=0)
     eenhandsmengkraan = serializers.IntegerField(required=False, default=0)
     thermostatische_mengkraan = serializers.IntegerField(required=False, default=0)
-    vloer_begaanbaar = serializers.BooleanField(required=False, default=True)
-    heeft_vaste_trap = serializers.BooleanField(required=False, default=True)
-    aftrek_loopruimte_m2 = serializers.DecimalField(
-        max_digits=8, decimal_places=2, required=False, allow_null=True
-    )
+
+
+class KeukenRuimteSerializer(BasisVertrekSerializer):
+    naam = serializers.ChoiceField(choices=_ruimte_keuzes(RuimteNaam.KEUKEN))
     aanrechtlengte_meters = serializers.DecimalField(
         max_digits=8, decimal_places=2, required=False, allow_null=True
     )
@@ -51,6 +73,132 @@ class RuimteSerializer(serializers.Serializer):
     kokendwaterfunctie = serializers.IntegerField(required=False, default=0)
 
 
+class BasisOverigeRuimteSerializer(BasisRuimteSerializer):
+    pass
+
+
+class StandaardOverigeRuimteSerializer(BasisOverigeRuimteSerializer):
+    naam = serializers.ChoiceField(
+        choices=_ruimte_keuzes(
+            RuimteNaam.BERGING,
+            RuimteNaam.KELDER,
+            RuimteNaam.PRIVE_PARKEERRUIMTE,
+        )
+    )
+
+
+class ZolderRuimteSerializer(BasisOverigeRuimteSerializer):
+    naam = serializers.ChoiceField(choices=_ruimte_keuzes(RuimteNaam.ZOLDER))
+    heeft_vaste_trap = serializers.BooleanField(required=False, default=True)
+    aftrek_loopruimte_m2 = serializers.DecimalField(
+        max_digits=8, decimal_places=2, required=False, allow_null=True
+    )
+
+
+class VerkeersRuimteSerializer(BasisRuimteSerializer):
+    naam = serializers.ChoiceField(choices=_ruimte_keuzes(RuimteNaam.VERKEERSRUIMTE))
+
+
+class PolymorfeRuimteSerializer(serializers.Serializer):
+    serializer_mapping = {}
+
+    def to_internal_value(self, data):
+        serializer = self._maak_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        return serializer.validated_data
+
+    def to_representation(self, instance):
+        serializer = self._maak_serializer(instance=instance)
+        return serializer.data
+
+    def _maak_serializer(self, data=None, instance=None):
+        bron = data if data is not None else instance
+        serializer_class = self._serializer_klasse_voor_bron(bron)
+        kwargs = {"context": self.context}
+        if data is not None:
+            kwargs["data"] = data
+        if instance is not None:
+            kwargs["instance"] = instance
+        return serializer_class(**kwargs)
+
+    def _serializer_klasse_voor_bron(self, bron):
+        if not isinstance(bron, dict):
+            raise serializers.ValidationError("Ruimte moet een object zijn.")
+
+        naam = bron.get("naam")
+        serializer_class = self.serializer_mapping.get(naam)
+        if serializer_class:
+            return serializer_class
+
+        raise serializers.ValidationError(
+            {"naam": f"Ongeldig ruimtetype voor dit veld: {naam}"}
+        )
+
+
+class VertrekRuimteInvoerSerializer(PolymorfeRuimteSerializer):
+    serializer_mapping = {
+        RuimteNaam.WOONKAMER: StandaardVertrekSerializer,
+        RuimteNaam.SLAAPKAMER: StandaardVertrekSerializer,
+        RuimteNaam.TOILETRUIMTE: StandaardVertrekSerializer,
+        RuimteNaam.WASRUIMTE_BIJKEUKEN: StandaardVertrekSerializer,
+        RuimteNaam.BADKAMER: BadkamerRuimteSerializer,
+        RuimteNaam.KEUKEN: KeukenRuimteSerializer,
+    }
+
+
+class OverigeRuimteInvoerSerializer(PolymorfeRuimteSerializer):
+    serializer_mapping = {
+        RuimteNaam.BERGING: StandaardOverigeRuimteSerializer,
+        RuimteNaam.KELDER: StandaardOverigeRuimteSerializer,
+        RuimteNaam.PRIVE_PARKEERRUIMTE: StandaardOverigeRuimteSerializer,
+        RuimteNaam.ZOLDER: ZolderRuimteSerializer,
+    }
+
+
+class VerkeersRuimteInvoerSerializer(PolymorfeRuimteSerializer):
+    serializer_mapping = {RuimteNaam.VERKEERSRUIMTE: VerkeersRuimteSerializer}
+
+
+@extend_schema_field(
+    PolymorphicProxySerializer(
+        component_name="VertrekRuimteInput",
+        serializers=[
+            StandaardVertrekSerializer,
+            BadkamerRuimteSerializer,
+            KeukenRuimteSerializer,
+        ],
+        resource_type_field_name="naam",
+        many=True,
+    )
+)
+class VertrekRuimteSchemaField(serializers.JSONField):
+    pass
+
+
+@extend_schema_field(
+    PolymorphicProxySerializer(
+        component_name="OverigeRuimteInput",
+        serializers=[StandaardOverigeRuimteSerializer, ZolderRuimteSerializer],
+        resource_type_field_name="naam",
+        many=True,
+    )
+)
+class OverigeRuimteSchemaField(serializers.JSONField):
+    pass
+
+
+@extend_schema_field(
+    PolymorphicProxySerializer(
+        component_name="VerkeersRuimteInput",
+        serializers=[VerkeersRuimteSerializer],
+        resource_type_field_name="naam",
+        many=True,
+    )
+)
+class VerkeersRuimteSchemaField(serializers.JSONField):
+    pass
+
+
 class WozWaardeSerializer(serializers.Serializer):
     peildatum = serializers.DateField()
     vastgestelde_waarde = serializers.IntegerField()
@@ -67,9 +215,9 @@ class GebouwDataSerializer(serializers.Serializer):
 
 
 class GebruikersinvoerSerializer(serializers.ModelSerializer):
-    vertrekken = RuimteSerializer(many=True, required=False)
-    overige_ruimten = RuimteSerializer(many=True, required=False)
-    verkeersruimten = RuimteSerializer(many=True, required=False)
+    vertrekken = VertrekRuimteInvoerSerializer(many=True, required=False)
+    overige_ruimten = OverigeRuimteInvoerSerializer(many=True, required=False)
+    verkeersruimten = VerkeersRuimteInvoerSerializer(many=True, required=False)
 
     class Meta:
         model = Gebruikersinvoer
@@ -129,3 +277,13 @@ class GebruikersinvoerSerializer(serializers.ModelSerializer):
                         }
                     }
                 )
+
+
+class GebruikersinvoerRequestSerializer(serializers.ModelSerializer):
+    vertrekken = VertrekRuimteSchemaField(required=False)
+    overige_ruimten = OverigeRuimteSchemaField(required=False)
+    verkeersruimten = VerkeersRuimteSchemaField(required=False)
+
+    class Meta:
+        model = Gebruikersinvoer
+        exclude = ("adres", "gebruiker")

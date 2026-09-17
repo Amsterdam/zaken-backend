@@ -5,9 +5,11 @@ from apps.puntenteller.models import Gebruikersinvoer
 from apps.puntenteller.puntenteller import Puntenteller
 from apps.puntenteller.serializers import (
     GebouwDataSerializer,
+    GebruikersinvoerRequestSerializer,
     GebruikersinvoerSerializer,
 )
 from apps.users.permissions import rest_permission_classes_for_top
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
@@ -30,6 +32,7 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
         response_data = [_met_punten(item) for item in gebruikersinvoer_lijst]
         return Response(response_data)
 
+    @extend_schema(request=GebruikersinvoerRequestSerializer)
     def create(self, request, *args, **kwargs):
         bag_id = kwargs.get("bag_id")
         adres = self._get_adres(bag_id)
@@ -106,6 +109,7 @@ class PuntentellingViewSet(GenericViewSet, RetrieveModelMixin):
         gebruikersinvoer = self.get_object()
         return Response(_met_punten(gebruikersinvoer))
 
+    @extend_schema(request=GebruikersinvoerRequestSerializer)
     def partial_update(self, request, *args, **kwargs):
         gebruikersinvoer = self.get_object()
         serializer = self.get_serializer(
