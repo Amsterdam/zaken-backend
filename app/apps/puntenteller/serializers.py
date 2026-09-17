@@ -199,6 +199,46 @@ class VerkeersRuimteSchemaField(serializers.JSONField):
     pass
 
 
+@extend_schema_field(
+    PolymorphicProxySerializer(
+        component_name="VertrekRuimteResponse",
+        serializers=[
+            StandaardVertrekSerializer,
+            BadkamerRuimteSerializer,
+            KeukenRuimteSerializer,
+        ],
+        resource_type_field_name="naam",
+        many=True,
+    )
+)
+class VertrekRuimteResponseSchemaField(serializers.JSONField):
+    pass
+
+
+@extend_schema_field(
+    PolymorphicProxySerializer(
+        component_name="OverigeRuimteResponse",
+        serializers=[StandaardOverigeRuimteSerializer, ZolderRuimteSerializer],
+        resource_type_field_name="naam",
+        many=True,
+    )
+)
+class OverigeRuimteResponseSchemaField(serializers.JSONField):
+    pass
+
+
+@extend_schema_field(
+    PolymorphicProxySerializer(
+        component_name="VerkeersRuimteResponse",
+        serializers=[VerkeersRuimteSerializer],
+        resource_type_field_name="naam",
+        many=True,
+    )
+)
+class VerkeersRuimteResponseSchemaField(serializers.JSONField):
+    pass
+
+
 class WozWaardeSerializer(serializers.Serializer):
     peildatum = serializers.DateField()
     vastgestelde_waarde = serializers.IntegerField()
@@ -212,6 +252,13 @@ class GebouwDataSerializer(serializers.Serializer):
     woz_waarden = WozWaardeSerializer(many=True, allow_null=True)
     wozobjectnummer = serializers.IntegerField(allow_null=True)
     energielabel = serializers.CharField(allow_null=True)
+
+
+class PuntentellerResultaatSerializer(serializers.Serializer):
+    rubrieken = serializers.DictField(child=serializers.FloatField())
+    totaal_punten_bruto = serializers.FloatField()
+    correcties = serializers.DictField(child=serializers.JSONField(allow_null=True))
+    totaal_punten_na_caps = serializers.FloatField()
 
 
 class GebruikersinvoerSerializer(serializers.ModelSerializer):
@@ -287,3 +334,19 @@ class GebruikersinvoerRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Gebruikersinvoer
         exclude = ("adres", "gebruiker")
+
+
+class GebruikersinvoerResponseSerializer(serializers.ModelSerializer):
+    vertrekken = VertrekRuimteResponseSchemaField(required=False)
+    overige_ruimten = OverigeRuimteResponseSchemaField(required=False)
+    verkeersruimten = VerkeersRuimteResponseSchemaField(required=False)
+    punten = serializers.FloatField()
+    punten_resultaat = PuntentellerResultaatSerializer()
+
+    class Meta:
+        model = Gebruikersinvoer
+        fields = "__all__"
+
+
+class GebruikersinvoerCreateResponseSerializer(PuntentellerResultaatSerializer):
+    pass

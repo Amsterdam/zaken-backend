@@ -5,7 +5,9 @@ from apps.puntenteller.models import Gebruikersinvoer
 from apps.puntenteller.puntenteller import Puntenteller
 from apps.puntenteller.serializers import (
     GebouwDataSerializer,
+    GebruikersinvoerCreateResponseSerializer,
     GebruikersinvoerRequestSerializer,
+    GebruikersinvoerResponseSerializer,
     GebruikersinvoerSerializer,
 )
 from apps.users.permissions import rest_permission_classes_for_top
@@ -25,6 +27,7 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
     serializer_class = GebruikersinvoerSerializer
     queryset = Gebruikersinvoer.objects.all()
 
+    @extend_schema(responses=GebruikersinvoerResponseSerializer(many=True))
     def list(self, request, *args, **kwargs):
         bag_id = kwargs.get("bag_id")
         adres = self._get_adres(bag_id)
@@ -32,7 +35,10 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
         response_data = [_met_punten(item) for item in gebruikersinvoer_lijst]
         return Response(response_data)
 
-    @extend_schema(request=GebruikersinvoerRequestSerializer)
+    @extend_schema(
+        request=GebruikersinvoerRequestSerializer,
+        responses={status.HTTP_201_CREATED: GebruikersinvoerCreateResponseSerializer},
+    )
     def create(self, request, *args, **kwargs):
         bag_id = kwargs.get("bag_id")
         adres = self._get_adres(bag_id)
@@ -105,11 +111,15 @@ class PuntentellingViewSet(GenericViewSet, RetrieveModelMixin):
     serializer_class = GebruikersinvoerSerializer
     queryset = Gebruikersinvoer.objects.all()
 
+    @extend_schema(responses=GebruikersinvoerResponseSerializer)
     def retrieve(self, request, *args, **kwargs):
         gebruikersinvoer = self.get_object()
         return Response(_met_punten(gebruikersinvoer))
 
-    @extend_schema(request=GebruikersinvoerRequestSerializer)
+    @extend_schema(
+        request=GebruikersinvoerRequestSerializer,
+        responses=GebruikersinvoerResponseSerializer,
+    )
     def partial_update(self, request, *args, **kwargs):
         gebruikersinvoer = self.get_object()
         serializer = self.get_serializer(
