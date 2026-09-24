@@ -5,12 +5,38 @@ from decimal import Decimal
 @dataclass
 class PuntentellerResultaat:
     rubrieken: dict[str, float]
+    energieprestatie_berekening: dict
     totaal_punten_bruto: float
     correcties: dict[str, float | bool | str | None]
     totaal_punten_na_caps: float
 
     def as_dict(self) -> dict:
         return asdict(self)
+
+
+@dataclass
+class EnergieprestatieBerekening:
+    categorie: str
+    punten: Decimal
+    punten_voor_monumentcorrectie: Decimal
+    monumentcorrectie_toegepast: bool
+    is_eengezinswoning: bool | None
+    individuele_woonruimte: bool
+    heeft_energieprestatievergoeding: bool
+    energielabel_klasse: str | None
+    energie_index: Decimal | None
+    energie_index_geldig_voor_wws: bool
+    bouwjaar: int | None
+    registratiedatum: str | None
+    peildatum: str | None
+
+    def as_dict(self) -> dict[str, float | bool | str | int | None]:
+        return {
+            "categorie": self.categorie,
+            "punten": float(self.punten),
+            "punten_voor_monumentcorrectie": float(self.punten_voor_monumentcorrectie),
+            "monumentcorrectie_toegepast": self.monumentcorrectie_toegepast,
+        }
 
 
 @dataclass

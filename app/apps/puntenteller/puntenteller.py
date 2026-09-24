@@ -1,18 +1,25 @@
+from datetime import date
 from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal
 from typing import TYPE_CHECKING
 
 from apps.puntenteller.models import Kengetal, RuimteNaam
 from apps.puntenteller.resultaat import (
+    EnergieprestatieBerekening,
     PuntentellerResultaat,
     WozBerekening,
     WozCapBerekening,
 )
 from apps.puntenteller.ruimte_types import (
     BadkamerRuimte,
+    GemeenschappelijkeBuitenruimte,
     KeukenRuimte,
     OverigeRuimte,
+    PriveBuitenruimte,
+    ToiletRuimte,
     VerkeersRuimte,
+    VertrekRuimte,
     ZolderRuimte,
+    maak_buitenruimte,
     maak_overige_ruimte,
     maak_verkeersruimte,
     maak_vertrek_ruimte,
@@ -40,6 +47,8 @@ class Puntenteller:
 
     def bereken_resultaat(self) -> PuntentellerResultaat:
         rubrieken_decimal = self._rubriek_totalen()
+        energieprestatie_berekening = self._energieprestatie_berekening()
+        sanitair_cap_berekening = self._sanitair_extra_voorzieningen_cap_berekening()
         woz_berekening = self._woz_berekening()
         woz_cap_berekening = self._woz_cap_berekening(rubrieken_decimal, woz_berekening)
         totaal_bruto = sum(rubrieken_decimal.values(), Decimal("0"))
@@ -47,8 +56,27 @@ class Puntenteller:
             rubrieken={
                 naam: float(waarde) for naam, waarde in rubrieken_decimal.items()
             },
+            energieprestatie_berekening=energieprestatie_berekening.as_dict(),
             totaal_punten_bruto=float(totaal_bruto),
             correcties={
+                "sanitair_extra_voorzieningen_cap_toegepast": (
+                    sanitair_cap_berekening["toegepast"]
+                ),
+                "sanitair_extra_voorzieningen_cap": float(
+                    sanitair_cap_berekening["cap"]
+                ),
+                "sanitair_extra_voorzieningen_punten_voor_cap": float(
+                    sanitair_cap_berekening["punten_voor_cap"]
+                ),
+                "sanitair_extra_voorzieningen_punten_na_cap": float(
+                    sanitair_cap_berekening["punten_na_cap"]
+                ),
+                "sanitair_extra_voorzieningen_cap_punten_badkamer": float(
+                    sanitair_cap_berekening["cap_punten_badkamer"]
+                ),
+                "sanitair_extra_voorzieningen_cap_punten_buiten_badkamer": float(
+                    sanitair_cap_berekening["cap_punten_buiten_badkamer"]
+                ),
                 "woz_cap_toegepast": woz_cap_berekening.toegepast,
                 "woz_cap_reden": woz_cap_berekening.reden,
                 "woz_voor_cap": float(woz_cap_berekening.woz_voor_cap),
@@ -69,12 +97,19 @@ class Puntenteller:
         # Beleidsboek zelfstandige woonruimte januari 2026, hoofdstuk 2:
         # de puntentelling wordt opgebouwd uit rubrieken die daarna samen het totaal vormen.
         return {
-            "sanitair": self._badkamer_punten() + self._apart_toilet_punten(),
+            "badkamer": self._badkamer_basis_punten(),
+            "sanitair_extra_voorzieningen": self._sanitair_extra_voorzieningen_cap_berekening()[
+                "punten_na_cap"
+            ],
+            "toilet": self._toilet_punten(),
+            "sanitair_overig": self._sanitair_punten_buiten_badkamer_en_toiletruimte(),
+            "woonvoorzieningen_handicap": self._woonvoorzieningen_handicap_punten(),
             "keuken": self._keuken_punten(),
             "vertrekken": self._vertrekken_punten(),
             "overige_ruimten": self._overige_ruimten_punten(),
             "verwarming": self._verwarming_punten(),
             "verkoeling": self._verkoeling_punten(),
+            "energieprestatie": self._energieprestatie_punten(),
             "buitenruimte": self._buitenruimte_punten(),
             "parkeren": self._parkeerruimte_punten(),
             "woz": self._woz_berekening().punten,
@@ -83,9 +118,16 @@ class Puntenteller:
 
     def _badkamer_punten(self):
         # Beleidsboek 2.6.1 en 2.6.2: sanitair in badkamer en extra sanitaire voorzieningen.
+        return (
+            self._badkamer_basis_punten()
+            + self._sanitair_extra_voorzieningen_cap_berekening()["punten_na_cap"]
+        )
+
+    def _badkamer_basis_punten(self):
+        # Beleidsboek 2.6.1: badkamerbasisvoorzieningen blijven in de badkamer-rubriek.
         return sum(
             (
-                self._badkamer_punten_per_ruimte(badkamer)
+                self._badkamer_basis_punten_per_ruimte(badkamer)
                 for badkamer in self._badkamer_ruimten()
             ),
             Decimal("0"),
@@ -103,31 +145,103 @@ class Puntenteller:
         )
 
     def _keuken_aanrecht_punten(self, keuken: KeukenRuimte):
-        # Beleidsboek 2.5.2: aanrechtlengte bepaalt de basispunten voor de keuken.
-        # Let op: deze staffel volgt nog niet volledig de versie januari 2026 van het beleidsboek.
+        # Beleidsboek 2.5.2: minder dan 1 meter = 0, tot en met 2 meter = 4,
+        # en alleen langer dan 2 meter = 7 punten.
         meters = keuken.aanrechtlengte_meters or Decimal("0")
         if meters < self.kengetal.keuken_aanrecht_grens_1:
             return self.kengetal.keuken_aanrecht_punten_1
-        if meters < self.kengetal.keuken_aanrecht_grens_2:
+        if meters <= self.kengetal.keuken_aanrecht_grens_2:
             return self.kengetal.keuken_aanrecht_punten_2
-        if meters < self.kengetal.keuken_aanrecht_grens_3:
-            return self.kengetal.keuken_aanrecht_punten_3
-        if meters <= self.kengetal.keuken_aanrecht_grens_4:
-            return self.kengetal.keuken_aanrecht_punten_4
-        return self.kengetal.keuken_aanrecht_punten_5
+        return self.kengetal.keuken_aanrecht_punten_3
 
-    def _apart_toilet_punten(self):
-        # Beleidsboek 2.6.1: apart toilet in toiletruimte wordt los van badkamer gewaardeerd.
+    def _toilet_punten(self):
+        # Beleidsboek 2.6.1: toilet in een toiletruimte wordt als aparte sanitaire
+        # voorziening per toiletruimte gewaardeerd.
+        return sum(
+            (
+                self._apart_toilet_punten_per_ruimte(toilet)
+                for toilet in self._toilet_ruimten()
+            ),
+            Decimal("0"),
+        )
+
+    def _apart_toilet_punten_per_ruimte(self, toilet: ToiletRuimte) -> Decimal:
         totaal = Decimal("0")
         totaal += (
-            self._waarde(self.gebruikersinvoer.apart_toilet_staand)
+            self._waarde(toilet.toilet_staand)
             * self.kengetal.apart_toilet_staand_factor
         )
         totaal += (
-            self._waarde(self.gebruikersinvoer.apart_toilet_hangend)
+            self._waarde(toilet.toilet_hangend)
             * self.kengetal.apart_toilet_hangend_factor
         )
+        totaal += self._sanitair_basis_punten_per_ruimte(toilet)
         return totaal
+
+    def _sanitair_punten_buiten_badkamer_en_toiletruimte(self) -> Decimal:
+        # Beleidsboek 2.6.1: wastafel, meerpersoonswastafel, douche, bad en
+        # bad/douche kunnen ook in andere vertrekken en overige ruimten voorkomen.
+        return sum(
+            (
+                self._sanitair_basis_punten_per_ruimte(ruimte)
+                for ruimte in self._sanitair_ruimten()
+                if not isinstance(ruimte, (BadkamerRuimte, ToiletRuimte))
+            ),
+            Decimal("0"),
+        )
+
+    def _sanitair_extra_voorzieningen_cap_berekening(self) -> dict[str, Decimal | bool]:
+        punten_voor_cap = sum(
+            (
+                self._badkamer_extra_punten_per_ruimte(badkamer)
+                for badkamer in self._badkamer_ruimten()
+            ),
+            Decimal("0"),
+        )
+        cap_punten_badkamer = sum(
+            (
+                self._sanitair_bad_douche_basis_punten_per_ruimte(badkamer)
+                for badkamer in self._badkamer_ruimten()
+            ),
+            Decimal("0"),
+        )
+        cap_punten_buiten_badkamer = sum(
+            (
+                self._sanitair_bad_douche_basis_punten_per_ruimte(ruimte)
+                for ruimte in self._sanitair_ruimten()
+                if not isinstance(ruimte, BadkamerRuimte)
+            ),
+            Decimal("0"),
+        )
+        cap = cap_punten_badkamer + cap_punten_buiten_badkamer
+        # Beleidsboek 2.6.2: extra sanitaire voorzieningen worden afgetopt op het
+        # totaal van douche-, bad- en bad/douchepunten.
+        punten_na_cap = min(punten_voor_cap, cap)
+        return {
+            "toegepast": punten_na_cap != punten_voor_cap,
+            "cap": cap,
+            "punten_voor_cap": punten_voor_cap,
+            "punten_na_cap": punten_na_cap,
+            "cap_punten_badkamer": cap_punten_badkamer,
+            "cap_punten_buiten_badkamer": cap_punten_buiten_badkamer,
+        }
+
+    def _woonvoorzieningen_handicap_punten(self) -> Decimal:
+        if not self.gebruikersinvoer.woonvoorziening_handicap:
+            return Decimal("0")
+
+        # Beleidsboek 2.7: 1 punt per 332 euro netto-investering voor
+        # woonvoorzieningen voor personen met een handicap.
+        investering = self._waarde(
+            self.gebruikersinvoer.woonvoorziening_handicap_netto_investering
+        )
+        bedrag_per_punt = Decimal(
+            str(self.kengetal.woonvoorziening_handicap_bedrag_per_punt)
+        )
+        if bedrag_per_punt <= 0:
+            return Decimal("0")
+        # Beleidsboek 2.7: deze rubriek wordt naar beneden op hele punten gewaardeerd.
+        return self._afronden_naar_beneden_op_hele_punten(investering / bedrag_per_punt)
 
     def _vertrekken_punten(self):
         # Beleidsboek hoofdstuk 2, rubriek 1 en paragraaf 2.2:
@@ -185,27 +299,113 @@ class Puntenteller:
         )
 
     def _buitenruimte_punten(self):
-        # Beleidsboek 2.8: buitenruimte wordt gewaardeerd in een aparte rubriek.
-        # Let op: deze implementatie gebruikt nog niet de januari 2026 m2-systematiek.
+        # Beleidsboek 2.8.1, 2.8.2 en 2.8.4: prive- en gemeenschappelijke
+        # buitenruimten worden met aparte m2-systematiek gewaardeerd.
+        buitenruimten = self._buitenruimten()
+        if not buitenruimten:
+            return Decimal("0") - self.kengetal.buitenruimte_geen_buitenruimte_aftrek
+
+        prive_buitenruimten = [
+            ruimte for ruimte in buitenruimten if isinstance(ruimte, PriveBuitenruimte)
+        ]
+        gemeenschappelijke_buitenruimten = [
+            ruimte
+            for ruimte in buitenruimten
+            if isinstance(ruimte, GemeenschappelijkeBuitenruimte)
+        ]
+
         totaal = Decimal("0")
-        totaal += (
-            self._waarde(self.gebruikersinvoer.buitenruimte_prive_buitenruimte)
-            * self.kengetal.buitenruimte_prive_buitenruimte_factor
-        )
-        totaal += (
-            self._waarde(
-                self.gebruikersinvoer.buitenruimte_gemeenschappelijke_buitenruimte
+        if prive_buitenruimten:
+            prive_oppervlakte = sum(
+                (ruimte.ruimte_m2 for ruimte in prive_buitenruimten),
+                Decimal("0"),
             )
-            * self.kengetal.buitenruimte_gemeenschappelijke_buitenruimte_factor
+            totaal += self.kengetal.buitenruimte_prive_basispunten
+            totaal += prive_oppervlakte * self.kengetal.buitenruimte_prive_punten_per_m2
+
+        totaal += sum(
+            (
+                ruimte.ruimte_m2
+                * self.kengetal.buitenruimte_gemeenschappelijke_punten_per_m2
+                / Decimal(ruimte.aantal_adressen_met_toegang_en_gebruiksrecht)
+                for ruimte in gemeenschappelijke_buitenruimten
+            ),
+            Decimal("0"),
         )
-        if (
-            self._aantal_of_nul(
-                self.gebruikersinvoer.buitenruimte_gemeenschappelijke_buitenruimte
+
+        return min(totaal, self.kengetal.buitenruimte_max_punten)
+
+    def _buitenruimten(
+        self,
+    ) -> list[PriveBuitenruimte | GemeenschappelijkeBuitenruimte]:
+        return [
+            maak_buitenruimte(ruimte)
+            for ruimte in (self.gebruikersinvoer.buitenruimten or [])
+        ]
+
+    def _energieprestatie_punten(self):
+        # Beleidsboek 2.4.4 t/m 2.4.6.3: EPV gaat voor, daarna geldig label/EI,
+        # en zonder geldige energieprestatie volgt waardering op bouwjaar.
+        return self._energieprestatie_berekening().punten
+
+    def _energieprestatie_berekening(self) -> EnergieprestatieBerekening:
+        # Beleidsboek 2.4.4 t/m 2.4.6.3: EPV gaat voor, daarna geldig label/EI,
+        # en zonder geldige energieprestatie volgt waardering op bouwjaar.
+        categorie = "geen_woningtype"
+        punten_voor_monumentcorrectie = Decimal("0")
+
+        if self.gebruikersinvoer.is_eengezinswoning is None:
+            return self._maak_energieprestatie_berekening(
+                categorie=categorie,
+                punten_voor_monumentcorrectie=punten_voor_monumentcorrectie,
             )
-            == 0
-        ):
-            totaal -= self.kengetal.buitenruimte_geen_gemeenschappelijke_aftrek
-        return totaal
+
+        if self.gebruikersinvoer.heeft_energieprestatievergoeding:
+            categorie = "epv"
+            punten_voor_monumentcorrectie = self._energieprestatie_epv_punten()
+            return self._maak_energieprestatie_berekening(
+                categorie=categorie,
+                punten_voor_monumentcorrectie=punten_voor_monumentcorrectie,
+            )
+
+        if not self.gebruikersinvoer.energieprestatie_individuele_woonruimte:
+            categorie = "bouwjaar_geen_individuele_woonruimte"
+            punten_voor_monumentcorrectie = self._energieprestatie_bouwjaar_punten()
+            return self._maak_energieprestatie_berekening(
+                categorie=categorie,
+                punten_voor_monumentcorrectie=punten_voor_monumentcorrectie,
+            )
+
+        label_punten = self._energieprestatie_label_punten()
+        if label_punten is not None:
+            return self._maak_energieprestatie_berekening(
+                categorie="label",
+                punten_voor_monumentcorrectie=label_punten,
+            )
+
+        energie_index_punten = self._energieprestatie_ei_punten()
+        if energie_index_punten is not None:
+            return self._maak_energieprestatie_berekening(
+                categorie="energie_index",
+                punten_voor_monumentcorrectie=energie_index_punten,
+            )
+
+        if self._genormaliseerd_energielabel():
+            return self._maak_energieprestatie_berekening(
+                categorie="bouwjaar_ongeldig_label",
+                punten_voor_monumentcorrectie=self._energieprestatie_bouwjaar_punten(),
+            )
+
+        if self._decimaal_of_none(self.gebruikersinvoer.energie_index) is not None:
+            return self._maak_energieprestatie_berekening(
+                categorie="bouwjaar_ongeldige_energie_index",
+                punten_voor_monumentcorrectie=self._energieprestatie_bouwjaar_punten(),
+            )
+
+        return self._maak_energieprestatie_berekening(
+            categorie="bouwjaar",
+            punten_voor_monumentcorrectie=self._energieprestatie_bouwjaar_punten(),
+        )
 
     def _parkeerruimte_punten(self):
         # Beleidsboek 2.10.3: gemeenschappelijke parkeerplekken hebben drie typen met vaste waardes.
@@ -466,6 +666,172 @@ class Puntenteller:
         )
         return totaal
 
+    def _energieprestatie_epv_punten(self) -> Decimal:
+        veldnaam = (
+            "energieprestatie_epv_eengezinswoning_punten"
+            if self.gebruikersinvoer.is_eengezinswoning
+            else "energieprestatie_epv_meergezinswoning_punten"
+        )
+        return Decimal(str(getattr(self.kengetal, veldnaam)))
+
+    def _energieprestatie_label_punten(self) -> Decimal | None:
+        if not self._energieprestatie_heeft_geldige_registratie():
+            return None
+
+        registratiedatum = self.gebruikersinvoer.energieprestatie_registratiedatum
+        label = self._genormaliseerd_energielabel()
+        if not label:
+            return None
+
+        if registratiedatum < date(2015, 1, 1) or registratiedatum >= date(2021, 1, 1):
+            return self._energieprestatie_labelpunten_uit_kengetal(label)
+        return None
+
+    def _energieprestatie_ei_punten(self) -> Decimal | None:
+        if not self._energieprestatie_heeft_geldige_registratie():
+            return None
+
+        registratiedatum = self.gebruikersinvoer.energieprestatie_registratiedatum
+        energie_index = self._decimaal_of_none(self.gebruikersinvoer.energie_index)
+        if (
+            energie_index is None
+            or registratiedatum is None
+            or registratiedatum < date(2015, 1, 1)
+            or registratiedatum >= date(2021, 1, 1)
+            or not self.gebruikersinvoer.energie_index_geldig_voor_wws
+        ):
+            return None
+
+        band_nummer = self._energieprestatie_ei_band(energie_index)
+        veldnaam = (
+            f"energieprestatie_ei_punten_{band_nummer}_eengezinswoning"
+            if self.gebruikersinvoer.is_eengezinswoning
+            else f"energieprestatie_ei_punten_{band_nummer}_meergezinswoning"
+        )
+        return Decimal(str(getattr(self.kengetal, veldnaam)))
+
+    def _energieprestatie_bouwjaar_punten(self) -> Decimal:
+        bouwjaar = self._aantal_of_nul(self.gebruikersinvoer.bouwjaar)
+        if bouwjaar <= 0:
+            return Decimal("0")
+
+        band_nummer = self._energieprestatie_bouwjaar_band(bouwjaar)
+        veldnaam = (
+            f"energieprestatie_bouwjaar_punten_{band_nummer}_eengezinswoning"
+            if self.gebruikersinvoer.is_eengezinswoning
+            else f"energieprestatie_bouwjaar_punten_{band_nummer}_meergezinswoning"
+        )
+        return Decimal(str(getattr(self.kengetal, veldnaam)))
+
+    def _energieprestatie_monumentcorrectie(self, punten: Decimal) -> Decimal:
+        if self.gebruikersinvoer.monument and punten < 0:
+            # Beleidsboek 2.4.6.1: monumenten krijgen geen minpunten voor rubriek 4.
+            return Decimal("0")
+        return punten
+
+    def _maak_energieprestatie_berekening(
+        self, categorie: str, punten_voor_monumentcorrectie: Decimal
+    ) -> EnergieprestatieBerekening:
+        punten = self._energieprestatie_monumentcorrectie(punten_voor_monumentcorrectie)
+        return EnergieprestatieBerekening(
+            categorie=categorie,
+            punten=punten,
+            punten_voor_monumentcorrectie=punten_voor_monumentcorrectie,
+            monumentcorrectie_toegepast=(punten != punten_voor_monumentcorrectie),
+            is_eengezinswoning=self.gebruikersinvoer.is_eengezinswoning,
+            individuele_woonruimte=(
+                self.gebruikersinvoer.energieprestatie_individuele_woonruimte
+            ),
+            heeft_energieprestatievergoeding=(
+                self.gebruikersinvoer.heeft_energieprestatievergoeding
+            ),
+            energielabel_klasse=self.gebruikersinvoer.energielabel_klasse,
+            energie_index=self._decimaal_of_none(self.gebruikersinvoer.energie_index),
+            energie_index_geldig_voor_wws=(
+                self.gebruikersinvoer.energie_index_geldig_voor_wws
+            ),
+            bouwjaar=(
+                None
+                if self.gebruikersinvoer.bouwjaar is None
+                else self._aantal_of_nul(self.gebruikersinvoer.bouwjaar)
+            ),
+            registratiedatum=(
+                None
+                if self.gebruikersinvoer.energieprestatie_registratiedatum is None
+                else self.gebruikersinvoer.energieprestatie_registratiedatum.isoformat()
+            ),
+            peildatum=(
+                None
+                if self.gebruikersinvoer.energieprestatie_peildatum is None
+                else self.gebruikersinvoer.energieprestatie_peildatum.isoformat()
+            ),
+        )
+
+    def _energieprestatie_heeft_geldige_registratie(self) -> bool:
+        registratiedatum = self.gebruikersinvoer.energieprestatie_registratiedatum
+        peildatum = self.gebruikersinvoer.energieprestatie_peildatum
+        if registratiedatum is None or peildatum is None:
+            return False
+        return registratiedatum <= peildatum
+
+    def _energieprestatie_labelpunten_uit_kengetal(self, label: str) -> Decimal | None:
+        label_sleutel = {
+            "A++++": "a4plus",
+            "A+++": "a3plus",
+            "A++": "a2plus",
+            "A+": "aplus",
+            "A": "a",
+            "B": "b",
+            "C": "c",
+            "D": "d",
+            "E": "e",
+            "F": "f",
+            "G": "g",
+        }.get(label)
+        if label_sleutel is None:
+            return None
+
+        veldnaam = (
+            f"energieprestatie_label_{label_sleutel}_eengezinswoning_punten"
+            if self.gebruikersinvoer.is_eengezinswoning
+            else f"energieprestatie_label_{label_sleutel}_meergezinswoning_punten"
+        )
+        return Decimal(str(getattr(self.kengetal, veldnaam)))
+
+    def _energieprestatie_ei_band(self, energie_index: Decimal) -> int:
+        grenzen = [
+            self.kengetal.energieprestatie_ei_grens_1,
+            self.kengetal.energieprestatie_ei_grens_2,
+            self.kengetal.energieprestatie_ei_grens_3,
+            self.kengetal.energieprestatie_ei_grens_4,
+            self.kengetal.energieprestatie_ei_grens_5,
+            self.kengetal.energieprestatie_ei_grens_6,
+            self.kengetal.energieprestatie_ei_grens_7,
+            self.kengetal.energieprestatie_ei_grens_8,
+        ]
+        for index, grens in enumerate(grenzen, start=1):
+            if energie_index <= grens:
+                return index
+        return 9
+
+    def _energieprestatie_bouwjaar_band(self, bouwjaar: int) -> int:
+        if bouwjaar >= self.kengetal.energieprestatie_bouwjaar_grens_1:
+            return 1
+        if bouwjaar >= self.kengetal.energieprestatie_bouwjaar_grens_2:
+            return 2
+        if bouwjaar >= self.kengetal.energieprestatie_bouwjaar_grens_3:
+            return 3
+        if bouwjaar >= self.kengetal.energieprestatie_bouwjaar_grens_4:
+            return 4
+        if bouwjaar >= self.kengetal.energieprestatie_bouwjaar_grens_5:
+            return 5
+        if bouwjaar >= self.kengetal.energieprestatie_bouwjaar_grens_6:
+            return 6
+        return 7
+
+    def _genormaliseerd_energielabel(self) -> str:
+        return (self.gebruikersinvoer.energielabel_klasse or "").strip().upper()
+
     def _waarde(self, waarde: Decimal | int | None) -> Decimal:
         return Decimal(str(waarde or 0))
 
@@ -569,6 +935,7 @@ class Puntenteller:
         if uitsluiting_reden is None:
             punten_voor_aftrek = effectieve_oppervlakte * factor
             if is_zolderruimte and not heeft_vaste_trap:
+                print("Zolderruimte zonder vaste trap:", effectieve_oppervlakte, factor)
                 # Beleidsboek 2.2.2.3.
                 aftrek_zolder_zonder_vaste_trap = min(Decimal("5"), punten_voor_aftrek)
             punten_na_aftrek = max(
@@ -634,7 +1001,14 @@ class Puntenteller:
             if isinstance(vertrek, BadkamerRuimte)
         ]
 
-    def _badkamer_punten_per_ruimte(self, badkamer: BadkamerRuimte) -> Decimal:
+    def _toilet_ruimten(self) -> list[ToiletRuimte]:
+        return [
+            ruimte
+            for ruimte in self._overige_ruimten()
+            if isinstance(ruimte, ToiletRuimte)
+        ]
+
+    def _badkamer_basis_punten_per_ruimte(self, badkamer: BadkamerRuimte) -> Decimal:
         subtotal = Decimal("0")
         subtotal += (
             self._waarde(badkamer.toilet_hangend)
@@ -644,18 +1018,11 @@ class Puntenteller:
             self._waarde(badkamer.toilet_normaal)
             * self.kengetal.badkamer_toilet_normaal_factor
         )
-        subtotal += (
-            self._waarde(badkamer.wastafel) * self.kengetal.badkamer_wastafel_factor
-        )
-        subtotal += (
-            self._waarde(badkamer.meerpersoons_wastafel)
-            * self.kengetal.badkamer_meerpersoons_wastafel_factor
-        )
-        subtotal += self._waarde(badkamer.douche) * self.kengetal.badkamer_douche_factor
-        subtotal += self._waarde(badkamer.bad) * self.kengetal.badkamer_bad_factor
-        subtotal += (
-            self._waarde(badkamer.baddouche) * self.kengetal.badkamer_baddouche_factor
-        )
+        subtotal += self._sanitair_basis_punten_per_ruimte(badkamer)
+        return subtotal
+
+    def _badkamer_extra_punten_per_ruimte(self, badkamer: BadkamerRuimte) -> Decimal:
+        subtotal = Decimal("0")
         subtotal += (
             self._waarde(badkamer.bubbelfunctie_bad)
             * self.kengetal.badkamer_bubbelfunctie_bad_factor
@@ -693,6 +1060,53 @@ class Puntenteller:
             * self.kengetal.badkamer_thermostatische_mengkraan_factor
         )
         return subtotal
+
+    def _sanitair_bad_douche_basis_punten(self) -> Decimal:
+        return sum(
+            (
+                self._sanitair_bad_douche_basis_punten_per_ruimte(ruimte)
+                for ruimte in self._sanitair_ruimten()
+            ),
+            Decimal("0"),
+        )
+
+    def _sanitair_ruimten(self) -> list[VertrekRuimte | OverigeRuimte]:
+        return [*self._vertrek_ruimten(), *self._overige_ruimten()]
+
+    def _sanitair_basis_punten_per_ruimte(
+        self, ruimte: VertrekRuimte | OverigeRuimte
+    ) -> Decimal:
+        subtotal = self._sanitair_bad_douche_basis_punten_per_ruimte(ruimte)
+        if isinstance(ruimte, BadkamerRuimte):
+            subtotal += (
+                self._waarde(ruimte.wastafel) * self.kengetal.badkamer_wastafel_factor
+            )
+            subtotal += (
+                self._waarde(ruimte.meerpersoons_wastafel)
+                * self.kengetal.badkamer_meerpersoons_wastafel_factor
+            )
+            return subtotal
+
+        if self._aantal_of_nul(ruimte.wastafel) > 0:
+            # Beleidsboek 2.6.1: wastafel in een vertrek of overige ruimte krijgt
+            # maximaal 1 punt per ruimte.
+            subtotal += self.kengetal.sanitair_wastafel_niet_badkamer_max_punten
+        if self._aantal_of_nul(ruimte.meerpersoons_wastafel) > 0:
+            # Beleidsboek 2.6.1: meerpersoonswastafel in een vertrek of overige
+            # ruimte krijgt maximaal 1,5 punt per ruimte.
+            subtotal += (
+                self.kengetal.sanitair_meerpersoons_wastafel_niet_badkamer_max_punten
+            )
+        return subtotal
+
+    def _sanitair_bad_douche_basis_punten_per_ruimte(
+        self, ruimte: VertrekRuimte | OverigeRuimte
+    ) -> Decimal:
+        return (
+            self._waarde(ruimte.douche) * self.kengetal.badkamer_douche_factor
+            + self._waarde(ruimte.bad) * self.kengetal.badkamer_bad_factor
+            + self._waarde(ruimte.baddouche) * self.kengetal.badkamer_baddouche_factor
+        )
 
     def _keuken_ruimten(self) -> list[KeukenRuimte]:
         return [

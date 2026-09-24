@@ -23,17 +23,17 @@ class BasisRuimte:
 @dataclass(frozen=True)
 class VertrekRuimte(BasisRuimte):
     gekoeld: bool = False
+    wastafel: int = 0
+    meerpersoons_wastafel: int = 0
+    douche: int = 0
+    bad: int = 0
+    baddouche: int = 0
 
 
 @dataclass(frozen=True)
 class BadkamerRuimte(VertrekRuimte):
     toilet_hangend: int = 0
     toilet_normaal: int = 0
-    wastafel: int = 0
-    meerpersoons_wastafel: int = 0
-    douche: int = 0
-    bad: int = 0
-    baddouche: int = 0
     bubbelfunctie_bad: int = 0
     volledige_afscheiding_douche: int = 0
     handdoekenradiator: int = 0
@@ -65,7 +65,17 @@ class KeukenRuimte(VertrekRuimte):
 
 @dataclass(frozen=True)
 class OverigeRuimte(BasisRuimte):
-    pass
+    wastafel: int = 0
+    meerpersoons_wastafel: int = 0
+    douche: int = 0
+    bad: int = 0
+    baddouche: int = 0
+
+
+@dataclass(frozen=True)
+class ToiletRuimte(OverigeRuimte):
+    toilet_staand: int = 0
+    toilet_hangend: int = 0
 
 
 @dataclass(frozen=True)
@@ -77,6 +87,29 @@ class VerkeersRuimte(BasisRuimte):
 class ZolderRuimte(OverigeRuimte):
     heeft_vaste_trap: bool = True
     aftrek_loopruimte_m2: Decimal | None = None
+
+
+@dataclass(frozen=True)
+class Buitenruimte:
+    naam: str
+    ruimte_m2: Decimal
+
+    def as_dict(self) -> dict:
+        data = asdict(self)
+        for sleutel, waarde in list(data.items()):
+            if isinstance(waarde, Decimal):
+                data[sleutel] = str(waarde)
+        return data
+
+
+@dataclass(frozen=True)
+class PriveBuitenruimte(Buitenruimte):
+    pass
+
+
+@dataclass(frozen=True)
+class GemeenschappelijkeBuitenruimte(Buitenruimte):
+    aantal_adressen_met_toegang_en_gebruiksrecht: int = 1
 
 
 def maak_vertrek_ruimte(data: dict | None) -> VertrekRuimte:
@@ -115,6 +148,11 @@ def maak_vertrek_ruimte(data: dict | None) -> VertrekRuimte:
             ruimte_m2=ruimte_m2,
             verwarmd=verwarmd,
             gekoeld=gekoeld,
+            wastafel=int(ruimte.get("wastafel") or 0),
+            meerpersoons_wastafel=int(ruimte.get("meerpersoons_wastafel") or 0),
+            douche=int(ruimte.get("douche") or 0),
+            bad=int(ruimte.get("bad") or 0),
+            baddouche=int(ruimte.get("baddouche") or 0),
             aanrechtlengte_meters=_decimaal_of_none(
                 ruimte.get("aanrechtlengte_meters")
             ),
@@ -140,6 +178,11 @@ def maak_vertrek_ruimte(data: dict | None) -> VertrekRuimte:
         ruimte_m2=ruimte_m2,
         verwarmd=verwarmd,
         gekoeld=gekoeld,
+        wastafel=int(ruimte.get("wastafel") or 0),
+        meerpersoons_wastafel=int(ruimte.get("meerpersoons_wastafel") or 0),
+        douche=int(ruimte.get("douche") or 0),
+        bad=int(ruimte.get("bad") or 0),
+        baddouche=int(ruimte.get("baddouche") or 0),
     )
 
 
@@ -148,11 +191,28 @@ def maak_overige_ruimte(data: dict | None) -> OverigeRuimte:
     naam = str(ruimte.get("naam") or "onbekende_ruimte")
     ruimte_m2 = Decimal(str(ruimte.get("ruimte_m2") or 0))
     verwarmd = bool(ruimte.get("verwarmd", False))
+    if naam == RuimteNaam.TOILETRUIMTE:
+        return ToiletRuimte(
+            naam=naam,
+            ruimte_m2=ruimte_m2,
+            verwarmd=verwarmd,
+            toilet_staand=int(
+                ruimte.get("toilet_staand") or ruimte.get("toilet_normaal") or 0
+            ),
+            toilet_hangend=int(ruimte.get("toilet_hangend") or 0),
+            wastafel=int(ruimte.get("wastafel") or 0),
+            meerpersoons_wastafel=int(ruimte.get("meerpersoons_wastafel") or 0),
+        )
     if naam == RuimteNaam.ZOLDER:
         return ZolderRuimte(
             naam=naam,
             ruimte_m2=ruimte_m2,
             verwarmd=verwarmd,
+            wastafel=int(ruimte.get("wastafel") or 0),
+            meerpersoons_wastafel=int(ruimte.get("meerpersoons_wastafel") or 0),
+            douche=int(ruimte.get("douche") or 0),
+            bad=int(ruimte.get("bad") or 0),
+            baddouche=int(ruimte.get("baddouche") or 0),
             heeft_vaste_trap=bool(ruimte.get("heeft_vaste_trap", True)),
             aftrek_loopruimte_m2=_decimaal_of_none(ruimte.get("aftrek_loopruimte_m2")),
         )
@@ -160,6 +220,11 @@ def maak_overige_ruimte(data: dict | None) -> OverigeRuimte:
         naam=naam,
         ruimte_m2=ruimte_m2,
         verwarmd=verwarmd,
+        wastafel=int(ruimte.get("wastafel") or 0),
+        meerpersoons_wastafel=int(ruimte.get("meerpersoons_wastafel") or 0),
+        douche=int(ruimte.get("douche") or 0),
+        bad=int(ruimte.get("bad") or 0),
+        baddouche=int(ruimte.get("baddouche") or 0),
     )
 
 
@@ -169,6 +234,24 @@ def maak_verkeersruimte(data: dict | None) -> VerkeersRuimte:
         naam=str(ruimte.get("naam") or RuimteNaam.VERKEERSRUIMTE),
         ruimte_m2=Decimal(str(ruimte.get("ruimte_m2") or 0)),
         verwarmd=bool(ruimte.get("verwarmd", False)),
+    )
+
+
+def maak_buitenruimte(data: dict | None) -> Buitenruimte:
+    ruimte = data or {}
+    naam = str(ruimte.get("naam") or "onbekende_buitenruimte")
+    ruimte_m2 = Decimal(str(ruimte.get("ruimte_m2") or 0))
+    if naam == RuimteNaam.GEMEENSCHAPPELIJKE_BUITENRUIMTE:
+        return GemeenschappelijkeBuitenruimte(
+            naam=naam,
+            ruimte_m2=ruimte_m2,
+            aantal_adressen_met_toegang_en_gebruiksrecht=int(
+                ruimte.get("aantal_adressen_met_toegang_en_gebruiksrecht") or 1
+            ),
+        )
+    return PriveBuitenruimte(
+        naam=naam,
+        ruimte_m2=ruimte_m2,
     )
 
 
