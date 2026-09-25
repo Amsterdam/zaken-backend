@@ -21,14 +21,10 @@ class EnergieprestatieBerekening:
     punten_voor_monumentcorrectie: Decimal
     monumentcorrectie_toegepast: bool
     is_eengezinswoning: bool | None
-    individuele_woonruimte: bool
     heeft_energieprestatievergoeding: bool
     energielabel_klasse: str | None
     energie_index: Decimal | None
-    energie_index_geldig_voor_wws: bool
     bouwjaar: int | None
-    registratiedatum: str | None
-    peildatum: str | None
 
     def as_dict(self) -> dict[str, float | bool | str | int | None]:
         return {

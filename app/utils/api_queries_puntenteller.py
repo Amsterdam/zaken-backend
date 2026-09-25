@@ -6,11 +6,19 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 
+ENERGIELABEL_FIELDS = "energieklasse,bouwjaar,energieindex,registratiedatum,opnamedatum"
+
+VERBLIJFSOBJECT_FIELDS = "oppervlakte,volgnummer,plusvolgnummer"
+
+
 def get_energie_label(bag_id):
     response = requests.get(
         settings.PUNTENTELLER_ENERGIELABEL_API_URL,
-        params={"bagVerblijfsobjectId": bag_id},
-        timeout=10,
+        params={
+            "bagVerblijfsobjectId": bag_id,
+            "_fields": ENERGIELABEL_FIELDS,
+        },
+        timeout=30,
     )
     response.raise_for_status()
     response_data = response.json()
@@ -28,6 +36,9 @@ def get_energie_label(bag_id):
     return {
         "energielabel": laatste_resultaat.get("energieklasse"),
         "bouwjaar": laatste_resultaat.get("bouwjaar"),
+        "energieindex": laatste_resultaat.get("energieindex"),
+        "registratiedatum": laatste_resultaat.get("registratiedatum"),
+        "opnamedatum": laatste_resultaat.get("opnamedatum"),
     }
 
 
@@ -60,8 +71,11 @@ def get_woz(nummeraanduiding_id):
 def get_oppervlakte(adresseerbaarobject_id):
     response = requests.get(
         settings.PUNTENTELLER_VERBLIJFSOBJECT_API_URL,
-        params={"identificatie": adresseerbaarobject_id},
-        timeout=10,
+        params={
+            "identificatie": adresseerbaarobject_id,
+            "_fields": VERBLIJFSOBJECT_FIELDS,
+        },
+        timeout=30,
     )
     response.raise_for_status()
     response_data = response.json()

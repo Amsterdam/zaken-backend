@@ -1,7 +1,10 @@
+from decimal import Decimal, InvalidOperation
+
 from apps.puntenteller.models import Gebruikersinvoer, RuimteNaam
 from apps.puntenteller.ruimte_types import (
     maak_buitenruimte,
     maak_overige_ruimte,
+    maak_parkeerruimte,
     maak_verkeersruimte,
     maak_vertrek_ruimte,
 )
@@ -11,10 +14,6 @@ from rest_framework import serializers
 ENERGIE_MODEL_VELDEN = (
     "energielabel_klasse",
     "energie_index",
-    "energie_index_geldig_voor_wws",
-    "energieprestatie_registratiedatum",
-    "energieprestatie_peildatum",
-    "energieprestatie_individuele_woonruimte",
     "heeft_energieprestatievergoeding",
 )
 
@@ -25,37 +24,27 @@ def _ruimte_keuzes(*ruimtenamen):
 
 class EnergieSerializer(serializers.Serializer):
     type = serializers.ChoiceField(choices=("label", "index", "bouwjaar"))
-    peildatum = serializers.DateField(required=False, allow_null=True)
-    registratiedatum = serializers.DateField(required=False, allow_null=True)
+    waarde = serializers.CharField(required=False, allow_null=True, allow_blank=False)
     heeft_energieprestatievergoeding = serializers.BooleanField(
         required=False, default=False
     )
-    label = serializers.CharField(required=False, allow_blank=False)
-    index = serializers.DecimalField(
-        max_digits=4, decimal_places=2, required=False, allow_null=True
-    )
-    index_geldig_voor_wws = serializers.BooleanField(required=False, default=False)
 
     def validate(self, attrs):
         energie_type = attrs["type"]
-        if energie_type == "label" and not attrs.get("label"):
-            raise serializers.ValidationError({"label": "Dit veld is verplicht."})
+        waarde = attrs.get("waarde")
+        if energie_type in {"label", "index"} and waarde in (None, ""):
+            raise serializers.ValidationError({"waarde": "Dit veld is verplicht."})
 
-        if energie_type == "index" and attrs.get("index") is None:
-            raise serializers.ValidationError({"index": "Dit veld is verplicht."})
+        if energie_type == "index" and waarde not in (None, ""):
+            try:
+                attrs["waarde"] = Decimal(str(waarde))
+            except (InvalidOperation, TypeError, ValueError):
+                raise serializers.ValidationError(
+                    {"waarde": "Vul een geldige energie-index in."}
+                )
 
         if energie_type == "bouwjaar":
-            attrs.pop("label", None)
-            attrs.pop("index", None)
-            attrs["index_geldig_voor_wws"] = False
-            return attrs
-
-        if energie_type == "label":
-            attrs.pop("index", None)
-            attrs["index_geldig_voor_wws"] = False
-            return attrs
-
-        attrs.pop("label", None)
+            attrs["waarde"] = None
         return attrs
 
 
@@ -63,6 +52,9 @@ class BasisRuimteSerializer(serializers.Serializer):
     naam = serializers.ChoiceField(choices=RuimteNaam.choices)
     ruimte_m2 = serializers.DecimalField(max_digits=8, decimal_places=2)
     verwarmd = serializers.BooleanField(required=False, default=False)
+    aantal_adressen_met_toegang_en_gebruiksrecht = serializers.IntegerField(
+        required=False, default=1, min_value=1
+    )
 
 
 class BasisVertrekSerializer(BasisRuimteSerializer):
@@ -171,6 +163,23 @@ class BuitenruimteSerializer(serializers.Serializer):
         if attrs["naam"] == RuimteNaam.PRIVE_BUITENRUIMTE:
             attrs.pop("aantal_adressen_met_toegang_en_gebruiksrecht", None)
         return attrs
+
+
+class ParkeerruimteSerializer(serializers.Serializer):
+    naam = serializers.ChoiceField(
+        choices=_ruimte_keuzes(RuimteNaam.BUITENRUIMTE_PARKEERPLAATS)
+    )
+    type = serializers.ChoiceField(
+        choices=(
+            ("gesloten_garage_bij_complex", "Gesloten garage bij complex"),
+            ("buiten_bij_complex_met_dak", "Buiten bij complex met dak"),
+            ("buiten_bij_complex_zonder_dak", "Buiten bij complex zonder dak"),
+        )
+    )
+    aantal_adressen_met_toegang_en_gebruiksrecht = serializers.IntegerField(
+        required=False, default=1, min_value=1
+    )
+    laadpaal = serializers.BooleanField(required=False, default=False)
 
 
 class PolymorfeRuimteSerializer(serializers.Serializer):
@@ -333,7 +342,7 @@ class GebouwDataSerializer(serializers.Serializer):
     gebruiksoppervlakte = serializers.IntegerField(allow_null=True)
     woz_waarden = WozWaardeSerializer(many=True, allow_null=True)
     wozobjectnummer = serializers.IntegerField(allow_null=True)
-    energielabel = serializers.CharField(allow_null=True)
+    energie = serializers.DictField(allow_null=True)
 
 
 class EnergieSerializerMixin:
@@ -360,14 +369,6 @@ class EnergieSerializerMixin:
             "is_eengezinswoning",
             getattr(instance, "is_eengezinswoning", None) if instance else None,
         )
-        individuele_woonruimte = validated_data.get(
-            "energieprestatie_individuele_woonruimte",
-            (
-                getattr(instance, "energieprestatie_individuele_woonruimte", False)
-                if instance
-                else False
-            ),
-        )
         energie = validated_data.pop("energie", serializers.empty)
         if energie is serializers.empty and hasattr(self, "initial_data"):
             ruwe_energie = self.initial_data.get("energie", serializers.empty)
@@ -384,9 +385,6 @@ class EnergieSerializerMixin:
         validated_data.update(
             {
                 "is_eengezinswoning": is_eengezinswoning,
-                "energieprestatie_individuele_woonruimte": individuele_woonruimte,
-                "energieprestatie_peildatum": energie.get("peildatum"),
-                "energieprestatie_registratiedatum": energie.get("registratiedatum"),
                 "heeft_energieprestatievergoeding": energie.get(
                     "heeft_energieprestatievergoeding", False
                 ),
@@ -394,12 +392,9 @@ class EnergieSerializerMixin:
         )
 
         if energie["type"] == "label":
-            validated_data["energielabel_klasse"] = energie.get("label")
+            validated_data["energielabel_klasse"] = energie.get("waarde")
         elif energie["type"] == "index":
-            validated_data["energie_index"] = energie.get("index")
-            validated_data["energie_index_geldig_voor_wws"] = energie.get(
-                "index_geldig_voor_wws", False
-            )
+            validated_data["energie_index"] = energie.get("waarde")
 
         return validated_data
 
@@ -407,10 +402,6 @@ class EnergieSerializerMixin:
         return {
             "energielabel_klasse": None,
             "energie_index": None,
-            "energie_index_geldig_voor_wws": False,
-            "energieprestatie_registratiedatum": None,
-            "energieprestatie_peildatum": None,
-            "energieprestatie_individuele_woonruimte": False,
             "is_eengezinswoning": None,
             "heeft_energieprestatievergoeding": False,
         }
@@ -427,15 +418,13 @@ class EnergieSerializerMixin:
 
         data = {
             "type": energie_type,
-            "peildatum": instance.energieprestatie_peildatum,
-            "registratiedatum": instance.energieprestatie_registratiedatum,
+            "waarde": None,
             "heeft_energieprestatievergoeding": instance.heeft_energieprestatievergoeding,
         }
         if energie_type == "label":
-            data["label"] = instance.energielabel_klasse
+            data["waarde"] = instance.energielabel_klasse
         if energie_type == "index":
-            data["index"] = instance.energie_index
-            data["index_geldig_voor_wws"] = instance.energie_index_geldig_voor_wws
+            data["waarde"] = instance.energie_index
         return data
 
 
@@ -450,10 +439,15 @@ class PuntentellerResultaatSerializer(serializers.Serializer):
 class GebruikersinvoerSerializer(EnergieSerializerMixin, serializers.ModelSerializer):
     energie = EnergieSerializer(required=False)
     buitenruimten = BuitenruimteSerializer(many=True, required=False)
+    parkeerruimten = ParkeerruimteSerializer(many=True, required=False)
     is_eengezinswoning = serializers.BooleanField(required=False, allow_null=True)
-    individuele_woonruimte = serializers.BooleanField(
-        required=False,
-        source="energieprestatie_individuele_woonruimte",
+    zorgwoning = serializers.BooleanField(required=False, default=False)
+    nieuwbouw = serializers.BooleanField(required=False, default=False)
+    bijzondere_voorziening_intercom_met_beeld = serializers.BooleanField(
+        required=False, default=False
+    )
+    bijzondere_voorziening_laadpalen = serializers.IntegerField(
+        required=False, default=0, min_value=0
     )
     vertrekken = VertrekRuimteInvoerSerializer(many=True, required=False)
     overige_ruimten = OverigeRuimteInvoerSerializer(many=True, required=False)
@@ -479,6 +473,9 @@ class GebruikersinvoerSerializer(EnergieSerializerMixin, serializers.ModelSerial
         validated_data["buitenruimten"] = self._normaliseer_buitenruimten(
             validated_data.pop("buitenruimten", [])
         )
+        validated_data["parkeerruimten"] = self._normaliseer_parkeerruimten(
+            validated_data.pop("parkeerruimten", [])
+        )
         return Gebruikersinvoer.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
@@ -498,6 +495,10 @@ class GebruikersinvoerSerializer(EnergieSerializerMixin, serializers.ModelSerial
         if "buitenruimten" in validated_data:
             instance.buitenruimten = self._normaliseer_buitenruimten(
                 validated_data.pop("buitenruimten")
+            )
+        if "parkeerruimten" in validated_data:
+            instance.parkeerruimten = self._normaliseer_parkeerruimten(
+                validated_data.pop("parkeerruimten")
             )
 
         for attribuut, waarde in validated_data.items():
@@ -520,6 +521,9 @@ class GebruikersinvoerSerializer(EnergieSerializerMixin, serializers.ModelSerial
     def _normaliseer_buitenruimten(self, ruimten):
         return [maak_buitenruimte(ruimte).as_dict() for ruimte in ruimten]
 
+    def _normaliseer_parkeerruimten(self, ruimten):
+        return [maak_parkeerruimte(ruimte).as_dict() for ruimte in ruimten]
+
     def _valideer_geen_verkoeling(self, ruimten, veldnaam):
         for index, ruimte in enumerate(ruimten):
             if ruimte.get("gekoeld"):
@@ -537,10 +541,15 @@ class GebruikersinvoerRequestSerializer(
 ):
     energie = EnergieSerializer(required=False)
     buitenruimten = BuitenruimteSerializer(many=True, required=False)
+    parkeerruimten = ParkeerruimteSerializer(many=True, required=False)
     is_eengezinswoning = serializers.BooleanField(required=False, allow_null=True)
-    individuele_woonruimte = serializers.BooleanField(
-        required=False,
-        source="energieprestatie_individuele_woonruimte",
+    zorgwoning = serializers.BooleanField(required=False, default=False)
+    nieuwbouw = serializers.BooleanField(required=False, default=False)
+    bijzondere_voorziening_intercom_met_beeld = serializers.BooleanField(
+        required=False, default=False
+    )
+    bijzondere_voorziening_laadpalen = serializers.IntegerField(
+        required=False, default=0, min_value=0
     )
     vertrekken = VertrekRuimteSchemaField(required=False)
     overige_ruimten = OverigeRuimteSchemaField(required=False)
@@ -556,10 +565,15 @@ class GebruikersinvoerResponseSerializer(
 ):
     energie = EnergieSerializer(required=False)
     buitenruimten = BuitenruimteSerializer(many=True, required=False)
+    parkeerruimten = ParkeerruimteSerializer(many=True, required=False)
     is_eengezinswoning = serializers.BooleanField(required=False, allow_null=True)
-    individuele_woonruimte = serializers.BooleanField(
-        required=False,
-        source="energieprestatie_individuele_woonruimte",
+    zorgwoning = serializers.BooleanField(required=False, default=False)
+    nieuwbouw = serializers.BooleanField(required=False, default=False)
+    bijzondere_voorziening_intercom_met_beeld = serializers.BooleanField(
+        required=False, default=False
+    )
+    bijzondere_voorziening_laadpalen = serializers.IntegerField(
+        required=False, default=0, min_value=0
     )
     vertrekken = VertrekRuimteResponseSchemaField(required=False)
     overige_ruimten = OverigeRuimteResponseSchemaField(required=False)

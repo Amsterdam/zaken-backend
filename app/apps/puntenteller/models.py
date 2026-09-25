@@ -14,6 +14,10 @@ class RuimteNaam(models.TextChoices):
         "gemeenschappelijke_buitenruimte",
         "Gemeenschappelijke buitenruimte",
     )
+    BUITENRUIMTE_PARKEERPLAATS = (
+        "buitenruimte_parkeerplaats",
+        "Buitenruimte parkeerplaats",
+    )
     WASRUIMTE_BIJKEUKEN = "wasruimte_bijkeuken", "Wasruimte/bijkeuken"
     BERGING = "berging", "Berging"
     KELDER = "kelder", "Kelder"
@@ -189,11 +193,32 @@ class Kengetal(models.Model):
     parkeerruimte_buiten_bij_complex_zonder_dak_factor = models.DecimalField(
         max_digits=8, decimal_places=2, default=4.00
     )
+    woz_oppervlakte_parkeer_type_1 = models.DecimalField(
+        max_digits=8, decimal_places=2, default=12.00
+    )
     bijzondere_voorziening_intercom_met_beeld_factor = models.DecimalField(
         max_digits=8, decimal_places=2, default=1.00
     )
     bijzondere_voorziening_laadpaal_factor = models.DecimalField(
         max_digits=8, decimal_places=2, default=1.00
+    )
+    zorgwoning_opslag_factor = models.DecimalField(
+        max_digits=4, decimal_places=2, default=1.35
+    )
+    monument_rijksmonument_huurprijsopslag_factor = models.DecimalField(
+        max_digits=4, decimal_places=2, default=1.35
+    )
+    monument_rijksmonument_extra_punten = models.DecimalField(
+        max_digits=8, decimal_places=2, default=50.00
+    )
+    monument_gemeentelijk_of_provinciaal_huurprijsopslag_factor = models.DecimalField(
+        max_digits=4, decimal_places=2, default=1.15
+    )
+    monument_beschermd_stads_of_dorpsgezicht_huurprijsopslag_factor = (
+        models.DecimalField(max_digits=4, decimal_places=2, default=1.15)
+    )
+    nieuwbouw_huurprijsopslag_factor = models.DecimalField(
+        max_digits=4, decimal_places=2, default=1.10
     )
     energieprestatie_label_a4plus_eengezinswoning_punten = models.SmallIntegerField(
         default=62
@@ -397,17 +422,11 @@ class Gebruikersinvoer(models.Model):
     overige_ruimten = models.JSONField(default=default_extra_ruimten, blank=True)
     verkeersruimten = models.JSONField(default=default_extra_ruimten, blank=True)
     buitenruimten = models.JSONField(default=default_extra_ruimten, blank=True)
-    parkeerruimte_gesloten_garage_bij_complex = models.PositiveIntegerField(default=0)
-    parkeerruimte_buiten_bij_complex_met_dak = models.PositiveIntegerField(default=0)
-    parkeerruimte_buiten_bij_complex_zonder_dak = models.PositiveIntegerField(default=0)
+    parkeerruimten = models.JSONField(default=default_extra_ruimten, blank=True)
     energielabel_klasse = models.CharField(max_length=10, null=True, blank=True)
     energie_index = models.DecimalField(
         max_digits=4, decimal_places=2, null=True, blank=True
     )
-    energie_index_geldig_voor_wws = models.BooleanField(default=False)
-    energieprestatie_registratiedatum = models.DateField(null=True, blank=True)
-    energieprestatie_peildatum = models.DateField(null=True, blank=True)
-    energieprestatie_individuele_woonruimte = models.BooleanField(default=False)
     is_eengezinswoning = models.BooleanField(null=True, blank=True)
     heeft_energieprestatievergoeding = models.BooleanField(default=False)
     bouwjaar = models.PositiveIntegerField(null=True, blank=True)
@@ -423,8 +442,11 @@ class Gebruikersinvoer(models.Model):
     woonvoorziening_handicap_netto_investering = models.PositiveIntegerField(default=0)
     monument = models.BooleanField(default=False)
     monument_soort = models.CharField(max_length=255, null=True, blank=True)
-    bijzondere_voorziening_intercom_met_beeld = models.PositiveIntegerField(default=0)
-    bijzondere_voorziening_laadpaal = models.PositiveIntegerField(default=0)
+    huurovereenkomst_afgesloten_op = models.DateField(null=True, blank=True)
+    zorgwoning = models.BooleanField(default=False)
+    nieuwbouw = models.BooleanField(default=False)
+    bijzondere_voorziening_intercom_met_beeld = models.BooleanField(default=False)
+    bijzondere_voorziening_laadpalen = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ["-id"]

@@ -14,6 +14,7 @@ from apps.puntenteller.ruimte_types import (
     GemeenschappelijkeBuitenruimte,
     KeukenRuimte,
     OverigeRuimte,
+    Parkeerruimte,
     PriveBuitenruimte,
     ToiletRuimte,
     VerkeersRuimte,
@@ -21,6 +22,7 @@ from apps.puntenteller.ruimte_types import (
     ZolderRuimte,
     maak_buitenruimte,
     maak_overige_ruimte,
+    maak_parkeerruimte,
     maak_verkeersruimte,
     maak_vertrek_ruimte,
 )
@@ -30,6 +32,7 @@ if TYPE_CHECKING:
 
 
 WOZ_CAP_PERCENTAGE = Decimal("0.33")
+WET_BETAALBARE_HUUR_INGANGSDATUM = date(2024, 7, 1)
 
 
 class Puntenteller:
@@ -52,6 +55,14 @@ class Puntenteller:
         woz_berekening = self._woz_berekening()
         woz_cap_berekening = self._woz_cap_berekening(rubrieken_decimal, woz_berekening)
         totaal_bruto = sum(rubrieken_decimal.values(), Decimal("0"))
+        totaal_na_zorgwoning = self._zorgwoning_totaal_na_caps(
+            woz_cap_berekening.totaal_na_woz_correcties
+        )
+        monument_berekening = self._monument_berekening(totaal_na_zorgwoning)
+        nieuwbouw_berekening = self._nieuwbouw_berekening(
+            monument_berekening["totaal_na_correctie"]
+        )
+        totaal_na_caps = nieuwbouw_berekening["totaal_na_correctie"]
         return PuntentellerResultaat(
             rubrieken={
                 naam: float(waarde) for naam, waarde in rubrieken_decimal.items()
@@ -89,8 +100,20 @@ class Puntenteller:
                 "woz_minimale_waardering_186_toegepast": (
                     woz_cap_berekening.minimale_waardering_186_toegepast
                 ),
+                "zorgwoning_toegepast": self.gebruikersinvoer.zorgwoning,
+                "monument_toegepast": monument_berekening["toegepast"],
+                "monument_soort": monument_berekening["soort"],
+                "monument_correctie_type": monument_berekening["correctie_type"],
+                "monument_huurprijsopslag_factor": float(
+                    monument_berekening["huurprijsopslag_factor"]
+                ),
+                "monument_extra_punten": float(monument_berekening["extra_punten"]),
+                "nieuwbouw_toegepast": nieuwbouw_berekening["toegepast"],
+                "nieuwbouw_huurprijsopslag_factor": float(
+                    nieuwbouw_berekening["huurprijsopslag_factor"]
+                ),
             },
-            totaal_punten_na_caps=float(woz_cap_berekening.totaal_na_woz_correcties),
+            totaal_punten_na_caps=float(totaal_na_caps),
         )
 
     def _rubriek_totalen(self) -> dict[str, Decimal]:
@@ -166,6 +189,14 @@ class Puntenteller:
         )
 
     def _apart_toilet_punten_per_ruimte(self, toilet: ToiletRuimte) -> Decimal:
+        return self._ruimte_punten_na_adressen(
+            self._apart_toilet_punten_per_ruimte_onverdeeld(toilet),
+            toilet,
+        )
+
+    def _apart_toilet_punten_per_ruimte_onverdeeld(
+        self, toilet: ToiletRuimte
+    ) -> Decimal:
         totaal = Decimal("0")
         totaal += (
             self._waarde(toilet.toilet_staand)
@@ -175,7 +206,7 @@ class Puntenteller:
             self._waarde(toilet.toilet_hangend)
             * self.kengetal.apart_toilet_hangend_factor
         )
-        totaal += self._sanitair_basis_punten_per_ruimte(toilet)
+        totaal += self._sanitair_basis_punten_per_ruimte_onverdeeld(toilet)
         return totaal
 
     def _sanitair_punten_buiten_badkamer_en_toiletruimte(self) -> Decimal:
@@ -344,13 +375,13 @@ class Puntenteller:
         ]
 
     def _energieprestatie_punten(self):
-        # Beleidsboek 2.4.4 t/m 2.4.6.3: EPV gaat voor, daarna geldig label/EI,
-        # en zonder geldige energieprestatie volgt waardering op bouwjaar.
+        # Vereenvoudigde energielogica: EPV gaat voor, daarna telt de opgegeven
+        # label- of indexwaarde direct, anders volgt waardering op bouwjaar.
         return self._energieprestatie_berekening().punten
 
     def _energieprestatie_berekening(self) -> EnergieprestatieBerekening:
-        # Beleidsboek 2.4.4 t/m 2.4.6.3: EPV gaat voor, daarna geldig label/EI,
-        # en zonder geldige energieprestatie volgt waardering op bouwjaar.
+        # Vereenvoudigde energielogica: de invoerder kiest expliciet label, index
+        # of bouwjaar. Registratie- en peildata spelen hier niet meer mee.
         categorie = "geen_woningtype"
         punten_voor_monumentcorrectie = Decimal("0")
 
@@ -368,38 +399,23 @@ class Puntenteller:
                 punten_voor_monumentcorrectie=punten_voor_monumentcorrectie,
             )
 
-        if not self.gebruikersinvoer.energieprestatie_individuele_woonruimte:
-            categorie = "bouwjaar_geen_individuele_woonruimte"
-            punten_voor_monumentcorrectie = self._energieprestatie_bouwjaar_punten()
-            return self._maak_energieprestatie_berekening(
-                categorie=categorie,
-                punten_voor_monumentcorrectie=punten_voor_monumentcorrectie,
-            )
-
-        label_punten = self._energieprestatie_label_punten()
-        if label_punten is not None:
-            return self._maak_energieprestatie_berekening(
-                categorie="label",
-                punten_voor_monumentcorrectie=label_punten,
-            )
-
-        energie_index_punten = self._energieprestatie_ei_punten()
-        if energie_index_punten is not None:
-            return self._maak_energieprestatie_berekening(
-                categorie="energie_index",
-                punten_voor_monumentcorrectie=energie_index_punten,
-            )
-
         if self._genormaliseerd_energielabel():
             return self._maak_energieprestatie_berekening(
-                categorie="bouwjaar_ongeldig_label",
-                punten_voor_monumentcorrectie=self._energieprestatie_bouwjaar_punten(),
+                categorie="label",
+                punten_voor_monumentcorrectie=(
+                    self._energieprestatie_labelpunten_uit_kengetal(
+                        self._genormaliseerd_energielabel()
+                    )
+                    or Decimal("0")
+                ),
             )
 
         if self._decimaal_of_none(self.gebruikersinvoer.energie_index) is not None:
             return self._maak_energieprestatie_berekening(
-                categorie="bouwjaar_ongeldige_energie_index",
-                punten_voor_monumentcorrectie=self._energieprestatie_bouwjaar_punten(),
+                categorie="energie_index",
+                punten_voor_monumentcorrectie=(
+                    self._energieprestatie_ei_punten() or Decimal("0")
+                ),
             )
 
         return self._maak_energieprestatie_berekening(
@@ -408,26 +424,39 @@ class Puntenteller:
         )
 
     def _parkeerruimte_punten(self):
-        # Beleidsboek 2.10.3: gemeenschappelijke parkeerplekken hebben drie typen met vaste waardes.
-        # Let op: deling door adressen met gebruiksrecht ontbreekt hier nog.
-        totaal = Decimal("0")
-        totaal += (
-            self._waarde(
-                self.gebruikersinvoer.parkeerruimte_gesloten_garage_bij_complex
-            )
-            * self.kengetal.parkeerruimte_gesloten_garage_bij_complex_factor
+        # Beleidsboek 2.10.3: parkeerplaatsen worden per object gewaardeerd op type,
+        # met deling door het aantal adressen met exclusieve toegang en gebruiksrecht.
+        return sum(
+            (
+                self._parkeerruimte_punten_per_ruimte(parkeerruimte)
+                for parkeerruimte in self._parkeerruimten()
+            ),
+            Decimal("0"),
         )
-        totaal += (
-            self._waarde(self.gebruikersinvoer.parkeerruimte_buiten_bij_complex_met_dak)
-            * self.kengetal.parkeerruimte_buiten_bij_complex_met_dak_factor
+
+    def _parkeerruimte_punten_per_ruimte(self, parkeerruimte: Parkeerruimte) -> Decimal:
+        totaal = self._parkeerruimte_basispunten(parkeerruimte)
+        if parkeerruimte.laadpaal:
+            totaal += self.kengetal.bijzondere_voorziening_laadpaal_factor
+        return totaal / Decimal(
+            max(parkeerruimte.aantal_adressen_met_toegang_en_gebruiksrecht, 1)
         )
-        totaal += (
-            self._waarde(
-                self.gebruikersinvoer.parkeerruimte_buiten_bij_complex_zonder_dak
-            )
-            * self.kengetal.parkeerruimte_buiten_bij_complex_zonder_dak_factor
-        )
-        return totaal
+
+    def _parkeerruimte_basispunten(self, parkeerruimte: Parkeerruimte) -> Decimal:
+        veldnaam = {
+            "gesloten_garage_bij_complex": "parkeerruimte_gesloten_garage_bij_complex_factor",
+            "buiten_bij_complex_met_dak": "parkeerruimte_buiten_bij_complex_met_dak_factor",
+            "buiten_bij_complex_zonder_dak": "parkeerruimte_buiten_bij_complex_zonder_dak_factor",
+        }.get(parkeerruimte.type)
+        if veldnaam is None:
+            return Decimal("0")
+        return Decimal(str(getattr(self.kengetal, veldnaam)))
+
+    def _parkeerruimten(self) -> list[Parkeerruimte]:
+        return [
+            maak_parkeerruimte(ruimte)
+            for ruimte in (self.gebruikersinvoer.parkeerruimten or [])
+        ]
 
     # Beleidsboek 2.11.2: WOZ-punten bestaan uit onderdeel I en onderdeel II,
     # met kengetallen per waardepeildatum.
@@ -456,10 +485,11 @@ class Puntenteller:
             str(self._overige_ruimten_berekening()["oppervlakte"])
         )
         oppervlakte_parkeer_type_1 = Decimal(
-            self._aantal_of_nul(
-                self.gebruikersinvoer.parkeerruimte_gesloten_garage_bij_complex
+            sum(
+                self.kengetal.woz_oppervlakte_parkeer_type_1
+                for parkeerruimte in self._parkeerruimten()
+                if parkeerruimte.type == "gesloten_garage_bij_complex"
             )
-            * 12
         )
         oppervlakte_totaal = (
             oppervlakte_vertrekken
@@ -651,20 +681,123 @@ class Puntenteller:
         )
 
     def _bijzondere_voorzieningen_punten(self):
-        # Beleidsboek 2.12.2 en 2.12.3: aanbelfunctie met video/audio en laadpaal.
-        # Let op: de huidige puntwaardes zijn nog niet volledig gelijkgetrokken met januari 2026.
+        # Beleidsboek 2.12.2 en 2.12.3: aanbelfunctie en losse laadpalen tellen
+        # als bijzondere voorzieningen in deze rubriek.
         totaal = Decimal("0")
+        if self.gebruikersinvoer.bijzondere_voorziening_intercom_met_beeld:
+            totaal += self.kengetal.bijzondere_voorziening_intercom_met_beeld_factor
         totaal += (
-            self._waarde(
-                self.gebruikersinvoer.bijzondere_voorziening_intercom_met_beeld
-            )
-            * self.kengetal.bijzondere_voorziening_intercom_met_beeld_factor
-        )
-        totaal += (
-            self._waarde(self.gebruikersinvoer.bijzondere_voorziening_laadpaal)
+            self._waarde(self.gebruikersinvoer.bijzondere_voorziening_laadpalen)
             * self.kengetal.bijzondere_voorziening_laadpaal_factor
         )
         return totaal
+
+    def _zorgwoning_totaal_na_caps(self, totaal_na_caps: Decimal) -> Decimal:
+        if not self.gebruikersinvoer.zorgwoning:
+            return totaal_na_caps
+        return totaal_na_caps * Decimal(str(self.kengetal.zorgwoning_opslag_factor))
+
+    def _monument_berekening(
+        self, totaal_na_correcties: Decimal
+    ) -> dict[str, Decimal | str | bool | None]:
+        if not self.gebruikersinvoer.monument:
+            return {
+                "toegepast": False,
+                "soort": None,
+                "correctie_type": None,
+                "huurprijsopslag_factor": Decimal("1"),
+                "extra_punten": Decimal("0"),
+                "totaal_na_correctie": totaal_na_correcties,
+            }
+
+        monument_soort = (self.gebruikersinvoer.monument_soort or "").strip().lower()
+        if monument_soort in {"gemeentelijk_monument", "provinciaal_monument"}:
+            huurprijsopslag_factor = Decimal(
+                str(
+                    self.kengetal.monument_gemeentelijk_of_provinciaal_huurprijsopslag_factor
+                )
+            )
+            return {
+                "toegepast": True,
+                "soort": monument_soort,
+                "correctie_type": "huurprijsopslag",
+                "huurprijsopslag_factor": huurprijsopslag_factor,
+                "extra_punten": Decimal("0"),
+                "totaal_na_correctie": totaal_na_correcties * huurprijsopslag_factor,
+            }
+
+        if monument_soort == "beschermd_stads_of_dorpsgezicht":
+            huurprijsopslag_factor = Decimal(
+                str(
+                    self.kengetal.monument_beschermd_stads_of_dorpsgezicht_huurprijsopslag_factor
+                )
+            )
+            return {
+                "toegepast": True,
+                "soort": monument_soort,
+                "correctie_type": "huurprijsopslag",
+                "huurprijsopslag_factor": huurprijsopslag_factor,
+                "extra_punten": Decimal("0"),
+                "totaal_na_correctie": totaal_na_correcties * huurprijsopslag_factor,
+            }
+
+        if monument_soort != "rijksmonument":
+            return {
+                "toegepast": False,
+                "soort": monument_soort or None,
+                "correctie_type": None,
+                "huurprijsopslag_factor": Decimal("1"),
+                "extra_punten": Decimal("0"),
+                "totaal_na_correctie": totaal_na_correcties,
+            }
+
+        afgesloten_op = self.gebruikersinvoer.huurovereenkomst_afgesloten_op
+        if (
+            afgesloten_op is not None
+            and afgesloten_op < WET_BETAALBARE_HUUR_INGANGSDATUM
+        ):
+            extra_punten = Decimal(
+                str(self.kengetal.monument_rijksmonument_extra_punten)
+            )
+            return {
+                "toegepast": True,
+                "soort": monument_soort,
+                "correctie_type": "extra_punten",
+                "huurprijsopslag_factor": Decimal("1"),
+                "extra_punten": extra_punten,
+                "totaal_na_correctie": totaal_na_correcties + extra_punten,
+            }
+
+        huurprijsopslag_factor = Decimal(
+            str(self.kengetal.monument_rijksmonument_huurprijsopslag_factor)
+        )
+        return {
+            "toegepast": True,
+            "soort": monument_soort,
+            "correctie_type": "huurprijsopslag",
+            "huurprijsopslag_factor": huurprijsopslag_factor,
+            "extra_punten": Decimal("0"),
+            "totaal_na_correctie": totaal_na_correcties * huurprijsopslag_factor,
+        }
+
+    def _nieuwbouw_berekening(
+        self, totaal_na_correcties: Decimal
+    ) -> dict[str, Decimal | bool]:
+        if not self.gebruikersinvoer.nieuwbouw:
+            return {
+                "toegepast": False,
+                "huurprijsopslag_factor": Decimal("1"),
+                "totaal_na_correctie": totaal_na_correcties,
+            }
+
+        huurprijsopslag_factor = Decimal(
+            str(self.kengetal.nieuwbouw_huurprijsopslag_factor)
+        )
+        return {
+            "toegepast": True,
+            "huurprijsopslag_factor": huurprijsopslag_factor,
+            "totaal_na_correctie": totaal_na_correcties * huurprijsopslag_factor,
+        }
 
     def _energieprestatie_epv_punten(self) -> Decimal:
         veldnaam = (
@@ -674,32 +807,9 @@ class Puntenteller:
         )
         return Decimal(str(getattr(self.kengetal, veldnaam)))
 
-    def _energieprestatie_label_punten(self) -> Decimal | None:
-        if not self._energieprestatie_heeft_geldige_registratie():
-            return None
-
-        registratiedatum = self.gebruikersinvoer.energieprestatie_registratiedatum
-        label = self._genormaliseerd_energielabel()
-        if not label:
-            return None
-
-        if registratiedatum < date(2015, 1, 1) or registratiedatum >= date(2021, 1, 1):
-            return self._energieprestatie_labelpunten_uit_kengetal(label)
-        return None
-
     def _energieprestatie_ei_punten(self) -> Decimal | None:
-        if not self._energieprestatie_heeft_geldige_registratie():
-            return None
-
-        registratiedatum = self.gebruikersinvoer.energieprestatie_registratiedatum
         energie_index = self._decimaal_of_none(self.gebruikersinvoer.energie_index)
-        if (
-            energie_index is None
-            or registratiedatum is None
-            or registratiedatum < date(2015, 1, 1)
-            or registratiedatum >= date(2021, 1, 1)
-            or not self.gebruikersinvoer.energie_index_geldig_voor_wws
-        ):
+        if energie_index is None:
             return None
 
         band_nummer = self._energieprestatie_ei_band(energie_index)
@@ -739,40 +849,17 @@ class Puntenteller:
             punten_voor_monumentcorrectie=punten_voor_monumentcorrectie,
             monumentcorrectie_toegepast=(punten != punten_voor_monumentcorrectie),
             is_eengezinswoning=self.gebruikersinvoer.is_eengezinswoning,
-            individuele_woonruimte=(
-                self.gebruikersinvoer.energieprestatie_individuele_woonruimte
-            ),
             heeft_energieprestatievergoeding=(
                 self.gebruikersinvoer.heeft_energieprestatievergoeding
             ),
             energielabel_klasse=self.gebruikersinvoer.energielabel_klasse,
             energie_index=self._decimaal_of_none(self.gebruikersinvoer.energie_index),
-            energie_index_geldig_voor_wws=(
-                self.gebruikersinvoer.energie_index_geldig_voor_wws
-            ),
             bouwjaar=(
                 None
                 if self.gebruikersinvoer.bouwjaar is None
                 else self._aantal_of_nul(self.gebruikersinvoer.bouwjaar)
             ),
-            registratiedatum=(
-                None
-                if self.gebruikersinvoer.energieprestatie_registratiedatum is None
-                else self.gebruikersinvoer.energieprestatie_registratiedatum.isoformat()
-            ),
-            peildatum=(
-                None
-                if self.gebruikersinvoer.energieprestatie_peildatum is None
-                else self.gebruikersinvoer.energieprestatie_peildatum.isoformat()
-            ),
         )
-
-    def _energieprestatie_heeft_geldige_registratie(self) -> bool:
-        registratiedatum = self.gebruikersinvoer.energieprestatie_registratiedatum
-        peildatum = self.gebruikersinvoer.energieprestatie_peildatum
-        if registratiedatum is None or peildatum is None:
-            return False
-        return registratiedatum <= peildatum
 
     def _energieprestatie_labelpunten_uit_kengetal(self, label: str) -> Decimal | None:
         label_sleutel = {
@@ -854,7 +941,13 @@ class Puntenteller:
             (ruimte.ruimte_m2 for ruimte in ruimten),
             Decimal("0"),
         )
-        oppervlakte_punten = oppervlakte * factor
+        oppervlakte_punten = sum(
+            (
+                self._ruimte_punten_na_adressen(ruimte.ruimte_m2 * factor, ruimte)
+                for ruimte in ruimten
+            ),
+            Decimal("0"),
+        )
         totaal = oppervlakte_punten
         return {
             "factor": float(factor),
@@ -933,9 +1026,11 @@ class Puntenteller:
         aftrek_zolder_zonder_vaste_trap = Decimal("0")
         punten_na_aftrek = Decimal("0")
         if uitsluiting_reden is None:
-            punten_voor_aftrek = effectieve_oppervlakte * factor
+            punten_voor_aftrek = self._ruimte_punten_na_adressen(
+                effectieve_oppervlakte * factor,
+                ruimte,
+            )
             if is_zolderruimte and not heeft_vaste_trap:
-                print("Zolderruimte zonder vaste trap:", effectieve_oppervlakte, factor)
                 # Beleidsboek 2.2.2.3.
                 aftrek_zolder_zonder_vaste_trap = min(Decimal("5"), punten_voor_aftrek)
             punten_na_aftrek = max(
@@ -953,6 +1048,9 @@ class Puntenteller:
             "is_zolderruimte": is_zolderruimte,
             "heeft_vaste_trap": heeft_vaste_trap,
             "is_prive_parkeerruimte": is_prive_parkeerruimte,
+            "aantal_adressen_met_toegang_en_gebruiksrecht": Decimal(
+                ruimte.aantal_adressen_met_toegang_en_gebruiksrecht
+            ),
             "uitsluiting_reden": uitsluiting_reden,
             "punten_voor_aftrek": punten_voor_aftrek,
             "aftrek_zolder_zonder_vaste_trap": aftrek_zolder_zonder_vaste_trap,
@@ -970,6 +1068,9 @@ class Puntenteller:
             "is_zolderruimte": ruimte["is_zolderruimte"],
             "heeft_vaste_trap": ruimte["heeft_vaste_trap"],
             "is_prive_parkeerruimte": ruimte["is_prive_parkeerruimte"],
+            "aantal_adressen_met_toegang_en_gebruiksrecht": int(
+                ruimte["aantal_adressen_met_toegang_en_gebruiksrecht"]
+            ),
             "uitsluiting_reden": ruimte["uitsluiting_reden"],
             "punten_voor_aftrek": float(ruimte["punten_voor_aftrek"]),
             "aftrek_zolder_zonder_vaste_trap": float(
@@ -977,6 +1078,17 @@ class Puntenteller:
             ),
             "punten_na_aftrek": float(ruimte["punten_na_aftrek"]),
         }
+
+    def _ruimte_punten_na_adressen(
+        self,
+        punten: Decimal,
+        ruimte: VertrekRuimte | OverigeRuimte | VerkeersRuimte,
+    ) -> Decimal:
+        aantal_adressen = max(
+            self._aantal_of_nul(ruimte.aantal_adressen_met_toegang_en_gebruiksrecht),
+            1,
+        )
+        return punten / Decimal(aantal_adressen)
 
     def _ruimte_oppervlakte(self, ruimte: dict | None) -> Decimal:
         if not isinstance(ruimte, dict):
@@ -1009,6 +1121,14 @@ class Puntenteller:
         ]
 
     def _badkamer_basis_punten_per_ruimte(self, badkamer: BadkamerRuimte) -> Decimal:
+        return self._ruimte_punten_na_adressen(
+            self._badkamer_basis_punten_per_ruimte_onverdeeld(badkamer),
+            badkamer,
+        )
+
+    def _badkamer_basis_punten_per_ruimte_onverdeeld(
+        self, badkamer: BadkamerRuimte
+    ) -> Decimal:
         subtotal = Decimal("0")
         subtotal += (
             self._waarde(badkamer.toilet_hangend)
@@ -1018,10 +1138,18 @@ class Puntenteller:
             self._waarde(badkamer.toilet_normaal)
             * self.kengetal.badkamer_toilet_normaal_factor
         )
-        subtotal += self._sanitair_basis_punten_per_ruimte(badkamer)
+        subtotal += self._sanitair_basis_punten_per_ruimte_onverdeeld(badkamer)
         return subtotal
 
     def _badkamer_extra_punten_per_ruimte(self, badkamer: BadkamerRuimte) -> Decimal:
+        return self._ruimte_punten_na_adressen(
+            self._badkamer_extra_punten_per_ruimte_onverdeeld(badkamer),
+            badkamer,
+        )
+
+    def _badkamer_extra_punten_per_ruimte_onverdeeld(
+        self, badkamer: BadkamerRuimte
+    ) -> Decimal:
         subtotal = Decimal("0")
         subtotal += (
             self._waarde(badkamer.bubbelfunctie_bad)
@@ -1076,7 +1204,15 @@ class Puntenteller:
     def _sanitair_basis_punten_per_ruimte(
         self, ruimte: VertrekRuimte | OverigeRuimte
     ) -> Decimal:
-        subtotal = self._sanitair_bad_douche_basis_punten_per_ruimte(ruimte)
+        return self._ruimte_punten_na_adressen(
+            self._sanitair_basis_punten_per_ruimte_onverdeeld(ruimte),
+            ruimte,
+        )
+
+    def _sanitair_basis_punten_per_ruimte_onverdeeld(
+        self, ruimte: VertrekRuimte | OverigeRuimte
+    ) -> Decimal:
+        subtotal = self._sanitair_bad_douche_basis_punten_per_ruimte_onverdeeld(ruimte)
         if isinstance(ruimte, BadkamerRuimte):
             subtotal += (
                 self._waarde(ruimte.wastafel) * self.kengetal.badkamer_wastafel_factor
@@ -1102,6 +1238,14 @@ class Puntenteller:
     def _sanitair_bad_douche_basis_punten_per_ruimte(
         self, ruimte: VertrekRuimte | OverigeRuimte
     ) -> Decimal:
+        return self._ruimte_punten_na_adressen(
+            self._sanitair_bad_douche_basis_punten_per_ruimte_onverdeeld(ruimte),
+            ruimte,
+        )
+
+    def _sanitair_bad_douche_basis_punten_per_ruimte_onverdeeld(
+        self, ruimte: VertrekRuimte | OverigeRuimte
+    ) -> Decimal:
         return (
             self._waarde(ruimte.douche) * self.kengetal.badkamer_douche_factor
             + self._waarde(ruimte.bad) * self.kengetal.badkamer_bad_factor
@@ -1116,6 +1260,12 @@ class Puntenteller:
         ]
 
     def _keuken_punten_per_ruimte(self, keuken: KeukenRuimte) -> Decimal:
+        return self._ruimte_punten_na_adressen(
+            self._keuken_punten_per_ruimte_onverdeeld(keuken),
+            keuken,
+        )
+
+    def _keuken_punten_per_ruimte_onverdeeld(self, keuken: KeukenRuimte) -> Decimal:
         subtotal = self._keuken_aanrecht_punten(keuken)
         subtotal += (
             self._waarde(keuken.inbouw_afzuiginstallatie)

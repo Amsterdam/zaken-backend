@@ -92,9 +92,20 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
                 "wozobjectnummer": (
                     woz_data.get("wozobjectnummer") if woz_data else None
                 ),
-                "energielabel": (
-                    energie_data.get("energielabel") if energie_data else None
-                ),
+                "energie": {
+                    "energielabel": (
+                        energie_data.get("energielabel") if energie_data else None
+                    ),
+                    "energieindex": (
+                        energie_data.get("energieindex") if energie_data else None
+                    ),
+                    "registratiedatum": (
+                        energie_data.get("registratiedatum") if energie_data else None
+                    ),
+                    "opnamedatum": (
+                        energie_data.get("opnamedatum") if energie_data else None
+                    ),
+                },
             }
         )
         return Response(serializer.data)
