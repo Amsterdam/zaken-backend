@@ -105,6 +105,9 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
                     "opnamedatum": (
                         energie_data.get("opnamedatum") if energie_data else None
                     ),
+                    "meting_geldig_tot": (
+                        energie_data.get("meting_geldig_tot") if energie_data else None
+                    ),
                 },
             }
         )

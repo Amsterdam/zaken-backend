@@ -6,7 +6,9 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 
-ENERGIELABEL_FIELDS = "energieklasse,bouwjaar,energieindex,registratiedatum,opnamedatum"
+ENERGIELABEL_FIELDS = (
+    "energieklasse,bouwjaar,energieindex,registratiedatum,opnamedatum,metingGeldigTot"
+)
 
 VERBLIJFSOBJECT_FIELDS = "oppervlakte,volgnummer,plusvolgnummer"
 
@@ -39,6 +41,7 @@ def get_energie_label(bag_id):
         "energieindex": laatste_resultaat.get("energieindex"),
         "registratiedatum": laatste_resultaat.get("registratiedatum"),
         "opnamedatum": laatste_resultaat.get("opnamedatum"),
+        "meting_geldig_tot": laatste_resultaat.get("metingGeldigTot"),
     }
 
 
