@@ -76,7 +76,7 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
             gebruiksoppervlakte = get_oppervlakte(adres.bag_id)
             woz_data = get_woz(adres.nummeraanduiding_id)
         except Exception as exception:
-            logger.exception("Fout bij ophalen van externe gebouwdata", exception)
+            logger.exception("Fout bij ophalen van externe gebouwdata: %s", exception)
             return Response(
                 {"detail": "Externe gebouwdata kon niet worden opgehaald"},
                 status=status.HTTP_400_BAD_REQUEST,
