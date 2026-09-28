@@ -9,7 +9,7 @@ HELM_ARGS = manifests/chart \
 	--set image.tag=${VERSION}
 
 REGISTRY ?= 127.0.0.1:5001
-REPOSITORY ?= salmagundi/zaken-backend
+REPOSITORY ?= ams-woon/aza/backend
 VERSION ?= latest
 
 build:
