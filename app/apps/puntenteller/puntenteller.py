@@ -62,7 +62,9 @@ class Puntenteller:
         nieuwbouw_berekening = self._nieuwbouw_berekening(
             monument_berekening["totaal_na_correctie"]
         )
-        totaal_na_caps = nieuwbouw_berekening["totaal_na_correctie"]
+        totaal_na_caps = self._afronden_op_hele_punten(
+            nieuwbouw_berekening["totaal_na_correctie"]
+        )
         return PuntentellerResultaat(
             rubrieken={
                 naam: float(waarde) for naam, waarde in rubrieken_decimal.items()
@@ -695,7 +697,11 @@ class Puntenteller:
     def _zorgwoning_totaal_na_caps(self, totaal_na_caps: Decimal) -> Decimal:
         if not self.gebruikersinvoer.zorgwoning:
             return totaal_na_caps
-        return totaal_na_caps * Decimal(str(self.kengetal.zorgwoning_opslag_factor))
+        # Beleidsboek 2.1.4 en 2.12.1: de 35%-toeslag voor zorgwoningen wordt
+        # toegepast op rubrieken 1 t/m 11.1 en daarna afgerond op kwartpunten.
+        return self._afronden_op_kwart_punt(
+            totaal_na_caps * Decimal(str(self.kengetal.zorgwoning_opslag_factor))
+        )
 
     def _monument_berekening(
         self, totaal_na_correcties: Decimal
@@ -1383,6 +1389,10 @@ class Puntenteller:
     def _afronden_op_hele_m2(self, waarde: Decimal) -> int:
         # Beleidsboek 2.11.2: bij 0,5 m2 of meer wordt naar boven afgerond, anders naar beneden.
         return int(waarde.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+
+    def _afronden_op_hele_punten(self, waarde: Decimal) -> Decimal:
+        # Beleidsboek 2.1.5: het eindsaldo van de woonruimte wordt op hele punten afgerond.
+        return waarde.quantize(Decimal("1"), rounding=ROUND_HALF_UP)
 
     def _afronden_naar_beneden_op_hele_punten(self, waarde: Decimal) -> Decimal:
         # Beleidsboek 2.11.2 en 2.11.7: bij toepassing van de WOZ-cap wordt naar beneden op hele punten afgerond.
