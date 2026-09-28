@@ -51,7 +51,8 @@ def get_woz(nummeraanduiding_id):
         timeout=10,
         headers={"Accept": "application/json"},
     )
-    response.raise_for_status()
+    if response.status_code != 200:
+        return None
 
     response_data = response.json()
 

@@ -439,7 +439,9 @@ class Gebruikersinvoer(models.Model):
         max_digits=5, decimal_places=2, null=True, blank=True
     )
     woonvoorziening_handicap = models.BooleanField(default=False)
-    woonvoorziening_handicap_netto_investering = models.PositiveIntegerField(default=0)
+    woonvoorziening_handicap_netto_investering = models.PositiveIntegerField(
+        default=0, null=True, blank=True
+    )
     monument = models.BooleanField(default=False)
     monument_soort = models.CharField(max_length=255, null=True, blank=True)
     huurovereenkomst_afgesloten_op = models.DateField(null=True, blank=True)
