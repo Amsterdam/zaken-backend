@@ -4,7 +4,6 @@ from apps.puntenteller.models import Gebruikersinvoer, RuimteNaam
 from apps.puntenteller.ruimte_types import (
     maak_buitenruimte,
     maak_overige_ruimte,
-    maak_parkeerruimte,
     maak_verkeersruimte,
     maak_vertrek_ruimte,
 )
@@ -179,17 +178,57 @@ class ParkeerruimteSerializer(serializers.Serializer):
     naam = serializers.ChoiceField(
         choices=_ruimte_keuzes(RuimteNaam.BUITENRUIMTE_PARKEERPLAATS)
     )
-    type = serializers.ChoiceField(
-        choices=(
-            ("gesloten_garage_bij_complex", "Gesloten garage bij complex"),
-            ("buiten_bij_complex_met_dak", "Buiten bij complex met dak"),
-            ("buiten_bij_complex_zonder_dak", "Buiten bij complex zonder dak"),
-        )
+    aantal_gesloten_garage_bij_complex = serializers.IntegerField(
+        required=False, default=0, min_value=0
+    )
+    aantal_buiten_bij_complex_met_dak = serializers.IntegerField(
+        required=False, default=0, min_value=0
+    )
+    aantal_buiten_bij_complex_zonder_dak = serializers.IntegerField(
+        required=False, default=0, min_value=0
     )
     aantal_adressen_met_toegang_en_gebruiksrecht = serializers.IntegerField(
         required=False, default=1, min_value=1
     )
-    laadpaal = serializers.BooleanField(required=False, default=False)
+    aantal_laadpalen = serializers.IntegerField(required=False, default=0, min_value=0)
+
+    def validate(self, attrs):
+        totaal_parkeerplekken = (
+            attrs.get("aantal_gesloten_garage_bij_complex", 0)
+            + attrs.get("aantal_buiten_bij_complex_met_dak", 0)
+            + attrs.get("aantal_buiten_bij_complex_zonder_dak", 0)
+        )
+        if totaal_parkeerplekken <= 0:
+            raise serializers.ValidationError("Vul minimaal een parkeerplek in.")
+        if attrs.get("aantal_laadpalen", 0) > totaal_parkeerplekken:
+            raise serializers.ValidationError(
+                {
+                    "aantal_laadpalen": (
+                        "Het aantal laadpalen kan niet hoger zijn dan het totaal aantal parkeerplekken."
+                    )
+                }
+            )
+        return attrs
+
+    def to_representation(self, instance):
+        if isinstance(instance, dict) and "type" in instance:
+            return {
+                "naam": instance.get("naam") or RuimteNaam.BUITENRUIMTE_PARKEERPLAATS,
+                "aantal_gesloten_garage_bij_complex": (
+                    1 if instance.get("type") == "gesloten_garage_bij_complex" else 0
+                ),
+                "aantal_buiten_bij_complex_met_dak": (
+                    1 if instance.get("type") == "buiten_bij_complex_met_dak" else 0
+                ),
+                "aantal_buiten_bij_complex_zonder_dak": (
+                    1 if instance.get("type") == "buiten_bij_complex_zonder_dak" else 0
+                ),
+                "aantal_adressen_met_toegang_en_gebruiksrecht": (
+                    instance.get("aantal_adressen_met_toegang_en_gebruiksrecht") or 1
+                ),
+                "aantal_laadpalen": 1 if instance.get("laadpaal") else 0,
+            }
+        return super().to_representation(instance)
 
 
 class PolymorfeRuimteSerializer(serializers.Serializer):
@@ -536,7 +575,7 @@ class GebruikersinvoerSerializer(EnergieSerializerMixin, serializers.ModelSerial
         return [maak_buitenruimte(ruimte).as_dict() for ruimte in ruimten]
 
     def _normaliseer_parkeerruimten(self, ruimten):
-        return [maak_parkeerruimte(ruimte).as_dict() for ruimte in ruimten]
+        return [dict(ruimte) for ruimte in ruimten]
 
     def _valideer_geen_verkoeling(self, ruimten, veldnaam):
         for index, ruimte in enumerate(ruimten):

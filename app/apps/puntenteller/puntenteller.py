@@ -455,10 +455,52 @@ class Puntenteller:
         return Decimal(str(getattr(self.kengetal, veldnaam)))
 
     def _parkeerruimten(self) -> list[Parkeerruimte]:
-        return [
-            maak_parkeerruimte(ruimte)
-            for ruimte in (self.gebruikersinvoer.parkeerruimten or [])
-        ]
+        parkeerruimten: list[Parkeerruimte] = []
+        for ruimte in self.gebruikersinvoer.parkeerruimten or []:
+            parkeerruimten.extend(self._parkeerruimten_uit_invoer(ruimte))
+        return parkeerruimten
+
+    def _parkeerruimten_uit_invoer(self, ruimte: dict | None) -> list[Parkeerruimte]:
+        if not isinstance(ruimte, dict):
+            return []
+        if "type" in ruimte:
+            return [maak_parkeerruimte(ruimte)]
+
+        aantal_adressen = max(
+            self._aantal_of_nul(
+                ruimte.get("aantal_adressen_met_toegang_en_gebruiksrecht")
+            ),
+            1,
+        )
+        aantal_laadpalen = max(self._aantal_of_nul(ruimte.get("aantal_laadpalen")), 0)
+        parkeerruimten: list[Parkeerruimte] = []
+        for veldnaam, type_naam in (
+            (
+                "aantal_gesloten_garage_bij_complex",
+                "gesloten_garage_bij_complex",
+            ),
+            (
+                "aantal_buiten_bij_complex_met_dak",
+                "buiten_bij_complex_met_dak",
+            ),
+            (
+                "aantal_buiten_bij_complex_zonder_dak",
+                "buiten_bij_complex_zonder_dak",
+            ),
+        ):
+            for _ in range(max(self._aantal_of_nul(ruimte.get(veldnaam)), 0)):
+                parkeerruimten.append(
+                    Parkeerruimte(
+                        naam=str(
+                            ruimte.get("naam") or RuimteNaam.BUITENRUIMTE_PARKEERPLAATS
+                        ),
+                        type=type_naam,
+                        aantal_adressen_met_toegang_en_gebruiksrecht=aantal_adressen,
+                        laadpaal=aantal_laadpalen > 0,
+                    )
+                )
+                aantal_laadpalen = max(aantal_laadpalen - 1, 0)
+        return parkeerruimten
 
     # Beleidsboek 2.11.2: WOZ-punten bestaan uit onderdeel I en onderdeel II,
     # met kengetallen per waardepeildatum.
