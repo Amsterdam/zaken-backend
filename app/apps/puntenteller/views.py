@@ -86,13 +86,13 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
             {
                 "straat": adres.street_name,
                 "huisnummer": adres.number,
-                "bouwjaar": energie_data.get("bouwjaar") if energie_data else None,
                 "gebruiksoppervlakte": gebruiksoppervlakte,
                 "woz_waarden": woz_data.get("woz_waarden") if woz_data else None,
                 "wozobjectnummer": (
                     woz_data.get("wozobjectnummer") if woz_data else None
                 ),
                 "energie": {
+                    "bouwjaar": energie_data.get("bouwjaar") if energie_data else None,
                     "energielabel": (
                         energie_data.get("energielabel") if energie_data else None
                     ),

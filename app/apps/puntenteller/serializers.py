@@ -15,6 +15,7 @@ ENERGIE_MODEL_VELDEN = (
     "energielabel_klasse",
     "energie_index",
     "heeft_energieprestatievergoeding",
+    "bouwjaar",
 )
 
 
@@ -32,7 +33,7 @@ class EnergieSerializer(serializers.Serializer):
     def validate(self, attrs):
         energie_type = attrs["type"]
         waarde = attrs.get("waarde")
-        if energie_type in {"label", "index"} and waarde in (None, ""):
+        if energie_type in {"label", "index", "bouwjaar"} and waarde in (None, ""):
             raise serializers.ValidationError({"waarde": "Dit veld is verplicht."})
 
         if energie_type == "index" and waarde not in (None, ""):
@@ -44,7 +45,16 @@ class EnergieSerializer(serializers.Serializer):
                 )
 
         if energie_type == "bouwjaar":
-            attrs["waarde"] = None
+            try:
+                attrs["waarde"] = int(str(waarde))
+            except (TypeError, ValueError):
+                raise serializers.ValidationError(
+                    {"waarde": "Vul een geldig bouwjaar in."}
+                )
+            if attrs["waarde"] <= 0:
+                raise serializers.ValidationError(
+                    {"waarde": "Vul een geldig bouwjaar in."}
+                )
         return attrs
 
 
@@ -338,7 +348,6 @@ class WozWaardeSerializer(serializers.Serializer):
 class GebouwDataSerializer(serializers.Serializer):
     straat = serializers.CharField(allow_null=True)
     huisnummer = serializers.CharField(allow_null=True)
-    bouwjaar = serializers.IntegerField(allow_null=True)
     gebruiksoppervlakte = serializers.IntegerField(allow_null=True)
     woz_waarden = WozWaardeSerializer(many=True, allow_null=True)
     wozobjectnummer = serializers.IntegerField(allow_null=True)
@@ -395,6 +404,8 @@ class EnergieSerializerMixin:
             validated_data["energielabel_klasse"] = energie.get("waarde")
         elif energie["type"] == "index":
             validated_data["energie_index"] = energie.get("waarde")
+        elif energie["type"] == "bouwjaar":
+            validated_data["bouwjaar"] = energie.get("waarde")
 
         return validated_data
 
@@ -404,6 +415,7 @@ class EnergieSerializerMixin:
             "energie_index": None,
             "is_eengezinswoning": None,
             "heeft_energieprestatievergoeding": False,
+            "bouwjaar": None,
         }
 
     def _energie_representatie(self, instance):
@@ -423,8 +435,10 @@ class EnergieSerializerMixin:
         }
         if energie_type == "label":
             data["waarde"] = instance.energielabel_klasse
-        if energie_type == "index":
+        elif energie_type == "index":
             data["waarde"] = instance.energie_index
+        else:
+            data["waarde"] = instance.bouwjaar
         return data
 
 
