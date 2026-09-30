@@ -1,5 +1,6 @@
 import datetime
 
+from apps.addresses.models import Address
 from apps.cases.models import (
     Advertisement,
     Case,
@@ -10,6 +11,7 @@ from apps.cases.models import (
 )
 from apps.summons.models import SummonType
 from apps.workflow.models import CaseWorkflow, WorkflowOption
+from django.conf import settings
 from django.core import management
 from django.urls import reverse
 from django.utils import timezone
@@ -18,6 +20,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from utils.unittest_helpers import (
     get_authenticated_client,
+    get_authenticated_with_token_client,
     get_test_user,
     get_unauthenticated_client,
 )
@@ -332,6 +335,94 @@ class CaseListApiTest(APITestCase):
 
         results = response.data["results"]
         self.assertEqual(len(results), 1)
+
+
+class CaseOpenSensitiveCaseOnAddressApiTest(APITestCase):
+    def setUp(self):
+        management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
+        self.address = baker.make(Address)
+        theme = baker.make(CaseTheme, sensitive=False)
+        sensitive_theme = baker.make(CaseTheme, sensitive=True)
+
+        self.case = baker.make(Case, address=self.address, theme=theme)
+        self.sensitive_case_a = baker.make(
+            Case, address=self.address, theme=sensitive_theme
+        )
+        self.sensitive_case_b = baker.make(
+            Case, address=self.address, theme=sensitive_theme
+        )
+        self.other_address_case = baker.make(
+            Case, address=baker.make(Address), theme=theme
+        )
+
+    def get_results_by_id(self, client, params=None):
+        response = client.get(reverse("cases-list"), params)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        return {result["id"]: result for result in response.data["results"]}
+
+    def test_top_list_excludes_cases_on_address_with_open_sensitive_case(self):
+        client = get_authenticated_with_token_client(settings.SECRET_KEY_TOP_ZAKEN)
+        results = self.get_results_by_id(client)
+
+        self.assertEqual(
+            set(results.keys()),
+            {
+                self.sensitive_case_a.id,
+                self.sensitive_case_b.id,
+                self.other_address_case.id,
+            },
+        )
+
+    def test_top_count_excludes_cases_on_address_with_open_sensitive_case(self):
+        client = get_authenticated_with_token_client(settings.SECRET_KEY_TOP_ZAKEN)
+        response = client.get(reverse("cases-count"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 3)
+
+    def test_top_list_includes_cases_when_sensitive_case_is_closed(self):
+        Case.objects.filter(sensitive=True).update(end_date=datetime.date.today())
+
+        client = get_authenticated_with_token_client(settings.SECRET_KEY_TOP_ZAKEN)
+        results = self.get_results_by_id(client)
+
+        self.assertIn(self.case.id, results)
+
+    def test_top_retrieve_case_on_address_with_open_sensitive_case(self):
+        client = get_authenticated_with_token_client(settings.SECRET_KEY_TOP_ZAKEN)
+        response = client.get(reverse("cases-detail", kwargs={"pk": self.case.id}))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["has_open_sensitive_case_on_address"])
+
+    def test_list_signals_open_sensitive_case_on_address(self):
+        results = self.get_results_by_id(get_authenticated_client())
+
+        self.assertTrue(results[self.case.id]["has_open_sensitive_case_on_address"])
+        self.assertFalse(
+            results[self.sensitive_case_a.id]["has_open_sensitive_case_on_address"]
+        )
+        self.assertFalse(
+            results[self.sensitive_case_b.id]["has_open_sensitive_case_on_address"]
+        )
+        self.assertFalse(
+            results[self.other_address_case.id]["has_open_sensitive_case_on_address"]
+        )
+
+    def test_simplified_list_signals_open_sensitive_case_on_address(self):
+        results = self.get_results_by_id(
+            get_authenticated_client(), {"simplified": "true"}
+        )
+
+        self.assertTrue(results[self.case.id]["has_open_sensitive_case_on_address"])
+
+    def test_retrieve_signals_open_sensitive_case_on_address(self):
+        client = get_authenticated_client()
+        response = client.get(reverse("cases-detail", kwargs={"pk": self.case.id}))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["has_open_sensitive_case_on_address"])
 
 
 class CaseCreatApiTest(APITestCase):

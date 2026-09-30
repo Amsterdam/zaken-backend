@@ -101,8 +101,27 @@ class Tag(models.Model):
         ordering = ["name"]
 
 
+class CaseQuerySet(models.QuerySet):
+    def with_open_sensitive_case_on_address(self):
+        # Sensitive cases (Ondermijning) never signal each other, only non-sensitive cases do.
+        open_sensitive_cases = Case.objects.filter(
+            address=models.OuterRef("address"),
+            sensitive=True,
+            end_date__isnull=True,
+        )
+        return self.annotate(
+            has_open_sensitive_case_on_address=models.Case(
+                models.When(sensitive=True, then=models.Value(False)),
+                default=models.Exists(open_sensitive_cases),
+                output_field=models.BooleanField(),
+            )
+        )
+
+
 class Case(ModelEventEmitter):
     EVENT_TYPE = CaseEvent.TYPE_CASE
+
+    objects = CaseQuerySet.as_manager()
 
     identification = models.CharField(
         max_length=255, null=True, blank=True, unique=True
