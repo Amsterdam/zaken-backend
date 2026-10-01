@@ -1,6 +1,7 @@
 from datetime import date
 from uuid import UUID
 
+from apps.addresses.models import Address
 from apps.cases.models import Case, CaseReason, CaseState, CaseStateType, CaseTheme
 from django.core import management
 from django.test import TestCase
@@ -110,3 +111,64 @@ class CaseModelTest(TestCase):
         case = baker.make(Case, start_date=start_date)
 
         self.assertEqual(case.start_date, start_date)
+
+
+class CaseOpenSensitiveCaseOnAddressTest(TestCase):
+    def setUp(self):
+        management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
+        self.address = baker.make(Address)
+        self.theme = baker.make(CaseTheme, sensitive=False)
+        self.sensitive_theme = baker.make(CaseTheme, sensitive=True)
+
+    def get_annotated_value(self, case):
+        return (
+            Case.objects.with_open_sensitive_case_on_address()
+            .get(pk=case.pk)
+            .has_open_sensitive_case_on_address
+        )
+
+    def test_without_sensitive_case_on_address(self):
+        """A case on an address without sensitive cases is not signaled"""
+        case = baker.make(Case, address=self.address, theme=self.theme)
+
+        self.assertFalse(self.get_annotated_value(case))
+
+    def test_with_open_sensitive_case_on_address(self):
+        """A case on an address with an open sensitive case is signaled"""
+        case = baker.make(Case, address=self.address, theme=self.theme)
+        baker.make(Case, address=self.address, theme=self.sensitive_theme)
+
+        self.assertTrue(self.get_annotated_value(case))
+
+    def test_with_closed_sensitive_case_on_address(self):
+        """A closed sensitive case on the address is not signaled"""
+        case = baker.make(Case, address=self.address, theme=self.theme)
+        baker.make(
+            Case,
+            address=self.address,
+            theme=self.sensitive_theme,
+            end_date=date(2020, 1, 1),
+        )
+
+        self.assertFalse(self.get_annotated_value(case))
+
+    def test_with_open_sensitive_case_on_other_address(self):
+        """An open sensitive case on another address is not signaled"""
+        case = baker.make(Case, address=self.address, theme=self.theme)
+        baker.make(Case, address=baker.make(Address), theme=self.sensitive_theme)
+
+        self.assertFalse(self.get_annotated_value(case))
+
+    def test_sensitive_case_is_never_signaled(self):
+        """Multiple sensitive cases on the same address do not signal each other"""
+        sensitive_case_a = baker.make(
+            Case, address=self.address, theme=self.sensitive_theme
+        )
+        sensitive_case_b = baker.make(
+            Case, address=self.address, theme=self.sensitive_theme
+        )
+
+        self.assertTrue(sensitive_case_a.sensitive)
+        self.assertFalse(self.get_annotated_value(sensitive_case_a))
+        self.assertFalse(self.get_annotated_value(sensitive_case_b))

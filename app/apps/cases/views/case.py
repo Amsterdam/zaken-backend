@@ -504,8 +504,11 @@ class CaseViewSet(
         return super().get_serializer_class()
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().with_open_sensitive_case_on_address()
         if TopKeyAuth().has_permission(self.request, None):
+            if self.action in ("list", "count"):
+                # Addresses with an open sensitive case (Ondermijning) may not be visited by other themes.
+                queryset = queryset.exclude(has_open_sensitive_case_on_address=True)
             return queryset
         if (
             self.action in ("list",)

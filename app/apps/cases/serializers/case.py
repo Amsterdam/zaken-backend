@@ -101,6 +101,7 @@ class CaseSerializer(serializers.ModelSerializer):
     subjects = SubjectSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     project = CaseProjectSerializer(read_only=True)
+    has_open_sensitive_case_on_address = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Case
@@ -233,6 +234,7 @@ class CaseDetailSerializer(serializers.ModelSerializer):
     reason = CaseReasonSerializer(read_only=True)
     schedules = ScheduleSerializer(source="get_schedules", many=True, read_only=True)
     advertisements = AdvertisementSerializer(many=True, required=False, read_only=True)
+    has_open_sensitive_case_on_address = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Case
@@ -256,6 +258,7 @@ class CaseSimplifiedSerializer(serializers.ModelSerializer):
     )
     reason = CaseReasonSerializer(read_only=True)
     project = CaseProjectSerializer(read_only=True)
+    has_open_sensitive_case_on_address = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Case
@@ -268,6 +271,7 @@ class CaseSimplifiedSerializer(serializers.ModelSerializer):
             "start_date",
             "last_updated",
             "project",
+            "has_open_sensitive_case_on_address",
         )
 
 
