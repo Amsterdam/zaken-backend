@@ -424,6 +424,38 @@ class CaseOpenSensitiveCaseOnAddressApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["has_open_sensitive_case_on_address"])
 
+    def test_filter_has_open_sensitive_case_on_address_true(self):
+        results = self.get_results_by_id(
+            get_authenticated_client(), {"has_open_sensitive_case_on_address": "true"}
+        )
+
+        self.assertEqual(set(results.keys()), {self.case.id})
+
+    def test_filter_has_open_sensitive_case_on_address_false(self):
+        results = self.get_results_by_id(
+            get_authenticated_client(), {"has_open_sensitive_case_on_address": "false"}
+        )
+
+        self.assertEqual(
+            set(results.keys()),
+            {
+                self.sensitive_case_a.id,
+                self.sensitive_case_b.id,
+                self.other_address_case.id,
+            },
+        )
+
+    def test_filter_has_open_sensitive_case_on_address_when_sensitive_case_is_closed(
+        self,
+    ):
+        Case.objects.filter(sensitive=True).update(end_date=datetime.date.today())
+
+        results = self.get_results_by_id(
+            get_authenticated_client(), {"has_open_sensitive_case_on_address": "true"}
+        )
+
+        self.assertEqual(results, {})
+
 
 class CaseCreatApiTest(APITestCase):
     def setUp(self):

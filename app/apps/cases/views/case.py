@@ -96,6 +96,9 @@ class CaseFilter(filters.FilterSet):
         to_field_name="name",
     )
     from_start_date = filters.DateFilter(field_name="start_date", lookup_expr="gte")
+    has_open_sensitive_case_on_address = filters.BooleanFilter(
+        field_name="has_open_sensitive_case_on_address"
+    )
     housing_corporation = filters.ModelMultipleChoiceFilter(
         queryset=HousingCorporation.objects.all(),
         method="get_housing_corporation",
@@ -420,6 +423,11 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("district", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("district_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("from_start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
+        OpenApiParameter(
+            "has_open_sensitive_case_on_address",
+            OpenApiTypes.BOOL,
+            OpenApiParameter.QUERY,
+        ),
         OpenApiParameter(
             "housing_corporation", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
         ),
