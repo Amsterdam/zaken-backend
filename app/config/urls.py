@@ -16,6 +16,7 @@ from apps.decisions.views import DecisionTypeViewSet, DecisionViewSet
 from apps.feedback.views import FeedbackViewset
 from apps.fines.views import FinesViewSet
 from apps.health.health_checks import is_healthy
+from apps.puntenteller.views import AdresPuntentellerViewSet, PuntentellingViewSet
 from apps.quick_decisions.views import QuickDecisionTypeViewSet, QuickDecisionViewSet
 from apps.schedules.views import (
     ActionViewSet,
@@ -69,6 +70,16 @@ router.register(r"visits", VisitViewSet, basename="visits")
 router.register(r"fines", FinesViewSet, basename="fines")
 router.register(r"users", UserListView, basename="users")
 router.register(r"permissions", PermissionViewSet, basename="permissions")
+router.register(
+    r"puntenteller/adressen/(?P<bag_id>[^/.]+)",
+    AdresPuntentellerViewSet,
+    basename="puntenteller-adressen",
+)
+router.register(
+    r"puntenteller/puntentellingen",
+    PuntentellingViewSet,
+    basename="puntenteller-puntentellingen",
+)
 router.register(r"summons", SummonViewSet, basename="summons")
 router.register(r"summon-types", SummonTypeViewSet, basename="summon-types")
 router.register(r"summoned-persons", SummonedPersonViewSet, basename="summoned-persons")
