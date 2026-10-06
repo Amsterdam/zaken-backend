@@ -4,6 +4,7 @@ import itertools
 import json
 import logging
 import os
+import re
 from functools import lru_cache
 
 from deepdiff import DeepDiff
@@ -388,6 +389,69 @@ def get_workflow_spec_files(path):
         for f in os.listdir(path)
         if os.path.isfile(os.path.join(path, f)) and is_bpmn_file(f)
     ]
+
+
+BPMN_VERSION_PATTERN = re.compile(r"^\d+(\.\d+)*$")
+
+
+def get_bpmn_models_path(theme_name="default"):
+    return os.path.join(get_base_path(), "bpmn_files", theme_name)
+
+
+def get_bpmn_models():
+    """
+    Returns the names of all BPMN models, based on the directories in bpmn_files
+    """
+    path = get_bpmn_models_path()
+    if not os.path.isdir(path):
+        return []
+    return sorted(d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d)))
+
+
+def get_bpmn_model_versions_and_files(model_name):
+    """
+    Returns the versions and file names of a BPMN model, sorted by version.
+    Returns None if the model does not exist.
+    """
+    # Only accept existing model names, so the name can't be used to traverse directories
+    if model_name not in get_bpmn_models():
+        return None
+
+    model_path = os.path.join(get_bpmn_models_path(), model_name)
+    versions = []
+    for version in os.listdir(model_path):
+        version_path = os.path.join(model_path, version)
+        if not BPMN_VERSION_PATTERN.match(version) or not os.path.isdir(version_path):
+            continue
+        file_names = sorted(f for f in os.listdir(version_path) if is_bpmn_file(f))
+        if file_names:
+            versions.append(
+                {
+                    "version": version,
+                    "file_name": file_names[0],
+                    "model": model_name,
+                }
+            )
+
+    versions.sort(key=lambda v: tuple(map(int, v["version"].split("."))))
+    return versions
+
+
+def get_bpmn_file(model_name, version):
+    """
+    Returns the content of a BPMN file.
+    Returns None if the model or the version does not exist.
+    """
+    versions = get_bpmn_model_versions_and_files(model_name) or []
+    bpmn_model = next((v for v in versions if v["version"] == version), None)
+    if not bpmn_model:
+        return None
+
+    path = os.path.join(
+        get_bpmn_models_path(), model_name, version, bpmn_model["file_name"]
+    )
+    with open(path, "r", encoding="utf-8") as file:
+        return file.read()
 
 
 def compare_path_until_task(workflow_spec_a, workflow_spec_b, task_name):

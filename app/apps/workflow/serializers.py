@@ -202,6 +202,40 @@ class CaseWorkflowSerializer(CaseWorkflowBaseSerializer):
         fields = ["state", "tasks", "information"]
 
 
+class CaseWorkflowInstanceSerializer(serializers.ModelSerializer):
+    current_task_specs = serializers.SerializerMethodField()
+
+    @extend_schema_field(serializers.ListField(child=serializers.CharField()))
+    def get_current_task_specs(self, obj):
+        tasks = getattr(obj, "open_tasks", None)
+        if tasks is None:
+            tasks = CaseUserTask.objects.filter(workflow=obj, completed=False).order_by(
+                "id"
+            )
+        return [task.task_name for task in tasks]
+
+    class Meta:
+        model = CaseWorkflow
+        fields = (
+            "id",
+            "workflow_type",
+            "workflow_version",
+            "completed",
+            "main_workflow",
+            "current_task_specs",
+        )
+
+
+class BpmnModelListSerializer(serializers.ListSerializer):
+    child = serializers.CharField(max_length=100)
+
+
+class BpmnModelSerializer(serializers.Serializer):
+    version = serializers.CharField(max_length=100)
+    file_name = serializers.CharField(max_length=100)
+    model = serializers.CharField(max_length=100)
+
+
 class GenericCompletedTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = GenericCompletedTask
