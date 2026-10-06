@@ -33,6 +33,7 @@ if TYPE_CHECKING:
 
 WOZ_CAP_PERCENTAGE = Decimal("0.33")
 WET_BETAALBARE_HUUR_INGANGSDATUM = date(2024, 7, 1)
+WOZ_GRENS = "187"
 
 
 class Puntenteller:
@@ -665,6 +666,22 @@ class Puntenteller:
                 totaal_na_woz_correcties=totaal_voor_cap,
             )
 
+        if totaal_voor_cap < Decimal(WOZ_GRENS):
+            # Beleidsboek 2.11.7: onder 187 punten zonder WOZ-cap wordt de cap niet toegepast.
+            return WozCapBerekening(
+                toegepast=False,
+                reden=None,
+                woz_voor_cap=woz_punten,
+                woz_na_cap=woz_punten,
+                maximum_toegestaan=None,
+                cap_uitgesloten=True,
+                cap_uitsluiting_reden="onder_187_punten",
+                totaal_voor_cap=totaal_voor_cap,
+                totaal_na_cap=totaal_voor_cap,
+                minimale_waardering_186_toegepast=False,
+                totaal_na_woz_correcties=totaal_voor_cap,
+            )
+
         if self.gebruikersinvoer.woz_nieuwbouw_2015_2019:
             # Beleidsboek 2.11.5 en 2.11.7: bij nieuwbouw 2015-2019 met de 40-puntenregel
             # is de WOZ-cap rekenkundig niet van toepassing.
@@ -704,8 +721,8 @@ class Puntenteller:
         woz_na_cap = self._afronden_naar_beneden_op_hele_punten(maximum_toegestaan)
         totaal_na_cap = totaal_voor_cap - woz_punten + woz_na_cap
         minimale_waardering_186_toegepast = (
-            totaal_voor_cap >= Decimal("187")
-            and totaal_na_cap < Decimal("187")
+            totaal_voor_cap >= Decimal(WOZ_GRENS)
+            and totaal_na_cap < Decimal(WOZ_GRENS)
             and not woz_berekening.gebruikt_klein_nieuwbouwkengetal
         )
         return WozCapBerekening(
