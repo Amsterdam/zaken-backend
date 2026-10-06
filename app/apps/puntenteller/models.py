@@ -399,6 +399,8 @@ class Kengetal(models.Model):
 
     class Meta:
         ordering = ["-id"]
+        verbose_name = "kengetal"
+        verbose_name_plural = "kengetallen"
 
     def __str__(self):
         return f"Kengetallen {self.id}"
@@ -452,6 +454,8 @@ class Gebruikersinvoer(models.Model):
 
     class Meta:
         ordering = ["-id"]
+        verbose_name = "gebruikersinvoer"
+        verbose_name_plural = "gebruikersinvoer"
 
     def __str__(self):
         return f"{self.adres} - {self.id}"
