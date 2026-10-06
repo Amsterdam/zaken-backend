@@ -16,13 +16,21 @@ from apps.users.models import User
 from apps.users.permissions import CanAccessSensitiveCases, IsInAuthorizedRealm
 from apps.users.serializers import UserSerializer
 from apps.workflow.serializers import (
+    BpmnModelListSerializer,
+    BpmnModelSerializer,
     CaseUserTaskSerializer,
     CaseUserTaskTaskNameSerializer,
     GenericCompletedTaskCreateSerializer,
     GenericCompletedTaskSerializer,
 )
-from apps.workflow.utils import map_variables_on_task_spec_form
+from apps.workflow.utils import (
+    get_bpmn_file,
+    get_bpmn_model_versions_and_files,
+    get_bpmn_models,
+    map_variables_on_task_spec_form,
+)
 from django.db.models import Q
+from django.http import Http404, HttpResponse
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -566,3 +574,41 @@ class GenericCompletedTaskViewSet(
                 raise e
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class BpmnViewSet(viewsets.GenericViewSet):
+    pagination_class = None
+
+    @extend_schema(
+        description="Get all BPMN model names",
+        responses={200: BpmnModelListSerializer},
+    )
+    def list(self, request):
+        return Response(get_bpmn_models())
+
+    @extend_schema(
+        operation_id="bpmn_models_versions_list",
+        description="Get versions and filenames for a specific model",
+        responses={200: BpmnModelSerializer(many=True)},
+    )
+    @action(detail=False, url_path="(?P<model_name>[^/]+)", methods=["get"])
+    def get_model_versions(self, request, model_name):
+        versions = get_bpmn_model_versions_and_files(model_name)
+        if versions is None:
+            raise Http404
+        return Response(versions)
+
+    @extend_schema(
+        description="Get a specific BPMN workflow file",
+        responses={(200, "application/xml"): OpenApiTypes.STR},
+    )
+    @action(
+        detail=False,
+        url_path="(?P<model_name>[^/]+)/file/(?P<version>[^/]+)",
+        methods=["get"],
+    )
+    def get_bpmn_file(self, request, model_name, version):
+        content = get_bpmn_file(model_name, version)
+        if content is None:
+            raise Http404
+        return HttpResponse(content, content_type="application/xml")

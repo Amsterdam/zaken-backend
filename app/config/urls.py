@@ -34,7 +34,11 @@ from apps.users.views import (
     UserListView,
 )
 from apps.visits.views import VisitViewSet
-from apps.workflow.views import CaseUserTaskViewSet, GenericCompletedTaskViewSet
+from apps.workflow.views import (
+    BpmnViewSet,
+    CaseUserTaskViewSet,
+    GenericCompletedTaskViewSet,
+)
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -103,6 +107,7 @@ router.register(
 router.register(r"citizen-reports", CitizenReportViewSet, basename="citizen-reports")
 
 router.register(r"generic-tasks", GenericCompletedTaskViewSet, basename="generic-tasks")
+router.register(r"bpmn-models", BpmnViewSet, basename="bpmn-models")
 
 
 class MyView(View):

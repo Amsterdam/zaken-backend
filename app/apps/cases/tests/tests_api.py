@@ -10,9 +10,11 @@ from apps.cases.models import (
     CitizenReport,
 )
 from apps.summons.models import SummonType
-from apps.workflow.models import CaseWorkflow, WorkflowOption
+from apps.workflow.models import CaseUserTask, CaseWorkflow, WorkflowOption
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core import management
+from django.db.models import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 from model_bakery import baker
@@ -695,3 +697,97 @@ class CaseWorkflowOptionsApiTest(APITestCase):
         client = get_authenticated_client()
         response = client.get(url)
         self.assertEqual(len(response.data), 1)
+
+
+class CaseWorkflowInstancesApiTest(APITestCase):
+    def setUp(self):
+        management.call_command("flush", verbosity=0, interactive=False)
+        super().setUp()
+        self.case = baker.make(Case)
+
+    def get_url(self, case):
+        return reverse("cases-get-workflow-instances", kwargs={"pk": case.id})
+
+    def make_workflow(self, case, **kwargs):
+        return baker.make(
+            CaseWorkflow,
+            case=case,
+            workflow_type=CaseWorkflow.WORKFLOW_TYPE_DIRECTOR,
+            **kwargs,
+        )
+
+    def make_sensitive_case(self):
+        # Case.sensitive is derived from the theme on save
+        return baker.make(Case, theme=baker.make(CaseTheme, sensitive=True))
+
+    def test_unauthenticated_get(self):
+        response = get_unauthenticated_client().get(self.get_url(self.case))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_authenticated_get_empty(self):
+        response = get_authenticated_client().get(self.get_url(self.case))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json(), [])
+
+    def test_includes_completed_workflows_newest_first(self):
+        workflow_a = self.make_workflow(self.case, completed=True, main_workflow=True)
+        workflow_b = self.make_workflow(self.case, completed=False)
+        self.make_workflow(baker.make(Case))
+
+        response = get_authenticated_client().get(self.get_url(self.case))
+        data = response.json()
+
+        self.assertEqual([w["id"] for w in data], [workflow_b.id, workflow_a.id])
+        self.assertEqual(
+            data[1],
+            {
+                "id": workflow_a.id,
+                "workflow_type": "director",
+                "workflow_version": workflow_a.workflow_version,
+                "completed": True,
+                "main_workflow": True,
+                "current_task_specs": [],
+            },
+        )
+
+    def test_current_task_specs_only_contains_open_tasks(self):
+        workflow = self.make_workflow(self.case)
+        # A plain QuerySet skips the CaseUserTask signals, which need a real workflow state
+        QuerySet(model=CaseUserTask).bulk_create(
+            baker.prepare(
+                CaseUserTask,
+                case=self.case,
+                workflow=workflow,
+                task_name=task_name,
+                completed=completed,
+            )
+            for task_name, completed in (
+                ("task_open", False),
+                ("task_completed", True),
+            )
+        )
+
+        response = get_authenticated_client().get(self.get_url(self.case))
+
+        self.assertEqual(response.json()[0]["current_task_specs"], ["task_open"])
+
+    def test_sensitive_case_without_permission(self):
+        sensitive_case = self.make_sensitive_case()
+        self.make_workflow(sensitive_case)
+        user = baker.make(get_user_model())
+        self.assertFalse(user.has_perm("users.access_sensitive_dossiers"))
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(self.get_url(sensitive_case))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_sensitive_case_with_permission(self):
+        sensitive_case = self.make_sensitive_case()
+        self.make_workflow(sensitive_case)
+
+        response = get_authenticated_client().get(self.get_url(sensitive_case))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 1)

@@ -38,6 +38,7 @@ from apps.users.permissions import (
 )
 from apps.workflow.models import CaseUserTask, CaseWorkflow, WorkflowOption
 from apps.workflow.serializers import (
+    CaseWorkflowInstanceSerializer,
     CaseWorkflowSerializer,
     StartWorkflowSerializer,
     WorkflowOptionSerializer,
@@ -48,7 +49,7 @@ from django.forms.fields import CharField, MultipleChoiceField
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiParameter, extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
@@ -418,65 +419,78 @@ class StandardResultsSetPagination(EmptyPagination):
     max_page_size = 1000
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter("district", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("district_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter("from_start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
-        OpenApiParameter(
-            "has_open_sensitive_case_on_address",
-            OpenApiTypes.BOOL,
-            OpenApiParameter.QUERY,
-        ),
-        OpenApiParameter(
-            "housing_corporation", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
-        ),
-        OpenApiParameter(
-            "housing_corporation_isnull", OpenApiTypes.BOOL, OpenApiParameter.QUERY
-        ),
-        OpenApiParameter("ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter(
-            "is_enforcement_request", OpenApiTypes.BOOL, OpenApiParameter.QUERY
-        ),
-        OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
-        OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("postal_code_range", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter("priority", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("project", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("project_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("reason_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter(
-            "schedule_day_segment", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
-        ),
-        OpenApiParameter(
-            "schedule_from_date_added", OpenApiTypes.DATE, OpenApiParameter.QUERY
-        ),
-        OpenApiParameter(
-            "schedule_housing_corporation_combiteam",
-            OpenApiTypes.BOOL,
-            OpenApiParameter.QUERY,
-        ),
-        OpenApiParameter(
-            "schedule_visit_from", OpenApiTypes.DATE, OpenApiParameter.QUERY
-        ),
-        OpenApiParameter(
-            "schedule_week_segment", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
-        ),
-        OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
-        OpenApiParameter("simplified", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
-        OpenApiParameter("start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
-        OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("state_types__name", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter("subject", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("subject_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter("tag", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("task", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter("theme_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
-        OpenApiParameter("ton_ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-    ]
+# Query parameters of CaseFilter, only for the actions that filter the case list
+case_filter_parameters = [
+    OpenApiParameter("district", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+    OpenApiParameter("district_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+    OpenApiParameter("from_start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
+    OpenApiParameter(
+        "has_open_sensitive_case_on_address",
+        OpenApiTypes.BOOL,
+        OpenApiParameter.QUERY,
+    ),
+    OpenApiParameter(
+        "housing_corporation", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
+    ),
+    OpenApiParameter(
+        "housing_corporation_isnull", OpenApiTypes.BOOL, OpenApiParameter.QUERY
+    ),
+    OpenApiParameter("ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+    OpenApiParameter(
+        "is_enforcement_request", OpenApiTypes.BOOL, OpenApiParameter.QUERY
+    ),
+    OpenApiParameter("open_cases", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
+    OpenApiParameter("ordering", OpenApiTypes.STR, OpenApiParameter.QUERY),
+    OpenApiParameter("page_size", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+    OpenApiParameter("postal_code_range", OpenApiTypes.STR, OpenApiParameter.QUERY),
+    OpenApiParameter("priority", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+    OpenApiParameter("project", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+    OpenApiParameter("project_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+    OpenApiParameter("reason", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+    OpenApiParameter("reason_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+    OpenApiParameter(
+        "schedule_day_segment", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
+    ),
+    OpenApiParameter(
+        "schedule_from_date_added", OpenApiTypes.DATE, OpenApiParameter.QUERY
+    ),
+    OpenApiParameter(
+        "schedule_housing_corporation_combiteam",
+        OpenApiTypes.BOOL,
+        OpenApiParameter.QUERY,
+    ),
+    OpenApiParameter("schedule_visit_from", OpenApiTypes.DATE, OpenApiParameter.QUERY),
+    OpenApiParameter(
+        "schedule_week_segment", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
+    ),
+    OpenApiParameter("sensitive", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
+    OpenApiParameter("simplified", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
+    OpenApiParameter("start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
+    OpenApiParameter("state_types", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+    OpenApiParameter("state_types__name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+    OpenApiParameter("subject", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+    OpenApiParameter("subject_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+    OpenApiParameter("tag", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+    OpenApiParameter("task", OpenApiTypes.STR, OpenApiParameter.QUERY),
+    OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+    OpenApiParameter("theme_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
+    OpenApiParameter("ton_ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+]
+
+
+@extend_schema_view(
+    list=extend_schema(parameters=case_filter_parameters),
+    count=extend_schema(parameters=case_filter_parameters),
+    get_cases_data=extend_schema(parameters=case_filter_parameters),
+    reason_names=extend_schema(parameters=case_filter_parameters),
+    district_names=extend_schema(parameters=case_filter_parameters),
+    # These actions return a list, but don't filter the case list
+    get_workflows=extend_schema(filters=False),
+    get_schedules=extend_schema(filters=False),
+    subjects=extend_schema(filters=False),
+    get_workflow_options=extend_schema(filters=False),
+    advertisements=extend_schema(filters=False),
+    bag_ids=extend_schema(filters=False),
 )
 class CaseViewSet(
     CaseEventsMixin,
@@ -582,6 +596,35 @@ class CaseViewSet(
             context, many=True, context={"request": request}
         )
         return paginator.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        description="Get all workflow instances for this Case, including completed ones and those without open tasks",
+        responses={status.HTTP_200_OK: CaseWorkflowInstanceSerializer(many=True)},
+    )
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path="workflow-instances",
+        filter_backends=[],
+        pagination_class=None,
+    )
+    def get_workflow_instances(self, request, pk):
+        case = self.get_object()
+        queryset = (
+            CaseWorkflow.objects.filter(case=case)
+            .order_by("-id")
+            .prefetch_related(
+                Prefetch(
+                    "tasks",
+                    queryset=CaseUserTask.objects.filter(completed=False).order_by(
+                        "id"
+                    ),
+                    to_attr="open_tasks",
+                )
+            )
+        )
+        serializer = CaseWorkflowInstanceSerializer(queryset, many=True)
+        return Response(serializer.data)
 
     @extend_schema(
         description="Get schedules for this Case",
