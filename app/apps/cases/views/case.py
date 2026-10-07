@@ -476,9 +476,7 @@ case_filter_parameters = [
     OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
     OpenApiParameter("theme_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
     OpenApiParameter("ton_ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
-        OpenApiParameter(
-            "is_bed_and_breakfast", OpenApiTypes.BOOL, OpenApiParameter.QUERY
-        ),
+    OpenApiParameter("is_bed_and_breakfast", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
 ]
 
 
