@@ -48,23 +48,38 @@ class VisitApiTest(APITestCase):
         casetheme = baker.make(CaseTheme)
         case1 = baker.make(Case, theme=casetheme)
         caseworkflow = baker.make(CaseWorkflow, case=case1, id=7)
-        baker.make(
+        task1 = baker.make(
             CaseUserTask,
             workflow=caseworkflow,
             case=case1,
             task_name="task_create_visit",
+            name="Eerste bezoek",
         )
 
         case2 = baker.make(Case, theme=casetheme)
         caseworkflow = baker.make(CaseWorkflow, case=case2, id=8)
-        baker.make(
+        task2 = baker.make(
             CaseUserTask,
             workflow=caseworkflow,
             case=case2,
             task_name="task_create_visit",
+            name="Tweede bezoek",
         )
-        baker.make(Visit, case=case1)
-        baker.make(Visit, case=case2)
+        baker.make(
+            Visit,
+            case=case1,
+            case_user_task_id=str(task1.id),
+            case_user_task_name=task1.name,
+        )
+        baker.make(
+            Visit,
+            case=case2,
+            case_user_task_id=str(task2.id),
+            case_user_task_name=task2.name,
+        )
+
+        task1.delete()
+        task2.delete()
 
         url = reverse("visits-list")
         client = get_authenticated_client()
@@ -73,6 +88,13 @@ class VisitApiTest(APITestCase):
         data = response.json()
 
         self.assertEqual(len(data["results"]), 2)
+        visits_by_case = {visit["case"]: visit for visit in data["results"]}
+        self.assertEqual(
+            visits_by_case[case1.id]["case_user_task_name"], "Eerste bezoek"
+        )
+        self.assertEqual(
+            visits_by_case[case2.id]["case_user_task_name"], "Tweede bezoek"
+        )
 
     def test_unauthenticated_post(self):
         url = reverse("visits-list")
@@ -92,11 +114,12 @@ class VisitApiTest(APITestCase):
         casetheme = baker.make(CaseTheme)
         case = baker.make(Case, theme=casetheme)
         caseworkflow = baker.make(CaseWorkflow, case=case, id=2)
-        baker.make(
+        task = baker.make(
             CaseUserTask,
             workflow=caseworkflow,
             case=case,
             task_name="task_create_visit",
+            name="Regulier bezoek",
         )
 
         url = reverse("visits-list")
@@ -112,6 +135,45 @@ class VisitApiTest(APITestCase):
         response = client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Visit.objects.count(), 1)
+        visit = Visit.objects.get()
+        self.assertEqual(visit.case_user_task_name, task.name)
+        self.assertEqual(response.json()["case_user_task_name"], task.name)
+
+    def test_authenticated_get_uses_stored_case_user_task_name(self):
+        casetheme = baker.make(CaseTheme)
+        case = baker.make(Case, theme=casetheme)
+        caseworkflow = baker.make(CaseWorkflow, case=case, id=9)
+        task = baker.make(
+            CaseUserTask,
+            workflow=caseworkflow,
+            case=case,
+            task_name="task_create_visit",
+            name="Snapshot bezoek",
+        )
+
+        url = reverse("visits-list")
+        client = get_authenticated_client()
+
+        response = client.post(
+            url,
+            data={
+                "authors": [{"email": "user@example.com"}],
+                "start_time": "2021-03-31T17:17:52.126Z",
+                "case": case.id,
+                "task": "42",
+                "top_visit_id": 99,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        task.delete()
+
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        visit = response.json()["results"][0]
+        self.assertEqual(visit["case_user_task_name"], "Snapshot bezoek")
 
     def test_authenticated_user_create(self):
         # Should create users using the given email if they don't exist yet
