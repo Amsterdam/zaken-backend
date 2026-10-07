@@ -2,9 +2,41 @@ import logging
 import os
 
 import requests
+from apps.permits.serializers import PowerbrowserSerializer
 from django.conf import settings
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
+
+
+def is_valid_bed_and_breakfast_permit(permit):
+    BED_AND_BREAKFAST_PRODUCT = "bed en breakfast"
+
+    if not (permit.get("product") or "").lower() == BED_AND_BREAKFAST_PRODUCT:
+        return False
+
+    # PowerBrowser maps the permit start date into `einddatum`, and only
+    # permits with verleend should only count as valid B&B permits.
+    result = (permit.get("resultaat") or "").lower()
+    permit_start_dt = permit.get("einddatum")
+    reference_dt = timezone.now()
+    if "verleend" not in result or not permit_start_dt:
+        return False
+    return permit_start_dt <= reference_dt
+
+
+def has_valid_bed_and_breakfast_permit(vergunningen):
+    serializer = PowerbrowserSerializer(data=vergunningen, many=True)
+    serializer.is_valid(raise_exception=True)
+    return any(
+        is_valid_bed_and_breakfast_permit(permit)
+        for permit in serializer.validated_data
+    )
+
+
+def get_is_bed_and_breakfast_for_bag_id(bag_id):
+    vergunningen = PowerbrowserRequest().get_vergunningen_with_bag_id(bag_id)
+    return has_valid_bed_and_breakfast_permit(vergunningen)
 
 
 class PowerbrowserRequest:

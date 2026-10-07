@@ -308,6 +308,7 @@ class CaseAdmin(admin.ModelAdmin):
         "start_date",
         "end_date",
         "address__housing_corporation",
+        "is_bed_and_breakfast",
         "is_legacy_bwv",
         "is_legacy_camunda",
         "reason",
