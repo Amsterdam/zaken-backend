@@ -160,8 +160,8 @@ class Puntenteller:
         )
 
     def _keuken_punten(self):
-        # Beleidsboek 2.5.3: extra keukenvoorzieningen worden gewaardeerd naast het aanrecht.
-        # De cap op extra keukenpunten is nog niet geïmplementeerd.
+        # Beleidsboek 2.5.3: extra keukenvoorzieningen worden gewaardeerd naast het
+        # aanrecht, maar worden per keuken afgetopt op de aanrechtpunten.
         return sum(
             (
                 self._keuken_punten_per_ruimte(keuken)
@@ -232,6 +232,8 @@ class Puntenteller:
             ),
             Decimal("0"),
         )
+        # Beleidsboek 2.6.2: de aftopping gebruikt alleen douche-, bad- en
+        # bad/douchepunten; wastafels zijn basisvoorzieningen en tellen hier niet mee.
         cap_punten_badkamer = sum(
             (
                 self._sanitair_bad_douche_basis_punten_per_ruimte(badkamer)
@@ -1331,64 +1333,67 @@ class Puntenteller:
         )
 
     def _keuken_punten_per_ruimte_onverdeeld(self, keuken: KeukenRuimte) -> Decimal:
-        subtotal = self._keuken_aanrecht_punten(keuken)
-        subtotal += (
+        aanrecht_punten = self._keuken_aanrecht_punten(keuken)
+        extra_punten = Decimal("0")
+        extra_punten += (
             self._waarde(keuken.inbouw_afzuiginstallatie)
             * self.kengetal.keuken_inbouw_afzuiginstallatie_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_kookplaat_inductie)
             * self.kengetal.keuken_inbouw_kookplaat_inductie_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_kookplaat_keramisch)
             * self.kengetal.keuken_inbouw_kookplaat_keramisch_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_kookplaat_gas)
             * self.kengetal.keuken_inbouw_kookplaat_gas_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_koelkast)
             * self.kengetal.keuken_inbouw_koelkast_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_vrieskast)
             * self.kengetal.keuken_inbouw_vrieskast_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_oven_elektrisch)
             * self.kengetal.keuken_inbouw_oven_elektrisch_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_oven_gas)
             * self.kengetal.keuken_inbouw_oven_gas_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_magnetron)
             * self.kengetal.keuken_inbouw_magnetron_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_vaatwasmachine)
             * self.kengetal.keuken_inbouw_vaatwasmachine_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.extra_kastruimte)
             * self.kengetal.keuken_extra_kastruimte_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.eenhandsmengkraan)
             * self.kengetal.keuken_eenhandsmengkraan_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.thermostatische_mengkraan)
             * self.kengetal.keuken_thermostatische_mengkraan_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.kokendwaterfunctie)
             * self.kengetal.keuken_kokendwaterfunctie_factor
         )
-        return subtotal
+        # Beleidsboek 2.5.3: de extra keukenvoorzieningen per keuken worden
+        # afgetopt op de punten voor de basisvoorzieningen van het aanrecht.
+        return aanrecht_punten + min(extra_punten, aanrecht_punten)
 
     def _zolder_loopruimte_aftrek(self, ruimte: OverigeRuimte) -> Decimal:
         if isinstance(ruimte, ZolderRuimte) and ruimte.aftrek_loopruimte_m2 is not None:
