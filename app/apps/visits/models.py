@@ -34,6 +34,7 @@ class Visit(TaskModelEventEmitter):
     notes = models.TextField(null=True, blank=True)
     top_visit_id = models.PositiveBigIntegerField()
     completed = models.BooleanField(default=True)
+    case_user_task_name = models.CharField(max_length=255, null=True, blank=True)
     is_additional = models.BooleanField(default=False)
 
     class Meta:
