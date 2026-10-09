@@ -53,7 +53,7 @@ class VisitApiTest(APITestCase):
             workflow=caseworkflow,
             case=case1,
             task_name="task_create_visit",
-            name="Eerste bezoek",
+            name="Doorgeven Huisbezoek TOP",
         )
 
         case2 = baker.make(Case, theme=casetheme)
@@ -63,19 +63,21 @@ class VisitApiTest(APITestCase):
             workflow=caseworkflow,
             case=case2,
             task_name="task_create_visit",
-            name="Tweede bezoek",
+            name="Doorgeven aanvullend huisbezoek TOP",
         )
         baker.make(
             Visit,
             case=case1,
             case_user_task_id=str(task1.id),
             case_user_task_name=task1.name,
+            completed=False,
         )
         baker.make(
             Visit,
             case=case2,
             case_user_task_id=str(task2.id),
             case_user_task_name=task2.name,
+            completed=False,
         )
 
         task1.delete()
@@ -90,10 +92,11 @@ class VisitApiTest(APITestCase):
         self.assertEqual(len(data["results"]), 2)
         visits_by_case = {visit["case"]: visit for visit in data["results"]}
         self.assertEqual(
-            visits_by_case[case1.id]["case_user_task_name"], "Eerste bezoek"
+            visits_by_case[case1.id]["case_user_task_name"], "Doorgeven Huisbezoek TOP"
         )
         self.assertEqual(
-            visits_by_case[case2.id]["case_user_task_name"], "Tweede bezoek"
+            visits_by_case[case2.id]["case_user_task_name"],
+            "Doorgeven aanvullend huisbezoek TOP",
         )
 
     def test_unauthenticated_post(self):
