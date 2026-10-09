@@ -52,7 +52,6 @@ class Puntenteller:
     def bereken_resultaat(self) -> PuntentellerResultaat:
         rubrieken_decimal = self._rubriek_totalen()
         energieprestatie_berekening = self._energieprestatie_berekening()
-        sanitair_cap_berekening = self._sanitair_extra_voorzieningen_cap_berekening()
         woz_berekening = self._woz_berekening()
         woz_cap_berekening = self._woz_cap_berekening(rubrieken_decimal, woz_berekening)
         totaal_bruto = sum(rubrieken_decimal.values(), Decimal("0"))
@@ -73,24 +72,6 @@ class Puntenteller:
             energieprestatie_berekening=energieprestatie_berekening.as_dict(),
             totaal_punten_bruto=float(totaal_bruto),
             correcties={
-                "sanitair_extra_voorzieningen_cap_toegepast": (
-                    sanitair_cap_berekening["toegepast"]
-                ),
-                "sanitair_extra_voorzieningen_cap": float(
-                    sanitair_cap_berekening["cap"]
-                ),
-                "sanitair_extra_voorzieningen_punten_voor_cap": float(
-                    sanitair_cap_berekening["punten_voor_cap"]
-                ),
-                "sanitair_extra_voorzieningen_punten_na_cap": float(
-                    sanitair_cap_berekening["punten_na_cap"]
-                ),
-                "sanitair_extra_voorzieningen_cap_punten_badkamer": float(
-                    sanitair_cap_berekening["cap_punten_badkamer"]
-                ),
-                "sanitair_extra_voorzieningen_cap_punten_buiten_badkamer": float(
-                    sanitair_cap_berekening["cap_punten_buiten_badkamer"]
-                ),
                 "woz_cap_toegepast": woz_cap_berekening.toegepast,
                 "woz_cap_reden": woz_cap_berekening.reden,
                 "woz_voor_cap": float(woz_cap_berekening.woz_voor_cap),
@@ -142,13 +123,6 @@ class Puntenteller:
             "bijzondere_voorzieningen": self._bijzondere_voorzieningen_punten(),
         }
 
-    def _badkamer_punten(self):
-        # Beleidsboek 2.6.1 en 2.6.2: sanitair in badkamer en extra sanitaire voorzieningen.
-        return (
-            self._badkamer_basis_punten()
-            + self._sanitair_extra_voorzieningen_cap_berekening()["punten_na_cap"]
-        )
-
     def _badkamer_basis_punten(self):
         # Beleidsboek 2.6.1: badkamerbasisvoorzieningen blijven in de badkamer-rubriek.
         return sum(
@@ -160,8 +134,8 @@ class Puntenteller:
         )
 
     def _keuken_punten(self):
-        # Beleidsboek 2.5.3: extra keukenvoorzieningen worden gewaardeerd naast het aanrecht.
-        # De cap op extra keukenpunten is nog niet geïmplementeerd.
+        # Beleidsboek 2.5.3: extra keukenvoorzieningen worden gewaardeerd naast het
+        # aanrecht, maar worden per keuken afgetopt op de aanrechtpunten.
         return sum(
             (
                 self._keuken_punten_per_ruimte(keuken)
@@ -225,32 +199,24 @@ class Puntenteller:
         )
 
     def _sanitair_extra_voorzieningen_cap_berekening(self) -> dict[str, Decimal | bool]:
+        badkamer_cap_berekeningen = [
+            self._sanitair_extra_voorzieningen_cap_per_badkamer(badkamer)
+            for badkamer in self._badkamer_ruimten()
+        ]
         punten_voor_cap = sum(
-            (
-                self._badkamer_extra_punten_per_ruimte(badkamer)
-                for badkamer in self._badkamer_ruimten()
-            ),
+            (berekening["punten_voor_cap"] for berekening in badkamer_cap_berekeningen),
             Decimal("0"),
         )
         cap_punten_badkamer = sum(
-            (
-                self._sanitair_bad_douche_basis_punten_per_ruimte(badkamer)
-                for badkamer in self._badkamer_ruimten()
-            ),
+            (berekening["cap"] for berekening in badkamer_cap_berekeningen),
             Decimal("0"),
         )
-        cap_punten_buiten_badkamer = sum(
-            (
-                self._sanitair_bad_douche_basis_punten_per_ruimte(ruimte)
-                for ruimte in self._sanitair_ruimten()
-                if not isinstance(ruimte, BadkamerRuimte)
-            ),
+        cap_punten_buiten_badkamer = Decimal("0")
+        cap = cap_punten_badkamer
+        punten_na_cap = sum(
+            (berekening["punten_na_cap"] for berekening in badkamer_cap_berekeningen),
             Decimal("0"),
         )
-        cap = cap_punten_badkamer + cap_punten_buiten_badkamer
-        # Beleidsboek 2.6.2: extra sanitaire voorzieningen worden afgetopt op het
-        # totaal van douche-, bad- en bad/douchepunten.
-        punten_na_cap = min(punten_voor_cap, cap)
         return {
             "toegepast": punten_na_cap != punten_voor_cap,
             "cap": cap,
@@ -258,6 +224,19 @@ class Puntenteller:
             "punten_na_cap": punten_na_cap,
             "cap_punten_badkamer": cap_punten_badkamer,
             "cap_punten_buiten_badkamer": cap_punten_buiten_badkamer,
+        }
+
+    def _sanitair_extra_voorzieningen_cap_per_badkamer(
+        self, badkamer: BadkamerRuimte
+    ) -> dict[str, Decimal]:
+        punten_voor_cap = self._badkamer_extra_punten_per_ruimte(badkamer)
+        # Afwijking op beleidsboek 2.6.2: in deze toepassing wordt per badkamer
+        # afgetopt, zodat sanitair in een andere ruimte de cap niet vergroot.
+        cap = self._sanitair_bad_douche_basis_punten_per_ruimte(badkamer)
+        return {
+            "punten_voor_cap": punten_voor_cap,
+            "cap": cap,
+            "punten_na_cap": min(punten_voor_cap, cap),
         }
 
     def _woonvoorzieningen_handicap_punten(self) -> Decimal:
@@ -502,11 +481,6 @@ class Puntenteller:
                 )
                 aantal_laadpalen = max(aantal_laadpalen - 1, 0)
         return parkeerruimten
-
-    # Beleidsboek 2.11.2: WOZ-punten bestaan uit onderdeel I en onderdeel II,
-    # met kengetallen per waardepeildatum.
-    def _woz_punten(self):
-        return self._woz_berekening().punten
 
     def _woz_berekening(self) -> WozBerekening:
         # Beleidsboek 2.11.2 en 2.11.4:
@@ -987,12 +961,6 @@ class Puntenteller:
     def _waarde(self, waarde: Decimal | int | None) -> Decimal:
         return Decimal(str(waarde or 0))
 
-    def _som_van_ruimten(self, ruimten: list[dict] | None, factor: Decimal) -> Decimal:
-        totaal = Decimal("0")
-        for ruimte in ruimten or []:
-            totaal += self._ruimte_oppervlakte(ruimte) * factor
-        return totaal
-
     def _vertrekken_berekening(self) -> dict[str, float | list[dict] | str]:
         # Beleidsboek hoofdstuk 2, rubriek 1 en paragraaf 2.2:
         # de waardering van vertrekken volgt uit de som van de vloeroppervlaktes
@@ -1063,12 +1031,6 @@ class Puntenteller:
             "ruimten_punten": float(totaal),
             "totaal": float(totaal),
         }
-
-    def _som_oppervlakten(self, ruimten: list[dict] | None) -> Decimal:
-        totaal = Decimal("0")
-        for ruimte in ruimten or []:
-            totaal += self._ruimte_oppervlakte(ruimte)
-        return totaal
 
     def _overige_ruimte_berekening_per_ruimte(
         self, ruimte: OverigeRuimte, factor: Decimal
@@ -1155,22 +1117,6 @@ class Puntenteller:
         )
         return punten / Decimal(aantal_adressen)
 
-    def _ruimte_oppervlakte(self, ruimte: dict | None) -> Decimal:
-        if not isinstance(ruimte, dict):
-            return Decimal("0")
-        return self._waarde(ruimte.get("ruimte_m2"))
-
-    def _ruimte_naam(self, ruimte: dict | None) -> str:
-        if not isinstance(ruimte, dict):
-            return "onbekende_ruimte"
-        return str(ruimte.get("naam") or "onbekende_ruimte")
-
-    def _ruimte_is_zolderruimte(self, ruimte: dict | None) -> bool:
-        return self._ruimte_naam(ruimte) == RuimteNaam.ZOLDER
-
-    def _ruimte_is_prive_parkeerruimte(self, ruimte: dict | None) -> bool:
-        return self._ruimte_naam(ruimte) == RuimteNaam.PRIVE_PARKEERRUIMTE
-
     def _badkamer_ruimten(self) -> list[BadkamerRuimte]:
         return [
             vertrek
@@ -1232,8 +1178,10 @@ class Puntenteller:
             self._waarde(badkamer.kast_bij_wastafel)
             * self.kengetal.badkamer_kast_bij_wastafel_factor
         )
-        subtotal += (
-            self._waarde(badkamer.kastruimte) * self.kengetal.badkamer_kastruimte_factor
+        subtotal += min(
+            self._waarde(badkamer.kastruimte)
+            * self.kengetal.badkamer_kastruimte_factor,
+            self.kengetal.badkamer_kastruimte_factor,
         )
         subtotal += (
             Decimal(
@@ -1253,15 +1201,6 @@ class Puntenteller:
             * self.kengetal.badkamer_thermostatische_mengkraan_factor
         )
         return subtotal
-
-    def _sanitair_bad_douche_basis_punten(self) -> Decimal:
-        return sum(
-            (
-                self._sanitair_bad_douche_basis_punten_per_ruimte(ruimte)
-                for ruimte in self._sanitair_ruimten()
-            ),
-            Decimal("0"),
-        )
 
     def _sanitair_ruimten(self) -> list[VertrekRuimte | OverigeRuimte]:
         return [*self._vertrek_ruimten(), *self._overige_ruimten()]
@@ -1331,64 +1270,67 @@ class Puntenteller:
         )
 
     def _keuken_punten_per_ruimte_onverdeeld(self, keuken: KeukenRuimte) -> Decimal:
-        subtotal = self._keuken_aanrecht_punten(keuken)
-        subtotal += (
+        aanrecht_punten = self._keuken_aanrecht_punten(keuken)
+        extra_punten = Decimal("0")
+        extra_punten += (
             self._waarde(keuken.inbouw_afzuiginstallatie)
             * self.kengetal.keuken_inbouw_afzuiginstallatie_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_kookplaat_inductie)
             * self.kengetal.keuken_inbouw_kookplaat_inductie_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_kookplaat_keramisch)
             * self.kengetal.keuken_inbouw_kookplaat_keramisch_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_kookplaat_gas)
             * self.kengetal.keuken_inbouw_kookplaat_gas_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_koelkast)
             * self.kengetal.keuken_inbouw_koelkast_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_vrieskast)
             * self.kengetal.keuken_inbouw_vrieskast_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_oven_elektrisch)
             * self.kengetal.keuken_inbouw_oven_elektrisch_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_oven_gas)
             * self.kengetal.keuken_inbouw_oven_gas_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_magnetron)
             * self.kengetal.keuken_inbouw_magnetron_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.inbouw_vaatwasmachine)
             * self.kengetal.keuken_inbouw_vaatwasmachine_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.extra_kastruimte)
             * self.kengetal.keuken_extra_kastruimte_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.eenhandsmengkraan)
             * self.kengetal.keuken_eenhandsmengkraan_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.thermostatische_mengkraan)
             * self.kengetal.keuken_thermostatische_mengkraan_factor
         )
-        subtotal += (
+        extra_punten += (
             self._waarde(keuken.kokendwaterfunctie)
             * self.kengetal.keuken_kokendwaterfunctie_factor
         )
-        return subtotal
+        # Beleidsboek 2.5.3: de extra keukenvoorzieningen per keuken worden
+        # afgetopt op de punten voor de basisvoorzieningen van het aanrecht.
+        return aanrecht_punten + min(extra_punten, aanrecht_punten)
 
     def _zolder_loopruimte_aftrek(self, ruimte: OverigeRuimte) -> Decimal:
         if isinstance(ruimte, ZolderRuimte) and ruimte.aftrek_loopruimte_m2 is not None:
@@ -1417,19 +1359,6 @@ class Puntenteller:
             maak_verkeersruimte(ruimte)
             for ruimte in (self.gebruikersinvoer.verkeersruimten or [])
         ]
-
-    def _ruimte_bool(
-        self, ruimte: dict | None, veld: str, default: bool = False
-    ) -> bool:
-        if not isinstance(ruimte, dict):
-            return default
-        waarde = ruimte.get(veld, default)
-        return bool(waarde)
-
-    def _ruimte_waarde(self, ruimte: dict | None, veld: str):
-        if not isinstance(ruimte, dict):
-            return None
-        return ruimte.get(veld)
 
     def _decimaal_of_none(self, waarde: Decimal | int | None) -> Decimal | None:
         if waarde is None:
