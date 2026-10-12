@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="visit",
-            name="case_user_task_name",
+            name="type",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
     ]

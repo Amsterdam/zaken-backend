@@ -19,7 +19,7 @@ class VisitSerializer(serializers.ModelSerializer):
         required=False,
     )
     completed = serializers.BooleanField(default=False)
-    case_user_task_name = serializers.CharField(read_only=True, allow_null=True)
+    type = serializers.CharField(read_only=True, allow_null=True)
 
     def get_authors(self, validated_data):
         authors_data = validated_data.pop("authors")
@@ -51,7 +51,7 @@ class VisitSerializer(serializers.ModelSerializer):
 
         is_additional = "aanvullend" in task.name.lower()
         validated_data["is_additional"] = is_additional
-        validated_data["case_user_task_name"] = task.name
+        validated_data["type"] = task.name
 
         visit, created = Visit.objects.update_or_create(
             case=case,

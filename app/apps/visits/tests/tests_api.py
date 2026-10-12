@@ -69,14 +69,14 @@ class VisitApiTest(APITestCase):
             Visit,
             case=case1,
             case_user_task_id=str(task1.id),
-            case_user_task_name=task1.name,
+            type=task1.name,
             completed=False,
         )
         baker.make(
             Visit,
             case=case2,
             case_user_task_id=str(task2.id),
-            case_user_task_name=task2.name,
+            type=task2.name,
             completed=False,
         )
 
@@ -91,11 +91,9 @@ class VisitApiTest(APITestCase):
 
         self.assertEqual(len(data["results"]), 2)
         visits_by_case = {visit["case"]: visit for visit in data["results"]}
+        self.assertEqual(visits_by_case[case1.id]["type"], "Doorgeven Huisbezoek TOP")
         self.assertEqual(
-            visits_by_case[case1.id]["case_user_task_name"], "Doorgeven Huisbezoek TOP"
-        )
-        self.assertEqual(
-            visits_by_case[case2.id]["case_user_task_name"],
+            visits_by_case[case2.id]["type"],
             "Doorgeven aanvullend huisbezoek TOP",
         )
 
@@ -139,10 +137,10 @@ class VisitApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Visit.objects.count(), 1)
         visit = Visit.objects.get()
-        self.assertEqual(visit.case_user_task_name, task.name)
-        self.assertEqual(response.json()["case_user_task_name"], task.name)
+        self.assertEqual(visit.type, task.name)
+        self.assertEqual(response.json()["type"], task.name)
 
-    def test_authenticated_get_uses_stored_case_user_task_name(self):
+    def test_authenticated_get_uses_stored_type(self):
         casetheme = baker.make(CaseTheme)
         case = baker.make(Case, theme=casetheme)
         caseworkflow = baker.make(CaseWorkflow, case=case, id=9)
@@ -176,7 +174,7 @@ class VisitApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         visit = response.json()["results"][0]
-        self.assertEqual(visit["case_user_task_name"], "Snapshot bezoek")
+        self.assertEqual(visit["type"], "Snapshot bezoek")
 
     def test_authenticated_user_create(self):
         # Should create users using the given email if they don't exist yet
