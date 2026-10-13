@@ -1537,6 +1537,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "8.0.0": {},
                 "8.1.0": {},
                 "8.2.0": {},
+                "8.3.0": {},
             },
         },
         "citizen_report_feedback": {

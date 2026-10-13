@@ -981,8 +981,14 @@
             <camunda:value id="nobody_present" name="nobody_present" />
             <camunda:value id="no_cooperation" name="no_cooperation" />
             <camunda:value id="access_granted" name="access_granted" />
+            <camunda:value id="visit_skipped" name="visit_skipped" />
           </camunda:formField>
           <camunda:formField id="can_next_visit_go_ahead" label="Kan volgende bezoek doorgaan?" type="boolean" />
+          <camunda:formField id="visit_skipped_reason" label="Reden overslaan huisbezoek" type="string">
+            <camunda:validation>
+              <camunda:constraint name="optional" config="true" />
+            </camunda:validation>
+          </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0xudm7k</bpmn:incoming>

@@ -182,6 +182,67 @@ class task_doorgeven_status_top(user_task):
 
     due_date = relativedelta(months=2)
 
+    SITUATION_VISIT_SKIPPED = "visit_skipped"
+    SKIP_VISIT_THEMES = ["ondermijning"]
+
+    def is_skip_visit_theme(self):
+        return self.case_user_task.case.theme.snake_case_name in self.SKIP_VISIT_THEMES
+
+    @property
+    def form(self):
+        form = self.case_user_task.form
+        if not form or not isinstance(form, list):
+            return form
+        if not self.is_skip_visit_theme():
+            # The frontend shows the skip button based on the visit_skipped option
+            form = [
+                {
+                    **field,
+                    "options": [
+                        option
+                        for option in field.get("options") or []
+                        if option.get("value") != self.SITUATION_VISIT_SKIPPED
+                    ],
+                }
+                for field in form
+                if field.get("name") != "visit_skipped_reason"
+            ]
+        return [BpmnField(_user_task=self, **field).asdict for field in form]
+
+    def can_skip_visit(self):
+        # Only bpmn versions with a visit_skipped flow have this option in the form
+        return self.is_skip_visit_theme() and self.SITUATION_VISIT_SKIPPED in [
+            option.get("value")
+            for field in self.case_user_task.form or []
+            if field.get("name") == "situation"
+            for option in field.get("options", [])
+        ]
+
+    def is_valid_skip(self, data):
+        if not isinstance(data, dict) or not self.can_skip_visit():
+            return False
+        situation = (data.get("situation") or {}).get("value")
+        reason = (data.get("visit_skipped_reason") or {}).get("value")
+        return (
+            situation == self.SITUATION_VISIT_SKIPPED
+            and isinstance(reason, str)
+            and bool(reason.strip())
+        )
+
+    def mapped_form_data(self, data):
+        if (data.get("situation") or {}).get("value") != self.SITUATION_VISIT_SKIPPED:
+            return {}
+        return {
+            "situation": {
+                "label": "Wat is de situatie?",
+                "value": "Huisbezoek overgeslagen",
+            },
+            "visit_skipped_reason": {
+                "label": "Reden overslaan huisbezoek",
+                "value": (data.get("visit_skipped_reason") or {}).get("value"),
+            },
+        }
+
     @classmethod
     def get_due_date(cls, case_user_task):
         due_date = super().get_due_date(case_user_task)
