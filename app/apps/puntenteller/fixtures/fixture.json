@@ -60,13 +60,13 @@
       "parkeerruimte_buiten_bij_complex_met_dak_factor": "6.0",
       "parkeerruimte_buiten_bij_complex_zonder_dak_factor": "4.0",
       "woz_oppervlakte_parkeer_type_1": "12.0",
-      "bijzondere_voorziening_intercom_met_beeld_factor": "1.0",
+      "bijzondere_voorziening_intercom_met_beeld_factor": "0.25",
       "bijzondere_voorziening_laadpaal_factor": "2.0",
       "zorgwoning_opslag_factor": "1.35",
       "monument_rijksmonument_huurprijsopslag_factor": "1.35",
       "monument_rijksmonument_extra_punten": "50.0",
       "monument_gemeentelijk_of_provinciaal_huurprijsopslag_factor": "1.15",
-      "monument_beschermd_stads_of_dorpsgezicht_huurprijsopslag_factor": "1.15",
+      "monument_beschermd_stads_of_dorpsgezicht_huurprijsopslag_factor": "1.05",
       "nieuwbouw_huurprijsopslag_factor": "1.10",
       "energieprestatie_label_a4plus_eengezinswoning_punten": 62,
       "energieprestatie_label_a4plus_meergezinswoning_punten": 58,
@@ -143,6 +143,12 @@
         "2024": {"onderdeel_1": "15329", "onderdeel_2": "242", "onderdeel_2_kleine_nieuwbouwwoning": "103"},
         "2023": {"onderdeel_1": "14543", "onderdeel_2": "229", "onderdeel_2_kleine_nieuwbouwwoning": "97"},
         "2022": {"onderdeel_1": "14146", "onderdeel_2": "222", "onderdeel_2_kleine_nieuwbouwwoning": "94"}
+      },
+      "woz_minimum_waarde_per_ingangsdatum": {
+        "2023-07-01": "71602",
+        "2024-07-01": "73607",
+        "2025-01-01": "77582",
+        "2026-01-01": "85806"
       },
       "woz_gemiddelde_regio_per_m2": "7111.0",
       "woz_percentage_grens": "10.0",

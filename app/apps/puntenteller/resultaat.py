@@ -1,123 +1,122 @@
-from dataclasses import asdict, dataclass
-from decimal import Decimal
+from dataclasses import dataclass, field
+from decimal import ROUND_HALF_UP, Decimal
+
+from apps.puntenteller.models import RuimteNaam
+
+WEERGAVE_PRECISIE = Decimal("0.01")
+
+
+@dataclass
+class Regel:
+    omschrijving: str
+    punten: Decimal
+    ruimte: str | None = None
+    aantal: Decimal | int | None = None
+    factor: Decimal | None = None
+    # Een afrondingsregel brengt het lopende totaal op een afgerond getal.
+    afronding: bool = False
+
+    def as_dict(self, punten: Decimal | None = None) -> dict:
+        return {
+            "omschrijving": self.omschrijving,
+            "punten": float(_weergave(self.punten if punten is None else punten)),
+            "ruimte": _ruimte_label(self.ruimte),
+            "aantal": None if self.aantal is None else float(self.aantal),
+            "factor": None if self.factor is None else float(self.factor),
+        }
+
+
+@dataclass
+class Rubriek:
+    """Een rubriek of opslag. De punten zijn altijd de som van de regels."""
+
+    naam: str
+    regels: list[Regel] = field(default_factory=list)
+
+    @property
+    def punten(self) -> Decimal:
+        return sum((regel.punten for regel in self.regels), Decimal("0"))
+
+    def as_dict(self, weergave: list[Decimal]) -> dict:
+        return {
+            "naam": self.naam,
+            "punten": float(sum(weergave, Decimal("0"))),
+            "regels": [
+                regel.as_dict(punten)
+                for regel, punten in zip(self.regels, weergave)
+                if not (regel.afronding and punten == 0)
+            ],
+        }
+
+
+@dataclass
+class Huurprijsopslag:
+    """Een procentuele opslag op de maximale huurprijs, geen punten."""
+
+    naam: str
+    procent: Decimal
+
+    def as_dict(self) -> dict:
+        return {"naam": self.naam, "procent": float(self.procent)}
 
 
 @dataclass
 class PuntentellerResultaat:
-    rubrieken: dict[str, float]
-    energieprestatie_berekening: dict
-    totaal_punten_bruto: float
-    correcties: dict[str, float | bool | str | None]
-    totaal_punten_na_caps: float
+    rubrieken: list[Rubriek]
+    opslagen: list[Rubriek]
+    huurprijsopslagen: list[Huurprijsopslag] = field(default_factory=list)
+
+    @property
+    def totaal_punten(self) -> Decimal:
+        return sum(
+            (rubriek.punten for rubriek in [*self.rubrieken, *self.opslagen]),
+            Decimal("0"),
+        )
+
+    def rubriek(self, naam: str) -> Rubriek:
+        return next(r for r in [*self.rubrieken, *self.opslagen] if r.naam == naam)
 
     def as_dict(self) -> dict:
-        return asdict(self)
-
-
-@dataclass
-class EnergieprestatieBerekening:
-    categorie: str
-    punten: Decimal
-    punten_voor_monumentcorrectie: Decimal
-    monumentcorrectie_toegepast: bool
-    is_eengezinswoning: bool | None
-    heeft_energieprestatievergoeding: bool
-    energielabel_klasse: str | None
-    energie_index: Decimal | None
-    bouwjaar: int | None
-
-    def as_dict(self) -> dict[str, float | bool | str | int | None]:
+        alle = [*self.rubrieken, *self.opslagen]
+        weergave = dict(zip(map(id, alle), _weergave_per_rubriek(alle)))
         return {
-            "categorie": self.categorie,
-            "punten": float(self.punten),
-            "punten_voor_monumentcorrectie": float(self.punten_voor_monumentcorrectie),
-            "monumentcorrectie_toegepast": self.monumentcorrectie_toegepast,
+            "totaal_punten": float(self.totaal_punten),
+            "rubrieken": [r.as_dict(weergave[id(r)]) for r in self.rubrieken],
+            "opslagen": [
+                r.as_dict(weergave[id(r)])
+                for r in self.opslagen
+                if any(weergave[id(r)])
+            ],
+            "huurprijsopslagen": [o.as_dict() for o in self.huurprijsopslagen],
+            "huurprijsopslag_procent": float(
+                sum((o.procent for o in self.huurprijsopslagen), Decimal("0"))
+            ),
         }
 
 
-@dataclass
-class WozBerekening:
-    punten: Decimal
-    woz_bron: str
-    woz_peildatum_jaar: int
-    woz_waarde: int
-    woz_waarde_na_bouwcorrectie: Decimal
-    bouwvoltooiingspercentage: Decimal | None
-    oppervlakte_vertrekken: Decimal
-    oppervlakte_overige_ruimten: Decimal
-    oppervlakte_parkeer_type_1: Decimal
-    oppervlakte_totaal_afgerond: int
-    kengetal_onderdeel_1: Decimal | None
-    kengetal_onderdeel_2: Decimal | None
-    gebruikt_klein_nieuwbouwkengetal: bool
-    nieuwbouw_2015_2019_minimum_toegepast: bool
-    onderdeel_1_punten: Decimal
-    onderdeel_2_punten: Decimal
-    categorie: str
-
-    def as_dict(self) -> dict[str, float | int | str | None]:
-        return {
-            "punten": float(self.punten),
-            "woz_bron": self.woz_bron,
-            "woz_peildatum_jaar": self.woz_peildatum_jaar,
-            "woz_waarde": self.woz_waarde,
-            "woz_waarde_na_bouwcorrectie": float(self.woz_waarde_na_bouwcorrectie),
-            "bouwvoltooiingspercentage": (
-                None
-                if self.bouwvoltooiingspercentage is None
-                else float(self.bouwvoltooiingspercentage)
-            ),
-            "oppervlakte_vertrekken": float(self.oppervlakte_vertrekken),
-            "oppervlakte_overige_ruimten": float(self.oppervlakte_overige_ruimten),
-            "oppervlakte_parkeer_type_1": float(self.oppervlakte_parkeer_type_1),
-            "oppervlakte_totaal_afgerond": self.oppervlakte_totaal_afgerond,
-            "kengetal_onderdeel_1": (
-                None
-                if self.kengetal_onderdeel_1 is None
-                else float(self.kengetal_onderdeel_1)
-            ),
-            "kengetal_onderdeel_2": (
-                None
-                if self.kengetal_onderdeel_2 is None
-                else float(self.kengetal_onderdeel_2)
-            ),
-            "gebruikt_klein_nieuwbouwkengetal": self.gebruikt_klein_nieuwbouwkengetal,
-            "nieuwbouw_2015_2019_minimum_toegepast": self.nieuwbouw_2015_2019_minimum_toegepast,
-            "onderdeel_1_punten": float(self.onderdeel_1_punten),
-            "onderdeel_2_punten": float(self.onderdeel_2_punten),
-            "categorie": self.categorie,
-        }
+def _weergave_per_rubriek(rubrieken: list[Rubriek]) -> list[list[Decimal]]:
+    # Er wordt exact gerekend; alleen de weergave wordt op 2 decimalen afgerond.
+    # Een afrondingsregel toont het verschil tussen het exacte lopende totaal en
+    # wat er tot dan toe getoond is. Zo tellen de getoonde regels altijd op tot
+    # de getoonde rubriek en het getoonde totaal.
+    exact = getoond = Decimal("0")
+    resultaat = []
+    for rubriek in rubrieken:
+        punten_per_regel = []
+        for regel in rubriek.regels:
+            exact += regel.punten
+            punten = _weergave(exact - getoond if regel.afronding else regel.punten)
+            getoond += punten
+            punten_per_regel.append(punten)
+        resultaat.append(punten_per_regel)
+    return resultaat
 
 
-@dataclass
-class WozCapBerekening:
-    toegepast: bool
-    reden: str | None
-    woz_voor_cap: Decimal
-    woz_na_cap: Decimal
-    maximum_toegestaan: Decimal | None
-    cap_uitgesloten: bool
-    cap_uitsluiting_reden: str | None
-    totaal_voor_cap: Decimal
-    totaal_na_cap: Decimal
-    minimale_waardering_186_toegepast: bool
-    totaal_na_woz_correcties: Decimal
+def _weergave(punten: Decimal) -> Decimal:
+    return punten.quantize(WEERGAVE_PRECISIE, rounding=ROUND_HALF_UP)
 
-    def as_dict(self) -> dict[str, float | bool | str | None]:
-        return {
-            "toegepast": self.toegepast,
-            "reden": self.reden,
-            "woz_voor_cap": float(self.woz_voor_cap),
-            "woz_na_cap": float(self.woz_na_cap),
-            "maximum_toegestaan": (
-                None
-                if self.maximum_toegestaan is None
-                else float(self.maximum_toegestaan)
-            ),
-            "cap_uitgesloten": self.cap_uitgesloten,
-            "cap_uitsluiting_reden": self.cap_uitsluiting_reden,
-            "totaal_voor_cap": float(self.totaal_voor_cap),
-            "totaal_na_cap": float(self.totaal_na_cap),
-            "minimale_waardering_186_toegepast": self.minimale_waardering_186_toegepast,
-            "totaal_na_woz_correcties": float(self.totaal_na_woz_correcties),
-        }
+
+def _ruimte_label(naam: str | None) -> str | None:
+    if naam in RuimteNaam.values:
+        return RuimteNaam(naam).label
+    return naam

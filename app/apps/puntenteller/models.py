@@ -197,7 +197,7 @@ class Kengetal(models.Model):
         max_digits=8, decimal_places=2, default=12.00
     )
     bijzondere_voorziening_intercom_met_beeld_factor = models.DecimalField(
-        max_digits=8, decimal_places=2, default=1.00
+        max_digits=8, decimal_places=2, default=0.25
     )
     bijzondere_voorziening_laadpaal_factor = models.DecimalField(
         max_digits=8, decimal_places=2, default=1.00
@@ -215,7 +215,7 @@ class Kengetal(models.Model):
         max_digits=4, decimal_places=2, default=1.15
     )
     monument_beschermd_stads_of_dorpsgezicht_huurprijsopslag_factor = (
-        models.DecimalField(max_digits=4, decimal_places=2, default=1.15)
+        models.DecimalField(max_digits=4, decimal_places=2, default=1.05)
     )
     nieuwbouw_huurprijsopslag_factor = models.DecimalField(
         max_digits=4, decimal_places=2, default=1.10
@@ -381,6 +381,8 @@ class Kengetal(models.Model):
     energieprestatie_epv_eengezinswoning_punten = models.SmallIntegerField(default=32)
     energieprestatie_epv_meergezinswoning_punten = models.SmallIntegerField(default=28)
     woz_kengetallen_per_peiljaar = models.JSONField(default=dict)
+    # Beleidsboek 2.11.1: minimum WOZ-waarde per ingangsdatum (JJJJ-MM-DD).
+    woz_minimum_waarde_per_ingangsdatum = models.JSONField(default=dict)
     woz_gemiddelde_regio_per_m2 = models.DecimalField(
         max_digits=8, decimal_places=2, default=7111.00
     )
