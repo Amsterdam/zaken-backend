@@ -342,7 +342,8 @@ class PuntentellerTest(TestCase):
         )
 
         self.assertIn(
-            "Maximaal 33% van het totaal", self._omschrijvingen(resultaat, "WOZ-waarde")
+            "Afgetopt op 33% van het totaal",
+            self._omschrijvingen(resultaat, "WOZ-waarde"),
         )
         self.assertEqual(self._punten(resultaat, "WOZ-waarde"), 101.0)
         self.assertEqual(resultaat.totaal_punten, 307)
@@ -357,7 +358,7 @@ class PuntentellerTest(TestCase):
 
         self.assertEqual(
             self._omschrijvingen(resultaat, "WOZ-waarde")[-2:],
-            ["Maximaal 33% van het totaal", "Minimale waardering 186 punten"],
+            ["Afgetopt op 33% van het totaal", "Minimale waardering 186 punten"],
         )
         self.assertEqual(resultaat.totaal_punten, 186)
 
@@ -370,7 +371,8 @@ class PuntentellerTest(TestCase):
         )
 
         self.assertNotIn(
-            "Maximaal 33% van het totaal", self._omschrijvingen(resultaat, "WOZ-waarde")
+            "Afgetopt op 33% van het totaal",
+            self._omschrijvingen(resultaat, "WOZ-waarde"),
         )
 
     def test_bereken_resultaat_past_geen_minimale_waardering_toe_bij_kleine_nieuwbouwwoning(
@@ -386,7 +388,7 @@ class PuntentellerTest(TestCase):
 
         self.assertEqual(
             self._omschrijvingen(resultaat, "WOZ-waarde")[-1],
-            "Maximaal 33% van het totaal",
+            "Afgetopt op 33% van het totaal",
         )
         self.assertEqual(self._punten(resultaat, "WOZ-waarde"), 48.0)
         self.assertEqual(resultaat.totaal_punten, 146)

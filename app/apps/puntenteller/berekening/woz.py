@@ -105,7 +105,7 @@ def woz_cap_regels(
     woz_na_cap = afronden_naar_beneden_op_hele_punten(maximum)
     regels = [
         Regel(
-            f"Maximaal {nl(WOZ_CAP_PERCENTAGE * 100)}% van het totaal",
+            f"Afgetopt op {nl(WOZ_CAP_PERCENTAGE * 100)}% van het totaal",
             woz_na_cap - woz_punten,
         )
     ]

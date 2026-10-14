@@ -65,7 +65,7 @@ def buitenruimte_rubriek(ruimten: Ruimten, kengetal: Kengetal) -> Rubriek:
     maximum = kengetal.buitenruimte_max_punten
     return Rubriek(
         "Buitenruimten",
-        begrensd(regels, maximum, f"Maximaal {nl(maximum)} punten"),
+        begrensd(regels, maximum, f"Afgetopt op {nl(maximum)} punten"),
     )
 
 

@@ -49,7 +49,7 @@ def keuken_regels(keuken: KeukenRuimte, kengetal: Kengetal) -> list[Regel]:
     extra = begrensd(
         voorziening_regels(keuken, KEUKEN_EXTRA_VOORZIENINGEN, kengetal, "keuken"),
         aanrecht.punten,
-        "Maximum extra voorzieningen (punten voor aanrecht)",
+        "Extra voorzieningen afgetopt op de punten voor het aanrecht",
         keuken.naam,
     )
     return [aanrecht, *extra]

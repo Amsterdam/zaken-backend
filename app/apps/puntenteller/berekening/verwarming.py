@@ -40,7 +40,7 @@ def _verwarming_regels(ruimten: Ruimten, kengetal: Kengetal) -> list[Regel]:
         maximum = kengetal.verwarming_aantal_overige_ruimten_max
         regels.append(
             regel(
-                f"Verwarmde overige ruimten en verkeersruimten (maximaal {maximum})",
+                f"Verwarmde overige ruimten en verkeersruimten (afgetopt op {maximum})",
                 min(verwarmde_overige_ruimten, maximum),
                 kengetal.verwarming_aantal_overige_ruimten_factor,
             )
@@ -59,7 +59,7 @@ def _verkoeling_regels(ruimten: Ruimten, kengetal: Kengetal) -> list[Regel]:
         maximum = kengetal.verkoeling_aantal_vertrekken_max
         regels.append(
             regel(
-                f"Verwarmde en gekoelde vertrekken (maximaal {maximum})",
+                f"Verwarmde en gekoelde vertrekken (afgetopt op {maximum})",
                 min(verkoelde_vertrekken, maximum),
                 kengetal.verkoeling_aantal_vertrekken_factor,
             )

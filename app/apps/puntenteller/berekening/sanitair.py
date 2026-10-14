@@ -86,7 +86,7 @@ def _badkamer_regels(badkamer: BadkamerRuimte, kengetal: Kengetal) -> list[Regel
     extra = begrensd(
         extra,
         maximum,
-        "Maximum extra voorzieningen (punten voor douche en bad)",
+        "Extra voorzieningen afgetopt op de punten voor douche en bad",
         badkamer.naam,
     )
     return [*basis, *extra]
@@ -110,7 +110,7 @@ def _badkamer_extra_regels(badkamer: BadkamerRuimte, kengetal: Kengetal) -> list
     if badkamer.kastruimte:
         regels.append(
             regel(
-                "Kastruimte (maximaal 1)",
+                "Kastruimte (afgetopt op 1)",
                 min(badkamer.kastruimte, 1),
                 kengetal.badkamer_kastruimte_factor,
                 badkamer.naam,
@@ -122,7 +122,7 @@ def _badkamer_extra_regels(badkamer: BadkamerRuimte, kengetal: Kengetal) -> list
         maximum = per_wastafel * (badkamer.wastafel + badkamer.meerpersoons_wastafel)
         regels.append(
             regel(
-                f"Stopcontacten (maximaal {per_wastafel} per wastafel)",
+                f"Stopcontacten (afgetopt op {per_wastafel} per wastafel)",
                 min(badkamer.stopcontacten, maximum),
                 kengetal.badkamer_stopcontacten_factor,
                 badkamer.naam,
@@ -140,7 +140,7 @@ def _sanitair_regels(
         # maximaal 1 punt per ruimte.
         regels.append(
             Regel(
-                "Wastafel (maximaal 1 per ruimte)",
+                "Wastafel (afgetopt op 1 per ruimte)",
                 Decimal(kengetal.sanitair_wastafel_niet_badkamer_max_punten),
                 ruimte=ruimte.naam,
             )
@@ -150,7 +150,7 @@ def _sanitair_regels(
         # ruimte krijgt maximaal 1,5 punt per ruimte.
         regels.append(
             Regel(
-                "Meerpersoons wastafel (maximaal 1 per ruimte)",
+                "Meerpersoons wastafel (afgetopt op 1 per ruimte)",
                 Decimal(
                     kengetal.sanitair_meerpersoons_wastafel_niet_badkamer_max_punten
                 ),
