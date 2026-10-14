@@ -481,12 +481,54 @@ class EnergieSerializerMixin:
         return data
 
 
+class RegelSerializer(serializers.Serializer):
+    omschrijving = serializers.CharField()
+    punten = serializers.FloatField()
+    ruimte = serializers.CharField(allow_null=True)
+    aantal = serializers.FloatField(allow_null=True)
+    factor = serializers.FloatField(allow_null=True)
+
+
+class RubriekSerializer(serializers.Serializer):
+    naam = serializers.CharField()
+    punten = serializers.FloatField(help_text="Som van de punten van de regels.")
+    regels = RegelSerializer(many=True)
+
+
+class HuurprijsopslagSerializer(serializers.Serializer):
+    naam = serializers.CharField()
+    procent = serializers.FloatField()
+
+
+class MaximaleHuurprijsSerializer(serializers.Serializer):
+    bedrag = serializers.FloatField(
+        help_text="Maximale kale huur per maand bij het puntentotaal."
+    )
+    met_opslagen = serializers.FloatField(
+        help_text="Maximale kale huur per maand inclusief de huurprijsopslagen."
+    )
+    prijspeil = serializers.DateField(
+        help_text="Ingangsdatum van de gebruikte huurprijstabel."
+    )
+
+
 class PuntentellerResultaatSerializer(serializers.Serializer):
-    rubrieken = serializers.DictField(child=serializers.FloatField())
-    energieprestatie_berekening = serializers.JSONField()
-    totaal_punten_bruto = serializers.FloatField()
-    correcties = serializers.DictField(child=serializers.JSONField(allow_null=True))
-    totaal_punten_na_caps = serializers.FloatField()
+    totaal_punten = serializers.FloatField(
+        help_text="Som van de punten van alle rubrieken en opslagen."
+    )
+    rubrieken = RubriekSerializer(many=True)
+    opslagen = RubriekSerializer(many=True)
+    huurprijsopslagen = HuurprijsopslagSerializer(
+        many=True,
+        help_text="Opslagen op de maximale huurprijs. Deze tellen niet mee in de punten.",
+    )
+    huurprijsopslag_procent = serializers.FloatField(
+        help_text="Som van de huurprijsopslagen in procenten."
+    )
+    maximale_huurprijs = MaximaleHuurprijsSerializer(
+        allow_null=True,
+        help_text="Leeg als er geen huurprijstabel geldt.",
+    )
 
 
 class GebruikersinvoerSerializer(EnergieSerializerMixin, serializers.ModelSerializer):
