@@ -383,6 +383,9 @@ class Kengetal(models.Model):
     woz_kengetallen_per_peiljaar = models.JSONField(default=dict)
     # Beleidsboek 2.11.1: minimum WOZ-waarde per ingangsdatum (JJJJ-MM-DD).
     woz_minimum_waarde_per_ingangsdatum = models.JSONField(default=dict)
+    # Beleidsboek bijlage 3: maximale huurprijs per punt (0 t/m 250) per
+    # ingangsdatum (JJJJ-MM-DD).
+    huurprijstabel_per_ingangsdatum = models.JSONField(default=dict)
     woz_gemiddelde_regio_per_m2 = models.DecimalField(
         max_digits=8, decimal_places=2, default=7111.00
     )

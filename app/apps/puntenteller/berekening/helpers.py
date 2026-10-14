@@ -1,5 +1,6 @@
+from datetime import date
 from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal
-from typing import Iterable
+from typing import Iterable, TypeVar
 
 from apps.puntenteller.resultaat import Regel
 
@@ -16,6 +17,21 @@ def decimaal_of_none(getal: Decimal | int | str | None) -> Decimal | None:
 
 def som(waarden: Iterable[Decimal]) -> Decimal:
     return sum(waarden, Decimal("0"))
+
+
+T = TypeVar("T")
+
+
+def geldend_op(
+    per_ingangsdatum: dict[str, T], peildatum: date
+) -> tuple[date, T] | None:
+    # Kengetallen per ingangsdatum (JJJJ-MM-DD): de laatste die op de peildatum geldt.
+    geldig = [
+        (date.fromisoformat(ingangsdatum), waarde)
+        for ingangsdatum, waarde in per_ingangsdatum.items()
+        if date.fromisoformat(ingangsdatum) <= peildatum
+    ]
+    return max(geldig, key=lambda item: item[0]) if geldig else None
 
 
 def als_tekst(veldnaam: str) -> str:

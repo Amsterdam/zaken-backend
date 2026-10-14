@@ -500,6 +500,18 @@ class HuurprijsopslagSerializer(serializers.Serializer):
     procent = serializers.FloatField()
 
 
+class MaximaleHuurprijsSerializer(serializers.Serializer):
+    bedrag = serializers.FloatField(
+        help_text="Maximale kale huur per maand bij het puntentotaal."
+    )
+    met_opslagen = serializers.FloatField(
+        help_text="Maximale kale huur per maand inclusief de huurprijsopslagen."
+    )
+    prijspeil = serializers.DateField(
+        help_text="Ingangsdatum van de gebruikte huurprijstabel."
+    )
+
+
 class PuntentellerResultaatSerializer(serializers.Serializer):
     totaal_punten = serializers.FloatField(
         help_text="Som van de punten van alle rubrieken en opslagen."
@@ -512,6 +524,10 @@ class PuntentellerResultaatSerializer(serializers.Serializer):
     )
     huurprijsopslag_procent = serializers.FloatField(
         help_text="Som van de huurprijsopslagen in procenten."
+    )
+    maximale_huurprijs = MaximaleHuurprijsSerializer(
+        allow_null=True,
+        help_text="Leeg als er geen huurprijstabel geldt.",
     )
 
 

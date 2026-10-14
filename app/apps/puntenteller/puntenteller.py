@@ -13,6 +13,7 @@ from apps.puntenteller.berekening.gemeenschappelijk import (
     gemeenschappelijke_ruimten_rubriek,
 )
 from apps.puntenteller.berekening.helpers import afgerond_op_kwart_punt, som
+from apps.puntenteller.berekening.huurprijs import maximale_huurprijs
 from apps.puntenteller.berekening.keuken import keuken_rubriek
 from apps.puntenteller.berekening.oppervlakte import (
     overige_ruimten_rubriek,
@@ -71,28 +72,20 @@ class Puntenteller:
         for rubriek in rubrieken:
             rubriek.regels = afgerond_op_kwart_punt(rubriek.regels)
 
-        # WOZ-cap en de uitzondering voor nieuwbouw 2015-2019 hangen af van de
-        # punten in de overige rubrieken (1 t/m 10 en 12).
+        # De uitzondering voor nieuwbouw 2015-2019 hangt af van de punten in de
+        # overige rubrieken (1 t/m 10 en 12).
         overige_punten = som(r.punten for r in rubrieken if r is not woz)
         nieuwbouw_uitzondering = nieuwbouw_2015_2019_uitzondering(
             invoer, overige_punten
         )
         woz.regels += nieuwbouw_2015_2019_regels(invoer, overige_punten)
-        # Beleidsboek 2.11.7: de cap gaat over het totale puntenaantal. Net als
-        # de Huurcommissie tellen de extra punten voor een rijksmonument daarin mee.
-        rijksmonument = rijksmonument_extra_punten(invoer, kengetal)
-        woz.regels += woz_cap_regels(
-            woz.punten,
-            overige_punten + (rijksmonument.punten if rijksmonument else 0),
-            invoer,
-            nieuwbouw_uitzondering,
-        )
         woz_minimum = woz_minimum_nieuwbouw_rubriek(woz.punten, nieuwbouw_uitzondering)
         if woz_minimum:
             rubrieken.insert(rubrieken.index(woz) + 1, woz_minimum)
 
-        # Opslagen in punten. De zorgwoningtoeslag gaat alleen over rubriek 1 t/m
-        # 11.1, dus zonder bijzondere voorzieningen en het WOZ-minimum.
+        # Opslagen in punten. De zorgwoningtoeslag gaat over rubriek 1 t/m 11.1
+        # (zonder bijzondere voorzieningen en het WOZ-minimum) en, net als bij de
+        # Huurcommissie, over de WOZ-punten vóór de cap.
         zorgwoning_basis = som(
             r.punten
             for r in rubrieken
@@ -102,18 +95,31 @@ class Puntenteller:
             opslag
             for opslag in (
                 zorgwoning_opslag(zorgwoning_basis, invoer, kengetal),
-                rijksmonument,
+                rijksmonument_extra_punten(invoer, kengetal),
             )
             if opslag
         ]
+
+        # Beleidsboek 2.11.7: de cap gaat over het totale puntenaantal. Net als de
+        # Huurcommissie tellen de zorgwoningtoeslag en de extra punten voor een
+        # rijksmonument daarin mee; de cap is de laatste stap.
+        woz.regels += woz_cap_regels(
+            woz.punten,
+            overige_punten + som(r.punten for r in opslagen),
+            invoer,
+            nieuwbouw_uitzondering,
+        )
+
         totaal = som(r.punten for r in [*rubrieken, *opslagen])
         afronding = afronding_opslag(totaal, opslagen)
         if afronding:
             opslagen.append(afronding)
             totaal += afronding.punten
 
+        opslagen_huurprijs = huurprijsopslagen(invoer, kengetal, totaal)
         return PuntentellerResultaat(
             rubrieken=rubrieken,
             opslagen=opslagen,
-            huurprijsopslagen=huurprijsopslagen(invoer, kengetal, totaal),
+            huurprijsopslagen=opslagen_huurprijs,
+            maximale_huurprijs=maximale_huurprijs(totaal, opslagen_huurprijs, kengetal),
         )

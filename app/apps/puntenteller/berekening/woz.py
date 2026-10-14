@@ -6,6 +6,7 @@ from apps.puntenteller.berekening.helpers import (
     afronden_naar_beneden_op_hele_punten,
     afronden_op_hele_m2,
     decimaal_of_none,
+    geldend_op,
     nl,
     waarde,
 )
@@ -209,12 +210,8 @@ def _woz_waarde_na_bouwcorrectie(invoer: Gebruikersinvoer) -> Decimal:
 
 
 def _minimum_woz_waarde(kengetal: Kengetal, peildatum: date) -> Decimal | None:
-    geldig = [
-        (date.fromisoformat(ingangsdatum), Decimal(str(bedrag)))
-        for ingangsdatum, bedrag in kengetal.woz_minimum_waarde_per_ingangsdatum.items()
-        if date.fromisoformat(ingangsdatum) <= peildatum
-    ]
-    return max(geldig)[1] if geldig else None
+    geldig = geldend_op(kengetal.woz_minimum_waarde_per_ingangsdatum, peildatum)
+    return Decimal(str(geldig[1])) if geldig else None
 
 
 def _peiljaar_op(kengetal: Kengetal, peildatum: date) -> int | None:

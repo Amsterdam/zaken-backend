@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
 
 from apps.puntenteller.models import RuimteNaam
@@ -61,10 +62,26 @@ class Huurprijsopslag:
 
 
 @dataclass
+class MaximaleHuurprijs:
+    # Kale huur per maand, zonder en met de huurprijsopslagen.
+    bedrag: Decimal
+    met_opslagen: Decimal
+    prijspeil: date
+
+    def as_dict(self) -> dict:
+        return {
+            "bedrag": float(self.bedrag),
+            "met_opslagen": float(self.met_opslagen),
+            "prijspeil": self.prijspeil.isoformat(),
+        }
+
+
+@dataclass
 class PuntentellerResultaat:
     rubrieken: list[Rubriek]
     opslagen: list[Rubriek]
     huurprijsopslagen: list[Huurprijsopslag] = field(default_factory=list)
+    maximale_huurprijs: MaximaleHuurprijs | None = None
 
     @property
     def totaal_punten(self) -> Decimal:
@@ -90,6 +107,9 @@ class PuntentellerResultaat:
             "huurprijsopslagen": [o.as_dict() for o in self.huurprijsopslagen],
             "huurprijsopslag_procent": float(
                 sum((o.procent for o in self.huurprijsopslagen), Decimal("0"))
+            ),
+            "maximale_huurprijs": (
+                self.maximale_huurprijs.as_dict() if self.maximale_huurprijs else None
             ),
         }
 

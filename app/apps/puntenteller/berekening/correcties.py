@@ -2,6 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from apps.puntenteller.berekening.helpers import (
+    afgerond_op_kwart_punt,
     afronden_op_hele_punten,
     nl,
     op_twee_decimalen,
@@ -37,18 +38,21 @@ def zorgwoning_opslag(
     if not invoer.zorgwoning:
         return None
     # Beleidsboek 2.1.5 en 2.12: de 35%-toeslag voor zorgwoningen gaat over de
-    # rubrieken 1 t/m 11.1. Niet afronden op kwartpunten: pas het eindtotaal
-    # wordt afgerond, net als bij de Huurcommissie.
+    # rubrieken 1 t/m 11.1. De Huurcommissie rondt de toeslag samen met de
+    # bijzondere voorzieningen (rubriek 12) af op kwartpunten. Die voorzieningen
+    # zijn altijd hele kwartpunten, dus dat is gelijk aan de toeslag afronden.
     factor = Decimal(str(kengetal.zorgwoning_opslag_factor))
     return Rubriek(
         "Zorgwoning",
-        [
-            Regel(
-                f"Toeslag {_procent(factor)} over {nl(basis)} punten "
-                "(rubriek 1 t/m 11.1)",
-                basis * (factor - 1),
-            )
-        ],
+        afgerond_op_kwart_punt(
+            [
+                Regel(
+                    f"Toeslag {_procent(factor)} over {nl(basis)} punten "
+                    "(rubriek 1 t/m 11.1)",
+                    basis * (factor - 1),
+                )
+            ]
+        ),
     )
 
 

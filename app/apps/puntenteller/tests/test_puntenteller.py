@@ -1,7 +1,8 @@
 from datetime import date
+from decimal import Decimal
 
 from apps.addresses.models import Address
-from apps.puntenteller.models import Gebruikersinvoer, RuimteNaam
+from apps.puntenteller.models import Gebruikersinvoer, Kengetal, RuimteNaam
 from apps.puntenteller.puntenteller import Puntenteller
 from django.test import TestCase
 from freezegun import freeze_time
@@ -924,71 +925,15 @@ class PuntentellerTest(TestCase):
 
         self.assertEqual(resultaat["huurprijsopslagen"], [])
 
-    def test_bereken_resultaat_telt_rijksmonument_mee_in_woz_cap(self):
-        # Vergeleken met de Huurcommissie: (90,75 + 50) × 33/67 = 69,33, dus 69
-        # WOZ-punten en 140,75 + 69 = 209,75, afgerond 210.
-        resultaat = self._bereken_resultaat(
-            monument=True,
-            monument_soort="rijksmonument",
-            huurovereenkomst_afgesloten_op=date(2024, 6, 30),
-            is_eengezinswoning=True,
-            energielabel_klasse="G",
-            woz_waarde=3160000,
-            woz_peildatum_jaar=2025,
-            bijzondere_voorziening_intercom_met_beeld=True,
-            vertrekken=[
-                {
-                    "naam": RuimteNaam.WOONKAMER,
-                    "ruimte_m2": 20,
-                    "verwarmd": True,
-                    "gekoeld": True,
-                },
-                {
-                    "naam": RuimteNaam.KEUKEN,
-                    "ruimte_m2": 7,
-                    "verwarmd": True,
-                    "aanrechtlengte_meters": "1.50",
-                    "inbouw_afzuiginstallatie": 1,
-                    "inbouw_kookplaat_inductie": 1,
-                    "inbouw_vaatwasmachine": 5,
-                },
-                {
-                    "naam": RuimteNaam.BADKAMER,
-                    "ruimte_m2": 15,
-                    "verwarmd": True,
-                    "toilet_hangend": 1,
-                    "baddouche": 1,
-                },
-            ],
-            overige_ruimten=[
-                {
-                    "naam": RuimteNaam.TOILETRUIMTE,
-                    "ruimte_m2": 4,
-                    "verwarmd": True,
-                    "toilet_hangend": 1,
-                    "wastafel": 1,
-                }
-            ],
-            buitenruimten=[{"naam": RuimteNaam.PRIVE_BUITENRUIMTE, "ruimte_m2": 72}],
-        )
-
-        self.assertEqual(self._punten(resultaat, "WOZ-waarde"), 69.0)
-        self.assertNotIn(
-            "Minimale waardering 186 punten",
-            self._omschrijvingen(resultaat, "WOZ-waarde"),
-        )
-        self.assertEqual(resultaat.totaal_punten, 210)
-
-    def test_bereken_resultaat_rondt_zorgwoningtoeslag_niet_af_op_kwartpunt(self):
-        # Beleidsboek 2.1.5: basis 50,25 x 35% = 17,5875 blijft staan, pas het
-        # totaal 67,84 wordt afgerond op 68.
+    def test_bereken_resultaat_rondt_zorgwoningtoeslag_af_op_kwartpunt(self):
+        # Net als de Huurcommissie: basis 50,25 x 35% = 17,5875, wordt 17,5.
         resultaat = self._bereken_resultaat(
             zorgwoning=True,
             vertrekken=[{"naam": RuimteNaam.WOONKAMER, "ruimte_m2": 21}],
             buitenruimten=[{"naam": RuimteNaam.PRIVE_BUITENRUIMTE, "ruimte_m2": 20}],
         )
 
-        self.assertEqual(self._punten(resultaat, "Zorgwoning"), 17.5875)
+        self.assertEqual(self._punten(resultaat, "Zorgwoning"), 17.5)
         self.assertEqual(resultaat.totaal_punten, 68)
 
     def test_bereken_resultaat_geeft_zorgwoning_zonder_gedeelde_ruimten_geen_3_punten(
@@ -1026,3 +971,40 @@ class PuntentellerTest(TestCase):
         self.assertEqual(self._punten(resultaat, "Parkeren"), 9.0)
         self.assertIn("(73 m² × 268)", self._omschrijvingen(resultaat, "WOZ-waarde")[1])
         self.assertEqual(self._punten(resultaat, "WOZ-waarde"), 34.75)
+
+    def test_bereken_resultaat_geeft_maximale_huurprijs_met_opslagen(self):
+        # Beleidsboek bijlage 3 en 2.13.3: 114 punten is € 733,79, met 35%
+        # rijksmonumentopslag € 990,62.
+        resultaat = self._bereken_resultaat(
+            monument=True,
+            monument_soort="rijksmonument",
+            huurovereenkomst_afgesloten_op=date(2024, 7, 1),
+            vertrekken=[{"naam": RuimteNaam.WOONKAMER, "ruimte_m2": 100}],
+            buitenruimten=[{"naam": RuimteNaam.PRIVE_BUITENRUIMTE, "ruimte_m2": 10}],
+        ).as_dict()
+
+        self.assertEqual(
+            resultaat["maximale_huurprijs"],
+            {"bedrag": 733.79, "met_opslagen": 990.62, "prijspeil": "2026-01-01"},
+        )
+
+    def test_bereken_resultaat_rekent_huurprijs_door_boven_250_punten(self):
+        # Beleidsboek 2.1.6: elk punt boven 250 telt mee met het verschil tussen
+        # 249 en 250 punten (€ 1.667,40 - € 1.660,54 = € 6,86).
+        resultaat = self._bereken_resultaat(
+            vertrekken=[{"naam": RuimteNaam.WOONKAMER, "ruimte_m2": 300}],
+        )
+
+        punten_boven_250 = int(resultaat.totaal_punten) - 250
+        self.assertGreater(punten_boven_250, 0)
+        self.assertEqual(
+            resultaat.maximale_huurprijs.bedrag,
+            Decimal("1667.40") + punten_boven_250 * Decimal("6.86"),
+        )
+
+    def test_bereken_resultaat_geeft_geen_huurprijs_zonder_huurprijstabel(self):
+        Kengetal.objects.update(huurprijstabel_per_ingangsdatum={})
+
+        resultaat = self._bereken_resultaat().as_dict()
+
+        self.assertIsNone(resultaat["maximale_huurprijs"])
