@@ -551,6 +551,13 @@ class GenericCompletedTaskViewSet(
 
             user_task_type = get_task_by_name(task.task_name)
             user_task = user_task_type(task)
+
+            # A visit is completed by TOP, this endpoint can only skip the visit
+            if task.task_name == "task_create_visit" and not user_task.is_valid_skip(
+                variables
+            ):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
             if user_task and user_task.mapped_form_data(variables):
                 variables["mapped_form_data"] = user_task.mapped_form_data(variables)
             else:
