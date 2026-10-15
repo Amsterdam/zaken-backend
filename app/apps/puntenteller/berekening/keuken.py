@@ -5,6 +5,7 @@ from apps.puntenteller.berekening.helpers import (
     eigen_ruimte,
     nl,
     voorziening_regels,
+    zonder_ruimte,
 )
 from apps.puntenteller.models import Kengetal
 from apps.puntenteller.resultaat import Regel, Rubriek
@@ -33,12 +34,14 @@ def keuken_rubriek(ruimten: Ruimten, kengetal: Kengetal) -> Rubriek:
     # Gedeelde keukens vallen onder rubriek 9.
     return Rubriek(
         "Keuken",
-        [
-            r
-            for keuken in ruimten.keukens
-            if eigen_ruimte(keuken)
-            for r in keuken_regels(keuken, kengetal)
-        ],
+        zonder_ruimte(
+            [
+                r
+                for keuken in ruimten.keukens
+                if eigen_ruimte(keuken)
+                for r in keuken_regels(keuken, kengetal)
+            ]
+        ),
     )
 
 
