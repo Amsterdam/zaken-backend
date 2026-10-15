@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import date
 from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal
 from typing import Iterable, TypeVar
@@ -96,6 +97,12 @@ def gedeeld_door_adressen(regels: list[Regel], ruimte) -> list[Regel]:
             ruimte=ruimte.naam,
         ),
     ]
+
+
+def zonder_ruimte(regels: list[Regel]) -> list[Regel]:
+    # Voor rubrieken die zelf al naar de ruimte heten (Keuken, Parkeren), waar de
+    # ruimte bij elke regel dubbelop is.
+    return [replace(r, ruimte=None) for r in regels]
 
 
 def begrensd(

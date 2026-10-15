@@ -733,6 +733,33 @@ class PuntentellerTest(TestCase):
             ],
         )
 
+    def test_bereken_resultaat_toont_geen_ruimte_bij_keuken_en_parkeren(self):
+        # De rubriek heet al naar de ruimte, dus "Keuken: ..." is dubbelop.
+        resultaat = self._bereken_resultaat(
+            vertrekken=[
+                {
+                    "naam": RuimteNaam.KEUKEN,
+                    "ruimte_m2": 0,
+                    "aanrechtlengte_meters": 3,
+                    "inbouw_koelkast": 1,
+                }
+            ],
+            parkeerruimten=[
+                {
+                    "naam": RuimteNaam.BUITENRUIMTE_PARKEERPLAATS,
+                    "aantal_gesloten_garage_bij_complex": 1,
+                    "aantal_laadpalen": 1,
+                }
+            ],
+        )
+
+        for naam in ["Keuken", "Parkeren"]:
+            regels = resultaat.rubriek(naam).regels
+            self.assertTrue(regels)
+            self.assertEqual(
+                [r.as_dict()["ruimte"] for r in regels], [None] * len(regels)
+            )
+
     def test_bereken_resultaat_rondt_rubriek_af_op_kwartpunt(self):
         # Beleidsboek 2.1.4 en 2.9.7: 10 m2 gedeeld door 3 adressen is 3,33 en
         # wordt 3,25.

@@ -6,6 +6,7 @@ from apps.puntenteller.berekening.helpers import (
     gedeeld_door_adressen,
     nl,
     regel,
+    zonder_ruimte,
 )
 from apps.puntenteller.models import Kengetal
 from apps.puntenteller.resultaat import Regel, Rubriek
@@ -86,7 +87,7 @@ def parkeren_rubriek(ruimten: Ruimten, kengetal: Kengetal) -> Rubriek:
         regels += gedeeld_door_adressen(
             _parkeerruimte_regels(parkeerruimten, kengetal), parkeerruimten[0]
         )
-    return Rubriek("Parkeren", regels)
+    return Rubriek("Parkeren", zonder_ruimte(regels))
 
 
 def _parkeerruimte_regels(
