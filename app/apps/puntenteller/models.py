@@ -452,6 +452,7 @@ class Gebruikersinvoer(models.Model):
     monument = models.BooleanField(default=False)
     monument_soort = models.CharField(max_length=255, null=True, blank=True)
     huurovereenkomst_afgesloten_op = models.DateField(null=True, blank=True)
+    huidige_huurprijs = models.PositiveIntegerField(default=0, null=True, blank=True)
     zorgwoning = models.BooleanField(default=False)
     nieuwbouw = models.BooleanField(default=False)
     bijzondere_voorziening_intercom_met_beeld = models.BooleanField(default=False)
