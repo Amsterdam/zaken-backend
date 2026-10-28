@@ -518,5 +518,15 @@
       "enabled": true,
       "theme": 9
     }
+  },
+  {
+    "pk": 58,
+    "model": "debriefings.violationtype",
+    "fields": {
+        "name": "Geen opvolging",
+        "value": "NO",
+        "enabled": true,
+        "theme": 8
+    }
   }
 ]
