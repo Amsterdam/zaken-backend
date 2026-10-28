@@ -432,7 +432,7 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0sw3t7f" sourceRef="service_script_set_visit_auth_yes" targetRef="Event_1fqty0r" />
     <bpmn:sequenceFlow id="Flow_0vosbwg" sourceRef="Gateway_125z6tk" targetRef="gateway_is_debrief_violation" />
-    <bpmn:sequenceFlow id="Flow_09fde08" sourceRef="gateway_is_debrief_violation" targetRef="Gateway_0rp0ijk">
+    <bpmn:sequenceFlow id="Flow_09fde08" name="violation= NO or violation = SEND_TO_OTHER_THEME" sourceRef="gateway_is_debrief_violation" targetRef="Gateway_0rp0ijk">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">get_data("violation") == "NO" or get_data("violation") == "SEND_TO_OTHER_THEME"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_08ohsf0" sourceRef="gateway_is_debrief_violation" targetRef="Gateway_1xfwqbs" />
@@ -1218,7 +1218,7 @@
         <di:waypoint x="2280" y="870" />
         <di:waypoint x="2280" y="700" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2238" y="783" width="79" height="40" />
+          <dc:Bounds x="2189" y="763" width="82" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_08ohsf0_di" bpmnElement="Flow_08ohsf0">
@@ -1233,7 +1233,7 @@
         <di:waypoint x="2600" y="870" />
         <di:waypoint x="2600" y="700" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2556" y="780" width="88" height="80" />
+          <dc:Bounds x="2506" y="760" width="88" height="80" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0zkoik9_di" bpmnElement="Flow_0zkoik9">
@@ -1276,7 +1276,7 @@
         <di:waypoint x="3140" y="870" />
         <di:waypoint x="3140" y="700" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="3099" y="821" width="82" height="40" />
+          <dc:Bounds x="3049" y="780" width="82" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0hom0ys_di" bpmnElement="Flow_0hom0ys">
