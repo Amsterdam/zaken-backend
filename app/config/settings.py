@@ -548,6 +548,21 @@ DEFAULT_WORKFLOW_TIMER_DURATIONS = {
     "acceptance": timedelta(seconds=240),
 }
 
+WORKFLOW_DIRECTOR_INITIAL_DATA = {
+    "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
+    "authorization": {"value": "No"},
+    "project": {"value": "default"},
+    "reason": {"value": "default"},
+    "theme": {"value": "default"},
+    "bepalen_processtap": {"value": "ja"},
+    "debrief_next_step": {"value": "default"},
+    "summon_next_step": {"value": "default"},
+    "visit_next_step": {"value": "default"},
+    "housing_corporation_next_step": {"value": "default"},
+    "monitoren_reactie_platform_duration": timedelta(days=14),
+    "leegstandsmelding_eigenaar": {"value": "default"},
+}
+
 WORKFLOW_SPEC_CONFIG = {
     "default": {
         "closing_procedure": {
@@ -597,6 +612,7 @@ WORKFLOW_SPEC_CONFIG = {
                 "8.0.0": {},
                 "8.1.0": {},
                 "8.2.0": {},
+                "8.3.0": {},
             },
         },
         "debrief": {
@@ -746,306 +762,90 @@ WORKFLOW_SPEC_CONFIG = {
                 "5.0.0": {
                     "messages": {
                         "main_process": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                         "aanschrijving_toevoegen": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                     },
                 },
                 "5.1.0": {
                     "messages": {
                         "main_process": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                         "aanschrijving_toevoegen": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                     },
                 },
                 "6.0.0": {
                     "messages": {
                         "main_process": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                         "aanschrijving_toevoegen": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                     },
                 },
                 "7.0.0": {
                     "messages": {
                         "main_process": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                         "aanschrijving_toevoegen": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                     },
                 },
                 "7.1.0": {
                     "messages": {
                         "main_process": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                         "aanschrijving_toevoegen": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                     },
                 },
                 "8.0.0": {
                     "messages": {
                         "main_process": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                         "aanschrijving_toevoegen": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                     },
                 },
                 "8.1.0": {
                     "messages": {
                         "main_process": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                         "aanschrijving_toevoegen": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                     },
                 },
                 "8.2.0": {
                     "messages": {
                         "main_process": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "project": {"value": "default"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                         "aanschrijving_toevoegen": {
-                            "initial_data": {
-                                "status_name": DEFAULT_SCHEDULE_ACTIONS[0],
-                                "authorization": {"value": "No"},
-                                "project": {"value": "default"},
-                                "reason": {"value": "default"},
-                                "theme": {"value": "default"},
-                                "bepalen_processtap": {"value": "ja"},
-                                "debrief_next_step": {"value": "default"},
-                                "summon_next_step": {"value": "default"},
-                                "visit_next_step": {"value": "default"},
-                                "housing_corporation_next_step": {"value": "default"},
-                                "monitoren_reactie_platform_duration": timedelta(
-                                    days=14
-                                ),
-                                "leegstandsmelding_eigenaar": {"value": "default"},
-                            },
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
+                        },
+                    },
+                },
+                "8.3.0": {
+                    "messages": {
+                        "main_process": {
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
+                        },
+                        "aanschrijving_toevoegen": {
+                            "initial_data": WORKFLOW_DIRECTOR_INITIAL_DATA
                         },
                     },
                 },
