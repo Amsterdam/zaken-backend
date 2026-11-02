@@ -46,3 +46,31 @@ class DebriefingCreateAPITest(APITestCase, DebriefingTestMixin):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Debriefing.objects.count(), 1)
+
+    def test_authenticated_post_selects_violation_by_name_when_values_match(self):
+        case = self.create_case()
+        baker.make(
+            ViolationType,
+            theme_id=case.theme_id,
+            value="YES",
+            name="First violation",
+        )
+        selected_violation = baker.make(
+            ViolationType,
+            theme_id=case.theme_id,
+            value="YES",
+            name="Selected violation",
+        )
+        data = {
+            "violation": selected_violation.value,
+            "name": selected_violation.name,
+            "feedback": "Hello World Feedback",
+            "case": case.id,
+        }
+
+        response = get_authenticated_client().post(
+            reverse("debriefings-list"), data, format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Debriefing.objects.get().violation_id, selected_violation.id)
