@@ -5,7 +5,7 @@ from apps.permits.api_queries_powerbrowser import PowerbrowserRequest
 from config.celery import debug_task
 from django.conf import settings
 from django.http import HttpResponse
-from health_check.backends import BaseHealthCheckBackend
+from health_check.backends import HealthCheck
 from health_check.exceptions import ServiceUnavailable
 from requests.exceptions import HTTPError, SSLError, Timeout
 from utils.api_queries_bag import (
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 TIMEOUT_IN_SEC = 20
 
 
-class APIServiceCheckBackend(BaseHealthCheckBackend):
+class APIServiceCheckBackend(HealthCheck):
     """
     Generic base class for checking API services
     """
@@ -65,7 +65,7 @@ class APIServiceCheckBackend(BaseHealthCheckBackend):
         else:
             logger.info("Connection established. API is healthy.")
 
-    def identifier(self):
+    def __repr__(self):
         if self.verbose_name:
             return self.verbose_name
 
@@ -97,7 +97,7 @@ class BRPNewServiceCheck(APIServiceCheckBackend):
     verbose_name = "BRP BENK"
 
 
-class BAGBenkaggNummeraanduidingenServiceCheck(BaseHealthCheckBackend):
+class BAGBenkaggNummeraanduidingenServiceCheck(HealthCheck):
     """
     Endpoint for checking the BAG Benkagg adresseerbareobjecten API
     """
@@ -125,11 +125,11 @@ class BAGBenkaggNummeraanduidingenServiceCheck(BaseHealthCheckBackend):
             logger.error(e)
             self.add_error(ServiceUnavailable(f"Failed {e}"), e)
 
-    def identifier(self):
+    def __repr__(self):
         return self.verbose_name
 
 
-class BAGPdokServiceCheck(BaseHealthCheckBackend):
+class BAGPdokServiceCheck(HealthCheck):
     """
     Endpoint for checking the BAG PDOK API
     """
@@ -157,17 +157,17 @@ class BAGPdokServiceCheck(BaseHealthCheckBackend):
             logger.error(e)
             self.add_error(ServiceUnavailable(f"Failed {e}"), e)
 
-    def identifier(self):
+    def __repr__(self):
         return self.verbose_name
 
 
-class CeleryExecuteTask(BaseHealthCheckBackend):
+class CeleryExecuteTask(HealthCheck):
     def check_status(self):
         result = debug_task.apply_async(ignore_result=False)
         assert result, "Debug task executes successfully"
 
 
-class Belastingdienst(BaseHealthCheckBackend):
+class Belastingdienst(HealthCheck):
     """
     Tests an authenticated request to the Belastingdienst endpoint
     """
@@ -185,7 +185,7 @@ class Belastingdienst(BaseHealthCheckBackend):
             self.add_error(ServiceUnavailable(f"Failed {e}"), e)
 
 
-class DecosJoinCheck(BaseHealthCheckBackend):
+class DecosJoinCheck(HealthCheck):
     """
     Tests an authenticated request to Decos Join
     """
@@ -212,7 +212,7 @@ class KeycloakCheck(APIServiceCheckBackend):
     verbose_name = "Keycloak"
 
 
-class VakantieVerhuurRegistratieCheck(BaseHealthCheckBackend):
+class VakantieVerhuurRegistratieCheck(HealthCheck):
     """
     Check if a connection can be made with the Vakantieverhuur Registratie API
     """
@@ -246,7 +246,7 @@ class VakantieVerhuurRegistratieCheck(BaseHealthCheckBackend):
             )
 
 
-class Toeristischeverhuur(BaseHealthCheckBackend):
+class Toeristischeverhuur(HealthCheck):
     """
     Check if a connection can be made with the toeristischeverhuur.nl API
     """
@@ -278,7 +278,7 @@ class Toeristischeverhuur(BaseHealthCheckBackend):
             )
 
 
-class PowerBrowser(BaseHealthCheckBackend):
+class PowerBrowser(HealthCheck):
     """
     Tests an authenticated request to PowerBrowser for B&B permits
     """
