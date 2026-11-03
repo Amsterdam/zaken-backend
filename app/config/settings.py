@@ -272,6 +272,10 @@ PUNTENTELLER_VERBLIJFSOBJECT_API_URL = os.getenv(
     "PUNTENTELLER_VERBLIJFSOBJECT_API_URL",
     "https://api.data.amsterdam.nl/v1/bag/v1/verblijfsobjecten",
 )
+PUNTENTELLER_MONUMENTEN_API_URL = os.getenv(
+    "PUNTENTELLER_MONUMENTEN_API_URL",
+    "https://api.data.amsterdam.nl/v1/monumenten/monumenten/",
+)
 PUNTENTELLER_WOZ_API_URL = os.getenv(
     "PUNTENTELLER_WOZ_API_URL",
     "https://",
