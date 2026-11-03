@@ -17,7 +17,12 @@ from rest_framework.decorators import action
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
-from utils.api_queries_puntenteller import get_energie_label, get_oppervlakte, get_woz
+from utils.api_queries_puntenteller import (
+    get_energie_label,
+    get_monument,
+    get_verblijfsobject,
+    get_woz,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +78,7 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
 
         try:
             energie_data = get_energie_label(adres.bag_id)
-            gebruiksoppervlakte = get_oppervlakte(adres.bag_id)
+            verblijfsobject = get_verblijfsobject(adres.bag_id)
             woz_data = get_woz(adres.nummeraanduiding_id)
         except Exception as exception:
             logger.exception("Fout bij ophalen van externe gebouwdata: %s", exception)
@@ -82,11 +87,19 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        try:
+            monument_data = get_monument(verblijfsobject)
+        except Exception as exception:
+            logger.warning("Fout bij ophalen van monumentstatus: %s", exception)
+            monument_data = {"monument": False, "monument_soort": None}
+
         serializer = GebouwDataSerializer(
             {
                 "straat": adres.street_name,
                 "huisnummer": adres.number,
-                "gebruiksoppervlakte": gebruiksoppervlakte,
+                "gebruiksoppervlakte": (
+                    verblijfsobject.get("oppervlakte") if verblijfsobject else None
+                ),
                 "woz_waarden": woz_data.get("woz_waarden") if woz_data else None,
                 "wozobjectnummer": (
                     woz_data.get("wozobjectnummer") if woz_data else None
@@ -109,6 +122,8 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
                         energie_data.get("meting_geldig_tot") if energie_data else None
                     ),
                 },
+                "monument": monument_data["monument"],
+                "monument_soort": monument_data["monument_soort"],
             }
         )
         return Response(serializer.data)
