@@ -39,3 +39,22 @@ def do_bag_search_pdok_by_bag_id(bag_id):
     )
 
     return address_search.json()
+
+
+@retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
+def do_bag_search_pdok_by_address(address_string):
+    """
+    Search BAG PDOK using an address.
+    """
+    address_search = requests.get(
+        "https://api.pdok.nl/bzk/locatieserver/search/v3_1/suggest",
+        params={
+            "q": address_string,
+            "fq": "gemeentenaam:(amsterdam) AND (type:adres) AND (adrestype: hoofdadres)",
+            "fl": "weergavenaam,gemeentenaam,nummeraanduiding_id,adresseerbaarobject_id,straatnaam,huisnummer,huisletter,huisnummertoevoeging,postcode,woonplaatsnaam,score",
+            "sort": "score desc, weergavenaam asc",
+        },
+        timeout=5,
+    )
+
+    return address_search.json()
