@@ -20,22 +20,14 @@ class Command(BaseCommand):
     )
 
     fields = {
-        "adres": {"model_field": "street_name", "idx": 0},
-        "postcode": {"model_field": "postal_code", "idx": 0},
-        "huisnr.": {"model_field": "number", "idx": 0},
-        "toevoeging": {"model_field": "suffix", "idx": 0},
-        # "reden leegstand": {
-        #     "idx": 0
-        # },
-        # "datum start werkzaamheden": {
-        #     "idx": 0
-        # },
-        # "datum oplevering": {
-        #     "idx": 0
-        # },
-        # "bijzonderheden": {
-        #     "idx": 0
-        # },
+        "adres": {"idx": 0},
+        "postcode": {"idx": 0},
+        "huisnr.": {"idx": 0},
+        "toevoeging": {"idx": 0},
+        "reden leegstand": {"idx": 0},
+        "datum start werkzaamheden": {"idx": 0},
+        "datum oplevering": {"idx": 0},
+        "bijzonderheden": {"idx": 0},
     }
 
     def __init__(self):
@@ -139,7 +131,12 @@ class Command(BaseCommand):
             #           },
             #      }
 
-            description = "test"
+            description = self.get_description_text(
+                row_data["reden leegstand"],
+                row_data["datum start werkzaamheden"],
+                row_data["datum oplevering"],
+                row_data["bijzonderheden"],
+            )
 
             data = {
                 "bag_id": bag_id,
@@ -270,3 +267,12 @@ class Command(BaseCommand):
         bag_id = found_address["adresseerbaarobject_id"]
         self.stdout.write(self.style.SUCCESS(found_address["weergavenaam"]))
         return bag_id
+
+    def get_description_text(self, reason: str, date_start, date_end, details):
+        return f"""
+        Leegstand gemeld: {"TODO"} op {"TODO"}.
+        Leeg sinds: {date_start.strftime("%d-%m-%Y") if date_start else '-'}.
+        Reden: {reason}.
+        Opleverdatum: {date_end.strftime("%d-%m-%Y") if date_end else '-'}
+        Bijzonderheden: {details}
+        """
