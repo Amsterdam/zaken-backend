@@ -1,7 +1,7 @@
 from textwrap import dedent
 
 from apps.addresses.serializers import AddressSimplifiedSerializer
-from apps.cases.models import Case, CaseReason, CaseState, CaseTheme, Subject
+from apps.cases.models import Case, CaseReason, CaseTheme, Subject
 from apps.cases.serializers import CaseCreateSerializer
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
@@ -67,14 +67,16 @@ class Command(BaseCommand):
         User = get_user_model()
         user = User.objects.get(username=username)
 
-        theme = CaseTheme.objects.get(name="Leegstand")
-        reason = CaseReason.objects.get(theme=theme, name="Leegstandsmelding eigenaar")
+        theme_leegstand = CaseTheme.objects.get(name="Leegstand")
+        reason = CaseReason.objects.get(
+            theme=theme_leegstand, name="Leegstandsmelding eigenaar"
+        )
 
         subject_names = ["Administratieve leegstand", "Professionele eigenaar"]
         subjects = list(
-            Subject.objects.filter(name__in=subject_names, theme_id=theme.id).values(
-                "id", "name"
-            )
+            Subject.objects.filter(
+                name__in=subject_names, theme_id=theme_leegstand.id
+            ).values("id", "name")
         )
         subject_ids = [s["id"] for s in subjects]
         self.request.user = user
@@ -121,18 +123,6 @@ class Command(BaseCommand):
             if bag_id is None:
                 continue
 
-            # a = {'response':
-            #          {'numFound': 1, 'start': 0, 'maxScore': 8.632138, 'numFoundExact': True, 'docs':
-            #              [
-            #                  {'woonplaatsnaam': 'Amsterdam', 'weergavenaam': 'Hemonystraat 66-3, 1074BT Amsterdam',
-            #                   'huisnummertoevoeging': '3', 'adrestype': 'hoofdadres', 'gemeentenaam': 'Amsterdam',
-            #                   'postcode': '1074BT', 'nummeraanduiding_id': '0363200000124344',
-            #                   'adresseerbaarobject_id': '0363010000662243', 'huisnummer': 66, 'straatnaam': 'Hemonystraat',
-            #                   'score': 8.632138}
-            #              ]
-            #           },
-            #      }
-
             description = self.get_description_text(
                 row_data["reden leegstand"],
                 row_data["datum start werkzaamheden"],
@@ -151,14 +141,11 @@ class Command(BaseCommand):
                 "subject_ids": subject_ids,
                 "subjects": subjects,
                 "theme": {
-                    "id": theme.id,
-                    "name": theme.name,
+                    "id": theme_leegstand.id,
+                    "name": theme_leegstand.name,
                 },
-                "theme_id": theme.id,
+                "theme_id": theme_leegstand.id,
             }
-
-            # TODO: Voor de adressen zonder openstaande zaak in AZA moet automatisch een nieuwe zaak worden aangemaakt met het stadium “leegstandbeschikking verstuurd”.
-            # TODO: Voor adressen met openstaande zaak voor nu alleen een warning printen.
 
             serializer = CaseCreateSerializer(
                 data=data,
@@ -166,18 +153,13 @@ class Command(BaseCommand):
             )
             serializer.is_valid(raise_exception=True)
             self.stdout.write(f"Creating case for bag_id={bag_id} ", ending="")
-            case_exists = (
-                Case.objects.filter(
-                    theme=theme,
-                    address__bag_id=bag_id,
-                )
-                .exclude(
-                    case_states__status=CaseState.CaseStateChoice.AFGESLOTEN,
-                )
-                .exists()
+            open_cases_at_address = Case.objects.filter(
+                theme=theme_leegstand, address__bag_id=bag_id, end_date=None
             )
-            if case_exists:
-                self.stdout.write(self.style.WARNING("SKIPPED (case already exists)"))
+            if open_cases_at_address.exists():
+                self.stdout.write(
+                    self.style.NOTICE("SKIPPED (Open cases for address found!)")
+                )
                 continue
             if not dry_run:
                 serializer.save()
@@ -194,7 +176,7 @@ class Command(BaseCommand):
     @staticmethod
     def _find_header_row_index(ws):
         for row_index, row in enumerate(
-            ws.iter_rows(min_row=1, max_col=2, max_row=10, values_only=True), start=1
+            ws.iter_rows(min_row=1, max_col=5, max_row=10, values_only=True), start=1
         ):
             for cell_value in row:
                 if isinstance(cell_value, str) and cell_value.lower() == "adres":
