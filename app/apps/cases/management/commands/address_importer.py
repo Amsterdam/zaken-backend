@@ -67,18 +67,18 @@ class Command(BaseCommand):
         User = get_user_model()
         user = User.objects.get(username=username)
 
-        theme_leegstand = CaseTheme.objects.get(name="Leegstand")
-        reason = CaseReason.objects.get(
-            theme=theme_leegstand, name="Leegstandsmelding eigenaar"
+        self.theme_leegstand = CaseTheme.objects.get(name="Leegstand")
+        self.reason = CaseReason.objects.get(
+            theme=self.theme_leegstand, name="Leegstandsmelding eigenaar"
         )
 
         subject_names = ["Administratieve leegstand", "Professionele eigenaar"]
-        subjects = list(
+        self.subjects = list(
             Subject.objects.filter(
-                name__in=subject_names, theme_id=theme_leegstand.id
+                name__in=subject_names, theme_id=self.theme_leegstand.id
             ).values("id", "name")
         )
-        subject_ids = [s["id"] for s in subjects]
+        self.subject_ids = [s["id"] for s in self.subjects]
         self.request.user = user
 
         ### Section read Excel
@@ -99,8 +99,9 @@ class Command(BaseCommand):
             except ValueError:
                 raise CommandError(f"Excel file must contain {column_name} column")
 
-        processed = 0
-        created = 0
+        num_processed = 0
+        num_created = 0
+        processed_result = []
 
         for row in ws.iter_rows(min_row=header_row_idx + 1, values_only=True):
             adres = row[self.fields["adres"]["idx"]]
@@ -112,64 +113,20 @@ class Command(BaseCommand):
                 field_name: row[field_data["idx"]]
                 for field_name, field_data in self.fields.items()
             }
-            processed += 1
 
-            bag_id = self._get_bag_id(
-                row_data["adres"],
-                row_data["huisnr."],
-                row_data["toevoeging"],
-                row_data["postcode"],
-            )
-            if bag_id is None:
-                continue
+            created, msg = self._import_case(row_data, dry_run)
+            processed_result.append({"success": created, "msg": msg})
 
-            description = self.get_description_text(
-                row_data["reden leegstand"],
-                row_data["datum start werkzaamheden"],
-                row_data["datum oplevering"],
-                row_data["bijzonderheden"],
-            )
-
-            data = {
-                "bag_id": bag_id,
-                "description": description,
-                "reason": {
-                    "id": reason.id,
-                    "name": reason.name,
-                },
-                "reason_id": reason.id,
-                "subject_ids": subject_ids,
-                "subjects": subjects,
-                "theme": {
-                    "id": theme_leegstand.id,
-                    "name": theme_leegstand.name,
-                },
-                "theme_id": theme_leegstand.id,
-            }
-
-            serializer = CaseCreateSerializer(
-                data=data,
-                context={"request": self.request},
-            )
-            serializer.is_valid(raise_exception=True)
-            self.stdout.write(f"Creating case for bag_id={bag_id} ", ending="")
-            open_cases_at_address = Case.objects.filter(
-                theme=theme_leegstand, address__bag_id=bag_id, end_date=None
-            )
-            if open_cases_at_address.exists():
-                self.stdout.write(
-                    self.style.NOTICE("SKIPPED (Open cases for address found!)")
-                )
-                continue
-            if not dry_run:
-                serializer.save()
-                created += 1
-
-            self.stdout.write(self.style.SUCCESS("OK"))
+            num_processed += 1
+            num_created += created
+            if created:
+                self.stdout.write(self.style.SUCCESS(msg))
+            else:
+                self.stdout.write(self.style.NOTICE(msg))
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Done. processed={processed}, created={created}, dry_run={dry_run}"
+                f"Done. processed={num_processed}, created={num_created}, dry_run={dry_run}"
             )
         )
 
@@ -195,7 +152,7 @@ class Command(BaseCommand):
             for item in header
         ]
 
-    def _get_bag_id(
+    def _get_bag_data(
         self, street_name: str, number: int, suffix: str | int, postal_code: str
     ):
         street_name = street_name.strip()
@@ -203,6 +160,13 @@ class Command(BaseCommand):
         suffix = str(suffix).strip()
         postal_code = postal_code.replace(" ", "").replace("\xa0", "")
         search_string = f"{street_name} {number}-{suffix}, {postal_code}"
+
+        result = {
+            "bag_id": None,
+            "search_address": search_string,
+            "found_address": "",
+            "error": "",
+        }
 
         serializer = AddressSimplifiedSerializer(
             data={
@@ -216,18 +180,16 @@ class Command(BaseCommand):
         try:
             serializer.is_valid(raise_exception=True)
         except ValidationError as e:
-            self.stdout.write(
-                self.style.WARNING(f"FOUT IN INVOERDATA: {search_string}: {e}")
-            )
-            return None
+            error_str = f"FOUT IN INVOERDATA: {search_string}: {e}"
+            result["error"] = error_str
+            return result
 
         response = do_bag_search_pdok_by_address(search_string).get("response", {})
 
         if response.get("numFound", 0) == 0:
-            self.stdout.write(
-                self.style.NOTICE(f"No such address found: {search_string} !")
-            )
-            return None
+            error_str = f"No such address found: {search_string} !"
+            result["error"] = error_str
+            return result
         elif response.get("numFound", 0) > 1:
             # Vaak als er meerdere adressen uitkomen, dan klopt het eerste adres, de rest heeft bijvoorbeeld een andere toevoeging.
             # Als de postcode, huisnr en toevoeging gelijk zijn, kunnen we aannemen dat het het juiste adres is.
@@ -238,19 +200,16 @@ class Command(BaseCommand):
                 and first_address["huisnummer"] == number
                 and first_address["huisnummertoevoeging"] == suffix
             ):
-                self.stdout.write(
-                    self.style.WARNING(
-                        f"Found more than one address for {search_string} !"
-                    )
-                )
+                error_str = f"Found more than one address for {search_string} !"
                 for adres in response.get("docs", []):
                     self.stdout.write(f"    {adres['weergavenaam']} + {adres['score']}")
-                return None
+                result["error"] = error_str
+                return result
 
         found_address = response.get("docs")[0]
-        bag_id = found_address["adresseerbaarobject_id"]
-        self.stdout.write(self.style.SUCCESS(found_address["weergavenaam"]))
-        return bag_id
+        result["bag_id"] = found_address["adresseerbaarobject_id"]
+        result["found_address"] = found_address["weergavenaam"]
+        return result
 
     def get_description_text(self, reason: str, date_start, date_end, details):
         return dedent(
@@ -261,3 +220,60 @@ class Command(BaseCommand):
             Bijzonderheden: {details}
         """
         ).strip()
+
+    def _import_case(self, row_data, dry_run):
+        success = False
+        msg = ""
+
+        address_data = self._get_bag_data(
+            row_data["adres"],
+            row_data["huisnr."],
+            row_data["toevoeging"],
+            row_data["postcode"],
+        )
+        bag_id = address_data["bag_id"]
+        if address_data["error"] or bag_id is None:
+            return False, address_data["error"]
+
+        description = self.get_description_text(
+            row_data["reden leegstand"],
+            row_data["datum start werkzaamheden"],
+            row_data["datum oplevering"],
+            row_data["bijzonderheden"],
+        )
+
+        data = {
+            "bag_id": bag_id,
+            "description": description,
+            "reason": {
+                "id": self.reason.id,
+                "name": self.reason.name,
+            },
+            "reason_id": self.reason.id,
+            "subject_ids": self.subject_ids,
+            "subjects": self.subjects,
+            "theme": {
+                "id": self.theme_leegstand.id,
+                "name": self.theme_leegstand.name,
+            },
+            "theme_id": self.theme_leegstand.id,
+        }
+
+        serializer = CaseCreateSerializer(
+            data=data,
+            context={"request": self.request},
+        )
+        serializer.is_valid(raise_exception=True)
+
+        msg = f"Creating case for address={address_data["search_address"]} "
+
+        open_cases_at_address = Case.objects.filter(
+            theme=self.theme_leegstand, address__bag_id=bag_id, end_date=None
+        )
+        if open_cases_at_address.exists():
+            return False, msg + "SKIPPED (Open cases for address found!)"
+        if not dry_run:
+            serializer.save()
+            success = True
+
+        return success, msg + "OK"
