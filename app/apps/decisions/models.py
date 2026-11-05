@@ -3,6 +3,7 @@ from apps.events.models import CaseEvent, TaskModelEventEmitter
 from apps.summons.models import Summon
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class DecisionType(models.Model):
@@ -41,7 +42,7 @@ class Decision(TaskModelEventEmitter):
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True
     )
-    date_added = models.DateTimeField(auto_now_add=True)
+    date_added = models.DateTimeField(default=timezone.now)
     sanction_id = models.CharField(max_length=20, blank=True, null=True)
     active = models.BooleanField(default=True)
 
