@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 from apps.addresses.serializers import AddressSimplifiedSerializer
 from apps.cases.models import Case, CaseReason, CaseState, CaseTheme, Subject
 from apps.cases.serializers import CaseCreateSerializer
@@ -269,10 +271,11 @@ class Command(BaseCommand):
         return bag_id
 
     def get_description_text(self, reason: str, date_start, date_end, details):
-        return f"""
-        Leegstand gemeld: {"TODO"} op {"TODO"}.
-        Leeg sinds: {date_start.strftime("%d-%m-%Y") if date_start else '-'}.
-        Reden: {reason}.
-        Opleverdatum: {date_end.strftime("%d-%m-%Y") if date_end else '-'}
-        Bijzonderheden: {details}
+        return dedent(
+            f"""Leegstand gemeld: {"TODO"} op {"TODO"}.
+            Leeg sinds: {date_start.strftime("%d-%m-%Y") if date_start else '-'}.
+            Reden: {reason}.
+            Opleverdatum: {date_end.strftime("%d-%m-%Y") if date_end else '-'}
+            Bijzonderheden: {details}
         """
+        ).strip()
