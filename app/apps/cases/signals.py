@@ -26,8 +26,8 @@ def start_workflow_for_case(sender, instance, created, **kwargs):
 
     if kwargs.get("raw"):
         return
-    data = {}
     if created:
+        data = dict(instance.initial_workflow_data)
         CaseState.objects.get_or_create(case=instance)
         task_create_main_worflow_for_case.delay(case_id=instance.id, data=data)
 
