@@ -41,7 +41,7 @@ class DecisionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Decision
         exclude = ["summon"]
-        read_only_fields = ["sanction_id"]
+        read_only_fields = ["sanction_id", "date_added"]
 
 
 class DecisionSanctionSerializer(serializers.ModelSerializer):
