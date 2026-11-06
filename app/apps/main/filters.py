@@ -44,6 +44,17 @@ class RelatedOrderingFilter(rest_filters.OrderingFilter):
                 )
         return valid_fields
 
+    def get_ordering(self, request, queryset, view):
+        """
+        Always add `id` as a final tiebreaker, so rows with equal values (e.g. cases with
+        the same start_date) have a stable order. The direction follows the first field.
+        """
+        ordering = super().get_ordering(request, queryset, view)
+        if ordering and not any(o.lstrip("-") in ("id", "pk") for o in ordering):
+            direction = "-" if ordering[0].startswith("-") else ""
+            ordering = [*ordering, f"{direction}id"]
+        return ordering
+
     def get_valid_fields(
         self, queryset: models.QuerySet, view, context: dict = None
     ) -> List[tuple]:
