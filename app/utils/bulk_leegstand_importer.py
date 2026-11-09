@@ -24,11 +24,18 @@ class BulkLeegstandImporter:
         "bijzonderheden": {"idx": 0},
     }
 
+    MAX_METADATA_ROWS = 10
+    METADATA_MAPPING = { # label -> field
+        "Datum melding": "melding_datum",
+        "Naam bedrijf": "melding_naam"
+    }
+
     def __init__(self):
         self.file = None
         self.worksheet = None
         self.header_row_idx = None
         self.project_id = None
+        self.metadata = {}
 
         # Request context for CaseSerializer
         factory = APIRequestFactory()
@@ -65,6 +72,7 @@ class BulkLeegstandImporter:
         except Exception as e:
             raise ValueError(f"Failed to read Excel file: {e}")
 
+        self._find_metadata(ws)
         self.header_row_idx = self._find_header_row_index(ws)
         header_raw = [cell.value for cell in ws[self.header_row_idx]]
         header = self._clean_header(header_raw)
@@ -108,10 +116,21 @@ class BulkLeegstandImporter:
         }
         return processed_result
 
-    @staticmethod
-    def _find_header_row_index(ws):
+    def _find_metadata(self, ws):
+        self.metadata = {}
+        for row in ws.iter_rows(min_row=1, max_row=self.MAX_METADATA_ROWS):
+            for cell in row:
+                if not isinstance(cell.value, str):
+                    continue
+                value = cell.value.strip()
+                if value in self.METADATA_MAPPING.keys():
+                    self.metadata[self.METADATA_MAPPING[value]] = ws.cell(
+                        row=cell.row, column=cell.column + 1
+                    ).value
+
+    def _find_header_row_index(self, ws):
         for row_index, row in enumerate(
-            ws.iter_rows(min_row=1, max_col=5, max_row=10, values_only=True), start=1
+            ws.iter_rows(min_row=1, max_col=5, max_row=self.MAX_METADATA_ROWS, values_only=True), start=1
         ):
             for cell_value in row:
                 if isinstance(cell_value, str) and cell_value.lower() == "adres":
@@ -190,8 +209,9 @@ class BulkLeegstandImporter:
         return result
 
     def get_description_text(self, reason: str, date_start, date_end, details):
+        datum_melding = self.metadata['melding_datum'].strftime("%d-%m-%Y") if 'melding_datum' in self.metadata else '-'
         return dedent(
-            f"""Leegstand gemeld: {"TODO"} op {"TODO"}.
+            f"""Leegstand gemeld: {self.metadata.get('melding_naam', '-')} op {datum_melding}.
             Leeg sinds: {date_start.strftime("%d-%m-%Y") if date_start else '-'}.
             Reden: {reason}.
             Opleverdatum: {date_end.strftime("%d-%m-%Y") if date_end else '-'}

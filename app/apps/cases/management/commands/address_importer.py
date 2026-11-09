@@ -52,7 +52,7 @@ class Command(BaseCommand):
         importer = BulkLeegstandImporter()
         processed_result = importer.import_from_file(excel_file, user, dry_run)
 
-        for res in processed_result["processed_cases"]:
+        for res in processed_result["case_data"]:
             if res["success"]:
                 self.stdout.write(self.style.SUCCESS(res["msg"]))
             else:
