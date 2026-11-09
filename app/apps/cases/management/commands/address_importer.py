@@ -49,8 +49,8 @@ class Command(BaseCommand):
         User = get_user_model()
         user = User.objects.get(username=username)
 
-        importer = BulkLeegstandImporter()
-        processed_result = importer.import_from_file(excel_file, user, dry_run)
+        importer = BulkLeegstandImporter(excel_file, user, dry_run)
+        processed_result = importer.import_from_file()
 
         for res in processed_result["case_data"]:
             if res["success"]:

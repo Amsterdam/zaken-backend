@@ -30,16 +30,19 @@ class BulkLeegstandImporter:
         "Naam bedrijf": "melding_naam"
     }
 
-    def __init__(self):
-        self.file = None
+    def __init__(self, file, user, dry_run=True, project_id=None):
+        self.file = file
+        self.project_id = project_id
+        self.dry_run = dry_run
+
         self.worksheet = None
         self.header_row_idx = None
-        self.project_id = None
         self.metadata = {}
 
-        # Request context for CaseSerializer
+        # User is needed for CaseSerializer for author field
         factory = APIRequestFactory()
         self.request = factory.post("/")
+        self.request.user = user
 
         # Case create defaults
         self.theme_leegstand = CaseTheme.objects.get(name="Leegstand")
@@ -55,15 +58,9 @@ class BulkLeegstandImporter:
         )
         self.subject_ids = [s["id"] for s in self.subjects]
 
-    def import_from_file(self, file, user, dry_run=True, project_id=None):
-        self.request.user = user  # User is needed for CaseSerializer for author field
-        self.file = file
-        self.project_id = project_id
-
+    def import_from_file(self):
         self._inspect_excel_file()
-        result = self._process_rows(dry_run)
-
-        return result
+        return self._process_rows()
 
     def _inspect_excel_file(self):
         try:
@@ -84,7 +81,7 @@ class BulkLeegstandImporter:
             except ValueError:
                 raise ValueError(f"Excel file must contain {column_name} column")
 
-    def _process_rows(self, dry_run):
+    def _process_rows(self):
         num_processed = 0
         num_created = 0
         processed_cases = []
@@ -102,17 +99,17 @@ class BulkLeegstandImporter:
                 for field_name, field_data in self.fields.items()
             }
 
-            created, msg = self._import_case(row_data, dry_run)
+            created, msg = self._import_case(row_data, self.dry_run)
             processed_cases.append({"success": created, "msg": msg})
 
             num_processed += 1
-            if not dry_run:
+            if not self.dry_run:
                 num_created += created
 
         processed_result = {
             "total_processed": num_processed,
             "total_created": num_created,
-            "dry_run": dry_run,
+            "dry_run": self.dry_run,
             "case_data": processed_cases,
         }
         return processed_result
@@ -123,11 +120,13 @@ class BulkLeegstandImporter:
             for cell in row:
                 if not isinstance(cell.value, str):
                     continue
-                value = cell.value.strip()
-                if value in self.METADATA_MAPPING.keys():
-                    self.metadata[self.METADATA_MAPPING[value]] = ws.cell(
+                key = cell.value.strip()
+                if key in self.METADATA_MAPPING.keys():
+                    value = ws.cell(
                         row=cell.row, column=cell.column + 1
                     ).value
+                    LOGGER.info(f"Found metadata {key}: {value}")
+                    self.metadata[self.METADATA_MAPPING[key]] = value
 
     def _find_header_row_index(self, ws):
         for row_index, row in enumerate(
@@ -273,7 +272,11 @@ class BulkLeegstandImporter:
             data=data,
             context={"request": self.request},
         )
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as e:
+            error_str = f"CaseCreateSerializer: {e}"
+            return False, error_str
 
         open_cases_at_address = Case.objects.filter(
             theme=self.theme_leegstand, address__bag_id=bag_id, end_date=None

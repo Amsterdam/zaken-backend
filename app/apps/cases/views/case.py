@@ -563,13 +563,13 @@ class CaseViewSet(
     def process_file(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        importer = BulkLeegstandImporter()
-        result = importer.import_from_file(
+        importer = BulkLeegstandImporter(
             serializer.validated_data["file"],
             request.user,
             dry_run=serializer.validated_data["dry_run"],
             project_id=serializer.validated_data["project_id"],
         )
+        result = importer.import_from_file()
         return Response(result)
 
     @action(
