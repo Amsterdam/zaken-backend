@@ -521,7 +521,7 @@ class CaseViewSet(
     pagination_class = StandardResultsSetPagination
 
     def get_serializer_class(self):
-        if self.action == "process_file":
+        if self.action == "process_leegstand_file":
             return CaseFileUploadSerializer
         # Send `simplified` as parameter to use a simplified serializer with less details.
         is_simplified = self.request.query_params.get("simplified", False) == "true"
@@ -549,7 +549,7 @@ class CaseViewSet(
         return queryset
 
     @extend_schema(
-        description="Process an uploaded file without saving it.",
+        description="Process an uploaded bulkleegstandbeschikking without saving it.",
         request=CaseFileUploadSerializer,
         responses={status.HTTP_200_OK: CaseFileProcessResultSerializer},
     )
@@ -560,14 +560,14 @@ class CaseViewSet(
         parser_classes=[MultiPartParser],
         serializer_class=CaseFileUploadSerializer,
     )
-    def process_file(self, request):
+    def process_leegstand_file(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         importer = BulkLeegstandImporter(
             serializer.validated_data["file"],
             request.user,
-            dry_run=serializer.validated_data["dry_run"],
-            project_id=serializer.validated_data["project_id"],
+            dry_run=serializer.validated_dataget("dry_run"),
+            project_id=serializer.validated_data.get("project_id", None),
         )
         result = importer.import_from_file()
         return Response(result)
