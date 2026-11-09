@@ -22,6 +22,7 @@ from apps.cases.serializers import (
     CaseDetailSerializer,
     CaseFileProcessResultSerializer,
     CaseFileTaskResultSerializer,
+    CaseFileTaskStatusSerializer,
     CaseFileUploadSerializer,
     CaseSerializer,
     CaseSimplifiedSerializer,
@@ -49,6 +50,8 @@ from apps.workflow.serializers import (
     WorkflowOptionSerializer,
 )
 from apps.workflow.utils import filter_messages_by_max_major_version
+from celery import states
+from django.core.cache import cache
 from django.db.models import OuterRef, Prefetch, Q, Subquery
 from django.forms.fields import CharField, MultipleChoiceField
 from django.shortcuts import get_object_or_404
@@ -57,6 +60,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -555,7 +559,8 @@ class CaseViewSet(
         description=(
             "Process an uploaded bulkleegstandbeschikking (maximum 2 MiB). "
             "Dry runs return results immediately; dry_run=false queues a Celery "
-            "task and returns its ID. Import results are stored in the Celery result backend."
+            "task and returns its ID. Poll process-file/{task_id}/status "
+            "for the state and import result within 24 hours of submission."
         ),
         request=CaseFileUploadSerializer,
         responses={
@@ -582,6 +587,7 @@ class CaseViewSet(
                 user_id=str(request.user.pk),
                 project_id=project_id,
             )
+            cache.set(f"leegstand-import:{task.id}", str(request.user.pk), timeout=86400)
             return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
 
         importer = BulkLeegstandImporter(
@@ -592,6 +598,40 @@ class CaseViewSet(
         )
         result = importer.import_from_file()
         return Response(result)
+
+    @extend_schema(
+        description=(
+            "Get the state and result of your queued leegstand import. "
+            "Status is available for 24 hours after submission. "
+            "Unknown, expired, and other users' task IDs return 404."
+        ),
+        responses={status.HTTP_200_OK: CaseFileTaskStatusSerializer},
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path=r"process-file/(?P<task_id>[^/.]+)/status",
+    )
+    def leegstand_file_status(self, request, task_id):
+        owner_id = cache.get(f"leegstand-import:{task_id}")
+        if owner_id is None or owner_id != str(request.user.pk):
+            raise NotFound("Import task not found.")
+
+        task = task_import_leegstand.AsyncResult(task_id)
+        task_status = task.state
+        result = task.result if task_status == states.SUCCESS else None
+        error = None
+        if task_status in (states.FAILURE, states.REVOKED):
+            error = "Import failed. Contact support with the task ID."
+
+        return Response(
+            {
+                "task_id": task_id,
+                "status": task_status,
+                "result": result,
+                "error": error,
+            }
+        )
 
     @action(
         detail=False,

@@ -51,6 +51,13 @@ class CaseFileTaskResultSerializer(serializers.Serializer):
     task_id = serializers.CharField()
 
 
+class CaseFileTaskStatusSerializer(serializers.Serializer):
+    task_id = serializers.CharField()
+    status = serializers.CharField()
+    result = serializers.DictField(allow_null=True)
+    error = serializers.CharField(allow_null=True)
+
+
 class CaseFileProcessResultSerializer(serializers.Serializer):
     result = serializers.DictField()
 
