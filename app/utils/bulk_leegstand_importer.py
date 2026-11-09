@@ -106,7 +106,8 @@ class BulkLeegstandImporter:
             processed_cases.append({"success": created, "msg": msg})
 
             num_processed += 1
-            num_created += created
+            if not dry_run:
+                num_created += created
 
         processed_result = {
             "total_processed": num_processed,
@@ -220,9 +221,7 @@ class BulkLeegstandImporter:
         ).strip()
 
     def _import_case(self, row_data: dict, dry_run: bool):
-        """Return True when a case successfully imported AND saved in DB"""
-        success = False
-
+        """Return True when a case can successfully be imported"""
         address_data = self._get_bag_data(
             row_data["adres"],
             row_data["huisnr."],
@@ -281,8 +280,8 @@ class BulkLeegstandImporter:
         )
         if open_cases_at_address.exists():
             return False, msg + "SKIPPED (Open cases for address found!)"
+
         if not dry_run:
             serializer.save()
-            success = True
 
-        return success, msg + "OK"
+        return True, msg + "OK"
