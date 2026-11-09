@@ -189,7 +189,7 @@ class Case(ModelEventEmitter):
         (see start_workflow_for_case), e.g. {"jump_to": "summon"}. As a property it can
         be passed to the constructor: Case.objects.create(..., initial_workflow_data={}).
         """
-        return getattr(self, "_initial_workflow_data", None) or {}
+        return getattr(self, "_initial_workflow_data", {})
 
     @initial_workflow_data.setter
     def initial_workflow_data(self, value):
