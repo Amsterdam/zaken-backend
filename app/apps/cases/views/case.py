@@ -1,3 +1,4 @@
+import base64
 import logging
 import operator
 import re
@@ -20,12 +21,14 @@ from apps.cases.serializers import (
     CaseDataSerializer,
     CaseDetailSerializer,
     CaseFileProcessResultSerializer,
+    CaseFileTaskResultSerializer,
     CaseFileUploadSerializer,
     CaseSerializer,
     CaseSimplifiedSerializer,
     CitizenReportSerializer,
     SubjectSerializer,
 )
+from apps.cases.tasks import task_import_leegstand
 from apps.events.mixins import CaseEventsMixin
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
@@ -549,9 +552,16 @@ class CaseViewSet(
         return queryset
 
     @extend_schema(
-        description="Process an uploaded bulkleegstandbeschikking without saving it.",
+        description=(
+            "Process an uploaded bulkleegstandbeschikking (maximum 2 MiB). "
+            "Dry runs return results immediately; dry_run=false queues a Celery "
+            "task and returns its ID. Import results are stored in the Celery result backend."
+        ),
         request=CaseFileUploadSerializer,
-        responses={status.HTTP_200_OK: CaseFileProcessResultSerializer},
+        responses={
+            status.HTTP_200_OK: CaseFileProcessResultSerializer,
+            status.HTTP_202_ACCEPTED: CaseFileTaskResultSerializer,
+        },
     )
     @action(
         detail=False,
@@ -563,11 +573,22 @@ class CaseViewSet(
     def process_leegstand_file(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        file = serializer.validated_data["file"]
+        project_id = serializer.validated_data.get("project_id")
+        if not serializer.validated_data.get("dry_run"):
+            file_base64 = base64.b64encode(file.read()).decode("ascii")
+            task = task_import_leegstand.delay(
+                file_base64=file_base64,
+                user_id=str(request.user.pk),
+                project_id=project_id,
+            )
+            return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
+
         importer = BulkLeegstandImporter(
-            serializer.validated_data["file"],
+            file,
             request.user,
-            dry_run=serializer.validated_dataget("dry_run"),
-            project_id=serializer.validated_data.get("project_id", None),
+            dry_run=True,
+            project_id=project_id,
         )
         result = importer.import_from_file()
         return Response(result)

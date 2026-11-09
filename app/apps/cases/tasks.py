@@ -1,10 +1,13 @@
+import base64
 import logging
+from io import BytesIO
 
 import celery
 from apps.permits.api_queries_powerbrowser import get_is_bed_and_breakfast_for_bag_id
 from apps.workflow.models import CaseWorkflow
 from celery import shared_task
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 DEFAULT_RETRY_DELAY = 2
@@ -15,6 +18,18 @@ class BaseTaskWithRetry(celery.Task):
     autoretry_for = (Exception,)
     max_retries = 3
     default_retry_delay = DEFAULT_RETRY_DELAY
+
+
+@shared_task
+def task_import_leegstand(file_base64, user_id, project_id=None):
+    from utils.bulk_leegstand_importer import BulkLeegstandImporter
+
+    user = get_user_model().objects.get(pk=user_id)
+    # A partially completed import cannot safely be retried automatically.
+    with BytesIO(base64.b64decode(file_base64, validate=True)) as file:
+        return BulkLeegstandImporter(
+            file, user, dry_run=False, project_id=project_id
+        ).import_from_file()
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)

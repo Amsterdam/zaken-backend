@@ -35,9 +35,20 @@ logger = logging.getLogger(__name__)
 
 
 class CaseFileUploadSerializer(serializers.Serializer):
-    file = serializers.FileField()
+    MAX_FILE_SIZE = 2 * 1024 * 1024
+
+    file = serializers.FileField(help_text="Excel file, maximum 2 MiB.")
     dry_run = serializers.BooleanField(default=True)
     project_id = serializers.IntegerField(required=False)
+
+    def validate_file(self, file):
+        if file.size > self.MAX_FILE_SIZE:
+            raise serializers.ValidationError("File size must not exceed 2 MiB.")
+        return file
+
+
+class CaseFileTaskResultSerializer(serializers.Serializer):
+    task_id = serializers.CharField()
 
 
 class CaseFileProcessResultSerializer(serializers.Serializer):

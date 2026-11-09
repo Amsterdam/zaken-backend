@@ -257,7 +257,7 @@ class BulkLeegstandImporter:
         }
 
         if self.project_id is not None:
-            proj = CaseProject.objects.get(self.project_id)
+            proj = CaseProject.objects.get(pk=self.project_id)
             data.update(
                 {
                     "project": {
