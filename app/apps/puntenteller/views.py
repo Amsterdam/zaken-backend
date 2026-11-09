@@ -5,7 +5,6 @@ from apps.puntenteller.models import Gebruikersinvoer
 from apps.puntenteller.puntenteller import Puntenteller
 from apps.puntenteller.serializers import (
     GebouwDataSerializer,
-    GebruikersinvoerCreateResponseSerializer,
     GebruikersinvoerRequestSerializer,
     GebruikersinvoerResponseSerializer,
     GebruikersinvoerSerializer,
@@ -14,7 +13,12 @@ from apps.users.permissions import rest_permission_classes_for_top
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
+from rest_framework.mixins import (
+    CreateModelMixin,
+    DestroyModelMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+)
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from utils.api_queries_puntenteller import get_energie_label, get_oppervlakte, get_woz
@@ -31,13 +35,15 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
     def list(self, request, *args, **kwargs):
         bag_id = kwargs.get("bag_id")
         adres = self._get_adres(bag_id)
-        gebruikersinvoer_lijst = self.get_queryset().filter(adres=adres)
+        gebruikersinvoer_lijst = (
+            self.get_queryset().filter(adres=adres).select_related("gebruiker")
+        )
         response_data = [_met_punten(item) for item in gebruikersinvoer_lijst]
         return Response(response_data)
 
     @extend_schema(
         request=GebruikersinvoerRequestSerializer,
-        responses={status.HTTP_201_CREATED: GebruikersinvoerCreateResponseSerializer},
+        responses={status.HTTP_201_CREATED: GebruikersinvoerResponseSerializer},
     )
     def create(self, request, *args, **kwargs):
         bag_id = kwargs.get("bag_id")
@@ -45,9 +51,7 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         gebruikersinvoer = serializer.save(adres=adres, gebruiker=request.user)
-        return Response(
-            _alleen_resultaten(gebruikersinvoer), status=status.HTTP_201_CREATED
-        )
+        return Response(_met_punten(gebruikersinvoer), status=status.HTTP_201_CREATED)
 
     @action(
         detail=False,
@@ -120,7 +124,12 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
         return adres
 
 
-class PuntentellingViewSet(GenericViewSet, RetrieveModelMixin):
+class PuntentellingViewSet(GenericViewSet, RetrieveModelMixin, DestroyModelMixin):
+    """
+    A saved puntentelling. Only a draft (completed=False) can still be
+    changed or deleted; a final points calculation is locked.
+    """
+
     permission_classes = rest_permission_classes_for_top()
     serializer_class = GebruikersinvoerSerializer
     queryset = Gebruikersinvoer.objects.all()
@@ -136,12 +145,29 @@ class PuntentellingViewSet(GenericViewSet, RetrieveModelMixin):
     )
     def partial_update(self, request, *args, **kwargs):
         gebruikersinvoer = self.get_object()
+        if gebruikersinvoer.completed:
+            return _completed_response("gewijzigd")
         serializer = self.get_serializer(
             gebruikersinvoer, data=request.data, partial=True
         )
         serializer.is_valid(raise_exception=True)
         gebruikersinvoer = serializer.save()
         return Response(_met_punten(gebruikersinvoer))
+
+    @extend_schema(responses={status.HTTP_204_NO_CONTENT: None})
+    def destroy(self, request, *args, **kwargs):
+        gebruikersinvoer = self.get_object()
+        if gebruikersinvoer.completed:
+            return _completed_response("verwijderd")
+        gebruikersinvoer.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def _completed_response(actie):
+    return Response(
+        {"detail": f"Een definitieve puntentelling kan niet worden {actie}."},
+        status=status.HTTP_400_BAD_REQUEST,
+    )
 
 
 def _met_punten(gebruikersinvoer):
@@ -150,7 +176,3 @@ def _met_punten(gebruikersinvoer):
     response_data["punten"] = float(resultaat.totaal_punten)
     response_data["punten_resultaat"] = resultaat.as_dict()
     return response_data
-
-
-def _alleen_resultaten(gebruikersinvoer):
-    return Puntenteller(gebruikersinvoer).bereken_resultaat().as_dict()

@@ -20,6 +20,7 @@ class GebruikersinvoerAdmin(admin.ModelAdmin):
         "adres",
         "gebruiker",
         "completed",
+        "created",
         "energielabel_klasse",
         "woz_waarde",
         "woz_peildatum_jaar",
@@ -30,6 +31,7 @@ class GebruikersinvoerAdmin(admin.ModelAdmin):
         "energielabel_klasse",
         "woz_peildatum_jaar",
     )
+    date_hierarchy = "created"
     search_fields = (
         "adres__bag_id",
         "adres__street_name",

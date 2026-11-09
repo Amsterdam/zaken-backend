@@ -457,9 +457,16 @@ class Gebruikersinvoer(models.Model):
     nieuwbouw = models.BooleanField(default=False)
     bijzondere_voorziening_intercom_met_beeld = models.BooleanField(default=False)
     bijzondere_voorziening_laadpalen = models.PositiveIntegerField(default=0)
+    # The form input values from the frontend wizard are stored here so that a draft
+    # can be reopened there. This lets the user see and edit their earlier input.
+    # The calculation does not use them: the input above is lost during
+    # conversion (for example the room type, or the length and width).
+    formulierwaarden = models.JSONField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["-id"]
+        ordering = ["-created", "-id"]
         verbose_name = "gebruikersinvoer"
         verbose_name_plural = "gebruikersinvoer"
 

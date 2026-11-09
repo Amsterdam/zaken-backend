@@ -547,6 +547,13 @@ class GebruikersinvoerSerializer(EnergieSerializerMixin, serializers.ModelSerial
     vertrekken = VertrekRuimteInvoerSerializer(many=True, required=False)
     overige_ruimten = OverigeRuimteInvoerSerializer(many=True, required=False)
     verkeersruimten = VerkeersRuimteInvoerSerializer(many=True, required=False)
+    gebruiker_naam = serializers.CharField(
+        source="gebruiker.full_name",
+        read_only=True,
+        allow_null=True,
+        default=None,
+        help_text="Naam van de toezichthouder; leeg als de gebruiker niet meer bestaat.",
+    )
 
     class Meta:
         model = Gebruikersinvoer
@@ -673,13 +680,16 @@ class GebruikersinvoerResponseSerializer(
     vertrekken = VertrekRuimteResponseSchemaField(required=False)
     overige_ruimten = OverigeRuimteResponseSchemaField(required=False)
     verkeersruimten = VerkeersRuimteResponseSchemaField(required=False)
+    gebruiker_naam = serializers.CharField(
+        source="gebruiker.full_name",
+        read_only=True,
+        allow_null=True,
+        default=None,
+        help_text="Naam van de toezichthouder; leeg als de gebruiker niet meer bestaat.",
+    )
     punten = serializers.FloatField()
     punten_resultaat = PuntentellerResultaatSerializer()
 
     class Meta:
         model = Gebruikersinvoer
         exclude = ENERGIE_MODEL_VELDEN
-
-
-class GebruikersinvoerCreateResponseSerializer(PuntentellerResultaatSerializer):
-    pass
