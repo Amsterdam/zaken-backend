@@ -19,6 +19,8 @@ from apps.cases.serializers import (
     CaseCreateSerializer,
     CaseDataSerializer,
     CaseDetailSerializer,
+    CaseFileProcessResultSerializer,
+    CaseFileUploadSerializer,
     CaseSerializer,
     CaseSimplifiedSerializer,
     CitizenReportSerializer,
@@ -53,7 +55,9 @@ from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
+from utils.bulk_leegstand_importer import BulkLeegstandImporter
 
 logger = logging.getLogger(__name__)
 
@@ -517,6 +521,8 @@ class CaseViewSet(
     pagination_class = StandardResultsSetPagination
 
     def get_serializer_class(self):
+        if self.action == "process_file":
+            return CaseFileUploadSerializer
         # Send `simplified` as parameter to use a simplified serializer with less details.
         is_simplified = self.request.query_params.get("simplified", False) == "true"
         if is_simplified:
@@ -541,6 +547,30 @@ class CaseViewSet(
         ):
             queryset = queryset.exclude(sensitive=True)
         return queryset
+
+    @extend_schema(
+        description="Process an uploaded file without saving it.",
+        request=CaseFileUploadSerializer,
+        responses={status.HTTP_200_OK: CaseFileProcessResultSerializer},
+    )
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="process-file",
+        parser_classes=[MultiPartParser],
+        serializer_class=CaseFileUploadSerializer,
+    )
+    def process_file(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        importer = BulkLeegstandImporter()
+        result = importer.import_from_file(
+            serializer.validated_data["file"],
+            request.user,
+            dry_run=serializer.validated_data["dry_run"],
+            project_id=serializer.validated_data["project_id"],
+        )
+        return Response(result)
 
     @action(
         detail=False,

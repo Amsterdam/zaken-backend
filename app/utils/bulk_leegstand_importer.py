@@ -2,7 +2,7 @@ import logging
 from textwrap import dedent
 
 from apps.addresses.serializers import AddressSimplifiedSerializer
-from apps.cases.models import Case, CaseReason, CaseTheme, Subject
+from apps.cases.models import Case, CaseProject, CaseReason, CaseTheme, Subject
 from apps.cases.serializers import CaseCreateSerializer
 from openpyxl import load_workbook
 from rest_framework.exceptions import ValidationError
@@ -28,6 +28,7 @@ class BulkLeegstandImporter:
         self.file = None
         self.worksheet = None
         self.header_row_idx = None
+        self.project_id = None
 
         # Request context for CaseSerializer
         factory = APIRequestFactory()
@@ -47,9 +48,10 @@ class BulkLeegstandImporter:
         )
         self.subject_ids = [s["id"] for s in self.subjects]
 
-    def import_from_file(self, file, user, dry_run):
+    def import_from_file(self, file, user, dry_run=True, project_id=None):
         self.request.user = user  # User is needed for CaseSerializer for author field
         self.file = file
+        self.project_id = project_id
 
         self._inspect_excel_file()
         result = self._process_rows(dry_run)
@@ -102,7 +104,7 @@ class BulkLeegstandImporter:
             "total_processed": num_processed,
             "total_created": num_created,
             "dry_run": dry_run,
-            "processed_cases": processed_cases,
+            "case_data": processed_cases,
         }
         return processed_result
 
@@ -235,6 +237,18 @@ class BulkLeegstandImporter:
             },
             "theme_id": self.theme_leegstand.id,
         }
+
+        if self.project_id is not None:
+            proj = CaseProject.objects.get(self.project_id)
+            data.update(
+                {
+                    "project": {
+                        "id": self.project_id,
+                        "name": proj.name,
+                    },
+                    "project_id": self.project_id,
+                }
+            )
 
         serializer = CaseCreateSerializer(
             data=data,

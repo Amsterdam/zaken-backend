@@ -34,6 +34,16 @@ from rest_framework import serializers
 logger = logging.getLogger(__name__)
 
 
+class CaseFileUploadSerializer(serializers.Serializer):
+    file = serializers.FileField()
+    dry_run = serializers.BooleanField(default=True)
+    project_id = serializers.IntegerField(required=False)
+
+
+class CaseFileProcessResultSerializer(serializers.Serializer):
+    result = serializers.DictField()
+
+
 class BaseCaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Case
