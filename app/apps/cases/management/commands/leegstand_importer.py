@@ -10,7 +10,7 @@ class Command(BaseCommand):
         "Example:\n"
         "  python manage.py case_importer cases.xlsx \\\n"
         "    --username import_user@amsterdam.nl \\\n"
-        '    --project 5 "Project"\\\n'
+        '    --project 5 \\\n'
         "    --dry-run"
     )
 
@@ -30,26 +30,24 @@ class Command(BaseCommand):
             dest="dry_run",
         )
 
-        # parser.add_argument(
-        #     "--project",
-        #     nargs=2,
-        #     metavar=("ID", "NAME"),
-        #     required=True,
-        # )
+        parser.add_argument(
+            "--project",
+            nargs=1,
+            metavar=("ID",),
+        )
 
     def handle(self, *args, **options):
         excel_file = options["file"]
         dry_run = options["dry_run"]
         username = options["username"]
-        #
-        # project_id, project_name = options["project"]
-        # project_id = int(project_id)
+
+        project_id = int(options["project"]) if options["project"] else None
 
         ### Section var init
         User = get_user_model()
         user = User.objects.get(username=username)
 
-        importer = BulkLeegstandImporter(excel_file, user, dry_run)
+        importer = BulkLeegstandImporter(excel_file, user, dry_run, project_id)
         processed_result = importer.import_from_file()
 
         for res in processed_result["case_data"]:
