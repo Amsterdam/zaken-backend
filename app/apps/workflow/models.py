@@ -26,6 +26,15 @@ from SpiffWorkflow.camunda.specs.event_definitions import MessageEventDefinition
 from SpiffWorkflow.camunda.specs.user_task import UserTask
 from utils.managers import BulkCreateSignalsManager
 
+from .jump_to import (
+    JUMP_EVENT_DESCRIPTION,
+    JUMP_EVENT_LABEL,
+    JUMP_EVENT_TASK_NAME,
+    JUMP_TO_KEY,
+    JUMPED_TO_SUBWORKFLOW_KEY,
+    get_jump_to_routing_data,
+    is_jump_to_target,
+)
 from .tasks import (
     redis_lock,
     release_lock,
@@ -536,14 +545,18 @@ class CaseWorkflow(models.Model):
 
         if isinstance(data, dict):
             initial_data.update(data)
+        self.ensure_data_dict()
         initial_data.update(self.data)
 
-        success = False
-        jump_to = initial_data.pop("jump_to", None)
+        # Jump instructions are one-off, never keep them in the workflow data
+        jump_to = initial_data.pop(JUMP_TO_KEY, None)
+        jumped = initial_data.pop(JUMPED_TO_SUBWORKFLOW_KEY, None)
+        self.data.pop(JUMP_TO_KEY, None)
+        self.data.pop(JUMPED_TO_SUBWORKFLOW_KEY, None)
 
+        success = False
         if jump_to:
-            result = self.reset_subworkflow(jump_to, test=False)
-            success = result.get("success")
+            success = self._jump_to_subworkflow(jump_to, initial_data)
 
         if not success:
             wf = self._initial_data(wf, initial_data)
@@ -560,6 +573,10 @@ class CaseWorkflow(models.Model):
                 )
                 wf = self._update_workflow(wf)
             self._update_db(wf)
+
+            if jumped:
+                # This subworkflow was started by a director via jump_to
+                self._create_jump_event()
 
     def accept_message(self, message_name, extra_data):
         """
@@ -1015,9 +1032,73 @@ class CaseWorkflow(models.Model):
             self.update_tasks(wf)
             transaction.on_commit(lambda: self.release_lock())
 
-    def reset_subworkflow(self, subworkflow, test=True):
+    def _jump_to_subworkflow(self, subworkflow, initial_data):
+        """
+        Fast-forward a fresh director to start_subworkflow(subworkflow), see jump_to.py.
+        Returns False if not possible; the director then starts at the beginning.
+        """
+        if (
+            self.workflow_type != CaseWorkflow.WORKFLOW_TYPE_DIRECTOR
+            or not is_jump_to_target(subworkflow)
+        ):
+            logger.error(
+                f"jump_to '{subworkflow}' is not allowed for workflow '{self.id}' "
+                f"({self.workflow_type}), case '{self.case_id}'"
+            )
+            return False
+
+        initial_data.update(get_jump_to_routing_data(subworkflow))
+        result = self.reset_subworkflow(
+            subworkflow,
+            test=False,
+            data=initial_data,
+            subworkflow_extra_data={JUMPED_TO_SUBWORKFLOW_KEY: True},
+        )
+        if not result.get("success"):
+            logger.error(
+                f"jump_to '{subworkflow}' failed for workflow '{self.id}', "
+                f"case '{self.case_id}': {result.get('message')}"
+            )
+            return False
+
+        # reset_subworkflow does not call _update_db, so release the lock here
+        transaction.on_commit(lambda: self.release_lock())
+        return True
+
+    def _create_jump_event(self):
+        """Timeline event, so it's visible the case skipped the steps before."""
+        if not self.case.author:
+            logger.warning(f"No jump_to event for case '{self.case_id}': no author")
+            return
+        first_tasks = ", ".join(
+            self.tasks.filter(completed=False).values_list("name", flat=True)
+        )
+        GenericCompletedTask.objects.create(
+            case=self.case,
+            task_name=JUMP_EVENT_TASK_NAME,
+            description=JUMP_EVENT_DESCRIPTION,
+            author=self.case.author,
+            variables={
+                "mapped_form_data": {
+                    JUMP_TO_KEY: {
+                        "label": JUMP_EVENT_LABEL,
+                        "value": first_tasks or self.workflow_type,
+                    }
+                }
+            },
+        )
+
+    def reset_subworkflow(
+        self, subworkflow, test=True, data=None, subworkflow_extra_data=None
+    ):
+        """
+        data: use this data instead of the current workflow data (used for jump_to).
+        subworkflow_extra_data: extra data for the subworkflow that will be started.
+        """
         wf = self.get_or_restore_workflow_state()
-        if hasattr(wf, "last_task") and wf.last_task:
+        if data is not None:
+            original_data = copy.deepcopy(data)
+        elif hasattr(wf, "last_task") and wf.last_task:
             original_data = copy.deepcopy(wf.last_task.data)
         else:
             original_data = self.data
@@ -1097,7 +1178,9 @@ class CaseWorkflow(models.Model):
                 self.save()
                 subworkflows_to_be_deleted.delete()
                 transaction.on_commit(
-                    lambda: task_start_subworkflow.delay(subworkflow, self.id)
+                    lambda: task_start_subworkflow.delay(
+                        subworkflow, self.id, subworkflow_extra_data or {}
+                    )
                 )
             return result
 
