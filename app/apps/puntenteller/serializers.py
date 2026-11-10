@@ -7,6 +7,7 @@ from apps.puntenteller.ruimte_types import (
     maak_verkeersruimte,
     maak_vertrek_ruimte,
 )
+from apps.users.serializers import UserSerializer
 from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema_field
 from rest_framework import serializers
 
@@ -549,11 +550,15 @@ class GebruikersinvoerSerializer(EnergieSerializerMixin, serializers.ModelSerial
     vertrekken = VertrekRuimteInvoerSerializer(many=True, required=False)
     overige_ruimten = OverigeRuimteInvoerSerializer(many=True, required=False)
     verkeersruimten = VerkeersRuimteInvoerSerializer(many=True, required=False)
+    author = UserSerializer(
+        read_only=True,
+        allow_null=True,
+        help_text="Toezichthouder die de puntentelling maakte; leeg als die niet meer bestaat.",
+    )
 
     class Meta:
         model = Gebruikersinvoer
         exclude = ENERGIE_MODEL_VELDEN
-        read_only_fields = ("gebruiker",)
         extra_kwargs = {"adres": {"required": False}}
 
     def create(self, validated_data):
@@ -654,7 +659,7 @@ class GebruikersinvoerRequestSerializer(
 
     class Meta:
         model = Gebruikersinvoer
-        exclude = ("adres", "gebruiker", *ENERGIE_MODEL_VELDEN)
+        exclude = ("adres", "author", *ENERGIE_MODEL_VELDEN)
 
 
 class GebruikersinvoerResponseSerializer(
@@ -675,13 +680,14 @@ class GebruikersinvoerResponseSerializer(
     vertrekken = VertrekRuimteResponseSchemaField(required=False)
     overige_ruimten = OverigeRuimteResponseSchemaField(required=False)
     verkeersruimten = VerkeersRuimteResponseSchemaField(required=False)
+    author = UserSerializer(
+        read_only=True,
+        allow_null=True,
+        help_text="Toezichthouder die de puntentelling maakte; leeg als die niet meer bestaat.",
+    )
     punten = serializers.FloatField()
     punten_resultaat = PuntentellerResultaatSerializer()
 
     class Meta:
         model = Gebruikersinvoer
         exclude = ENERGIE_MODEL_VELDEN
-
-
-class GebruikersinvoerCreateResponseSerializer(PuntentellerResultaatSerializer):
-    pass

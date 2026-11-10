@@ -5,7 +5,6 @@ from apps.puntenteller.models import Gebruikersinvoer
 from apps.puntenteller.puntenteller import Puntenteller
 from apps.puntenteller.serializers import (
     GebouwDataSerializer,
-    GebruikersinvoerCreateResponseSerializer,
     GebruikersinvoerRequestSerializer,
     GebruikersinvoerResponseSerializer,
     GebruikersinvoerSerializer,
@@ -14,7 +13,12 @@ from apps.users.permissions import rest_permission_classes_for_top
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
+from rest_framework.mixins import (
+    CreateModelMixin,
+    DestroyModelMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+)
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from utils.api_queries_puntenteller import (
@@ -32,27 +36,30 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
     serializer_class = GebruikersinvoerSerializer
     queryset = Gebruikersinvoer.objects.all()
 
+    def get_queryset(self):
+        # Filter on the bag_id directly, so a GET doesn't create the address.
+        return (
+            super()
+            .get_queryset()
+            .filter(adres__bag_id=self.kwargs["bag_id"])
+            .select_related("author")
+        )
+
     @extend_schema(responses=GebruikersinvoerResponseSerializer(many=True))
     def list(self, request, *args, **kwargs):
-        bag_id = kwargs.get("bag_id")
-        adres = self._get_adres(bag_id)
-        gebruikersinvoer_lijst = self.get_queryset().filter(adres=adres)
-        response_data = [_met_punten(item) for item in gebruikersinvoer_lijst]
-        return Response(response_data)
+        return Response([_met_punten(item) for item in self.get_queryset()])
 
     @extend_schema(
         request=GebruikersinvoerRequestSerializer,
-        responses={status.HTTP_201_CREATED: GebruikersinvoerCreateResponseSerializer},
+        responses={status.HTTP_201_CREATED: GebruikersinvoerResponseSerializer},
     )
     def create(self, request, *args, **kwargs):
         bag_id = kwargs.get("bag_id")
         adres = self._get_adres(bag_id)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        gebruikersinvoer = serializer.save(adres=adres, gebruiker=request.user)
-        return Response(
-            _alleen_resultaten(gebruikersinvoer), status=status.HTTP_201_CREATED
-        )
+        gebruikersinvoer = serializer.save(adres=adres, author=request.user)
+        return Response(_met_punten(gebruikersinvoer), status=status.HTTP_201_CREATED)
 
     @action(
         detail=False,
@@ -135,10 +142,15 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
         return adres
 
 
-class PuntentellingViewSet(GenericViewSet, RetrieveModelMixin):
+class PuntentellingViewSet(GenericViewSet, RetrieveModelMixin, DestroyModelMixin):
+    """
+    A saved puntentelling. `completed` only shows whether the author is done with it;
+    it can still be changed and deleted either way.
+    """
+
     permission_classes = rest_permission_classes_for_top()
     serializer_class = GebruikersinvoerSerializer
-    queryset = Gebruikersinvoer.objects.all()
+    queryset = Gebruikersinvoer.objects.select_related("author")
 
     @extend_schema(responses=GebruikersinvoerResponseSerializer)
     def retrieve(self, request, *args, **kwargs):
@@ -165,7 +177,3 @@ def _met_punten(gebruikersinvoer):
     response_data["punten"] = float(resultaat.totaal_punten)
     response_data["punten_resultaat"] = resultaat.as_dict()
     return response_data
-
-
-def _alleen_resultaten(gebruikersinvoer):
-    return Puntenteller(gebruikersinvoer).bereken_resultaat().as_dict()

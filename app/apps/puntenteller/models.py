@@ -417,7 +417,7 @@ class Gebruikersinvoer(models.Model):
         on_delete=models.CASCADE,
         related_name="puntenteller_gebruikersinvoer",
     )
-    gebruiker = models.ForeignKey(
+    author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
@@ -457,9 +457,11 @@ class Gebruikersinvoer(models.Model):
     nieuwbouw = models.BooleanField(default=False)
     bijzondere_voorziening_intercom_met_beeld = models.BooleanField(default=False)
     bijzondere_voorziening_laadpalen = models.PositiveIntegerField(default=0)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["-id"]
+        ordering = ["-created", "-id"]
         verbose_name = "gebruikersinvoer"
         verbose_name_plural = "gebruikersinvoer"
 
