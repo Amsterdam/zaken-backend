@@ -17,7 +17,7 @@ class BulkImportException(Exception):
 
 class BulkLeegstandImporter:
     fields = {
-        "adres": {"idx": 0},
+        "straat": {"idx": 0},
         "postcode": {"idx": 0},
         "huisnr.": {"idx": 0},
         "toevoeging": {"idx": 0},
@@ -26,6 +26,7 @@ class BulkLeegstandImporter:
         "datum oplevering": {"idx": 0},
         "bijzonderheden": {"idx": 0},
     }
+    first_header_item = 'straat'
 
     MAX_METADATA_ROWS = 10
     METADATA_MAPPING = { # label -> field
@@ -92,9 +93,9 @@ class BulkLeegstandImporter:
         for row in self.worksheet.iter_rows(
             min_row=self.header_row_idx + 1, values_only=True
         ):
-            adres = row[self.fields["adres"]["idx"]]
-            if not adres:
-                LOGGER.warning("Skipping row with empty adres")
+            first_column = row[self.fields[self.first_header_item]["idx"]]
+            if not first_column:
+                LOGGER.warning("Skipping row with empty %s", self.first_header_item)
                 continue
 
             row_data = {
@@ -136,7 +137,7 @@ class BulkLeegstandImporter:
             ws.iter_rows(min_row=1, max_col=5, max_row=self.MAX_METADATA_ROWS, values_only=True), start=1
         ):
             for cell_value in row:
-                if isinstance(cell_value, str) and cell_value.lower() == "adres":
+                if isinstance(cell_value, str) and cell_value.lower() == self.first_header_item:
                     return row_index
 
         raise BulkImportException("Kan kolombeschrijving niet vinden!")
@@ -186,7 +187,7 @@ class BulkLeegstandImporter:
         response = do_bag_search_pdok_by_address(search_string).get("response", {})
 
         if response.get("numFound", 0) == 0:
-            error_str = f"Adres niet gevonden: {search_string} !"
+            error_str = f"Adres niet gevonden: {search_string}"
             result["error"] = error_str
             return result
         elif response.get("numFound", 0) > 1:
@@ -199,7 +200,7 @@ class BulkLeegstandImporter:
                 and first_address["huisnummer"] == number
                 and first_address["huisnummertoevoeging"] == suffix
             ):
-                error_str = f"Meer dan één adres gevonden voor {search_string} !"
+                error_str = f"Meer dan één adres gevonden voor {search_string}"
                 LOGGER.warning(error_str)
                 for adres in response.get("docs", []):
                     LOGGER.warning(f"    {adres['weergavenaam']} + {adres['score']}")
@@ -225,7 +226,7 @@ class BulkLeegstandImporter:
     def _import_case(self, row_data: dict, dry_run: bool):
         """Return True when a case can successfully be imported"""
         address_data = self._get_bag_data(
-            row_data["adres"],
+            row_data["straat"],
             row_data["huisnr."],
             row_data["toevoeging"],
             row_data["postcode"],
@@ -234,7 +235,7 @@ class BulkLeegstandImporter:
         if address_data["error"] or bag_id is None:
             return False, address_data["error"]
 
-        msg = f"Creating case for address={address_data["search_address"]}: "
+        msg = f"Adres: {address_data["search_address"]}: "
         description = self.get_description_text(
             row_data["reden leegstand"],
             row_data["datum start werkzaamheden"],
@@ -286,7 +287,7 @@ class BulkLeegstandImporter:
             theme=self.theme_leegstand, address__bag_id=bag_id, end_date=None
         )
         if open_cases_at_address.exists():
-            return False, msg + "OVERGESLAGEN (Onafgeronde zaak gevonden voor dit adres!)"
+            return False, msg + "OVERGESLAGEN (Onafgeronde zaak gevonden voor dit adres)"
 
         if not dry_run:
             serializer.save()
