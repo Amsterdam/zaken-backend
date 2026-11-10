@@ -15,6 +15,8 @@ class BasisRuimte:
     ruimte_m2: Decimal
     verwarmd: bool = False
     aantal_adressen_met_toegang_en_gebruiksrecht: int = 1
+    # Hoe de ruimte in de front-end wordt weergegeven (bijvoorbeeld "Woonkamer met open keuken").
+    weergavenaam: str | None = None
 
     def as_dict(self) -> dict:
         data = asdict(self)
@@ -65,6 +67,10 @@ class KeukenRuimte(VertrekRuimte):
     eenhandsmengkraan: int = 0
     thermostatische_mengkraan: int = 0
     kokendwaterfunctie: int = 0
+    # Een mengkraan met kookfunctie: telt als de mengkraan plus een kokendwaterfunctie (zie
+    # berekening/keuken.py). Los bewaard, zodat de invoer terug te lezen is.
+    eenhandsmengkraan_kookfunctie: int = 0
+    thermostatische_mengkraan_kookfunctie: int = 0
 
 
 @dataclass(frozen=True)
@@ -97,6 +103,7 @@ class ZolderRuimte(OverigeRuimte):
 class Buitenruimte:
     naam: str
     ruimte_m2: Decimal
+    weergavenaam: str | None = None
 
     def as_dict(self) -> dict:
         data = asdict(self)
@@ -203,6 +210,8 @@ def _maak(klasse, data: dict, **vaste_waarden):
             waarden[veld.name] = Decimal(str(invoer or 0))
         elif veld.type == "Decimal | None":
             waarden[veld.name] = _decimaal_of_none(invoer)
+        elif veld.type == "str | None":
+            waarden[veld.name] = str(invoer) if invoer else None
         else:
             raise TypeError(f"Onbekend veldtype {veld.type} voor {veld.name}")
     return klasse(**waarden, **vaste_waarden)
@@ -298,6 +307,7 @@ def _als_overige_ruimte(vertrek: VertrekRuimte) -> OverigeRuimte:
         aantal_adressen_met_toegang_en_gebruiksrecht=(
             vertrek.aantal_adressen_met_toegang_en_gebruiksrecht
         ),
+        weergavenaam=vertrek.weergavenaam,
         wastafel=vertrek.wastafel,
         meerpersoons_wastafel=vertrek.meerpersoons_wastafel,
         douche=vertrek.douche,

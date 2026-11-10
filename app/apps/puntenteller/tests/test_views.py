@@ -195,3 +195,95 @@ class PuntentellerApiTest(APITestCase):
         self.assertFalse(
             Gebruikersinvoer.objects.filter(pk=gebruikersinvoer.pk).exists()
         )
+
+    def test_weergavenaam_van_elke_ruimte_komt_terug(self):
+        payload = {
+            **PAYLOAD,
+            "vertrekken": [
+                {
+                    "naam": "keuken",
+                    "weergavenaam": "Woonkamer met open keuken",
+                    "ruimte_m2": "31.50",
+                },
+                {"naam": "slaapkamer", "ruimte_m2": "10.00"},
+            ],
+            "overige_ruimten": [
+                {"naam": "berging", "weergavenaam": "Schuur", "ruimte_m2": "3.00"}
+            ],
+            "verkeersruimten": [
+                {"naam": "verkeersruimte", "weergavenaam": "Overloop", "ruimte_m2": "2"}
+            ],
+            "buitenruimten": [
+                {
+                    "naam": "prive_buitenruimte",
+                    "weergavenaam": "Balkon",
+                    "ruimte_m2": "6.00",
+                }
+            ],
+            "parkeerruimten": [
+                {
+                    "naam": "buitenruimte_parkeerplaats",
+                    "weergavenaam": "Parkeergarage",
+                    "aantal_gesloten_garage_bij_complex": 1,
+                }
+            ],
+        }
+
+        aangemaakt = self.client.post(self._lijst_url(), payload, format="json")
+        self.assertEqual(aangemaakt.status_code, status.HTTP_201_CREATED)
+        data = self.client.get(
+            reverse(
+                "puntenteller-puntentellingen-detail",
+                kwargs={"pk": aangemaakt.json()["id"]},
+            )
+        ).json()
+
+        self.assertEqual(
+            [r["weergavenaam"] for r in data["vertrekken"]],
+            ["Woonkamer met open keuken", None],
+        )
+        self.assertEqual(data["overige_ruimten"][0]["weergavenaam"], "Schuur")
+        self.assertEqual(data["verkeersruimten"][0]["weergavenaam"], "Overloop")
+        self.assertEqual(data["buitenruimten"][0]["weergavenaam"], "Balkon")
+        self.assertEqual(data["parkeerruimten"][0]["weergavenaam"], "Parkeergarage")
+
+    def test_weergavenaam_ontbreekt_bij_een_oude_puntentelling(self):
+        gebruikersinvoer = self._maak(
+            buitenruimten=[{"naam": "prive_buitenruimte", "ruimte_m2": "6.00"}],
+            parkeerruimten=[
+                {
+                    "naam": "buitenruimte_parkeerplaats",
+                    "aantal_gesloten_garage_bij_complex": 1,
+                }
+            ],
+        )
+
+        response = self.client.get(self._detail_url(gebruikersinvoer))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertIsNone(data["buitenruimten"][0]["weergavenaam"])
+        self.assertIsNone(data["parkeerruimten"][0]["weergavenaam"])
+
+    def test_mengkranen_met_kookfunctie_worden_los_bewaard(self):
+        payload = {
+            **PAYLOAD,
+            "vertrekken": [
+                {
+                    "naam": "keuken",
+                    "ruimte_m2": "6.00",
+                    "aanrechtlengte_meters": "2.50",
+                    "eenhandsmengkraan_kookfunctie": 1,
+                    "thermostatische_mengkraan_kookfunctie": 1,
+                }
+            ],
+        }
+
+        response = self.client.post(self._lijst_url(), payload, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        keuken = response.json()["vertrekken"][0]
+        self.assertEqual(keuken["eenhandsmengkraan_kookfunctie"], 1)
+        self.assertEqual(keuken["thermostatische_mengkraan_kookfunctie"], 1)
+        self.assertEqual(keuken["eenhandsmengkraan"], 0)
+        self.assertEqual(keuken["kokendwaterfunctie"], 0)
