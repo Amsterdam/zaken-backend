@@ -182,6 +182,19 @@ class Case(ModelEventEmitter):
     )
     is_bed_and_breakfast = models.BooleanField(default=False)
 
+    @property
+    def initial_workflow_data(self):
+        """
+        Not stored. Data for the main workflow, used once when the case is created
+        (see start_workflow_for_case), e.g. {"jump_to": "summon"}. As a property it can
+        be passed to the constructor: Case.objects.create(..., initial_workflow_data={}).
+        """
+        return getattr(self, "_initial_workflow_data", {})
+
+    @initial_workflow_data.setter
+    def initial_workflow_data(self, value):
+        self._initial_workflow_data = dict(value or {})
+
     def __get_event_values__(self):
         reason = self.reason.name
         if self.is_legacy_bwv:

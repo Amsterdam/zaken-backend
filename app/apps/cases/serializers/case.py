@@ -26,6 +26,7 @@ from apps.cases.serializers.main import (
 )
 from apps.permits.api_queries_powerbrowser import get_is_bed_and_breakfast_for_bag_id
 from apps.schedules.serializers import ScheduleDataSerializer, ScheduleSerializer
+from apps.workflow.jump_to import JUMP_TO_KEY, get_jump_to_targets
 from apps.workflow.serializers import CaseWorkflowBaseSerializer, CaseWorkflowSerializer
 from django.conf import settings
 from drf_writable_nested.serializers import WritableNestedModelSerializer
@@ -219,8 +220,18 @@ class CaseCreateSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
     workflows = CaseWorkflowSerializer(
         source="get_workflows", many=True, read_only=True
     )
+    jump_to = serializers.ChoiceField(
+        choices=[(t["value"], t["label"]) for t in get_jump_to_targets()],
+        required=False,
+        allow_null=True,
+        write_only=True,
+        help_text="Start the case at the first task of this subworkflow (see docs/jump_to.md)",
+    )
 
     def create(self, validated_data):
+        jump_to = validated_data.pop("jump_to", None)
+        if jump_to:
+            validated_data["initial_workflow_data"] = {JUMP_TO_KEY: jump_to}
         case = super().create(validated_data)
 
         advertisements = []
@@ -234,6 +245,11 @@ class CaseCreateSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
         )
 
         return case
+
+    def update(self, instance, validated_data):
+        # jump_to only applies when a case is created
+        validated_data.pop("jump_to", None)
+        return super().update(instance, validated_data)
 
     class Meta:
         model = Case

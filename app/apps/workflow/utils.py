@@ -871,8 +871,11 @@ def ff_to_subworkflow(subworkflow, spec, message_name, data):
 
     while len(ready_tasks) > 0:
         for task in ready_tasks:
+            # Match on the message name, not the task id: some resume events have a
+            # generated id (e.g. director 8.3.0: resume_after_debrief = Event_1k7mwzt)
             if (
-                task.task_spec.name == f"resume_after_{subworkflow}"
+                getattr(getattr(task.task_spec, "event_definition", None), "name", None)
+                == f"resume_after_{subworkflow}"
                 and isinstance(workflow.last_task.task_spec, ScriptTask)
                 and workflow.last_task.task_spec.script
                 == f'start_subworkflow("{subworkflow}", vars())'
