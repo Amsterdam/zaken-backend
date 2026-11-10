@@ -391,6 +391,8 @@ class GebouwDataSerializer(serializers.Serializer):
     woz_waarden = WozWaardeSerializer(many=True, allow_null=True)
     wozobjectnummer = serializers.IntegerField(allow_null=True)
     energie = serializers.DictField(allow_null=True)
+    monument = serializers.BooleanField()
+    monument_soort = serializers.CharField(allow_null=True)
 
 
 class EnergieSerializerMixin:

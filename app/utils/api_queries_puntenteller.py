@@ -10,7 +10,13 @@ ENERGIELABEL_FIELDS = (
     "energieklasse,bouwjaar,energieindex,registratiedatum,opnamedatum,metingGeldigTot"
 )
 
-VERBLIJFSOBJECT_FIELDS = "oppervlakte,volgnummer,plusvolgnummer"
+VERBLIJFSOBJECT_FIELDS = "oppervlakte,volgnummer,plusvolgnummer,ligtInPanden"
+
+MONUMENTEN_FIELDS = "status"
+MONUMENT_SOORTEN = {
+    "Rijksmonument": "rijksmonument",
+    "Gemeentelijk monument": "gemeentelijk_monument",
+}
 
 
 def get_energie_label(bag_id):
@@ -72,7 +78,33 @@ def get_woz(nummeraanduiding_id):
     }
 
 
-def get_oppervlakte(adresseerbaarobject_id):
+def get_monument(verblijfsobject):
+    panden = (
+        verblijfsobject.get("_links", {}).get("ligtInPanden", [])
+        if verblijfsobject
+        else []
+    )
+    for pand in panden:
+        response = requests.get(
+            settings.PUNTENTELLER_MONUMENTEN_API_URL,
+            params={
+                "betreftBagPand.identificatie": pand["identificatie"],
+                "_fields": MONUMENTEN_FIELDS,
+            },
+            timeout=30,
+        )
+        response.raise_for_status()
+        for monument in response.json().get("_embedded", {}).get("monumenten", []):
+            if monument.get("status") in MONUMENT_SOORTEN:
+                return {
+                    "monument": True,
+                    "monument_soort": MONUMENT_SOORTEN[monument["status"]],
+                }
+
+    return {"monument": False, "monument_soort": None}
+
+
+def get_verblijfsobject(adresseerbaarobject_id):
     response = requests.get(
         settings.PUNTENTELLER_VERBLIJFSOBJECT_API_URL,
         params={
@@ -87,8 +119,7 @@ def get_oppervlakte(adresseerbaarobject_id):
     if not verblijfsobjecten:
         return None
 
-    laatste_verblijfsobject = max(
+    return max(
         verblijfsobjecten,
         key=lambda item: (item.get("volgnummer") or 0, item.get("plusvolgnummer") or 0),
     )
-    return laatste_verblijfsobject.get("oppervlakte")
