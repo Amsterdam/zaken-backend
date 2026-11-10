@@ -2,6 +2,8 @@ from datetime import timedelta
 
 from apps.addresses.models import Address
 from apps.puntenteller.models import Gebruikersinvoer
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 from freezegun import freeze_time
@@ -96,6 +98,32 @@ class PuntentellerApiTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual([item["id"] for item in response.json()], [nieuw.pk, oud.pk])
+
+    def test_lijst_geeft_alleen_de_velden_voor_het_overzicht(self):
+        gebruikersinvoer = self._maak(author=get_test_user(), gebruiksoppervlakte=60)
+        detail = self.client.get(self._detail_url(gebruikersinvoer)).json()
+
+        response = self.client.get(self._lijst_url())
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        [item] = response.json()
+        self.assertEqual(
+            set(item), {"id", "author", "completed", "created", "updated", "punten"}
+        )
+        self.assertEqual(item["punten"], detail["punten"])
+        self.assertEqual(item["author"]["full_name"], get_test_user().full_name)
+
+    def test_lijst_haalt_het_kengetal_een_keer_op(self):
+        self._maak()
+        with CaptureQueriesContext(connection) as een:
+            self.client.get(self._lijst_url())
+        self._maak()
+        self._maak()
+        with CaptureQueriesContext(connection) as drie:
+            self.client.get(self._lijst_url())
+
+        # Two more puntentellingen don't add queries.
+        self.assertEqual(len(drie.captured_queries), len(een.captured_queries))
 
     def test_lijst_zonder_author_geeft_null(self):
         self._maak(author=None)

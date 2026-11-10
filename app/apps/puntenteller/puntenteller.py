@@ -38,9 +38,12 @@ from apps.puntenteller.ruimte_types import maak_ruimten
 
 
 class Puntenteller:
-    def __init__(self, gebruikersinvoer: Gebruikersinvoer):
+    def __init__(
+        self, gebruikersinvoer: Gebruikersinvoer, kengetal: Kengetal | None = None
+    ):
         self.gebruikersinvoer = gebruikersinvoer
-        self.kengetal = Kengetal.objects.first()
+        # A list of puntentellingen passes the kengetal in, so it's fetched only once.
+        self.kengetal = kengetal or Kengetal.objects.first()
         if not self.kengetal:
             raise Kengetal.DoesNotExist("Geen kengetal configuratie gevonden")
         self.ruimten = maak_ruimten(gebruikersinvoer)
