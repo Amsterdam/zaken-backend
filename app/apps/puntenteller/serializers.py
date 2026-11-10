@@ -1,6 +1,7 @@
 from decimal import Decimal, InvalidOperation
 
 from apps.puntenteller.models import Gebruikersinvoer, RuimteNaam
+from apps.puntenteller.puntenteller import Puntenteller
 from apps.puntenteller.ruimte_types import (
     maak_buitenruimte,
     maak_overige_ruimte,
@@ -691,3 +692,26 @@ class GebruikersinvoerResponseSerializer(
     class Meta:
         model = Gebruikersinvoer
         exclude = ENERGIE_MODEL_VELDEN
+
+
+class PuntentellingLijstSerializer(serializers.ModelSerializer):
+    """
+    A puntentelling in the list of an address: only what an overview shows, without the
+    invoer and the berekening. Pass the kengetal in the context ("kengetal"), so it's
+    fetched once for the whole list.
+    """
+
+    author = UserSerializer(
+        read_only=True,
+        allow_null=True,
+        help_text="Toezichthouder die de puntentelling maakte; leeg als die niet meer bestaat.",
+    )
+    punten = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Gebruikersinvoer
+        fields = ("id", "author", "completed", "created", "updated", "punten")
+
+    @extend_schema_field(serializers.FloatField())
+    def get_punten(self, gebruikersinvoer):
+        return Puntenteller(gebruikersinvoer, self.context.get("kengetal")).bereken()

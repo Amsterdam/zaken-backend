@@ -1,13 +1,14 @@
 import logging
 
 from apps.addresses.models import Address
-from apps.puntenteller.models import Gebruikersinvoer
+from apps.puntenteller.models import Gebruikersinvoer, Kengetal
 from apps.puntenteller.puntenteller import Puntenteller
 from apps.puntenteller.serializers import (
     GebouwDataSerializer,
     GebruikersinvoerRequestSerializer,
     GebruikersinvoerResponseSerializer,
     GebruikersinvoerSerializer,
+    PuntentellingLijstSerializer,
 )
 from apps.users.permissions import rest_permission_classes_for_top
 from drf_spectacular.utils import extend_schema
@@ -33,6 +34,8 @@ logger = logging.getLogger(__name__)
 
 class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
     permission_classes = rest_permission_classes_for_top()
+    # The puntentellingen of one address are few; the frontend wants them as a plain list.
+    pagination_class = None
     serializer_class = GebruikersinvoerSerializer
     queryset = Gebruikersinvoer.objects.all()
 
@@ -45,9 +48,18 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
             .select_related("author")
         )
 
-    @extend_schema(responses=GebruikersinvoerResponseSerializer(many=True))
-    def list(self, request, *args, **kwargs):
-        return Response([_met_punten(item) for item in self.get_queryset()])
+    def get_serializer_class(self):
+        # The list only has what an overview shows; the invoer and berekening are per item.
+        if self.action == "list":
+            return PuntentellingLijstSerializer
+        return super().get_serializer_class()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        if self.action == "list":
+            # Fetched once for the whole list instead of once per puntentelling.
+            context["kengetal"] = Kengetal.objects.first()
+        return context
 
     @extend_schema(
         request=GebruikersinvoerRequestSerializer,
