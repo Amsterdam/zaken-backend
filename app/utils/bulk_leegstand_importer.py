@@ -245,6 +245,7 @@ class BulkLeegstandImporter:
         data = {
             "bag_id": bag_id,
             "description": description,
+            "jump_to": "unoccupied",
             "reason": {
                 "id": self.reason.id,
                 "name": self.reason.name,
