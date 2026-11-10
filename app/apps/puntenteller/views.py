@@ -31,15 +31,18 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
     serializer_class = GebruikersinvoerSerializer
     queryset = Gebruikersinvoer.objects.all()
 
+    def get_queryset(self):
+        # Filter on the bag_id directly, so a GET doesn't create the address.
+        return (
+            super()
+            .get_queryset()
+            .filter(adres__bag_id=self.kwargs["bag_id"])
+            .select_related("author")
+        )
+
     @extend_schema(responses=GebruikersinvoerResponseSerializer(many=True))
     def list(self, request, *args, **kwargs):
-        bag_id = kwargs.get("bag_id")
-        adres = self._get_adres(bag_id)
-        gebruikersinvoer_lijst = (
-            self.get_queryset().filter(adres=adres).select_related("gebruiker")
-        )
-        response_data = [_met_punten(item) for item in gebruikersinvoer_lijst]
-        return Response(response_data)
+        return Response([_met_punten(item) for item in self.get_queryset()])
 
     @extend_schema(
         request=GebruikersinvoerRequestSerializer,
@@ -50,7 +53,7 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
         adres = self._get_adres(bag_id)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        gebruikersinvoer = serializer.save(adres=adres, gebruiker=request.user)
+        gebruikersinvoer = serializer.save(adres=adres, author=request.user)
         return Response(_met_punten(gebruikersinvoer), status=status.HTTP_201_CREATED)
 
     @action(
@@ -126,13 +129,13 @@ class AdresPuntentellerViewSet(GenericViewSet, CreateModelMixin, ListModelMixin)
 
 class PuntentellingViewSet(GenericViewSet, RetrieveModelMixin, DestroyModelMixin):
     """
-    A saved puntentelling. Only a draft (completed=False) can still be
-    changed or deleted; a final points calculation is locked.
+    A saved puntentelling. `completed` only shows whether the author is done with it;
+    it can still be changed and deleted either way.
     """
 
     permission_classes = rest_permission_classes_for_top()
     serializer_class = GebruikersinvoerSerializer
-    queryset = Gebruikersinvoer.objects.all()
+    queryset = Gebruikersinvoer.objects.select_related("author")
 
     @extend_schema(responses=GebruikersinvoerResponseSerializer)
     def retrieve(self, request, *args, **kwargs):
@@ -145,29 +148,12 @@ class PuntentellingViewSet(GenericViewSet, RetrieveModelMixin, DestroyModelMixin
     )
     def partial_update(self, request, *args, **kwargs):
         gebruikersinvoer = self.get_object()
-        if gebruikersinvoer.completed:
-            return _completed_response("gewijzigd")
         serializer = self.get_serializer(
             gebruikersinvoer, data=request.data, partial=True
         )
         serializer.is_valid(raise_exception=True)
         gebruikersinvoer = serializer.save()
         return Response(_met_punten(gebruikersinvoer))
-
-    @extend_schema(responses={status.HTTP_204_NO_CONTENT: None})
-    def destroy(self, request, *args, **kwargs):
-        gebruikersinvoer = self.get_object()
-        if gebruikersinvoer.completed:
-            return _completed_response("verwijderd")
-        gebruikersinvoer.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-def _completed_response(actie):
-    return Response(
-        {"detail": f"Een definitieve puntentelling kan niet worden {actie}."},
-        status=status.HTTP_400_BAD_REQUEST,
-    )
 
 
 def _met_punten(gebruikersinvoer):

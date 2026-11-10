@@ -417,7 +417,7 @@ class Gebruikersinvoer(models.Model):
         on_delete=models.CASCADE,
         related_name="puntenteller_gebruikersinvoer",
     )
-    gebruiker = models.ForeignKey(
+    author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
@@ -457,11 +457,6 @@ class Gebruikersinvoer(models.Model):
     nieuwbouw = models.BooleanField(default=False)
     bijzondere_voorziening_intercom_met_beeld = models.BooleanField(default=False)
     bijzondere_voorziening_laadpalen = models.PositiveIntegerField(default=0)
-    # The form input values from the frontend wizard are stored here so that a draft
-    # can be reopened there. This lets the user see and edit their earlier input.
-    # The calculation does not use them: the input above is lost during
-    # conversion (for example the room type, or the length and width).
-    formulierwaarden = models.JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

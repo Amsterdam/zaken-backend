@@ -27,7 +27,6 @@ PAYLOAD = {
     "gebruiksoppervlakte": 60,
     "woz_waarde": 300000,
     "woz_peildatum_jaar": 2025,
-    "formulierwaarden": {"binnenruimtes": [], "type_woning": "Meergezinswoning"},
 }
 
 
@@ -65,10 +64,10 @@ class PuntentellerApiTest(APITestCase):
         data = response.json()
         gebruikersinvoer = Gebruikersinvoer.objects.get(pk=data["id"])
         self.assertEqual(gebruikersinvoer.adres, self.adres)
-        self.assertEqual(gebruikersinvoer.gebruiker, get_test_user())
+        self.assertEqual(gebruikersinvoer.author, get_test_user())
         self.assertFalse(data["completed"])
-        self.assertEqual(data["formulierwaarden"], PAYLOAD["formulierwaarden"])
-        self.assertEqual(data["gebruiker_naam"], get_test_user().full_name)
+        self.assertEqual(data["author"]["id"], str(get_test_user().id))
+        self.assertEqual(data["author"]["full_name"], get_test_user().full_name)
         self.assertIsNotNone(data["created"])
         self.assertEqual(data["punten"], data["punten_resultaat"]["totaal_punten"])
 
@@ -98,12 +97,19 @@ class PuntentellerApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual([item["id"] for item in response.json()], [nieuw.pk, oud.pk])
 
-    def test_lijst_zonder_gebruiker_geeft_geen_naam(self):
-        self._maak(gebruiker=None)
+    def test_lijst_zonder_author_geeft_null(self):
+        self._maak(author=None)
 
         response = self.client.get(self._lijst_url())
 
-        self.assertIsNone(response.json()[0]["gebruiker_naam"])
+        self.assertIsNone(response.json()[0]["author"])
+
+    def test_lijst_van_een_onbekend_adres_maakt_geen_adres_aan(self):
+        response = self.client.get(self._lijst_url(bag_id="onbekend-adres"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json(), [])
+        self.assertFalse(Address.objects.filter(bag_id="onbekend-adres").exists())
 
     def test_wijzigen_van_een_concept_rekent_opnieuw(self):
         gebruikersinvoer = self._maak(gebruiksoppervlakte=0)
@@ -115,12 +121,11 @@ class PuntentellerApiTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
-        self.assertEqual(data["formulierwaarden"], PAYLOAD["formulierwaarden"])
         self.assertNotEqual(data["punten_resultaat"], voor["punten_resultaat"])
         self.assertEqual(data["punten"], data["punten_resultaat"]["totaal_punten"])
 
     def test_een_concept_definitief_maken(self):
-        gebruikersinvoer = self._maak(formulierwaarden={"a": 1})
+        gebruikersinvoer = self._maak(woz_waarde=123456)
 
         response = self.client.patch(
             self._detail_url(gebruikersinvoer), {"completed": True}, format="json"
@@ -130,18 +135,18 @@ class PuntentellerApiTest(APITestCase):
         gebruikersinvoer.refresh_from_db()
         self.assertTrue(gebruikersinvoer.completed)
         # Een gedeeltelijke wijziging laat de rest staan.
-        self.assertEqual(gebruikersinvoer.formulierwaarden, {"a": 1})
+        self.assertEqual(gebruikersinvoer.woz_waarde, 123456)
 
-    def test_een_definitieve_puntentelling_kan_niet_worden_gewijzigd(self):
+    def test_een_afgeronde_puntentelling_kan_weer_worden_gewijzigd(self):
         gebruikersinvoer = self._maak(completed=True)
 
         response = self.client.patch(
             self._detail_url(gebruikersinvoer), {"completed": False}, format="json"
         )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         gebruikersinvoer.refresh_from_db()
-        self.assertTrue(gebruikersinvoer.completed)
+        self.assertFalse(gebruikersinvoer.completed)
 
     def test_een_concept_verwijderen(self):
         gebruikersinvoer = self._maak()
@@ -153,12 +158,12 @@ class PuntentellerApiTest(APITestCase):
             Gebruikersinvoer.objects.filter(pk=gebruikersinvoer.pk).exists()
         )
 
-    def test_een_definitieve_puntentelling_kan_niet_worden_verwijderd(self):
+    def test_een_afgeronde_puntentelling_kan_worden_verwijderd(self):
         gebruikersinvoer = self._maak(completed=True)
 
         response = self.client.delete(self._detail_url(gebruikersinvoer))
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertTrue(
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(
             Gebruikersinvoer.objects.filter(pk=gebruikersinvoer.pk).exists()
         )

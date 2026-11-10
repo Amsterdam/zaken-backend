@@ -18,7 +18,7 @@ class GebruikersinvoerAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "adres",
-        "gebruiker",
+        "author",
         "completed",
         "created",
         "energielabel_klasse",
@@ -36,5 +36,5 @@ class GebruikersinvoerAdmin(admin.ModelAdmin):
         "adres__bag_id",
         "adres__street_name",
         "adres__postal_code",
-        "gebruiker__email",
+        "author__email",
     )

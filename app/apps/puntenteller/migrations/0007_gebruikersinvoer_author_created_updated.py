@@ -9,6 +9,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RenameField(
+            model_name="gebruikersinvoer",
+            old_name="gebruiker",
+            new_name="author",
+        ),
         migrations.AlterModelOptions(
             name="gebruikersinvoer",
             options={
@@ -16,11 +21,6 @@ class Migration(migrations.Migration):
                 "verbose_name": "gebruikersinvoer",
                 "verbose_name_plural": "gebruikersinvoer",
             },
-        ),
-        migrations.AddField(
-            model_name="gebruikersinvoer",
-            name="formulierwaarden",
-            field=models.JSONField(blank=True, null=True),
         ),
         # Bestaande rijen krijgen eenmalig het moment van migreren.
         migrations.AddField(
