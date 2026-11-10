@@ -16,6 +16,7 @@ from django.urls import reverse
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
+from utils.bulk_leegstand_importer import BulkImportException
 from utils.unittest_helpers import get_test_user
 
 
@@ -159,6 +160,42 @@ class ProcessLeegstandFileApiTest(APITestCase):
         self.assertIn("No such address found", result["case_data"][0]["msg"])
         self.assertEqual(Case.objects.count(), 0)
 
+    @patch("apps.cases.views.case.BulkLeegstandImporter")
+    def test_bulk_import_exception_returns_message(self, mock_importer):
+        for stage in ("initialization", "execution"):
+            with self.subTest(stage=stage):
+                mock_importer.side_effect = None
+                mock_importer.return_value.import_from_file.side_effect = None
+                error = BulkImportException("Cannot locate header!")
+                if stage == "initialization":
+                    mock_importer.side_effect = error
+                else:
+                    mock_importer.return_value.import_from_file.side_effect = error
+
+                response = self.upload_file("example_leegstand_correct.xlsx")
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(response.json(), {"error": "Cannot locate header!"})
+
+    @patch("apps.cases.views.case.BulkLeegstandImporter")
+    def test_unexpected_import_exception_returns_generic_error(self, mock_importer):
+        for stage in ("initialization", "execution"):
+            with self.subTest(stage=stage):
+                mock_importer.side_effect = None
+                mock_importer.return_value.import_from_file.side_effect = None
+                error = RuntimeError("Sensitive internal details")
+                if stage == "initialization":
+                    mock_importer.side_effect = error
+                else:
+                    mock_importer.return_value.import_from_file.side_effect = error
+
+                response = self.upload_file("example_leegstand_correct.xlsx")
+
+                self.assertEqual(
+                    response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+                self.assertFalse("Sensitive" in response.json()['error'])
+
     def test_file_is_required(self):
         response = self.client.post(
             self.url,
@@ -206,7 +243,7 @@ class ProcessLeegstandFileApiTest(APITestCase):
 
     def test_task_propagates_invalid_excel_error(self):
         file_base64 = base64.b64encode(b"not an Excel file").decode("ascii")
-        with self.assertRaisesMessage(ValueError, "Failed to read Excel file"):
+        with self.assertRaisesMessage(BulkImportException, "Failed to read Excel file"):
             task_import_leegstand(file_base64, self.user.pk)
 
     def test_task_requires_existing_user(self):

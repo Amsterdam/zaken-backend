@@ -64,7 +64,7 @@ from rest_framework.exceptions import NotFound
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
-from utils.bulk_leegstand_importer import BulkLeegstandImporter
+from utils.bulk_leegstand_importer import BulkImportException, BulkLeegstandImporter
 
 logger = logging.getLogger(__name__)
 
@@ -590,13 +590,24 @@ class CaseViewSet(
             cache.set(f"leegstand-import:{task.id}", str(request.user.pk), timeout=86400)
             return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
 
-        importer = BulkLeegstandImporter(
-            file,
-            request.user,
-            dry_run=True,
-            project_id=project_id,
-        )
-        result = importer.import_from_file()
+        try:
+            importer = BulkLeegstandImporter(
+                file,
+                request.user,
+                dry_run=True,
+                project_id=project_id,
+            )
+            result = importer.import_from_file()
+        except BulkImportException as exc:
+            return Response(
+                {"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception:
+            logger.exception("Unexpected error processing bulk import file.")
+            return Response(
+                {"error": "Import mislukt. Neem contact op met de beheerder."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
         return Response(result)
 
     @extend_schema(

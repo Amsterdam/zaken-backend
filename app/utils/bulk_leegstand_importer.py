@@ -11,6 +11,9 @@ from utils.api_queries_bag import do_bag_search_pdok_by_address
 
 LOGGER = logging.getLogger(__name__)
 
+class BulkImportException(Exception):
+    pass
+
 
 class BulkLeegstandImporter:
     fields = {
@@ -67,7 +70,7 @@ class BulkLeegstandImporter:
             wb = load_workbook(self.file)
             ws = self.worksheet = wb.active
         except Exception as e:
-            raise ValueError(f"Failed to read Excel file: {e}")
+            raise BulkImportException(f"Kan bestand niet openen: {e}")
 
         self._find_metadata(ws)
         self.header_row_idx = self._find_header_row_index(ws)
@@ -79,7 +82,7 @@ class BulkLeegstandImporter:
                 field_idx = header.index(column_name)
                 field["idx"] = field_idx
             except ValueError:
-                raise ValueError(f"Excel file must contain {column_name} column")
+                raise BulkImportException(f"Bestand moet de volgende kolom bevatten: {column_name}")
 
     def _process_rows(self):
         num_processed = 0
@@ -136,7 +139,7 @@ class BulkLeegstandImporter:
                 if isinstance(cell_value, str) and cell_value.lower() == "adres":
                     return row_index
 
-        raise ValueError("Cannot locate header!")
+        raise BulkImportException("Kan kolombeschrijving niet vinden!")
 
     @staticmethod
     def _clean_header(header: list):
@@ -183,7 +186,7 @@ class BulkLeegstandImporter:
         response = do_bag_search_pdok_by_address(search_string).get("response", {})
 
         if response.get("numFound", 0) == 0:
-            error_str = f"No such address found: {search_string} !"
+            error_str = f"Adres niet gevonden: {search_string} !"
             result["error"] = error_str
             return result
         elif response.get("numFound", 0) > 1:
@@ -196,7 +199,7 @@ class BulkLeegstandImporter:
                 and first_address["huisnummer"] == number
                 and first_address["huisnummertoevoeging"] == suffix
             ):
-                error_str = f"Found more than one address for {search_string} !"
+                error_str = f"Meer dan één adres gevonden voor {search_string} !"
                 LOGGER.warning(error_str)
                 for adres in response.get("docs", []):
                     LOGGER.warning(f"    {adres['weergavenaam']} + {adres['score']}")
@@ -282,7 +285,7 @@ class BulkLeegstandImporter:
             theme=self.theme_leegstand, address__bag_id=bag_id, end_date=None
         )
         if open_cases_at_address.exists():
-            return False, msg + "SKIPPED (Open cases for address found!)"
+            return False, msg + "OVERGESLAGEN (Onafgeronde zaak gevonden voor dit adres!)"
 
         if not dry_run:
             serializer.save()
