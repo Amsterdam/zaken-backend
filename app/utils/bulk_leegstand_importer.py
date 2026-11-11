@@ -34,10 +34,14 @@ class BulkLeegstandImporter:
         "Naam bedrijf": "melding_naam"
     }
 
-    def __init__(self, file, user, dry_run=True, project_id=None):
+    def __init__(self, file, user, theme: CaseTheme, reason: CaseReason, subjects=None, dry_run=True, project=None):
         self.file = file
-        self.project_id = project_id
+        self.project = CaseProject.objects.get(pk=project) if isinstance(project, int) else project
         self.dry_run = dry_run
+        self.theme = CaseTheme.objects.get(pk=theme) if isinstance(theme, int) else theme
+        self.reason = CaseReason.objects.get(pk=reason) if isinstance(reason, int) else reason
+        if subjects is not None:
+            self.subjects = [Subject.objects.get(pk=subj) if isinstance(subj, int) else subj for subj in subjects]
 
         self.worksheet = None
         self.header_row_idx = None
@@ -49,18 +53,36 @@ class BulkLeegstandImporter:
         self.request.user = user
 
         # Case create defaults
-        self.theme_leegstand = CaseTheme.objects.get(name="Leegstand")
-        self.reason = CaseReason.objects.get(
-            theme=self.theme_leegstand, name="Leegstandsmelding eigenaar"
-        )
+        self.case_default_data = {}
+        self.set_case_default_data()
 
-        subject_names = ["Administratieve leegstand", "Professionele eigenaar"]
-        self.subjects = list(
-            Subject.objects.filter(
-                name__in=subject_names, theme_id=self.theme_leegstand.id
-            ).values("id", "name")
-        )
-        self.subject_ids = [s["id"] for s in self.subjects]
+    def set_case_default_data(self):
+        subject_ids = [s.pk for s in self.subjects]
+
+        self.case_default_data = {
+            "jump_to": "unoccupied",
+            "reason": {
+                "id": self.reason.pk,
+                "name": self.reason.name,
+            },
+            "reason_id": self.reason.pk,
+            "subject_ids": subject_ids,
+            "subjects": self.subjects,
+            "theme": {
+                "id": self.theme.pk,
+                "name": self.theme.name,
+            },
+            "theme_id": self.theme.pk,
+        }
+
+        if self.project is not None:
+            self.case_default_data.update({
+                    "project": {
+                        "id": self.project.pk,
+                        "name": self.project.name,
+                    },
+                    "project_id": self.project.pk,
+            })
 
     def import_from_file(self):
         self._inspect_excel_file()
@@ -243,38 +265,14 @@ class BulkLeegstandImporter:
             row_data["bijzonderheden"],
         )
 
-        data = {
+        case_data = {
+            **self.case_default_data,
             "bag_id": bag_id,
             "description": description,
-            "jump_to": "unoccupied",
-            "reason": {
-                "id": self.reason.id,
-                "name": self.reason.name,
-            },
-            "reason_id": self.reason.id,
-            "subject_ids": self.subject_ids,
-            "subjects": self.subjects,
-            "theme": {
-                "id": self.theme_leegstand.id,
-                "name": self.theme_leegstand.name,
-            },
-            "theme_id": self.theme_leegstand.id,
         }
 
-        if self.project_id is not None:
-            proj = CaseProject.objects.get(pk=self.project_id)
-            data.update(
-                {
-                    "project": {
-                        "id": self.project_id,
-                        "name": proj.name,
-                    },
-                    "project_id": self.project_id,
-                }
-            )
-
         serializer = CaseCreateSerializer(
-            data=data,
+            data=case_data,
             context={"request": self.request},
         )
         try:
@@ -284,7 +282,7 @@ class BulkLeegstandImporter:
             return False, error_str
 
         open_cases_at_address = Case.objects.filter(
-            theme=self.theme_leegstand, address__bag_id=bag_id, end_date=None
+            theme=self.theme, address__bag_id=bag_id, end_date=None
         )
         if open_cases_at_address.exists():
             return False, msg + "OVERGESLAGEN (Onafgeronde zaak gevonden voor dit adres)"

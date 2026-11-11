@@ -578,24 +578,35 @@ class CaseViewSet(
     def process_leegstand_file(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        file = serializer.validated_data["file"]
-        project_id = serializer.validated_data.get("project_id")
+        file = serializer.validated_data.get('file')
+        theme= serializer.validated_data.get('theme')
+        reason= serializer.validated_data.get('reason')
+        subjects= serializer.validated_data.get('subjects')
+        dry_run= serializer.validated_data.get('dry_run')
+        project= serializer.validated_data.get('project')
+
         if not serializer.validated_data.get("dry_run"):
             file_base64 = base64.b64encode(file.read()).decode("ascii")
             task = task_import_leegstand.delay(
                 file_base64=file_base64,
                 user_id=str(request.user.pk),
-                project_id=project_id,
+                theme_id= theme.pk,
+                reason_id= reason.pk,
+                subject_ids= [s.pk for s in subjects],
+                project_id=project.pk if project else None,
             )
             cache.set(f"leegstand-import:{task.id}", str(request.user.pk), timeout=86400)
             return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
 
         try:
             importer = BulkLeegstandImporter(
-                file,
-                request.user,
-                dry_run=True,
-                project_id=project_id,
+                file= file,
+                user= request.user,
+                theme= theme,
+                reason= reason,
+                subjects= subjects,
+                project= project,
+                dry_run= dry_run,
             )
             result = importer.import_from_file()
         except BulkImportException as exc:

@@ -40,7 +40,32 @@ class CaseFileUploadSerializer(serializers.Serializer):
 
     file = serializers.FileField(help_text="Excel file, maximum 2 MiB.")
     dry_run = serializers.BooleanField(default=True)
-    project_id = serializers.IntegerField(required=False)
+    theme = CaseThemeSerializer(read_only=True)
+    theme_id = serializers.PrimaryKeyRelatedField(
+        source="theme", queryset=CaseTheme.objects.all(), write_only=True
+    )
+    reason = CaseReasonSerializer(read_only=True)
+    reason_id = serializers.PrimaryKeyRelatedField(
+        source="reason",
+        required=True,
+        queryset=CaseReason.objects.all(),
+        write_only=True,
+    )
+    project = CaseProjectSerializer(read_only=True)
+    project_id = serializers.PrimaryKeyRelatedField(
+        source="project",
+        required=False,
+        queryset=CaseProject.objects.all(),
+        write_only=True,
+    )
+    subjects = SubjectSerializer(many=True, read_only=True)
+    subject_ids = serializers.PrimaryKeyRelatedField(
+        source="subjects",
+        required=False,
+        many=True,
+        write_only=True,
+        queryset=Subject.objects.all(),
+    )
 
     def validate_file(self, file):
         if file.size > self.MAX_FILE_SIZE:
