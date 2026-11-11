@@ -34,7 +34,7 @@ class BulkLeegstandImporter:
         "Naam bedrijf": "melding_naam"
     }
 
-    def __init__(self, file, user, theme: CaseTheme, reason: CaseReason, subjects=None, dry_run=True, project=None):
+    def __init__(self, file, user, theme: CaseTheme, reason: CaseReason, subjects=None, project=None, jump_to=None, dry_run=True):
         self.file = file
         self.project = CaseProject.objects.get(pk=project) if isinstance(project, int) else project
         self.dry_run = dry_run
@@ -42,6 +42,7 @@ class BulkLeegstandImporter:
         self.reason = CaseReason.objects.get(pk=reason) if isinstance(reason, int) else reason
         if subjects is not None:
             self.subjects = [Subject.objects.get(pk=subj) if isinstance(subj, int) else subj for subj in subjects]
+        self.jump_to=jump_to
 
         self.worksheet = None
         self.header_row_idx = None
@@ -54,13 +55,12 @@ class BulkLeegstandImporter:
 
         # Case create defaults
         self.case_default_data = {}
-        self.set_case_default_data()
+        self._set_case_default_data()
 
-    def set_case_default_data(self):
+    def _set_case_default_data(self):
         subject_ids = [s.pk for s in self.subjects]
 
         self.case_default_data = {
-            "jump_to": "unoccupied",
             "reason": {
                 "id": self.reason.pk,
                 "name": self.reason.name,
@@ -83,6 +83,9 @@ class BulkLeegstandImporter:
                     },
                     "project_id": self.project.pk,
             })
+
+        if self.jump_to is not None:
+            self.case_default_data.update({"jump_to": self.jump_to})
 
     def import_from_file(self):
         self._inspect_excel_file()

@@ -21,7 +21,7 @@ class BaseTaskWithRetry(celery.Task):
 
 
 @shared_task
-def task_import_leegstand(file_base64, user_id, theme_id, reason_id, subject_ids, project_id):
+def task_import_leegstand(file_base64, user_id, theme_id, reason_id, subject_ids, project_id, jump_to):
     from utils.bulk_leegstand_importer import BulkLeegstandImporter
 
     user = get_user_model().objects.get(pk=user_id)
@@ -34,6 +34,7 @@ def task_import_leegstand(file_base64, user_id, theme_id, reason_id, subject_ids
             reason= reason_id,
             subjects= subject_ids,
             project= project_id,
+            jump_to=jump_to,
             dry_run=False,
         ).import_from_file()
 

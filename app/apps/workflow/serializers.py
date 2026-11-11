@@ -17,6 +17,11 @@ class GenericFormFieldOptionSerializer(serializers.Serializer):
     value = serializers.CharField()
 
 
+class JumpToTargetSerializer(serializers.Serializer):
+    value = serializers.CharField()
+    label = serializers.CharField()
+
+
 class GenericFormFieldSerializer(serializers.Serializer):
     name = serializers.CharField()
     label = serializers.CharField()

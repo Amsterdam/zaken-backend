@@ -14,8 +14,12 @@ from apps.workflow.models import CaseUserTask, CaseWorkflow, GenericCompletedTas
 from django.contrib.auth import get_user_model
 from django.core import management
 from django.test import TestCase
+from django.urls import reverse
 from model_bakery import baker
 from SpiffWorkflow import TaskState
+from rest_framework import status
+from rest_framework.test import APITestCase
+from utils.unittest_helpers import get_authenticated_client, get_unauthenticated_client
 
 # First user task of each allowed target, when started without any form data
 FIRST_TASKS = {
@@ -67,6 +71,23 @@ class JumpToTargetsTest(TestCase):
             get_jump_to_routing_data("summon"),
             {"debrief_next_step": {"value": "summon"}},
         )
+
+
+class AllowedJumpWorkflowsApiTest(APITestCase):
+    def test_unauthenticated_get(self):
+        response = get_unauthenticated_client().get(
+            reverse("cases-allowed-jump-workflows")
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_get_targets(self):
+        response = get_authenticated_client().get(
+            reverse("cases-allowed-jump-workflows")
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json(), get_jump_to_targets())
 
 
 @patch("apps.workflow.models.task_start_subworkflow.delay")

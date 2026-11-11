@@ -42,10 +42,12 @@ from apps.users.permissions import (
     IsInAuthorizedRealm,
     ScopedViewPermission,
 )
+from apps.workflow.jump_to import get_jump_to_targets
 from apps.workflow.models import CaseUserTask, CaseWorkflow, WorkflowOption
 from apps.workflow.serializers import (
     CaseWorkflowInstanceSerializer,
     CaseWorkflowSerializer,
+    JumpToTargetSerializer,
     StartWorkflowSerializer,
     WorkflowOptionSerializer,
 )
@@ -556,6 +558,18 @@ class CaseViewSet(
         return queryset
 
     @extend_schema(
+        description="Get the allowed targets for starting a case at a subworkflow",
+        responses={status.HTTP_200_OK: JumpToTargetSerializer(many=True)},
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="allowed-jump-workflows",
+    )
+    def allowed_jump_workflows(self, request):
+        return Response(get_jump_to_targets())
+
+    @extend_schema(
         description=(
             "Process an uploaded bulkleegstandbeschikking (maximum 2 MiB). "
             "Dry runs return results immediately; dry_run=false queues a Celery "
@@ -579,11 +593,14 @@ class CaseViewSet(
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         file = serializer.validated_data.get('file')
-        theme= serializer.validated_data.get('theme')
-        reason= serializer.validated_data.get('reason')
-        subjects= serializer.validated_data.get('subjects')
-        dry_run= serializer.validated_data.get('dry_run')
-        project= serializer.validated_data.get('project')
+        theme = serializer.validated_data.get('theme')
+        reason = serializer.validated_data.get('reason')
+        subjects = serializer.validated_data.get('subjects')
+        dry_run = serializer.validated_data.get('dry_run')
+        project = serializer.validated_data.get('project')
+        jump_to = serializer.validated_data.get('jump_to')
+
+        print(serializer.validated_data)
 
         if not serializer.validated_data.get("dry_run"):
             file_base64 = base64.b64encode(file.read()).decode("ascii")
@@ -594,6 +611,7 @@ class CaseViewSet(
                 reason_id= reason.pk,
                 subject_ids= [s.pk for s in subjects],
                 project_id=project.pk if project else None,
+                jump_to=jump_to,
             )
             cache.set(f"leegstand-import:{task.id}", str(request.user.pk), timeout=86400)
             return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
@@ -606,7 +624,7 @@ class CaseViewSet(
                 reason= reason,
                 subjects= subjects,
                 project= project,
-                dry_run= dry_run,
+                jump_to=jump_to,
             )
             result = importer.import_from_file()
         except BulkImportException as exc:

@@ -31,7 +31,7 @@ JUMP_TO_TARGETS = {
         "routing_data": {"debrief_next_step": {"value": "summon"}},
     },
     "unoccupied": {
-        "label": "Leegstand",
+        "label": "Leegstandsmelding",
         "routing_data": {"debrief_next_step": {"value": "unoccupied"}},
     },
     "debrief": {

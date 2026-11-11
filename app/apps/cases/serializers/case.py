@@ -66,6 +66,13 @@ class CaseFileUploadSerializer(serializers.Serializer):
         write_only=True,
         queryset=Subject.objects.all(),
     )
+    jump_to = serializers.ChoiceField(
+        choices=[(t["value"], t["label"]) for t in get_jump_to_targets()],
+        required=False,
+        allow_null=True,
+        write_only=True,
+        help_text="Start the case at the first task of this subworkflow (see docs/jump_to.md)",
+    )
 
     def validate_file(self, file):
         if file.size > self.MAX_FILE_SIZE:
