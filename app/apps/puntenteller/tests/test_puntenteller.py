@@ -163,6 +163,63 @@ class PuntentellerTest(TestCase):
 
         self.assertEqual(self._punten(resultaat, "Keuken"), 8.0)
 
+    def test_bereken_resultaat_telt_mengkraan_met_kookfunctie_als_mengkraan_en_kokendwaterfunctie(
+        self,
+    ):
+        keuken = {
+            "naam": RuimteNaam.KEUKEN,
+            "ruimte_m2": 0,
+            "aanrechtlengte_meters": 3,
+        }
+        met_kookfunctie = self._bereken_resultaat(
+            vertrekken=[
+                {
+                    **keuken,
+                    "eenhandsmengkraan_kookfunctie": 1,
+                    "thermostatische_mengkraan_kookfunctie": 1,
+                }
+            ]
+        )
+        uitgesplitst = self._bereken_resultaat(
+            vertrekken=[
+                {
+                    **keuken,
+                    "eenhandsmengkraan": 1,
+                    "thermostatische_mengkraan": 1,
+                    "kokendwaterfunctie": 2,
+                }
+            ]
+        )
+
+        self.assertEqual(
+            met_kookfunctie.rubriek("Keuken"), uitgesplitst.rubriek("Keuken")
+        )
+        self.assertGreater(self._punten(met_kookfunctie, "Keuken"), 7)
+
+    def test_bereken_resultaat_telt_mengkraan_met_kookfunctie_op_bij_gewone_kranen(
+        self,
+    ):
+        keuken = {
+            "naam": RuimteNaam.KEUKEN,
+            "ruimte_m2": 0,
+            "aanrechtlengte_meters": 3,
+        }
+        resultaat = self._bereken_resultaat(
+            vertrekken=[
+                {
+                    **keuken,
+                    "eenhandsmengkraan": 1,
+                    "eenhandsmengkraan_kookfunctie": 1,
+                    "kokendwaterfunctie": 1,
+                }
+            ]
+        )
+        verwacht = self._bereken_resultaat(
+            vertrekken=[{**keuken, "eenhandsmengkraan": 2, "kokendwaterfunctie": 2}]
+        )
+
+        self.assertEqual(resultaat.rubriek("Keuken"), verwacht.rubriek("Keuken"))
+
     def test_bereken_resultaat_geeft_punten_voor_vertrekken_rubriek(self):
         resultaat = self._bereken_resultaat(
             vertrekken=[

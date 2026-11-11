@@ -59,8 +59,22 @@ class EnergieSerializer(serializers.Serializer):
         return attrs
 
 
+def _weergavenaam_veld():
+    return serializers.CharField(
+        max_length=100,
+        required=False,
+        allow_blank=True,
+        allow_null=True,
+        help_text=(
+            "Hoe de ruimte aan de voorkant wordt weergegeven, bijvoorbeeld 'Woonkamer met open keuken'. "
+            "Alleen om de puntentelling weer te kunnen openen; de berekening gebruikt naam."
+        ),
+    )
+
+
 class BasisRuimteSerializer(serializers.Serializer):
     naam = serializers.ChoiceField(choices=RuimteNaam.choices)
+    weergavenaam = _weergavenaam_veld()
     ruimte_m2 = serializers.DecimalField(max_digits=8, decimal_places=2)
     verwarmd = serializers.BooleanField(required=False, default=False)
     aantal_adressen_met_toegang_en_gebruiksrecht = serializers.IntegerField(
@@ -120,6 +134,18 @@ class KeukenRuimteSerializer(BasisVertrekSerializer):
     eenhandsmengkraan = serializers.IntegerField(required=False, default=0)
     thermostatische_mengkraan = serializers.IntegerField(required=False, default=0)
     kokendwaterfunctie = serializers.IntegerField(required=False, default=0)
+    eenhandsmengkraan_kookfunctie = serializers.IntegerField(
+        required=False,
+        default=0,
+        min_value=0,
+        help_text="Telt als een eenhandsmengkraan plus een kokendwaterfunctie.",
+    )
+    thermostatische_mengkraan_kookfunctie = serializers.IntegerField(
+        required=False,
+        default=0,
+        min_value=0,
+        help_text="Telt als een thermostatische mengkraan plus een kokendwaterfunctie.",
+    )
 
 
 class BasisOverigeRuimteSerializer(BasisRuimteSerializer):
@@ -165,6 +191,7 @@ class BuitenruimteSerializer(serializers.Serializer):
             RuimteNaam.GEMEENSCHAPPELIJKE_BUITENRUIMTE,
         )
     )
+    weergavenaam = _weergavenaam_veld()
     ruimte_m2 = serializers.DecimalField(max_digits=8, decimal_places=2)
     aantal_adressen_met_toegang_en_gebruiksrecht = serializers.IntegerField(
         required=False, default=1, min_value=1
@@ -180,6 +207,7 @@ class ParkeerruimteSerializer(serializers.Serializer):
     naam = serializers.ChoiceField(
         choices=_ruimte_keuzes(RuimteNaam.BUITENRUIMTE_PARKEERPLAATS)
     )
+    weergavenaam = _weergavenaam_veld()
     aantal_gesloten_garage_bij_complex = serializers.IntegerField(
         required=False, default=0, min_value=0
     )
@@ -216,6 +244,7 @@ class ParkeerruimteSerializer(serializers.Serializer):
         if isinstance(instance, dict) and "type" in instance:
             return {
                 "naam": instance.get("naam") or RuimteNaam.BUITENRUIMTE_PARKEERPLAATS,
+                "weergavenaam": instance.get("weergavenaam"),
                 "aantal_gesloten_garage_bij_complex": (
                     1 if instance.get("type") == "gesloten_garage_bij_complex" else 0
                 ),

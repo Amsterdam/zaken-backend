@@ -1,3 +1,4 @@
+from dataclasses import replace
 from decimal import Decimal
 
 from apps.puntenteller.berekening.helpers import (
@@ -46,6 +47,7 @@ def keuken_rubriek(ruimten: Ruimten, kengetal: Kengetal) -> Rubriek:
 
 
 def keuken_regels(keuken: KeukenRuimte, kengetal: Kengetal) -> list[Regel]:
+    keuken = _met_kookfunctie_kranen_uitgesplitst(keuken)
     aanrecht = _aanrecht_regel(keuken, kengetal)
     # Beleidsboek 2.5.3: de extra keukenvoorzieningen per keuken worden
     # afgetopt op de punten voor de basisvoorzieningen van het aanrecht.
@@ -74,3 +76,19 @@ def _aanrecht_regel(keuken: KeukenRuimte, kengetal: Kengetal) -> Regel:
         omschrijving = f"Aanrecht langer dan {nl(grens_2)} m"
         punten = kengetal.keuken_aanrecht_punten_3
     return Regel(omschrijving, punten, ruimte=keuken.naam, aantal=meters)
+
+
+def _met_kookfunctie_kranen_uitgesplitst(keuken: KeukenRuimte) -> KeukenRuimte:
+    # Beleidsboek 2.5.3 kent de mengkraan en de kokendwaterfunctie als aparte
+    # voorzieningen; een mengkraan met kookfunctie is ze allebei. Zo blijven de
+    # regels in het resultaat die van het beleidsboek.
+    eenhands = keuken.eenhandsmengkraan_kookfunctie
+    thermostatisch = keuken.thermostatische_mengkraan_kookfunctie
+    return replace(
+        keuken,
+        eenhandsmengkraan=keuken.eenhandsmengkraan + eenhands,
+        thermostatische_mengkraan=keuken.thermostatische_mengkraan + thermostatisch,
+        kokendwaterfunctie=keuken.kokendwaterfunctie + eenhands + thermostatisch,
+        eenhandsmengkraan_kookfunctie=0,
+        thermostatische_mengkraan_kookfunctie=0,
+    )
