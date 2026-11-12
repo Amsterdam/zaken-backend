@@ -4,7 +4,6 @@ from apps.addresses.serializers import AddressSimplifiedSerializer
 from apps.cases.models import Case, CaseProject, CaseReason, CaseTheme, Subject
 from apps.cases.serializers import CaseCreateSerializer
 from openpyxl import load_workbook
-from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIRequestFactory
 from utils.api_queries_bag import do_bag_search_pdok_by_address
 
@@ -38,6 +37,8 @@ class BulkLeegstandImporter:
         self.reason = CaseReason.objects.get(pk=reason) if isinstance(reason, int) else reason
         if subjects is not None:
             self.subjects = [Subject.objects.get(pk=subj) if isinstance(subj, int) else subj for subj in subjects]
+        else:
+            self.subjects = []
         self.jump_to=jump_to
 
         self.worksheet = None
@@ -176,6 +177,17 @@ class BulkLeegstandImporter:
 
     @staticmethod
     def _get_bag_data(street_name: str, number: int, suffix: str | int, postal_code: str):
+        # Do basic field validation first, before cleaning the fields.
+        search_string = f"{street_name} {number}-{suffix}, {postal_code}"
+        serializer = AddressSimplifiedSerializer(data={
+            "street_name": street_name,
+            "number": number,
+            "suffix": suffix,
+            "postal_code": postal_code,
+        })
+        if not serializer.is_valid():
+            return {"error": f"Fout in invoerdata: {search_string}: {serializer.errors}"}
+
         street_name = street_name.strip()
         number = number
         suffix = str(suffix).strip()
@@ -188,21 +200,6 @@ class BulkLeegstandImporter:
             "found_address": "",
             "error": "",
         }
-
-        serializer = AddressSimplifiedSerializer(
-            data={
-                "street_name": street_name,
-                "number": number,
-                "suffix": suffix,
-                "postal_code": postal_code,
-            },
-        )
-        try:
-            serializer.is_valid(raise_exception=True)
-        except ValidationError as e:
-            error_str = f"Fout in invoerdata: {search_string}: {e}"
-            result["error"] = error_str
-            return result
 
         response = do_bag_search_pdok_by_address(search_string).get("response", {})
 
@@ -240,12 +237,11 @@ class BulkLeegstandImporter:
             row_data["toevoeging"],
             row_data["postcode"],
         )
-        bag_id = address_data["bag_id"]
+        bag_id = address_data.get("bag_id")
         if address_data["error"] or bag_id is None:
             return False, address_data["error"]
 
         msg = f"Adres: {address_data["search_address"]}: "
-
         case_data = {
             **self.case_default_data,
             "bag_id": bag_id,
@@ -256,10 +252,8 @@ class BulkLeegstandImporter:
             data=case_data,
             context={"request": self.request},
         )
-        try:
-            serializer.is_valid(raise_exception=True)
-        except ValidationError as e:
-            return False, msg + f"Ongeldige data: {e}"
+        if not serializer.is_valid():
+            return False, msg + f"Ongeldige data: {serializer.errors}"
 
         open_cases_at_address = Case.objects.filter(
             theme=self.theme, address__bag_id=bag_id, end_date=None
