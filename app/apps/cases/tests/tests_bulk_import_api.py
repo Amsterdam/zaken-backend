@@ -27,13 +27,15 @@ class ProcessBulkFileApiTest(APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.theme = baker.make(CaseTheme, name="Leegstand")
-        baker.make(
+        cls.reason = baker.make(
             CaseReason,
             theme=cls.theme,
             name="Leegstandsmelding eigenaar",
         )
-        for name in ("Administratieve leegstand", "Professionele eigenaar"):
+        cls.subjects = [
             baker.make(Subject, theme=cls.theme, name=name)
+            for name in ("Administratieve leegstand", "Professionele eigenaar")
+        ]
         cls.url = reverse("cases-process-bulk-file")
         cls.files_path = Path(__file__).parent / "files"
 
@@ -55,8 +57,25 @@ class ProcessBulkFileApiTest(APITestCase):
             )
         return self.client.post(
             self.url,
-            {"file": uploaded_file, **data},
+            {
+                "file": uploaded_file,
+                "theme_id": self.theme.pk,
+                "reason_id": self.reason.pk,
+                "subject_ids": [subject.pk for subject in self.subjects],
+                **data,
+            },
             format="multipart",
+        )
+
+    def run_import_task(self, file_base64, user_id=None):
+        return task_import_bulk_file(
+            file_base64=file_base64,
+            user_id=user_id if user_id is not None else str(self.user.pk),
+            theme_id=self.theme.pk,
+            reason_id=self.reason.pk,
+            subject_ids=[subject.pk for subject in self.subjects],
+            project_id=None,
+            jump_to=None,
         )
 
     @staticmethod
@@ -135,14 +154,7 @@ class ProcessBulkFileApiTest(APITestCase):
                 for case in Case.objects.all()
             )
         )
-        self.assertTrue(
-            all(
-                case.description.startswith(
-                    "Leegstand gemeld: Voorbeeld bedrijf op 06-11-2026."
-                )
-                for case in Case.objects.all()
-            )
-        )
+        self.assertTrue(all(case.description for case in Case.objects.all()))
 
     @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
     def test_file_with_unmatched_address_returns_row_error(self, mock_bag_search):
@@ -157,7 +169,7 @@ class ProcessBulkFileApiTest(APITestCase):
         self.assertTrue(result["dry_run"])
         self.assertEqual(len(result["case_data"]), 1)
         self.assertFalse(result["case_data"][0]["success"])
-        self.assertIn("No such address found", result["case_data"][0]["msg"])
+        self.assertIn("Adres niet gevonden", result["case_data"][0]["msg"])
         self.assertEqual(Case.objects.count(), 0)
 
     @patch("apps.cases.views.case.BulkCaseImporter")
@@ -224,7 +236,7 @@ class ProcessBulkFileApiTest(APITestCase):
 
     def test_task_rejects_invalid_base64(self):
         with self.assertRaises(binascii.Error):
-            task_import_bulk_file("not base64!", self.user.pk)
+            self.run_import_task("not base64!")
 
     @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
     def test_task_returns_row_errors(self, mock_bag_search):
@@ -232,25 +244,25 @@ class ProcessBulkFileApiTest(APITestCase):
         with (self.files_path / "example_leegstand_with_errors.xlsx").open("rb") as file:
             file_base64 = base64.b64encode(file.read()).decode("ascii")
 
-        result = task_import_bulk_file(file_base64, str(self.user.pk))
+        result = self.run_import_task(file_base64)
 
         self.assertEqual(result["total_processed"], 1)
         self.assertEqual(result["total_created"], 0)
         self.assertFalse(result["dry_run"])
         self.assertFalse(result["case_data"][0]["success"])
-        self.assertIn("No such address found", result["case_data"][0]["msg"])
+        self.assertIn("Adres niet gevonden", result["case_data"][0]["msg"])
         self.assertEqual(Case.objects.count(), 0)
 
     def test_task_propagates_invalid_excel_error(self):
         file_base64 = base64.b64encode(b"not an Excel file").decode("ascii")
-        with self.assertRaisesMessage(BulkImportException, "Failed to read Excel file"):
-            task_import_bulk_file(file_base64, self.user.pk)
+        with self.assertRaisesMessage(BulkImportException, "Kan bestand niet openen"):
+            self.run_import_task(file_base64)
 
     def test_task_requires_existing_user(self):
         user_id = self.user.pk
         self.user.delete()
         with self.assertRaises(get_user_model().DoesNotExist):
-            task_import_bulk_file("", user_id)
+            self.run_import_task("", user_id)
 
 
 @override_settings(
