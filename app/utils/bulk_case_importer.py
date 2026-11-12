@@ -284,10 +284,17 @@ class BulkCaseImporter:
             return False, case_id, address_data["error"]
 
         msg = f"Adres: {address_data["search_address"]}: "
+        toelichting = row_data["toelichting"]
+        if isinstance(toelichting, str) and toelichting.startswith("#"):
+            return (
+                False,
+                case_id,
+                msg + f"Foutieve formule in toelichting gevonden: {toelichting}",
+            )
         case_data = {
             **self.case_default_data,
             "bag_id": bag_id,
-            "description": row_data["toelichting"],
+            "description": toelichting,
         }
 
         serializer = CaseCreateSerializer(
