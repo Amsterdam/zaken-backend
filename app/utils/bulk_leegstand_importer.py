@@ -1,5 +1,4 @@
 import logging
-from textwrap import dedent
 
 from apps.addresses.serializers import AddressSimplifiedSerializer
 from apps.cases.models import Case, CaseProject, CaseReason, CaseTheme, Subject
@@ -21,10 +20,7 @@ class BulkLeegstandImporter:
         "postcode": {"idx": 0},
         "huisnr.": {"idx": 0},
         "toevoeging": {"idx": 0},
-        "reden leegstand": {"idx": 0},
-        "datum start werkzaamheden": {"idx": 0},
-        "datum oplevering": {"idx": 0},
-        "bijzonderheden": {"idx": 0},
+        "toelichting": {"idx": 0},
     }
     first_header_item = 'straat'
 
@@ -57,6 +53,10 @@ class BulkLeegstandImporter:
         self.case_default_data = {}
         self._set_case_default_data()
 
+    def import_from_file(self):
+        self._inspect_excel_file()
+        return self._process_rows()
+
     def _set_case_default_data(self):
         subject_ids = [s.pk for s in self.subjects]
 
@@ -87,10 +87,6 @@ class BulkLeegstandImporter:
         if self.jump_to is not None:
             self.case_default_data.update({"jump_to": self.jump_to})
 
-    def import_from_file(self):
-        self._inspect_excel_file()
-        return self._process_rows()
-
     def _inspect_excel_file(self):
         try:
             wb = load_workbook(self.file)
@@ -98,7 +94,7 @@ class BulkLeegstandImporter:
         except Exception as e:
             raise BulkImportException(f"Kan bestand niet openen: {e}")
 
-        self._find_metadata(ws)
+        self._find_metadata(ws)  # Metadata fields might be needed for adding to the description
         self.header_row_idx = self._find_header_row_index(ws)
         header_raw = [cell.value for cell in ws[self.header_row_idx]]
         header = self._clean_header(header_raw)
@@ -178,9 +174,8 @@ class BulkLeegstandImporter:
             for item in header
         ]
 
-    def _get_bag_data(
-        self, street_name: str, number: int, suffix: str | int, postal_code: str
-    ):
+    @staticmethod
+    def _get_bag_data(street_name: str, number: int, suffix: str | int, postal_code: str):
         street_name = street_name.strip()
         number = number
         suffix = str(suffix).strip()
@@ -205,7 +200,7 @@ class BulkLeegstandImporter:
         try:
             serializer.is_valid(raise_exception=True)
         except ValidationError as e:
-            error_str = f"FOUT IN INVOERDATA: {search_string}: {e}"
+            error_str = f"Fout in invoerdata: {search_string}: {e}"
             result["error"] = error_str
             return result
 
@@ -237,17 +232,6 @@ class BulkLeegstandImporter:
         result["found_address"] = found_address["weergavenaam"]
         return result
 
-    def get_description_text(self, reason: str, date_start, date_end, details):
-        datum_melding = self.metadata['melding_datum'].strftime("%d-%m-%Y") if 'melding_datum' in self.metadata else '-'
-        return dedent(
-            f"""Leegstand gemeld: {self.metadata.get('melding_naam', '-')} op {datum_melding}.
-            Leeg sinds: {date_start.strftime("%d-%m-%Y") if date_start else '-'}.
-            Reden: {reason}.
-            Opleverdatum: {date_end.strftime("%d-%m-%Y") if date_end else '-'}
-            Bijzonderheden: {details}
-        """
-        ).strip()
-
     def _import_case(self, row_data: dict, dry_run: bool):
         """Return True when a case can successfully be imported"""
         address_data = self._get_bag_data(
@@ -261,17 +245,11 @@ class BulkLeegstandImporter:
             return False, address_data["error"]
 
         msg = f"Adres: {address_data["search_address"]}: "
-        description = self.get_description_text(
-            row_data["reden leegstand"],
-            row_data["datum start werkzaamheden"],
-            row_data["datum oplevering"],
-            row_data["bijzonderheden"],
-        )
 
         case_data = {
             **self.case_default_data,
             "bag_id": bag_id,
-            "description": description,
+            "description": row_data["toelichting"],
         }
 
         serializer = CaseCreateSerializer(
@@ -281,8 +259,7 @@ class BulkLeegstandImporter:
         try:
             serializer.is_valid(raise_exception=True)
         except ValidationError as e:
-            error_str = f"CaseCreateSerializer: {e}"
-            return False, error_str
+            return False, msg + f"Ongeldige data: {e}"
 
         open_cases_at_address = Case.objects.filter(
             theme=self.theme, address__bag_id=bag_id, end_date=None

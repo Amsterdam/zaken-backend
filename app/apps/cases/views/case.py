@@ -600,9 +600,7 @@ class CaseViewSet(
         project = serializer.validated_data.get('project')
         jump_to = serializer.validated_data.get('jump_to')
 
-        print(serializer.validated_data)
-
-        if not serializer.validated_data.get("dry_run"):
+        if not dry_run:
             file_base64 = base64.b64encode(file.read()).decode("ascii")
             task = task_import_leegstand.delay(
                 file_base64=file_base64,
