@@ -592,22 +592,22 @@ class CaseViewSet(
     def process_bulk_file(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        file = serializer.validated_data.get('file')
-        theme = serializer.validated_data.get('theme')
-        reason = serializer.validated_data.get('reason')
-        subjects = serializer.validated_data.get('subjects')
-        dry_run = serializer.validated_data.get('dry_run')
-        project = serializer.validated_data.get('project')
-        jump_to = serializer.validated_data.get('jump_to')
+        file = serializer.validated_data.get("file")
+        theme = serializer.validated_data.get("theme")
+        reason = serializer.validated_data.get("reason")
+        subjects = serializer.validated_data.get("subjects")
+        dry_run = serializer.validated_data.get("dry_run")
+        project = serializer.validated_data.get("project")
+        jump_to = serializer.validated_data.get("jump_to")
 
         if not dry_run:
             file_base64 = base64.b64encode(file.read()).decode("ascii")
             task = task_import_bulk_file.delay(
                 file_base64=file_base64,
                 user_id=str(request.user.pk),
-                theme_id= theme.pk,
-                reason_id= reason.pk,
-                subject_ids= [s.pk for s in subjects],
+                theme_id=theme.pk,
+                reason_id=reason.pk,
+                subject_ids=[s.pk for s in subjects],
                 project_id=project.pk if project else None,
                 jump_to=jump_to,
             )
@@ -616,19 +616,17 @@ class CaseViewSet(
 
         try:
             importer = BulkCaseImporter(
-                file= file,
-                user= request.user,
-                theme= theme,
-                reason= reason,
-                subjects= subjects,
-                project= project,
+                file=file,
+                user=request.user,
+                theme=theme,
+                reason=reason,
+                subjects=subjects,
+                project=project,
                 jump_to=jump_to,
             )
             result = importer.import_from_file()
         except BulkImportException as exc:
-            return Response(
-                {"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception:
             logger.exception("Unexpected error processing bulk import file.")
             return Response(

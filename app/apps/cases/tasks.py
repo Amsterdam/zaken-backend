@@ -21,7 +21,9 @@ class BaseTaskWithRetry(celery.Task):
 
 
 @shared_task
-def task_import_bulk_file(file_base64, user_id, theme_id, reason_id, subject_ids, project_id, jump_to):
+def task_import_bulk_file(
+    file_base64, user_id, theme_id, reason_id, subject_ids, project_id, jump_to
+):
     from utils.bulk_case_importer import BulkCaseImporter
 
     user = get_user_model().objects.get(pk=user_id)
@@ -30,10 +32,10 @@ def task_import_bulk_file(file_base64, user_id, theme_id, reason_id, subject_ids
         return BulkCaseImporter(
             file,
             user,
-            theme= theme_id,
-            reason= reason_id,
-            subjects= subject_ids,
-            project= project_id,
+            theme=theme_id,
+            reason=reason_id,
+            subjects=subject_ids,
+            project=project_id,
             jump_to=jump_to,
             dry_run=False,
         ).import_from_file()

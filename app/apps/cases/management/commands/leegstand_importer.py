@@ -10,7 +10,7 @@ class Command(BaseCommand):
         "Example:\n"
         "  python manage.py case_importer cases.xlsx \\\n"
         "    --username import_user@amsterdam.nl \\\n"
-        '    --project 5 \\\n'
+        "    --project 5 \\\n"
         "    --dry-run"
     )
 

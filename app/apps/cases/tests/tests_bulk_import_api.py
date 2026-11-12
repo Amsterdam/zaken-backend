@@ -206,7 +206,7 @@ class ProcessBulkFileApiTest(APITestCase):
                 self.assertEqual(
                     response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-                self.assertFalse("Sensitive" in response.json()['error'])
+                self.assertFalse("Sensitive" in response.json()["error"])
 
     def test_file_is_required(self):
         response = self.client.post(
@@ -229,7 +229,9 @@ class ProcessBulkFileApiTest(APITestCase):
                 )
 
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-                self.assertIn("File size must not exceed 2 MiB.", response.json()["file"])
+                self.assertIn(
+                    "File size must not exceed 2 MiB.", response.json()["file"]
+                )
 
         mock_delay.assert_not_called()
         mock_importer.assert_not_called()
@@ -241,7 +243,9 @@ class ProcessBulkFileApiTest(APITestCase):
     @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
     def test_task_returns_row_errors(self, mock_bag_search):
         mock_bag_search.return_value = {"response": {"numFound": 0, "docs": []}}
-        with (self.files_path / "example_leegstand_with_errors.xlsx").open("rb") as file:
+        with (self.files_path / "example_leegstand_with_errors.xlsx").open(
+            "rb"
+        ) as file:
             file_base64 = base64.b64encode(file.read()).decode("ascii")
 
         result = self.run_import_task(file_base64)
@@ -276,9 +280,7 @@ class BulkFileStatusApiTest(APITestCase):
         self.cache_key = f"bulk-import:{self.task_id}"
         cache.set(self.cache_key, str(self.user.pk), timeout=86400)
         self.addCleanup(cache.delete, self.cache_key)
-        self.url = reverse(
-            "cases-bulk-import-status", kwargs={"task_id": self.task_id}
-        )
+        self.url = reverse("cases-bulk-import-status", kwargs={"task_id": self.task_id})
 
     def test_pending_task(self):
         response = self.client.get(self.url)
