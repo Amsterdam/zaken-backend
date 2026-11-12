@@ -151,8 +151,8 @@ class BulkCaseImporter:
                 field_name: row[self.field_index[field_name]]
                 for field_name in self.fields
             }
-            created, msg = self._import_case(row_data, self.dry_run)
-            processed_cases.append({"success": created, "msg": msg})
+            created, case_id, msg = self._import_case(row_data, self.dry_run)
+            processed_cases.append({"success": created, "msg": msg, "case_id": case_id})
 
             num_processed += 1
             if not self.dry_run:
@@ -272,6 +272,7 @@ class BulkCaseImporter:
 
     def _import_case(self, row_data: dict, dry_run: bool):
         """Return True when a case can successfully be imported"""
+        case_id = None
         address_data = self._get_bag_data(
             row_data["straat"],
             row_data["huisnr"],
@@ -280,7 +281,7 @@ class BulkCaseImporter:
         )
         bag_id = address_data.get("bag_id")
         if address_data["error"] or bag_id is None:
-            return False, address_data["error"]
+            return False, case_id, address_data["error"]
 
         msg = f"Adres: {address_data["search_address"]}: "
         case_data = {
@@ -294,7 +295,7 @@ class BulkCaseImporter:
             context={"request": self.request},
         )
         if not serializer.is_valid():
-            return False, msg + f"Ongeldige data: {serializer.errors}"
+            return False, case_id, msg + f"Ongeldige data: {serializer.errors}"
 
         open_cases_at_address = Case.objects.filter(
             theme=self.theme, address__bag_id=bag_id, end_date=None
@@ -302,10 +303,12 @@ class BulkCaseImporter:
         if open_cases_at_address.exists():
             return (
                 False,
+                case_id,
                 msg + "OVERGESLAGEN (Onafgeronde zaak gevonden voor dit adres)",
             )
 
         if not dry_run:
-            serializer.save()
+            case_obj = serializer.save()
+            case_id = case_obj.pk
 
-        return True, msg + "OK"
+        return True, case_id, msg + "OK"
