@@ -18,7 +18,7 @@ class BulkLeegstandImporter:
     fields = {
         "straat": {"idx": 0},
         "postcode": {"idx": 0},
-        "huisnr.": {"idx": 0},
+        "huisnr": {"idx": 0},
         "toevoeging": {"idx": 0},
         "toelichting": {"idx": 0},
     }
@@ -167,7 +167,7 @@ class BulkLeegstandImporter:
     def _clean_header(header: list):
         return [
             (
-                item.lower().replace("(beknopt)", "").rstrip(" ")
+                item.lower().replace("(beknopt)", "").rstrip(" .")
                 if isinstance(item, str)
                 else item
             )
@@ -236,7 +236,7 @@ class BulkLeegstandImporter:
         """Return True when a case can successfully be imported"""
         address_data = self._get_bag_data(
             row_data["straat"],
-            row_data["huisnr."],
+            row_data["huisnr"],
             row_data["toevoeging"],
             row_data["postcode"],
         )
