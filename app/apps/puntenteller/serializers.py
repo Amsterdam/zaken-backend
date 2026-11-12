@@ -67,7 +67,8 @@ def _weergavenaam_veld():
         allow_null=True,
         help_text=(
             "Hoe de ruimte aan de voorkant wordt weergegeven, bijvoorbeeld 'Woonkamer met open keuken'. "
-            "Alleen om de puntentelling weer te kunnen openen; de berekening gebruikt naam."
+            "Om de puntentelling weer te kunnen openen; de berekening gebruikt naam, "
+            "behalve 'Woonkamer met open keuken' (verwarming telt dubbel)."
         ),
     )
 
