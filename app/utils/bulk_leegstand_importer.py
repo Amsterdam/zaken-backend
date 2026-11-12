@@ -14,13 +14,13 @@ class BulkImportException(Exception):
 
 
 class BulkLeegstandImporter:
-    fields = {
-        "straat": {"idx": 0},
-        "postcode": {"idx": 0},
-        "huisnr": {"idx": 0},
-        "toevoeging": {"idx": 0},
-        "toelichting": {"idx": 0},
-    }
+    fields = [
+        "straat",
+        "postcode",
+        "huisnr",
+        "toevoeging",
+        "toelichting",
+    ]
     first_header_item = 'straat'
 
     MAX_METADATA_ROWS = 10
@@ -42,6 +42,7 @@ class BulkLeegstandImporter:
         self.jump_to=jump_to
 
         self.worksheet = None
+        self.field_index = {field_name: 0 for field_name in self.fields}
         self.header_row_idx = None
         self.metadata = {}
 
@@ -100,12 +101,11 @@ class BulkLeegstandImporter:
         header_raw = [cell.value for cell in ws[self.header_row_idx]]
         header = self._clean_header(header_raw)
 
-        for column_name, field in self.fields.items():
+        for field_name in self.fields:
             try:
-                field_idx = header.index(column_name)
-                field["idx"] = field_idx
+                self.field_index[field_name] = header.index(field_name)
             except ValueError:
-                raise BulkImportException(f"Bestand moet de volgende kolom bevatten: {column_name}")
+                raise BulkImportException(f"Bestand moet de volgende kolom bevatten: {field_name}")
 
     def _process_rows(self):
         num_processed = 0
@@ -115,16 +115,15 @@ class BulkLeegstandImporter:
         for row in self.worksheet.iter_rows(
             min_row=self.header_row_idx + 1, values_only=True
         ):
-            first_column = row[self.fields[self.first_header_item]["idx"]]
-            if not first_column:
+            # Check a field that should be filled, otherwise skip row
+            mandatory_field_content = row[self.field_index[self.first_header_item]]
+            if not mandatory_field_content:
                 LOGGER.warning("Skipping row with empty %s", self.first_header_item)
                 continue
 
             row_data = {
-                field_name: row[field_data["idx"]]
-                for field_name, field_data in self.fields.items()
+                field_name: row[self.field_index[field_name]] for field_name in self.fields
             }
-
             created, msg = self._import_case(row_data, self.dry_run)
             processed_cases.append({"success": created, "msg": msg})
 
