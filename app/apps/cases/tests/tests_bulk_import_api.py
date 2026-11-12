@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from apps.addresses.models import Address
 from apps.cases.models import Case, CaseProject, CaseReason, CaseTheme, Subject
-from apps.cases.tasks import task_import_leegstand
+from apps.cases.tasks import task_import_bulk_file
 from celery import states
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -16,14 +16,14 @@ from django.urls import reverse
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
-from utils.bulk_leegstand_importer import BulkImportException
+from utils.bulk_case_importer import BulkImportException
 from utils.unittest_helpers import get_test_user
 
 
 @override_settings(
     CACHES={"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
 )
-class ProcessLeegstandFileApiTest(APITestCase):
+class ProcessBulkFileApiTest(APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.theme = baker.make(CaseTheme, name="Leegstand")
@@ -34,7 +34,7 @@ class ProcessLeegstandFileApiTest(APITestCase):
         )
         for name in ("Administratieve leegstand", "Professionele eigenaar"):
             baker.make(Subject, theme=cls.theme, name=name)
-        cls.url = reverse("cases-process-leegstand-file")
+        cls.url = reverse("cases-process-bulk-file")
         cls.files_path = Path(__file__).parent / "files"
 
     def setUp(self):
@@ -70,8 +70,8 @@ class ProcessLeegstandFileApiTest(APITestCase):
             }
         }
 
-    @patch("apps.cases.views.case.task_import_leegstand.delay")
-    @patch("utils.bulk_leegstand_importer.do_bag_search_pdok_by_address")
+    @patch("apps.cases.views.case.task_import_bulk_file.delay")
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
     def test_correct_file_defaults_to_dry_run(self, mock_bag_search, mock_delay):
         mock_bag_search.side_effect = [
             self.successful_bag_response(index) for index in range(3)
@@ -92,8 +92,8 @@ class ProcessLeegstandFileApiTest(APITestCase):
 
     @patch("apps.workflow.tasks.task_create_main_worflow_for_case.delay")
     @patch("apps.addresses.models.Address.get_or_create_by_bag_id")
-    @patch("apps.cases.views.case.task_import_leegstand.delay")
-    @patch("utils.bulk_leegstand_importer.do_bag_search_pdok_by_address")
+    @patch("apps.cases.views.case.task_import_bulk_file.delay")
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
     def test_correct_file_creates_cases_in_task_when_not_dry_run(
         self, mock_bag_search, mock_delay, mock_address, mock_workflow_delay
     ):
@@ -114,8 +114,8 @@ class ProcessLeegstandFileApiTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
         self.assertEqual(response.json(), {"task_id": "import-task-id"})
-        self.assertEqual(cache.get("leegstand-import:import-task-id"), str(self.user.pk))
-        self.addCleanup(cache.delete, "leegstand-import:import-task-id")
+        self.assertEqual(cache.get("bulk-import:import-task-id"), str(self.user.pk))
+        self.addCleanup(cache.delete, "bulk-import:import-task-id")
         self.assertEqual(Case.objects.count(), 0)
         mock_bag_search.assert_not_called()
         mock_delay.assert_called_once()
@@ -123,7 +123,7 @@ class ProcessLeegstandFileApiTest(APITestCase):
         self.assertEqual(task_kwargs["user_id"], str(self.user.pk))
         self.assertEqual(task_kwargs["project_id"], project.pk)
 
-        result = task_import_leegstand(**task_kwargs)
+        result = task_import_bulk_file(**task_kwargs)
         self.assertEqual(result["total_processed"], 3)
         self.assertEqual(result["total_created"], 3)
         self.assertFalse(result["dry_run"])
@@ -144,7 +144,7 @@ class ProcessLeegstandFileApiTest(APITestCase):
             )
         )
 
-    @patch("utils.bulk_leegstand_importer.do_bag_search_pdok_by_address")
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
     def test_file_with_unmatched_address_returns_row_error(self, mock_bag_search):
         mock_bag_search.return_value = {"response": {"numFound": 0, "docs": []}}
 
@@ -160,7 +160,7 @@ class ProcessLeegstandFileApiTest(APITestCase):
         self.assertIn("No such address found", result["case_data"][0]["msg"])
         self.assertEqual(Case.objects.count(), 0)
 
-    @patch("apps.cases.views.case.BulkLeegstandImporter")
+    @patch("apps.cases.views.case.BulkCaseImporter")
     def test_bulk_import_exception_returns_message(self, mock_importer):
         for stage in ("initialization", "execution"):
             with self.subTest(stage=stage):
@@ -177,7 +177,7 @@ class ProcessLeegstandFileApiTest(APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
                 self.assertEqual(response.json(), {"error": "Cannot locate header!"})
 
-    @patch("apps.cases.views.case.BulkLeegstandImporter")
+    @patch("apps.cases.views.case.BulkCaseImporter")
     def test_unexpected_import_exception_returns_generic_error(self, mock_importer):
         for stage in ("initialization", "execution"):
             with self.subTest(stage=stage):
@@ -206,8 +206,8 @@ class ProcessLeegstandFileApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("file", response.json())
 
-    @patch("apps.cases.views.case.BulkLeegstandImporter")
-    @patch("apps.cases.views.case.task_import_leegstand.delay")
+    @patch("apps.cases.views.case.BulkCaseImporter")
+    @patch("apps.cases.views.case.task_import_bulk_file.delay")
     def test_file_over_size_limit_is_rejected(self, mock_delay, mock_importer):
         for dry_run in (True, False):
             with self.subTest(dry_run=dry_run):
@@ -224,15 +224,15 @@ class ProcessLeegstandFileApiTest(APITestCase):
 
     def test_task_rejects_invalid_base64(self):
         with self.assertRaises(binascii.Error):
-            task_import_leegstand("not base64!", self.user.pk)
+            task_import_bulk_file("not base64!", self.user.pk)
 
-    @patch("utils.bulk_leegstand_importer.do_bag_search_pdok_by_address")
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
     def test_task_returns_row_errors(self, mock_bag_search):
         mock_bag_search.return_value = {"response": {"numFound": 0, "docs": []}}
         with (self.files_path / "example_leegstand_with_errors.xlsx").open("rb") as file:
             file_base64 = base64.b64encode(file.read()).decode("ascii")
 
-        result = task_import_leegstand(file_base64, str(self.user.pk))
+        result = task_import_bulk_file(file_base64, str(self.user.pk))
 
         self.assertEqual(result["total_processed"], 1)
         self.assertEqual(result["total_created"], 0)
@@ -244,28 +244,28 @@ class ProcessLeegstandFileApiTest(APITestCase):
     def test_task_propagates_invalid_excel_error(self):
         file_base64 = base64.b64encode(b"not an Excel file").decode("ascii")
         with self.assertRaisesMessage(BulkImportException, "Failed to read Excel file"):
-            task_import_leegstand(file_base64, self.user.pk)
+            task_import_bulk_file(file_base64, self.user.pk)
 
     def test_task_requires_existing_user(self):
         user_id = self.user.pk
         self.user.delete()
         with self.assertRaises(get_user_model().DoesNotExist):
-            task_import_leegstand("", user_id)
+            task_import_bulk_file("", user_id)
 
 
 @override_settings(
     CACHES={"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
 )
-class LeegstandFileStatusApiTest(APITestCase):
+class BulkFileStatusApiTest(APITestCase):
     def setUp(self):
         self.user = get_test_user()
         self.client.force_authenticate(user=self.user)
-        self.task_id = "leegstand-status-task"
-        self.cache_key = f"leegstand-import:{self.task_id}"
+        self.task_id = "bulk-import-status-task"
+        self.cache_key = f"bulk-import:{self.task_id}"
         cache.set(self.cache_key, str(self.user.pk), timeout=86400)
         self.addCleanup(cache.delete, self.cache_key)
         self.url = reverse(
-            "cases-leegstand-file-status", kwargs={"task_id": self.task_id}
+            "cases-bulk-import-status", kwargs={"task_id": self.task_id}
         )
 
     def test_pending_task(self):
@@ -283,7 +283,7 @@ class LeegstandFileStatusApiTest(APITestCase):
         )
 
     def test_started_task(self):
-        task_import_leegstand.backend.store_result(
+        task_import_bulk_file.backend.store_result(
             self.task_id, {"pid": 123, "hostname": "worker"}, states.STARTED
         )
 
@@ -304,7 +304,7 @@ class LeegstandFileStatusApiTest(APITestCase):
                 {"success": False, "msg": "No such address found"},
             ],
         }
-        task_import_leegstand.backend.store_result(self.task_id, result, states.SUCCESS)
+        task_import_bulk_file.backend.store_result(self.task_id, result, states.SUCCESS)
 
         response = self.client.get(self.url)
 
@@ -314,7 +314,7 @@ class LeegstandFileStatusApiTest(APITestCase):
         self.assertIsNone(response.json()["error"])
 
     def test_failed_task_does_not_expose_exception_details(self):
-        task_import_leegstand.backend.store_result(
+        task_import_bulk_file.backend.store_result(
             self.task_id, ValueError("internal details"), states.FAILURE
         )
 
@@ -328,7 +328,7 @@ class LeegstandFileStatusApiTest(APITestCase):
         )
         self.assertNotIn("internal details", response.content.decode())
 
-    @patch("apps.cases.views.case.task_import_leegstand.AsyncResult")
+    @patch("apps.cases.views.case.task_import_bulk_file.AsyncResult")
     def test_unknown_or_expired_task_returns_not_found(self, mock_result):
         cache.delete(self.cache_key)
 
@@ -337,7 +337,7 @@ class LeegstandFileStatusApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         mock_result.assert_not_called()
 
-    @patch("apps.cases.views.case.task_import_leegstand.AsyncResult")
+    @patch("apps.cases.views.case.task_import_bulk_file.AsyncResult")
     def test_other_users_task_returns_not_found(self, mock_result):
         other_user = baker.make(get_user_model())
         self.client.force_authenticate(user=other_user)

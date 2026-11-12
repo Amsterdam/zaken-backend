@@ -21,13 +21,13 @@ class BaseTaskWithRetry(celery.Task):
 
 
 @shared_task
-def task_import_leegstand(file_base64, user_id, theme_id, reason_id, subject_ids, project_id, jump_to):
-    from utils.bulk_leegstand_importer import BulkLeegstandImporter
+def task_import_bulk_file(file_base64, user_id, theme_id, reason_id, subject_ids, project_id, jump_to):
+    from utils.bulk_case_importer import BulkCaseImporter
 
     user = get_user_model().objects.get(pk=user_id)
     # A partially completed import cannot safely be retried automatically.
     with BytesIO(base64.b64decode(file_base64, validate=True)) as file:
-        return BulkLeegstandImporter(
+        return BulkCaseImporter(
             file,
             user,
             theme= theme_id,

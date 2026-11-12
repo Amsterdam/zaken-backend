@@ -29,7 +29,7 @@ from apps.cases.serializers import (
     CitizenReportSerializer,
     SubjectSerializer,
 )
-from apps.cases.tasks import task_import_leegstand
+from apps.cases.tasks import task_import_bulk_file
 from apps.events.mixins import CaseEventsMixin
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
@@ -66,7 +66,7 @@ from rest_framework.exceptions import NotFound
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
-from utils.bulk_leegstand_importer import BulkImportException, BulkLeegstandImporter
+from utils.bulk_case_importer import BulkImportException, BulkCaseImporter
 
 logger = logging.getLogger(__name__)
 
@@ -530,7 +530,7 @@ class CaseViewSet(
     pagination_class = StandardResultsSetPagination
 
     def get_serializer_class(self):
-        if self.action == "process_leegstand_file":
+        if self.action == "process_bulk_file":
             return CaseFileUploadSerializer
         # Send `simplified` as parameter to use a simplified serializer with less details.
         is_simplified = self.request.query_params.get("simplified", False) == "true"
@@ -571,7 +571,7 @@ class CaseViewSet(
 
     @extend_schema(
         description=(
-            "Process an uploaded bulkleegstandbeschikking (maximum 2 MiB). "
+            "Process an uploaded bulk case import file (maximum 2 MiB). "
             "Dry runs return results immediately; dry_run=false queues a Celery "
             "task and returns its ID. Poll process-file/{task_id}/status "
             "for the state and import result within 24 hours of submission."
@@ -589,7 +589,7 @@ class CaseViewSet(
         parser_classes=[MultiPartParser],
         serializer_class=CaseFileUploadSerializer,
     )
-    def process_leegstand_file(self, request):
+    def process_bulk_file(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         file = serializer.validated_data.get('file')
@@ -602,7 +602,7 @@ class CaseViewSet(
 
         if not dry_run:
             file_base64 = base64.b64encode(file.read()).decode("ascii")
-            task = task_import_leegstand.delay(
+            task = task_import_bulk_file.delay(
                 file_base64=file_base64,
                 user_id=str(request.user.pk),
                 theme_id= theme.pk,
@@ -611,11 +611,11 @@ class CaseViewSet(
                 project_id=project.pk if project else None,
                 jump_to=jump_to,
             )
-            cache.set(f"leegstand-import:{task.id}", str(request.user.pk), timeout=86400)
+            cache.set(f"bulk-import:{task.id}", str(request.user.pk), timeout=86400)
             return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
 
         try:
-            importer = BulkLeegstandImporter(
+            importer = BulkCaseImporter(
                 file= file,
                 user= request.user,
                 theme= theme,
@@ -639,7 +639,7 @@ class CaseViewSet(
 
     @extend_schema(
         description=(
-            "Get the state and result of your queued leegstand import. "
+            "Get the state and result of your queued bulk import. "
             "Status is available for 24 hours after submission. "
             "Unknown, expired, and other users' task IDs return 404."
         ),
@@ -650,12 +650,12 @@ class CaseViewSet(
         methods=["get"],
         url_path=r"process-file/(?P<task_id>[^/.]+)/status",
     )
-    def leegstand_file_status(self, request, task_id):
-        owner_id = cache.get(f"leegstand-import:{task_id}")
+    def bulk_import_status(self, request, task_id):
+        owner_id = cache.get(f"bulk-import:{task_id}")
         if owner_id is None or owner_id != str(request.user.pk):
             raise NotFound("Import task not found.")
 
-        task = task_import_leegstand.AsyncResult(task_id)
+        task = task_import_bulk_file.AsyncResult(task_id)
         task_status = task.state
         result = task.result if task_status == states.SUCCESS else None
         error = None

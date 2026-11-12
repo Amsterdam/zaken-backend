@@ -13,7 +13,7 @@ class BulkImportException(Exception):
     pass
 
 
-class BulkLeegstandImporter:
+class BulkCaseImporter:
     fields = [
         "straat",
         "postcode",
