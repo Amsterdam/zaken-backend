@@ -188,11 +188,17 @@ class BulkLeegstandImporter:
         if not serializer.is_valid():
             return {"error": f"Fout in invoerdata: {search_string}: {serializer.errors}"}
 
-        street_name = street_name.strip()
-        number = number
-        suffix = str(suffix).strip()
-        postal_code = postal_code.replace(" ", "").replace("\xa0", "")
-        search_string = f"{street_name} {number}-{suffix}, {postal_code}"
+        street_name = serializer.validated_data["street_name"]
+        number = serializer.validated_data["number"]
+        suffix = serializer.validated_data["suffix"]
+        postal_code = serializer.validated_data["postal_code"].replace(" ", "")
+        if not all([street_name, number, postal_code]):
+            return {"error": f"Adres incompleet: {search_string}"}
+
+        if suffix:
+            search_string = f"{street_name} {number}-{suffix}, {postal_code}"
+        else:
+            search_string = f"{street_name} {number}, {postal_code}"
 
         result = {
             "bag_id": None,
@@ -204,8 +210,7 @@ class BulkLeegstandImporter:
         response = do_bag_search_pdok_by_address(search_string).get("response", {})
 
         if response.get("numFound", 0) == 0:
-            error_str = f"Adres niet gevonden: {search_string}"
-            result["error"] = error_str
+            result["error"] = f"Adres niet gevonden: {search_string}"
             return result
         elif response.get("numFound", 0) > 1:
             # Vaak als er meerdere adressen uitkomen, dan klopt het eerste adres, de rest heeft bijvoorbeeld een andere toevoeging.
