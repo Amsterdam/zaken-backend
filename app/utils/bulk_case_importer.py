@@ -35,11 +35,11 @@ class BulkCaseImporter:
         file,
         user,
         theme: CaseTheme,
-        reason: CaseReason,
-        subjects=None,
-        project=None,
-        jump_to=None,
-        dry_run=True,
+        reason: CaseReason | int | None = None,
+        subjects: list | None = None,
+        project: CaseProject | int | None = None,
+        jump_to: str | None = None,
+        dry_run: bool = True,
     ):
         self.file = file
         self.project = (

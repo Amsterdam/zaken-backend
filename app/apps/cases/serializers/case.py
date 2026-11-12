@@ -47,7 +47,7 @@ class CaseFileUploadSerializer(serializers.Serializer):
     reason = CaseReasonSerializer(read_only=True)
     reason_id = serializers.PrimaryKeyRelatedField(
         source="reason",
-        required=True,
+        required=False,
         queryset=CaseReason.objects.all(),
         write_only=True,
     )
