@@ -300,6 +300,20 @@ class PuntentellerTest(TestCase):
         # Verwarmd vertrek 2 punten, verkoeling 1 punt.
         self.assertEqual(self._punten(resultaat, "Verwarming en verkoeling"), 3.0)
 
+    def test_bereken_resultaat_telt_verwarming_open_keuken_dubbel(self):
+        resultaat = self._bereken_resultaat(
+            vertrekken=[
+                {
+                    "naam": RuimteNaam.KEUKEN,
+                    "weergavenaam": "Woonkamer met open keuken",
+                    "ruimte_m2": 0,
+                    "verwarmd": True,
+                }
+            ]
+        )
+
+        self.assertEqual(self._punten(resultaat, "Verwarming en verkoeling"), 4.0)
+
     def test_bereken_resultaat_geeft_punten_voor_energieprestatie_rubriek(self):
         resultaat = self._bereken_resultaat(
             is_eengezinswoning=True,

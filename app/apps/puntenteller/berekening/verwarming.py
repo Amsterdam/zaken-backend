@@ -3,6 +3,13 @@ from apps.puntenteller.models import Kengetal
 from apps.puntenteller.resultaat import Regel, Rubriek
 from apps.puntenteller.ruimte_types import Ruimten, VertrekRuimte
 
+OPEN_KEUKEN = "Woonkamer met open keuken"
+
+
+def _aantal_vertrekken(ruimte) -> int:
+    # Een woonkamer met open keuken telt voor verwarming als twee vertrekken.
+    return 2 if ruimte.weergavenaam == OPEN_KEUKEN else 1
+
 
 def verwarming_en_verkoeling_rubriek(ruimten: Ruimten, kengetal: Kengetal) -> Rubriek:
     # Beleidsboek 2.3: rubriek 3 verwarming en verkoeling.
@@ -21,7 +28,9 @@ def _verwarming_regels(ruimten: Ruimten, kengetal: Kengetal) -> list[Regel]:
     # samen gemaximeerd op vier punten.
     regels = []
     verwarmde_vertrekken = sum(
-        1 for r in ruimten.vertrekken if r.verwarmd and eigen_ruimte(r)
+        _aantal_vertrekken(r)
+        for r in ruimten.vertrekken
+        if r.verwarmd and eigen_ruimte(r)
     )
     if verwarmde_vertrekken:
         regels.append(
@@ -83,7 +92,7 @@ def verwarming_regels_per_ruimte(ruimte, kengetal: Kengetal) -> list[Regel]:
     regels = [
         regel(
             "Verwarmd vertrek",
-            1,
+            _aantal_vertrekken(ruimte),
             kengetal.verwarming_aantal_vertrekken_factor,
             ruimte.naam,
         )
