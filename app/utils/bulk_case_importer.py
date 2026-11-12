@@ -113,7 +113,7 @@ class BulkCaseImporter:
 
     def _inspect_excel_file(self):
         try:
-            wb = load_workbook(self.file)
+            wb = load_workbook(self.file, read_only=True, data_only=True)
             ws = self.worksheet = wb.active
         except Exception as e:
             raise BulkImportException(f"Kan bestand niet openen: {e}")
