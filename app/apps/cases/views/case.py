@@ -66,7 +66,7 @@ from rest_framework.exceptions import NotFound
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
-from utils.bulk_case_importer import BulkImportException, BulkCaseImporter
+from utils.bulk_case_importer import BulkCaseImporter, BulkImportException
 
 logger = logging.getLogger(__name__)
 

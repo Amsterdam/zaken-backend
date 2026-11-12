@@ -16,9 +16,9 @@ from django.core import management
 from django.test import TestCase
 from django.urls import reverse
 from model_bakery import baker
-from SpiffWorkflow import TaskState
 from rest_framework import status
 from rest_framework.test import APITestCase
+from SpiffWorkflow import TaskState
 from utils.unittest_helpers import get_authenticated_client, get_unauthenticated_client
 
 # First user task of each allowed target, when started without any form data
