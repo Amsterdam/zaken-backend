@@ -1,23 +1,21 @@
+from apps.cases.models import CaseTheme
 from django.contrib.auth import get_user_model
-from django.core.management.base import BaseCommand
-from rest_framework.test import APIRequestFactory
-from utils.bulk_leegstand_importer import BulkLeegstandImporter
+from django.core.management.base import BaseCommand, CommandError
+from utils.bulk_case_importer import BulkCaseImporter, BulkImportException
+
+THEME_NAME = "Leegstand"
 
 
 class Command(BaseCommand):
     help = (
-        "Import Leegstand cases from an Excel file\n\n"
+        "Import Leegstand cases from an Excel file. Without --no-dry-run it only\n"
+        "checks the rows, as the dry run of POST /cases/process-file/.\n\n"
         "Example:\n"
-        "  python manage.py case_importer cases.xlsx \\\n"
+        "  python manage.py leegstand_importer cases.xlsx \\\n"
         "    --username import_user@amsterdam.nl \\\n"
-        "    --project 5 \\\n"
-        "    --dry-run"
+        "    --reason 12 --subject 3 --subject 4 \\\n"
+        "    --no-dry-run"
     )
-
-    def __init__(self):
-        super().__init__()
-        factory = APIRequestFactory()
-        self.request = factory.post("/")
 
     def add_arguments(self, parser):
         parser.add_argument("file", type=str)
@@ -30,34 +28,49 @@ class Command(BaseCommand):
             dest="dry_run",
         )
 
+        parser.add_argument("--reason", type=int, metavar="ID")
         parser.add_argument(
-            "--project",
-            nargs=1,
-            metavar=("ID",),
+            "--subject", type=int, action="append", default=[], metavar="ID"
         )
+        parser.add_argument("--project", type=int, metavar="ID")
+        parser.add_argument("--jump-to", type=str, metavar="TARGET")
+        parser.add_argument("--description", type=str)
 
     def handle(self, *args, **options):
-        excel_file = options["file"]
         dry_run = options["dry_run"]
-        username = options["username"]
+        if not dry_run and options["reason"] is None:
+            raise CommandError("--reason is required with --no-dry-run.")
 
-        project_id = int(options["project"]) if options["project"] else None
+        user = get_user_model().objects.get(username=options["username"])
+        theme = CaseTheme.objects.get(name=THEME_NAME)
 
-        ### Section var init
-        User = get_user_model()
-        user = User.objects.get(username=username)
+        with open(options["file"], "rb") as file:
+            try:
+                processed_result = BulkCaseImporter(
+                    file,
+                    user,
+                    theme=theme,
+                    reason=options["reason"],
+                    subjects=options["subject"],
+                    project=options["project"],
+                    jump_to=options["jump_to"],
+                    description=options["description"],
+                    dry_run=dry_run,
+                ).import_from_file()
+            except BulkImportException as exc:
+                raise CommandError(str(exc))
 
-        importer = BulkLeegstandImporter(excel_file, user, dry_run, project_id)
-        processed_result = importer.import_from_file()
-
-        for res in processed_result["case_data"]:
-            if res["success"]:
-                self.stdout.write(self.style.SUCCESS(res["msg"]))
+        for row in processed_result["case_data"]:
+            line = f"Rij {row['row_number']}: {row['address']}: "
+            if row["success"]:
+                case = f"zaak {row['case_id']}" if row["case_id"] else "OK"
+                self.stdout.write(self.style.SUCCESS(line + case))
             else:
-                self.stdout.write(self.style.NOTICE(res["msg"]))
+                self.stdout.write(self.style.NOTICE(line + row["error"]))
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Done. processed={processed_result["total_processed"]}, created={processed_result["total_created"]}, dry_run={dry_run}"
+                f"Done. processed={processed_result['total_processed']}, "
+                f"created={processed_result['total_created']}, dry_run={dry_run}"
             )
         )

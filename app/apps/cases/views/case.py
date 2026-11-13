@@ -599,6 +599,7 @@ class CaseViewSet(
         dry_run = serializer.validated_data.get("dry_run")
         project = serializer.validated_data.get("project")
         jump_to = serializer.validated_data.get("jump_to")
+        description = serializer.validated_data.get("description")
 
         if not dry_run:
             file_base64 = base64.b64encode(file.read()).decode("ascii")
@@ -610,6 +611,7 @@ class CaseViewSet(
                 subject_ids=[s.pk for s in subjects],
                 project_id=project.pk if project else None,
                 jump_to=jump_to,
+                description=description,
             )
             cache.set(f"bulk-import:{task.id}", str(request.user.pk), timeout=86400)
             return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
@@ -623,6 +625,7 @@ class CaseViewSet(
                 subjects=subjects,
                 project=project,
                 jump_to=jump_to,
+                description=description,
             )
             result = importer.import_from_file()
         except BulkImportException as exc:

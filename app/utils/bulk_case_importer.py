@@ -1,4 +1,5 @@
 import logging
+import re
 
 from apps.addresses.serializers import AddressSimplifiedSerializer
 from apps.cases.models import Case, CaseProject, CaseReason, CaseTheme, Subject
@@ -12,6 +13,28 @@ LOGGER = logging.getLogger(__name__)
 
 class BulkImportException(Exception):
     pass
+
+
+# The address fields in words, for the user.
+FIELD_LABELS = {
+    "street_name": "straatnaam",
+    "number": "huisnummer",
+    "suffix": "toevoeging",
+    "postal_code": "postcode",
+}
+
+
+def _error_messages(errors, field=None):
+    """The messages of a serializer's errors as text, with the field they are of."""
+    if isinstance(errors, dict):
+        return [
+            message
+            for key, value in errors.items()
+            for message in _error_messages(value, key)
+        ]
+    if isinstance(errors, list):
+        return [message for item in errors for message in _error_messages(item, field)]
+    return [f"{field}: {errors}" if field else str(errors)]
 
 
 class BulkCaseImporter:
@@ -39,9 +62,12 @@ class BulkCaseImporter:
         subjects: list | None = None,
         project: CaseProject | int | None = None,
         jump_to: str | None = None,
+        description: str | None = None,
         dry_run: bool = True,
     ):
         self.file = file
+        # The explanation for all cases, above the one of the row.
+        self.description = (description or "").strip() or None
         self.project = (
             CaseProject.objects.get(pk=project) if isinstance(project, int) else project
         )
@@ -83,11 +109,6 @@ class BulkCaseImporter:
         subject_ids = [s.pk for s in self.subjects]
 
         self.case_default_data = {
-            "reason": {
-                "id": self.reason.pk,
-                "name": self.reason.name,
-            },
-            "reason_id": self.reason.pk,
             "subject_ids": subject_ids,
             "subjects": self.subjects,
             "theme": {
@@ -96,6 +117,17 @@ class BulkCaseImporter:
             },
             "theme_id": self.theme.pk,
         }
+
+        if self.reason is not None:
+            self.case_default_data.update(
+                {
+                    "reason": {
+                        "id": self.reason.pk,
+                        "name": self.reason.name,
+                    },
+                    "reason_id": self.reason.pk,
+                }
+            )
 
         if self.project is not None:
             self.case_default_data.update(
@@ -138,8 +170,10 @@ class BulkCaseImporter:
         num_created = 0
         processed_cases = []
 
-        for row in self.worksheet.iter_rows(
-            min_row=self.header_row_idx + 1, values_only=True
+        # The row number as in Excel: the header and empty rows count.
+        for row_number, row in enumerate(
+            self.worksheet.iter_rows(min_row=self.header_row_idx + 1, values_only=True),
+            start=self.header_row_idx + 1,
         ):
             # Check a field that should be filled, otherwise skip row
             mandatory_field_content = row[self.field_index[self.first_header_item]]
@@ -151,8 +185,17 @@ class BulkCaseImporter:
                 field_name: row[self.field_index[field_name]]
                 for field_name in self.fields
             }
-            created, case_id, msg = self._import_case(row_data, self.dry_run)
-            processed_cases.append({"success": created, "msg": msg, "case_id": case_id})
+            created, case_id, error, bag_id = self._import_case(row_data, self.dry_run)
+            processed_cases.append(
+                {
+                    "row_number": row_number,
+                    "address": self._format_address(row_data),
+                    "bag_id": bag_id,
+                    "success": created,
+                    "error": error,
+                    "case_id": case_id,
+                }
+            )
 
             num_processed += 1
             if not self.dry_run:
@@ -206,6 +249,33 @@ class BulkCaseImporter:
         ]
 
     @staticmethod
+    def _format_address(row_data: dict):
+        """
+        The address as in the file, with the postal code written the same way
+        for every row: "Straat 1-A, 1234 AB".
+        """
+
+        def text(value):
+            return "" if value is None else str(value).strip()
+
+        number = text(row_data["huisnr"])
+        suffix = text(row_data["toevoeging"])
+        street = " ".join(
+            part
+            for part in (
+                text(row_data["straat"]),
+                f"{number}-{suffix}" if suffix else number,
+            )
+            if part
+        )
+        postal_code = text(row_data["postcode"])
+        # A Dutch postal code ("1234ab", "1234 AB") as "1234 AB"; else as given.
+        match = re.fullmatch(r"(\d{4})\s*([A-Za-z]{2})", postal_code)
+        if match:
+            postal_code = f"{match[1]} {match[2].upper()}"
+        return f"{street}, {postal_code}" if postal_code else street
+
+    @staticmethod
     def _get_bag_data(
         street_name: str, number: int, suffix: str | int, postal_code: str
     ):
@@ -220,8 +290,11 @@ class BulkCaseImporter:
             }
         )
         if not serializer.is_valid():
+            fields = [FIELD_LABELS.get(field, field) for field in serializer.errors]
             return {
-                "error": f"Fout in invoerdata: {search_string}: {serializer.errors}"
+                "error": (
+                    f"Het adres is niet goed ingevuld. Controleer: {', '.join(fields)}."
+                ),
             }
 
         street_name = serializer.validated_data["street_name"]
@@ -229,7 +302,7 @@ class BulkCaseImporter:
         suffix = serializer.validated_data["suffix"]
         postal_code = serializer.validated_data["postal_code"].replace(" ", "")
         if not all([street_name, number, postal_code]):
-            return {"error": f"Adres incompleet: {search_string}"}
+            return {"error": "Straat, huisnummer of postcode ontbreekt."}
 
         if suffix:
             search_string = f"{street_name} {number}-{suffix}, {postal_code}"
@@ -246,7 +319,7 @@ class BulkCaseImporter:
         response = do_bag_search_pdok_by_address(search_string).get("response", {})
 
         if response.get("numFound", 0) == 0:
-            result["error"] = f"Adres niet gevonden: {search_string}"
+            result["error"] = "Adres niet gevonden."
             return result
         elif response.get("numFound", 0) > 1:
             # Vaak als er meerdere adressen uitkomen, dan klopt het eerste adres, de rest heeft bijvoorbeeld een andere toevoeging.
@@ -258,11 +331,12 @@ class BulkCaseImporter:
                 and first_address["huisnummer"] == number
                 and first_address["huisnummertoevoeging"] == suffix
             ):
-                error_str = f"Meer dan één adres gevonden voor {search_string}"
-                LOGGER.warning(error_str)
+                LOGGER.warning(f"Meer dan één adres gevonden voor {search_string}")
                 for adres in response.get("docs", []):
                     LOGGER.warning(f"    {adres['weergavenaam']} + {adres['score']}")
-                result["error"] = error_str
+                result["error"] = (
+                    "Meerdere adressen gevonden. Controleer de toevoeging."
+                )
                 return result
 
         found_address = response.get("docs")[0]
@@ -270,8 +344,21 @@ class BulkCaseImporter:
         result["found_address"] = found_address["weergavenaam"]
         return result
 
+    def _get_description(self, toelichting):
+        """
+        The explanation for all cases, with the one of the row below it. Only
+        the one there is, or None without either.
+        """
+        row_description = "" if toelichting is None else str(toelichting).strip()
+        parts = [part for part in (self.description, row_description) if part]
+        return "\n\n".join(parts) or None
+
     def _import_case(self, row_data: dict, dry_run: bool):
-        """Return True when a case can successfully be imported"""
+        """
+        Return whether a case can be (and, without dry run, is) imported, its
+        id, else the error in words for the user, and the BAG id of the address
+        (None when it was not found).
+        """
         case_id = None
         address_data = self._get_bag_data(
             row_data["straat"],
@@ -281,28 +368,38 @@ class BulkCaseImporter:
         )
         bag_id = address_data.get("bag_id")
         if address_data["error"] or bag_id is None:
-            return False, case_id, address_data["error"]
+            return False, case_id, address_data["error"], bag_id
 
-        msg = f"Adres: {address_data["search_address"]}: "
         toelichting = row_data["toelichting"]
         if isinstance(toelichting, str) and toelichting.startswith("#"):
             return (
                 False,
                 case_id,
-                msg + f"Foutieve formule in toelichting gevonden: {toelichting}",
+                f"De toelichting bevat een foute formule ({toelichting}).",
+                bag_id,
             )
         case_data = {
             **self.case_default_data,
             "bag_id": bag_id,
-            "description": toelichting,
+            "description": self._get_description(toelichting),
         }
 
         serializer = CaseCreateSerializer(
             data=case_data,
             context={"request": self.request},
+            # Checking the addresses (a dry run) needs only the theme: the
+            # reason may be missing. Creating the cases needs what creating
+            # one case needs.
+            partial=self.dry_run and self.reason is None,
         )
         if not serializer.is_valid():
-            return False, case_id, msg + f"Ongeldige data: {serializer.errors}"
+            messages = "; ".join(_error_messages(serializer.errors))
+            return (
+                False,
+                case_id,
+                f"De zaakgegevens zijn niet geldig: {messages}",
+                bag_id,
+            )
 
         open_cases_at_address = Case.objects.filter(
             theme=self.theme, address__bag_id=bag_id, end_date=None
@@ -311,11 +408,12 @@ class BulkCaseImporter:
             return (
                 False,
                 case_id,
-                msg + "OVERGESLAGEN (Onafgeronde zaak gevonden voor dit adres)",
+                "Er bestaat al een open zaak met dit thema op dit adres.",
+                bag_id,
             )
 
         if not dry_run:
             case_obj = serializer.save()
             case_id = case_obj.pk
 
-        return True, case_id, msg + "OK"
+        return True, case_id, None, bag_id

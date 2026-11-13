@@ -25,17 +25,21 @@ JUMP_EVENT_LABEL = "Doorgezet naar"
 
 # Allowed targets. `routing_data` holds only the director gateway values (*_next_step)
 # needed to reach start_subworkflow("<target>"), never form data of subworkflows.
+# `themes` limits a target to the themes (names) it belongs to; None is every theme.
 JUMP_TO_TARGETS = {
     "summon": {
         "label": "Aanschrijving",
+        "themes": None,
         "routing_data": {"debrief_next_step": {"value": "summon"}},
     },
     "unoccupied": {
         "label": "Leegstandsmelding",
+        "themes": ("Leegstand",),
         "routing_data": {"debrief_next_step": {"value": "unoccupied"}},
     },
     "debrief": {
         "label": "Debrief",
+        "themes": None,
         # Default director path: visit -> debrief
         "routing_data": {},
     },
@@ -45,13 +49,23 @@ JUMP_TO_TARGETS = {
 def get_jump_to_targets():
     """Allowed targets, e.g. for a choice field or a select in the frontend."""
     return [
-        {"value": name, "label": target["label"]}
+        {
+            "value": name,
+            "label": target["label"],
+            "themes": list(target["themes"]) if target["themes"] else None,
+        }
         for name, target in JUMP_TO_TARGETS.items()
     ]
 
 
 def is_jump_to_target(name):
     return name in JUMP_TO_TARGETS
+
+
+def is_jump_to_target_for_theme(name, theme):
+    """Whether a case of this theme may jump to the target."""
+    themes = JUMP_TO_TARGETS[name]["themes"]
+    return themes is None or (theme is not None and theme.name in themes)
 
 
 def get_jump_to_routing_data(name):

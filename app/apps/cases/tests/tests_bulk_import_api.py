@@ -1,6 +1,7 @@
 import base64
 import binascii
 import json
+from io import BytesIO
 from pathlib import Path
 from unittest.mock import patch
 
@@ -14,9 +15,10 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.urls import reverse
 from model_bakery import baker
+from openpyxl import Workbook
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
-from utils.bulk_case_importer import BulkImportException
+from utils.bulk_case_importer import BulkCaseImporter, BulkImportException
 from utils.unittest_helpers import get_test_user
 
 
@@ -44,7 +46,10 @@ class ProcessBulkFileApiTest(APITestCase):
         self.user = get_test_user()
         self.client.force_authenticate(user=self.user)
 
-    def upload_file(self, filename, **data):
+    def upload_file(self, filename, only_theme=False, **data):
+        """Upload with the theme, the reason and the subjects; or, with
+        `only_theme`, only the theme (checking the addresses before the reason
+        is chosen)."""
         path = self.files_path / filename
         with path.open("rb") as file:
             uploaded_file = SimpleUploadedFile(
@@ -60,8 +65,14 @@ class ProcessBulkFileApiTest(APITestCase):
             {
                 "file": uploaded_file,
                 "theme_id": self.theme.pk,
-                "reason_id": self.reason.pk,
-                "subject_ids": [subject.pk for subject in self.subjects],
+                **(
+                    {}
+                    if only_theme
+                    else {
+                        "reason_id": self.reason.pk,
+                        "subject_ids": [subject.pk for subject in self.subjects],
+                    }
+                ),
                 **data,
             },
             format="multipart",
@@ -156,6 +167,315 @@ class ProcessBulkFileApiTest(APITestCase):
         )
         self.assertTrue(all(case.description for case in Case.objects.all()))
 
+    @patch("apps.cases.views.case.task_import_bulk_file.delay")
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
+    def test_dry_run_needs_only_the_theme(self, mock_bag_search, mock_delay):
+        mock_bag_search.side_effect = [
+            self.successful_bag_response(index) for index in range(3)
+        ]
+
+        response = self.upload_file("example_leegstand_correct.xlsx", only_theme=True)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.json()
+        self.assertTrue(result["dry_run"])
+        self.assertEqual(result["total_processed"], 3)
+        self.assertTrue(
+            all(case["success"] for case in result["case_data"]),
+            result["case_data"],
+        )
+        self.assertEqual(Case.objects.count(), 0)
+        mock_delay.assert_not_called()
+
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
+    def test_dry_run_with_only_the_theme_finds_open_cases(self, mock_bag_search):
+        mock_bag_search.side_effect = [
+            self.successful_bag_response(index) for index in range(3)
+        ]
+        address = baker.make(Address, bag_id="bag-id-0")
+        baker.make(
+            Case,
+            theme=self.theme,
+            reason=self.reason,
+            address=address,
+            end_date=None,
+        )
+
+        response = self.upload_file("example_leegstand_correct.xlsx", only_theme=True)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        case_data = response.json()["case_data"]
+        self.assertFalse(case_data[0]["success"])
+        self.assertEqual(
+            case_data[0]["error"],
+            "Er bestaat al een open zaak met dit thema op dit adres.",
+        )
+        # So the user can go to the address and its open case.
+        self.assertEqual(case_data[0]["bag_id"], "bag-id-0")
+        self.assertTrue(all(case["success"] for case in case_data[1:]))
+
+    @patch("apps.cases.views.case.task_import_bulk_file.delay")
+    def test_import_without_reason_is_rejected(self, mock_delay):
+        response = self.upload_file(
+            "example_leegstand_correct.xlsx", only_theme=True, dry_run=False
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("reason_id", response.json())
+        mock_delay.assert_not_called()
+
+    @patch("apps.cases.views.case.task_import_bulk_file.delay")
+    def test_import_needs_what_creating_a_case_needs(self, mock_delay):
+        other_theme = baker.make(CaseTheme, name="Kamerverhuur")
+        project_reason = baker.make(CaseReason, theme=self.theme, name="Project")
+        cases = {
+            "reason of another theme": {
+                "reason_id": baker.make(CaseReason, theme=other_theme).pk
+            },
+            "reason Project without a project": {"reason_id": project_reason.pk},
+            "project of another theme": {
+                "reason_id": project_reason.pk,
+                "project_id": baker.make(CaseProject, theme=other_theme).pk,
+            },
+        }
+        for name, data in cases.items():
+            with self.subTest(name):
+                response = self.upload_file(
+                    "example_leegstand_correct.xlsx",
+                    only_theme=True,
+                    dry_run=False,
+                    **data,
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        mock_delay.assert_not_called()
+
+    @patch("apps.cases.views.case.task_import_bulk_file.delay")
+    def test_import_rejects_reasons_of_one_case(self, mock_delay):
+        for name in ("MMA", "SIG melding", "Digitaal toezicht"):
+            with self.subTest(name):
+                reason = baker.make(CaseReason, theme=self.theme, name=name)
+
+                response = self.upload_file(
+                    "example_leegstand_correct.xlsx",
+                    only_theme=True,
+                    dry_run=False,
+                    reason_id=reason.pk,
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn("reason_id", response.json())
+        mock_delay.assert_not_called()
+
+    @patch("apps.cases.views.case.task_import_bulk_file.delay")
+    def test_import_jumps_to_unoccupied_only_for_leegstand(self, mock_delay):
+        mock_delay.return_value.id = "import-task-id"
+        self.addCleanup(cache.delete, "bulk-import:import-task-id")
+        other_theme = baker.make(CaseTheme, name="Kamerverhuur")
+        other_reason = baker.make(CaseReason, theme=other_theme)
+
+        response = self.upload_file(
+            "example_leegstand_correct.xlsx",
+            only_theme=True,
+            dry_run=False,
+            theme_id=other_theme.pk,
+            reason_id=other_reason.pk,
+            jump_to="unoccupied",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("jump_to", response.json())
+        mock_delay.assert_not_called()
+
+        # The theme of setUp is Leegstand.
+        response = self.upload_file(
+            "example_leegstand_correct.xlsx", dry_run=False, jump_to="unoccupied"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
+    def test_importer_without_reason_does_not_create_cases(self, mock_bag_search):
+        mock_bag_search.side_effect = [
+            self.successful_bag_response(index) for index in range(3)
+        ]
+
+        with (self.files_path / "example_leegstand_correct.xlsx").open("rb") as file:
+            result = BulkCaseImporter(
+                file, self.user, theme=self.theme, dry_run=False
+            ).import_from_file()
+
+        self.assertEqual(result["total_created"], 0)
+        self.assertTrue(
+            all(
+                not case["success"] and "reason_id" in case["error"]
+                for case in result["case_data"]
+            ),
+            result["case_data"],
+        )
+        self.assertEqual(Case.objects.count(), 0)
+
+    def upload_workbook(self, rows):
+        """Upload an Excel file made of `rows`, with the header in row 2."""
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.append(["Naam bedrijf", "Bedrijf"])
+        worksheet.append(["straat", "postcode", "huisnr", "toevoeging", "toelichting"])
+        for row in rows:
+            worksheet.append(row)
+        file = BytesIO()
+        workbook.save(file)
+        return self.client.post(
+            self.url,
+            {
+                "file": SimpleUploadedFile("adressen.xlsx", file.getvalue()),
+                "theme_id": self.theme.pk,
+            },
+            format="multipart",
+        )
+
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
+    def test_rows_have_their_excel_row_number_address_and_error(self, mock_bag_search):
+        mock_bag_search.side_effect = [
+            self.successful_bag_response(0),
+            {"response": {"numFound": 0, "docs": []}},
+        ]
+
+        response = self.upload_workbook(
+            [
+                # The postal code as in the file; in the result as "1074 BT".
+                ["Hemonystraat", "1074bt", 66, 3, "Toelichting"],
+                [None, None, None, None, None],  # Skipped, but counted.
+                ["Linneausstraat", "1093EH", 49, None, "Toelichting"],
+                ["Kerkstraat", "1017 GB", "geen nummer", None, "Toelichting"],
+            ]
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json()["case_data"],
+            [
+                {
+                    "row_number": 3,
+                    "address": "Hemonystraat 66-3, 1074 BT",
+                    "bag_id": "bag-id-0",
+                    "success": True,
+                    "error": None,
+                    "case_id": None,
+                },
+                {
+                    "row_number": 5,
+                    "address": "Linneausstraat 49, 1093 EH",
+                    "bag_id": None,
+                    "success": False,
+                    "error": "Adres niet gevonden.",
+                    "case_id": None,
+                },
+                {
+                    "row_number": 6,
+                    "address": "Kerkstraat geen nummer, 1017 GB",
+                    "bag_id": None,
+                    "success": False,
+                    "error": "Het adres is niet goed ingevuld. Controleer: huisnummer.",
+                    "case_id": None,
+                },
+            ],
+        )
+
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
+    def test_formula_error_in_description_is_said_in_words(self, mock_bag_search):
+        mock_bag_search.return_value = self.successful_bag_response(0)
+
+        response = self.upload_workbook([["Kerkstraat", "1017GB", 27, "D", "#N/B"]])
+
+        self.assertEqual(
+            response.json()["case_data"][0]["error"],
+            "De toelichting bevat een foute formule (#N/B).",
+        )
+
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
+    def test_more_than_one_address_found_asks_to_check_the_suffix(
+        self, mock_bag_search
+    ):
+        mock_bag_search.return_value = {
+            "response": {
+                "numFound": 2,
+                "docs": [
+                    {
+                        "postcode": "1017GB",
+                        "huisnummer": 27,
+                        "huisnummertoevoeging": "1",
+                        "weergavenaam": "Kerkstraat 27-1",
+                        "score": 1,
+                    },
+                    {
+                        "postcode": "1017GB",
+                        "huisnummer": 27,
+                        "huisnummertoevoeging": "2",
+                        "weergavenaam": "Kerkstraat 27-2",
+                        "score": 1,
+                    },
+                ],
+            }
+        }
+
+        response = self.upload_workbook([["Kerkstraat", "1017GB", 27, None, "Tekst"]])
+
+        self.assertEqual(
+            response.json()["case_data"][0]["error"],
+            "Meerdere adressen gevonden. Controleer de toevoeging.",
+        )
+
+    @patch("apps.workflow.tasks.task_create_main_worflow_for_case.delay")
+    @patch("apps.addresses.models.Address.get_or_create_by_bag_id")
+    @patch("apps.cases.views.case.task_import_bulk_file.delay")
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
+    def test_description_for_all_cases_comes_above_the_one_of_the_row(
+        self, mock_bag_search, mock_delay, mock_address, mock_workflow_delay
+    ):
+        mock_bag_search.side_effect = [
+            self.successful_bag_response(index) for index in range(3)
+        ]
+        mock_address.side_effect = [
+            baker.make(Address, bag_id=f"bag-id-{index}") for index in range(3)
+        ]
+        mock_delay.return_value.id = "import-task-id"
+        self.addCleanup(cache.delete, "bulk-import:import-task-id")
+
+        response = self.upload_file(
+            "example_leegstand_correct.xlsx",
+            dry_run=False,
+            description="  Bulkbeschikking oktober  ",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        task_kwargs = json.loads(json.dumps(mock_delay.call_args.kwargs))
+        # Without the spaces around it (trim_whitespace of the serializer).
+        self.assertEqual(task_kwargs["description"], "Bulkbeschikking oktober")
+
+        task_import_bulk_file(**task_kwargs)
+        self.assertEqual(Case.objects.count(), 3)
+        for case in Case.objects.all():
+            first, _, row = case.description.partition("\n\n")
+            self.assertEqual(first, "Bulkbeschikking oktober")
+            # The explanation of the row is kept, below it.
+            self.assertTrue(row, case.description)
+
+    def test_description_is_only_the_one_there_is(self):
+        with (self.files_path / "example_leegstand_correct.xlsx").open("rb") as file:
+            importer = BulkCaseImporter(
+                file, self.user, theme=self.theme, description="Voor alle zaken"
+            )
+            without = BulkCaseImporter(file, self.user, theme=self.theme)
+
+        self.assertEqual(importer._get_description(None), "Voor alle zaken")
+        self.assertEqual(importer._get_description(" "), "Voor alle zaken")
+        self.assertEqual(
+            importer._get_description("Van de rij"), "Voor alle zaken\n\nVan de rij"
+        )
+        self.assertEqual(without._get_description("Van de rij"), "Van de rij")
+        self.assertIsNone(without._get_description(None))
+
     @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
     def test_file_with_unmatched_address_returns_row_error(self, mock_bag_search):
         mock_bag_search.return_value = {"response": {"numFound": 0, "docs": []}}
@@ -169,7 +489,7 @@ class ProcessBulkFileApiTest(APITestCase):
         self.assertTrue(result["dry_run"])
         self.assertEqual(len(result["case_data"]), 1)
         self.assertFalse(result["case_data"][0]["success"])
-        self.assertIn("Adres niet gevonden", result["case_data"][0]["msg"])
+        self.assertEqual(result["case_data"][0]["error"], "Adres niet gevonden.")
         self.assertEqual(Case.objects.count(), 0)
 
     @patch("apps.cases.views.case.BulkCaseImporter")
@@ -254,7 +574,7 @@ class ProcessBulkFileApiTest(APITestCase):
         self.assertEqual(result["total_created"], 0)
         self.assertFalse(result["dry_run"])
         self.assertFalse(result["case_data"][0]["success"])
-        self.assertIn("Adres niet gevonden", result["case_data"][0]["msg"])
+        self.assertEqual(result["case_data"][0]["error"], "Adres niet gevonden.")
         self.assertEqual(Case.objects.count(), 0)
 
     def test_task_propagates_invalid_excel_error(self):
@@ -314,8 +634,22 @@ class BulkFileStatusApiTest(APITestCase):
             "total_created": 1,
             "dry_run": False,
             "case_data": [
-                {"success": True, "msg": "OK"},
-                {"success": False, "msg": "No such address found"},
+                {
+                    "row_number": 2,
+                    "address": "Straat 1, 1234AB",
+                    "bag_id": "0363010000000001",
+                    "success": True,
+                    "error": None,
+                    "case_id": 1,
+                },
+                {
+                    "row_number": 3,
+                    "address": "Straat 2, 1234AB",
+                    "bag_id": None,
+                    "success": False,
+                    "error": "Adres niet gevonden.",
+                    "case_id": None,
+                },
             ],
         }
         task_import_bulk_file.backend.store_result(self.task_id, result, states.SUCCESS)

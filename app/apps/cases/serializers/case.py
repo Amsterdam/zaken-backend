@@ -26,13 +26,52 @@ from apps.cases.serializers.main import (
 )
 from apps.permits.api_queries_powerbrowser import get_is_bed_and_breakfast_for_bag_id
 from apps.schedules.serializers import ScheduleDataSerializer, ScheduleSerializer
-from apps.workflow.jump_to import JUMP_TO_KEY, get_jump_to_targets
+from apps.workflow.jump_to import (
+    JUMP_TO_KEY,
+    get_jump_to_targets,
+    is_jump_to_target_for_theme,
+)
 from apps.workflow.serializers import CaseWorkflowBaseSerializer, CaseWorkflowSerializer
 from django.conf import settings
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from rest_framework import serializers
 
 logger = logging.getLogger(__name__)
+
+
+# The reasons that cannot be chosen when importing cases: they ask for
+# something of one case (an MMA number, the report of a citizen, a listing in
+# TON). Keep it the same as REASONS_NOT_FOR_IMPORT in the frontend.
+REASONS_NOT_FOR_IMPORT = ("MMA", "SIG melding", "Digitaal toezicht")
+
+
+def validate_jump_to_for_theme(jump_to, theme):
+    """A target of jump_to may belong to some themes only (see JUMP_TO_TARGETS)."""
+    if jump_to and not is_jump_to_target_for_theme(jump_to, theme):
+        raise serializers.ValidationError(
+            {"jump_to": "This step is not possible for the theme of the case."}
+        )
+
+
+def validate_case_classification(theme, reason, project):
+    """
+    The rules for the theme, reason and project of a new case: the reason and
+    the project belong to the theme, and the reason "Project" needs a project.
+    For creating one case and for importing cases in bulk.
+    """
+    if not theme or not reason:
+        return
+
+    if reason.theme != theme:
+        raise serializers.ValidationError("reason must be one of the theme CaseReasons")
+
+    if reason.name == "Project" and not project:
+        raise serializers.ValidationError("missing project for reason Project")
+
+    if project and project.theme != theme:
+        raise serializers.ValidationError(
+            "project must be one of the theme CaseReasons"
+        )
 
 
 class CaseFileUploadSerializer(serializers.Serializer):
@@ -73,11 +112,40 @@ class CaseFileUploadSerializer(serializers.Serializer):
         write_only=True,
         help_text="Start the case at the first task of this subworkflow (see docs/jump_to.md)",
     )
+    description = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        write_only=True,
+        help_text=(
+            "A short explanation for all cases, above the one of the row "
+            "(the column 'toelichting')."
+        ),
+    )
 
     def validate_file(self, file):
         if file.size > self.MAX_FILE_SIZE:
             raise serializers.ValidationError("File size must not exceed 2 MiB.")
         return file
+
+    def validate(self, data):
+        # Checking the addresses (a dry run) needs only the theme. Importing
+        # the cases needs what creating one case needs (CaseCreateSerializer).
+        if data.get("dry_run", True):
+            return data
+
+        if data.get("reason") is None:
+            raise serializers.ValidationError(
+                {"reason_id": "This field is required when dry_run is false."}
+            )
+        if data["reason"].name in REASONS_NOT_FOR_IMPORT:
+            raise serializers.ValidationError(
+                {"reason_id": "This reason cannot be used to import cases."}
+            )
+        validate_case_classification(
+            data.get("theme"), data.get("reason"), data.get("project")
+        )
+        validate_jump_to_for_theme(data.get("jump_to"), data.get("theme"))
+        return data
 
 
 class CaseFileTaskResultSerializer(serializers.Serializer):
@@ -111,23 +179,11 @@ class BaseCaseSerializer(serializers.ModelSerializer):
         """
         super().validate(data)
 
-        theme = data.get("theme")
-        reason = data.get("reason")
-        project = data.get("project")
-
-        if theme:
-            if reason.theme != theme:
-                raise serializers.ValidationError(
-                    "reason must be one of the theme CaseReasons"
-                )
-
-            if reason.name == "Project" and not project:
-                raise serializers.ValidationError("missing project for reason Project")
-
-            if project and project.theme != theme:
-                raise serializers.ValidationError(
-                    "project must be one of the theme CaseReasons"
-                )
+        # Without a reason only when partial: checking the addresses of a bulk
+        # import (a dry run) before the reason is chosen.
+        validate_case_classification(
+            data.get("theme"), data.get("reason"), data.get("project")
+        )
 
         return data
 
@@ -259,6 +315,11 @@ class CaseCreateSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
         write_only=True,
         help_text="Start the case at the first task of this subworkflow (see docs/jump_to.md)",
     )
+
+    def validate(self, data):
+        data = super().validate(data)
+        validate_jump_to_for_theme(data.get("jump_to"), data.get("theme"))
+        return data
 
     def create(self, validated_data):
         jump_to = validated_data.pop("jump_to", None)

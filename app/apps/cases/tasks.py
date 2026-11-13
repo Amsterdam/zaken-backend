@@ -22,7 +22,15 @@ class BaseTaskWithRetry(celery.Task):
 
 @shared_task
 def task_import_bulk_file(
-    file_base64, user_id, theme_id, reason_id, subject_ids, project_id, jump_to
+    file_base64,
+    user_id,
+    theme_id,
+    reason_id,
+    subject_ids,
+    project_id,
+    jump_to,
+    # A default: tasks queued before there was a description have none.
+    description=None,
 ):
     from utils.bulk_case_importer import BulkCaseImporter
 
@@ -37,6 +45,7 @@ def task_import_bulk_file(
             subjects=subject_ids,
             project=project_id,
             jump_to=jump_to,
+            description=description,
             dry_run=False,
         ).import_from_file()
 

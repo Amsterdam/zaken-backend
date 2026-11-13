@@ -61,8 +61,17 @@ class JumpToTargetsTest(TestCase):
 
     def test_get_jump_to_targets(self):
         self.assertIn(
-            {"value": "summon", "label": "Aanschrijving"}, get_jump_to_targets()
+            {
+                "value": "summon",
+                "label": "Aanschrijving",
+                "themes": None,
+            },
+            get_jump_to_targets(),
         )
+        unoccupied = next(
+            t for t in get_jump_to_targets() if t["value"] == "unoccupied"
+        )
+        self.assertEqual(unoccupied["themes"], ["Leegstand"])
         self.assertNotIn("decision", [t["value"] for t in get_jump_to_targets()])
 
     def test_routing_data_is_a_copy(self):
