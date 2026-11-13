@@ -1,10 +1,13 @@
+import base64
 import logging
+from io import BytesIO
 
 import celery
 from apps.permits.api_queries_powerbrowser import get_is_bed_and_breakfast_for_bag_id
 from apps.workflow.models import CaseWorkflow
 from celery import shared_task
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 DEFAULT_RETRY_DELAY = 2
@@ -15,6 +18,36 @@ class BaseTaskWithRetry(celery.Task):
     autoretry_for = (Exception,)
     max_retries = 3
     default_retry_delay = DEFAULT_RETRY_DELAY
+
+
+@shared_task
+def task_import_bulk_file(
+    file_base64,
+    user_id,
+    theme_id,
+    reason_id,
+    subject_ids,
+    project_id,
+    jump_to,
+    # A default: tasks queued before there was a description have none.
+    description=None,
+):
+    from utils.bulk_case_importer import BulkCaseImporter
+
+    user = get_user_model().objects.get(pk=user_id)
+    # A partially completed import cannot safely be retried automatically.
+    with BytesIO(base64.b64decode(file_base64, validate=True)) as file:
+        return BulkCaseImporter(
+            file,
+            user,
+            theme=theme_id,
+            reason=reason_id,
+            subjects=subject_ids,
+            project=project_id,
+            jump_to=jump_to,
+            description=description,
+            dry_run=False,
+        ).import_from_file()
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)

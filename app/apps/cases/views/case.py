@@ -1,3 +1,4 @@
+import base64
 import logging
 import operator
 import re
@@ -19,11 +20,16 @@ from apps.cases.serializers import (
     CaseCreateSerializer,
     CaseDataSerializer,
     CaseDetailSerializer,
+    CaseFileProcessResultSerializer,
+    CaseFileTaskResultSerializer,
+    CaseFileTaskStatusSerializer,
+    CaseFileUploadSerializer,
     CaseSerializer,
     CaseSimplifiedSerializer,
     CitizenReportSerializer,
     SubjectSerializer,
 )
+from apps.cases.tasks import task_import_bulk_file
 from apps.events.mixins import CaseEventsMixin
 from apps.main.filters import RelatedOrderingFilter
 from apps.main.pagination import EmptyPagination
@@ -36,14 +42,18 @@ from apps.users.permissions import (
     IsInAuthorizedRealm,
     ScopedViewPermission,
 )
+from apps.workflow.jump_to import get_jump_to_targets
 from apps.workflow.models import CaseUserTask, CaseWorkflow, WorkflowOption
 from apps.workflow.serializers import (
     CaseWorkflowInstanceSerializer,
     CaseWorkflowSerializer,
+    JumpToTargetSerializer,
     StartWorkflowSerializer,
     WorkflowOptionSerializer,
 )
 from apps.workflow.utils import filter_messages_by_max_major_version
+from celery import states
+from django.core.cache import cache
 from django.db.models import OuterRef, Prefetch, Q, Subquery
 from django.forms.fields import CharField, MultipleChoiceField
 from django.shortcuts import get_object_or_404
@@ -52,8 +62,11 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
+from utils.bulk_case_importer import BulkCaseImporter, BulkImportException
 
 logger = logging.getLogger(__name__)
 
@@ -517,6 +530,8 @@ class CaseViewSet(
     pagination_class = StandardResultsSetPagination
 
     def get_serializer_class(self):
+        if self.action == "process_bulk_file":
+            return CaseFileUploadSerializer
         # Send `simplified` as parameter to use a simplified serializer with less details.
         is_simplified = self.request.query_params.get("simplified", False) == "true"
         if is_simplified:
@@ -541,6 +556,121 @@ class CaseViewSet(
         ):
             queryset = queryset.exclude(sensitive=True)
         return queryset
+
+    @extend_schema(
+        description="Get the allowed targets for starting a case at a subworkflow",
+        responses={status.HTTP_200_OK: JumpToTargetSerializer(many=True)},
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="allowed-jump-workflows",
+    )
+    def allowed_jump_workflows(self, request):
+        return Response(get_jump_to_targets())
+
+    @extend_schema(
+        description=(
+            "Process an uploaded bulk case import file (maximum 2 MiB). "
+            "Dry runs return results immediately; dry_run=false queues a Celery "
+            "task and returns its ID. Poll process-file/{task_id}/status "
+            "for the state and import result within 24 hours of submission."
+        ),
+        request=CaseFileUploadSerializer,
+        responses={
+            status.HTTP_200_OK: CaseFileProcessResultSerializer,
+            status.HTTP_202_ACCEPTED: CaseFileTaskResultSerializer,
+        },
+    )
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="process-file",
+        parser_classes=[MultiPartParser],
+        serializer_class=CaseFileUploadSerializer,
+    )
+    def process_bulk_file(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        file = serializer.validated_data.get("file")
+        theme = serializer.validated_data.get("theme")
+        reason = serializer.validated_data.get("reason")
+        subjects = serializer.validated_data.get("subjects")
+        dry_run = serializer.validated_data.get("dry_run")
+        project = serializer.validated_data.get("project")
+        jump_to = serializer.validated_data.get("jump_to")
+        description = serializer.validated_data.get("description")
+
+        if not dry_run:
+            file_base64 = base64.b64encode(file.read()).decode("ascii")
+            task = task_import_bulk_file.delay(
+                file_base64=file_base64,
+                user_id=str(request.user.pk),
+                theme_id=theme.pk,
+                reason_id=reason.pk,
+                subject_ids=[s.pk for s in subjects],
+                project_id=project.pk if project else None,
+                jump_to=jump_to,
+                description=description,
+            )
+            cache.set(f"bulk-import:{task.id}", str(request.user.pk), timeout=86400)
+            return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
+
+        try:
+            importer = BulkCaseImporter(
+                file=file,
+                user=request.user,
+                theme=theme,
+                reason=reason,
+                subjects=subjects,
+                project=project,
+                jump_to=jump_to,
+                description=description,
+            )
+            result = importer.import_from_file()
+        except BulkImportException as exc:
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            logger.exception("Unexpected error processing bulk import file.")
+            return Response(
+                {"error": "Import mislukt. Neem contact op met de beheerder."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        return Response(result)
+
+    @extend_schema(
+        description=(
+            "Get the state and result of your queued bulk import. "
+            "Status is available for 24 hours after submission. "
+            "Unknown, expired, and other users' task IDs return 404."
+        ),
+        responses={status.HTTP_200_OK: CaseFileTaskStatusSerializer},
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path=r"process-file/(?P<task_id>[^/.]+)/status",
+    )
+    def bulk_import_status(self, request, task_id):
+        owner_id = cache.get(f"bulk-import:{task_id}")
+        if owner_id is None or owner_id != str(request.user.pk):
+            raise NotFound("Import task not found.")
+
+        task = task_import_bulk_file.AsyncResult(task_id)
+        task_status = task.state
+        result = task.result if task_status == states.SUCCESS else None
+        error = None
+        if task_status in (states.FAILURE, states.REVOKED):
+            error = "Import failed. Contact support with the task ID."
+
+        return Response(
+            {
+                "task_id": task_id,
+                "status": task_status,
+                "result": result,
+                "error": error,
+            }
+        )
 
     @action(
         detail=False,
