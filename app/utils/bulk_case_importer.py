@@ -58,10 +58,6 @@ class BulkCaseImporter:
     first_header_item = ColumnName.STREET_NAME
 
     MAX_METADATA_ROWS = 10
-    METADATA_MAPPING = {  # label -> field
-        "Datum melding": "melding_datum",
-        "Naam bedrijf": "melding_naam",
-    }
 
     def __init__(
         self,
@@ -160,9 +156,6 @@ class BulkCaseImporter:
         except Exception as e:
             raise BulkImportException(f"Kan bestand niet openen: {e}")
 
-        self._find_metadata(
-            ws
-        )  # Metadata fields might be needed for adding to the description
         self.header_row_idx = self._find_header_row_index(ws)
         header_raw = [cell.value for cell in ws[self.header_row_idx]]
         header = self._clean_header(header_raw)
@@ -218,18 +211,6 @@ class BulkCaseImporter:
             "case_data": processed_cases,
         }
         return processed_result
-
-    def _find_metadata(self, ws):
-        self.metadata = {}
-        for row in ws.iter_rows(min_row=1, max_row=self.MAX_METADATA_ROWS):
-            for cell in row:
-                if not isinstance(cell.value, str):
-                    continue
-                key = cell.value.strip()
-                if key in self.METADATA_MAPPING.keys():
-                    value = ws.cell(row=cell.row, column=cell.column + 1).value
-                    LOGGER.info(f"Found metadata {key}: {value}")
-                    self.metadata[self.METADATA_MAPPING[key]] = value
 
     def _find_header_row_index(self, ws):
         for row_index, row in enumerate(
