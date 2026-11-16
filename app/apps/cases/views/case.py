@@ -39,6 +39,7 @@ from apps.users.auth_apps import TopKeyAuth
 from apps.users.models import ScopedTokenAuth
 from apps.users.permissions import (
     CanAccessSensitiveCases,
+    CanPerformBulkImport,
     IsInAuthorizedRealm,
     ScopedViewPermission,
 )
@@ -528,6 +529,12 @@ class CaseViewSet(
     ordering_fields = "__all_related__"
     filterset_class = CaseFilter
     pagination_class = StandardResultsSetPagination
+
+    def get_permissions(self):
+        permissions = super().get_permissions()
+        if self.action == "process_bulk_file":
+            permissions.append(CanPerformBulkImport())
+        return permissions
 
     def get_serializer_class(self):
         if self.action == "process_bulk_file":

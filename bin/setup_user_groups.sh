@@ -43,4 +43,7 @@ group.permissions.add(Permission.objects.get(codename="create_digital_surveilanc
 group.permissions.add(Permission.objects.get(codename="access_sigital_surveillance"))
 group.permissions.add(Permission.objects.get(codename="create_digital_surveilance_case"))
 
+(group, _) = UserGroup.objects.get_or_create(name='ZAKEN_IMPORTEREN', display_name='Zaken importeren')
+group.permissions.add(Permission.objects.get(codename="perform_bulk_import"))
+
 PY

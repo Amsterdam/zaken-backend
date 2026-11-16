@@ -10,6 +10,8 @@ from apps.cases.models import Case, CaseProject, CaseReason, CaseTheme, Subject
 from apps.cases.tasks import task_import_bulk_file
 from celery import states
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
@@ -40,11 +42,33 @@ class ProcessBulkFileApiTest(APITestCase):
         ]
         cls.url = reverse("cases-process-bulk-file")
         cls.files_path = Path(__file__).parent / "files"
+        cls.bulk_import_permission, _ = Permission.objects.get_or_create(
+            content_type=ContentType.objects.get(app_label="users", model="permission"),
+            codename="perform_bulk_import",
+            defaults={"name": "Can execute a bulk import"},
+        )
 
     def setUp(self):
         self.client = APIClient()
         self.user = get_test_user()
+        self.user.user_permissions.add(self.bulk_import_permission)
         self.client.force_authenticate(user=self.user)
+
+    @patch("apps.cases.views.case.task_import_bulk_file.delay")
+    @patch("apps.cases.views.case.BulkCaseImporter")
+    def test_bulk_import_requires_permission(self, mock_importer, mock_delay):
+        self.user.user_permissions.clear()
+
+        for dry_run in (True, False):
+            with self.subTest(dry_run=dry_run):
+                response = self.upload_file(
+                    "example_leegstand_correct.xlsx", dry_run=dry_run
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        mock_importer.assert_not_called()
+        mock_delay.assert_not_called()
 
     def upload_file(self, filename, only_theme=False, **data):
         """Upload with the theme, the reason and the subjects; or, with
