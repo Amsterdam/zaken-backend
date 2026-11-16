@@ -20,7 +20,7 @@ JUMPED_TO_SUBWORKFLOW_KEY = "jumped_to_subworkflow"
 
 # Timeline event created when the jumped-to subworkflow has started.
 JUMP_EVENT_TASK_NAME = "bulk_jump_to"
-JUMP_EVENT_DESCRIPTION = "Doorgezet via bulk"
+JUMP_EVENT_DESCRIPTION = "Automatisch verwerkt via bulkimport"
 JUMP_EVENT_LABEL = "Doorgezet naar"
 
 # Allowed targets. `routing_data` holds only the director gateway values (*_next_step)
