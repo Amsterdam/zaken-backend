@@ -322,7 +322,7 @@ class BulkCaseImporter:
             if not (
                 first_address["postcode"] == postal_code
                 and first_address["huisnummer"] == number
-                and first_address["huisnummertoevoeging"] == suffix
+                and first_address.get("huisnummertoevoeging") == suffix
             ):
                 LOGGER.warning(f"Meer dan één adres gevonden voor {search_string}")
                 for adres in response.get("docs", []):
