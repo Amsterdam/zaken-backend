@@ -320,7 +320,15 @@ class ProcessBulkFileApiTest(APITestCase):
         workbook = Workbook()
         worksheet = workbook.active
         worksheet.append(["Naam bedrijf", "Bedrijf"])
-        worksheet.append(["straat", "postcode", "huisnr", "toevoeging", "toelichting"])
+        worksheet.append(
+            [
+                "straatnaam",
+                "postcode",
+                "huisnummer",
+                "huisnummertoevoeging",
+                "toelichting",
+            ]
+        )
         for row in rows:
             worksheet.append(row)
         file = BytesIO()
