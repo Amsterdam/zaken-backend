@@ -1,5 +1,6 @@
 import logging
 import re
+from enum import StrEnum
 
 from apps.addresses.serializers import AddressSimplifiedSerializer
 from apps.cases.models import Case, CaseProject, CaseReason, CaseTheme, Subject
@@ -16,12 +17,21 @@ class BulkImportException(Exception):
 
 
 # The address fields in words, for the user.
-FIELD_LABELS = {
+MODEL_FIELD_LABELS = {
     "street_name": "straatnaam",
     "number": "huisnummer",
     "suffix": "toevoeging",
     "postal_code": "postcode",
 }
+
+
+# The column names as in the import file (excel)
+class ColumnName(StrEnum):
+    STREET_NAME = "straatnaam"
+    POSTAL_CODE = "postcode"
+    NUMBER = "huisnummer"
+    SUFFIX = "huisnummertoevoeging"
+    NOTES = "toelichting"
 
 
 def _error_messages(errors, field=None):
@@ -39,13 +49,13 @@ def _error_messages(errors, field=None):
 
 class BulkCaseImporter:
     fields = [
-        "straat",
-        "postcode",
-        "huisnr",
-        "toevoeging",
-        "toelichting",
+        ColumnName.STREET_NAME,
+        ColumnName.POSTAL_CODE,
+        ColumnName.NUMBER,
+        ColumnName.SUFFIX,
+        ColumnName.NOTES,
     ]
-    first_header_item = "straat"
+    first_header_item = ColumnName.STREET_NAME
 
     MAX_METADATA_ROWS = 10
     METADATA_MAPPING = {  # label -> field
@@ -258,17 +268,17 @@ class BulkCaseImporter:
         def text(value):
             return "" if value is None else str(value).strip()
 
-        number = text(row_data["huisnr"])
-        suffix = text(row_data["toevoeging"])
+        number = text(row_data[ColumnName.NUMBER])
+        suffix = text(row_data[ColumnName.SUFFIX])
         street = " ".join(
             part
             for part in (
-                text(row_data["straat"]),
+                text(row_data[ColumnName.STREET_NAME]),
                 f"{number}-{suffix}" if suffix else number,
             )
             if part
         )
-        postal_code = text(row_data["postcode"])
+        postal_code = text(row_data[ColumnName.POSTAL_CODE])
         # A Dutch postal code ("1234ab", "1234 AB") as "1234 AB"; else as given.
         match = re.fullmatch(r"(\d{4})\s*([A-Za-z]{2})", postal_code)
         if match:
@@ -280,7 +290,6 @@ class BulkCaseImporter:
         street_name: str, number: int, suffix: str | int, postal_code: str
     ):
         # Do basic field validation first, before cleaning the fields.
-        search_string = f"{street_name} {number}-{suffix}, {postal_code}"
         serializer = AddressSimplifiedSerializer(
             data={
                 "street_name": street_name,
@@ -290,13 +299,16 @@ class BulkCaseImporter:
             }
         )
         if not serializer.is_valid():
-            fields = [FIELD_LABELS.get(field, field) for field in serializer.errors]
+            fields = [
+                MODEL_FIELD_LABELS.get(field, field) for field in serializer.errors
+            ]
             return {
                 "error": (
                     f"Het adres is niet goed ingevuld. Controleer: {', '.join(fields)}."
                 ),
             }
 
+        # Format address for searching in PDOK
         street_name = serializer.validated_data["street_name"]
         number = serializer.validated_data["number"]
         suffix = serializer.validated_data["suffix"]
@@ -361,16 +373,16 @@ class BulkCaseImporter:
         """
         case_id = None
         address_data = self._get_bag_data(
-            row_data["straat"],
-            row_data["huisnr"],
-            row_data["toevoeging"],
-            row_data["postcode"],
+            row_data[ColumnName.STREET_NAME],
+            row_data[ColumnName.NUMBER],
+            row_data[ColumnName.SUFFIX],
+            row_data[ColumnName.POSTAL_CODE],
         )
         bag_id = address_data.get("bag_id")
         if address_data["error"] or bag_id is None:
             return False, case_id, address_data["error"], bag_id
 
-        toelichting = row_data["toelichting"]
+        toelichting = row_data[ColumnName.NOTES]
         if isinstance(toelichting, str) and toelichting.startswith("#"):
             return (
                 False,
