@@ -96,7 +96,6 @@ class BulkCaseImporter:
         self.worksheet = None
         self.field_index = {field_name: 0 for field_name in self.fields}
         self.header_row_idx = None
-        self.metadata = {}
 
         # User is needed for CaseSerializer for author field
         factory = APIRequestFactory()
