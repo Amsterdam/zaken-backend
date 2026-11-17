@@ -30,7 +30,7 @@ def do_bag_search_pdok_by_bag_id(bag_id):
     Search BAG PDOK using a 'adresseerbaarobject_id'
     """
     address_search = requests.get(
-        settings.BAG_API_PDOK_URL,
+        settings.BAG_API_PDOK_BASE_URL + "free",
         params={
             "q": bag_id,
             "fq": f"gemeentenaam:(amsterdam) AND (type:adres) AND (adresseerbaarobject_id: {bag_id}) AND (adrestype: hoofdadres)",
@@ -47,7 +47,7 @@ def do_bag_search_pdok_by_address(address_string):
     Search BAG PDOK using an address.
     """
     address_search = requests.get(
-        "https://api.pdok.nl/bzk/locatieserver/search/v3_1/suggest",
+        settings.BAG_API_PDOK_BASE_URL + "suggest",
         params={
             "q": address_string,
             "fq": "gemeentenaam:(amsterdam) AND (type:adres) AND (adrestype: hoofdadres)",
