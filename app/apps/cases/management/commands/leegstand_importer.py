@@ -7,6 +7,13 @@ THEME_NAME = "Leegstand"
 
 
 class Command(BaseCommand):
+    """
+    Note: this command has similar functionality to the POST /cases/process-file/
+    with the differences that:
+    1. It doesn't have a file size limit.
+    2. By default it uses the Leegstand theme.
+    """
+
     help = (
         "Import Leegstand cases from an Excel file. Without --no-dry-run it only\n"
         "checks the rows, as the dry run of POST /cases/process-file/.\n\n"
