@@ -179,8 +179,6 @@ class BaseCaseSerializer(serializers.ModelSerializer):
         """
         super().validate(data)
 
-        # Without a reason only when partial: checking the addresses of a bulk
-        # import (a dry run) before the reason is chosen.
         validate_case_classification(
             data.get("theme"), data.get("reason"), data.get("project")
         )
