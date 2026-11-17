@@ -30,10 +30,29 @@ def do_bag_search_pdok_by_bag_id(bag_id):
     Search BAG PDOK using a 'adresseerbaarobject_id'
     """
     address_search = requests.get(
-        settings.BAG_API_PDOK_URL,
+        settings.BAG_API_PDOK_BASE_URL + "free",
         params={
             "q": bag_id,
             "fq": f"gemeentenaam:(amsterdam) AND (type:adres) AND (adresseerbaarobject_id: {bag_id}) AND (adrestype: hoofdadres)",
+        },
+        timeout=5,
+    )
+
+    return address_search.json()
+
+
+@retry(stop=stop_after_attempt(3), after=after_log(logger, logging.ERROR))
+def do_bag_search_pdok_by_address(address_string):
+    """
+    Search BAG PDOK using an address.
+    """
+    address_search = requests.get(
+        settings.BAG_API_PDOK_BASE_URL + "suggest",
+        params={
+            "q": address_string,
+            "fq": "gemeentenaam:(amsterdam) AND (type:adres) AND (adrestype: hoofdadres)",
+            "fl": "weergavenaam,gemeentenaam,nummeraanduiding_id,adresseerbaarobject_id,straatnaam,huisnummer,huisletter,huisnummertoevoeging,postcode,woonplaatsnaam,score",
+            "sort": "score desc, weergavenaam asc",
         },
         timeout=5,
     )

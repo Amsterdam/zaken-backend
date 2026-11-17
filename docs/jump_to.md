@@ -33,20 +33,25 @@ Case.objects.create(..., initial_workflow_data={"jump_to": "summon"})
 
 - `jump_to` is optional. Without it nothing changes.
 - A value that is not an allowed target gives a validation error (400).
+- A target that belongs to other themes (see `themes` below) gives a validation error
+  (400) too, when creating a case and when importing cases in bulk.
 - `jump_to` is ignored on update; it only applies when a case is created.
-- The allowed targets (value + label, e.g. for a select) are returned by
-  `apps.workflow.jump_to.get_jump_to_targets()`.
+- The allowed targets (`value`, `label` and `themes`, e.g. for a select) are returned
+  by `apps.workflow.jump_to.get_jump_to_targets()` and by
+  `GET /cases/allowed-jump-workflows/`.
 
 ## Allowed targets
 
 Defined in `JUMP_TO_TARGETS` in `app/apps/workflow/jump_to.py`, the only place to add
 or remove a target.
 
-| Target | Label | First task | Director routing data |
+| Target | Label | Themes | Director routing data |
 |---|---|---|---|
-| `summon` | Aanschrijving | Opstellen concept aanschrijving | `debrief_next_step=summon` |
-| `unoccupied` | Leegstand | Opstellen aanschrijving eigenaar | `debrief_next_step=unoccupied` |
-| `debrief` | Debrief | Verwerken debrief | none (default path) |
+| `summon` | Aanschrijving | all | `debrief_next_step=summon` |
+| `unoccupied` | Leegstandsmelding | Leegstand | `debrief_next_step=unoccupied` |
+| `debrief` | Debrief | all | none (default path) |
+
+`themes` limits a target to the themes (names) it belongs to; `None` is every theme.
 
 Tested for Kamerverhuur, Leegstand, Onderhuur and reason Digitaal toezicht: the
 theme specific first steps (housing_corporation, digital_surveillance) are skipped
@@ -69,7 +74,9 @@ A target must be able to start without data or objects from earlier steps.
    `start_subworkflow("<target>")` and add them as `routing_data`. Never add form data
    of a subworkflow: the subworkflow must start at its first task.
 2. Check that the first task of the target doesn't depend on earlier steps.
-3. Add the target and its first task to `FIRST_TASKS` in
+3. Set `themes` when the target only makes sense for some themes (e.g. `unoccupied`
+   for Leegstand), else `None`.
+4. Add the target and its first task to `FIRST_TASKS` in
    `app/apps/workflow/tests/test_jump_to.py`.
 
 ## How it works
@@ -100,13 +107,14 @@ director CaseWorkflow.start()    pops jump_to, adds the routing data and
 
 ## Bulk import (Excel upload)
 
-Not part of this feature. Points for whoever builds it:
+`POST /cases/process-file/` creates a case per row of an Excel file, with one
+`jump_to` for the whole upload (`app/utils/bulk_case_importer.py`):
 
-- Create each case through `CaseCreateSerializer` (or `Case.objects.create(...,
-  initial_workflow_data=...)`) and pass `jump_to`; one value for the whole upload.
-- Validate first and show a preview (invalid `bag_id`, duplicates) before creating.
-- Create the cases asynchronously (Celery): each case does a BAG lookup and starts a
-  workflow, a large upload doesn't fit in one request.
-- Consider a separate permission for bulk creating.
-- An endpoint with the allowed targets is a thin wrapper around
-  `get_jump_to_targets()`, e.g. `GET /cases/jump-to-targets/`.
+- With `dry_run=true` (the default) it only checks the rows and returns the result
+  per row. It needs only the theme.
+- With `dry_run=false` it needs what creating one case needs (the reason, a project for
+  the reason "Project", a `jump_to` of the theme) and creates the cases in a Celery
+  task. Reasons that ask for something of one case (MMA, SIG melding, Digitaal
+  toezicht) cannot be used.
+- `GET /cases/process-file/<task_id>/status/` gives the state and the result of that
+  task, for 24 hours and only to the user who started it.

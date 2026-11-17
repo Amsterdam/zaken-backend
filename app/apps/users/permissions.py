@@ -22,6 +22,7 @@ custom_permissions = [
     ("create_digital_surveilance_case", "Create a new 'Digitaal toezicht' Case"),
     ("close_case", "Close a Case (by performing the last task)"),
     ("perform_task", "Can perform a tasks"),
+    ("perform_bulk_import", "Can execute a bulk import"),
     # Permissions to access remote API's
     (
         "access_personal_data_register",
@@ -75,6 +76,15 @@ class CanPerformTask(BasePermission):
 
     def has_permission(self, request, view):
         return request.user.has_perm("users.perform_task")
+
+
+class CanPerformBulkImport(BasePermission):
+    """
+    Custom permission to only allow users with perform_bulk_import permissions
+    """
+
+    def has_permission(self, request, view):
+        return request.user.has_perm("users.perform_bulk_import")
 
 
 class CanCloseCase(BasePermission):

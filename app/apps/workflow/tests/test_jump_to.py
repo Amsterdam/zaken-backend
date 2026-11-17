@@ -14,8 +14,12 @@ from apps.workflow.models import CaseUserTask, CaseWorkflow, GenericCompletedTas
 from django.contrib.auth import get_user_model
 from django.core import management
 from django.test import TestCase
+from django.urls import reverse
 from model_bakery import baker
+from rest_framework import status
+from rest_framework.test import APITestCase
 from SpiffWorkflow import TaskState
+from utils.unittest_helpers import get_authenticated_client, get_unauthenticated_client
 
 # First user task of each allowed target, when started without any form data
 FIRST_TASKS = {
@@ -57,8 +61,17 @@ class JumpToTargetsTest(TestCase):
 
     def test_get_jump_to_targets(self):
         self.assertIn(
-            {"value": "summon", "label": "Aanschrijving"}, get_jump_to_targets()
+            {
+                "value": "summon",
+                "label": "Aanschrijving",
+                "themes": None,
+            },
+            get_jump_to_targets(),
         )
+        unoccupied = next(
+            t for t in get_jump_to_targets() if t["value"] == "unoccupied"
+        )
+        self.assertEqual(unoccupied["themes"], ["Leegstand"])
         self.assertNotIn("decision", [t["value"] for t in get_jump_to_targets()])
 
     def test_routing_data_is_a_copy(self):
@@ -67,6 +80,23 @@ class JumpToTargetsTest(TestCase):
             get_jump_to_routing_data("summon"),
             {"debrief_next_step": {"value": "summon"}},
         )
+
+
+class AllowedJumpWorkflowsApiTest(APITestCase):
+    def test_unauthenticated_get(self):
+        response = get_unauthenticated_client().get(
+            reverse("cases-allowed-jump-workflows")
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_get_targets(self):
+        response = get_authenticated_client().get(
+            reverse("cases-allowed-jump-workflows")
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json(), get_jump_to_targets())
 
 
 @patch("apps.workflow.models.task_start_subworkflow.delay")

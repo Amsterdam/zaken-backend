@@ -6,8 +6,8 @@ from django.core import management
 from django.urls import reverse
 from model_bakery import baker
 from rest_framework import status
-from rest_framework.test import APITestCase
-from utils.unittest_helpers import get_authenticated_client
+from rest_framework.test import APIClient, APITestCase
+from utils.unittest_helpers import get_authenticated_client, get_test_user
 
 BAG_ID = "jump_to bag ID"
 
@@ -45,6 +45,36 @@ class CaseCreateJumpToApiTest(APITestCase):
         create_main_workflow.assert_called_once_with(
             case_id=case.id, data={"jump_to": "summon"}
         )
+
+    def test_unoccupied_only_for_the_theme_leegstand(self, create_main_workflow):
+        client = APIClient()
+        client.force_authenticate(user=get_test_user())
+
+        def post_case(**extra):
+            return client.post(
+                reverse("cases-list"),
+                {
+                    "description": "Foo",
+                    "theme_id": self.theme.pk,
+                    "reason_id": self.reason.pk,
+                    "bag_id": BAG_ID,
+                    **extra,
+                },
+                format="json",
+            )
+
+        # The theme of setUp is not Leegstand.
+        response = post_case(jump_to="unoccupied")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("jump_to", response.json())
+        create_main_workflow.assert_not_called()
+
+        self.theme.name = "Leegstand"
+        self.theme.save()
+        response = post_case(jump_to="unoccupied")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_without_jump_to(self, create_main_workflow):
         response = self.post_case()
