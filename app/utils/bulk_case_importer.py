@@ -72,7 +72,7 @@ class BulkCaseImporter:
         dry_run: bool = True,
     ):
         self.file = file
-        # The explanation for all cases, above the one of the row.
+        # Add generic description for all cases above the row description.
         self.description = (description or "").strip() or None
         self.project = (
             CaseProject.objects.get(pk=project) if isinstance(project, int) else project
