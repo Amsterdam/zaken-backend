@@ -578,7 +578,7 @@ class CaseViewSet(
 
     @extend_schema(
         description=(
-            "Process an uploaded bulk case import file (maximum 2 MiB). "
+            "Process an uploaded bulk case import file. "
             "Dry runs return results immediately; dry_run=false queues a Celery "
             "task and returns its ID. Poll process-file/{task_id}/status "
             "for the state and import result within 24 hours of submission."
