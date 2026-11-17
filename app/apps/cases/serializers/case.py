@@ -70,7 +70,7 @@ def validate_case_classification(theme, reason, project):
 
     if project and project.theme != theme:
         raise serializers.ValidationError(
-            "project must be one of the theme CaseReasons"
+            "project must be one of the theme CaseProjects"
         )
 
 
