@@ -13,7 +13,11 @@ from apps.main.pagination import EmptyPagination
 from apps.summons.serializers import SummonTypeSerializer
 from apps.users.auth_apps import TopKeyAuth
 from apps.users.models import User
-from apps.users.permissions import CanAccessSensitiveCases, IsInAuthorizedRealm
+from apps.users.permissions import (
+    CanAccessSensitiveCases,
+    CanEditTaskWeekNumber,
+    IsInAuthorizedRealm,
+)
 from apps.users.serializers import UserSerializer
 from apps.workflow.serializers import (
     BpmnModelListSerializer,
@@ -29,6 +33,7 @@ from apps.workflow.utils import (
     get_bpmn_models,
     map_variables_on_task_spec_form,
 )
+from django import forms
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django_filters import rest_framework as filters
@@ -150,6 +155,20 @@ class CaseUserTaskFilter(filters.FilterSet):
         to_field_name="name",
     )
     ton_ids = CharArrayFilter(method="get_ton_ids")
+    week_number = filters.Filter(
+        field_name="week_number",
+        method="get_week_number",
+        widget=forms.SelectMultiple,
+        help_text="Repeat this parameter for multiple weeks.",
+    )
+
+    def get_week_number(self, queryset, name, value):
+        if not value or value == [""]:
+            return queryset
+        weeks = serializers.ListField(child=serializers.IntegerField()).run_validation(
+            value
+        )
+        return queryset.filter(week_number__in=weeks)
 
     def get_role(self, queryset, name, value):
         return queryset.filter(roles__contains=[value])
@@ -260,6 +279,7 @@ class CaseUserTaskFilter(filters.FilterSet):
             "suffix",
             "theme",
             "ton_ids",
+            "week_number",
         ]
 
 
@@ -304,6 +324,14 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("theme", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
         OpenApiParameter("theme_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("ton_ids", OpenApiTypes.NUMBER, OpenApiParameter.QUERY),
+        OpenApiParameter(
+            "week_number",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            many=True,
+            style="form",
+            explode=True,
+        ),
     ]
 )
 class CaseUserTaskViewSet(
@@ -311,7 +339,10 @@ class CaseUserTaskViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
-    permission_classes = [(IsInAuthorizedRealm & CanAccessSensitiveCases) | TopKeyAuth]
+    permission_classes = [
+        (IsInAuthorizedRealm & CanAccessSensitiveCases) | TopKeyAuth,
+        CanEditTaskWeekNumber,
+    ]
     serializer_class = CaseUserTaskSerializer
     queryset = CaseUserTask.objects.all()
     http_method_names = ["patch", "get"]

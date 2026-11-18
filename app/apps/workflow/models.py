@@ -1453,6 +1453,7 @@ class CaseUserTask(models.Model):
         blank=True,
     )
     due_date = models.DateTimeField()
+    week_number = models.IntegerField(null=True, blank=True)
     owner = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,

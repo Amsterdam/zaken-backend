@@ -32,6 +32,8 @@ group.permissions.add(Permission.objects.get(codename="access_business_register"
 group.permissions.add(Permission.objects.get(codename="access_recovery_check"))
 group.permissions.add(Permission.objects.get(codename="close_case"))
 group.permissions.add(Permission.objects.get(codename="perform_task"))
+group.permissions.add(Permission.objects.get(codename="edit_task_week_number"))
+group.permissions.add(Permission.objects.get(codename="assign_task_to_others"))
 
 (group, _) = UserGroup.objects.get_or_create(name='MEDEWERKER_GEVOELIGE_ZAKEN', display_name='Medewerker Gevoelige Zaken')
 group.permissions.add(Permission.objects.get(codename="access_sensitive_dossiers"))
@@ -45,5 +47,9 @@ group.permissions.add(Permission.objects.get(codename="create_digital_surveilanc
 
 (group, _) = UserGroup.objects.get_or_create(name='ZAKEN_IMPORTEREN', display_name='Zaken importeren')
 group.permissions.add(Permission.objects.get(codename="perform_bulk_import"))
+
+(group, _) = UserGroup.objects.get_or_create(name='TEAMLEIDER', display_name='Teamleider')
+group.permissions.add(Permission.objects.get(codename="edit_task_week_number"))
+group.permissions.add(Permission.objects.get(codename="assign_task_to_others"))
 
 PY
