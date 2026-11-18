@@ -46,4 +46,7 @@ group.permissions.add(Permission.objects.get(codename="create_digital_surveilanc
 (group, _) = UserGroup.objects.get_or_create(name='ZAKEN_IMPORTEREN', display_name='Zaken importeren')
 group.permissions.add(Permission.objects.get(codename="perform_bulk_import"))
 
+(group, _) = UserGroup.objects.get_or_create(name='TEAMLEIDER', display_name='Teamleider')
+group.permissions.add(Permission.objects.get(codename="edit_task_week_number"))
+
 PY

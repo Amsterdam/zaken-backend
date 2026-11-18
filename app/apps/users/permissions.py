@@ -1,7 +1,7 @@
 from apps.cases.models import Case
 from apps.users.auth_apps import TonKeyAuth, TopKeyAuth
 from django.conf import settings
-from rest_framework.permissions import BasePermission, IsAuthenticated
+from rest_framework.permissions import SAFE_METHODS, BasePermission, IsAuthenticated
 
 
 class InAuthGroup(BasePermission):
@@ -23,6 +23,7 @@ custom_permissions = [
     ("close_case", "Close a Case (by performing the last task)"),
     ("perform_task", "Can perform a tasks"),
     ("perform_bulk_import", "Can execute a bulk import"),
+    ("edit_task_week_number", "Can (un)assign a week number to a task."),
     # Permissions to access remote API's
     (
         "access_personal_data_register",
@@ -76,6 +77,13 @@ class CanPerformTask(BasePermission):
 
     def has_permission(self, request, view):
         return request.user.has_perm("users.perform_task")
+
+
+class CanEditTaskWeekNumber(BasePermission):
+    def has_permission(self, request, view):
+        if request.method not in SAFE_METHODS and "week_number" in request.data:
+            return request.user.has_perm("users.edit_task_week_number")
+        return True
 
 
 class CanPerformBulkImport(BasePermission):
