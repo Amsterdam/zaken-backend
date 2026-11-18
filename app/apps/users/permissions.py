@@ -24,6 +24,7 @@ custom_permissions = [
     ("perform_task", "Can perform a tasks"),
     ("perform_bulk_import", "Can execute a bulk import"),
     ("edit_task_week_number", "Can (un)assign a week number to a task."),
+    ("assign_task_to_others", "Can (un)assign a task to other users than themselves."),
     # Permissions to access remote API's
     (
         "access_personal_data_register",

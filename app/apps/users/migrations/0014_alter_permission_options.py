@@ -29,6 +29,10 @@ class Migration(migrations.Migration):
                         "Can (un)assign a week number to a task.",
                     ),
                     (
+                        "assign_task_to_others",
+                        "Can (un)assign a task to other users than themselves.",
+                    ),
+                    (
                         "access_personal_data_register",
                         "Can access 'BRP' (persoonsgegevens / ingeschreven personen)",
                     ),

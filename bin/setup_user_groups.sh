@@ -48,5 +48,6 @@ group.permissions.add(Permission.objects.get(codename="perform_bulk_import"))
 
 (group, _) = UserGroup.objects.get_or_create(name='TEAMLEIDER', display_name='Teamleider')
 group.permissions.add(Permission.objects.get(codename="edit_task_week_number"))
+group.permissions.add(Permission.objects.get(codename="assign_task_to_others"))
 
 PY
