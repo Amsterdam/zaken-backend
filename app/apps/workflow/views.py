@@ -87,6 +87,9 @@ class CaseUserTaskFilter(filters.FilterSet):
     from_start_date = filters.DateFilter(
         field_name="case__start_date", lookup_expr="gte"
     )
+    has_owner = filters.BooleanFilter(
+        field_name="owner", lookup_expr="isnull", exclude=True
+    )
     housing_corporation = filters.ModelMultipleChoiceFilter(
         queryset=HousingCorporation.objects.all(),
         method="get_housing_corporation",
@@ -296,6 +299,7 @@ class StandardResultsSetPagination(EmptyPagination):
         OpenApiParameter("district_name", OpenApiTypes.STR, OpenApiParameter.QUERY),
         OpenApiParameter("due_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
         OpenApiParameter("from_start_date", OpenApiTypes.DATE, OpenApiParameter.QUERY),
+        OpenApiParameter("has_owner", OpenApiTypes.BOOL, OpenApiParameter.QUERY),
         OpenApiParameter(
             "housing_corporation", OpenApiTypes.NUMBER, OpenApiParameter.QUERY
         ),
