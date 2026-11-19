@@ -13,6 +13,25 @@ class CaseUserTaskFilterTest(SimpleTestCase):
         self.assertTrue(task_filter.is_valid(), task_filter.errors)
         return task_filter.qs
 
+    def test_has_owner_filters_by_assignment(self):
+        for value, has_owner in (("true", True), ("false", False)):
+            with self.subTest(value=value):
+                queryset = self.get_queryset(f"has_owner={value}")
+                expected = CaseUserTask.objects.exclude(owner__isnull=has_owner)
+                self.assertEqual(str(queryset.query), str(expected.query))
+
+    def test_has_owner_preserves_other_filters(self):
+        queryset = self.get_queryset("has_owner=true&completed=false")
+        expected = CaseUserTask.objects.filter(completed=False).exclude(
+            owner__isnull=True
+        )
+        self.assertEqual(str(queryset.query), str(expected.query))
+
+    def test_has_owner_omitted_or_empty_does_not_filter(self):
+        for data in ("", "has_owner="):
+            with self.subTest(data=data):
+                self.assertEqual(self.get_queryset(data).query.where.children, [])
+
     def test_week_filters_by_one_or_more_values(self):
         for value, expected in (
             ("week_number=12", [12]),
