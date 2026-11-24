@@ -20,6 +20,7 @@ class BulkImportException(Exception):
 MODEL_FIELD_LABELS = {
     "street_name": "straatnaam",
     "number": "huisnummer",
+    "suffix_letter": "huisletter",
     "suffix": "toevoeging",
     "postal_code": "postcode",
 }
@@ -30,6 +31,7 @@ class ColumnName(StrEnum):
     STREET_NAME = "straatnaam"
     POSTAL_CODE = "postcode"
     NUMBER = "huisnummer"
+    LETTER = "huisletter"
     SUFFIX = "huisnummertoevoeging"
     NOTES = "toelichting"
 
@@ -52,6 +54,7 @@ class BulkCaseImporter:
         ColumnName.STREET_NAME,
         ColumnName.POSTAL_CODE,
         ColumnName.NUMBER,
+        ColumnName.LETTER,
         ColumnName.SUFFIX,
         ColumnName.NOTES,
     ]
@@ -151,21 +154,27 @@ class BulkCaseImporter:
     def _inspect_excel_file(self):
         try:
             wb = load_workbook(self.file, read_only=True, data_only=True)
-            ws = self.worksheet = wb.active
         except Exception as e:
             raise BulkImportException(f"Kan bestand niet openen: {e}")
 
-        self.header_row_idx = self._find_header_row_index(ws)
-        header_raw = [cell.value for cell in ws[self.header_row_idx]]
-        header = self._clean_header(header_raw)
+        # The first sheet with all the columns, the active one first. Else the
+        # error is of the sheet missing the fewest columns.
+        closest = None
+        for ws in sorted(wb.worksheets, key=lambda sheet: sheet is not wb.active):
+            header_row_idx, header = self._find_header_row(ws)
+            missing = [field for field in self.fields if field not in header]
+            if not missing:
+                self.worksheet = ws
+                self.header_row_idx = header_row_idx
+                for field_name in self.fields:
+                    self.field_index[field_name] = header.index(field_name)
+                return
+            if closest is None or len(missing) < len(closest[1]):
+                closest = ws, missing
 
-        for field_name in self.fields:
-            try:
-                self.field_index[field_name] = header.index(field_name)
-            except ValueError:
-                raise BulkImportException(
-                    f"Bestand moet de volgende kolom bevatten: {field_name}"
-                )
+        if closest is None:
+            raise BulkImportException("Het bestand heeft geen werkblad.")
+        raise BulkImportException(self._missing_columns_message(*closest))
 
     def _process_rows(self):
         num_processed = 0
@@ -211,44 +220,55 @@ class BulkCaseImporter:
         }
         return processed_result
 
-    def _find_header_row_index(self, ws):
+    def _find_header_row(self, ws):
+        """
+        The number and the column names of the header row: the first row with
+        the most of the columns. (None, []) when no row has any of them.
+        """
+        header_row_idx, header, num_found = None, [], 0
         for row_index, row in enumerate(
-            ws.iter_rows(
-                min_row=1, max_col=5, max_row=self.MAX_METADATA_ROWS, values_only=True
-            ),
+            ws.iter_rows(min_row=1, max_row=self.MAX_METADATA_ROWS, values_only=True),
             start=1,
         ):
-            for cell_value in row:
-                if (
-                    isinstance(cell_value, str)
-                    and cell_value.lower() == self.first_header_item
-                ):
-                    return row_index
-
-        raise BulkImportException("Kan kolombeschrijving niet vinden!")
+            names = self._clean_header(row)
+            found = sum(field in names for field in self.fields)
+            if found > num_found:
+                header_row_idx, header, num_found = row_index, names, found
+        return header_row_idx, header
 
     @staticmethod
-    def _clean_header(header: list):
-        return [
-            (
-                item.lower().replace("(beknopt)", "").rstrip(" .")
-                if isinstance(item, str)
-                else item
-            )
-            for item in header
-        ]
+    def _missing_columns_message(ws, missing):
+        if len(missing) == 1:
+            return f"Werkblad '{ws.title}' mist de kolom {missing[0]}."
+        columns = f"{', '.join(missing[:-1])} en {missing[-1]}"
+        return f"Werkblad '{ws.title}' mist de kolommen {columns}."
+
+    @staticmethod
+    def _clean_header_item(item):
+        """
+        A column name as the importer knows it: in lower case, without
+        "(beknopt)", spaces (non-breaking too) and dots around it.
+        """
+        if not isinstance(item, str):
+            return item
+        item = item.replace("\xa0", " ").lower().replace("(beknopt)", "")
+        return item.strip(" .")
+
+    @classmethod
+    def _clean_header(cls, header):
+        return [cls._clean_header_item(item) for item in header]
 
     @staticmethod
     def _format_address(row_data: dict):
         """
-        The address as in the file, with the postal code written the same way
-        for every row: "Straat 1-A, 1234 AB".
+        The address as in the file, written as in the BAG, with the postal
+        code written the same way for every row: "Straat 1A-2, 1234 AB".
         """
 
         def text(value):
             return "" if value is None else str(value).strip()
 
-        number = text(row_data[ColumnName.NUMBER])
+        number = text(row_data[ColumnName.NUMBER]) + text(row_data[ColumnName.LETTER])
         suffix = text(row_data[ColumnName.SUFFIX])
         street = " ".join(
             part
@@ -266,14 +286,40 @@ class BulkCaseImporter:
         return f"{street}, {postal_code}" if postal_code else street
 
     @staticmethod
+    def _matching_address(docs, postal_code, number, letter, suffix):
+        """
+        The found address with the postal code, number, letter and suffix of
+        the row, in upper or lower case; None when there is none.
+        """
+
+        def same(found, value):
+            return str(found or "").upper() == str(value or "").upper()
+
+        for doc in docs:
+            if (
+                same(doc.get("postcode"), postal_code)
+                and doc.get("huisnummer") == number
+                and same(doc.get("huisletter"), letter)
+                and same(doc.get("huisnummertoevoeging"), suffix)
+            ):
+                return doc
+        return None
+
+    @classmethod
     def _get_bag_data(
-        street_name: str, number: int, suffix: str | int, postal_code: str
+        cls,
+        street_name: str,
+        number: int,
+        letter: str | None,
+        suffix: str | int,
+        postal_code: str,
     ):
         # Do basic field validation first, before cleaning the fields.
         serializer = AddressSimplifiedSerializer(
             data={
                 "street_name": street_name,
                 "number": number,
+                "suffix_letter": letter,
                 "suffix": suffix,
                 "postal_code": postal_code,
             }
@@ -291,15 +337,16 @@ class BulkCaseImporter:
         # Format address for searching in PDOK
         street_name = serializer.validated_data["street_name"]
         number = serializer.validated_data["number"]
-        suffix = serializer.validated_data["suffix"]
+        letter = serializer.validated_data.get("suffix_letter") or ""
+        suffix = serializer.validated_data.get("suffix") or ""
         postal_code = serializer.validated_data["postal_code"].replace(" ", "")
         if not all([street_name, number, postal_code]):
             return {"error": "Straat, huisnummer of postcode ontbreekt."}
 
-        if suffix:
-            search_string = f"{street_name} {number}-{suffix}, {postal_code}"
-        else:
-            search_string = f"{street_name} {number}, {postal_code}"
+        # As the BAG writes it ("Straat 1A-2, 1234AB"): PDOK then finds the
+        # address first.
+        house_number = f"{number}{letter}-{suffix}" if suffix else f"{number}{letter}"
+        search_string = f"{street_name} {house_number}, {postal_code}"
 
         result = {
             "bag_id": None,
@@ -309,29 +356,30 @@ class BulkCaseImporter:
         }
 
         response = do_bag_search_pdok_by_address(search_string).get("response", {})
+        docs = response.get("docs", [])
 
         if response.get("numFound", 0) == 0:
             result["error"] = "Adres niet gevonden."
             return result
         elif response.get("numFound", 0) > 1:
-            # Vaak als er meerdere adressen uitkomen, dan klopt het eerste adres, de rest heeft bijvoorbeeld een andere toevoeging.
-            # Als de postcode, huisnr en toevoeging gelijk zijn, kunnen we aannemen dat het het juiste adres is.
-            # Zo niet: Error teruggeven
-            first_address = response.get("docs")[0]
-            if not (
-                first_address["postcode"] == postal_code
-                and first_address["huisnummer"] == number
-                and first_address.get("huisnummertoevoeging") == suffix
-            ):
+            # PDOK searches freely: the address of the row need not be the
+            # first. Take the one with the same postal code, number, letter
+            # and suffix; without it, the row is not clear enough.
+            found_address = cls._matching_address(
+                docs, postal_code, number, letter, suffix
+            )
+            if found_address is None:
                 LOGGER.warning(f"Meer dan één adres gevonden voor {search_string}")
-                for adres in response.get("docs", []):
+                for adres in docs:
                     LOGGER.warning(f"    {adres['weergavenaam']} + {adres['score']}")
                 result["error"] = (
-                    "Meerdere adressen gevonden. Controleer de toevoeging."
+                    "Meerdere adressen gevonden. Controleer de huisletter en "
+                    "toevoeging."
                 )
                 return result
+        else:
+            found_address = docs[0]
 
-        found_address = response.get("docs")[0]
         result["bag_id"] = found_address["adresseerbaarobject_id"]
         result["found_address"] = found_address["weergavenaam"]
         return result
@@ -355,6 +403,7 @@ class BulkCaseImporter:
         address_data = self._get_bag_data(
             row_data[ColumnName.STREET_NAME],
             row_data[ColumnName.NUMBER],
+            row_data[ColumnName.LETTER],
             row_data[ColumnName.SUFFIX],
             row_data[ColumnName.POSTAL_CODE],
         )
