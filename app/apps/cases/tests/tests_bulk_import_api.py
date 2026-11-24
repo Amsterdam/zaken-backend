@@ -349,6 +349,7 @@ class ProcessBulkFileApiTest(APITestCase):
                 "straatnaam",
                 "postcode",
                 "huisnummer",
+                "huisletter",
                 "huisnummertoevoeging",
                 "toelichting",
             ]
@@ -376,10 +377,10 @@ class ProcessBulkFileApiTest(APITestCase):
         response = self.upload_workbook(
             [
                 # The postal code as in the file; in the result as "1074 BT".
-                ["Hemonystraat", "1074bt", 66, 3, "Toelichting"],
-                [None, None, None, None, None],  # Skipped, but counted.
-                ["Linneausstraat", "1093EH", 49, None, "Toelichting"],
-                ["Kerkstraat", "1017 GB", "geen nummer", None, "Toelichting"],
+                ["Hemonystraat", "1074bt", 66, None, 3, "Toelichting"],
+                [None, None, None, None, None, None],  # Skipped, but counted.
+                ["Linneausstraat", "1093EH", 49, None, None, "Toelichting"],
+                ["Kerkstraat", "1017 GB", "geen nummer", None, None, "Toelichting"],
             ]
         )
 
@@ -418,7 +419,9 @@ class ProcessBulkFileApiTest(APITestCase):
     def test_formula_error_in_description_is_said_in_words(self, mock_bag_search):
         mock_bag_search.return_value = self.successful_bag_response(0)
 
-        response = self.upload_workbook([["Kerkstraat", "1017GB", 27, "D", "#N/B"]])
+        response = self.upload_workbook(
+            [["Kerkstraat", "1017GB", 27, None, "D", "#N/B"]]
+        )
 
         self.assertEqual(
             response.json()["case_data"][0]["error"],
@@ -426,7 +429,7 @@ class ProcessBulkFileApiTest(APITestCase):
         )
 
     @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
-    def test_more_than_one_address_found_asks_to_check_the_suffix(
+    def test_more_than_one_address_found_asks_to_check_letter_and_suffix(
         self, mock_bag_search
     ):
         mock_bag_search.return_value = {
@@ -451,11 +454,54 @@ class ProcessBulkFileApiTest(APITestCase):
             }
         }
 
-        response = self.upload_workbook([["Kerkstraat", "1017GB", 27, None, "Tekst"]])
+        response = self.upload_workbook(
+            [["Kerkstraat", "1017GB", 27, None, None, "Tekst"]]
+        )
 
         self.assertEqual(
             response.json()["case_data"][0]["error"],
-            "Meerdere adressen gevonden. Controleer de toevoeging.",
+            "Meerdere adressen gevonden. Controleer de huisletter en toevoeging.",
+        )
+
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
+    def test_address_with_letter_and_suffix_is_found_among_all(self, mock_bag_search):
+        def doc(letter, suffix):
+            return {
+                "adresseerbaarobject_id": f"bag-id-{letter}-{suffix}",
+                "postcode": "1019AJ",
+                "huisnummer": 102,
+                "huisletter": letter,
+                "huisnummertoevoeging": suffix,
+                "weergavenaam": f"Cruquiusweg 102{letter}-{suffix}",
+                "score": 1,
+            }
+
+        mock_bag_search.return_value = {
+            "response": {
+                "numFound": 3,
+                # The address of the row is not the first.
+                "docs": [doc("A", "50"), doc("B", "5"), doc("A", "5")],
+            }
+        }
+
+        response = self.upload_workbook(
+            [["Cruquiusweg", "1019 AJ", 102, "a", 5, "Tekst"]]
+        )
+
+        mock_bag_search.assert_called_once_with("Cruquiusweg 102a-5, 1019AJ")
+        case = response.json()["case_data"][0]
+        self.assertTrue(case["success"], case)
+        self.assertEqual(case["bag_id"], "bag-id-A-5")
+        self.assertEqual(case["address"], "Cruquiusweg 102a-5, 1019 AJ")
+
+    def test_letter_of_more_than_one_character_is_not_valid(self):
+        response = self.upload_workbook(
+            [["Cruquiusweg", "1019AJ", 102, "AB", None, "Tekst"]]
+        )
+
+        self.assertEqual(
+            response.json()["case_data"][0]["error"],
+            "Het adres is niet goed ingevuld. Controleer: huisletter.",
         )
 
     @patch("apps.workflow.tasks.task_create_main_worflow_for_case.delay")
@@ -507,6 +553,136 @@ class ProcessBulkFileApiTest(APITestCase):
         )
         self.assertEqual(without._get_description("Van de rij"), "Van de rij")
         self.assertIsNone(without._get_description(None))
+
+    HEADER = [
+        "straatnaam",
+        "postcode",
+        "huisnummer",
+        "huisletter",
+        "huisnummertoevoeging",
+        "toelichting",
+    ]
+    ROW = ["Kerkstraat", "1017GB", 27, None, None, "Toelichting"]
+
+    @staticmethod
+    def make_workbook(*rows, title="Adressen"):
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.title = title
+        for row in rows:
+            worksheet.append(row)
+        return workbook
+
+    def import_workbook(self, workbook):
+        file = BytesIO()
+        workbook.save(file)
+        file.seek(0)
+        return BulkCaseImporter(file, self.user, theme=self.theme).import_from_file()
+
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
+    def test_header_with_spaces_and_dots_is_found(self, mock_bag_search):
+        mock_bag_search.return_value = self.successful_bag_response(0)
+        workbook = self.make_workbook(
+            [
+                "Straatnaam ",
+                "\xa0Postcode\xa0",
+                "Huisnummer",
+                "Huisletter ",
+                "huisnummertoevoeging",
+                "Toelichting (beknopt).",
+            ],
+            self.ROW,
+        )
+
+        result = self.import_workbook(workbook)
+
+        self.assertEqual(result["total_processed"], 1)
+        self.assertTrue(result["case_data"][0]["success"], result["case_data"])
+
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
+    def test_header_after_column_e_is_found(self, mock_bag_search):
+        mock_bag_search.return_value = self.successful_bag_response(0)
+        empty_columns = [None] * 6
+        workbook = self.make_workbook(
+            empty_columns + self.HEADER, empty_columns + self.ROW
+        )
+
+        result = self.import_workbook(workbook)
+
+        self.assertEqual(result["total_processed"], 1)
+        self.assertTrue(result["case_data"][0]["success"], result["case_data"])
+
+    def assert_import_error(self, workbook, message):
+        with self.assertRaises(BulkImportException) as context:
+            self.import_workbook(workbook)
+        self.assertEqual(str(context.exception), message)
+
+    def test_missing_columns_and_sheet_are_named(self):
+        cases = {
+            "without straatnaam": (
+                ["Adres", "Postcode", "Nr", "Toevoeging", "Toelichting"],
+                "Werkblad 'Adressen' mist de kolommen straatnaam, huisnummer, "
+                "huisletter en huisnummertoevoeging.",
+            ),
+            "with straatnaam": (
+                ["Straatnaam", "Postcode", "Nummer"],
+                "Werkblad 'Adressen' mist de kolommen huisnummer, huisletter, "
+                "huisnummertoevoeging en toelichting.",
+            ),
+            "one column": (
+                self.HEADER[:-1],
+                "Werkblad 'Adressen' mist de kolom toelichting.",
+            ),
+        }
+        for name, (header, message) in cases.items():
+            with self.subTest(name):
+                workbook = self.make_workbook(
+                    ["Naam bedrijf", "Bedrijf"], header, self.ROW
+                )
+                self.assert_import_error(workbook, message)
+
+    @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
+    def test_sheet_with_the_columns_is_used(self, mock_bag_search):
+        mock_bag_search.return_value = self.successful_bag_response(0)
+        workbook = self.make_workbook(["Leegstandslijst"], title="Info")
+        addresses = workbook.create_sheet("Adressen")
+        addresses.append(self.HEADER)
+        addresses.append(self.ROW)
+        workbook.active = 0
+
+        result = self.import_workbook(workbook)
+
+        self.assertEqual(result["total_processed"], 1)
+        self.assertTrue(result["case_data"][0]["success"], result["case_data"])
+
+    def test_active_sheet_with_the_columns_comes_first(self):
+        workbook = self.make_workbook(self.HEADER, self.ROW, title="Eerste")
+        workbook.create_sheet("Tweede").append(self.HEADER)
+        workbook.active = 1
+
+        with BytesIO() as file:
+            workbook.save(file)
+            file.seek(0)
+            importer = BulkCaseImporter(file, self.user, theme=self.theme)
+            importer._inspect_excel_file()
+
+        self.assertEqual(importer.worksheet.title, "Tweede")
+
+    def test_error_is_of_the_sheet_missing_the_fewest_columns(self):
+        workbook = self.make_workbook(["Leegstandslijst"], title="Info")
+        workbook.create_sheet("Adressen").append(self.HEADER[:-1])
+        workbook.active = 0
+
+        self.assert_import_error(
+            workbook, "Werkblad 'Adressen' mist de kolom toelichting."
+        )
+
+    def test_empty_sheet_misses_all_columns(self):
+        self.assert_import_error(
+            self.make_workbook(title="Blad1"),
+            "Werkblad 'Blad1' mist de kolommen straatnaam, postcode, huisnummer, "
+            "huisletter, huisnummertoevoeging en toelichting.",
+        )
 
     @patch("utils.bulk_case_importer.do_bag_search_pdok_by_address")
     def test_file_with_unmatched_address_returns_row_error(self, mock_bag_search):
