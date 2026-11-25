@@ -25,6 +25,7 @@ class AddressSerializer(serializers.ModelSerializer):
         model = Address
         fields = (
             "bag_id",
+            "city",
             "district",
             "full_address",
             "housing_corporation",
@@ -39,6 +40,7 @@ class AddressSerializer(serializers.ModelSerializer):
             "suffix_letter",
         )
         read_only_fields = (
+            "city",
             "district",
             "full_address",
             "id",
