@@ -38,6 +38,8 @@ class Address(models.Model):
     suffix_letter = models.CharField(max_length=1, null=True, blank=True)
     suffix = models.CharField(max_length=4, null=True, blank=True)
     postal_code = models.CharField(max_length=7, null=True, blank=True)
+    # BAG "woonplaats", not the municipality: Weesp is part of the municipality of Amsterdam.
+    city = models.CharField(max_length=255, null=True, blank=True)
     lat = models.FloatField(null=True, blank=True)
     lng = models.FloatField(null=True, blank=True)
     district = models.ForeignKey(
@@ -56,23 +58,22 @@ class Address(models.Model):
     @property
     def full_address(self) -> str:
         """
-        Retrieves a string with the full address of the object.
+        Full address in PDOK notation, e.g. "Foppingadreef 26A-1, 1102CX Amsterdam".
         """
-        full_address = f"{self.street_name} {self.number}"
-        if self.suffix or self.suffix_letter:
-            full_address = f"{full_address}-{self.suffix}{self.suffix_letter}"
+        house_number = f"{self.number}{self.suffix_letter or ''}"
+        if self.suffix:
+            house_number = f"{house_number}-{self.suffix}"
 
-        full_address = f"{full_address}, {self.postal_code}"
+        full_address = f"{self.street_name} {house_number}"
+        postal_code_and_city = " ".join(filter(None, [self.postal_code, self.city]))
+        if postal_code_and_city:
+            full_address = f"{full_address}, {postal_code_and_city}"
 
         return full_address
 
     def __str__(self):
         if self.street_name:
-            return (
-                f"{self.street_name}"
-                f" {self.number}{self.suffix_letter}-{self.suffix},"
-                f" {self.postal_code}"
-            )
+            return self.full_address
         return self.bag_id
 
     def get_or_create_by_bag_id(bag_id):
@@ -84,6 +85,7 @@ class Address(models.Model):
         if bag_search_results:
             found_bag_data = bag_search_results[0]
             self.postal_code = found_bag_data.get("postcode", "")
+            self.city = found_bag_data.get("woonplaatsnaam", "")
             self.street_name = found_bag_data.get("straatnaam", "")
             self.number = found_bag_data.get("huisnummer", "")
             self.suffix_letter = found_bag_data.get("huisletter", "")
@@ -150,7 +152,7 @@ class Address(models.Model):
         self.save()
 
     def save(self, *args, **kwargs):
-        if not self.bag_id or not self.nummeraanduiding_id:
+        if not self.bag_id or not self.nummeraanduiding_id or not self.city:
             self.update_bag_data()
         return super().save(*args, **kwargs)
 
