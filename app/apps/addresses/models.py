@@ -152,6 +152,7 @@ class Address(models.Model):
         self.save()
 
     def save(self, *args, **kwargs):
+        # TODO in future remove temp check for updating city in existing addresses after adding in migrations/0008_address_city
         if not self.bag_id or not self.nummeraanduiding_id or not self.city:
             self.update_bag_data()
         return super().save(*args, **kwargs)
