@@ -406,6 +406,14 @@
     }
   },
   {
+    "model": "cases.casereason",
+    "pk": 50,
+    "fields": {
+      "name": "Extern Team",
+      "theme": 2
+    }
+  },
+  {
     "model": "cases.caseclosereason",
     "pk": 15,
     "fields": {
