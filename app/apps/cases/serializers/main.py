@@ -8,6 +8,7 @@ from apps.cases.models import (
     CaseState,
     CaseTheme,
     CitizenReport,
+    ExternalTeamReport,
     Subject,
     Tag,
 )
@@ -59,6 +60,29 @@ class CitizenReportSerializer(CitizenReportBaseSerializer):
     class Meta:
         model = CitizenReport
         fields = "__all__"
+
+
+class ExternalTeamReportCaseSerializer(serializers.ModelSerializer):
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    advertisements = AdvertisementSerializer(many=True, required=False)
+
+    def create(self, validated_data):
+        advertisements = validated_data.pop("advertisements", [])
+        instance = super().create(validated_data)
+        advertisements = [
+            Advertisement(
+                case=instance.case,
+                related_object=instance,
+                link=advertisement.get("link"),
+            )
+            for advertisement in advertisements
+        ]
+        Advertisement.objects.bulk_create(advertisements)
+        return instance
+
+    class Meta:
+        model = ExternalTeamReport
+        exclude = ["case"]
 
 
 class CitizenReportAnonomizedSerializer(serializers.ModelSerializer):

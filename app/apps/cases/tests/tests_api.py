@@ -8,6 +8,7 @@ from apps.cases.models import (
     CaseStateType,
     CaseTheme,
     CitizenReport,
+    ExternalTeamReport,
 )
 from apps.summons.models import SummonType
 from apps.workflow.models import CaseUserTask, CaseWorkflow, WorkflowOption
@@ -545,6 +546,35 @@ class CaseCreatApiTest(APITestCase):
         self.assertEqual(cases[0].advertisements.count(), 2)
         self.assertEqual(cases[0].case_created_advertisements.count(), 1)
         self.assertEqual(citizen_reports[0].related_advertisements.count(), 1)
+
+    def test_authenticated_post_create_with_external_team_reports(self):
+        theme = baker.make(CaseTheme)
+        reason = baker.make(CaseReason, theme=theme)
+        client = get_authenticated_client()
+
+        response = client.post(
+            reverse("cases-list"),
+            {
+                "description": "Foo",
+                "theme_id": theme.pk,
+                "reason_id": reason.pk,
+                "bag_id": "foo bag ID",
+                "external_team_reports": [
+                    {
+                        "reporter_name": "Reporter",
+                        "reporter_team_name": "External team",
+                        "advertisements": [{"link": "https://www.example.com"}],
+                    }
+                ],
+            },
+            format="json",
+        )
+
+        external_team_report = ExternalTeamReport.objects.get()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(external_team_report.reporter_name, "Reporter")
+        self.assertEqual(external_team_report.reporter_team_name, "External team")
+        self.assertEqual(external_team_report.related_advertisements.count(), 1)
 
     def test_authenticated_post_create_fail_wrong_theme(self):
         """Should not be able to create a case if a wrong theme ID is given"""

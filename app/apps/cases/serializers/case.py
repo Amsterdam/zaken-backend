@@ -21,6 +21,7 @@ from apps.cases.serializers.main import (
     CaseReasonSerializer,
     CaseThemeSerializer,
     CitizenReportCaseSerializer,
+    ExternalTeamReportCaseSerializer,
     SubjectSerializer,
     TagSerializer,
 )
@@ -295,6 +296,9 @@ class CaseCreateSerializer(BaseCaseSerializer, WritableNestedModelSerializer):
     )
     citizen_reports = CitizenReportCaseSerializer(
         source="case_citizen_reports", many=True, required=False
+    )
+    external_team_reports = ExternalTeamReportCaseSerializer(
+        source="case_external_team_reports", many=True, required=False
     )
     advertisements = AdvertisementSerializer(many=True, required=False)
     housing_corporation = serializers.PrimaryKeyRelatedField(

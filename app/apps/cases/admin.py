@@ -12,6 +12,7 @@ from apps.cases.models import (
     CaseStateType,
     CaseTheme,
     CitizenReport,
+    ExternalTeamReport,
     Subject,
     Tag,
 )
@@ -380,6 +381,27 @@ class CitizenReportAdmin(admin.ModelAdmin):
         "author",
         "date_added",
         "case_user_task_id",
+        "advertisement_linklist",
+    )
+    search_fields = ("=case__id",)
+    actions = (
+        migrate_advertisement_linklist_items,
+        remove_advertisement_linklist_items,
+    )
+
+
+@admin.register(ExternalTeamReport)
+class ExternalTeamReportAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "case",
+        "reporter_name",
+        "reporter_phone",
+        "reporter_email",
+        "description_external_team_report",
+        "nuisance",
+        "author",
+        "date_added",
         "advertisement_linklist",
     )
     search_fields = ("=case__id",)

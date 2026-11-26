@@ -530,3 +530,87 @@ class Advertisement(models.Model):
         blank=True,
     )
     related_object = GenericForeignKey("related_object_type", "related_object_id")
+
+
+class ExternalTeamReport(TaskModelEventEmitter):
+    """Melding extern team"""
+
+    EVENT_TYPE = CaseEvent.TYPE_EXTERNAL_TEAM_REPORT
+
+    case = models.ForeignKey(
+        Case, related_name="case_external_team_reports", on_delete=models.CASCADE
+    )
+    reporter_name = models.CharField(max_length=50, null=True, blank=True)
+    reporter_team_name = models.CharField(max_length=50, null=True, blank=True)
+    reporter_phone = models.CharField(max_length=50, null=True, blank=True)
+    reporter_email = models.CharField(max_length=50, null=True, blank=True)
+    advertisement_linklist = ArrayField(
+        base_field=models.CharField(max_length=255),
+        default=list,
+        null=True,
+        blank=True,
+    )
+    related_advertisements = GenericRelation(
+        "Advertisement",
+        object_id_field="related_object_id",
+        content_type_field="related_object_type",
+        related_query_name="advertisements_external_team_reports",
+    )
+    description_external_team_report = models.TextField(
+        null=True,
+        blank=True,
+    )
+    nuisance = models.BooleanField(default=False)
+    date_added = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f"ExternalTeamReport: {self.date_added} - {self.case}"
+
+    def __get_event_values__(self):
+        advertisement_linklist = self.advertisement_linklist
+
+        if self.author:
+            author = self.author.full_name
+        else:
+            author = "Medewerker onbekend"
+
+        event_values = {
+            "reporter_name": self.reporter_name,
+            "reporter_phone": self.reporter_phone,
+            "reporter_email": self.reporter_email,
+            "description_external_team_report": self.description_external_team_report,
+            "author": author,
+        }
+        if self.case.theme.id == 2:
+            event_values.update(
+                {
+                    "nuisance": self.nuisance,
+                }
+            )
+
+        if self.case_user_task_id != "-1":
+            # report not created with case create
+            event_values.update(
+                {
+                    "date_added": self.date_added,
+                }
+            )
+        else:
+            advertisement_linklist = []
+
+        advertisement_linklist = list(
+            chain(
+                *[
+                    [a.link for a in self.related_advertisements.all()],
+                    advertisement_linklist,
+                ]
+            )
+        )
+        event_values.update(
+            {
+                "advertisement_linklist": advertisement_linklist,
+            }
+        )
+
+        return event_values
