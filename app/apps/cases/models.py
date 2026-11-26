@@ -577,17 +577,13 @@ class ExternalTeamReport(TaskModelEventEmitter):
 
         event_values = {
             "reporter_name": self.reporter_name,
+            "reporter_team_name": self.reporter_team_name,
             "reporter_phone": self.reporter_phone,
             "reporter_email": self.reporter_email,
             "description_external_team_report": self.description_external_team_report,
             "author": author,
+            "nuisance": self.nuisance,
         }
-        if self.case.theme.id == 2:
-            event_values.update(
-                {
-                    "nuisance": self.nuisance,
-                }
-            )
 
         if self.case_user_task_id != "-1":
             # report not created with case create
